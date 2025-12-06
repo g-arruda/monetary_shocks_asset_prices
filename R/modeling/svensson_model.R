@@ -3,7 +3,7 @@
 #' This function implements the Svensson (1994) model to calculate spot interest rates.
 #' The model extends Nelson-Siegel by adding a fourth term to better fit complex yield curves.
 #'
-#' @param t Numeric. Time to maturity in years.
+#' @param t Numeric vector. Time to maturity in years.
 #' @param beta0 Numeric. Long-term interest rate level parameter.
 #' @param beta1 Numeric. Short-term component parameter.
 #' @param beta2 Numeric. Medium-term component parameter.
@@ -11,33 +11,38 @@
 #' @param tau1 Numeric. First decay parameter (must be positive).
 #' @param tau2 Numeric. Second decay parameter (must be positive).
 #'
-#' @return Numeric. The spot rate for the given maturity and parameters.
-#'
-#' @examples
-#' # Calculate 5-year spot rate
-#' rate <- svensson_rate(
-#'   t = 5, beta0 = 0.04, beta1 = -0.02,
-#'   beta2 = -0.01, beta3 = 0.005,
-#'   tau1 = 1.5, tau2 = 4
-#' )
-#'
-#' @references
-#' Svensson, L. E. (1994). Estimating and Interpreting Forward Interest Rates:
-#' Sweden 1992-1994. NBER Working Paper Series, No. 4871.
+#' @return Numeric vector. The spot rate for the given maturities.
 #'
 #' @export
 svensson_rate <- function(t, beta0, beta1, beta2, beta3, tau1, tau2) {
+  # Avoid division by zero for t=0 or very small tau
+  # Although t=0 implies rate = beta0 + beta1, formula yields 0/0.
+  # We handle t=0 separately if needed, but assuming t > 0 for yield curves typically.
+  
+  # Term 1: Level
   term1 <- beta0
-  term2 <- beta1 * ((1 - exp(-t / tau1)) / (t / tau1))
-  term3 <- beta2 * ((1 - exp(-t / tau1)) / (t / tau1) - exp(-t / tau1))
-  term4 <- beta3 * ((1 - exp(-t / tau2)) / (t / tau2) - exp(-t / tau2))
-
+  
+  # Pre-calculate exponentials for efficiency
+  # Use vectorized operations
+  exp_t_tau1 <- exp(-t / tau1)
+  exp_t_tau2 <- exp(-t / tau2)
+  
+  # Term 2: Slope
+  # Note: (1 - exp(-x))/x converges to 1 as x->0
+  # For numerical stability with t close to 0, one might use expm1
+  val_tau1 <- (1 - exp_t_tau1) / (t / tau1)
+  
+  term2 <- beta1 * val_tau1
+  
+  # Term 3: Curvature 1
+  term3 <- beta2 * (val_tau1 - exp_t_tau1)
+  
+  # Term 4: Curvature 2
+  val_tau2 <- (1 - exp_t_tau2) / (t / tau2)
+  term4 <- beta3 * (val_tau2 - exp_t_tau2)
+  
   return(term1 + term2 + term3 + term4)
 }
-
-
-
-
 
 #' Fit Svensson Model Parameters to Observed Rates
 #'
@@ -45,151 +50,156 @@ svensson_rate <- function(t, beta0, beta1, beta2, beta3, tau1, tau2) {
 #' Uses L-BFGS-B method to minimize the sum of squared errors between observed
 #' and predicted rates.
 #'
-#' @param maturities Numeric vector. Time to maturity in years for observed rates.
-#' @param rates Numeric vector. Observed interest rates corresponding to maturities.
+#' @param maturities Numeric vector. Time to maturity in years.
+#' @param rates Numeric vector. Observed interest rates.
 #'
-#' @return Numeric vector. Optimized parameters in the order:
-#'   \itemize{
-#'     \item beta0: Long-term level
-#'     \item beta1: Short-term component
-#'     \item beta2: Medium-term component
-#'     \item beta3: Second medium-term component
-#'     \item tau1: First decay parameter
-#'     \item tau2: Second decay parameter
-#'   }
-#'
-#' @details
-#' The function uses the L-BFGS-B optimization method with the following constraints:
-#' \itemize{
-#'   \item All beta parameters: [-0.5, 0.5]
-#'   \item Both tau parameters: [0, 10]
-#' }
-#' Initial values are set to 0.1 for betas and 1 for taus.
-#'
-#' @examples
-#' maturities <- c(0.5, 1, 2, 5, 10)
-#' rates <- c(0.02, 0.025, 0.03, 0.035, 0.04)
-#' params <- fit_svensson(maturities, rates)
+#' @return Numeric vector of parameters (beta0, beta1, beta2, beta3, tau1, tau2) 
+#'         or NA vector if estimation fails/insufficient data.
 #'
 #' @export
 fit_svensson <- function(maturities, rates) {
+  # Check for sufficient data points
+  # Svensson has 6 parameters, need at least 6 points for unique identification
+  # allowing 4 (as in original) leads to overfitting/non-uniqueness
+  if (length(maturities) < 6) {
+    warning("Insufficient data points for Svensson model (need >= 6). returning NA.")
+    return(rep(NA_real_, 6))
+  }
+  
+  # Sort by maturity ensuring head() is short-term and tail() is long-term
+  ord <- order(maturities)
+  maturities <- maturities[ord]
+  rates <- rates[ord]
+
   objective <- function(params) {
-    beta0 <- params[1]
-    beta1 <- params[2]
-    beta2 <- params[3]
-    beta3 <- params[4]
-    tau1 <- params[5]
-    tau2 <- params[6]
-
-    predicted <- sapply(maturities, function(t) {
-      svensson_rate(t, beta0, beta1, beta2, beta3, tau1, tau2)
-    })
-
+    # Extract parameters for clarity
+    b0 <- params[1]
+    b1 <- params[2]
+    b2 <- params[3]
+    b3 <- params[4]
+    t1 <- params[5]
+    t2 <- params[6]
+    
+    # Vectorized prediction
+    predicted <- svensson_rate(maturities, b0, b1, b2, b3, t1, t2)
+    
+    # Sum of Squared Errors
     sum((rates - predicted)^2)
   }
-
-  # Definindo limites para os parâmetros
-  lower <- c(-0.5, -0.5, -0.5, -0.5, 0, 0)
+  
+  # Bounds
+  # Tau must be strictly positive to avoid division by zero
+  # Betas constrained to [-0.5, 0.5] (assuming rates are decimals, e.g. 0.05)
+  lower <- c(-0.5, -0.5, -0.5, -0.5, 0.1, 0.1)
   upper <- c(0.5, 0.5, 0.5, 0.5, 10, 10)
-
-  # Otimização
-  result <- optim(
-    par = c(0.1, 0.1, 0.1, 0.1, 1, 1),
-    fn = objective,
-    method = "L-BFGS-B",
-    lower = lower,
-    upper = upper
+  
+  # Heuristic Initialization for better convergence
+  # Beta0: Long run level -> approx last rate
+  start_beta0 <- tail(rates, 1)
+  # Beta1: Approx spread (Short - Long)
+  start_beta1 <- head(rates, 1) - start_beta0
+  
+  # Initial values
+  start_par <- c(
+    start_beta0, # beta0
+    start_beta1, # beta1
+    0.0,         # beta2 (curvature starts at 0)
+    0.0,         # beta3
+    1.0,         # tau1
+    1.0          # tau2
   )
-
-  return(result$par)
+  
+  # Safety check ensures start_par is within bounds
+  start_par <- pmax(lower, pmin(start_par, upper))
+  
+  # Optimization with error handling
+  tryCatch({
+    result <- optim(
+      par = start_par,
+      fn = objective,
+      method = "L-BFGS-B",
+      lower = lower,
+      upper = upper,
+      control = list(maxit = 1000)
+    )
+    
+    if (result$convergence != 0) {
+      warning(paste("Optimization did not converge code:", result$convergence))
+    }
+    
+    return(result$par)
+  }, error = function(e) {
+    warning(paste("Optimization failed:", e$message))
+    return(rep(NA_real_, 6))
+  })
 }
-
-
 
 #' Generate Fixed Maturity Interest Rate Series Using Svensson Model
 #'
-#' Creates a time series of interest rates for fixed maturities by fitting
-#' the Svensson model to treasury bond data for each date.
+#' Creates a time series of interest rates by fitting the model day-by-day.
+#' Optimized for performance using dplyr.
 #'
-#' @param dados_tesouro Data frame. Treasury bond data with columns:
-#'   \itemize{
-#'     \item ref_date: Reference date
-#'     \item matur_date: Maturity date
-#'     \item yield_bid: Yield to maturity
-#'   }
+#' @param dados_tesouro Data frame with ref_date, matur_date, yield_bid
+#' @param target_maturities Numeric vector of maturities to calculate (default: 0.25, 1, 2, 3, 5)
 #'
-#' @return Data frame with columns:
-#'   \itemize{
-#'     \item data: Reference date
-#'     \item titulo_0_25ano: 3-month rate
-#'     \item titulo_1ano: 1-year rate
-#'     \item titulo_2ano: 2-year rate
-#'     \item titulo_3ano: 3-year rate
-#'     \item titulo_5ano: 5-year rate
-#'   }
-#'
-#' @details
-#' The function performs the following steps:
-#' 1. Calculates time to maturity in years for each bond
-#' 2. For each unique date with at least 4 observations:
-#'    - Fits the Svensson model to the observed yields
-#'    - Generates rates for standard maturities
-#' 3. Returns a data frame with fixed maturity rates
-#'
-#' @note
-#' Dates with fewer than 4 observations will have NA values for all maturities
-#' as there isn't enough data to fit the model reliably.
-#'
-#' @examples
-#' # Assuming dados_tesouro is a data frame with required columns
-#' fixed_rates <- generate_fixed_maturity_series(dados_tesouro)
+#' @importFrom dplyr mutate filter group_by summarize ungroup select across
+#' @importFrom purrr map map_dbl
+#' @importFrom tidyr unnest_wider
 #'
 #' @export
-generate_fixed_maturity_series <- function(dados_tesouro) {
-  # Preparar os dados
-  dados <- dados_tesouro |>
+generate_fixed_maturity_series <- function(dados_tesouro, 
+                                           target_maturities = c(0.25, 1, 2, 3, 5)) {
+  
+  # Compute maturity in years
+  dados_clean <- dados_tesouro |>
     dplyr::mutate(
       maturity = as.numeric(matur_date - ref_date) / 365,
       yield = yield_bid
     ) |>
     dplyr::filter(maturity > 0)
-
-  # Definir as maturidades desejadas (em anos)
-  maturities <- c(0.25, 1, 2, 3, 5) # 3 meses, 1 ano, 2 anos, 3 anos, 5 anos
-
-  # Criar data frame de resultado com as novas colunas
-  result_df <- data.frame(
-    data = unique(dados$ref_date)
-  )
-
-  # Adicionar colunas para cada maturidade
-  for (mat in maturities) {
-    colname <- paste0("titulo_", gsub("\\.", "_", as.character(mat)), "ano")
-    result_df[[colname]] <- NA_real_
-  }
-
-  # Para cada data única
-  for (current_date in unique(dados$ref_date)) {
-    # Filtrar dados para a data atual
-    current_data <- dados |>
-      dplyr::filter(ref_date == current_date)
-
-    # Se houver pelo menos 4 observações
-    if (nrow(current_data) >= 4) {
-      # Ajustar o modelo
-      params <- fit_svensson(current_data$maturity, current_data$yield)
-
-      # Calcular taxas para todas as maturidades
-      for (mat in maturities) {
-        colname <- paste0("titulo_", gsub("\\.", "_", as.character(mat)), "ano")
-        rate <- svensson_rate(
-          mat, params[1], params[2], params[3],
-          params[4], params[5], params[6]
-        )
-        result_df[result_df$data == current_date, colname] <- rate
-      }
+  
+  # Function to apply fit and predict for a single group/date
+  process_date <- function(mats, yields) {
+    params <- fit_svensson(mats, yields)
+    
+    if (any(is.na(params))) {
+      return(rep(NA_real_, length(target_maturities)))
     }
+    
+    svensson_rate(
+      target_maturities, 
+      params[1], params[2], params[3], params[4], params[5], params[6]
+    )
   }
-
-  return(result_df)
+  
+  # Group by date and process
+  # Using data.table would be faster for millions of rows, but dplyr is sufficient here
+  result_df <- dados_clean |>
+    dplyr::group_by(ref_date) |>
+    # Filter dates with enough data upfront to save processing
+    dplyr::filter(dplyr::n() >= 6) |>
+    dplyr::summarise(
+      rates = list(process_date(maturity, yield)),
+      .groups = "drop"
+    )
+  
+  # Expand the list column into separate columns
+  # Create column names
+  col_names <- paste0("titulo_", gsub("\\.", "_", as.character(target_maturities)), "ano")
+  
+  # Unpack the list column
+  result_expanded <- result_df |>
+    dplyr::mutate(
+      rates_matrix = do.call(rbind, rates)
+    )
+  
+  # Bind specific columns
+  # A bit manual to ensure clean data frame structure
+  final_df <- cbind(
+    result_expanded["ref_date"],
+    as.data.frame(result_expanded$rates_matrix)
+  )
+  colnames(final_df) <- c("data", col_names)
+  
+  return(final_df)
 }
