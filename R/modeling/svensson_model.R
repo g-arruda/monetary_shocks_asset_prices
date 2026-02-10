@@ -113,15 +113,22 @@ fit_svensson <- function(maturities, rates, return_diagnostics = FALSE) {
     # Vectorized prediction
     predicted <- svensson_rate(maturities, b0, b1, b2, b3, t1, t2)
     
-    # Sum of Squared Errors
-    sum((rates - predicted)^2)
+    # Sum of Squared Errors + penalty for tau1 ≈ tau2 (identification)
+    sse <- sum((rates - predicted)^2)
+    
+    # Soft penalty when tau1 and tau2 are too close (avoids degenerate solutions)
+    tau_penalty <- 0.001 * exp(-5 * abs(t1 - t2))
+    
+    sse + tau_penalty
   }
   
-  # Bounds
-  # Tau must be strictly positive to avoid division by zero
-  # Betas constrained to [-0.5, 0.5] (assuming rates are decimals, e.g. 0.05)
-  lower <- c(-0.5, -0.5, -0.5, -0.5, 0.1, 0.1)
-  upper <- c(0.5, 0.5, 0.5, 0.5, 10, 10)
+  # Dynamic bounds based on observed rate range
+  rate_range <- max(rates) - min(rates)
+  rate_max <- max(abs(rates))
+  beta_bound <- max(0.5, rate_max * 1.5)  # at least 0.5, or 1.5x the max rate
+  
+  lower <- c(-beta_bound, -beta_bound, -beta_bound, -beta_bound, 0.01, 0.01)
+  upper <- c( beta_bound,  beta_bound,  beta_bound,  beta_bound, 30, 30)
   
   # Heuristic Initialization for better convergence
   # Beta0: Long run level -> approx last rate
@@ -129,76 +136,56 @@ fit_svensson <- function(maturities, rates, return_diagnostics = FALSE) {
   # Beta1: Approx spread (Short - Long)
   start_beta1 <- head(rates, 1) - start_beta0
   
-  # Initial values
-  start_par <- c(
-    start_beta0, # beta0
-    start_beta1, # beta1
-    0.0,         # beta2 (curvature starts at 0)
-    0.0,         # beta3
-    1.0,         # tau1
-    1.0          # tau2
+  # Multi-start grid: different tau pairs to avoid tau1 ≈ tau2 trap
+  max_mat <- max(maturities)
+  tau_starts <- list(
+    c(0.5, 3.0),
+    c(1.0, 5.0),
+    c(0.3, 2.0),
+    c(0.5, 8.0),
+    c(2.0, 10.0),
+    c(0.1, 1.0)
   )
   
-  # Safety check ensures start_par is within bounds
-  start_par <- pmax(lower, pmin(start_par, upper))
+  best_result <- NULL
+  best_value <- Inf
   
-  # Optimization with error handling
-  tryCatch({
-    result <- optim(
-      par = start_par,
-      fn = objective,
-      method = "L-BFGS-B",
-      lower = lower,
-      upper = upper,
-      control = list(maxit = 1000)
+  for (tau_pair in tau_starts) {
+    start_par <- c(
+      start_beta0,   # beta0
+      start_beta1,   # beta1
+      0.0,           # beta2
+      0.0,           # beta3
+      tau_pair[1],   # tau1
+      tau_pair[2]    # tau2
     )
     
-    if (result$convergence != 0) {
-      warning(paste("Optimization did not converge code:", result$convergence))
-    }
-    
-    # If only parameters requested (backward compatible)
-    if (!return_diagnostics) {
-      return(result$par)
-    }
-    
-    # Calculate fitted values and diagnostics
-    fitted <- svensson_rate(
-      maturities, 
-      result$par[1], result$par[2], result$par[3], 
-      result$par[4], result$par[5], result$par[6]
-    )
-    
-    residuals <- rates - fitted
-    rmse <- sqrt(mean(residuals^2))
-    mae <- mean(abs(residuals))
-    
-    # R-squared
-    ss_res <- sum(residuals^2)
-    ss_tot <- sum((rates - mean(rates))^2)
-    r_squared <- 1 - (ss_res / ss_tot)
-    
-    # Yield curve characteristics
-    level <- result$par[1]  # beta0
-    slope <- result$par[2]  # beta1
-    curvature <- result$par[3] + result$par[4]  # beta2 + beta3
-    
-    return(list(
-      params = result$par,
-      fitted_values = fitted,
-      residuals = residuals,
-      rmse = rmse,
-      mae = mae,
-      r_squared = r_squared,
-      convergence = result$convergence,
-      iterations = result$counts[1],
-      slope = slope,
-      level = level,
-      curvature = curvature
-    ))
-    
-  }, error = function(e) {
-    warning(paste("Optimization failed:", e$message))
+    # Safety check ensures start_par is within bounds
+    start_par <- pmax(lower, pmin(start_par, upper))
+  
+    # Optimization with error handling
+    tryCatch({
+      result <- optim(
+        par = start_par,
+        fn = objective,
+        method = "L-BFGS-B",
+        lower = lower,
+        upper = upper,
+        control = list(maxit = 1000)
+      )
+      
+      if (result$value < best_value) {
+        best_value <- result$value
+        best_result <- result
+      }
+    }, error = function(e) {
+      # Skip this starting point if it fails
+    })
+  }  # end multi-start loop
+  
+  # If no starting point succeeded
+  if (is.null(best_result)) {
+    warning("All optimization starting points failed.")
     if (return_diagnostics) {
       return(list(
         params = rep(NA_real_, 6),
@@ -216,7 +203,53 @@ fit_svensson <- function(maturities, rates, return_diagnostics = FALSE) {
     } else {
       return(rep(NA_real_, 6))
     }
-  })
+  }
+  
+  result <- best_result
+  
+  if (result$convergence != 0) {
+    warning(paste("Optimization did not converge code:", result$convergence))
+  }
+  
+  # If only parameters requested (backward compatible)
+  if (!return_diagnostics) {
+    return(result$par)
+  }
+  
+  # Calculate fitted values and diagnostics
+  fitted <- svensson_rate(
+    maturities, 
+    result$par[1], result$par[2], result$par[3], 
+    result$par[4], result$par[5], result$par[6]
+  )
+  
+  residuals <- rates - fitted
+  rmse <- sqrt(mean(residuals^2))
+  mae <- mean(abs(residuals))
+  
+  # R-squared
+  ss_res <- sum(residuals^2)
+  ss_tot <- sum((rates - mean(rates))^2)
+  r_squared <- 1 - (ss_res / ss_tot)
+  
+  # Yield curve characteristics
+  level <- result$par[1]  # beta0
+  slope <- result$par[2]  # beta1
+  curvature <- result$par[3] + result$par[4]  # beta2 + beta3
+  
+  return(list(
+    params = result$par,
+    fitted_values = fitted,
+    residuals = residuals,
+    rmse = rmse,
+    mae = mae,
+    r_squared = r_squared,
+    convergence = result$convergence,
+    iterations = result$counts[1],
+    slope = slope,
+    level = level,
+    curvature = curvature
+  ))
 }
 
 #' Generate Fixed Maturity Interest Rate Series Using Svensson Model
@@ -247,13 +280,22 @@ generate_fixed_maturity_series <- function(dados_tesouro,
                                            target_maturities = c(0.25, 1, 2, 3, 5),
                                            include_diagnostics = FALSE) {
   
-  # Compute maturity in years
-  dados_clean <- dados_tesouro |>
-    dplyr::mutate(
-      maturity = as.numeric(matur_date - ref_date) / 365,
-      yield = yield_bid
-    ) |>
-    dplyr::filter(maturity > 0)
+  # Compute maturity in years (prefer pre-computed maturity_years if available)
+  if ("maturity_years" %in% names(dados_tesouro)) {
+    dados_clean <- dados_tesouro |>
+      dplyr::mutate(
+        maturity = maturity_years,
+        yield = yield_bid
+      ) |>
+      dplyr::filter(maturity > 0)
+  } else {
+    dados_clean <- dados_tesouro |>
+      dplyr::mutate(
+        maturity = as.numeric(matur_date - ref_date) / 365,
+        yield = yield_bid
+      ) |>
+      dplyr::filter(maturity > 0)
+  }
   
   # Function to apply fit and predict for a single group/date
   process_date <- function(mats, yields) {

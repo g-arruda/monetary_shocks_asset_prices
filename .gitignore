@@ -3,6 +3,9 @@
 .RData
 .Ruserdata
 
+# VS Code
+.vscode/
+
 # Data files
 data/
 

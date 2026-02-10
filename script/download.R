@@ -6,7 +6,7 @@ source("R/modeling/svensson_model.R")
 
 # Taxa de cambio ----
 
-moedas <- c("USD", "EUR", "GBP", "ARS", "JPY", "CNY", "RUB")
+moedas <- c("USD", "EUR", "GBP", "ARS", "JPY")
 
 # problema na cotação do rublo(RUB) e yuan(CNY)
 cambio <- download_cambio(moedas) |> dplyr::rename(ref.date = date)
@@ -15,9 +15,9 @@ cambio <- download_cambio(moedas) |> dplyr::rename(ref.date = date)
 
 # Dados do tesouro direto ----
 
-# treasure <- GetTDData::td_get("LTN", 2010, 2020)
+treasure <- GetTDData::td_get("LTN", 2010, 2020)
 
-# dplyr::glimpse(treasure)
+dplyr::glimpse(treasure)
 
 
 # Dados do Banco Central do Brasil ----
