@@ -5,8 +5,15 @@ source("R/preprocessing/stationarity.R")
 
 
 # loading data ----
-raw_data <- readr::read_csv("data/raw/raw_data.csv")
+raw_data <- readr::read_csv("data/raw_data.csv") |> dplyr::filter(ref.date >= "2013-01-01" & ref.date <= "2025-09-01")
 
+raw_data <- raw_data |>
+  dplyr::mutate(
+    dplyr::across(
+      -ref.date,
+      ~ zoo::na.approx(.x, method = "linear")
+    )
+  )
 
 
 # Apply log transformation in nominal variables ----
@@ -72,5 +79,5 @@ unity_root_test <- adf_test(data)
 final_data <- remove_unit_root(data, max_diff = 5)
 
 # Save processed data
-readr::write_csv(final_data$data, "data/processed/final_data.csv")
-readr::write_csv(data, "data/processed/data_log_deseasonalized.csv")
+# readr::write_csv(final_data$data, "data/processed/final_data.csv")
+# readr::write_csv(data, "data/processed/data_log_deseasonalized.csv")

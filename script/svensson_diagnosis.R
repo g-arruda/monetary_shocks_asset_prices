@@ -4,6 +4,7 @@ library(dplyr)
 library(readr)
 library(ggplot2)
 library(tidyr)
+library(stringr)
 
 source("R/modeling/svensson_model.R")
 
@@ -13,10 +14,17 @@ source("R/modeling/svensson_model.R")
 
 di_data <- read_csv("data/di.csv", show_col_types = FALSE)
 
+# Contratos líquidos (vencimentos mensais padrão)
+# Formato antigo: DIIJAN20, DIIFEV20, etc. (meses por extenso)
 meses_liquidos_antigo <- c("JAN", "FEV", "MAR", "ABR", "MAI", "JUN",
                            "JUL", "AGO", "SET", "OUT", "NOV", "DEZ")
-meses_liquidos_novo   <- c("F", "G", "H", "J", "K", "M",
-                           "N", "Q", "U", "V", "X", "Z")
+# Formato novo: DI1F25, DI1G25, etc. (código letra do mês)
+meses_liquidos_novo <- c("F", "G", "H", "J", "K", "M", 
+                         "N", "Q", "U", "V", "X", "Z")
+
+# Construir patterns regex dinamicamente
+pattern_antigo <- paste0("^DI1(", paste(meses_liquidos_antigo, collapse = "|"), ")\\d{2}$")
+pattern_novo <- paste0("^DI1[", paste(meses_liquidos_novo, collapse = ""), "]\\d{2}$")
 
 dados_preparados <- di_data %>%
   mutate(
@@ -24,16 +32,11 @@ dados_preparados <- di_data %>%
     matur_date = as.Date(ExpirationDate),
     maturity_years = BDaysToExp / 252,
     yield_bid = SettlementRate,
-    ticker_suffix = substr(TickerSymbol, 4, nchar(TickerSymbol)),
-    is_old_format = nchar(ticker_suffix) == 4,
-    ticker_month = ifelse(is_old_format,
-                          substr(ticker_suffix, 1, 3),
-                          substr(ticker_suffix, 1, 1)),
     year = as.integer(format(ref_date, "%Y"))
   ) %>%
   filter(
-    (is_old_format & ticker_month %in% meses_liquidos_antigo) |
-      (!is_old_format & ticker_month %in% meses_liquidos_novo),
+    # Seleciona apenas contratos líquidos (vencimentos mensais padrão)
+    str_detect(TickerSymbol, pattern_antigo) | str_detect(TickerSymbol, pattern_novo),
     !is.na(yield_bid),
     !is.na(maturity_years),
     maturity_years > 0,
@@ -50,6 +53,10 @@ dados_preparados <- di_data %>%
 
 cat("Preparando dados por data...\n")
 
+# Definir vértices de interesse (maturidades em anos)
+vertices <- c(0.25, 0.5, 1, 2, 3, 5, 7, 10)
+cat(sprintf("Vértices analisados: %s anos\n", paste(vertices, collapse=", ")))
+
 datas_validas <- dados_preparados %>%
   group_by(ref_date) %>%
   summarise(n_obs = n(), .groups = "drop") %>%
@@ -60,6 +67,7 @@ cat("Ajustando Svensson para cada data... (pode levar alguns minutos)\n\n")
 
 # Fit para cada data
 resultados <- vector("list", nrow(datas_validas))
+resultados_vertices <- vector("list", nrow(datas_validas))
 
 pb <- txtProgressBar(min = 0, max = nrow(datas_validas), style = 3)
 
@@ -107,12 +115,52 @@ for (i in seq_len(nrow(datas_validas))) {
     curvature    = fit$curvature
   )
   
+  # Diagnóstico por vértice
+  max_mat_disponivel <- max(dados_d$maturity_years)
+  vertices_disponiveis <- vertices[vertices <= max_mat_disponivel]
+  
+  if (length(vertices_disponiveis) > 0 && fit$convergence == 0) {
+    # Taxas ajustadas pelo modelo nos vértices
+    fitted_vertices <- svensson_rate(
+      vertices_disponiveis,
+      fit$params[1], fit$params[2], fit$params[3],
+      fit$params[4], fit$params[5], fit$params[6]
+    )
+    
+    # Para cada vértice, encontrar a taxa observada mais próxima
+    obs_vertices <- sapply(vertices_disponiveis, function(v) {
+      idx <- which.min(abs(dados_d$maturity_years - v))
+      if (length(idx) > 0 && abs(dados_d$maturity_years[idx] - v) < 0.2) {
+        # Só aceitar se a diferença for < 0.2 anos (~2.5 meses)
+        dados_d$yield_bid[idx]
+      } else {
+        NA_real_
+      }
+    })
+    
+    # Calcular erros
+    erros_vertices <- obs_vertices - fitted_vertices
+    
+    resultados_vertices[[i]] <- tibble(
+      ref_date = d,
+      vertice = vertices_disponiveis,
+      obs_rate = obs_vertices,
+      fitted_rate = fitted_vertices,
+      erro = erros_vertices,
+      erro_abs = abs(erros_vertices),
+      erro_bps = erros_vertices * 10000
+    )
+  } else {
+    resultados_vertices[[i]] <- NULL
+  }
+  
   setTxtProgressBar(pb, i)
 }
 
 close(pb)
 
 diagnostics <- bind_rows(resultados)
+diagnostics_vertices <- bind_rows(resultados_vertices)
 
 # =============================================================================
 # 3. RELATÓRIO DE DIAGNÓSTICO
@@ -207,6 +255,32 @@ por_ano <- diagnostics %>%
 
 print(as.data.frame(por_ano), row.names = FALSE)
 
+# --- Diagnóstico por vértice ---
+cat(sprintf("\n=== DIAGNÓSTICO POR VÉRTICE ===\n"))
+cat("Erro médio (em basis points) para cada maturidade:\n\n")
+
+diag_por_vertice <- diagnostics_vertices %>%
+  filter(!is.na(erro)) %>%
+  group_by(vertice) %>%
+  summarise(
+    n_obs = n(),
+    mae_bps = round(mean(abs(erro_bps), na.rm = TRUE), 2),
+    rmse_bps = round(sqrt(mean(erro_bps^2, na.rm = TRUE)), 2),
+    mediana_erro_bps = round(median(erro_bps, na.rm = TRUE), 2),
+    p5_erro_bps = round(quantile(erro_bps, 0.05, na.rm = TRUE), 2),
+    p95_erro_bps = round(quantile(erro_bps, 0.95, na.rm = TRUE), 2),
+    max_erro_bps = round(max(abs(erro_bps), na.rm = TRUE), 2),
+    .groups = "drop"
+  ) %>%
+  arrange(vertice)
+
+print(as.data.frame(diag_por_vertice), row.names = FALSE)
+
+cat("\nInterpretação:\n")
+cat("  - Vértices curtos (< 1 ano): erros tendem a ser maiores devido à alta convexidade\n")
+cat("  - Vértices médios (1-5 anos): região mais líquida, menores erros esperados\n")
+cat("  - Vértices longos (> 5 anos): menor liquidez pode aumentar erros\n")
+
 
 # =============================================================================
 # 4. GRÁFICOS DE DIAGNÓSTICO
@@ -295,7 +369,74 @@ p_params <- ggplot(params_long, aes(x = ref_date, y = value)) +
 
 ggsave("data/curva_juros/diag_params.png", p_params, width = 12, height = 8, dpi = 150)
 
-# --- 4.6 Datas com pior ajuste ---
+# --- 4.6 Erro por vértice ao longo do tempo ---
+if (nrow(diagnostics_vertices) > 0) {
+  p_erro_vertices <- diagnostics_vertices %>%
+    filter(!is.na(erro)) %>%
+    mutate(vertice_label = paste0(vertice, "y")) %>%
+    ggplot(aes(x = ref_date, y = erro_bps, color = factor(vertice))) +
+    geom_hline(yintercept = 0, linetype = "solid", color = "gray30", linewidth = 0.3) +
+    geom_point(alpha = 0.15, size = 0.5) +
+    geom_smooth(method = "loess", span = 0.15, se = FALSE, linewidth = 0.8) +
+    facet_wrap(~vertice_label, ncol = 4, scales = "free_y") +
+    labs(
+      title = "Erro do Modelo por Vértice ao Longo do Tempo",
+      subtitle = "Erro = Taxa Observada - Taxa Ajustada (em basis points)",
+      x = "Data", y = "Erro (bps)"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(face = "bold"),
+      legend.position = "none",
+      strip.text = element_text(face = "bold")
+    )
+  
+  ggsave("data/curva_juros/diag_erro_vertices_temporal.png", p_erro_vertices, 
+         width = 14, height = 8, dpi = 150)
+  
+  # --- 4.7 Distribuição de erros por vértice ---
+  p_erro_dist <- diagnostics_vertices %>%
+    filter(!is.na(erro)) %>%
+    mutate(vertice_label = paste0(vertice, "y")) %>%
+    ggplot(aes(x = erro_bps, fill = factor(vertice))) +
+    geom_histogram(bins = 50, alpha = 0.7, color = "white") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "red", linewidth = 0.5) +
+    facet_wrap(~vertice_label, ncol = 4, scales = "free") +
+    labs(
+      title = "Distribuição dos Erros por Vértice",
+      x = "Erro (basis points)", y = "Frequência"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(face = "bold"),
+      legend.position = "none",
+      strip.text = element_text(face = "bold")
+    )
+  
+  ggsave("data/curva_juros/diag_erro_vertices_dist.png", p_erro_dist, 
+         width = 14, height = 8, dpi = 150)
+  
+  # --- 4.8 RMSE por vértice (boxplot) ---
+  p_rmse_vertices <- diagnostics_vertices %>%
+    filter(!is.na(erro)) %>%
+    mutate(vertice_label = paste0(vertice, "y")) %>%
+    ggplot(aes(x = factor(vertice), y = abs(erro_bps))) +
+    geom_boxplot(fill = "steelblue", alpha = 0.6, outlier.alpha = 0.2, outlier.size = 0.5) +
+    geom_hline(yintercept = 10, linetype = "dashed", color = "red", alpha = 0.6) +
+    annotate("text", x = 1, y = 11, label = "10 bps", color = "red", size = 3) +
+    labs(
+      title = "Distribuição do Erro Absoluto por Vértice",
+      subtitle = "Comparação da precisão em diferentes maturidades",
+      x = "Maturidade (anos)", y = "|Erro| (basis points)"
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"))
+  
+  ggsave("data/curva_juros/diag_rmse_por_vertice.png", p_rmse_vertices, 
+         width = 10, height = 6, dpi = 150)
+}
+
+# --- 4.9 Datas com pior ajuste ---
 cat("\n=== TOP 10 PIORES AJUSTES ===\n")
 worst <- diagnostics %>%
   arrange(desc(rmse)) %>%
@@ -380,6 +521,31 @@ cat("\n  Benchmark literatura:\n")
 cat("    - Diebold-Li (2006): R² ~ 0.96-0.99 para US Treasuries\n")
 cat("    - Svensson (1994): RMSE < 5 bps para Swedish gov bonds\n")
 cat("    - Anbima/BCB: RMSE < 10 bps para DI futuro (aceitável)\n")
+
+if (nrow(diagnostics_vertices) > 0) {
+  cat("\n=== AVALIAÇÃO POR VÉRTICE ===\n")
+  vertices_problematicos <- diag_por_vertice %>%
+    filter(rmse_bps > 15 | mae_bps > 12)
+  
+  if (nrow(vertices_problematicos) > 0) {
+    cat("\n  Vértices com ajuste subótimo (RMSE > 15 bps ou MAE > 12 bps):\n")
+    print(as.data.frame(vertices_problematicos %>% select(vertice, rmse_bps, mae_bps)), 
+          row.names = FALSE)
+    cat("\n  Recomendação: Examinar liquidez e dados nesses vértices.\n")
+  } else {
+    cat("\n  Todos os vértices apresentam ajuste aceitável (RMSE < 15 bps).\n")
+  }
+  
+  # Identificar vértice com melhor e pior ajuste
+  melhor_vertice <- diag_por_vertice %>% filter(rmse_bps == min(rmse_bps)) %>% pull(vertice)
+  pior_vertice <- diag_por_vertice %>% filter(rmse_bps == max(rmse_bps)) %>% pull(vertice)
+  
+  cat(sprintf("\n  Melhor ajuste: vértice %.2f anos (RMSE: %.2f bps)\n", 
+      melhor_vertice, min(diag_por_vertice$rmse_bps)))
+  cat(sprintf("  Pior ajuste: vértice %.2f anos (RMSE: %.2f bps)\n", 
+      pior_vertice, max(diag_por_vertice$rmse_bps)))
+}
+
 cat("==============================================================\n")
 
 cat("\nGráficos salvos em data/curva_juros/diag_*.png\n")

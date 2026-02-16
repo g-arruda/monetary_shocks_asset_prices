@@ -21,9 +21,9 @@
 #'
 #' # Download multiple series in parallel
 #' series <- download_bcb_data(c(433, 189), parallel = TRUE)
-download_bcb_data <- function(id, start_date = "2000-01-01", end_date = "2024-12-01", parallel = FALSE) {
+download_bcb_data <- function(id, start_date = "2000-01-01", end_date = "2026-01-01", parallel = FALSE) {
     if (parallel) {
-        future::plan(future::multisession, workers = floor(future::availableCores() / 2))
+        future::plan(future::multisession, workers = floor(parallelly::availableCores() / 2))
     }
 
     df <- GetBCBData::gbcbd_get_series(
@@ -32,6 +32,7 @@ download_bcb_data <- function(id, start_date = "2000-01-01", end_date = "2024-12
         last.date = end_date,
         format.data = "wide",
         do.parallel = parallel,
+        use.memoise = TRUE,
         cache.path = tempdir()
     )
 

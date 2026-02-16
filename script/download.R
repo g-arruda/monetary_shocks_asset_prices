@@ -6,19 +6,12 @@ source("R/modeling/svensson_model.R")
 
 # Taxa de cambio ----
 
-moedas <- c("USD", "EUR", "GBP", "ARS", "JPY")
+moedas <- c("BRL", "EUR", "CNY", "ARS", "INR")
 
-# problema na cotação do rublo(RUB) e yuan(CNY)
-cambio <- download_cambio(moedas) |> dplyr::rename(ref.date = date)
+cambio <- download_cambio(moedas, end_date = "2026-02-01") |> dplyr::rename(ref.date = date)
 
-
-
-# Dados do tesouro direto ----
-
-treasure <- GetTDData::td_get("LTN", 2010, 2020)
-
-dplyr::glimpse(treasure)
-
+dplyr::glimpse(cambio)
+tail(cambio)
 
 # Dados do Banco Central do Brasil ----
 
@@ -34,6 +27,10 @@ juros <- download_bcb_data(vec_juros, parallel = TRUE) |>
   dplyr::rename_with(~ paste0("juros_", .), -ref.date)
 
 
+dplyr::glimpse(juros)
+tail(juros)
+
+
 ## Dados de crédito ----
 vec_credito <- c(
   "credito_agro" = 22027,
@@ -47,8 +44,10 @@ vec_credito <- c(
   "spread_icc_fisica" = 27445
 )
 
-credito <- download_bcb_data(vec_credito, parallel = TRUE)
+credito <- download_bcb_data(vec_credito, start_date = "2010-01-01", parallel = TRUE)
 
+dplyr::glimpse(credito)
+tail(credito)
 
 ## Dados sobre atividade economica ----
 
@@ -78,10 +77,13 @@ vec_ativ_economica <- c(
 )
 
 
-ativ_economica <- download_bcb_data(vec_ativ_economica, parallel = TRUE)
+ativ_economica <- download_bcb_data(
+  vec_ativ_economica,
+  start_date = "2010-01-01",
+  parallel = TRUE)
 
-
-
+dplyr::glimpse(ativ_economica)
+tail(ativ_economica)
 
 ## Dados sobre emprego ----
 
@@ -94,16 +96,16 @@ vec_emprego <- c(
 )
 
 
-emprego <- download_bcb_data(vec_emprego, parallel = TRUE) |>
+emprego <- download_bcb_data(vec_emprego, start_date = "2012-01-01", parallel = TRUE) |>
   dplyr::mutate(
     razao_vagas_desempregados = caged / ((tx_desemprego / 100) * (pop_forca_trab * 1000))
   ) |>
   tidyr::drop_na() |>
   dplyr::rename_with(~ paste0("trab_", .), -ref.date)
+ 
 
-
-
-
+dplyr::glimpse(emprego)
+tail(emprego)
 
 ## Dados sobre inflacao ----
 
@@ -126,7 +128,8 @@ inflacao <- download_bcb_data(vec_inflacao, parallel = TRUE) |>
   dplyr::rename_with(~ paste0("price_", .), -ref.date)
 
 
-
+dplyr::glimpse(inflacao)
+tail(inflacao)
 
 ## Dados sobre commodities ----
 
@@ -138,6 +141,8 @@ vec_commodity <- c(
 
 commodity <- download_bcb_data(vec_commodity, parallel = TRUE)
 
+dplyr::glimpse(commodity)
+tail(commodity)
 
 
 # Dados trimestrais ----
@@ -199,36 +204,47 @@ resultado_mensal <- colunas_interpoladas |>
   dplyr::rename_with(~ paste0("trab_", .), -ref.date)
 
 
-
-
+dplyr::glimpse(resultado_mensal)
+tail(resultado_mensal)
 
 # Dados da B3 ----
 
-path_b3_csv <- list.files(
-  path = "data/raw/indexes/",
-  pattern = "*.csv",
-  full.names = TRUE
+# Definir a pasta de cache
+options(rb3.cachedir = "~/rb3-cache")
+
+# Define os índices da B3 (CORRETOS)
+indices_b3 <- c("IBOV", "SMLL", "IDIV", "IFIX", "IFNC", "IMAT", "IMOB", "MLCX")
+
+
+library(rb3)
+# Baixar dados históricos dos índices
+rb3::fetch_marketdata(
+  "b3-indexes-historical-data",
+  index = indices_b3,
+  year = 2010:2026,
+  throttle = TRUE
 )
 
-indices <- path_b3_csv |>
-  purrr::map(~ readr::read_csv(
-    .x,
-    locale = readr::locale(decimal_mark = ",", grouping_mark = "."),
-    show_col_types = FALSE
-  )) |>
+# Baixar e processar dados de todos os índices
+indices <- indices_b3 |>
   purrr::set_names(
     c(
-      "asset_ibrx100", "asset_imat", "asset_indx", "asset_ifnc",
-      "asset_ifix", "asset_imob", "asset_MLCX", "asset_smll"
+      "asset_ibov", "asset_smll", "asset_idiv", "asset_ifix",
+      "asset_ifnc", "asset_imat", "asset_imob", "asset_mlcx"
     )
   ) |>
-  purrr::map(~ .x |>
-    janitor::clean_names() |>
-    dplyr::select(ref.date = data, ultimo)) |>
-  purrr::map(~ .x |>
-    dplyr::mutate(ref.date = lubridate::dmy(ref.date))) |>
-  purrr::imap(~ .x |>
-    dplyr::rename(!!.y := ultimo)) |>
+  purrr::imap(~ {
+    rb3::indexes_historical_data_get() |>
+      dplyr::filter(
+        symbol == .x,
+        refdate >= "2010-01-01",
+        refdate <= "2026-01-01"
+      ) |>
+      dplyr::collect() |>
+      janitor::clean_names() |>
+      dplyr::select(ref.date = refdate, ultimo = value) |>
+      dplyr::rename(!!.y := ultimo)
+  }) |>
   purrr::reduce(dplyr::left_join, by = "ref.date") |>
   tidyr::pivot_longer(
     cols = -ref.date,
@@ -242,54 +258,63 @@ indices <- path_b3_csv |>
   ) |>
   dplyr::ungroup() |>
   dplyr::select(-price) |>
+  dplyr::mutate(
+    ref.date = lubridate::floor_date(ref.date, "month")
+  ) |>
+  dplyr::group_by(asset, ref.date) |>
+  dplyr::summarise(
+    return = prod(1 + return, na.rm = TRUE) - 1,
+    .groups = "drop"
+  ) |>
   tidyr::pivot_wider(names_from = asset, values_from = return) |>
   tidyr::drop_na()
 
 
 
+dplyr::glimpse(indices)
+tail(indices)
+
+
 # Série dos titulos de maturidade Fixa ----
 
-# Definir o título de interesse
-titulos <- c("LTN")
+# curva de juros ----
+yield_curve <- readr::read_csv("data/curva_juros/series_maturidades_fixas.csv") |>
+  janitor::clean_names() |> 
+  dplyr::select(data, dplyr::starts_with("titulo"))
 
-# Baixar os dados dos títulos
-dados_tesouro <- GetTDData::td_get(titulos) |> suppressMessages()
 
 
-# Aplicar o modelo aos dados
-fixed_maturity <- generate_fixed_maturity_series(dados_tesouro)
+# ida <- readr::read_csv("data/raw/mp_index/IDADI-HISTORICO - Historico.csv") |>
+#   janitor::clean_names() |>
+#   dplyr::select(ref.date = data_de_referencia, ida = variacao_diaria_percent) |>
+#   dplyr::mutate(ref.date = lubridate::dmy(ref.date))
 
-ida <- readr::read_csv("data/raw/mp_index/IDADI-HISTORICO - Historico.csv") |>
-  janitor::clean_names() |>
-  dplyr::select(ref.date = data_de_referencia, ida = variacao_diaria_percent) |>
-  dplyr::mutate(ref.date = lubridate::dmy(ref.date))
-
-ida_mensal <- ida |>
-  # Criar colunas de ano e mês para agrupamento
-  dplyr::mutate(
-    ref.date = lubridate::floor_date(ref.date, "month")
-  ) |>
-  # Agrupar por mês
-  dplyr::group_by(ref.date) |>
-  # Calcular retorno mensal
-  dplyr::summarise(
-    retorno_mensal = (prod(1 + ida / 100) - 1)
-  ) |>
-  # Ordenar por data
-  dplyr::arrange(ref.date)
+# ida_mensal <- ida |>
+#   # Criar colunas de ano e mês para agrupamento
+#   dplyr::mutate(
+#     ref.date = lubridate::floor_date(ref.date, "month")
+#   ) |>
+#   # Agrupar por mês
+#   dplyr::group_by(ref.date) |>
+#   # Calcular retorno mensal
+#   dplyr::summarise(
+#     retorno_mensal = (prod(1 + ida / 100) - 1)
+#   ) |>
+#   # Ordenar por data
+#   dplyr::arrange(ref.date)
 
 
 
 
-monthly_fixed_maturity_yield <- fixed_maturity |>
-  dplyr::group_by(mes = lubridate::floor_date(data, "month")) |>
+monthly_yield_curve <- yield_curve |>
+  dplyr::group_by(ref.date = lubridate::floor_date(data, "month")) |>
   dplyr::slice_tail(n = 1) |>
   dplyr::ungroup() |>
-  dplyr::select(-data) |>
-  dplyr::rename(ref.date = mes) |>
-  dplyr::left_join(ida_mensal, by = "ref.date")
+  dplyr::select(-data)
+  # dplyr::left_join(ida_mensal, by = "ref.date")
 
-
+dplyr::glimpse(monthly_yield_curve)
+tail(monthly_yield_curve) |> t()
 
 # Juntando tudo em apenas um df ----
 
@@ -303,16 +328,35 @@ all_dfs <- list(
   commodity = commodity,
   tempo_procura = resultado_mensal,
   indices = indices,
-  fixed_maturity_yield = monthly_fixed_maturity_yield
+  fixed_maturity_yield = monthly_yield_curve
 )
+
+dplyr::glimpse(all_dfs)
 
 merged_df <- all_dfs |>
   purrr::reduce(dplyr::left_join, by = "ref.date") |>
-  dplyr::arrange(ref.date) |>
-  tidyr::drop_na()
+  dplyr::arrange(ref.date)
+
 
 nrow(merged_df)
 ncol(merged_df)
 
-# dados vão até jan/2024 por causa do cdb_rdb
-# readr::write_csv(merged_df, "data/raw/raw_data.csv")
+# readr::write_csv(merged_df, "data/raw_data.csv")
+
+
+
+
+
+
+
+####################################################################
+####################################################################
+####################################################################
+####################################################################
+####################################################################
+####################################################################
+
+
+
+
+

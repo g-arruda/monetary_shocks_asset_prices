@@ -291,7 +291,7 @@ generate_fixed_maturity_series <- function(dados_tesouro,
   } else {
     dados_clean <- dados_tesouro |>
       dplyr::mutate(
-        maturity = as.numeric(matur_date - ref_date) / 365,
+        maturity = as.numeric(matur_date - ref_date) / 252,
         yield = yield_bid
       ) |>
       dplyr::filter(maturity > 0)
