@@ -16,17 +16,17 @@ X <- readr::read_csv("data/processed/data_log_deseasonalized.csv") |>
     dplyr::select(-ref.date) |>
     tidyr::drop_na()
 
-# Aplicar bai_ng_criteria
-results_bai_ng <- bai_ng_criteria(X, max_r = 20)
+# # Aplicar bai_ng_criteria
+# results_bai_ng <- bai_ng_criteria(X, max_r = 20)
 
-# Visualizar o número ótimo de fatores para cada critério
-print(results_bai_ng$r_hat)
+# # Visualizar o número ótimo de fatores para cada critério
+# print(results_bai_ng$r_hat)
 
-# Aplicar amengual_watson com 3 fatores estáticos
-results_amengual_watson <- amengual_watson(X, r = 10, p = 3)
+# # Aplicar amengual_watson com 3 fatores estáticos
+# results_amengual_watson <- amengual_watson(X, r = 10, p = 3)
 
-# Visualizar o número estimado de fatores dinâmicos
-print(results_amengual_watson$q_hat)
+# # Visualizar o número estimado de fatores dinâmicos
+# print(results_amengual_watson$q_hat)
 
 
 
@@ -49,14 +49,14 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
       dplyr::contains("commodity_"),
       dplyr::contains("juros_"),
       dplyr::contains("titulo_"),
-      retorno_mensal,
+      # retorno_mensal,
       dplyr::contains("spread_"),
       dplyr::contains("credito_"),
       dplyr::contains("asset_")
     ) |>
     as.matrix()
 
-  colnames(data)[colnames(data) == "retorno_mensal"] <- "ida"
+  # colnames(data)[colnames(data) == "retorno_mensal"] <- "ida"
   
   # Estimate SDFM
   dfm_results <- estimate_dfm(data, r, q, p)
@@ -83,19 +83,22 @@ set.seed(123)
 # Execute main analysis
 sdfm_results <- main_sdfm()
 
+# data.frame(
+#   coluna = colnames(sdfm_results$data)
+# )
 
 # Generate IRF plots for key economic variables
 response_vars <- list(
-  c("USD/BRL" = 39),
-  c("Spread-J" = 55),
-  c("Spread-F" = 56), 
+  c("USD/BRL" = 43),
+  c("Spread-J" = 58),
+  c("Spread-F" = 59), 
   c("IPCA" = 33),
   c("IPP" = 38),
-  c("IBRx-100" = 64),
-  c("IMob" = 68),
-  c("IDA" = 54),
-  c("Yield - 1A" = 50),
-  c("Yield - 5A" = 53)
+  c("IBRx-100" = 66),
+  c("IMob" = 71),
+  # c("IDA" = 54),
+  c("Yield - 1A" = 51),
+  c("Yield - 10A" = 57)
 )
 
 # IRF plots - escolha entre cumulative = TRUE ou FALSE
