@@ -75,3 +75,4 @@ monthly_shocks <- tibble(month = months_seq) %>%
     mutate(shock = replace_na(shock, 0)) # Zeros conforme pág. 1094 [cite: 708]
 
 
+# readr::write_csv(monthly_shocks, "data/processed/instrument.csv")
