@@ -927,15 +927,66 @@ estimate_dynamic_factors <- function(var_residuals, q, r) {
 
 
 
-estimate_dfm <- function(data, r, q, p) {
+estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL) {
   # ===================================================================
   # ESTIMAÇÃO COMPLETA DO MODELO DE FATORES DINÂMICOS ESTRUTURAIS (SDFM)
   # Implementação baseada em Alessi & Kerssenfischer com metodologia BLL
-  # ===================================================================
-  
+  #
 
+  # @param data      Matriz T x N de dados (sem coluna de datas)
+  # @param r         Número de fatores estáticos
+  # @param q         Número de fatores dinâmicos
+  # @param p         Ordem do VAR
+  # @param dates     Vetor de datas (Date) com T elementos, correspondendo às linhas de data.
+  #                  Usado para alinhar temporalmente dados e instrumento.
+
+  # @param instrument Data.frame com colunas 'month' (Date) e 'shock' (numeric).
+  #                   Se fornecido junto com dates, o alinhamento temporal é feito
+  #                   automaticamente via inner join por data.
+  # ===================================================================
+
+  T_orig <- nrow(data)
+
+  # --- Validação e alinhamento temporal via datas ---
+  if (!is.null(dates)) {
+    dates <- as.Date(dates)
+    if (length(dates) != T_orig) {
+      stop("Vetor de dates (", length(dates), ") deve ter o mesmo comprimento ",
+           "que nrow(data) (", T_orig, ")")
+    }
+  }
+
+  if (!is.null(instrument)) {
+    if (!is.data.frame(instrument) || !all(c("month", "shock") %in% names(instrument))) {
+      stop("instrument deve ser um data.frame com colunas 'month' e 'shock'")
+    }
+    instrument$month <- as.Date(instrument$month)
+
+    if (!is.null(dates)) {
+      n_inst_orig <- nrow(instrument)
+
+      # Inner join: manter apenas datas comuns entre dados e instrumento
+      common_dates <- as.Date(intersect(as.character(dates), as.character(instrument$month)))
+      if (length(common_dates) == 0) {
+        stop("Nenhuma data em comum entre dados e instrumento")
+      }
+
+      # Filtrar dados para datas comuns
+      data_idx <- dates %in% common_dates
+      data <- data[data_idx, , drop = FALSE]
+      dates <- dates[data_idx]
+
+      # Filtrar e ordenar instrumento para datas comuns
+      instrument <- instrument[instrument$month %in% common_dates, ]
+      instrument <- instrument[order(instrument$month), ]
+
+      message(sprintf("Alinhamento temporal: %d datas em comum (de %d dados e %d instrumento)",
+                      length(common_dates), T_orig, n_inst_orig))
+    }
+  }
+
+  # --- Estimação ---
   static_result <- estimate_static_factors(data, r)
-  
 
   var_result <- estimate_corrected_var(static_result$factors, p)
 
@@ -977,6 +1028,10 @@ estimate_dfm <- function(data, r, q, p) {
     p = p,  # Ordem do VAR
     r = r,  # Número de fatores estáticos
     q = q,  # Número de fatores dinâmicos
+
+    # Datas e instrumento (para alinhamento temporal no IRF)
+    dates = dates,                # Vetor de datas alinhadas (T observações)
+    instrument = instrument,      # Data.frame do instrumento (já filtrado)
 
     # Diagnósticos consolidados
     diagnostics = list(

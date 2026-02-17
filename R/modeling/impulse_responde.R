@@ -1,254 +1,342 @@
-compute_irf_dfm <- function(dfm_results, h = 24, nboot = 300, bootstrap_seed = NULL) {
-  # ===================================================================
-  # CÁLCULO DE FUNÇÕES DE IMPULSO-RESPOSTA (IRF) PARA MODELO DFM
-  # COM WILD BOOTSTRAP SEGUINDO GERTLER & KARADI (2015)
-  # ===================================================================
-  
-  # Set seed for reproducibility - CRITICAL FIX
-  if (!is.null(bootstrap_seed)) {
-    set.seed(bootstrap_seed)
-  }
-  
-  # Extract components
-  Lambda <- dfm_results$static_loadings
-  A <- dfm_results$companion_matrix
-  K <- dfm_results$dynamic_loadings
-  M <- dfm_results$dynamic_scaling
-  sy <- dfm_results$data_sd
-  p <- dfm_results$p  # Get VAR order from DFM results
-  SIGMA <- dfm_results$var_covariance # Covariance matrix of VAR residuals
+# ===================================================================
+# FUNÇÕES DE IMPULSO-RESPOSTA (IRF) PARA MODELO DFM
+# IDENTIFICAÇÃO VIA INSTRUMENTO EXTERNO (PROXY SVAR)
+# Seguindo Alessi & Kerssenfischer / Gertler & Karadi (2015)
+# ===================================================================
 
-  # Dimensions
-  n_vars <- nrow(Lambda)
-  r <- ncol(Lambda)
-  q <- dfm_results$q  # Use stored q value directly
 
-  # Point IRF calculation
-  
-  # Identification via Cholesky decomposition (lower triangular)
-  # This ensures consistency with MATLAB's chol, which returns upper by default
-  # We use the transpose to get the lower triangular factor
-  # FIXED: Ensure numerical stability and consistency
-  SIGMA_regularized <- SIGMA + diag(1e-12, nrow(SIGMA))  # Add small regularization
-  S <- t(chol(SIGMA_regularized))
+# ===================================================================
+# ALINHAMENTO TEMPORAL: INSTRUMENTO × RESÍDUOS
+# Equivalente a selextinstsample.m
+# ===================================================================
+sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
+  inst_dates <- as.Date(instrument_df$month)
+  inst_data  <- instrument_df$shock
 
-  # Point IRF
-  irf_point <- array(0, dim = c(n_vars, h + 1, q))
-  B <- array(0, dim = c(r, r, h + 1))
-  B[, , 1] <- diag(r)
-  B[, , 2] <- A[1:r, 1:r]
+  residual_dates <- data_dates[(p + 1):length(data_dates)]
 
-  for (i in 3:(h + 1)) {
-    B[, , i] <- A[1:r, 1:r] %*% B[, , i - 1]
+  rsh_sel_ind <- residual_dates %in% inst_dates
+  inst_sel    <- inst_data[inst_dates %in% residual_dates]
+
+  if (!is.null(rr)) {
+    rr_sel   <- rr[rsh_sel_ind]
+    inst_sel <- inst_sel * rr_sel
   }
 
-  # Calculate point IRF using formula
-  # C(:,:,ii)=(lambda*B(:,:,ii)*S*K*M).*repmat(sy',1,q)
-  for (i in 1:(h + 1)) {
-    if (!is.matrix(K) && !is.matrix(M)) {
-      # Case q=r with scalar K,M (K=1, M=1)
-      # In this case, q factors but K=1, M=1 so we replicate across q
-      temp <- Re(Lambda %*% B[, , i] %*% S * K * M)
-      for (s in 1:q) {
-        # Each dynamic factor gets the same response (since K=1, M=1)
-        irf_point[, i, s] <- temp[, s] * sy  # Extract s-th static factor response
-      }
-    } else {
-      # General case with matrix K,M
-      temp <- Re(Lambda %*% B[, , i] %*% S %*% K %*% M)
-      for (s in 1:q) {
-        irf_point[, i, s] <- temp[, s] * sy  # Element-wise multiplication with sy
-      }
-    }
-  }
-
-  # Wild Bootstrap following Gertler & Karadi (2015) and Alessi & Kerssenfischer methodology
-  if (nboot > 0) {
-    irf_boot <- array(0, dim = c(n_vars, h + 1, nboot, q))
-    
-    # Progress tracking (comentado para reduzir output)
-    # pb <- utils::txtProgressBar(min = 0, max = nboot, style = 3)
-
-    for (b in 1:nboot) {
-      # utils::setTxtProgressBar(pb, b)  # Comentado para reduzir output
-      
-      # Set seed for each bootstrap iteration to ensure reproducibility
-      set.seed(bootstrap_seed + b)
-      
-      tryCatch({
-        # Generate wild bootstrap draw (Rademacher: ±1 with prob 0.5 each)
-        rr <- 1 - 2 * (runif(nrow(dfm_results$var_residuals)) > 0.5)
-        resid_boot <- dfm_results$var_residuals * rr
-        
-        # Reconstruct factors with bootstrapped residuals
-        F_boot <- matrix(0, nrow = nrow(dfm_results$static_factors), ncol = r)
-        F_boot[1:p, ] <- dfm_results$static_factors[1:p, ]
-        
-        for (t in (p + 1):nrow(F_boot)) {
-          lagged_vars <- as.vector(t(F_boot[(t-1):(t-p), ]))
-          F_boot[t, ] <- lagged_vars %*% dfm_results$var_coefficients + resid_boot[t - p, ]
-        }
-        
-        # Re-estimate only the VAR on bootstrapped factors (DETERMINÍSTICO)
-        var_boot <- estimate_corrected_var_deterministic(F_boot, p, seed = bootstrap_seed + b)
-        
-        # Re-estimate dynamic components from bootstrapped VAR residuals
-        dynamic_boot <- estimate_dynamic_factors_deterministic(var_boot$residuals, q, r, seed = bootstrap_seed + b)
-        
-        # Calculate bootstrapped IRF matrices
-        A_boot <- var_boot$companion
-        SIGMA_boot <- var_boot$covariance_matrix
-        # FIXED: Apply same regularization for consistency
-        SIGMA_boot_regularized <- SIGMA_boot + diag(1e-12, nrow(SIGMA_boot))
-        S_boot <- t(chol(SIGMA_boot_regularized)) # Cholesky on bootstrapped covariance
-        K_boot <- dynamic_boot$K
-        M_boot <- dynamic_boot$M
-        
-        B_boot <- array(0, dim = c(r, r, h + 1))
-        B_boot[, , 1] <- diag(r)
-        if (h >= 1) B_boot[, , 2] <- A_boot[1:r, 1:r]
-        
-        for (i in 3:(h + 1)) {
-          B_boot[, , i] <- A_boot[1:r, 1:r] %*% B_boot[, , i - 1]
-        }
-
-        # Calculate bootstrapped IRFs using original Lambda and sy
-        for (i in 1:(h + 1)) {
-          if (!is.matrix(K_boot) && !is.matrix(M_boot)) {
-            temp <- Re(Lambda %*% B_boot[, , i] %*% S_boot * K_boot * M_boot)
-            for (s in 1:q) {
-              irf_boot[, i, b, s] <- temp[, s] * sy
-            }
-          } else {
-            temp <- Re(Lambda %*% B_boot[, , i] %*% S_boot %*% K_boot %*% M_boot)
-            for (s in 1:q) {
-              irf_boot[, i, b, s] <- temp[, s] * sy
-            }
-          }
-        }
-      }, error = function(e) {
-        warning("Bootstrap iteration ", b, " failed: ", e$message)
-        # Use point estimates as fallback for the failed iteration
-        for (s in 1:q) {
-          irf_boot[, , b, s] <- irf_point[, , s]
-        }
-      })
-    }
-    
-    
-    # Validate bootstrap results
-    bootstrap_validation <- validate_bootstrap_results(irf_boot, irf_point)
-
-    # Confidence intervals
-    irf_ci <- array(0, dim = c(n_vars, h + 1, 5, q))
-    for (s in 1:q) {
-      irf_ci[, , 1, s] <- apply(irf_boot[, , , s], c(1, 2), quantile, probs = 0.05, na.rm = TRUE)
-      irf_ci[, , 2, s] <- apply(irf_boot[, , , s], c(1, 2), quantile, probs = 0.10, na.rm = TRUE)
-      irf_ci[, , 3, s] <- irf_point[, , s]
-      irf_ci[, , 4, s] <- apply(irf_boot[, , , s], c(1, 2), quantile, probs = 0.90, na.rm = TRUE)
-      irf_ci[, , 5, s] <- apply(irf_boot[, , , s], c(1, 2), quantile, probs = 0.95, na.rm = TRUE)
-    }
-    
-  } else {
-    # No bootstrap case - return only point estimates
-    irf_ci <- array(0, dim = c(n_vars, h + 1, 5, q))
-    for (s in 1:q) {
-      irf_ci[, , 1, s] <- irf_point[, , s]  # Same as point estimate
-      irf_ci[, , 2, s] <- irf_point[, , s]  # Same as point estimate
-      irf_ci[, , 3, s] <- irf_point[, , s]  # Point estimate
-      irf_ci[, , 4, s] <- irf_point[, , s]  # Same as point estimate
-      irf_ci[, , 5, s] <- irf_point[, , s]  # Same as point estimate
-    }
-  }
-
-  return(list(irf_point = irf_point, irf_ci = irf_ci))
+  list(rsh_sel_ind = rsh_sel_ind, inst_sel = inst_sel)
 }
 
-plot_irf <- function(irf_results, response_vars, shock = 3, horizon = 20, 
-                    cumulative = TRUE, invert_shock = FALSE) {
-  
-  # Criar lista para armazenar os plots individuais
+
+# ===================================================================
+# IDENTIFICAÇÃO POR INSTRUMENTO EXTERNO
+# Equivalente a IdentExtInstr.m
+# ===================================================================
+ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
+                            mpind = NULL, normalize_value = 0.5) {
+  # Desmeanar choques de forma reduzida
+  rsh_mean0 <- sweep(rsh_sel, 2, colMeans(rsh_sel))
+
+  # Regressão OLS do instrumento nos choques: H = (Z \ rsh_mean0)'
+  Z_mat <- as.matrix(Z_sel)
+  H <- drop(crossprod(Z_mat, rsh_mean0)) / drop(crossprod(Z_mat))
+
+  n_vars <- dim(rawimp)[1]
+  irf_mp <- matrix(0, n_vars, h + 1)
+
+  for (j in seq_len(h + 1)) {
+    rawimp_j <- matrix(rawimp[, , j], nrow = n_vars)
+    irf_mp[, j] <- rawimp_j %*% H
+  }
+
+  # Normalizar efeito impacto na variável de política monetária
+  if (!is.null(mpind)) {
+    irf_mp <- irf_mp / irf_mp[mpind, 1] * normalize_value
+  }
+
+  list(irf_mp = irf_mp, H = H)
+}
+
+
+# ===================================================================
+# FUNÇÃO PRINCIPAL: IRFs COM IDENTIFICAÇÃO VIA INSTRUMENTO EXTERNO
+# ===================================================================
+compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
+                            bootstrap_seed = NULL, mpind = NULL,
+                            normalize_value = 0.5, data_dates = NULL) {
+
+  if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
+
+  # --- Extrair componentes do DFM ---
+  Lambda <- dfm_results$static_loadings
+  A      <- dfm_results$companion_matrix
+  K      <- dfm_results$dynamic_loadings
+  M      <- dfm_results$dynamic_scaling
+  sy     <- dfm_results$data_sd
+  p      <- dfm_results$p
+  r      <- ncol(Lambda)
+  q      <- dfm_results$q
+  n_vars <- nrow(Lambda)
+  rp     <- nrow(A)
+
+  # --- Resolver instrumento: argumento direto ou embutido no dfm_results ---
+  if (is.null(instrument) && !is.null(dfm_results$instrument)) {
+    instrument <- dfm_results$instrument
+  }
+  if (is.null(instrument)) {
+    stop("instrument deve ser fornecido diretamente ou via dfm_results$instrument")
+  }
+
+  # --- Parsear instrumento ---
+  if (is.data.frame(instrument)) {
+    if (!all(c("month", "shock") %in% names(instrument)))
+      stop("Instrument data.frame deve conter colunas 'month' e 'shock'")
+
+    dates_vec <- data_dates
+    if (is.null(dates_vec) && !is.null(dfm_results$dates))
+      dates_vec <- dfm_results$dates
+    if (is.null(dates_vec))
+      stop("data_dates ou dfm_results$dates necessario para alinhamento temporal")
+
+    dates_vec <- as.Date(dates_vec)
+    align     <- sel_ext_inst_sample(dates_vec, p, instrument)
+    rsh_sel_ind <- align$rsh_sel_ind
+    inst_sel    <- align$inst_sel
+
+    if (sum(rsh_sel_ind) == 0)
+      stop("Nenhuma data comum entre instrumento e residuos do VAR")
+  } else if (is.numeric(instrument)) {
+    n_resid <- nrow(dfm_results$var_residuals)
+    if (length(instrument) != n_resid)
+      stop("Vetor de instrumento (", length(instrument),
+           ") deve ter mesmo comprimento que residuos do VAR (", n_resid, ")")
+    rsh_sel_ind <- rep(TRUE, n_resid)
+    inst_sel    <- instrument
+  } else {
+    stop("instrument deve ser vetor numerico ou data.frame com colunas 'month' e 'shock'")
+  }
+
+  # --- Matrizes B de propagação (usando companion completa) ---
+  Bfull <- array(0, dim = c(rp, rp, h + 1))
+  Bfull[, , 1] <- diag(rp)
+  Bfull[, , 2] <- A
+  for (i in 3:(h + 1)) Bfull[, , i] <- Bfull[, , i - 1] %*% A
+
+  B <- array(0, dim = c(r, r, h + 1))
+  for (i in seq_len(h + 1)) B[, , i] <- Bfull[1:r, 1:r, i]
+
+  # --- IRFs de forma reduzida (rawimp) ---
+  # C(:,:,ii) = (lambda * B(:,:,ii) * K * M) .* repmat(sy',1,q)
+  rawimp <- array(0, dim = c(n_vars, q, h + 1))
+  for (i in seq_len(h + 1)) {
+    if (!is.matrix(K) && !is.matrix(M)) {
+      temp <- Re(Lambda %*% B[, , i] * K * M)
+    } else {
+      temp <- Re(Lambda %*% B[, , i] %*% K %*% M)
+    }
+    rawimp[, , i] <- sweep(temp, 1, sy, "*")
+  }
+
+  # --- Resíduos de fatores dinâmicos: eta = u * K / M ---
+  u <- dfm_results$var_residuals
+  if (!is.matrix(K) && !is.matrix(M)) {
+    eta <- u
+  } else {
+    eta <- u %*% K %*% solve(M)
+  }
+
+  # --- Identificação por instrumento externo (estimativa pontual) ---
+  eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
+  point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
+                                  mpind, normalize_value)
+  irf_point <- point_result$irf_mp
+
+  # --- Wild Bootstrap (Gertler & Karadi 2015) ---
+  if (nboot > 0) {
+    irf_boot <- array(0, dim = c(n_vars, h + 1, nboot))
+
+    for (b in seq_len(nboot)) {
+      set.seed(bootstrap_seed + b)
+
+      tryCatch({
+        # Rademacher draw
+        rr <- 1 - 2 * (runif(nrow(dfm_results$var_residuals)) > 0.5)
+        resid_boot <- dfm_results$var_residuals * rr
+
+        # Reconstruir fatores com resíduos bootstrapados
+        F_boot <- matrix(0, nrow = nrow(dfm_results$static_factors), ncol = r)
+        F_boot[1:p, ] <- dfm_results$static_factors[1:p, ]
+
+        for (t in (p + 1):nrow(F_boot)) {
+          lagged_vars <- as.vector(t(F_boot[(t - 1):(t - p), ]))
+          F_boot[t, ] <- lagged_vars %*% dfm_results$var_coefficients +
+            resid_boot[t - p, ]
+        }
+
+        # Re-estimar VAR nos fatores bootstrapados
+        var_boot <- estimate_corrected_var_deterministic(
+          F_boot, p, seed = bootstrap_seed + b
+        )
+        A_boot <- var_boot$companion
+
+        # Re-estimar fatores dinâmicos
+        dynamic_boot <- estimate_dynamic_factors_deterministic(
+          var_boot$residuals, q, r, seed = bootstrap_seed + b
+        )
+        K_boot <- dynamic_boot$K
+        M_boot <- dynamic_boot$M
+
+        # Matrizes B bootstrapadas (companion completa)
+        rp_boot <- nrow(A_boot)
+        Bfull_b <- array(0, dim = c(rp_boot, rp_boot, h + 1))
+        Bfull_b[, , 1] <- diag(rp_boot)
+        if (h >= 1) Bfull_b[, , 2] <- A_boot
+        for (i in 3:(h + 1))
+          Bfull_b[, , i] <- Bfull_b[, , i - 1] %*% A_boot
+
+        B_boot <- array(0, dim = c(r, r, h + 1))
+        for (i in seq_len(h + 1))
+          B_boot[, , i] <- Bfull_b[1:r, 1:r, i]
+
+        # IRFs de forma reduzida bootstrapadas
+        rawimp_boot <- array(0, dim = c(n_vars, q, h + 1))
+        for (i in seq_len(h + 1)) {
+          if (!is.matrix(K_boot) && !is.matrix(M_boot)) {
+            temp <- Re(Lambda %*% B_boot[, , i] * K_boot * M_boot)
+          } else {
+            temp <- Re(Lambda %*% B_boot[, , i] %*% K_boot %*% M_boot)
+          }
+          rawimp_boot[, , i] <- sweep(temp, 1, sy, "*")
+        }
+
+        # Resíduos de fatores dinâmicos bootstrapados
+        u_boot <- var_boot$residuals
+        if (!is.matrix(K_boot) && !is.matrix(M_boot)) {
+          eta_boot <- u_boot
+        } else {
+          eta_boot <- u_boot %*% K_boot %*% solve(M_boot)
+        }
+
+        # Wild bootstrap do instrumento (mesmo rr aplicado ao instrumento)
+        rr_sel <- rr[rsh_sel_ind]
+        inst_boot <- inst_sel * rr_sel
+
+        # Identificação bootstrapada
+        eta_boot_sel <- eta_boot[rsh_sel_ind, , drop = FALSE]
+        boot_result <- ident_ext_instr(rawimp_boot, eta_boot_sel, inst_boot,
+                                       h, mpind, normalize_value)
+        irf_boot[, , b] <- boot_result$irf_mp
+
+      }, error = function(e) {
+        warning("Bootstrap iteracao ", b, " falhou: ", e$message)
+        irf_boot[, , b] <<- irf_point
+      })
+    }
+
+    # Validação do bootstrap
+    bootstrap_validation <- validate_bootstrap_results(irf_boot, irf_point)
+
+    # Intervalos de confiança
+    irf_ci <- array(0, dim = c(n_vars, h + 1, 5, 1))
+    irf_ci[, , 1, 1] <- apply(irf_boot, c(1, 2), quantile,
+                               probs = 0.05, na.rm = TRUE)
+    irf_ci[, , 2, 1] <- apply(irf_boot, c(1, 2), quantile,
+                               probs = 0.10, na.rm = TRUE)
+    irf_ci[, , 3, 1] <- irf_point
+    irf_ci[, , 4, 1] <- apply(irf_boot, c(1, 2), quantile,
+                               probs = 0.90, na.rm = TRUE)
+    irf_ci[, , 5, 1] <- apply(irf_boot, c(1, 2), quantile,
+                               probs = 0.95, na.rm = TRUE)
+  } else {
+    irf_ci <- array(0, dim = c(n_vars, h + 1, 5, 1))
+    for (k in 1:5) irf_ci[, , k, 1] <- irf_point
+  }
+
+  # Empacotar irf_point em array 3D para compatibilidade
+  irf_point_3d <- array(0, dim = c(n_vars, h + 1, 1))
+  irf_point_3d[, , 1] <- irf_point
+
+  list(irf_point = irf_point_3d, irf_ci = irf_ci)
+}
+
+
+# ===================================================================
+# PLOT DE IRFs
+# ===================================================================
+plot_irf <- function(irf_results, response_vars, shock = 1, horizon = 20,
+                     cumulative = TRUE, invert_shock = FALSE) {
+
   plot_list <- list()
-  
-  # Define transformation codes for Brazilian variables (following MATLAB implementation)
+
+  # Códigos de transformação (seguindo implementação MATLAB)
   # 1 = levels, 2 = first differences, 5 = log differences
   var_tcodes <- c(
-    39, 2,  # USD/BRL - first differences (exchange rate changes)
-    55, 1,  # Spread-J - levels
-    56, 1,  # Spread-F - levels  
-    33, 5,  # IPCA - log differences (inflation)
-    38, 5,  # IPP - log differences (producer prices)
-    64, 5,  # IBRx-100 - log differences (stock returns)
-    68, 5,  # IMob - log differences (real estate returns)
-    54, 1,  # IDA - levels (interest rate instrument)
-    50, 1,  # Yield 1A - levels
-    53, 1   # Yield 5A - levels
+    39, 2,
+    55, 1,
+    56, 1,
+    33, 5,
+    38, 5,
+    64, 5,
+    68, 5,
+    54, 1,
+    50, 1,
+    53, 1
   )
-  
-  # Create lookup table for tcodes
-  tcode_lookup <- setNames(var_tcodes[seq(2, length(var_tcodes), 2)], 
-                          var_tcodes[seq(1, length(var_tcodes), 2)])
-  
-  # Invert shock sign if requested (useful for identification issues)
+
+  tcode_lookup <- setNames(
+    var_tcodes[seq(2, length(var_tcodes), 2)],
+    var_tcodes[seq(1, length(var_tcodes), 2)]
+  )
+
   if (invert_shock) {
     irf_results[, , , shock] <- -irf_results[, , , shock]
   }
 
-  # Loop através das variáveis de resposta
   for (i in seq_along(response_vars)) {
     var_index <- as.numeric(response_vars[[i]])
-    var_name <- names(response_vars[[i]])
-    
-    # Get transformation code for this variable
+    var_name  <- names(response_vars[[i]])
+
     tcode <- tcode_lookup[as.character(var_index)]
-    if (is.na(tcode)) tcode <- 1  # Default to levels if not found
-    
-    # Extract raw IRF data
-    irf_raw <- irf_results[var_index, seq_len(horizon + 1), 3, shock]
-    ic_05_raw <- irf_results[var_index, seq_len(horizon + 1), 1, shock]
-    ic_10_raw <- irf_results[var_index, seq_len(horizon + 1), 2, shock]
-    ic_90_raw <- irf_results[var_index, seq_len(horizon + 1), 4, shock]
-    ic_95_raw <- irf_results[var_index, seq_len(horizon + 1), 5, shock]
-    
-    # Apply cumulative transformation based on tcode (following MATLAB cumimp function)
-    # Only if cumulative = TRUE
+    if (is.na(tcode)) tcode <- 1
+
+    irf_raw    <- irf_results[var_index, seq_len(horizon + 1), 3, shock]
+    ic_05_raw  <- irf_results[var_index, seq_len(horizon + 1), 1, shock]
+    ic_10_raw  <- irf_results[var_index, seq_len(horizon + 1), 2, shock]
+    ic_90_raw  <- irf_results[var_index, seq_len(horizon + 1), 4, shock]
+    ic_95_raw  <- irf_results[var_index, seq_len(horizon + 1), 5, shock]
+
     if (cumulative && tcode == 1) {
-      # Levels - no transformation
-      irf_cum <- irf_raw
-      ic_05_cum <- ic_05_raw
-      ic_10_cum <- ic_10_raw
-      ic_90_cum <- ic_90_raw
-      ic_95_cum <- ic_95_raw
+      irf_cum    <- irf_raw
+      ic_05_cum  <- ic_05_raw
+      ic_10_cum  <- ic_10_raw
+      ic_90_cum  <- ic_90_raw
+      ic_95_cum  <- ic_95_raw
     } else if (cumulative && tcode == 2) {
-      # First differences - cumulative sum * 100
-      irf_cum <- cumsum(irf_raw) * 100
-      ic_05_cum <- cumsum(ic_05_raw) * 100
-      ic_10_cum <- cumsum(ic_10_raw) * 100
-      ic_90_cum <- cumsum(ic_90_raw) * 100
-      ic_95_cum <- cumsum(ic_95_raw) * 100
+      irf_cum    <- cumsum(irf_raw) * 100
+      ic_05_cum  <- cumsum(ic_05_raw) * 100
+      ic_10_cum  <- cumsum(ic_10_raw) * 100
+      ic_90_cum  <- cumsum(ic_90_raw) * 100
+      ic_95_cum  <- cumsum(ic_95_raw) * 100
     } else if (cumulative && tcode == 5) {
-      # Log differences - (exp(cumsum(IRF)) - 1) * 100
-      irf_cum <- (exp(cumsum(irf_raw)) - 1) * 100
-      ic_05_cum <- (exp(cumsum(ic_05_raw)) - 1) * 100
-      ic_10_cum <- (exp(cumsum(ic_10_raw)) - 1) * 100
-      ic_90_cum <- (exp(cumsum(ic_90_raw)) - 1) * 100
-      ic_95_cum <- (exp(cumsum(ic_95_raw)) - 1) * 100
+      irf_cum    <- (exp(cumsum(irf_raw)) - 1) * 100
+      ic_05_cum  <- (exp(cumsum(ic_05_raw)) - 1) * 100
+      ic_10_cum  <- (exp(cumsum(ic_10_raw)) - 1) * 100
+      ic_90_cum  <- (exp(cumsum(ic_90_raw)) - 1) * 100
+      ic_95_cum  <- (exp(cumsum(ic_95_raw)) - 1) * 100
     } else {
-      # No cumulative transformation - use raw IRFs
-      irf_cum <- irf_raw
-      ic_05_cum <- ic_05_raw
-      ic_10_cum <- ic_10_raw
-      ic_90_cum <- ic_90_raw
-      ic_95_cum <- ic_95_raw
+      irf_cum    <- irf_raw
+      ic_05_cum  <- ic_05_raw
+      ic_10_cum  <- ic_10_raw
+      ic_90_cum  <- ic_90_raw
+      ic_95_cum  <- ic_95_raw
     }
 
     df_plot <- data.frame(
-      tempo = seq_len(horizon + 1) - 1,
-      irf = irf_cum,
-      ic_05 = ic_05_cum,
-      ic_10 = ic_10_cum,
-      ic_90 = ic_90_cum,
-      ic_95 = ic_95_cum
+      tempo  = seq_len(horizon + 1) - 1,
+      irf    = irf_cum,
+      ic_05  = ic_05_cum,
+      ic_10  = ic_10_cum,
+      ic_90  = ic_90_cum,
+      ic_95  = ic_95_cum
     )
 
     plot_list[[i]] <- ggplot2::ggplot(df_plot, ggplot2::aes(x = tempo)) +
@@ -271,58 +359,47 @@ plot_irf <- function(irf_results, response_vars, shock = 3, horizon = 20,
       ggplot2::theme(
         axis.title.x = ggplot2::element_blank(),
         axis.title.y = ggplot2::element_text(size = ggplot2::rel(1.4)),
-        axis.text = ggplot2::element_text(size = ggplot2::rel(1.2)),
-        plot.title = ggplot2::element_blank()
+        axis.text     = ggplot2::element_text(size = ggplot2::rel(1.2)),
+        plot.title    = ggplot2::element_blank()
       ) +
       ggplot2::annotate(
         "text",
-        x = Inf,
-        y = mean(range(df_plot$ic_95, df_plot$ic_05)),
+        x     = Inf,
+        y     = mean(range(df_plot$ic_95, df_plot$ic_05)),
         label = var_name,
         hjust = 0,
         vjust = 0.5
       )
   }
 
-  # Combinar os plots em um grid vertical
-  combined_plot <- patchwork::wrap_plots(plot_list, ncol = 2)
-
-  return(combined_plot)
+  patchwork::wrap_plots(plot_list, ncol = 2)
 }
 
+
 # ===================================================================
-# FUNÇÕES AUXILIARES PARA LIDAR COM CASOS q=r (K,M ESCALARES)
+# FUNÇÕES AUXILIARES
 # ===================================================================
 
-#' Helper function to get number of dynamic factors
-#' Handles case when K is scalar (q=r) or matrix (q<r)
 get_q_from_K <- function(K) {
-  if (is.matrix(K)) {
-    return(ncol(K))
-  } else {
-    return(1)  # K is scalar, so q=1
-  }
+  if (is.matrix(K)) ncol(K) else 1
 }
 
-#' Validate DFM results
-#' @param dfm_results Results from estimate_dfm function
-#' @return List of validation checks
+
 validate_dfm_results <- function(dfm_results) {
   checks <- list()
-  
-  # Check if all required components exist
-  required_components <- c("static_loadings", "companion_matrix", 
-                          "dynamic_loadings", "dynamic_scaling", 
-                          "data_sd", "p", "r", "q")
-  
+
+  required_components <- c(
+    "static_loadings", "companion_matrix",
+    "dynamic_loadings", "dynamic_scaling",
+    "data_sd", "p", "r", "q"
+  )
   checks$missing_components <- setdiff(required_components, names(dfm_results))
-  
-  # Check q=r case handling
+
   q <- dfm_results$q
   r <- dfm_results$r
   K <- dfm_results$dynamic_loadings
   M <- dfm_results$dynamic_scaling
-  
+
   if (q == r) {
     checks$qr_case_K_scalar <- !is.matrix(K) && length(K) == 1
     checks$qr_case_M_scalar <- !is.matrix(M) && length(M) == 1
@@ -332,244 +409,38 @@ validate_dfm_results <- function(dfm_results) {
     checks$qr_case_K_matrix <- is.matrix(K) && ncol(K) == q
     checks$qr_case_M_matrix <- is.matrix(M) && ncol(M) == q
   }
-  
-  # Check companion matrix stability
+
   eigenvals <- eigen(dfm_results$companion_matrix)$values
   checks$companion_stable <- all(abs(eigenvals) < 1)
-  checks$max_eigenvalue <- max(abs(eigenvals))
-  
-  return(checks)
-}
+  checks$max_eigenvalue   <- max(abs(eigenvals))
 
-#' Wild Bootstrap for Dynamic Factor Models
-#'
-#' @description
-#' Implements wild bootstrap following Gertler & Karadi (2015) methodology
-#' as used in Alessi & Kerssenfischer. The procedure reconstructs the full
-#' dataset by combining bootstrapped common components with original 
-#' idiosyncratic components.
-#'
-#' @param dfm_results Results from estimate_dfm function
-#' @param nboot Number of bootstrap replications
-#' @param r Number of static factors  
-#' @param q Number of dynamic factors
-#' @param p VAR lag order
-#'
-#' @return Array of bootstrapped DFM results
-#' 
-#' @details
-#' The wild bootstrap procedure:
-#' 1. Generates Rademacher draws (±1 with prob 0.5)
-#' 2. Applies draws to VAR residuals 
-#' 3. Reconstructs factors using bias-corrected VAR
-#' 4. Combines with idiosyncratic components
-#' 5. Re-estimates complete DFM
-#'
-#' @references
-#' Gertler, M., & Karadi, P. (2015). Monetary policy surprises, credit costs, 
-#' and economic activity. American Economic Journal: Macroeconomics, 7(1), 44-76.
-wild_bootstrap_dfm <- function(dfm_results, nboot, r, q, p) {
-  
-  # Pre-calculate components that don't change across bootstrap iterations
-  T_data <- nrow(dfm_results$Z)
-  regX <- cbind(1, 1:T_data)
-  
-  # Reconstruct original data from DFM components
-  original_data <- dfm_results$Z
-  for (i in 1:ncol(original_data)) {
-    original_data[, i] <- original_data[, i] * dfm_results$data_sd[i]
-  }
-  
-  # Add back linear trend
-  trend_data <- matrix(0, T_data, ncol(original_data))
-  for (i in 1:ncol(original_data)) {
-    beta_trend <- solve(crossprod(regX)) %*% crossprod(regX, original_data[, i])
-    trend_data[, i] <- regX %*% beta_trend
-  }
-  original_data <- original_data + trend_data
-  
-  # Calculate common and idiosyncratic components
-  common_components <- dfm_results$static_factors %*% t(dfm_results$static_loadings)
-  common_components_scaled <- sweep(common_components, 2, dfm_results$data_sd, "*")
-  common_components_full <- common_components_scaled + trend_data
-  idiosyncratic <- original_data - common_components_full
-  
-  # Bootstrap array to store results
-  bootstrap_results <- list()
-  
-  for (b in 1:nboot) {
-    # Generate wild bootstrap draw
-    rr <- 1 - 2 * (runif(nrow(dfm_results$var_residuals)) > 0.5)
-    resid_boot <- dfm_results$var_residuals * rr
-    
-    # Reconstruct factors with bootstrapped residuals
-    F_boot <- matrix(0, nrow = nrow(dfm_results$static_factors), ncol = r)
-    F_boot[1:p, ] <- dfm_results$static_factors[1:p, ]
-    
-    for (t in (p + 1):nrow(F_boot)) {
-      lagged_vars <- as.vector(t(F_boot[(t-1):(t-p), ]))
-      F_boot[t, ] <- lagged_vars %*% dfm_results$var_coefficients + resid_boot[t - p, ]
-    }
-    
-    # Reconstruct data
-    common_boot <- F_boot %*% t(dfm_results$static_loadings)
-    common_boot_scaled <- sweep(common_boot, 2, dfm_results$data_sd, "*")
-    common_boot_full <- common_boot_scaled + trend_data
-    X_boot <- common_boot_full + idiosyncratic
-    
-    # Store bootstrapped dataset
-    bootstrap_results[[b]] <- X_boot
-  }
-  
-  return(bootstrap_results)
+  checks
 }
 
 
-#' Validate wild bootstrap results
-#' @param irf_boot Array of bootstrap IRF results
-#' @param irf_point Point estimate IRFs
-#' @return List of validation metrics
 validate_bootstrap_results <- function(irf_boot, irf_point) {
   n_vars <- dim(irf_boot)[1]
-  h <- dim(irf_boot)[2] - 1
-  nboot <- dim(irf_boot)[3]
-  q <- dim(irf_boot)[4]
-  
-  # Check for failed bootstrap iterations
+  h      <- dim(irf_boot)[2] - 1
+  nboot  <- dim(irf_boot)[3]
+
   failed_iterations <- 0
-  for (b in 1:nboot) {
-    for (s in 1:q) {
-      if (all(irf_boot[, , b, s] == irf_point[, , s])) {
-        failed_iterations <- failed_iterations + 1
-        break
-      }
+  for (b in seq_len(nboot)) {
+    if (all(irf_boot[, , b] == irf_point)) {
+      failed_iterations <- failed_iterations + 1
     }
   }
-  
-  # Calculate bootstrap statistics
+
   bootstrap_stats <- list(
-    total_iterations = nboot,
-    failed_iterations = failed_iterations,
-    success_rate = (nboot - failed_iterations) / nboot,
-    mean_abs_irf = mean(abs(irf_boot), na.rm = TRUE),
+    total_iterations   = nboot,
+    failed_iterations  = failed_iterations,
+    success_rate       = (nboot - failed_iterations) / nboot,
+    mean_abs_irf       = mean(abs(irf_boot), na.rm = TRUE),
     bootstrap_variance = var(as.vector(irf_boot), na.rm = TRUE)
   )
-  
-  if (failed_iterations > nboot * 0.1) {
-    warning("Mais de 10% das iterações do bootstrap falharam. Considere ajustar os parâmetros.")
-  }
-  
-  return(bootstrap_stats)
-}
 
-#' Compare Wild Bootstrap vs Simple Bootstrap
-#' 
-#' @description
-#' Diagnostic function to compare wild bootstrap results with simple bootstrap
-#' for validation purposes. Helps assess the impact of the bootstrap method choice.
-#'
-#' @param dfm_results Results from estimate_dfm
-#' @param h IRF horizon
-#' @param nboot Number of bootstrap replications (small number for comparison)
-#' @return List comparing both methods
-compare_bootstrap_methods <- function(dfm_results, h = 12, nboot = 50) {
-  cat("Comparando métodos de bootstrap (", nboot, " replicações)...\n")
-  
-  # Wild bootstrap (current implementation)
-  irf_wild <- compute_irf_dfm(dfm_results, h = h, nboot = nboot, bootstrap_seed = 123)
-  
-  # Simple bootstrap (original method) - just for comparison
-  r <- dfm_results$r
-  q <- dfm_results$q
-  n_vars <- nrow(dfm_results$static_loadings)
-  
-  # Point IRF for comparison
-  Lambda <- dfm_results$static_loadings
-  A <- dfm_results$companion_matrix
-  K <- dfm_results$dynamic_loadings
-  M <- dfm_results$dynamic_scaling
-  sy <- dfm_results$data_sd
-  
-  irf_point <- array(0, dim = c(n_vars, h + 1, q))
-  B <- array(0, dim = c(r, r, h + 1))
-  B[, , 1] <- diag(r)
-  B[, , 2] <- A[1:r, 1:r]
-  
-  for (i in 3:(h + 1)) {
-    B[, , i] <- A[1:r, 1:r] %*% B[, , i - 1]
+  if (failed_iterations > nboot * 0.1) {
+    warning("Mais de 10% das iteracoes do bootstrap falharam. Considere ajustar os parametros.")
   }
-  
-  for (i in 1:(h + 1)) {
-    if (!is.matrix(K) && !is.matrix(M)) {
-      temp <- Re(Lambda %*% B[, , i] * K * M)
-      for (s in 1:q) {
-        irf_point[, i, s] <- temp[, s] * sy
-      }
-    } else {
-      temp <- Re(Lambda %*% B[, , i] %*% K %*% M)
-      for (s in 1:q) {
-        irf_point[, i, s] <- temp[, s] * sy
-      }
-    }
-  }
-  
-  # Simple bootstrap for comparison
-  irf_simple <- array(0, dim = c(n_vars, h + 1, nboot, q))
-  set.seed(123)
-  
-  for (b in 1:nboot) {
-    # Simple residual resampling
-    resid_indices <- sample(1:nrow(dfm_results$var_residuals), replace = TRUE)
-    resid_boot <- dfm_results$var_residuals[resid_indices, ]
-    
-    F_boot <- matrix(0, nrow = nrow(dfm_results$static_factors), ncol = r)
-    F_boot[1, ] <- dfm_results$static_factors[1, ]
-    
-    for (t in 2:nrow(F_boot)) {
-      F_boot[t, ] <- A[1:r, 1:r] %*% F_boot[t - 1, ] + resid_boot[t - 1, ]
-    }
-    
-    var_boot <- estimate_corrected_var(F_boot, dfm_results$p)
-    A_boot <- var_boot$companion
-    
-    B_boot <- array(0, dim = c(r, r, h + 1))
-    B_boot[, , 1] <- diag(r)
-    B_boot[, , 2] <- A_boot[1:r, 1:r]
-    
-    for (i in 3:(h + 1)) {
-      B_boot[, , i] <- A_boot[1:r, 1:r] %*% B_boot[, , i - 1]
-    }
-    
-    for (i in 1:(h + 1)) {
-      if (!is.matrix(K) && !is.matrix(M)) {
-        temp <- Re(Lambda %*% B_boot[, , i] * K * M)
-        for (s in 1:q) {
-          irf_simple[, i, b, s] <- temp[, s] * sy
-        }
-      } else {
-        temp <- Re(Lambda %*% B_boot[, , i] %*% K %*% M)
-        for (s in 1:q) {
-          irf_simple[, i, b, s] <- temp[, s] * sy
-        }
-      }
-    }
-  }
-  
-  # Calculate comparison metrics
-  wild_variance <- apply(irf_wild[, , 3, ], c(1, 2), var, na.rm = TRUE)
-  simple_variance <- apply(irf_simple[, , , ], c(1, 2, 4), var, na.rm = TRUE)
-  
-  cat("Comparação concluída!\n")
-  cat("Variância média - Wild bootstrap:", mean(wild_variance, na.rm = TRUE), "\n")
-  cat("Variância média - Simple bootstrap:", mean(simple_variance, na.rm = TRUE), "\n")
-  
-  return(list(
-    wild_bootstrap = irf_wild,
-    simple_bootstrap = irf_simple,
-    point_estimate = irf_point,
-    variance_comparison = list(
-      wild = wild_variance,
-      simple = simple_variance
-    )
-  ))
+
+  bootstrap_stats
 }
