@@ -51,17 +51,25 @@
 #' print(results$r_hat)
 #'
 #' @export
-bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE) {
-  T <- nrow(X)
-  N <- ncol(X)
-
-  if (standardize) {
+bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE, apply_bll = FALSE) {
+  X <- as.matrix(X)
+  
+  if (apply_bll) {
+    # Padronização BLL (calcula a 1ª diferença padronizada)
+    y <- diff(X)
+    sy <- apply(y, 2, sd)
+    y_centered <- sweep(y, 2, colMeans(y), "-")
+    X_std <- sweep(y_centered, 2, sy, "/")
+  } else if (standardize) {
     X_std <- scale(X, center = TRUE, scale = TRUE)
   } else {
     X_std <- X
   }
 
-  pca <- prcomp(X_std)
+  T <- nrow(X_std)
+  N <- ncol(X_std)
+
+  pca <- prcomp(X_std, scale. = FALSE, center = FALSE)
 
   ic1 <- ic2 <- ic3 <- numeric(max_r)
 
@@ -157,26 +165,33 @@ bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE) {
 #' print(results$q_hat)
 #'
 #' @export
-amengual_watson <- function(X, r, p = 4, max_q = NULL, scale = TRUE) {
+amengual_watson <- function(X, r, p = 4, max_q = NULL, scale = TRUE, apply_bll = FALSE) {
   X <- as.matrix(X)
 
-  if (scale) {
-    X <- scale(X, center = TRUE, scale = TRUE)
+  if (apply_bll) {
+    y <- diff(X)
+    sy <- apply(y, 2, sd)
+    y_centered <- sweep(y, 2, colMeans(y), "-")
+    X_std <- sweep(y_centered, 2, sy, "/")
+  } else if (scale) {
+    X_std <- scale(X, center = TRUE, scale = TRUE)
+  } else {
+    X_std <- X
   }
 
   if (is.null(max_q)) max_q <- r
 
-  pca_X <- prcomp(X, scale. = FALSE, center = FALSE)
+  pca_X <- prcomp(X_std, scale. = FALSE, center = FALSE)
   F_hat <- pca_X$x[, 1:r, drop = FALSE]
 
-  T <- nrow(X)
+  T <- nrow(X_std)
   lagged_factors <- stats::embed(F_hat, p + 1)
   Z <- cbind(1, lagged_factors[, -(1:r), drop = FALSE])
 
-  resid_mat <- matrix(NA, T - p, ncol(X))
+  resid_mat <- matrix(NA, T - p, ncol(X_std))
 
-  for (i in 1:ncol(X)) {
-    y <- X[(p + 1):T, i]
+  for (i in 1:ncol(X_std)) {
+    y <- X_std[(p + 1):T, i]
     z <- Z[1:length(y), , drop = FALSE]
 
     b <- solve(crossprod(z), crossprod(z, y))
@@ -549,19 +564,26 @@ estimate_corrected_var_deterministic <- function(data, p, seed = 42) {
     X_resid[, ((i - 1) * K + 1):(i * K)] <- data[(p - i + 1):(T - i), ]
   }
   
-  beta_corrected <- as.matrix(Re(beta_corrected))
-  X_resid <- as.matrix(Re(X_resid))
+  # Add constant to beta_corrected
+  intercept <- bet[K * p + 1, ]
+  beta_corrected_full <- rbind(beta_corrected, intercept)
+  
+  # Add constant to X_resid
+  X_resid_full <- cbind(X_resid, 1)
+  
+  beta_corrected_full <- as.matrix(Re(beta_corrected_full))
+  X_resid_full <- as.matrix(Re(X_resid_full))
   Y_resid <- as.matrix(Re(Y_resid))
   
-  u_corrected <- Y_resid - X_resid %*% beta_corrected
+  u_corrected <- Y_resid - X_resid_full %*% beta_corrected_full
   u_corrected <- as.matrix(Re(u_corrected))
 
   return(list(
-    coefficients = beta_corrected,
+    coefficients = beta_corrected_full,
     residuals = u_corrected,
     companion = coeffcompanion_corrected,
     residuals_original = u,
-    coefficients_original = t(bet[1:(p * K), ]),
+    coefficients_original = bet,
     companion_original = coeffcompanion,
     covariance_matrix = SIGMA
   ))
@@ -591,7 +613,9 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
   }
   
   # vec(SIGMA) - vetorizar SIGMA por colunas (como no MATLAB)
-  vec_SIGMA <- as.vector(SIGMA)
+  SIGMA_expanded <- matrix(0, q * p, q * p)
+  SIGMA_expanded[1:nrow(SIGMA), 1:ncol(SIGMA)] <- SIGMA
+  vec_SIGMA <- as.vector(SIGMA_expanded)
   vecSIGMAY <- lyapunov_inv %*% vec_SIGMA
   SIGMAY <- matrix(vecSIGMAY, nrow = q * p, ncol = q * p)
   
@@ -765,19 +789,26 @@ estimate_corrected_var <- function(data, p) {
     X_resid[, ((i - 1) * K + 1):(i * K)] <- data[(p - i + 1):(T - i), ]
   }
   
-  beta_corrected <- as.matrix(Re(beta_corrected))
-  X_resid <- as.matrix(Re(X_resid))
+  # Add constant to beta_corrected
+  intercept <- bet[K * p + 1, ]
+  beta_corrected_full <- rbind(beta_corrected, intercept)
+  
+  # Add constant to X_resid
+  X_resid_full <- cbind(X_resid, 1)
+  
+  beta_corrected_full <- as.matrix(Re(beta_corrected_full))
+  X_resid_full <- as.matrix(Re(X_resid_full))
   Y_resid <- as.matrix(Re(Y_resid))
   
-  u_corrected <- Y_resid - X_resid %*% beta_corrected
+  u_corrected <- Y_resid - X_resid_full %*% beta_corrected_full
   u_corrected <- as.matrix(Re(u_corrected))
   
   return(list(
-    coefficients = beta_corrected,
+    coefficients = beta_corrected_full,
     residuals = u_corrected,
     companion = coeffcompanion_corrected,
     residuals_original = u,
-    coefficients_original = t(bet[1:(p * K), ]),
+    coefficients_original = bet,
     companion_original = coeffcompanion,
     covariance_matrix = SIGMA,
     # Diagnósticos adicionais

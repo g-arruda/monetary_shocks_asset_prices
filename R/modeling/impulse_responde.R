@@ -152,6 +152,10 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
 
   # --- Wild Bootstrap (Gertler & Karadi 2015) ---
   if (nboot > 0) {
+    # Antes do bootstrap, calcular Idio
+    Chi <- sweep(dfm_results$static_factors %*% t(dfm_results$static_loadings), 2, sy, "*")
+    Idio <- dfm_results$detrended_data - Chi
+
     irf_boot <- array(0, dim = c(n_vars, h + 1, nboot))
 
     for (b in seq_len(nboot)) {
@@ -168,22 +172,26 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
 
         for (t in (p + 1):nrow(F_boot)) {
           lagged_vars <- as.vector(t(F_boot[(t - 1):(t - p), ]))
-          F_boot[t, ] <- lagged_vars %*% dfm_results$var_coefficients +
+          F_boot[t, ] <- c(lagged_vars, 1) %*% dfm_results$var_coefficients +
             resid_boot[t - p, ]
         }
 
-        # Re-estimar VAR nos fatores bootstrapados
-        var_boot <- estimate_corrected_var_deterministic(
-          F_boot, p, seed = bootstrap_seed + b
-        )
-        A_boot <- var_boot$companion
+        # Reconstruir X_boot
+        Chi_boot <- sweep(F_boot %*% t(Lambda), 2, sy, "*")
+        X_boot <- Chi_boot + Idio
 
-        # Re-estimar fatores dinâmicos
-        dynamic_boot <- estimate_dynamic_factors_deterministic(
-          var_boot$residuals, q, r, seed = bootstrap_seed + b
-        )
-        K_boot <- dynamic_boot$K
-        M_boot <- dynamic_boot$M
+        # Re-estimar o modelo completo em X_boot
+        # Suprimimos outputs e não passamos datas/instrumento para acelerar
+        suppressWarnings({
+          dfm_boot <- estimate_dfm(X_boot, r, q, p)
+        })
+
+        Lambda_boot <- dfm_boot$static_loadings
+        A_boot <- dfm_boot$companion_matrix
+        K_boot <- dfm_boot$dynamic_loadings
+        M_boot <- dfm_boot$dynamic_scaling
+        sy_boot <- dfm_boot$data_sd
+        u_boot <- dfm_boot$var_residuals
 
         # Matrizes B bootstrapadas (companion completa)
         rp_boot <- nrow(A_boot)
@@ -201,15 +209,14 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
         rawimp_boot <- array(0, dim = c(n_vars, q, h + 1))
         for (i in seq_len(h + 1)) {
           if (!is.matrix(K_boot) && !is.matrix(M_boot)) {
-            temp <- Re(Lambda %*% B_boot[, , i] * K_boot * M_boot)
+            temp <- Re(Lambda_boot %*% B_boot[, , i] * K_boot * M_boot)
           } else {
-            temp <- Re(Lambda %*% B_boot[, , i] %*% K_boot %*% M_boot)
+            temp <- Re(Lambda_boot %*% B_boot[, , i] %*% K_boot %*% M_boot)
           }
-          rawimp_boot[, , i] <- sweep(temp, 1, sy, "*")
+          rawimp_boot[, , i] <- sweep(temp, 1, sy_boot, "*")
         }
 
         # Resíduos de fatores dinâmicos bootstrapados
-        u_boot <- var_boot$residuals
         if (!is.matrix(K_boot) && !is.matrix(M_boot)) {
           eta_boot <- u_boot
         } else {

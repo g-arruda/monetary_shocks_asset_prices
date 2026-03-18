@@ -16,23 +16,25 @@ X <- readr::read_csv("data/processed/data_log_deseasonalized.csv") |>
     dplyr::select(-ref.date) |>
     tidyr::drop_na()
 
-# # Aplicar bai_ng_criteria
-# results_bai_ng <- bai_ng_criteria(X, max_r = 20)
+# Aplicar bai_ng_criteria com a padronização BLL para lidar com dados não-estacionários
+results_bai_ng <- bai_ng_criteria(X, max_r = 20, apply_bll = TRUE)
 
-# # Visualizar o número ótimo de fatores para cada critério
-# print(results_bai_ng$r_hat)
+# Visualizar o número ótimo de fatores para cada critério
+print("Número ótimo de fatores estáticos (r) via Bai & Ng (2002):")
+print(results_bai_ng$r_hat)
 
-# # Aplicar amengual_watson com 3 fatores estáticos
-# results_amengual_watson <- amengual_watson(X, r = 10, p = 3)
+# Aplicar amengual_watson assumindo r = 8 e p = 6
+results_amengual_watson <- amengual_watson(X, r = 8, p = 6, max_q = 15, apply_bll = TRUE)
 
-# # Visualizar o número estimado de fatores dinâmicos
-# print(results_amengual_watson$q_hat)
+# Visualizar o número estimado de fatores dinâmicos
+print("Número estimado de fatores dinâmicos (q) via Amengual & Watson (2007):")
+print(results_amengual_watson$q_hat)
 
 
 
 main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
                       instrument_path = "data/processed/instrument.csv",
-                      r = 7, q = 5, p = 1, h = 50, nboot = 800, bootstrap_seed = 123) {
+                      r = 8, q = 8, p = 6, h = 50, nboot = 800, bootstrap_seed = 123) {
   
   # Load and prepare data (preservar ref.date para alinhamento)
   raw_data <- readr::read_csv(data_path) |>
@@ -87,7 +89,7 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
 set.seed(123)
 
 # Execute main analysis
-sdfm_results <- main_sdfm(r = 6, q = 5)
+sdfm_results <- main_sdfm(r = 8, q = 8, p = 6)
 
 data.frame(
   coluna = colnames(sdfm_results$data)
