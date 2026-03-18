@@ -10,8 +10,6 @@ moedas <- c("BRL", "EUR", "CNY", "ARS", "INR")
 
 cambio <- download_cambio(moedas, end_date = "2026-02-01") |> dplyr::rename(ref.date = date)
 
-dplyr::glimpse(cambio)
-tail(cambio)
 
 # Dados do Banco Central do Brasil ----
 
@@ -27,8 +25,48 @@ juros <- download_bcb_data(vec_juros, parallel = TRUE) |>
   dplyr::rename_with(~ paste0("juros_", .), -ref.date)
 
 
-dplyr::glimpse(juros)
-tail(juros)
+# curva de juros ----
+yield_curve <- readr::read_csv("data/yields/yields_dia.csv") |>
+  janitor::clean_names() |>
+  dplyr::mutate(
+    data = lubridate::dmy(data)
+  ) |>
+  dplyr::rename(
+    yield_3m = x3,
+    yield_6m = x6,
+    yield_1y = x12,
+    yield_2y = x24,
+    yield_5y = x60,
+    yield_10y = x120
+  )
+
+
+monthly_yield_curve <- yield_curve |>
+  dplyr::group_by(ref.date = lubridate::floor_date(data, "month")) |>
+  dplyr::slice_tail(n = 1) |>
+  dplyr::ungroup() |>
+  dplyr::select(-data)
+
+
+juros <- juros |>
+  dplyr::left_join(monthly_yield_curve, by = "ref.date")
+
+
+
+## Monetary base ----
+vec_base_monetaria <- c(
+  "monetary_base" = 1788,
+  "money_supply" = 27789,
+  "demand_deposit" = 27790,
+  "savings_deposit" = 1835,
+  "m1" = 27791,
+  "m2" = 27810,
+  "m3" = 27813
+)
+
+base_monetaria <- download_bcb_data(vec_base_monetaria, parallel = TRUE) |>
+  dplyr::rename_with(~ paste0("base_", .), -ref.date)
+
 
 
 ## Dados de crédito ----
@@ -41,54 +79,108 @@ vec_credito <- c(
   "credito_transporte" = 22037,
   "credito_pessoa_fisica" = 22050,
   "spread_icc_juridica" = 27444,
-  "spread_icc_fisica" = 27445
+  "spread_icc_fisica" = 27445,
+  "credit_outstanding" = 20542,
+  "fin_inst_reserve_req" = 17633
 )
 
 credito <- download_bcb_data(vec_credito, start_date = "2010-01-01", parallel = TRUE)
 
-dplyr::glimpse(credito)
-tail(credito)
 
-## Dados sobre atividade economica ----
+## Consumo ----
 
-vec_ativ_economica <- c(
-  "veiculos_automoveis" = 7384,
-  "veiculos_leves" = 7385,
-  "veiculos_caminhoes" = 7386,
-  "veiculos_onibus" = 7387,
+vec_consumo <- c(
   "consumo_gasolina" = 1393,
   "consumo_glp" = 1394,
   "consumo_oleo_combustivel" = 1395,
   "consumo_oleo_diesel" = 1396,
   "consumo_demais_derivados" = 1397,
   "consumo_alcool" = 1401,
-  "consumo_eletricidade_comecial" = 1402,
-  "consumo_eletricidade_residencial" = 1403,
-  "consumo_eletricidade_industrial" = 1404,
-  "consumo_eletricidade_outros" = 1405,
-  "producao_bens_consumo" = 21865,
-  "producao_bens_duraveis" = 21866,
-  "producao_bens_nao_duraveis" = 21867,
-  "producao_bens_capital" = 21863,
-  "producao_transformacao" = 21862,
   "capacidade_instalada_industria" = 28554,
   "vendas_varejo" = 1455,
   "vendas_servicos" = 23982
 )
 
 
-ativ_economica <- download_bcb_data(
-  vec_ativ_economica,
+consumo <- download_bcb_data(
+  vec_consumo,
   start_date = "2010-01-01",
   parallel = TRUE)
 
-dplyr::glimpse(ativ_economica)
-tail(ativ_economica)
+
+
+
+
+## Atividade econômica ----
+
+vec_ativ_economica <- c(
+  "pib" = 4381,
+  "ibc_br" = 24364,
+  "icc" = 4393,
+  "ics" = 17660
+)
+
+ativ_economica <- download_bcb_data(
+  vec_ativ_economica,
+  start_date = "2010-01-01",
+  parallel = TRUE
+)
+
+
+
+
+## Industria ----
+
+vec_industria <- c(
+  "ind_automoveis" = 7384,
+  "ind_leves" = 7385,
+  "ind_caminhoes" = 7386,
+  "ind_onibus" = 7387,
+  "ind_bens_consumo" = 21865,
+  "ind_bens_duraveis" = 21866,
+  "ind_bens_nao_duraveis" = 21867,
+  "ind_bens_capital" = 21863,
+  "ind_transformacao" = 21862,
+  "ind_min_extr" = 21861,
+  "ind_uti_cap_instalada" = 24352
+)
+
+industria <- download_bcb_data(
+  vec_industria,
+  start_date = "2010-01-01",
+  parallel = TRUE
+)
+
+
+
+## Energia ----
+
+
+vec_energia <- c(
+  "energia_comercial" = 1402,
+  "energia_residencial" = 1403,
+  "energia_industrial" = 1404,
+  "energia_outros" = 1405
+)
+
+energia <- download_bcb_data(
+  vec_energia,
+  start_date = "2010-01-01",
+  parallel = TRUE
+)
+
+
+
 
 ## Dados sobre emprego ----
 
 vec_emprego <- c(
-  "caged" = 28763,
+  "employment_southest" = 13901,
+  "employment_south" = 13564,
+  "employment_northeast" = 13941,
+  "employment_north" = 28152,
+  "employment_central_west" = 21991,
+  "min_wage" = 1619,
   "pop_forca_trab" = 24378,
   "pop_ocupada" = 28543,
   "tx_desemprego" = 24369,
@@ -97,23 +189,70 @@ vec_emprego <- c(
 
 
 emprego <- download_bcb_data(vec_emprego, start_date = "2012-01-01", parallel = TRUE) |>
-  dplyr::mutate(
-    razao_vagas_desempregados = caged / ((tx_desemprego / 100) * (pop_forca_trab * 1000))
-  ) |>
-  tidyr::drop_na() |>
   dplyr::rename_with(~ paste0("trab_", .), -ref.date)
  
 
-dplyr::glimpse(emprego)
-tail(emprego)
+
+
+
+## Dados risco ----
+
+embi <- readr::read_csv("data/banco_central_rep_dominicana/embi_brasil.csv") |>
+  dplyr::mutate(data = lubridate::dmy(date)) |>
+  dplyr::group_by(ref.date = lubridate::floor_date(data, "month")) |>
+  dplyr::slice_tail(n = 1) |>
+  dplyr::ungroup() |>
+  dplyr::select(ref.date, embi_perc)
+
+
+cds <- readr::read_csv("data/investing/cds5y.csv") |>
+  janitor::clean_names() |>
+  dplyr::mutate(ref.date = lubridate::dmy(data)) |>
+  dplyr::select(ref.date, cds_5y = ultimo)
+
+
+msci <- readr::read_csv("data/investing/msci.csv") |>
+  janitor::clean_names() |>
+  dplyr::mutate(ref.date = lubridate::dmy(data)) |>
+  dplyr::select(ref.date, msci = ultimo)
+
+
+sp500_vix <- readr::read_csv("data/investing/sp500_vix.csv") |>
+  janitor::clean_names() |>
+  dplyr::mutate(ref.date = lubridate::dmy(data)) |>
+  dplyr::select(ref.date, sp500_vix = ultimo)
+
+
+risco <- embi |>
+  dplyr::left_join(cds, by = "ref.date") |>
+  dplyr::left_join(msci, by = "ref.date") |>
+  dplyr::left_join(sp500_vix, by = "ref.date") |>
+  tidyr::drop_na()
+
+
+
+
+## economic_policy_uncertainty ----
+
+epu <- readr::read_csv("data/epu/economic_policy_uncertainty.csv") |>
+  janitor::clean_names() |>
+  dplyr::mutate(ref.date = lubridate::dmy(date)) |>
+  dplyr::select(-date) |>
+  dplyr::rename_with(~ paste0("epu_", .), -ref.date)
+
+
 
 ## Dados sobre inflacao ----
 
 vec_inflacao <- c(
   "ipca" = 433,
-  # "ipa" = 255,
+  "ipca_difusao" = 21379,
+  "core_ipca_ex0" = 29677,
+  "core_ipca_ex1" = 29678,
+  "core_ipca_dw" = 16122, 
   "igp_m" = 189,
   "ipc" = 191,
+  "core_ipc" = 4467,
   "incc" = 192,
   "inpc" = 188
 )
@@ -128,21 +267,17 @@ inflacao <- download_bcb_data(vec_inflacao, parallel = TRUE) |>
   dplyr::rename_with(~ paste0("price_", .), -ref.date)
 
 
-dplyr::glimpse(inflacao)
-tail(inflacao)
 
 ## Dados sobre commodities ----
 
 vec_commodity <- c(
-  "indice_commodity_agro" = 27575,
-  "indice_commodity_metal" = 27576,
-  "indice_commodity_energia" = 27577
+  "commodity_agro" = 27575,
+  "commodity_metal" = 27576,
+  "commodity_energia" = 27577
 )
 
 commodity <- download_bcb_data(vec_commodity, parallel = TRUE)
 
-dplyr::glimpse(commodity)
-tail(commodity)
 
 
 # Dados trimestrais ----
@@ -204,10 +339,11 @@ resultado_mensal <- colunas_interpoladas |>
   dplyr::rename_with(~ paste0("trab_", .), -ref.date)
 
 
-dplyr::glimpse(resultado_mensal)
-tail(resultado_mensal)
 
-# Dados da B3 ----
+emprego <- emprego |>
+  dplyr::left_join(resultado_mensal, by = "ref.date")
+
+# Mercado financeiro ----
 
 # Definir a pasta de cache
 options(rb3.cachedir = "~/rb3-cache")
@@ -271,77 +407,44 @@ indices <- indices_b3 |>
 
 
 
-dplyr::glimpse(indices)
-tail(indices)
-
-
-# Série dos titulos de maturidade Fixa ----
-
-# curva de juros ----
-yield_curve <- readr::read_csv("data/curva_juros/series_maturidades_fixas.csv") |>
-  janitor::clean_names() |> 
-  dplyr::select(data, dplyr::starts_with("titulo"))
-
-
-
-# ida <- readr::read_csv("data/raw/mp_index/IDADI-HISTORICO - Historico.csv") |>
-#   janitor::clean_names() |>
-#   dplyr::select(ref.date = data_de_referencia, ida = variacao_diaria_percent) |>
-#   dplyr::mutate(ref.date = lubridate::dmy(ref.date))
-
-# ida_mensal <- ida |>
-#   # Criar colunas de ano e mês para agrupamento
-#   dplyr::mutate(
-#     ref.date = lubridate::floor_date(ref.date, "month")
-#   ) |>
-#   # Agrupar por mês
-#   dplyr::group_by(ref.date) |>
-#   # Calcular retorno mensal
-#   dplyr::summarise(
-#     retorno_mensal = (prod(1 + ida / 100) - 1)
-#   ) |>
-#   # Ordenar por data
-#   dplyr::arrange(ref.date)
 
 
 
 
-monthly_yield_curve <- yield_curve |>
-  dplyr::group_by(ref.date = lubridate::floor_date(data, "month")) |>
-  dplyr::slice_tail(n = 1) |>
-  dplyr::ungroup() |>
-  dplyr::select(-data)
-  # dplyr::left_join(ida_mensal, by = "ref.date")
 
-dplyr::glimpse(monthly_yield_curve)
-tail(monthly_yield_curve) |> t()
+
+
+
+
 
 # Juntando tudo em apenas um df ----
 
 all_dfs <- list(
   cambio = cambio,
   juros = juros,
+  base_monetaria = base_monetaria,
   credito = credito,
+  consumo = consumo,
+  industria = industria,
+  energia = energia,
   ativ_economica = ativ_economica,
   emprego = emprego,
   inflacao = inflacao,
   commodity = commodity,
   tempo_procura = resultado_mensal,
   indices = indices,
-  fixed_maturity_yield = monthly_yield_curve
+  risco = risco,
+  epu = epu
 )
 
-dplyr::glimpse(all_dfs)
+
+
 
 merged_df <- all_dfs |>
   purrr::reduce(dplyr::left_join, by = "ref.date") |>
   dplyr::arrange(ref.date)
 
 
-nrow(merged_df)
-ncol(merged_df)
-
-# readr::write_csv(merged_df, "data/raw_data.csv")
 
 
 
@@ -349,12 +452,12 @@ ncol(merged_df)
 
 
 
-####################################################################
-####################################################################
-####################################################################
-####################################################################
-####################################################################
-####################################################################
+
+
+
+
+
+
 
 
 

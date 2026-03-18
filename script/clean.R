@@ -7,13 +7,11 @@ source("R/preprocessing/stationarity.R")
 # loading data ----
 raw_data <- readr::read_csv("data/raw_data.csv") |> dplyr::filter(ref.date >= "2013-01-01" & ref.date <= "2025-09-01")
 
-raw_data <- raw_data |>
-  dplyr::mutate(
-    dplyr::across(
-      -ref.date,
-      ~ zoo::na.approx(.x, method = "linear")
-    )
-  )
+# Verificar NAs
+colSums(is.na(raw_data))
+
+
+
 
 
 # Apply log transformation in nominal variables ----
@@ -22,13 +20,10 @@ data <- raw_data |>
   dplyr::mutate(
     dplyr::across(
       .cols = c(
-        dplyr::contains("credito"),
-        dplyr::contains("consumo"),
-        dplyr::contains("veiculos"),
-        dplyr::contains("caged"),
-        dplyr::contains("pop"),
-        dplyr::contains("trab"),
-        -c(trab_tx_desemprego, trab_razao_vagas_desempregados)
+        dplyr::contains("base_"), # M1, M2, M3, base monetária
+        dplyr::contains("credit"), # volumes de crédito
+        fin_inst_reserve_req, # reservas bancárias
+        pib # PIB acumulado no ano
       ),
       .fns = ~ log(.x)
     )
@@ -43,26 +38,80 @@ data <- raw_data |>
 season_result <- check_seasonality(data)
 
 
+series_log <- list() # registra status de cada variável
+
 data_no_season <- data |>
   dplyr::select(dplyr::matches(season_result$season_vars)) |>
-  purrr::map(
-    ~ ts(
-      .x,
-      start = c(
-        lubridate::year(min(data$ref.date)),
-        1
-      ),
-      frequency = 12
-    ) |>
-      seasonal::seas(
-        x11 = "",
-        transform.function = "auto",
-        regression.aictest = NULL,
-        outlier = NULL
-      ) |>
-      seasonal::final()
+  purrr::imap(
+    ~ {
+      serie <- ts(
+        .x,
+        start = c(lubridate::year(min(data$ref.date)), 1),
+        frequency = 12
+      )
+
+      # Tentativa 1: completa
+      result <- tryCatch(
+        {
+          out <- seasonal::seas(serie,
+            x11 = "", transform.function = "none",
+            regression.aictest = c("td", "easter"),
+            outlier.types = c("AO", "LS", "TC")
+          ) |>
+            seasonal::final() |>
+            as.numeric()
+          series_log[[.y]] <<- "ajustada_completo"
+          out
+        },
+        error = function(e1) {
+          # Tentativa 2: sem calendário
+          tryCatch(
+            {
+              out <- seasonal::seas(serie,
+                x11 = "", transform.function = "none",
+                regression.aictest = NULL,
+                outlier.types = c("AO", "LS", "TC")
+              ) |>
+                seasonal::final() |>
+                as.numeric()
+              series_log[[.y]] <<- "ajustada_sem_calendario"
+              out
+            },
+            error = function(e2) {
+              # Tentativa 3: mínima
+              tryCatch(
+                {
+                  out <- seasonal::seas(serie,
+                    x11 = "", transform.function = "none",
+                    outlier = NULL
+                  ) |>
+                    seasonal::final() |>
+                    as.numeric()
+                  series_log[[.y]] <<- "ajustada_minima"
+                  out
+                },
+                error = function(e3) {
+                  series_log[[.y]] <<- paste0("SEM_AJUSTE: ", conditionMessage(e3))
+                  as.numeric(serie)
+                }
+              )
+            }
+          )
+        }
+      )
+    }
   ) |>
-  purrr::map_dfc(~ as.numeric(.x))
+  purrr::map_dfc(~.x)
+
+# Relatório final
+status_df <- tibble::tibble(
+  variavel = names(series_log),
+  status   = unlist(series_log)
+)
+
+
+
+
 
 
 # Apply seasonal adjustment to identified variables
@@ -74,10 +123,6 @@ data <- data |>
     )
   )
 
-# Check for unit roots and apply transformations
-unity_root_test <- adf_test(data)
-final_data <- remove_unit_root(data, max_diff = 5)
 
-# Save processed data
-# readr::write_csv(final_data$data, "data/processed/final_data.csv")
-# readr::write_csv(data, "data/processed/data_log_deseasonalized.csv")
+
+

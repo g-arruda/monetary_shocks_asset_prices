@@ -761,33 +761,7 @@ results_ipca <- run_var_analysis(
 results_core$all_results$cambio$irf_results
 results$all_results$ibrx100$var_model
 #
-# # Visualizar plots
-print(results_core$plots$cambio) # IRFs do VAR com câmbio
-print(results_core$plots$comparison)  # Compara a resposta dos ativos ao choque
 
-# Exemplo de uso modular (para debug ou análise customizada)
-# ---------------------------------------------------------------------------
-# # 1. Carregar dados manualmente
-# loaded <- load_var_data()
-#
-# # 2. Estimar um único VAR
-# core <- c("producao_transformacao" = "producao_transformacao",
-#           "ipca" = "price_ipca", "selic" = "juros_selic")
-# asset <- c("cambio" = "cambio_usd")
-#
-# prep <- prepare_var_data(loaded$data, core, asset)
-# var_result <- estimate_var_proxy(
-#   var_data = prep$var_data,
-#   data_dates = prep$data_dates,
-#   instrument = loaded$instrument,
-#   impulse = "selic"
-# )
-#
-# # 3. Plotar todas as variáveis
-# plot_var_irfs(var_result$irf_results$irf_ci, var_result$var_names, response = NULL)
-#
-# # 4. Plotar apenas câmbio
-# plot_var_irfs(var_result$irf_results$irf_ci, var_result$var_names, response = "cambio")
 
 
 

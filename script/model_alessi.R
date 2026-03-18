@@ -19,16 +19,12 @@ X <- readr::read_csv("data/processed/data_log_deseasonalized.csv") |>
 # Aplicar bai_ng_criteria com a padronização BLL para lidar com dados não-estacionários
 results_bai_ng <- bai_ng_criteria(X, max_r = 20, apply_bll = TRUE)
 
-# Visualizar o número ótimo de fatores para cada critério
-print("Número ótimo de fatores estáticos (r) via Bai & Ng (2002):")
-print(results_bai_ng$r_hat)
+
 
 # Aplicar amengual_watson assumindo r = 8 e p = 6
 results_amengual_watson <- amengual_watson(X, r = 8, p = 6, max_q = 15, apply_bll = TRUE)
 
-# Visualizar o número estimado de fatores dinâmicos
-print("Número estimado de fatores dinâmicos (q) via Amengual & Watson (2007):")
-print(results_amengual_watson$q_hat)
+
 
 
 
@@ -91,9 +87,7 @@ set.seed(123)
 # Execute main analysis
 sdfm_results <- main_sdfm(r = 8, q = 8, p = 6)
 
-data.frame(
-  coluna = colnames(sdfm_results$data)
-)
+
 
 # Generate IRF plots for key economic variables
 response_vars <- list(
@@ -119,7 +113,4 @@ irf_plot <- plot_irf(sdfm_results$irfs$irf_ci,
 
 print(irf_plot)
 
-# Save plot
-# ggplot2::ggsave("img/irf_monetary_shock.png", irf_plot,
-#   width = 10, height = 10, dpi = 320
-# )
+

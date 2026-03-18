@@ -387,9 +387,7 @@ plot_irf <- function(irf_results, response_vars, shock = 1, horizon = 20,
 # FUNÇÕES AUXILIARES
 # ===================================================================
 
-get_q_from_K <- function(K) {
-  if (is.matrix(K)) ncol(K) else 1
-}
+
 
 
 validate_dfm_results <- function(dfm_results) {
