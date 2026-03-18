@@ -449,7 +449,7 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
   
   # Calcular bias
   bias_term <- inv_I_minus_B + B %*% inv_I_minus_B2 + sumeig
-  bias <- SIGMA %*% bias_term %*% inv_SIGMAY
+  bias <- SIGMA_expanded %*% bias_term %*% inv_SIGMAY
   
   # ...diagnóstico removido...
   
@@ -540,8 +540,10 @@ estimate_corrected_var <- function(data, p) {
     cbind(diag((p - 1) * K), matrix(0, (p - 1) * K, K))  # Identidade para lags
   )
   
-  # Calculate covariance matrix of residuals
-  SIGMA <- cov(u)
+  # Calculate covariance matrix of residuals strictly following Matlab
+  # SIGMA = zeros(p*K);
+  # SIGMA(1:K,1:K) = u'*u/(T-p-p*K-1);
+  SIGMA <- crossprod(u) / (T - p - p * K - 1)
   
   # Apply Kilian correction
   eigenvals_orig <- eigen(coeffcompanion)$values
