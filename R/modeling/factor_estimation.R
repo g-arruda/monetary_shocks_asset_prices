@@ -409,13 +409,14 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
   for (h in 1:(q * p)) {
     # sumeig = sumeig + (peigen(h) * inv(I - peigen(h) * B))
     I_minus_peigen_B <- I - peigen[h] * B
-    # Verificar se a matriz é invertível
-    if (Mod(det(Re(I_minus_peigen_B))) > 1e-12) {
-      term <- peigen[h] * solve(Re(I_minus_peigen_B))
-      sumeig <- sumeig + term
-      # variável removida
+    # solve() on complex matrix (fiel ao Matlab); skip if singular
+    inv_mat <- tryCatch(solve(I_minus_peigen_B), error = function(e) NULL)
+    if (!is.null(inv_mat)) {
+      sumeig <- sumeig + peigen[h] * inv_mat
     }
   }
+  # Resultado teórico é real (pares conjugados se cancelam); limpar ruído numérico
+  sumeig <- Re(sumeig)
   
   # Calcular bias seguindo exatamente o MATLAB
   # bias = SIGMA * (inv(I-B) + B*inv(I-B^2) + sumeig) * inv(SIGMAY)
@@ -449,7 +450,7 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
   
   # Calcular bias
   bias_term <- inv_I_minus_B + B %*% inv_I_minus_B2 + sumeig
-  bias <- SIGMA_expanded %*% bias_term %*% inv_SIGMAY
+  bias <- Re(SIGMA_expanded %*% bias_term %*% inv_SIGMAY)
   
   # ...diagnóstico removido...
   
@@ -500,6 +501,44 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
   return(bcA)
 }
 
+
+
+# ===================================================================
+# ESTIMAÇÃO VAR OLS SIMPLES (sem correção de Kilian)
+# Equivalente direto de DFMest_BLL.m linhas 29-50
+# ===================================================================
+estimate_var_ols <- function(data, p) {
+  T <- nrow(data)
+  K <- ncol(data)
+
+  RHS <- matrix(NA, T - p, K * p + 1)
+  for (i in 1:p) {
+    start_col <- (i - 1) * K + 1
+    end_col <- i * K
+    RHS[, start_col:end_col] <- data[(p + 1 - i):(T - i), ]
+  }
+  RHS[, K * p + 1] <- 1
+
+  LHS <- data[(p + 1):T, ]
+
+  bet <- solve(crossprod(RHS)) %*% crossprod(RHS, LHS)
+  u <- LHS - RHS %*% bet
+  u <- Re(as.matrix(u))
+
+  coeffcompanion <- rbind(
+    t(bet[1:(p * K), ]),
+    cbind(diag((p - 1) * K), matrix(0, (p - 1) * K, K))
+  )
+
+  SIGMA <- crossprod(u) / (T - p - p * K - 1)
+
+  return(list(
+    coefficients = bet,
+    residuals = u,
+    companion = coeffcompanion,
+    covariance_matrix = SIGMA
+  ))
+}
 
 
 estimate_corrected_var <- function(data, p) {
@@ -660,22 +699,21 @@ estimate_dynamic_factors <- function(var_residuals, q, r) {
 
 
 
-estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL) {
+estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
+                         apply_kilian = FALSE) {
   # ===================================================================
   # ESTIMAÇÃO COMPLETA DO MODELO DE FATORES DINÂMICOS ESTRUTURAIS (SDFM)
   # Implementação baseada em Alessi & Kerssenfischer com metodologia BLL
   #
-
   # @param data      Matriz T x N de dados (sem coluna de datas)
   # @param r         Número de fatores estáticos
   # @param q         Número de fatores dinâmicos
   # @param p         Ordem do VAR
-  # @param dates     Vetor de datas (Date) com T elementos, correspondendo às linhas de data.
-  #                  Usado para alinhar temporalmente dados e instrumento.
-
-  # @param instrument Data.frame com colunas 'month' (Date) e 'shock' (numeric).
-  #                   Se fornecido junto com dates, o alinhamento temporal é feito
-  #                   automaticamente via inner join por data.
+  # @param dates     Vetor de datas (Date) com T elementos
+  # @param instrument Data.frame com colunas 'month' (Date) e 'shock' (numeric)
+  # @param apply_kilian Se TRUE, calcula também os coeficientes corrigidos por
+  #                     Kilian (1998) para uso no DGP do bootstrap. O ponto
+  #                     estimado SEMPRE usa OLS puro (fiel ao Matlab DFMest_BLL.m).
   # ===================================================================
 
   T_orig <- nrow(data)
@@ -698,18 +736,15 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL) {
     if (!is.null(dates)) {
       n_inst_orig <- nrow(instrument)
 
-      # Inner join: manter apenas datas comuns entre dados e instrumento
       common_dates <- as.Date(intersect(as.character(dates), as.character(instrument$month)))
       if (length(common_dates) == 0) {
         stop("Nenhuma data em comum entre dados e instrumento")
       }
 
-      # Filtrar dados para datas comuns
       data_idx <- dates %in% common_dates
       data <- data[data_idx, , drop = FALSE]
       dates <- dates[data_idx]
 
-      # Filtrar e ordenar instrumento para datas comuns
       instrument <- instrument[instrument$month %in% common_dates, ]
       instrument <- instrument[order(instrument$month), ]
 
@@ -721,12 +756,19 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL) {
   # --- Estimação ---
   static_result <- estimate_static_factors(data, r)
 
-  var_result <- estimate_corrected_var(static_result$factors, p)
+  # Ponto estimado: SEMPRE VAR OLS (sem Kilian), fiel ao DFMest_BLL.m
+  var_result <- estimate_var_ols(static_result$factors, p)
 
   dynamic_result <- estimate_dynamic_factors(var_result$residuals, q, r)
-  
+
   max_eigenval <- max(abs(eigen(var_result$companion)$values))
   is_stable <- max_eigenval < 1
+
+  # Kilian correction: apenas para o DGP do bootstrap (DFMest_BLL_Boot.m)
+  kilian_result <- NULL
+  if (apply_kilian) {
+    kilian_result <- estimate_corrected_var(static_result$factors, p)
+  }
 
   return(list(
     # Static factors
@@ -734,11 +776,16 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL) {
     static_loadings = static_result$loadings,
     static_eigenvalues = static_result$eigenvalues,
 
-    # VAR on static factors
+    # VAR on static factors (OLS, sem Kilian — para ponto estimado)
     var_coefficients = var_result$coefficients,
     var_residuals = var_result$residuals,
     companion_matrix = var_result$companion,
     var_covariance = var_result$covariance_matrix,
+
+    # Kilian-corrected (apenas para DGP do bootstrap)
+    var_coefficients_corrected = if (!is.null(kilian_result)) kilian_result$coefficients else NULL,
+    companion_corrected = if (!is.null(kilian_result)) kilian_result$companion else NULL,
+    var_residuals_original = var_result$residuals,  # resíduos OLS para bootstrap
 
     # Dynamic factors
     dynamic_factors = dynamic_result$factors,
@@ -753,20 +800,20 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL) {
     detrended_data = static_result$detrended_data,
 
     # Componentes para IRF
-    loadings_lambda = static_result$loadings,  # λ
-    scaling_matrix_K = dynamic_result$K,       # K
-    scaling_matrix_M = dynamic_result$M,       # M
+    loadings_lambda = static_result$loadings,
+    scaling_matrix_K = dynamic_result$K,
+    scaling_matrix_M = dynamic_result$M,
 
     # Parâmetros do modelo
-    p = p,  # Ordem do VAR
-    r = r,  # Número de fatores estáticos
-    q = q,  # Número de fatores dinâmicos
+    p = p,
+    r = r,
+    q = q,
 
-    # Datas e instrumento (para alinhamento temporal no IRF)
-    dates = dates,                # Vetor de datas alinhadas (T observações)
-    instrument = instrument,      # Data.frame do instrumento (já filtrado)
+    # Datas e instrumento
+    dates = dates,
+    instrument = instrument,
 
-    # Diagnósticos consolidados
+    # Diagnósticos
     diagnostics = list(
       max_eigenvalue = max_eigenval,
       is_stable = is_stable

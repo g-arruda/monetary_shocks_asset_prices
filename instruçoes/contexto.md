@@ -5,7 +5,6 @@ Paper independente que replica a metodologia de Alessi & Kerssenfischer (2019) a
 
 ## Metodologia
 - **Modelo:** DFM não-estacionário de Alessi a Kerssenfischer (2019).
-- **Parâmetros benchmark:** r = 8 fatores estáticos, p = 6 lags (mesmo do paper original).
 - **Identificação:** instrumento externo seguindo Alessi and Kerssenfischer (2019), Gertler and karidi (2015) e Stock and Watson (2012) — surpresas de política monetária baseadas em taxas forward instantâneas (Svensson) em torno das reuniões do COPOM. Normalização: choque que eleva yield de 2 anos em 50 bps.
 - **Inferência:** wild bootstrap (Gonçalves & Kilian, 2004) + correção de viés de Kilian (1998).
 

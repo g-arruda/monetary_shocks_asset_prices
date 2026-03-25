@@ -32,7 +32,8 @@ sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
 # Equivalente a IdentExtInstr.m
 # ===================================================================
 ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
-                            mpind = NULL, normalize_value = 0.5) {
+                            mpind = NULL, normalize_value = 0.5,
+                            tcode = NULL) {
   # Desmeanar choques de forma reduzida
   rsh_mean0 <- sweep(rsh_sel, 2, colMeans(rsh_sel))
 
@@ -53,7 +54,74 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
     irf_mp <- irf_mp / irf_mp[mpind, 1] * normalize_value
   }
 
-  list(irf_mp = irf_mp, H = H)
+  # Transformar IRFs para unidades econômicas (como em IdentExtInstr.m)
+  irf_mp_transformed <- cumimp_transform(irf_mp, tcode)
+
+  list(irf_mp = irf_mp_transformed, irf_mp_raw = irf_mp, H = H)
+}
+
+
+# ===================================================================
+# TRANSFORMAÇÃO DE IRFS SEGUNDO TCODE (equivalente a cumimp.m)
+# 1 = level, 2 = first difference, 3 = second difference,
+# 4 = log-level, 5 = first log-difference
+# ===================================================================
+cumimp_transform <- function(Imp, tcode = NULL) {
+  if (is.null(tcode)) {
+    tcode <- rep(1L, nrow(Imp))
+  }
+  if (length(tcode) != nrow(Imp)) {
+    stop("tcode deve ter comprimento igual ao numero de variaveis (", nrow(Imp), ")")
+  }
+
+  CC <- Imp * 0
+
+  notransf <- which(tcode == 1)
+  firstdiff <- which(tcode == 2)
+  seconddiff <- which(tcode == 3)
+  loglevel <- which(tcode == 4)
+  firstlogdiff <- which(tcode == 5)
+
+  if (length(notransf) > 0) {
+    CC[notransf, ] <- Imp[notransf, ]
+  }
+  if (length(firstdiff) > 0) {
+    CC[firstdiff, ] <- t(apply(Imp[firstdiff, , drop = FALSE], 1, cumsum)) * 100
+  }
+  if (length(firstlogdiff) > 0) {
+    CC[firstlogdiff, ] <- (exp(t(apply(Imp[firstlogdiff, , drop = FALSE], 1, cumsum))) - 1) * 100
+  }
+  if (length(seconddiff) > 0) {
+    first_cum <- t(apply(Imp[seconddiff, , drop = FALSE], 1, cumsum))
+    CC[seconddiff, ] <- t(apply(first_cum, 1, cumsum))
+  }
+  if (length(loglevel) > 0) {
+    CC[loglevel, ] <- (exp(Imp[loglevel, , drop = FALSE]) - 1) * 100
+  }
+
+  CC
+}
+
+
+# ===================================================================
+# DICIONÁRIO DE TCODES COM BASE NAS TRANSFORMAÇÕES DO CLEAN
+# Padrão: tcode = 1 (nível)
+# Não-padrão (transformadas por log no clean):
+# - base_*                -> tcode = 4 (log-level)
+# - credit* / credito_*   -> tcode = 4 (log-level)
+# - fin_inst_reserve_req  -> tcode = 4 (log-level)
+# - pib                   -> tcode = 4 (log-level)
+# ===================================================================
+infer_tcode_from_varnames <- function(var_names) {
+  tcode <- rep(1L, length(var_names))
+
+  loglevel_idx <- grepl("^base_", var_names) |
+    grepl("^credit", var_names) |
+    grepl("^credito_", var_names) |
+    var_names %in% c("fin_inst_reserve_req", "pib")
+
+  tcode[loglevel_idx] <- 4L
+  tcode
 }
 
 
@@ -62,13 +130,14 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
 # ===================================================================
 compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                             bootstrap_seed = NULL, mpind = NULL,
-                            normalize_value = 0.5, data_dates = NULL) {
+                            normalize_value = 0.5, data_dates = NULL,
+                            tcode = NULL, ci_levels = c(0.90, 0.95)) {
 
   if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
 
-  # --- Extrair componentes do DFM ---
+  # --- Extrair componentes do DFM (OLS, sem Kilian — para ponto estimado) ---
   Lambda <- dfm_results$static_loadings
-  A      <- dfm_results$companion_matrix
+  A      <- dfm_results$companion_matrix  # companion OLS (sem Kilian)
   K      <- dfm_results$dynamic_loadings
   M      <- dfm_results$dynamic_scaling
   sy     <- dfm_results$data_sd
@@ -78,12 +147,25 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   n_vars <- nrow(Lambda)
   rp     <- nrow(A)
 
-  # --- Resolver instrumento: argumento direto ou embutido no dfm_results ---
+  # --- Resolver instrumento ---
   if (is.null(instrument) && !is.null(dfm_results$instrument)) {
     instrument <- dfm_results$instrument
   }
   if (is.null(instrument)) {
     stop("instrument deve ser fornecido diretamente ou via dfm_results$instrument")
+  }
+
+  ci_levels <- sort(unique(as.numeric(ci_levels)))
+  if (length(ci_levels) == 0 || any(is.na(ci_levels)) ||
+      any(ci_levels <= 0) || any(ci_levels >= 1)) {
+    stop("ci_levels deve conter niveis entre 0 e 1 (ex: c(0.90, 0.95))")
+  }
+
+  if (is.null(tcode) && !is.null(dfm_results$tcode)) {
+    tcode <- dfm_results$tcode
+  }
+  if (is.null(tcode)) {
+    tcode <- rep(1L, n_vars)
   }
 
   # --- Parsear instrumento ---
@@ -115,7 +197,7 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     stop("instrument deve ser vetor numerico ou data.frame com colunas 'month' e 'shock'")
   }
 
-  # --- Matrizes B de propagação (usando companion completa) ---
+  # --- Matrizes B de propagação (companion OLS, sem Kilian) ---
   Bfull <- array(0, dim = c(rp, rp, h + 1))
   Bfull[, , 1] <- diag(rp)
   Bfull[, , 2] <- A
@@ -125,7 +207,6 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   for (i in seq_len(h + 1)) B[, , i] <- Bfull[1:r, 1:r, i]
 
   # --- IRFs de forma reduzida (rawimp) ---
-  # C(:,:,ii) = (lambda * B(:,:,ii) * K * M) .* repmat(sy',1,q)
   rawimp <- array(0, dim = c(n_vars, q, h + 1))
   for (i in seq_len(h + 1)) {
     if (!is.matrix(K) && !is.matrix(M)) {
@@ -137,7 +218,7 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   }
 
   # --- Resíduos de fatores dinâmicos: eta = u * K / M ---
-  u <- dfm_results$var_residuals
+  u <- dfm_results$var_residuals  # resíduos OLS (sem Kilian)
   if (!is.matrix(K) && !is.matrix(M)) {
     eta <- u
   } else {
@@ -147,53 +228,63 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   # --- Identificação por instrumento externo (estimativa pontual) ---
   eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
   point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
-                                  mpind, normalize_value)
+                                  mpind, normalize_value, tcode)
   irf_point <- point_result$irf_mp
 
-  # --- Wild Bootstrap (Gertler & Karadi 2015) ---
+  # --- Wild Bootstrap (Gertler & Karadi 2015 / DFMest_BLL_Boot.m) ---
   if (nboot > 0) {
-    # Antes do bootstrap, calcular Idio
+    # Componentes para bootstrap DGP (Kilian-corrigidos, se disponíveis)
+    # Seguindo DFMest_BLL_Boot.m: DGP usa coeficientes corrigidos + resíduos OLS
+    boot_coeffs <- dfm_results$var_coefficients_corrected
+    if (is.null(boot_coeffs)) {
+      boot_coeffs <- dfm_results$var_coefficients
+    }
+    # Resíduos OLS originais para wild bootstrap (DFMest_BLL_Boot.m linha 57)
+    boot_resids <- dfm_results$var_residuals_original
+    if (is.null(boot_resids)) {
+      boot_resids <- dfm_results$var_residuals
+    }
+
+    # Calcular Idio (componente idiossincrático)
     Chi <- sweep(dfm_results$static_factors %*% t(dfm_results$static_loadings), 2, sy, "*")
     Idio <- dfm_results$detrended_data - Chi
 
     irf_boot <- array(0, dim = c(n_vars, h + 1, nboot))
 
     for (b in seq_len(nboot)) {
-      set.seed(bootstrap_seed + b)
-
       tryCatch({
         # Rademacher draw
-        rr <- 1 - 2 * (runif(nrow(dfm_results$var_residuals)) > 0.5)
-        resid_boot <- dfm_results$var_residuals * rr
+        n_resid <- nrow(boot_resids)
+        rr <- 1 - 2 * (runif(n_resid) > 0.5)
+        resid_boot <- boot_resids * rr  # resíduos OLS * rr
 
-        # Reconstruir fatores com resíduos bootstrapados
+        # Reconstruir fatores com coeficientes corrigidos e resíduos OLS
         F_boot <- matrix(0, nrow = nrow(dfm_results$static_factors), ncol = r)
         F_boot[1:p, ] <- dfm_results$static_factors[1:p, ]
 
-        for (t in (p + 1):nrow(F_boot)) {
-          lagged_vars <- as.vector(t(F_boot[(t - 1):(t - p), ]))
-          F_boot[t, ] <- c(lagged_vars, 1) %*% dfm_results$var_coefficients +
-            resid_boot[t - p, ]
+        for (tt in (p + 1):nrow(F_boot)) {
+          lagged_vars <- as.vector(t(F_boot[(tt - 1):(tt - p), ]))
+          F_boot[tt, ] <- c(lagged_vars, 1) %*% boot_coeffs +
+            resid_boot[tt - p, ]
         }
 
         # Reconstruir X_boot
         Chi_boot <- sweep(F_boot %*% t(Lambda), 2, sy, "*")
         X_boot <- Chi_boot + Idio
 
-        # Re-estimar o modelo completo em X_boot
-        # Suprimimos outputs e não passamos datas/instrumento para acelerar
+        # Re-estimar SEM Kilian (fiel a DFMest_BLL.m chamado em DFMest_BLL_Boot.m:69)
         suppressWarnings({
-          dfm_boot <- estimate_dfm(X_boot, r, q, p)
+          dfm_boot <- estimate_dfm(X_boot, r, q, p, apply_kilian = FALSE)
         })
 
         Lambda_boot <- dfm_boot$static_loadings
-        A_boot <- dfm_boot$companion_matrix
+        A_boot <- dfm_boot$companion_matrix  # OLS, sem Kilian
         K_boot <- dfm_boot$dynamic_loadings
         M_boot <- dfm_boot$dynamic_scaling
         sy_boot <- dfm_boot$data_sd
-        u_boot <- dfm_boot$var_residuals
+        u_boot <- dfm_boot$var_residuals  # OLS, sem Kilian
 
-        # Matrizes B bootstrapadas (companion completa)
+        # Matrizes B bootstrapadas
         rp_boot <- nrow(A_boot)
         Bfull_b <- array(0, dim = c(rp_boot, rp_boot, h + 1))
         Bfull_b[, , 1] <- diag(rp_boot)
@@ -223,14 +314,14 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
           eta_boot <- u_boot %*% K_boot %*% solve(M_boot)
         }
 
-        # Wild bootstrap do instrumento (mesmo rr aplicado ao instrumento)
+        # Wild bootstrap do instrumento (mesmo rr)
         rr_sel <- rr[rsh_sel_ind]
         inst_boot <- inst_sel * rr_sel
 
         # Identificação bootstrapada
         eta_boot_sel <- eta_boot[rsh_sel_ind, , drop = FALSE]
         boot_result <- ident_ext_instr(rawimp_boot, eta_boot_sel, inst_boot,
-                                       h, mpind, normalize_value)
+                                       h, mpind, normalize_value, tcode)
         irf_boot[, , b] <- boot_result$irf_mp
 
       }, error = function(e) {
@@ -242,27 +333,38 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     # Validação do bootstrap
     bootstrap_validation <- validate_bootstrap_results(irf_boot, irf_point)
 
-    # Intervalos de confiança
-    irf_ci <- array(0, dim = c(n_vars, h + 1, 5, 1))
-    irf_ci[, , 1, 1] <- apply(irf_boot, c(1, 2), quantile,
-                               probs = 0.05, na.rm = TRUE)
-    irf_ci[, , 2, 1] <- apply(irf_boot, c(1, 2), quantile,
-                               probs = 0.10, na.rm = TRUE)
-    irf_ci[, , 3, 1] <- irf_point
-    irf_ci[, , 4, 1] <- apply(irf_boot, c(1, 2), quantile,
-                               probs = 0.90, na.rm = TRUE)
-    irf_ci[, , 5, 1] <- apply(irf_boot, c(1, 2), quantile,
-                               probs = 0.95, na.rm = TRUE)
+    # Intervalos de confianca
+    ci <- list()
+    for (lvl in ci_levels) {
+      alpha <- (1 - lvl) / 2
+      name <- sprintf("%.2f", lvl)
+      ci[[name]] <- list(
+        level = lvl,
+        lower = apply(irf_boot, c(1, 2), quantile, probs = alpha, na.rm = TRUE),
+        upper = apply(irf_boot, c(1, 2), quantile, probs = 1 - alpha, na.rm = TRUE)
+      )
+    }
   } else {
-    irf_ci <- array(0, dim = c(n_vars, h + 1, 5, 1))
-    for (k in 1:5) irf_ci[, , k, 1] <- irf_point
+    ci <- list()
+    for (lvl in ci_levels) {
+      name <- sprintf("%.2f", lvl)
+      ci[[name]] <- list(
+        level = lvl,
+        lower = irf_point,
+        upper = irf_point
+      )
+    }
   }
 
-  # Empacotar irf_point em array 3D para compatibilidade
   irf_point_3d <- array(0, dim = c(n_vars, h + 1, 1))
   irf_point_3d[, , 1] <- irf_point
 
-  list(irf_point = irf_point_3d, irf_ci = irf_ci)
+  list(
+    irf_point = irf_point_3d,
+    irf_point_matrix = irf_point,
+    ci = ci,
+    ci_levels = ci_levels
+  )
 }
 
 
@@ -270,113 +372,114 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
 # PLOT DE IRFs
 # ===================================================================
 plot_irf <- function(irf_results, response_vars, shock = 1, horizon = 20,
-                     cumulative = TRUE, invert_shock = FALSE) {
+                     cumulative = FALSE, invert_shock = FALSE,
+                     var_names = NULL, tcode = NULL,
+                     ci_to_plot = c(0.90, 0.95)) {
+
+  if (isTRUE(cumulative)) {
+    warning("IRFs ja estao em unidades economicas via tcode (cumimp). 'cumulative' sera ignorado.")
+  }
+
+  if (!is.list(irf_results) || is.null(irf_results$irf_point_matrix)) {
+    stop("plot_irf agora espera o objeto completo retornado por compute_irf_dfm (lista com irf_point_matrix e ci)")
+  }
+
+  point <- irf_results$irf_point_matrix
+  ci_obj <- irf_results$ci
+  n_vars <- nrow(point)
+  max_h <- ncol(point) - 1
+  horizon <- min(horizon, max_h)
+
+  if (is.null(var_names)) {
+    var_names <- as.character(seq_len(n_vars))
+  }
+
+  if (invert_shock) {
+    point <- -point
+    for (nm in names(ci_obj)) {
+      lo <- ci_obj[[nm]]$lower
+      hi <- ci_obj[[nm]]$upper
+      ci_obj[[nm]]$lower <- -hi
+      ci_obj[[nm]]$upper <- -lo
+    }
+  }
+
+  ci_to_plot <- sort(unique(as.numeric(ci_to_plot)), decreasing = TRUE)
+  ci_keys <- sprintf("%.2f", ci_to_plot)
+  missing_ci <- setdiff(ci_keys, names(ci_obj))
+  if (length(missing_ci) > 0) {
+    stop("Niveis de IC solicitados nao encontrados no objeto irf_results$ci: ",
+         paste(missing_ci, collapse = ", "))
+  }
+
+  fill_palette <- c("grey90", "grey80", "grey70", "grey60")
+  alpha_palette <- c(0.5, 0.45, 0.4, 0.35)
 
   plot_list <- list()
 
-  # Códigos de transformação (seguindo implementação MATLAB)
-  # 1 = levels, 2 = first differences, 5 = log differences
-  var_tcodes <- c(
-    39, 2,
-    55, 1,
-    56, 1,
-    33, 5,
-    38, 5,
-    64, 5,
-    68, 5,
-    54, 1,
-    50, 1,
-    53, 1
-  )
-
-  tcode_lookup <- setNames(
-    var_tcodes[seq(2, length(var_tcodes), 2)],
-    var_tcodes[seq(1, length(var_tcodes), 2)]
-  )
-
-  if (invert_shock) {
-    irf_results[, , , shock] <- -irf_results[, , , shock]
-  }
-
   for (i in seq_along(response_vars)) {
-    var_index <- as.numeric(response_vars[[i]])
-    var_name  <- names(response_vars[[i]])
+    var_spec <- response_vars[[i]]
+    var_label <- names(var_spec)
 
-    tcode <- tcode_lookup[as.character(var_index)]
-    if (is.na(tcode)) tcode <- 1
-
-    irf_raw    <- irf_results[var_index, seq_len(horizon + 1), 3, shock]
-    ic_05_raw  <- irf_results[var_index, seq_len(horizon + 1), 1, shock]
-    ic_10_raw  <- irf_results[var_index, seq_len(horizon + 1), 2, shock]
-    ic_90_raw  <- irf_results[var_index, seq_len(horizon + 1), 4, shock]
-    ic_95_raw  <- irf_results[var_index, seq_len(horizon + 1), 5, shock]
-
-    if (cumulative && tcode == 1) {
-      irf_cum    <- irf_raw
-      ic_05_cum  <- ic_05_raw
-      ic_10_cum  <- ic_10_raw
-      ic_90_cum  <- ic_90_raw
-      ic_95_cum  <- ic_95_raw
-    } else if (cumulative && tcode == 2) {
-      irf_cum    <- cumsum(irf_raw) * 100
-      ic_05_cum  <- cumsum(ic_05_raw) * 100
-      ic_10_cum  <- cumsum(ic_10_raw) * 100
-      ic_90_cum  <- cumsum(ic_90_raw) * 100
-      ic_95_cum  <- cumsum(ic_95_raw) * 100
-    } else if (cumulative && tcode == 5) {
-      irf_cum    <- (exp(cumsum(irf_raw)) - 1) * 100
-      ic_05_cum  <- (exp(cumsum(ic_05_raw)) - 1) * 100
-      ic_10_cum  <- (exp(cumsum(ic_10_raw)) - 1) * 100
-      ic_90_cum  <- (exp(cumsum(ic_90_raw)) - 1) * 100
-      ic_95_cum  <- (exp(cumsum(ic_95_raw)) - 1) * 100
+    if (is.numeric(var_spec)) {
+      var_index <- as.integer(var_spec)
+    } else if (is.character(var_spec)) {
+      var_index <- match(var_spec, var_names)
+      if (is.na(var_index)) {
+        stop("Variavel '", var_spec, "' nao encontrada em var_names")
+      }
+      if (length(var_label) == 0 || is.null(var_label)) {
+        var_label <- var_spec
+      }
     } else {
-      irf_cum    <- irf_raw
-      ic_05_cum  <- ic_05_raw
-      ic_10_cum  <- ic_10_raw
-      ic_90_cum  <- ic_90_raw
-      ic_95_cum  <- ic_95_raw
+      stop("Cada item de response_vars deve ser numerico (indice) ou character (nome)")
     }
 
-    df_plot <- data.frame(
-      tempo  = seq_len(horizon + 1) - 1,
-      irf    = irf_cum,
-      ic_05  = ic_05_cum,
-      ic_10  = ic_10_cum,
-      ic_90  = ic_90_cum,
-      ic_95  = ic_95_cum
+    if (var_index < 1 || var_index > n_vars) {
+      stop("Indice de variavel fora do limite: ", var_index, " (1..", n_vars, ")")
+    }
+
+    if (length(var_label) == 0 || is.null(var_label) || identical(var_label, "")) {
+      var_label <- var_names[var_index]
+    }
+
+    df_point <- data.frame(
+      tempo = seq_len(horizon + 1) - 1,
+      irf = point[var_index, seq_len(horizon + 1)]
     )
 
-    plot_list[[i]] <- ggplot2::ggplot(df_plot, ggplot2::aes(x = tempo)) +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(ymin = ic_05, ymax = ic_95),
-        fill = "grey90", alpha = 0.5
-      ) +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(ymin = ic_10, ymax = ic_90),
-        fill = "grey70", alpha = 0.5
-      ) +
-      ggplot2::geom_line(
-        ggplot2::aes(y = irf),
-        color = "black",
-        linewidth = 1
-      ) +
+    p <- ggplot2::ggplot(df_point, ggplot2::aes(x = tempo))
+
+    for (k in seq_along(ci_keys)) {
+      key <- ci_keys[k]
+      ci_k <- ci_obj[[key]]
+      df_ci <- data.frame(
+        tempo = seq_len(horizon + 1) - 1,
+        lower = ci_k$lower[var_index, seq_len(horizon + 1)],
+        upper = ci_k$upper[var_index, seq_len(horizon + 1)]
+      )
+
+      p <- p + ggplot2::geom_ribbon(
+        data = df_ci,
+        ggplot2::aes(ymin = lower, ymax = upper),
+        fill = fill_palette[min(k, length(fill_palette))],
+        alpha = alpha_palette[min(k, length(alpha_palette))]
+      )
+    }
+
+    p <- p +
+      ggplot2::geom_line(ggplot2::aes(y = irf), color = "black", linewidth = 1) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
       ggplot2::theme_classic() +
-      ggplot2::labs(y = var_name) +
+      ggplot2::labs(y = var_label) +
       ggplot2::theme(
         axis.title.x = ggplot2::element_blank(),
         axis.title.y = ggplot2::element_text(size = ggplot2::rel(1.4)),
-        axis.text     = ggplot2::element_text(size = ggplot2::rel(1.2)),
-        plot.title    = ggplot2::element_blank()
-      ) +
-      ggplot2::annotate(
-        "text",
-        x     = Inf,
-        y     = mean(range(df_plot$ic_95, df_plot$ic_05)),
-        label = var_name,
-        hjust = 0,
-        vjust = 0.5
+        axis.text = ggplot2::element_text(size = ggplot2::rel(1.2)),
+        plot.title = ggplot2::element_blank()
       )
+
+    plot_list[[i]] <- p
   }
 
   patchwork::wrap_plots(plot_list, ncol = 2)

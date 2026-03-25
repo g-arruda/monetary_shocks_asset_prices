@@ -6,18 +6,15 @@ parameters <- readr::read_csv("data/curva_juros/series_parametros_svensson.csv")
     dplyr::select(data,beta0, beta1, beta2, beta3, tau1, tau2)
 
 
-# Eq: 4.9
-# f_kt = β₀ + β₁ exp(-k/τ₁) + β₂ (k/τ₁) exp(-k/τ₁) + β₃ (k/τ₂) exp(-k/τ₂)
-
-k <- 1 / 252
+# B&F (1998, p. 1094): "as k goes to zero the spot and the forward rate coincide at β₀ + β₁"
+# The instantaneous overnight forward rate is the k→0 limit of:
+# f(k) = β₀ + β₁ exp(-k/τ₁) + β₂ (k/τ₁) exp(-k/τ₁) + β₃ (k/τ₂) exp(-k/τ₂)
+# As k→0: exp(-k/τ)→1 and (k/τ)exp(-k/τ)→0, so f(0) = β₀ + β₁
 
 overnight_rate <- tibble::tibble(
     date = parameters$data,
-    overnight = parameters$beta0 + 
-                parameters$beta1 * exp(-k / parameters$tau1) + 
-                parameters$beta2 * (k / parameters$tau1) * exp(-k / parameters$tau1) + 
-                parameters$beta3 * (k / parameters$tau2) * exp(-k / parameters$tau2)
-) 
+    overnight = parameters$beta0 + parameters$beta1
+)
 
 
 
@@ -75,4 +72,4 @@ monthly_shocks <- tibble(month = months_seq) %>%
     mutate(shock = replace_na(shock, 0)) # Zeros conforme pág. 1094 [cite: 708]
 
 
-# readr::write_csv(monthly_shocks, "data/processed/instrument.csv")
+readr::write_csv(monthly_shocks, "data/processed/instrument.csv")
