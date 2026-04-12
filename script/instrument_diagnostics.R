@@ -78,15 +78,17 @@ fs_lm   <- lm(res ~ ., data = fs_data)
 
 hc0_vcov     <- vcovHC(fs_lm, type = "HC0")
 fs_coeftest  <- coeftest(fs_lm, vcov = hc0_vcov)
-fs_waldtest  <- waldtest(fs_lm, vcov = hc0_vcov)
 
 beta_hat     <- fs_coeftest["Z", "Estimate"]
 beta_se_hc0  <- fs_coeftest["Z", "Std. Error"]
 beta_t       <- fs_coeftest["Z", "t value"]
 beta_pval    <- fs_coeftest["Z", "Pr(>|t|)"]
 
-f_hc0        <- fs_waldtest$F[2]
-f_pval       <- fs_waldtest$`Pr(>F)`[2]
+# Partial F for instrument Z (k=1): F_partial = t^2
+# This matches Matlab's Waldstat = (sqrt(T)*Gamma)^2 / WHat_11 in MSWfunction.m
+# waldtest(fs_lm) would test ALL regressors jointly (Z + controls), not Z alone.
+f_partial_z  <- beta_t^2
+f_pval       <- beta_pval
 
 r2_fs        <- summary(fs_lm)$r.squared
 
@@ -109,9 +111,12 @@ xi1_crit   <- qchisq(0.95, 1)
 xi1_bounded <- xi_1 > xi1_crit
 
 # --- 3. Weak instrument flag --------------------------------
+# Use xi_1 vs. chi2(0.95,1) = 3.84, matching Matlab's Waldstat threshold in MSWfunction.m.
+# For k=1 instrument, xi_1 and f_partial_z are asymptotically equivalent (both = T*Gamma^2/Var).
 
-flag_weak <- f_hc0 < 10
-strength_label <- if (flag_weak) "WEAK (F < 10)" else "STRONG (F >= 10)"
+flag_weak <- xi_1 < xi1_crit
+strength_label <- if (flag_weak) sprintf("WEAK (\u03be\u2081 = %.2f < 3.84)", xi_1) else
+                                 sprintf("STRONG (\u03be\u2081 = %.2f \u2265 3.84)", xi_1)
 
 # --- 4. Exogeneity check (anticipation effects) -------------
 
@@ -235,9 +240,10 @@ report <- paste0(
   L("| First-stage β (HC0) | β̂ | ", round(beta_hat, 5), " | — | — |"),
   L("| HC0 Std. Error | SE | ", round(beta_se_hc0, 5), " | — | — |"),
   L("| HC0 t-statistic | t | ", round(beta_t, 3), " | — | p = ", fmt_p(beta_pval), " |"),
-  L("| HC0 F-statistic (relevance) | F | ", round(f_hc0, 2), " | F > 10 | **", strength_label, "** |"),
+  L("| Partial F for Z (t²) | F | ", round(f_partial_z, 2), " | F > 10 | p = ", fmt_p(f_pval), " |"),
   L("| ξ₁ statistic (OSW Sec. 4.2) | ξ₁ | ", round(xi_1, 2), " | ξ₁ > 3.84 | ",
-    if (xi1_bounded) "**AR 95% CI bounded**" else "**AR 95% CI unbounded**", " |"),
+    if (xi1_bounded) "**AR 95% CI bounded**" else "**AR 95% CI unbounded**",
+    " — **", strength_label, "** |"),
   L("| First-stage R² | R² | ", round(r2_fs, 4), " | — | — |"),
   L("| Pearson correlation | r | ", round(pearson_r, 4), " | — | p = ", fmt_p(pearson_pval), " |"),
   L("| Pearson 95% CI | [lb, ub] | [", round(pearson_ci[1], 4), ", ", round(pearson_ci[2], 4), "] | excludes 0? | ",
@@ -271,27 +277,32 @@ report <- paste0(
   L(),
   L("## Step 3 — Weak Instrument Diagnosis"),
   L(),
-  L("**HC0 F-statistic:** ", round(f_hc0, 2), " (p = ", fmt_p(f_pval), ")  "),
-  L("**ξ₁ statistic:** ", round(xi_1, 2), " (critical value χ²₁(0.95) = ", round(xi1_crit, 2), ")  "),
+  L("**Partial F for Z (= t²):** ", round(f_partial_z, 2), " (p = ", fmt_p(f_pval), ")  "),
+  L("**ξ₁ statistic (OSW Sec. 4.2):** ", round(xi_1, 2), " (critical value χ²₁(0.95) = ", round(xi1_crit, 2), ")  "),
   L("**First-stage R²:** ", round(r2_fs, 4), "  "),
   L("**Assessment:** ", strength_label),
   L(),
+  L("The partial F for Z is computed as t² (the squared HC0 t-statistic for the instrument coefficient ",
+    "after partialling out VAR lag controls), which is the correct single-instrument weak-IV diagnostic. ",
+    "The ξ₁ statistic (Montiel Olea, Stock & Watson 2020) is computed directly from the raw cross-moment ",
+    "Γ̂ = (1/T)Σzₜη̂₁ₜ and its HC0 variance, matching the Matlab `Waldstat` formula in MSWfunction.m."),
+  L(),
   if (!flag_weak) {
-    L("The HC0 F-statistic exceeds the conventional threshold of 10 (Montiel Olea, Stock & Watson 2021), ",
-      "indicating that the instrument provides adequate explanatory power for the first factor innovation. ",
+    L("ξ₁ = ", round(xi_1, 2), " exceeds the χ²₁(0.95) = 3.84 threshold (Montiel Olea, Stock & Watson 2020), ",
+      "indicating that the 95% Anderson-Rubin confidence sets for impulse responses are **bounded intervals**. ",
       "Weak-instrument bias in the proxy SVAR estimates is unlikely to be a first-order concern.")
   } else {
-    L("The HC0 F-statistic falls below the conventional threshold of 10 (Montiel Olea, Stock & Watson 2021), ",
+    L("ξ₁ = ", round(xi_1, 2), " falls below the χ²₁(0.95) = 3.84 threshold (Montiel Olea, Stock & Watson 2020), ",
       "flagging the instrument as potentially WEAK. Inference in the proxy SVAR identification may be unreliable, ",
       "and confidence bands could be substantially wider than reported.")
   },
   L(),
   if (xi1_bounded) {
-    L("However, because ξ₁ = ", round(xi_1, 2), " > 3.84, the 95% Anderson-Rubin weak-instrument confidence sets ",
+    L("Because ξ₁ > 3.84, the 95% Anderson-Rubin weak-instrument confidence sets ",
       "for the impulse response coefficients are **bounded intervals**. This means that even with a weak instrument, ",
       "the AR confidence sets remain informative (finite length).")
   } else {
-    L("Moreover, ξ₁ = ", round(xi_1, 2), " ≤ 3.84, so the 95% Anderson-Rubin confidence sets may be ",
+    L("Moreover, ξ₁ ≤ 3.84, so the 95% Anderson-Rubin confidence sets may be ",
       "**unbounded** (infinite length), indicating that the instrument provides essentially no information about ",
       "the structural parameters under weak-instrument-robust inference.")
   },
@@ -353,15 +364,15 @@ report <- paste0(
   L("**Instrument validity: ", if (overall_valid) "VALID ✓" else "QUESTIONABLE ✗", "**"),
   L(),
   if (overall_valid) {
-    L("Both the relevance (F > 10) and informal exogeneity checks (no significant anticipation) support the use ",
+    L("Both the relevance (ξ₁ > 3.84) and informal exogeneity checks (no significant anticipation) support the use ",
       "of this instrument for proxy SVAR identification. The Svensson-based COPOM surprise appears to be a valid ",
       "external instrument for monetary policy shocks in the Brazilian DFM.")
   } else {
     paste0(
-      if (flag_weak) L("**Relevance concern:** The HC0 F-statistic is below 10, suggesting a weak instrument. ",
-                       "The proxy SVAR identification may suffer from weak-instrument bias, leading to ",
-                       "distorted confidence intervals.",
-                       if (xi1_bounded) " However, ξ₁ > 3.84 ensures bounded AR confidence sets." else
+      if (flag_weak) L("**Relevance concern:** ξ₁ = ", round(xi_1, 2), " < 3.84 (Montiel Olea, Stock & Watson 2020), ",
+                       "suggesting a weak instrument. The proxy SVAR identification may suffer from weak-instrument bias, ",
+                       "leading to distorted confidence intervals.",
+                       if (xi1_bounded) "" else
                          " Furthermore, ξ₁ ≤ 3.84, so AR confidence sets may be unbounded.") else "",
       if (flag_anticipation) L("**Exogeneity concern:** The instrument appears to be correlated with lagged ",
                                "policy residuals, suggesting anticipation effects contaminate the surprise measure.") else ""
@@ -397,9 +408,9 @@ cat("\n========== INSTRUMENT DIAGNOSTICS SUMMARY ==========\n")
 cat(sprintf("  Sample:              %s to %s (n=%d)\n", min(Z_dates), max(Z_dates), length(Z_t)))
 cat(sprintf("  beta (HC0):          %.5f  (SE=%.5f, t=%.2f, p=%s)\n",
             beta_hat, beta_se_hc0, beta_t, fmt_p(beta_pval)))
-cat(sprintf("  HC0 F-statistic:     %.2f  [threshold: 10]  --> %s\n", f_hc0, strength_label))
-cat(sprintf("  xi_1 statistic:      %.2f  [threshold: 3.84] --> %s\n",
-            xi_1, if (xi1_bounded) "AR CI BOUNDED" else "AR CI UNBOUNDED"))
+cat(sprintf("  Partial F(Z) = t^2:  %.2f  (p=%s)\n", f_partial_z, fmt_p(f_pval)))
+cat(sprintf("  xi_1 statistic:      %.2f  [threshold: 3.84] --> %s  --> %s\n",
+            xi_1, if (xi1_bounded) "AR CI BOUNDED" else "AR CI UNBOUNDED", strength_label))
 cat(sprintf("  First-stage R2:      %.4f\n", r2_fs))
 cat(sprintf("  Pearson r:           %.4f  95%% CI [%.4f, %.4f]  p=%s\n",
             pearson_r, pearson_ci[1], pearson_ci[2], fmt_p(pearson_pval)))
