@@ -12,4 +12,6 @@ data/
 # Code files to exclude
 script/model.R
 codigo_alessi-mark/
+codigo_Jarocinski_e_Karadi/
+codigo_bauer_swanson/
 abc/
