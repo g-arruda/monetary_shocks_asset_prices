@@ -4,9 +4,15 @@
 # regime NC = other Wed), identifies the policy impact column from
 # the leading eigenvector of Sigma_C - Sigma_NC, recovers the daily
 # policy shock series via Mertens-Ravn (2013) GLS projection, and
-# aggregates to monthly z_het. Appends z_het to the existing
-# instrumentos_mensais.csv produced by script/instrument.R without
-# touching the 4 pre-existing variants.
+# aggregates to monthly z_het.
+#
+# Two specifications are produced and persisted side-by-side:
+#   - 4-var production block: (DI_3m, DI_2y, IBOV, BRL)  -> z_het, z_het_jk
+#   - 3-var robustness block: (DI_3m,        IBOV, BRL)  -> z_het_3var, z_het_jk_3var
+#
+# The 3-var block exists because the variance-split CI for DI_2y can
+# violate the A2 homoskedasticity assumption (council Required 1, 2026-05-05);
+# dropping DI_2y removes the secondary shock that contaminates b_1.
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -67,110 +73,153 @@ message(sprintf(
 
 # ---- Compute Wed-to-Thu changes for the SVAR block ---------
 
-di_3m <- extract_di_change(di_panel, regime_tbl, target_bd = TARGET_BD_3M)
-di_2y <- extract_di_change(di_panel, regime_tbl, target_bd = TARGET_BD_2Y)
+di_3m  <- extract_di_change(di_panel, regime_tbl, target_bd = TARGET_BD_3M)
+di_2y  <- extract_di_change(di_panel, regime_tbl, target_bd = TARGET_BD_2Y)
 r_ibov <- extract_price_change(ibov_daily, regime_tbl, transform = "log_diff") * 100
 r_brl  <- extract_price_change(brl_daily,  regime_tbl, transform = "log_diff") * 100
 
-changes <- cbind(DI_3m = di_3m, DI_2y = di_2y, IBOV = r_ibov, BRL = r_brl)
+changes_4var <- cbind(DI_3m = di_3m, DI_2y = di_2y, IBOV = r_ibov, BRL = r_brl)
+changes_3var <- cbind(DI_3m = di_3m,                IBOV = r_ibov, BRL = r_brl)
 
-n_complete <- sum(complete.cases(changes))
-message(sprintf("Daily change matrix: %d rows total, %d complete (no NA)",
-                nrow(changes), n_complete))
+n_complete_4var <- sum(complete.cases(changes_4var))
+n_complete_3var <- sum(complete.cases(changes_3var))
+message(sprintf(
+  "Daily change matrices: 4-var %d/%d complete; 3-var %d/%d complete",
+  n_complete_4var, nrow(changes_4var),
+  n_complete_3var, nrow(changes_3var)
+))
 
 # ---- Validate variance split (GRG Table 1) -----------------
 
 dir.create("output", showWarnings = FALSE)
 
-val <- validate_variance_split(changes, regime_tbl, alpha = 0.01,
-                               n_boot = 1000L, seed = 42L)
-write_csv(val, "output/het_variance_validation.csv")
+val_4var <- validate_variance_split(changes_4var, regime_tbl, alpha = 0.01,
+                                    n_boot = 1000L, seed = 42L) |>
+  classify_a2_verdict(mp_var = MP_VAR)
+val_3var <- validate_variance_split(changes_3var, regime_tbl, alpha = 0.01,
+                                    n_boot = 1000L, seed = 42L) |>
+  classify_a2_verdict(mp_var = MP_VAR)
 
-cat("\n========== VARIANCE SPLIT VALIDATION ==========\n")
-print(val)
-cat("\n")
+write_csv(val_4var, "output/het_variance_validation.csv")
+write_csv(val_3var, "output/het_variance_validation_3var.csv")
 
-di3m_ratio <- val$ratio[val$var == MP_VAR]
-di3m_ci_low <- val$ci_low[val$var == MP_VAR]
-if (di3m_ratio < 1 || di3m_ci_low < 1) {
+cat("\n========== VARIANCE SPLIT VALIDATION (4-var) ==========\n")
+print(val_4var)
+
+# A1 gate (policy variable: ratio > 1 with CI excluding 1 from below)
+mp_row <- val_4var |> filter(var == MP_VAR)
+if (mp_row$ratio < 1 || mp_row$ci_low < 1) {
   warning(sprintf(
-    "Hypothesis A1 not satisfied for %s (ratio=%.2f, ci_low=%.2f). Identification is weak.",
-    MP_VAR, di3m_ratio, di3m_ci_low
+    "A1 violated: %s ratio=%.2f, ci_low=%.2f. Identification is weak.",
+    MP_VAR, mp_row$ratio, mp_row$ci_low
   ))
+}
+
+# A2 gate per non-policy variable (CI must include 1)
+violators_4var <- val_4var |> filter(a2_status == "violated")
+if (nrow(violators_4var) > 0) {
+  for (i in seq_len(nrow(violators_4var))) {
+    r <- violators_4var[i, ]
+    warning(sprintf(
+      "A2 violated for %s (4-var SVAR): ratio=%.2f, CI99 = [%.2f, %.2f] (%s side). %s",
+      r$var, r$ratio, r$ci_low, r$ci_high, r$a2_side,
+      "Compare b_1 with the 3-var SVAR (drops DI_2y)."
+    ))
+  }
+}
+
+cat("\n========== VARIANCE SPLIT VALIDATION (3-var, robustness) ==========\n")
+print(val_3var)
+violators_3var <- val_3var |> filter(a2_status == "violated")
+if (nrow(violators_3var) > 0) {
+  for (i in seq_len(nrow(violators_3var))) {
+    r <- violators_3var[i, ]
+    warning(sprintf(
+      "A2 violated for %s (3-var SVAR): ratio=%.2f, CI99 = [%.2f, %.2f] (%s side).",
+      r$var, r$ratio, r$ci_low, r$ci_high, r$a2_side
+    ))
+  }
 }
 
 # ---- Identify b_1 and recover daily shock series -----------
 
-mp_idx <- which(colnames(changes) == MP_VAR)
-ext <- extract_shock_rigobon_sack(changes, regime_tbl, mp_var_idx = mp_idx)
+run_het <- function(changes_matrix, label) {
+  cat(sprintf("\n========== RIGOBON-SACK IDENTIFICATION (%s) ==========\n", label))
+  built <- build_het_instrument(
+    changes_matrix, regime_tbl,
+    mp_var = MP_VAR,
+    month_range = c(SAMPLE_START, SAMPLE_END)
+  )
+  ext <- built$ext
+  k_d <- ncol(changes_matrix)
 
-cat("========== RIGOBON-SACK IDENTIFICATION ==========\n")
-cat(sprintf("  n_C = %d   n_NC = %d\n", ext$n_C, ext$n_NC))
-cat("  eigenvalues of dSigma:\n")
-print(setNames(round(ext$lambda_all, 4), colnames(changes)))
-cat(sprintf("  rank1_share    = %.3f  (gate: > 0.6)\n", ext$rank1_share))
-cat(sprintf("  eigenvalue_gap = %.3f\n", ext$eigenvalue_gap))
-if (ext$rank1_share < 0.6) {
-  warning(sprintf(
-    "rank1_share = %.3f below 0.6 gate: dSigma is not well approximated by rank 1, identification is suspect.",
-    ext$rank1_share
-  ))
+  cat(sprintf("  n_C = %d   n_NC = %d   k_d = %d\n", ext$n_C, ext$n_NC, k_d))
+  cat("  eigenvalues of dSigma:\n")
+  print(setNames(round(ext$lambda_all, 4), colnames(changes_matrix)))
+  cat(sprintf("  rank1_share    = %.3f  (gate: > 0.6)\n", ext$rank1_share))
+  cat(sprintf("  eigenvalue_gap = %.3f\n", ext$eigenvalue_gap))
+  cat(sprintf("  psd_min_eig    = %.4g\n", ext$psd_min_eig))
+  if (ext$rank1_share < 0.6) {
+    warning(sprintf(
+      "rank1_share = %.3f below 0.6 (%s): dSigma is not well approximated by rank 1.",
+      ext$rank1_share, label
+    ))
+  }
+  cat("  impact column b_1:\n")
+  print(setNames(round(ext$b_1, 4), colnames(changes_matrix)))
+  cat(sprintf("  JK sign filter: %d / %d Copom days kept (%.1f%% pure monetary)\n",
+              built$n_jk_kept, length(built$jk_mask), 100 * mean(built$jk_mask)))
+
+  built
 }
 
-# Persist identification diagnostics for the report in instrument_diagnostics.R.
-tibble(
-  rank = seq_along(ext$lambda_all),
-  variable = c(colnames(changes), rep(NA_character_, length(ext$lambda_all) - ncol(changes)))[seq_along(ext$lambda_all)],
-  lambda = ext$lambda_all,
-  abs_share = abs(ext$lambda_all) / sum(abs(ext$lambda_all))
-) |> write_csv("output/het_eigenvalues.csv")
+built_4var <- run_het(changes_4var, "4-var")
+built_3var <- run_het(changes_3var, "3-var robustness")
 
-tibble(variable = colnames(changes), b_1 = ext$b_1) |>
-  write_csv("output/het_b_1.csv")
-cat(sprintf("  psd_min_eig    = %.4g\n", ext$psd_min_eig))
-cat("  impact column b_1:\n")
-print(setNames(round(ext$b_1, 4), colnames(changes)))
-cat("\n")
+# ---- Persist eigenvalue and b_1 diagnostics ----------------
 
-# ---- Jarocinski-Karadi sign filter on the daily shock ------
-# Audit (script/instrument_audit.R, 2026-04-25) showed that on monthly
-# yield_6m the JK-filtered series gives F = 21 vs 7.6 unfiltered. Both
-# variants are persisted; downstream scripts pick which one to use.
+persist_diagnostics <- function(built, changes_matrix, suffix = "") {
+  vars <- colnames(changes_matrix)
+  ext  <- built$ext
+  k_d  <- length(vars)
 
-ibov_at_C <- changes[complete.cases(changes), "IBOV"][regime_tbl[complete.cases(changes), "regime"] == "C"]
-jk_mask   <- sign(ext$shocks_C) != 0 & sign(ibov_at_C) != 0 &
-             sign(ext$shocks_C) != sign(ibov_at_C)
+  eig_path <- sprintf("output/het_eigenvalues%s.csv", suffix)
+  b1_path  <- sprintf("output/het_b_1%s.csv",         suffix)
 
-cat(sprintf("JK sign filter: %d / %d Copom days kept (%.1f%% pure monetary)\n",
-            sum(jk_mask), length(jk_mask), 100 * mean(jk_mask)))
+  tibble(
+    rank      = seq_along(ext$lambda_all),
+    variable  = c(vars, rep(NA_character_, length(ext$lambda_all) - k_d))[seq_along(ext$lambda_all)],
+    lambda    = ext$lambda_all,
+    abs_share = abs(ext$lambda_all) / sum(abs(ext$lambda_all))
+  ) |> write_csv(eig_path)
 
-# ---- Aggregate daily shocks to monthly ---------------------
+  tibble(variable = vars, b_1 = ext$b_1) |> write_csv(b1_path)
+}
 
-z_het <- aggregate_shock_to_monthly(
-  ext$shocks_C, ext$shocks_C_dates,
-  month_range = c(SAMPLE_START, SAMPLE_END)
-)
-z_het_jk <- aggregate_shock_to_monthly(
-  ext$shocks_C * jk_mask, ext$shocks_C_dates,
-  month_range = c(SAMPLE_START, SAMPLE_END)
-) |> rename(z_het_jk = z_het)
+persist_diagnostics(built_4var, changes_4var, suffix = "")
+persist_diagnostics(built_3var, changes_3var, suffix = "_3var")
 
-# ---- Append both variants to the combined monthly file -----
+# ---- Append both blocks to the combined monthly file -------
 
 combined_path <- "data/processed/instrumentos_mensais.csv"
+new_cols <- c("z_het", "z_het_jk", "z_het_3var", "z_het_jk_3var")
+
+block <- built_4var$z_het |>
+  left_join(built_4var$z_het_jk,                          by = "month") |>
+  left_join(built_3var$z_het    |> rename(z_het_3var    = z_het),    by = "month") |>
+  left_join(built_3var$z_het_jk |> rename(z_het_jk_3var = z_het_jk), by = "month")
+
 if (file.exists(combined_path)) {
   existing <- read_csv(combined_path, show_col_types = FALSE) |>
     mutate(month = as.Date(month))
-  for (drop_col in c("z_het", "z_het_jk")) {
+  for (drop_col in new_cols) {
     if (drop_col %in% names(existing)) existing[[drop_col]] <- NULL
   }
   combined <- existing |>
-    left_join(z_het,    by = "month") |>
-    left_join(z_het_jk, by = "month") |>
-    mutate(z_het    = replace_na(z_het,    0),
-           z_het_jk = replace_na(z_het_jk, 0))
+    left_join(block, by = "month") |>
+    mutate(across(all_of(new_cols), ~ replace_na(.x, 0)))
 } else {
-  combined <- z_het |> left_join(z_het_jk, by = "month")
+  combined <- block
   warning(sprintf(
     "%s did not exist; created with z_het variants only. Run script/instrument.R for the four legacy variants.",
     combined_path
@@ -180,22 +229,37 @@ write_csv(combined, combined_path)
 
 # Single-variant CSVs consumed by model_alessi.R / model_var.R when
 # DEFAULT_VARIANT in script/instrument.R points at one of these.
-z_het    |> transmute(month, shock = z_het)    |> write_csv("data/processed/instrument_z_het.csv")
-z_het_jk |> transmute(month, shock = z_het_jk) |> write_csv("data/processed/instrument_z_het_jk.csv")
+built_4var$z_het    |> transmute(month, shock = z_het)         |>
+  write_csv("data/processed/instrument_z_het.csv")
+built_4var$z_het_jk |> transmute(month, shock = z_het_jk)      |>
+  write_csv("data/processed/instrument_z_het_jk.csv")
+built_3var$z_het    |> transmute(month, shock = z_het)         |>
+  write_csv("data/processed/instrument_z_het_3var.csv")
+built_3var$z_het_jk |> transmute(month, shock = z_het_jk)      |>
+  write_csv("data/processed/instrument_z_het_jk_3var.csv")
 
 # ---- Console summary ---------------------------------------
 
-cat("========== HETEROSKEDASTICITY INSTRUMENT SUMMARY ==========\n")
+cat("\n========== HETEROSKEDASTICITY INSTRUMENT SUMMARY ==========\n")
 cat(sprintf("  Sample:           %s to %s\n", SAMPLE_START, SAMPLE_END))
-cat(sprintf("  Daily SVAR k_d:   %d (%s)\n",
-            ncol(changes), paste(colnames(changes), collapse = ", ")))
-cat(sprintf("  Policy variable:  %s (mp_var_idx = %d)\n", MP_VAR, mp_idx))
+cat(sprintf("  4-var SVAR k_d:   %d (%s)\n", ncol(changes_4var),
+            paste(colnames(changes_4var), collapse = ", ")))
+cat(sprintf("  3-var SVAR k_d:   %d (%s)\n", ncol(changes_3var),
+            paste(colnames(changes_3var), collapse = ", ")))
+cat(sprintf("  Policy variable:  %s\n", MP_VAR))
 cat(sprintf("  Wed-Thu pairs:    %d (C=%d, NC=%d)\n",
-            nrow(regime_tbl), ext$n_C, ext$n_NC))
-cat(sprintf("  Monthly obs:      %d (nonzero z_het: %d, nonzero z_het_jk: %d)\n",
-            nrow(z_het), sum(z_het$z_het != 0), sum(z_het_jk$z_het_jk != 0)))
-cat(sprintf("  z_het    sd:      %.3f  range: [%.3f, %.3f]\n",
-            sd(z_het$z_het), min(z_het$z_het), max(z_het$z_het)))
-cat(sprintf("  z_het_jk sd:      %.3f  range: [%.3f, %.3f]\n",
-            sd(z_het_jk$z_het_jk), min(z_het_jk$z_het_jk), max(z_het_jk$z_het_jk)))
+            nrow(regime_tbl),
+            built_4var$ext$n_C, built_4var$ext$n_NC))
+
+print_var_summary <- function(built, label) {
+  z  <- built$z_het$z_het
+  zj <- built$z_het_jk$z_het_jk
+  cat(sprintf(
+    "  %-20s nonzero z_het=%d, z_het_jk=%d  sd(z_het)=%.3f, sd(z_het_jk)=%.3f\n",
+    label, sum(z != 0), sum(zj != 0), sd(z), sd(zj)
+  ))
+}
+print_var_summary(built_4var, "4-var (production):")
+print_var_summary(built_3var, "3-var (robustness):")
+
 cat("===========================================================\n\n")

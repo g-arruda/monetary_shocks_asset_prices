@@ -32,7 +32,7 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
                       r = results_bai_ng$r_hat$IC2,
                       q = results_amengual_watson$q_hat, p = 6,
                       h = 50, nboot = 800, bootstrap_seed = 123,
-                      mp_var = "juros_selic", shock_size_bps = 50,
+                      mp_var = "yield_6m", shock_size_bps = 50,
                       tcode = NULL, ci_levels = c(0.90, 0.95)) {
   
   # Load and prepare data (preservar ref.date para alinhamento)
@@ -114,7 +114,7 @@ sdfm_results <- main_sdfm(
   q = 8,
   p = 6,
   shock_size_bps = 50,
-  mp_var = "juros_selic",
+  mp_var = "yield_6m",
   ci_levels = c(0.90),
   nboot = 100
 )

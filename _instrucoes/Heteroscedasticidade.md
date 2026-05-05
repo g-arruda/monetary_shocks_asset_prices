@@ -33,7 +33,7 @@ onde `ε_1` é o choque de política monetária. Defina dois regimes pelo calend
 - **A2** (homocedasticidade dos demais choques): `Var(ε_{j,t} | C) = Var(ε_{j,t} | NC)` para `j = 2, 3, 4`.
 - **A3** (`B_d` constante entre regimes): a estrutura de covariância contemporânea não muda; só as variâncias dos choques.
 
-A1 é diagnosticável: o teste é a Tabela 1 do GRG, replicado pelo `validate_variance_split` (razão de variâncias com IC bootstrap 99%). A2 também: razões devem incluir 1 nos demais choques.
+A1 é diagnosticável: o teste é a Tabela 1 do GRG, replicado pelo `validate_variance_split` (razão de variâncias com IC bootstrap 99%). A2 também: razões devem incluir 1 nos demais choques. O verdict por variável (coluna `a2_status` ∈ {`policy`, `pass`, `violated`}, com `a2_side` ∈ {`upper`, `lower`}) é produzido por `classify_a2_verdict` em `R/identification/het_shock_extraction.R` e persistido em `output/het_variance_validation.csv`. Quando A2 é violado para `DI_2y` (λ_2 ≈ 41 indica um segundo choque estrutural), o mesmo `script/instrument_het.R` produz um SVAR 3-var de robustez (DI_3m, IBOV, BRL) com diagnostics próprios em `output/het_*_3var.csv`; a comparação `b_1` 4-var × 3-var aparece em `output/instrument_diagnostics_report.md` §4.3.
 
 ## Identificação rank-1 e recuperação do choque
 
@@ -92,7 +92,7 @@ Após `Rscript script/instrument.R`, o legacy `data/processed/instrument.csv` ap
 
 E reporta:
 
-- **Seção 1** — comparação first-stage F dos 6 instrumentos contra o **primeiro fator dinâmico do DFM** (HC0, partial F, Olea-Stock-Watson ξ_1). NB: este alvo é o do AK 2019; a relevância first-stage para a interpretação Selic-equivalente vem do `script/instrument_audit.R` que regride contra inovações AR(6) de candidatos a variável de política mensal.
+- **Seção 1** — comparação first-stage F dos 8 instrumentos (4 GK + `z_het`, `z_het_jk`, `z_het_3var`, `z_het_jk_3var`) com **dois F lado a lado**: F (DFM) contra o resíduo do primeiro fator do VAR (alvo do AK 2019; governa viés de instrumento fraco no proxy-SVAR) e F (y6m AR) contra a inovação AR(6) de `yield_6m` (relevância Selic-equivalente; mesmo cálculo do `instrument_audit.R`). HC0, partial F, Olea-Stock-Watson ξ_1. As colunas `n (DFM)` e `n (y6m)` da tabela tornam explícita a diferença de amostra entre os dois.
 - **Seção 4.1** — replica da Tabela 1 do GRG; gates A1 (DI_3m ratio > 1, IC 99% exclui 1) e A2 (IBOV/BRL CIs incluem 1).
 - **Seção 4.2** — espectro de ΔΣ; gate `rank1_share > 0.6`. Plot em `output/het_eigenvalues.png`.
 - **Seção 4.3** — `b_1` com nomes das variáveis e sinais.
@@ -140,3 +140,39 @@ DEFAULT_VARIANT <- "z_het_jk"   # script/instrument.R:25
 ```
 
 Inferência: wild bootstrap recursive GK existente. Para o caso `yield_6m` com F = 21, percentile bootstrap CIs são razoáveis; Anderson-Rubin não é necessário.
+
+## Validação 2026-04-26 — Suite de robustez
+
+`script/instrument_validation.R` (funções em `R/identification/validation_tests.R`) executa quatro testes sobre `z_het_jk + yield_6m`:
+
+| Teste | Descrição | Resultado | Leitura |
+|-------|-----------|-----------|---------|
+| **T1 placebo** | permutação de `z_het_jk` mensal (n=2000) | F obs=21.29; mean F nulo=1.22; p=0.0005 | F=21 não é data-snooping |
+| **T2 random-mask** | manter 42 dias Copom aleatórios (= k do JK) (n=2000) | F obs=21.29; mean F nulo=5.73; **q99=21.5**; p=0.0105 | filtro JK informativo, mas o gap é de um percentil — ver Blindspot |
+| **T3 sub-period** | full / 2013-19 / 2020-25 / full−COVID-acute | 21.3 / 38.1 / 11.2 / 24.2 | identificação estável; até COVID+ passa Stock-Yogo (>10); **drop_covid > full** indica contaminação ativa do COVID acute |
+| **T4 cor com z_jk_purif** | pearson/spearman em meses both-nonzero (n=36) | 0.93 / 0.94 | het-ID e timing-ID convergem; **het é subconjunto estrito de timing** (42 ⊂ 65 meses, com 36 em comum) |
+
+**T2 framing honesto:** F obs=21.29 sits AT q99=21.5 (não acima); empirical p=0.0105 com SE binomial ≈0.0023 → CI95 ≈ [0.006, 0.015]. O sign filter JK é informativo mas o gap é de exatamente um percentil. Ao escrever paper, usar "JK F sits at the 99th percentile of random masks of equal size" em vez de "p ≈ 0.01 confirma" (otimista demais).
+
+**Detalhe metodológico (não-trivial, confirmado por referee2 round 2):** o AR(p) de `yield_6m` é estimado **uma vez no full sample** e os resíduos são subset por janela. Refit dentro de cada janela introduz um bug em `drop_covid` (janela não-contígua: Out-2020 ficaria com lag-1 em Fev-2020). Implementado via `residualize_target()` + `first_stage_F(z, innov)` com guarda contra `z` constante.
+
+Cross-language replication em Python (NumPy + statsmodels) bate com R a 6 decimais em todas as estatísticas determinísticas (F observado, F sub-período, correlações). Réplica em `correspondence/referee2/replication/referee2_replicate_validation.py`; relatório formal em `correspondence/referee2/2026-04-26_round2_report.md` (verdict: **Accept**).
+
+### Open questions (Blindspot 2026-04-26)
+
+Robustness checks ausentes (não-bloqueantes mas desejáveis antes do paper):
+
+1. **Sensibilidade ao AR-order** — rodar p ∈ {3, 12} adicional aos p=6 default.
+2. **Anti-JK mask** — zerar puros monetários (sign(ε̂)≠sign(ΔIBOV)) e manter informacionais. Se F(anti-JK) ≈ 5 (random level), evidência forte de que o critério é informativo.
+3. **Curva F(k_keep)** para k ∈ {20, 60, 80} — separa "JK escolhe os 42 certos" vs "qualquer 42 chega perto".
+4. **Placebo + random-mask para `z_het` puro** como benchmark pareado.
+5. **Correlação T4 e var(innov) por sub-período** — quantifica a heterogeneidade COVID.
+
+Pontos a destacar (não enterrar) no paper:
+
+1. **drop_covid F > full F** como medida QUANTITATIVA de contaminação 2020-Q2/Q3 (remover meses MECANICAMENTE deveria reduzir F; sobe → contaminação ativa).
+2. **Het-ID é subconjunto estrito de timing-ID**, não complementar. Os 29 meses onde só `z_jk_purif` dispara são candidatos a contaminação que `z_het_jk` rejeita.
+3. **Heterogeneidade pre/post-COVID** (β +37%, SE +151%, R² estável) como achado sobre regime de comunicação BCB pós-2020, não nota de rodapé.
+4. **Cross-language replication discipline** (R + Python a 6 decimais) em methods footnote.
+
+Detalhe completo em `working-notes/2026-04-26_blindspot_validation.md`.

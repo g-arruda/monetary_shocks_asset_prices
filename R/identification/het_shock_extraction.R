@@ -280,3 +280,94 @@ aggregate_shock_to_monthly <- function(shocks,
     dplyr::left_join(observed, by = "month") |>
     dplyr::mutate(z_het = tidyr::replace_na(z_het, 0))
 }
+
+#' Classify A2 (non-policy homoskedasticity) verdict from a variance-split table
+#'
+#' Adds an `a2_status` column to the output of `validate_variance_split`:
+#' "policy"   for the policy variable (A1, not A2);
+#' "violated" if the bootstrap CI for var_C / var_NC excludes 1 from either side;
+#' "pass"     otherwise.
+#'
+#' Identification by heteroskedasticity (Rigobon-Sack 2003) requires CIs that
+#' include 1 for every non-policy variable. Violation by the high side ("upper")
+#' indicates that some non-policy shock has higher variance on Copom days too,
+#' so the leading eigenvector of dSigma is contaminated by a second shock.
+#'
+#' @param val_tbl Tibble returned by `validate_variance_split`.
+#' @param mp_var  Name of the policy variable (matched against val_tbl$var).
+#'
+#' @return val_tbl with two extra columns: a2_status, a2_side
+#'   (a2_side: NA for policy/pass; "upper" if ci_low > 1; "lower" if ci_high < 1).
+classify_a2_verdict <- function(val_tbl, mp_var) {
+  val_tbl |>
+    dplyr::mutate(
+      a2_status = dplyr::case_when(
+        var == mp_var            ~ "policy",
+        ci_low > 1 | ci_high < 1 ~ "violated",
+        TRUE                     ~ "pass"
+      ),
+      a2_side = dplyr::case_when(
+        a2_status != "violated" ~ NA_character_,
+        ci_low > 1              ~ "upper",
+        ci_high < 1             ~ "lower"
+      )
+    )
+}
+
+#' Build the heteroskedasticity-identified monthly instrument for a SVAR block
+#'
+#' Wraps `extract_shock_rigobon_sack`, the daily Jarocinski-Karadi sign filter,
+#' and `aggregate_shock_to_monthly`. Used to run the same identification on the
+#' 4-variable production block (DI_3m, DI_2y, IBOV, BRL) and on the 3-variable
+#' robustness block (DI_3m, IBOV, BRL) without duplicating pipeline code.
+#'
+#' Requires an "IBOV" column in `changes_matrix` because the JK sign filter
+#' compares sign(daily shock) to sign(IBOV daily change) on Copom days.
+#'
+#' @param changes_matrix Numeric matrix N_pairs x k_d of Wed-to-Thu changes.
+#' @param regime_table   Output of `build_daily_regimes` aligned to changes.
+#' @param mp_var         Name of the policy variable (column of changes_matrix).
+#' @param month_range    Length-2 Date vector bounding the monthly grid.
+#'
+#' @return List with z_het and z_het_jk (tibbles of month and z), ext (raw
+#'   `extract_shock_rigobon_sack` result), jk_mask (logical, daily on Copom
+#'   pairs), n_jk_kept, and mp_var_idx.
+build_het_instrument <- function(changes_matrix,
+                                 regime_table,
+                                 mp_var,
+                                 month_range) {
+  if (!"IBOV" %in% colnames(changes_matrix)) {
+    stop("changes_matrix must contain an 'IBOV' column for the JK sign filter")
+  }
+  mp_idx <- which(colnames(changes_matrix) == mp_var)
+  if (length(mp_idx) != 1L) {
+    stop("Policy variable '", mp_var, "' not found in changes_matrix columns")
+  }
+
+  ext <- extract_shock_rigobon_sack(changes_matrix, regime_table,
+                                    mp_var_idx = mp_idx)
+
+  complete      <- stats::complete.cases(changes_matrix)
+  reg_complete  <- regime_table[complete, ]
+  ibov_complete <- changes_matrix[complete, "IBOV"]
+  ibov_C        <- ibov_complete[reg_complete$regime == "C"]
+
+  jk_mask <- sign(ext$shocks_C) != 0 & sign(ibov_C) != 0 &
+             sign(ext$shocks_C) != sign(ibov_C)
+
+  z_het <- aggregate_shock_to_monthly(
+    ext$shocks_C, ext$shocks_C_dates, month_range = month_range
+  )
+  z_het_jk <- aggregate_shock_to_monthly(
+    ext$shocks_C * jk_mask, ext$shocks_C_dates, month_range = month_range
+  ) |> dplyr::rename(z_het_jk = z_het)
+
+  list(
+    z_het      = z_het,
+    z_het_jk   = z_het_jk,
+    ext        = ext,
+    jk_mask    = jk_mask,
+    n_jk_kept  = sum(jk_mask),
+    mp_var_idx = mp_idx
+  )
+}

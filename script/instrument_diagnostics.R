@@ -21,8 +21,20 @@ suppressPackageStartupMessages({
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/identification/validation_tests.R")
 
 dir.create("output", showWarnings = FALSE)
+
+# yield_6m AR(6) innovation: alternative first-stage target. The DFM-factor F
+# (used by run_variant) is the Olea-Stock-Watson partial F that governs weak-
+# instrument bias inside the proxy-SVAR; the yield_6m AR-innovation F measures
+# relevance for the Selic-equivalent interpretation of the shock (audit
+# 2026-04-25). Reporting both, side by side, addresses pendencias.md Crit. 3.
+
+YIELD6M_TARGET     <- "yield_6m"
+YIELD6M_AR_LAGS    <- 6L
+YIELD6M_SAMPLE_MIN <- as.Date("2013-01-01")
+YIELD6M_SAMPLE_MAX <- as.Date("2025-12-31")
 
 # ---- 1. DFM estimation (instrument-agnostic) ---------------
 
@@ -61,9 +73,22 @@ variants <- list(
   "z_jk"           = "data/processed/instrument_jk.csv",
   "z_jk_purif"     = "data/processed/instrument_jk_purif.csv",
   "z_het"          = "data/processed/instrument_z_het.csv",
-  "z_het_jk"       = "data/processed/instrument_z_het_jk.csv"
+  "z_het_jk"       = "data/processed/instrument_z_het_jk.csv",
+  "z_het_3var"     = "data/processed/instrument_z_het_3var.csv",
+  "z_het_jk_3var"  = "data/processed/instrument_z_het_jk_3var.csv"
 )
 variants <- variants[file.exists(unlist(variants))]
+
+# yield_6m AR(6) innovation: shared across variants. residualize_target keeps
+# residual length equal to input via na.exclude, so positional alignment with
+# the instrument (joined on month) is valid.
+y6m_raw <- read_csv("data/raw_data.csv", show_col_types = FALSE) |>
+  mutate(ref.date = as.Date(ref.date)) |>
+  filter(ref.date >= YIELD6M_SAMPLE_MIN, ref.date <= YIELD6M_SAMPLE_MAX) |>
+  arrange(ref.date)
+y6m_dates <- y6m_raw$ref.date
+y6m_innov <- residualize_target(y6m_raw[[YIELD6M_TARGET]],
+                                n_lags = YIELD6M_AR_LAGS)
 
 fmt_p <- function(p) if (is.na(p)) "NA" else if (p < 0.001) "< 0.001" else sprintf("%.3f", p)
 
@@ -98,6 +123,11 @@ run_variant <- function(name, path) {
   exog_f  <- ex_wf$F[2]
   exog_pv <- ex_wf$`Pr(>F)`[2]
 
+  # F against AR(p) innovation of yield_6m (Selic-equivalent relevance).
+  # Instrument df has columns (month, shock); align by month-start.
+  z_y6m <- align_z_to_target(inst_df$shock, inst_df$month, y6m_dates)
+  fs_y6m <- first_stage_F(z_y6m, y6m_innov)
+
   tibble(
     variant   = name,
     n         = T_eff,
@@ -110,7 +140,10 @@ run_variant <- function(name, path) {
     xi1       = xi1,
     r2_fs     = r2,
     exog_f    = exog_f,
-    exog_p    = exog_pv
+    exog_p    = exog_pv,
+    f_y6m     = fs_y6m$F_partial,
+    r2_y6m    = fs_y6m$r2,
+    n_y6m     = fs_y6m$n
   )
 }
 
@@ -201,9 +234,15 @@ het_val_path <- "output/het_variance_validation.csv"
 het_eig_path <- "output/het_eigenvalues.csv"
 het_b1_path  <- "output/het_b_1.csv"
 
+het_val_3var_path <- "output/het_variance_validation_3var.csv"
+het_b1_3var_path  <- "output/het_b_1_3var.csv"
+
 het_val <- if (file.exists(het_val_path)) read_csv(het_val_path, show_col_types = FALSE) else NULL
 het_eig <- if (file.exists(het_eig_path)) read_csv(het_eig_path, show_col_types = FALSE) else NULL
 het_b1  <- if (file.exists(het_b1_path))  read_csv(het_b1_path,  show_col_types = FALSE) else NULL
+
+het_val_3var <- if (file.exists(het_val_3var_path)) read_csv(het_val_3var_path, show_col_types = FALSE) else NULL
+het_b1_3var  <- if (file.exists(het_b1_3var_path))  read_csv(het_b1_3var_path,  show_col_types = FALSE) else NULL
 
 if (!is.null(het_eig)) {
   het_eig <- het_eig |>
@@ -229,19 +268,27 @@ if (!is.null(het_eig)) {
 
 # ---- 6. Report ---------------------------------------------
 
+fmt_num_or_na <- function(x, d = 3) {
+  ifelse(is.na(x), "NA", sprintf(paste0("%.", d, "f"), x))
+}
+
 res_tbl <- results |>
   mutate(across(c(beta, se_hc0, t_stat, f_partial, xi1, r2_fs, exog_f),
                 ~ sprintf("%.3f", .x)),
+         f_y6m  = fmt_num_or_na(f_y6m,  3),
+         r2_y6m = fmt_num_or_na(r2_y6m, 3),
          p_value = map_chr(p_value, fmt_p),
          exog_p  = map_chr(exog_p,  fmt_p),
          weak_flag = ifelse(as.numeric(xi1) < 3.84, "WEAK", "OK"))
 
-hdr <- "| Variant | n | nonzero | β̂ | SE(HC0) | t | p | Partial F | ξ₁ | R² | Exog F | Exog p | Flag |"
-sep <- "|---|---|---|---|---|---|---|---|---|---|---|---|---|"
+hdr <- "| Variant | n (DFM) | nonzero | β̂ | SE(HC0) | t | p | F (DFM) | ξ₁ | R² | n (y6m) | F (y6m AR) | R² y6m | Exog F | Exog p | Flag |"
+sep <- "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"
 rows <- apply(res_tbl, 1, function(r)
-  sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |",
+  sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |",
           r["variant"], r["n"], r["nonzero"], r["beta"], r["se_hc0"],
           r["t_stat"], r["p_value"], r["f_partial"], r["xi1"], r["r2_fs"],
+          r["n_y6m"],
+          r["f_y6m"], r["r2_y6m"],
           r["exog_f"], r["exog_p"], r["weak_flag"]))
 tbl_md <- paste(c(hdr, sep, rows), collapse = "\n")
 
@@ -260,19 +307,34 @@ var_md <- if (!is.null(var_tests)) {
   "_(event diagnostics not available)_"
 }
 
-het_val_md <- if (!is.null(het_val)) {
-  v <- het_val |> mutate(across(where(is.numeric), ~ signif(.x, 3)))
-  paste(c(
-    "| Variable | n_C | n_NC | Var(C) | Var(NC) | Ratio | CI 99% low | CI 99% high |",
-    "|---|---|---|---|---|---|---|---|",
-    apply(v, 1, function(r)
-      sprintf("| %s | %s | %s | %s | %s | %s | %s | %s |",
-              r["var"], r["n_C"], r["n_NC"], r["var_C"], r["var_NC"],
-              r["ratio"], r["ci_low"], r["ci_high"]))
-  ), collapse = "\n")
-} else {
-  "_(run script/instrument_het.R to populate this section)_"
+format_var_split_md <- function(tbl) {
+  if (is.null(tbl)) return("_(run script/instrument_het.R to populate this section)_")
+  has_status <- "a2_status" %in% names(tbl)
+  v <- tbl |>
+    mutate(across(c(var_C, var_NC, ratio, ci_low, ci_high),
+                  ~ signif(.x, 3)))
+  if (has_status) {
+    paste(c(
+      "| Variable | n_C | n_NC | Var(C) | Var(NC) | Ratio | CI 99% low | CI 99% high | A2 verdict |",
+      "|---|---|---|---|---|---|---|---|---|",
+      apply(v, 1, function(r)
+        sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s |",
+                r["var"], r["n_C"], r["n_NC"], r["var_C"], r["var_NC"],
+                r["ratio"], r["ci_low"], r["ci_high"], r["a2_status"]))
+    ), collapse = "\n")
+  } else {
+    paste(c(
+      "| Variable | n_C | n_NC | Var(C) | Var(NC) | Ratio | CI 99% low | CI 99% high |",
+      "|---|---|---|---|---|---|---|---|",
+      apply(v, 1, function(r)
+        sprintf("| %s | %s | %s | %s | %s | %s | %s | %s |",
+                r["var"], r["n_C"], r["n_NC"], r["var_C"], r["var_NC"],
+                r["ratio"], r["ci_low"], r["ci_high"]))
+    ), collapse = "\n")
+  }
 }
+het_val_md      <- format_var_split_md(het_val)
+het_val_3var_md <- format_var_split_md(het_val_3var)
 
 het_eig_md <- if (!is.null(het_eig)) {
   v <- het_eig |>
@@ -292,11 +354,22 @@ het_eig_md <- if (!is.null(het_eig)) {
 }
 
 het_b1_md <- if (!is.null(het_b1)) {
-  v <- het_b1 |> mutate(b_1 = signif(b_1, 4))
+  b1_4 <- het_b1 |>
+    transmute(variable, b_1_4var = signif(b_1, 4))
+  b1_3 <- if (!is.null(het_b1_3var)) {
+    het_b1_3var |> transmute(variable, b_1_3var = signif(b_1, 4))
+  } else {
+    tibble(variable = character(), b_1_3var = numeric())
+  }
+  joined <- b1_4 |>
+    full_join(b1_3, by = "variable") |>
+    mutate(across(c(b_1_4var, b_1_3var),
+                  ~ ifelse(is.na(.x), "-", as.character(.x))))
   paste(c(
-    "| Variable | Impact (b_1) |",
-    "|---|---|",
-    apply(v, 1, function(r) sprintf("| %s | %s |", r["variable"], r["b_1"]))
+    "| Variable | b_1 (4-var) | b_1 (3-var, drops DI_2y) |",
+    "|---|---|---|",
+    apply(joined, 1, function(r)
+      sprintf("| %s | %s | %s |", r["variable"], r["b_1_4var"], r["b_1_3var"]))
   ), collapse = "\n")
 } else {
   "_(run script/instrument_het.R to populate this section)_"
@@ -315,8 +388,22 @@ report <- paste(
   "",
   "## 1. First-stage comparison across variants",
   "",
-  "First-stage model: `η̂₁ₜ = α + β·Zₜ + δ'·lags(F) + uₜ` with HC0 SE.  ",
-  "Partial F for Z = t². ξ₁ follows Olea, Stock & Watson (Sec. 4.2); threshold = 3.84.",
+  "Two first-stage statistics are reported side by side:",
+  "",
+  "- **F (DFM)** — partial F (= t²) of the instrument in the regression of the",
+  "  first-factor VAR residual on Z plus lagged factors, HC0 SE. This is the",
+  "  Olea-Stock-Watson statistic that governs weak-instrument bias inside the",
+  "  Alessi-Kerssenfischer proxy-SVAR; the relevant target is the DFM residual,",
+  "  not the policy rate.",
+  "- **F (y6m AR)** — partial F of the instrument against the AR(6) innovation",
+  "  of monthly `yield_6m` (univariate, HC0 SE). This is the audit statistic",
+  "  (`output/instrument_audit_report.md`, 2026-04-25): it measures relevance",
+  "  for the Selic-equivalent interpretation of the shock and feeds the",
+  "  normalization in `model_alessi.R` (`mp_var = yield_6m`).",
+  "",
+  "The two answers can disagree: e.g. `z_het` was reported with F (DFM) ≈ 1.5",
+  "and F (y6m AR) ≈ 7.6 in earlier runs. ξ₁ uses the Olea-Stock-Watson",
+  "convention; threshold = 3.84.",
   "",
   tbl_md,
   "",
@@ -346,9 +433,18 @@ report <- paste(
   "### 4.1 GRG (2025) Table 1 — variance split between Copom (C) and non-Copom (NC) Wed→Thu pairs",
   "",
   "Hypothesis A1 (policy shock variance shifts) requires the ratio for the policy variable to exclude 1 from above.  ",
-  "Hypothesis A2 (other shock variances stable) requires the remaining variables' CIs to include 1.",
+  "Hypothesis A2 (other shock variances stable) requires the remaining variables' CIs to include 1.  ",
+  "`a2_status` is `policy` for the policy variable, `pass` if the 99% CI includes 1, and `violated` otherwise (CI excludes 1 by either side).",
+  "",
+  "**4-var production block (DI_3m, DI_2y, IBOV, BRL):**",
   "",
   het_val_md,
+  "",
+  "**3-var robustness block (DI_3m, IBOV, BRL):** drops DI_2y to test whether",
+  "the second eigenvalue of dSigma was driven by a separate shock (council Required 1).",
+  "Compare b_1 with the 4-var block in §4.3.",
+  "",
+  het_val_3var_md,
   "",
   "### 4.2 Eigenvalue spectrum of dSigma = Sigma_C - Sigma_NC",
   "",
@@ -360,6 +456,12 @@ report <- paste(
   if (file.exists("output/het_eigenvalues.png")) "![eigenvalues](het_eigenvalues.png)" else "_(plot not generated)_",
   "",
   "### 4.3 Impact column b_1 (sign normalized so b_1[DI_3m] > 0)",
+  "",
+  "Side-by-side comparison of the 4-var production block and the 3-var",
+  "robustness block. If A2 is violated by DI_2y, the 4-var b_1 conflates the",
+  "policy shock with a second structural shock; the 3-var b_1 is the cleaner",
+  "estimate. Compare the magnitude and (especially) the relative weights on",
+  "DI_3m, IBOV, BRL across columns.",
   "",
   het_b1_md,
   "",
