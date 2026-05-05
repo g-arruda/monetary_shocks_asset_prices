@@ -1,38 +1,37 @@
-# Handoff — 2026-05-05
+# Handoff — 2026-05-05 (segunda sessão)
 SESSLOG:[2026-05-05]
 
 ## Session Topic
-Executados os 3 primeiros itens CRÍTICOS de `_instrucoes/pendencias.md` (mismatch `mp_var`, A2 gate + 3-var SVAR, dois F lado a lado). Pipeline empírico volta à escala correta; relatório de diagnostics passa a ter resposta independente para "weak-instrument na DFM" e "Selic-equivalente".
+Fechados os 3 últimos itens CRÍTICOS de `_instrucoes/pendencias.md` (framing híbrido het+timing, T5 anti-JK mask, T6 curva F(k_keep)) + switch de `DEFAULT_VARIANT` para `z_het_jk_3var`. Os 6 críticos da seção CRÍTICO estão agora todos checados; restam itens MÉDIO e LEVE.
 
 ## Active Decisions
-- `mp_var = "yield_6m"` em `script/model_alessi.R` (linhas 35 e 117). `juros_selic` é fluxo (BCB 4189) e não passa Stock-Yogo contra `z_het_jk`.
-- A2 verdict por variável (`a2_status` ∈ {`policy`, `pass`, `violated`}, com `a2_side` em violações). `validate_variance_split` continua reportando todas as variáveis (sem mudança); a classificação fica em `classify_a2_verdict`.
-- SVAR 3-var (DI_3m, IBOV, BRL) sempre construído como robustez ao 4-var. CSVs separados (`*_3var.csv`); `instrument_diagnostics.R` mostra ambos lado a lado.
-- F duplo no diagnostics: F (DFM) contra resíduo do primeiro fator (proxy-SVAR weak-instrument bias) + F (y6m AR) contra inovação AR(6) de `yield_6m` (interpretação Selic-equivalente).
-- Mantido o pre-existing `nboot = 100` em `model_alessi.R` — está fora dos 3 itens; gemini sinalizou e ficou para próximo ticket.
+- `DEFAULT_VARIANT = "z_het_jk_3var"` em `script/instrument.R:25`. `instrument.csv` agora aponta para o instrumento 3-var (rank-1 share 0.987, F (y6m AR) = 55.98).
+- Framing híbrido het+timing adotado em `_instrucoes/Heteroscedasticidade.md` ("Framing: instrumento híbrido het+timing"). Identifying assumption operativa: exclusion restriction mensal `E[z_het_jk_m · η_t^j] = 0` (Stock-Watson 2018 §4.7), **não** A1-A3 (que falham com 57% wrong-sign no diário).
+- T5 anti-JK: F = **0.194** sobre os 55 dias sign-equal "informacionais". Comparado a JK F = 21.29 (42 dias sign-opposite "monetários") e random-mask mean = 5.73 — evidência direta de que o filtro JK não é só esparsificação.
+- T6 F(k_keep) curva em k ∈ {20, 42, 60, 80}, n_draws=2000 cada. JK F = 21.29 sits at q99 do k=42; em k=80 nenhum random draw alcança JK F. p(F_random ≥ JK) = {0.034, 0.0095, 0.006, 0.000}.
+- Mantido o pre-existing `nboot=100` em `model_alessi.R` — fora do escopo dos críticos.
 
 ## Key Files
-- script/model_alessi.R                       (mp_var fix, 2 linhas)
-- script/instrument_het.R                     (refatorado: 4-var + 3-var, A2 gate)
-- script/instrument_diagnostics.R             (F duplo, A2 verdict, b_1 4-var × 3-var)
-- R/identification/het_shock_extraction.R     (+ classify_a2_verdict, build_het_instrument)
-- _instrucoes/pendencias.md                   (3 críticos checados)
-- _instrucoes/Heteroscedasticidade.md         (A2 verdict + 3-var documentados)
-- CLAUDE.md                                   (4b, diagnostics, data layout, sample)
-- output/het_variance_validation.csv          (+ a2_status, a2_side)
-- output/het_variance_validation_3var.csv     (novo)
-- output/het_b_1_3var.csv, het_eigenvalues_3var.csv (novos)
-- data/processed/instrument_z_het{,_jk}_3var.csv (novos)
+- script/instrument.R                          (DEFAULT_VARIANT, het_variants, het pull loop)
+- R/identification/validation_tests.R          (+ anti_jk_test, random_mask_curve, random_mask_curve_summary)
+- script/instrument_validation.R               (+ T5, T6, plots, report sections)
+- _instrucoes/Heteroscedasticidade.md          (framing híbrido + recomendação 3-var)
+- _instrucoes/pendencias.md                    (críticos 4-6 checados)
+- CLAUDE.md                                    (default_variant note)
+- output/het_validation_anti_jk.csv            (novo)
+- output/het_validation_f_curve{,_summary}.csv (novos)
+- output/het_validation_f_curve.png            (novo)
+- output/het_validation_report.md              (T1-T6 atualizado)
+- data/processed/instrument.csv                (= z_het_jk_3var)
 
 ## Next Steps
-- [ ] Rodar o pipeline end-to-end e popular os CSVs novos (`Rscript script/instrument_het.R && Rscript script/instrument_diagnostics.R && Rscript script/model_alessi.R`).
-- [ ] Validar números: `z_het_jk` deve dar F (y6m AR) ≈ 21.3 (consistente com `output/instrument_audit_report.md`); A2 esperado violado para `DI_2y` no 4-var, passa no 3-var por construção.
-- [ ] Continuar pendências críticas 4-6: anti-JK mask, curva F(k_keep), framing híbrido (het+timing) ou z_het puro com Anderson-Rubin.
-- [ ] Itens médios: corrigir framing de T2 (random-mask: F=21 está AT q99, não acima), AR-order sens. (p ∈ {3, 12}), QLR Andrews 1993 no first-stage.
+- [ ] Pendências MÉDIO: corrigir framing T2 nos docs públicos (random-mask gap é um percentil, não p<0.01); placebo+random-mask para z_het puro (benchmark pareado); AR-order sens p ∈ {3, 12}; A3 het-ID separado pre/post-COVID; QLR Andrews 1993; cor por sub-período; seção IRF + benchmark literatura brasileira.
+- [ ] Pendências LEVE: Cragg-Donald formal rank test; Piffer-Podstawski nested bootstrap para b_1; identificar v_2; guard sign-flip mp_var_idx; alinhar NA handling; script mestre run_all.R.
+- [ ] Paper writeup com `z_het_jk_3var + yield_6m` como spec principal.
 
 ## Working Artifacts
-- Plano da sessão: `/home/gabriel/.claude/plans/leia-o-handof-md-e-sorted-naur.md`.
-- Reviews gemini sobre os 4 arquivos modificados — apenas `n (y6m)` na tabela do diagnostics foi aplicado; demais findings eram pre-existentes (nboot=100, response_vars hardcoded, NA handling) e ficaram fora de escopo.
+- Plano da sessão: `/home/gabriel/.claude/plans/leia-o-handof-md-e-sorted-naur.md` (overwrite do plano da sessão anterior).
+- Reviews gemini sobre os 3 .R modificados — 4 falsos positivos descartados (NA-handling de shocks_C/ibov_C já tratado upstream; subperiod_F já lida com drop_covid; ts coercion fora do uso atual; "F=21" hardcoded era cosmético). Aplicados: `na.rm=TRUE` em counts do anti_jk_test, `k_keep > n_total` guard, sprintf no F do report, T3 doc text alinhado ao código, posição do label JK no curve plot.
 
 ## Context
-Sessão fechou os 3 críticos que o council 2026-05-05 e o referee2 round 1 marcaram como bloqueantes para o paper writeup: (i) IRFs estavam normalizadas em escala errada, (ii) A2 só era informalmente checado para DI_2y, (iii) o F=21.3 da auditoria era citado lado a lado com o F≈1.5 do diagnostics sem que ficasse explícito que respondem a perguntas diferentes. Os três foram endereçados sem refatorar o pipeline de modelagem (DFM/VAR não foi tocado), apenas (a) trocando 2 linhas em `model_alessi.R`, (b) refatorando `instrument_het.R` em torno de duas chamadas a `build_het_instrument`, e (c) adicionando uma coluna de F ao tibble de `run_variant` em `instrument_diagnostics.R`. Próxima sessão deve começar pelo run end-to-end para popular os CSVs novos antes de avançar para os itens críticos 4-6.
+Sessão de continuação: 1ª sessão (commit `4e2192f`) fechou os críticos 1-3 (mp_var, A2 + 3-var, dois Fs). Esta 2ª sessão fechou os críticos 4-6 (framing, anti-JK, F-curve) + DEFAULT_VARIANT switch. Resultado material: o filtro JK no nível diário é **provavelmente** parte da identificação (não cosmético), com evidência empírica em T5 (F=0.19 no complemento) e T6 (curva monotônica em q99 com k). O framing híbrido é defensível: identifying assumption mensal mais fraca que A1-A3 e compartilhada com Gertler-Karadi proxy-SVARs. Próximo bloco lógico é endereçar os MÉDIO antes do paper writeup.

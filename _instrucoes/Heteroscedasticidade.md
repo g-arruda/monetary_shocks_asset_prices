@@ -55,6 +55,33 @@ A série diária do choque em dias C é recuperada pela projeção GLS de Merten
 
 Em dias NC não recuperamos ε_1 porque a relação sinal-ruído colapsa.
 
+## Framing: instrumento híbrido het+timing (council Required 3, 2026-05-05)
+
+A taxa de **57% wrong-sign** no ε̂_1 diário (sign(ε̂_1) == sign(ΔIBOV)) indica que A1-A3 sozinhos **não isolam** o choque de política — caso isolasse, o filtro JK não triplicaria F (de 7.6 para 21.3 em `z_het` → `z_het_jk`). O filtro JK aplicado no nível diário é portanto parte da identificação, não cosmético.
+
+Caracterização correta: o instrumento mensal `z_het_jk` (e seu análogo 3-var) é uma **identificação híbrida**, com três camadas:
+
+1. **Het-extracted** no nível diário — ε̂_{1,t} via projeção GLS de Mertens-Ravn em `b_1` (Rigobon-Sack 2003).
+2. **Timing-restricted** — apenas dias C (Copom) entram na soma mensal.
+3. **Sign-restricted** — Jarocinski-Karadi sign filter zera dias com sign(ε̂_{1,t}) == sign(ΔIBOV_t).
+
+A condição identificadora **operativa** no proxy-SVAR mensal é a *exclusion restriction* mensal:
+
+```
+E[z_het_jk_m · η_t^j] = 0     para todo choque estrutural não-policy η_t^j (j ≠ 1)
+```
+
+(Stock-Watson 2018, *EJ*, §4.7). Essa condição é **mais fraca** que A1-A3 conjuntas e é compartilhada com proxy-SVARs Gertler-Karadi (`z_jk_purif`); a diferença está em **como** construímos `z_het_jk_m` — daily het-ID + JK no Brasil, vs. window de surpresas + JK no GK original.
+
+Os testes em `script/instrument_validation.R` atestam empiricamente que o instrumento construído satisfaz a exclusion restriction:
+
+- **T1 placebo** (p ≈ 0.0005) descarta data-snooping;
+- **T2 random-mask** + **T6 curva F(k_keep)** mostram que o filtro JK é informativo (não só esparsifica);
+- **T5 anti-JK** quantifica o quanto o sinal está nos dias específicos selecionados pelo JK;
+- **T4 correlação** com `z_jk_purif` (cor=0.93 nos meses both-nonzero) confirma que het-ID e timing-ID convergem onde ambos disparam.
+
+A leitura honesta para o paper: `z_het_jk` **não é** "het-ID puro"; é um instrumento híbrido cujo identifying assumption é a exclusion restriction mensal, **não** A1-A3.
+
 ## Agregação para mensal
 
 Para cada mês `m`, soma simples dos choques diários extraídos:
@@ -131,15 +158,20 @@ Para auditoria de relevância first-stage por maturidade alvo, ver `script/instr
 
 ## Recomendação operacional
 
-Usar **`z_het_jk`** como instrumento e **`yield_6m`** (ou `yield_1y`) como `mpind` para normalização do choque a 50 bps. Para normalização cosmética em `juros_selic` (replicando AK 2019), basta passar `mpind = which(colnames(X) == "juros_selic")` no `compute_irf_dfm`, mas a relevância first-stage do instrumento já é validada via yield_6m.
+Usar **`z_het_jk_3var`** como instrumento e **`yield_6m`** (ou `yield_1y`) como `mp_var` para normalização do choque a 50 bps. A escolha 3-var (DI_3m, IBOV, BRL) sobre 4-var (que adiciona DI_2y) é motivada por dois números do diagnostics report (`output/instrument_diagnostics_report.md` §4.2 e §1):
 
-Tanto `z_het` (sem filtro, soma simples) quanto `z_het_jk` (com filtro JK) ficam disponíveis em `data/processed/instrumentos_mensais.csv` e em `data/processed/instrument_z_het{,_jk}.csv`. Para usar:
+- **rank-1 share = 0.987** no 3-var vs 0.840 no 4-var — espectro de ΔΣ muito mais limpo (eigenvalue gap 170× vs 5.4×);
+- **F (y6m AR) = 55.98** no 3-var vs 21.29 no 4-var — instrumento materialmente mais forte na variável de política mensal.
+
+Para normalização cosmética em `juros_selic` (replicando AK 2019), basta passar `mp_var = "juros_selic"` no `main_sdfm`, mas a relevância first-stage do instrumento já é validada via yield_6m.
+
+Quatro variantes het ficam disponíveis em `data/processed/instrumentos_mensais.csv` e single-CSVs em `data/processed/instrument_z_het{,_jk}{,_3var}.csv`. Para usar:
 
 ```r
-DEFAULT_VARIANT <- "z_het_jk"   # script/instrument.R:25
+DEFAULT_VARIANT <- "z_het_jk_3var"   # script/instrument.R:25 (default atual)
 ```
 
-Inferência: wild bootstrap recursive GK existente. Para o caso `yield_6m` com F = 21, percentile bootstrap CIs são razoáveis; Anderson-Rubin não é necessário.
+Inferência: wild bootstrap recursive GK existente. Com F (y6m AR) ≈ 56 percentile bootstrap CIs são razoáveis; Anderson-Rubin não é necessário.
 
 ## Validação 2026-04-26 — Suite de robustez
 

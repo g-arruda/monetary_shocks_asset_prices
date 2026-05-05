@@ -18,19 +18,16 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
   `script/instrument_diagnostics.R` reporta lado a lado **F (DFM)** (resíduo do primeiro fator do VAR; governa viés de instrumento fraco na proxy-SVAR de Alessi-Kerssenfischer) e **F (y6m AR)** (inovação AR(6) de `yield_6m`; relevância para a interpretação Selic-equivalente). A tabela traz `n (DFM)` e `n (y6m)` para tornar explícita a diferença de tamanho amostral, e o relatório explica quando os dois discordam (e.g. `z_het` com F(DFM)≈1.5 vs F(y6m AR)≈7.6).
   *Fonte: Methodologist (council Required 2), Round 1 major concern.*
 
-- [ ] **Endereçar inconsistência lógica: JK triplicando F sobre choque já extraído por het-ID**
-  Se A1-A3 fossem suficientes, ε̂_{1,t} já seria livre de information shocks e JK não triplicaria F (7.6→21.3). A taxa de 57% wrong-sign implica que A1-A3 sozinhos não isolam o choque de política.
-  Ação: escolher um framing e defendê-lo — (a) reframing como instrumento híbrido het+timing, com exclusion restriction mensal E[z_het_m · η_t^j]=0 derivada explicitamente; ou (b) usar z_het puro como primário (F≈8, borderline Stock-Yogo) com intervalos Anderson-Rubin.
+- [x] **Endereçar inconsistência lógica: JK triplicando F sobre choque já extraído por het-ID** — *concluído 2026-05-05*
+  Adotada a opção (a): framing híbrido het+timing documentado em `_instrucoes/Heteroscedasticidade.md` (seção "Framing: instrumento híbrido het+timing"), com a exclusion restriction mensal `E[z_het_jk_m · η_t^j] = 0` derivada explicitamente (Stock-Watson 2018 §4.7). O instrumento é caracterizado como três camadas: het-extracted no diário, timing-restricted (Copom days), sign-restricted (JK). A condição operativa é a exclusion mensal — mais fraca que A1-A3 conjuntas e compartilhada com proxy-SVARs Gertler-Karadi.
   *Fonte: Macro Theorist (council Required 3) — não coberto por relatórios internos.*
 
-- [ ] **Rodar anti-JK mask**
-  Zerar os dias "puros monetários" (sign(ε̂_1) ≠ sign(ΔIBOV)) e manter os "informacionais". Se F(anti-JK) ≈ 5.73 (nível do mean do random-mask), JK escolhe os dias certos. Se F(anti-JK) também elevado, JK apenas esparsa o instrumento.
-  Script: adicionar a `script/instrument_validation.R`.
+- [x] **Rodar anti-JK mask** — *concluído 2026-05-05*
+  T5 implementado em `R/identification/validation_tests.R::anti_jk_test()` e wired em `script/instrument_validation.R`. **Resultado:** F(anti-JK) = **0.194** (55 dias sign-equal "informacionais") vs JK F = 21.29 (42 dias sign-opposite "monetários") vs random-mask mean = 5.73 (qualquer 42 dias). O complemento sign-equal carrega ~0 sinal — evidência direta de que o filtro JK não é só esparsificação. Persistido em `output/het_validation_anti_jk.csv` e seção "T5" do relatório.
   *Fonte: Blindspot 04-26 action item 3, council Required 3.*
 
-- [ ] **Rodar curva F(k_keep) para k ∈ {20, 42, 60, 80}**
-  Complementa o anti-JK mask: separa "JK escolhe os 42 dias certos" de "qualquer subconjunto de 42 chega perto".
-  Script: adicionar a `script/instrument_validation.R`.
+- [x] **Rodar curva F(k_keep) para k ∈ {20, 42, 60, 80}** — *concluído 2026-05-05*
+  T6 implementado em `R/identification/validation_tests.R::random_mask_curve()` + `random_mask_curve_summary()` e wired em `script/instrument_validation.R`. **Resultado:** mean F roughly flat across k (5.5-6.9), q99 declining (32 → 21 → 19 → 17), p(F_random ≥ JK) = {0.034, 0.0095, 0.006, 0.000} para k = {20, 42, 60, 80}. JK F = 21.29 está exatamente em q99 do k=42; em k=80 nenhum random draw alcança o JK F. Persistido em `output/het_validation_f_curve{,_summary}.csv` e `output/het_validation_f_curve.png`; seção "T6" do relatório.
   *Fonte: Blindspot 04-26 action item 4, council Required 3.*
 
 ---

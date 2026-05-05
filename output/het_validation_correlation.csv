@@ -1,0 +1,4 @@
+pair,subset,n,pearson,spearman
+z_het_jk ~ z_jk_purif,all,156,0.7445703671568566,0.7154998614480786
+z_het_jk ~ z_jk_purif,union_nonzero,71,0.7445892880427308,0.7403922691647885
+z_het_jk ~ z_jk_purif,both_nonzero,36,0.9327466623372498,0.9371943371943373

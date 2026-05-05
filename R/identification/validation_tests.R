@@ -113,6 +113,11 @@ random_mask_test <- function(shocks_C,
   if (!is.null(seed)) set.seed(seed)
 
   n_total <- length(shocks_C)
+  if (k_keep > n_total) {
+    warning("k_keep (", k_keep, ") exceeds n_total (", n_total,
+            "); capping at n_total.")
+    k_keep <- n_total
+  }
   start <- floor_date(month_range[1], "month")
   end   <- floor_date(month_range[2], "month")
   monthly_grid <- seq(start, end, by = "month")
@@ -206,6 +211,111 @@ subperiod_F <- function(z, innov, target_dates, windows) {
       n_eff     = fs$n
     )
   })
+}
+
+#' Anti-JK mask: keep "informational" Copom days, zero out "pure monetary"
+#'
+#' Diagnostic for whether the Jarocinski-Karadi sign filter is informative or
+#' merely sparsifies the daily shock series. Builds the COMPLEMENT of the JK
+#' mask — keeps days where sign(shock) == sign(IBOV change) (interpreted as
+#' information shocks under JK) and zeros days where the signs disagree
+#' (the days JK keeps as pure monetary). Aggregates to monthly and computes
+#' the same first-stage F as the JK instrument.
+#'
+#' Reading: if F(anti-JK) is close to the random-mask mean, JK selects the
+#' "right" subset of Copom days; if F(anti-JK) is also high, JK only
+#' sparsifies and the discriminating signal is weaker than it appears.
+#'
+#' @param shocks_C Daily shock vector on Copom Wed-Thu pairs.
+#' @param ibov_C   Daily IBOV change aligned to shocks_C.
+#' @param shock_dates Date vector aligned to shocks_C.
+#' @param innov   Pre-computed AR(p) residual vector of the monthly target.
+#' @param target_dates Month-start Date vector aligned to innov.
+#' @param month_range Length-2 Date vector bounding the monthly grid.
+#'
+#' @return List with F_partial, beta, se, n, r2, n_kept (informational days
+#'   retained), n_zero (excluded as zero-sign days), n_total (Copom days input).
+anti_jk_test <- function(shocks_C,
+                         ibov_C,
+                         shock_dates,
+                         innov,
+                         target_dates,
+                         month_range) {
+  info_mask <- sign(shocks_C) != 0 & sign(ibov_C) != 0 &
+               sign(shocks_C) == sign(ibov_C)
+  zero_mask <- sign(shocks_C) == 0 | sign(ibov_C) == 0
+
+  start <- floor_date(month_range[1], "month")
+  end   <- floor_date(month_range[2], "month")
+  monthly_grid <- seq(start, end, by = "month")
+
+  z_monthly <- aggregate_to_monthly_grid(shocks_C * info_mask,
+                                         shock_dates, monthly_grid)
+  z_aligned <- align_z_to_target(z_monthly, monthly_grid, target_dates)
+
+  fs <- first_stage_F(z_aligned, innov)
+
+  c(fs, list(n_kept  = sum(info_mask, na.rm = TRUE),
+             n_zero  = sum(zero_mask, na.rm = TRUE),
+             n_total = length(shocks_C)))
+}
+
+#' First-stage F curve over a grid of k_keep values
+#'
+#' Loops `random_mask_test` over multiple k_keep values to disentangle two
+#' explanations for a high JK F: either JK selects the right subset of size
+#' ~k_JK (then F is high at k=k_JK and lower at other k's) or JK only
+#' sparsifies (then F grows monotonically with sparsity for any random mask).
+#'
+#' @param shocks_C    Daily shock vector on Copom Wed-Thu pairs.
+#' @param shock_dates Date vector aligned to shocks_C.
+#' @param innov       Pre-computed AR(p) residual vector of the monthly target.
+#' @param target_dates Month-start Date vector aligned to innov.
+#' @param k_keep_grid Integer vector of k_keep values (e.g., c(20, 42, 60, 80)).
+#' @param month_range Length-2 Date vector bounding the monthly grid.
+#' @param n_draws     Random masks per k_keep (default 2000).
+#' @param seed        Optional integer seed; offset by k position for independence.
+#'
+#' @return Tibble (rows = n_draws * length(k_keep_grid)) with columns
+#'   k_keep, draw_id, F_partial, beta, n_kept.
+random_mask_curve <- function(shocks_C,
+                              shock_dates,
+                              innov,
+                              target_dates,
+                              k_keep_grid,
+                              month_range,
+                              n_draws = 2000L,
+                              seed = NULL) {
+  purrr::imap_dfr(k_keep_grid, function(k, idx) {
+    seed_k <- if (is.null(seed)) NULL else seed + idx
+    random_mask_test(shocks_C, shock_dates, innov, target_dates,
+                     k_keep = k, month_range = month_range,
+                     n_draws = n_draws, seed = seed_k) |>
+      dplyr::mutate(k_keep = k, .before = 1L)
+  })
+}
+
+#' Summarise an F-curve tibble across draws by k_keep
+#'
+#' @param curve_tbl Output of `random_mask_curve`.
+#' @param observed_F Numeric reference F (e.g., the JK F) used to compute the
+#'   right-tail empirical p-value per k.
+#'
+#' @return Tibble with one row per k_keep: n_draws, mean, median, q95, q99,
+#'   max, p_value (P(F_random >= observed_F)).
+random_mask_curve_summary <- function(curve_tbl, observed_F) {
+  curve_tbl |>
+    dplyr::group_by(k_keep) |>
+    dplyr::summarise(
+      n_draws = dplyr::n(),
+      mean    = mean(F_partial,   na.rm = TRUE),
+      median  = stats::median(F_partial, na.rm = TRUE),
+      q95     = stats::quantile(F_partial, 0.95, na.rm = TRUE),
+      q99     = stats::quantile(F_partial, 0.99, na.rm = TRUE),
+      max     = max(F_partial,    na.rm = TRUE),
+      pvalue  = mean(F_partial >= observed_F, na.rm = TRUE),
+      .groups = "drop"
+    )
 }
 
 #' Pearson and Spearman correlation between two monthly instruments

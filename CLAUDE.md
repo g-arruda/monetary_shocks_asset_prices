@@ -71,7 +71,7 @@ Inputs and intermediate files live under `data/` (gitignored). Key paths the scr
 
 - `data/raw_data.csv` — merged monthly panel from `download.R`.
 - `data/processed/data_log_deseasonalized.csv` — input to the DFM (drop `ref.date`, `drop_na`).
-- `data/processed/instrument.csv` — single-column instrument consumed by both estimation scripts; overwritten by `instrument.R` from `DEFAULT_VARIANT`.
+- `data/processed/instrument.csv` — single-column instrument consumed by both estimation scripts; overwritten by `instrument.R` from `DEFAULT_VARIANT` (current default: `z_het_jk_3var`, F (y6m AR) = 55.98).
 - `data/processed/instrumentos_mensais.csv` — all variants (4 GK + 4 het: `z_het`, `z_het_jk`, `z_het_3var`, `z_het_jk_3var`) side-by-side.
 - `data/processed/instrument_z_het{,_jk}{,_3var}.csv` — single-column het instruments (4 files).
 - `output/het_variance_validation{,_3var}.csv`, `output/het_eigenvalues{,_3var}.csv`, `output/het_b_1{,_3var}.csv` — diagnostic artifacts produced by `instrument_het.R` and consumed by `instrument_diagnostics.R`. The variance-validation CSVs include `a2_status` and `a2_side` columns.

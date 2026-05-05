@@ -1,6 +1,6 @@
 # Instrument Validity Diagnostics Report
 
-**Date generated:** 2026-04-25  
+**Date generated:** 2026-05-05  
 **DFM sample:** 2013-01-01 to 2025-09-01  
 **Identification:** proxy-SVAR with external instrument (Olea, Stock & Watson 2020).
 **Instrument variants:** raw Copom-day ΔDI (3m), purified by global factors (SP500, VIX, Brent),
@@ -10,17 +10,33 @@ Jarociński-Karadi sign filter, and JK + purified.
 
 ## 1. First-stage comparison across variants
 
-First-stage model: `η̂₁ₜ = α + β·Zₜ + δ'·lags(F) + uₜ` with HC0 SE.  
-Partial F for Z = t². ξ₁ follows Olea, Stock & Watson (Sec. 4.2); threshold = 3.84.
+Two first-stage statistics are reported side by side:
 
-| Variant | n | nonzero | β̂ | SE(HC0) | t | p | Partial F | ξ₁ | R² | Exog F | Exog p | Flag |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| z_bruto | 147 | 87 | -0.053 | 0.026 | -2.036 | 0.044 | 4.147 | 4.118 | 0.029 | 0.998 | 0.430 | OK |
-| z_bruto_purif | 147 | 90 | -0.058 | 0.026 | -2.217 | 0.029 | 4.913 | 4.849 | 0.036 | 1.019 | 0.416 | OK |
-| z_jk | 147 | 61 | -0.055 | 0.034 | -1.636 | 0.105 | 2.677 | 2.983 | 0.022 | 1.912 | 0.083 | WEAK |
-| z_jk_purif | 147 | 63 | -0.059 | 0.034 | -1.742 | 0.085 | 3.035 | 3.300 | 0.025 | 1.902 | 0.085 | WEAK |
-| z_het | 147 | 93 | -0.348 | 0.280 | -1.241 | 0.218 | 1.540 | 1.430 | 0.011 | 0.865 | 0.523 | WEAK |
-| z_het_jk | 147 | 40 | -0.070 | 0.394 | -0.177 | 0.859 | 0.032 | 0.037 | 0.000 | 2.860 | 0.012 | WEAK |
+- **F (DFM)** — partial F (= t²) of the instrument in the regression of the
+  first-factor VAR residual on Z plus lagged factors, HC0 SE. This is the
+  Olea-Stock-Watson statistic that governs weak-instrument bias inside the
+  Alessi-Kerssenfischer proxy-SVAR; the relevant target is the DFM residual,
+  not the policy rate.
+- **F (y6m AR)** — partial F of the instrument against the AR(6) innovation
+  of monthly `yield_6m` (univariate, HC0 SE). This is the audit statistic
+  (`output/instrument_audit_report.md`, 2026-04-25): it measures relevance
+  for the Selic-equivalent interpretation of the shock and feeds the
+  normalization in `model_alessi.R` (`mp_var = yield_6m`).
+
+The two answers can disagree: e.g. `z_het` was reported with F (DFM) ≈ 1.5
+and F (y6m AR) ≈ 7.6 in earlier runs. ξ₁ uses the Olea-Stock-Watson
+convention; threshold = 3.84.
+
+| Variant | n (DFM) | nonzero | β̂ | SE(HC0) | t | p | F (DFM) | ξ₁ | R² | n (y6m) | F (y6m AR) | R² y6m | Exog F | Exog p | Flag |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| z_bruto | 147 | 87 | -0.053 | 0.026 | -2.036 | 0.044 | 4.147 | 4.118 | 0.029 | 150 | 20.362 | 0.163 | 0.998 | 0.430 | OK |
+| z_bruto_purif | 147 | 90 | -0.058 | 0.026 | -2.217 | 0.029 | 4.913 | 4.849 | 0.036 | 150 | 17.052 | 0.150 | 1.019 | 0.416 | OK |
+| z_jk | 147 | 61 | -0.055 | 0.034 | -1.636 | 0.105 | 2.677 | 2.983 | 0.022 | 150 | 13.397 | 0.130 | 1.912 | 0.083 | WEAK |
+| z_jk_purif | 147 | 63 | -0.059 | 0.034 | -1.742 | 0.085 | 3.035 | 3.300 | 0.025 | 150 | 11.402 | 0.122 | 1.902 | 0.085 | WEAK |
+| z_het | 147 | 93 | -0.348 | 0.280 | -1.241 | 0.218 | 1.540 | 1.430 | 0.011 | 150 | 7.607 | 0.093 | 0.865 | 0.523 | WEAK |
+| z_het_jk | 147 | 40 | -0.070 | 0.394 | -0.177 | 0.859 | 0.032 | 0.037 | 0.000 | 150 | 21.293 | 0.190 | 2.860 | 0.012 | WEAK |
+| z_het_3var | 147 | 93 | -0.522 | 0.307 | -1.701 | 0.092 | 2.894 | 3.043 | 0.021 | 150 | 21.667 | 0.078 | 0.692 | 0.656 | WEAK |
+| z_het_jk_3var | 147 | 44 | -0.536 | 0.394 | -1.360 | 0.177 | 1.850 | 2.084 | 0.011 | 150 | 55.981 | 0.112 | 1.727 | 0.119 | WEAK |
 
 ---
 
@@ -53,14 +69,27 @@ H0: equal variance.  Expect rejection for `e_DI` (news shock on Copom days), ide
 ### 4.1 GRG (2025) Table 1 — variance split between Copom (C) and non-Copom (NC) Wed→Thu pairs
 
 Hypothesis A1 (policy shock variance shifts) requires the ratio for the policy variable to exclude 1 from above.  
-Hypothesis A2 (other shock variances stable) requires the remaining variables' CIs to include 1.
+Hypothesis A2 (other shock variances stable) requires the remaining variables' CIs to include 1.  
+`a2_status` is `policy` for the policy variable, `pass` if the 99% CI includes 1, and `violated` otherwise (CI excludes 1 by either side).
 
-| Variable | n_C | n_NC | Var(C) | Var(NC) | Ratio | CI 99% low | CI 99% high |
-|---|---|---|---|---|---|---|---|
-| DI_3m | 104 | 542 |  89.90 |  15.70 | 5.730 | 2.340 | 13.80 |
-| DI_2y | 104 | 542 | 420.00 | 230.00 | 1.830 | 0.770 |  3.53 |
-| IBOV | 104 | 542 |   2.30 |   2.32 | 0.989 | 0.477 |  1.74 |
-| BRL |  97 | 524 |   1.12 |   1.05 | 1.070 | 0.699 |  1.62 |
+**4-var production block (DI_3m, DI_2y, IBOV, BRL):**
+
+| Variable | n_C | n_NC | Var(C) | Var(NC) | Ratio | CI 99% low | CI 99% high | A2 verdict |
+|---|---|---|---|---|---|---|---|---|
+| DI_3m | 104 | 542 |  89.90 |  15.70 | 5.730 | 2.340 | 13.80 | policy |
+| DI_2y | 104 | 542 | 420.00 | 230.00 | 1.830 | 0.770 |  3.53 | pass |
+| IBOV | 104 | 542 |   2.30 |   2.32 | 0.989 | 0.477 |  1.74 | pass |
+| BRL |  97 | 524 |   1.12 |   1.05 | 1.070 | 0.699 |  1.62 | pass |
+
+**3-var robustness block (DI_3m, IBOV, BRL):** drops DI_2y to test whether
+the second eigenvalue of dSigma was driven by a separate shock (council Required 1).
+Compare b_1 with the 4-var block in §4.3.
+
+| Variable | n_C | n_NC | Var(C) | Var(NC) | Ratio | CI 99% low | CI 99% high | A2 verdict |
+|---|---|---|---|---|---|---|---|---|
+| DI_3m | 104 | 542 | 89.90 | 15.70 | 5.730 | 2.340 | 13.80 | policy |
+| IBOV | 104 | 542 |  2.30 |  2.32 | 0.989 | 0.492 |  1.88 | pass |
+| BRL |  97 | 524 |  1.12 |  1.05 | 1.070 | 0.644 |  1.68 | pass |
 
 ### 4.2 Eigenvalue spectrum of dSigma = Sigma_C - Sigma_NC
 
@@ -78,12 +107,18 @@ Gate: leading eigenvalue should account for > 60% of |sum| of eigenvalues.
 
 ### 4.3 Impact column b_1 (sign normalized so b_1[DI_3m] > 0)
 
-| Variable | Impact (b_1) |
-|---|---|
-| DI_3m |  6.0720 |
-| DI_2y | 13.6000 |
-| IBOV |  0.1716 |
-| BRL | -0.2750 |
+Side-by-side comparison of the 4-var production block and the 3-var
+robustness block. If A2 is violated by DI_2y, the 4-var b_1 conflates the
+policy shock with a second structural shock; the 3-var b_1 is the cleaner
+estimate. Compare the magnitude and (especially) the relative weights on
+DI_3m, IBOV, BRL across columns.
+
+| Variable | b_1 (4-var) | b_1 (3-var, drops DI_2y) |
+|---|---|---|
+| DI_3m | 6.072 | 8.433 |
+| DI_2y | 13.6 | - |
+| IBOV | 0.1716 | 0.0246 |
+| BRL | -0.275 | -0.3155 |
 
 ---
 

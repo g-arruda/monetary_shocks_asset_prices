@@ -22,14 +22,15 @@ SAMPLE_START <- as.Date("2013-01-01")
 SAMPLE_END   <- as.Date("2025-12-31")
 LOAD_START   <- as.Date("2012-06-01")   # earlier so Wed→Thu pairs at sample start work
 TARGET_BD    <- 126                      # ~6 months in business days (best F in grid search)
-DEFAULT_VARIANT <- "z_bruto_purif"       # legacy data/processed/instrument.csv
+DEFAULT_VARIANT <- "z_het_jk_3var" # legacy data/processed/instrument.csv
 # Supported variants: z_bruto, z_bruto_purif, z_jk, z_jk_purif (built here)
-# and z_het, z_het_jk (heteroskedasticity-identified, built by
-# script/instrument_het.R). When DEFAULT_VARIANT in {"z_het","z_het_jk"},
-# run script/instrument_het.R FIRST so that instrumentos_mensais.csv carries
-# the corresponding column before this script runs. The audit
-# (output/instrument_audit_report.md) recommends z_het_jk paired with the
-# yield_6m equation in the monthly DFM.
+# and z_het, z_het_jk, z_het_3var, z_het_jk_3var (heteroskedasticity-
+# identified, built by script/instrument_het.R; the *_3var variants drop
+# DI_2y from the daily SVAR for cleaner rank-1 spectrum). When DEFAULT_VARIANT
+# is any het variant, run script/instrument_het.R FIRST so that the het
+# columns are present in instrumentos_mensais.csv. The diagnostics report
+# (output/instrument_diagnostics_report.md) recommends z_het_jk_3var paired
+# with the yield_6m equation in the monthly DFM (F (y6m AR) = 55.98).
 
 # ---- Load data ---------------------------------------------
 
@@ -153,7 +154,7 @@ dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
 # Pull het variants from the single-CSV outputs of script/instrument_het.R
 # BEFORE writing instrumentos_mensais.csv, so the combined file carries all
 # variants side-by-side regardless of which script ran last.
-for (v in c("z_het", "z_het_jk")) {
+for (v in c("z_het", "z_het_jk", "z_het_3var", "z_het_jk_3var")) {
   het_path <- sprintf("data/processed/instrument_%s.csv", v)
   if (file.exists(het_path)) {
     df <- read_csv(het_path, show_col_types = FALSE) |>
@@ -177,7 +178,7 @@ write_variant("z_jk",          "data/processed/instrument_jk.csv")
 write_variant("z_jk_purif",    "data/processed/instrument_jk_purif.csv")
 
 # Legacy file consumed by model_alessi.R / model_var.R
-het_variants <- c("z_het", "z_het_jk")
+het_variants <- c("z_het", "z_het_jk", "z_het_3var", "z_het_jk_3var")
 if (DEFAULT_VARIANT %in% het_variants && !DEFAULT_VARIANT %in% names(instrumentos)) {
   stop(sprintf("DEFAULT_VARIANT = '%s' but the column is not available. Run script/instrument_het.R first.",
                DEFAULT_VARIANT))
