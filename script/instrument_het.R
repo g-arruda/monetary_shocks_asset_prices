@@ -199,6 +199,107 @@ persist_diagnostics <- function(built, changes_matrix, suffix = "") {
 persist_diagnostics(built_4var, changes_4var, suffix = "")
 persist_diagnostics(built_3var, changes_3var, suffix = "_3var")
 
+# ---- A3 robustness: het-ID separated pre/post-COVID --------
+#
+# Tests whether B_d is constant across regimes (assumption A3 in the
+# Heteroscedasticidade.md notation). Sub-period F drops from 38.1 (pre)
+# to 11.2 (post) -- could be a regime change in the BCB communication
+# function (forward guidance, expanded RI), or just contamination of
+# COVID-era variance. Re-runs the 3-var SVAR on each daily window;
+# compares b_1 vectors via cosine similarity and norm ratio.
+
+run_het_window <- function(daily_start, daily_end, label, suffix) {
+  in_window <- regime_tbl$wed_date >= daily_start & regime_tbl$wed_date <= daily_end
+  reg_w     <- regime_tbl[in_window, ]
+  changes_w <- changes_3var[in_window, , drop = FALSE]
+
+  cat(sprintf("\n========== A3 SUB-PERIOD: %s (%s to %s) ==========\n",
+              label, daily_start, daily_end))
+  cat(sprintf("  Wed-Thu pairs: %d (C=%d, NC=%d)\n",
+              nrow(reg_w),
+              sum(reg_w$regime == "C"),
+              sum(reg_w$regime == "NC")))
+
+  val_w <- validate_variance_split(changes_w, reg_w, alpha = 0.01,
+                                   n_boot = 1000L, seed = 42L) |>
+    classify_a2_verdict(mp_var = MP_VAR)
+
+  built_w <- build_het_instrument(
+    changes_w, reg_w,
+    mp_var = MP_VAR,
+    month_range = c(floor_date(daily_start, "month"),
+                    floor_date(daily_end,   "month"))
+  )
+
+  cat(sprintf("  rank1_share = %.3f   eigenvalue_gap = %.3f\n",
+              built_w$ext$rank1_share, built_w$ext$eigenvalue_gap))
+  cat("  b_1:\n")
+  print(setNames(round(built_w$ext$b_1, 4), colnames(changes_w)))
+
+  write_csv(val_w, sprintf("output/het_variance_validation%s.csv", suffix))
+  persist_diagnostics(built_w, changes_w, suffix = suffix)
+
+  list(built = built_w, val = val_w, label = label,
+       n_C = sum(reg_w$regime == "C"),
+       n_NC = sum(reg_w$regime == "NC"))
+}
+
+PRE_END  <- as.Date("2019-12-31")
+POST_BEG <- as.Date("2020-01-01")
+
+sub_pre  <- run_het_window(SAMPLE_START, PRE_END,  "pre_covid (2013-2019)",  "_pre_covid")
+sub_post <- run_het_window(POST_BEG,    SAMPLE_END, "covid_post (2020-2025)", "_covid_post")
+
+# ---- A3 comparison: cosine similarity and norm ratio --------
+#
+# A3 is sustained when b_1 is stable across regimes (cosine similarity
+# close to 1, norm ratio close to 1). Cosine < 0.7 or norm ratio outside
+# [0.5, 2.0] indicates a regime change worth discussing structurally
+# rather than dismissing as noise.
+
+b1_pre  <- sub_pre$built$ext$b_1
+b1_post <- sub_post$built$ext$b_1
+
+cos_sim    <- sum(b1_pre * b1_post) /
+              (sqrt(sum(b1_pre^2)) * sqrt(sum(b1_post^2)))
+norm_ratio <- sqrt(sum(b1_post^2)) / sqrt(sum(b1_pre^2))
+
+a3_summary <- tibble(
+  variable = colnames(changes_3var),
+  b_1_pre  = b1_pre,
+  b_1_post = b1_post,
+  abs_diff = abs(b1_post - b1_pre),
+  rel_diff = abs(b1_post - b1_pre) / pmax(abs(b1_pre), 1e-8)
+)
+write_csv(a3_summary, "output/het_a3_b_1_pre_vs_post.csv")
+
+a3_meta <- tibble(
+  cosine_similarity = cos_sim,
+  norm_ratio        = norm_ratio,
+  rank1_share_pre   = sub_pre$built$ext$rank1_share,
+  rank1_share_post  = sub_post$built$ext$rank1_share,
+  n_C_pre           = sub_pre$n_C,
+  n_C_post          = sub_post$n_C,
+  verdict = dplyr::case_when(
+    cos_sim > 0.9 & norm_ratio > 0.5 & norm_ratio < 2.0 ~ "A3 sustained",
+    cos_sim > 0.7                                       ~ "A3 weakly sustained",
+    TRUE                                                ~ "A3 violated (regime change)"
+  )
+)
+write_csv(a3_meta, "output/het_a3_summary.csv")
+
+cat("\n========== A3 b_1 STABILITY (3-var) ==========\n")
+print(a3_summary)
+cat(sprintf("\n  cosine(b_1_pre, b_1_post) = %.3f\n", cos_sim))
+cat(sprintf("  ||b_1_post|| / ||b_1_pre|| = %.3f\n", norm_ratio))
+cat(sprintf("  verdict: %s\n", a3_meta$verdict))
+if (a3_meta$verdict != "A3 sustained") {
+  warning(sprintf(
+    "A3 stability check: %s (cos=%.3f, norm_ratio=%.3f). The first-stage F drop across pre/post-COVID may reflect a regime change in BCB communication, not contamination -- discuss in paper.",
+    a3_meta$verdict, cos_sim, norm_ratio
+  ))
+}
+
 # ---- Append both blocks to the combined monthly file -------
 
 combined_path <- "data/processed/instrumentos_mensais.csv"

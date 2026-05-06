@@ -1,0 +1,2 @@
+cosine_similarity,norm_ratio,rank1_share_pre,rank1_share_post,n_C_pre,n_C_post,verdict
+0.9996032967296663,0.6871386531516994,0.9866895351656382,0.9750770559471532,56,48,A3 sustained
