@@ -77,8 +77,11 @@ Os testes em `script/instrument_validation.R` atestam empiricamente que o instru
 
 - **T1 placebo** (p ≈ 0.0005) descarta data-snooping;
 - **T2 random-mask** + **T6 curva F(k_keep)** mostram que o filtro JK é informativo (não só esparsifica);
+- **T2b paired benchmark z_het puro** (placebo p ≈ 0.008): nenhum dos dois rejeita por data-snooping; o gap F obs (7.6 vs 21.3) é idiossincrático ao filtro JK no diário;
 - **T5 anti-JK** quantifica o quanto o sinal está nos dias específicos selecionados pelo JK;
-- **T4 correlação** com `z_jk_purif` (cor=0.93 nos meses both-nonzero) confirma que het-ID e timing-ID convergem onde ambos disparam.
+- **T4 correlação** com `z_jk_purif` (cor=0.93 nos meses both-nonzero) confirma que het-ID e timing-ID convergem onde ambos disparam; cor estável 0.93–0.95 por sub-período (não mascara COVID);
+- **T7 AR-order sensitivity** (p ∈ {3, 6, 12}): F estável (20.7 / 21.3 / 22.4) — não é artefato de lag-order;
+- **T8 Andrews (1993) QLR sup-F** = 6.88 em 2015-08, abaixo de cv5 = 8.85 ⇒ **fail to reject**. O drop F sub-period (T3) é mecânico — var(innov) cresce 3.6× pós-COVID — não quebra estrutural no β.
 
 A leitura honesta para o paper: `z_het_jk` **não é** "het-ID puro"; é um instrumento híbrido cujo identifying assumption é a exclusion restriction mensal, **não** A1-A3.
 
@@ -190,15 +193,34 @@ Inferência: wild bootstrap recursive GK existente. Com F (y6m AR) ≈ 56 percen
 
 Cross-language replication em Python (NumPy + statsmodels) bate com R a 6 decimais em todas as estatísticas determinísticas (F observado, F sub-período, correlações). Réplica em `correspondence/referee2/replication/referee2_replicate_validation.py`; relatório formal em `correspondence/referee2/2026-04-26_round2_report.md` (verdict: **Accept**).
 
-### Open questions (Blindspot 2026-04-26)
+### Validação 2026-05-06 — A3 sub-período + QLR
 
-Robustness checks ausentes (não-bloqueantes mas desejáveis antes do paper):
+`script/instrument_het.R` (wrapper `run_het_window`) testa A3 (`B_d` constante) re-rodando a identificação 3-var em sub-amostras diárias 2013-2019 vs 2020-2025:
 
-1. **Sensibilidade ao AR-order** — rodar p ∈ {3, 12} adicional aos p=6 default.
-2. **Anti-JK mask** — zerar puros monetários (sign(ε̂)≠sign(ΔIBOV)) e manter informacionais. Se F(anti-JK) ≈ 5 (random level), evidência forte de que o critério é informativo.
-3. **Curva F(k_keep)** para k ∈ {20, 60, 80} — separa "JK escolhe os 42 certos" vs "qualquer 42 chega perto".
-4. **Placebo + random-mask para `z_het` puro** como benchmark pareado.
-5. **Correlação T4 e var(innov) por sub-período** — quantifica a heterogeneidade COVID.
+| sub-período   | n_C | rank-1 share | b_1[DI_3m] | b_1[IBOV] | b_1[BRL] |
+|---------------|-----|--------------|-----------:|----------:|---------:|
+| pre_covid     |  56 | 0.987        |  9.79      |  0.05     | -0.28    |
+| covid_post    |  48 | 0.975        |  6.72      | -0.02     | -0.37    |
+
+cosine(b_1_pre, b_1_post) = **1.000**; norm_ratio = **0.687**. Veredito **A3 sustained** — direção do impact column estável; magnitude no DI_3m cai 31% pós-COVID, consistente com BCB mais previsível sob arcabouço fiscal (2022+). A interpretação aceita: o choque de política tem mesma estrutura de transmissão; sua variância é menor pós-COVID. Outputs: `output/het_a3_b_1_pre_vs_post.csv`, `output/het_a3_summary.csv`, `output/het_b_1_{pre,post}_covid.csv`, `output/het_eigenvalues_*.csv`, `output/het_variance_validation_*.csv`.
+
+`script/instrument_validation.R` (T8) executa Andrews (1993) QLR sup-F sobre o slope do first-stage:
+
+```
+innov_t = α + β·z_t + γ·D_τ + δ·(z_t · D_τ) + ε_t
+```
+
+com `D_τ = 1{t > τ}`, trim 0.15, HC0 Wald F sobre δ. **Resultado:** sup F = **6.88** em τ* = 2015-08, abaixo dos critical values Andrews (1993, Tab. 1, m=1, π_0=0.15): cv5 = 8.85, cv1 = 12.16. **Veredito: fail to reject.** Não há evidência formal de quebra estrutural no β do first-stage. O drop F do T3 (38.1 → 11.2) é melhor explicado pelo aumento mecânico de var(innov) pós-COVID (8.6e-6 → 3.1e-5, T4 var-by-window) do que por mudança de regime.
+
+### Open questions resolvidas (Blindspot 2026-04-26)
+
+Os 5 pontos abertos no Blindspot 04-26 estão fechados:
+
+1. **Sensibilidade ao AR-order** ⇒ T7 (F estável p ∈ {3, 6, 12}).
+2. **Anti-JK mask** ⇒ T5 (F = 0.194; JK é informativo, não esparsifica).
+3. **Curva F(k_keep)** ⇒ T6 (k=80 nenhum random draw alcança JK F).
+4. **Placebo + random-mask para `z_het` puro** ⇒ T2b (paired placebo: F obs 7.6 vs 21.3; ambos passam por permutação).
+5. **Correlação T4 e var(innov) por sub-período** ⇒ T4 sub-período + var-by-window (cor estável; var(innov) ↑ 3.6× pós-COVID).
 
 Pontos a destacar (não enterrar) no paper:
 

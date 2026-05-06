@@ -37,34 +37,34 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 
 ## MÉDIO — robustez importante, deve entrar no paper
 
-- [ ] **Corrigir framing de T2 nos documentos públicos**
-  `output/het_validation_report.md` e `_instrucoes/Heteroscedasticidade.md` usam framing otimista ("genuinely informative, p≈0.01"). F_obs=21.29 está AT q99=21.5, não acima.
-  Texto correto: *"JK F sits at the 99th percentile of equal-size random masks — informative, but the gap is one percentile."*
+> **Status (2026-05-06):** 6 dos 7 itens fechados na sessão de hoje (commits a serem criados após este update). O item IRF + benchmark literatura brasileira fica pendente para sessão dedicada.
+
+- [x] **Corrigir framing de T2 nos documentos públicos** — *concluído 2026-05-06*
+  `output/het_validation_report.md` (seção T2) reescrito com leitura honesta: "The JK F sits *at* the 99th percentile of equal-size random masks ... the gap is one percentile". Inclui binomial SE 0.0023 e 95% CI [0.006, 0.015]. `_instrucoes/Heteroscedasticidade.md` já tinha framing honesto desde 2026-05-05 (verificado).
   *Fonte: Blindspot 04-26 action item 1.*
 
-- [ ] **Rodar placebo + random-mask para z_het puro (sem JK) como benchmark pareado**
-  Permite comparar as distribuições nulas de z_het e z_het_jk side-by-side.
+- [x] **Rodar placebo + random-mask para z_het puro (sem JK) como benchmark pareado** — *concluído 2026-05-06*
+  T2b implementado em `script/instrument_validation.R` chamando `placebo_test()` paralelo em `mensais$z_het`. **Resultado:** F obs (z_het) = 7.61 vs F obs (z_het_jk) = 21.29; placebo p-value 0.008 vs 0.0005; nenhum dos dois rejeita por data-snooping, mas as Fs observadas diferem por ~3×, isolando a contribuição informativa do filtro JK no nível diário. Random-mask para z_het puro é degenerado (k=k_total=97), documentado no relatório. Outputs: `het_validation_placebo_zhet.{csv,png}`. Seção T2b do report.
   *Fonte: Blindspot 04-26 action item 2.*
 
-- [ ] **Sensibilidade AR-order: p ∈ {3, 12}**
-  AR(6) é hard-coded em `residualize_target`. Tabela auxiliar com F observado e p-placebo para p ∈ {3, 6, 12}.
+- [x] **Sensibilidade AR-order: p ∈ {3, 12}** — *concluído 2026-05-06*
+  T7 implementado em `script/instrument_validation.R`: loop sobre p ∈ {3, 6, 12} chamando `residualize_target(target_series, n_lags=p)` e `subperiod_F`. **Resultado:** F (full) = 20.7 / 21.3 / 22.4 para p={3,6,12}; F (pre_covid) = 13.1 / 38.1 / 33.4; F (covid_post) = 17.8 / 11.2 / 11.2. F observado é estável em ±10% para AR≥6. AR(3) sub-estima por sub-residualização (38→13 no pre_covid). Output: `het_validation_ar_sensitivity.csv`. Seção T7 do report.
   *Fonte: Round 2 minor concern, Blindspot 04-26 action item 2.*
 
-- [ ] **Testar A3 (B_d constante): het-ID separado em 2013-19 vs 2020-25**
-  Sub-period F cai de 38.1 para 11.2 — possível quebra de regime de comunicação do BCB pós-2020 (forward guidance, RI expandido).
-  Ação: estimar het-ID por sub-período, comparar b_1 vectors; discutir estruturalmente se é contaminação ou regime change.
+- [x] **Testar A3 (B_d constante): het-ID separado em 2013-19 vs 2020-25** — *concluído 2026-05-06*
+  Wrapper `run_het_window()` adicionado a `script/instrument_het.R` filtra `regime_tbl` + `changes_3var` por janela diária e chama `build_het_instrument` + `validate_variance_split`. **Resultado:** cosine(b_1_pre, b_1_post) = 1.000; norm_ratio = 0.687; rank-1 share 0.987 (pre) / 0.975 (post). **Veredito: "A3 sustained"** — direção do impact column é estável; magnitude no `b_1[DI_3m]` cai 31% (9.79 → 6.72), consistente com a leitura de "regime change na função de reação BCB pós-2020 mas sem violação estrutural". Outputs: `het_a3_b_1_pre_vs_post.csv`, `het_a3_summary.csv`, `het_b_1_{pre_covid,covid_post}.csv`, `het_eigenvalues_*.csv`, `het_variance_validation_*.csv`.
   *Fonte: Macro Theorist (council), Blindspot 04-26 virtue 1.*
 
-- [ ] **Andrews (1993) QLR supF na equação de primeiro estágio**
-  Teste formal de quebra estrutural no first-stage. Formaliza o que hoje é apenas observação de sub-period F.
+- [x] **Andrews (1993) QLR supF na equação de primeiro estágio** — *concluído 2026-05-06*
+  Função `qlr_supF()` adicionada a `R/identification/validation_tests.R`: para cada τ ∈ [0.15·n, 0.85·n], regressão `innov ~ z + D_τ + z·D_τ` com Wald HC0 sobre o termo de interação (m=1, k=1 restriction). **Resultado:** sup F = 6.88 em τ* = 2015-08-01 (NÃO 2020 como esperado pelo sub-period drop). Critical values Andrews (1993) Tab. 1, m=1, π_0=0.15: cv5=8.85, cv1=12.16. **Veredito: "fail to reject"** — não há evidência formal de quebra estrutural no slope do first-stage, contra a conjectura inicial de regime change pós-COVID. O drop F no sub-period (38.1 → 11.2) é melhor explicado por aumento de var(innov) pós-COVID (T4 var-by-window: 8.6e-6 → 3.1e-5 = 3.6× maior), não por mudança de β. Output: `het_validation_qlr.csv`, `het_validation_qlr_curve.csv`. Seção T8 do report.
   *Fonte: Methodologist (council optional 1).*
 
-- [ ] **cor(z_het_jk, z_jk_purif) e var(innov) por sub-período**
-  A cor=0.93 (n=36 meses both-nonzero) pode mascarar divergência durante COVID. Rodar separado por janela (pre-COVID / COVID+post).
+- [x] **cor(z_het_jk, z_jk_purif) e var(innov) por sub-período** — *concluído 2026-05-06*
+  Extensão T4 em `script/instrument_validation.R`: `monthly_correlation()` rodado em 3 janelas (full / pre_covid / covid_post) + `var(innov)` por janela. **Resultado:** cor (both_nonzero) = 0.95 (pre, n=12) / 0.93 (post, n=24) / 0.93 (full, n=36) — convergência het-ID × timing-ID estável; o cor=0.93 do full **não mascara** divergência. var(innov) cresce ~3.6× pós-COVID (8.6e-6 → 3.1e-5), explicando mecanicamente o sub-period F drop sem precisar invocar regime change. Outputs: `het_validation_correlation_by_window.csv`, `het_validation_var_innov_by_window.csv`. Sub-tabelas T4 do report.
   *Fonte: Blindspot 04-26 action item 5.*
 
 - [ ] **Seção IRF completa + benchmark literatura brasileira**
-  IRFs com 68/90% para z_het_jk e z_jk_purif; comparar com Minella (2003) e GRG (2025). Necessário para o paper ser uma contribuição empírica, não só metodológica.
+  IRFs com 68/90% para z_het_jk e z_jk_purif; comparar com Minella (2003) e GRG (2025). Necessário para o paper ser uma contribuição empírica, não só metodológica. **Fora de escopo da sessão 2026-05-06; sessão dedicada.**
   *Fonte: Harsh Referee (council optional 3).*
 
 ---

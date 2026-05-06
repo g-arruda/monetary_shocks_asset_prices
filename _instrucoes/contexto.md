@@ -30,9 +30,9 @@ Paper independente que replica a metodologia de Alessi & Kerssenfischer (2019) a
 - `script/instrument.R` — construção dos 4 instrumentos por timing (Gertler-Karadi); importa as 4 variantes het no arquivo combinado.
 - `script/instrument_het.R` — construção dos instrumentos `z_het`, `z_het_jk` (4-var production) e `z_het_3var`, `z_het_jk_3var` (3-var robustez) por heterocedasticidade (Rigobon-Sack 2003).
 - `R/identification/het_shock_extraction.R` — primitivas (regimes Wed→Thu, eigendecomp de ΔΣ, GLS de Mertens-Ravn, agregação mensal, `validate_variance_split`, `classify_a2_verdict`, `build_het_instrument`).
-- `R/identification/validation_tests.R` — primitivas para `instrument_validation.R` (T1-T6: `placebo_test`, `random_mask_test`, `subperiod_F`, `monthly_correlation`, `anti_jk_test`, `random_mask_curve`).
+- `R/identification/validation_tests.R` — primitivas para `instrument_validation.R` (T1-T8: `placebo_test`, `random_mask_test`, `subperiod_F`, `monthly_correlation`, `anti_jk_test`, `random_mask_curve`, `qlr_supF`).
 - `script/instrument_diagnostics.R` — diagnostics dos 8 instrumentos com **dois F lado a lado** (DFM factor 1 residual + AR(6) innovation de yield_6m); GRG Tab 1 com `a2_status`, espectro de ΔΣ, `b_1` 4-var × 3-var.
-- `script/instrument_validation.R` — T1-T6 para `z_het_jk + yield_6m` (placebo, random-mask, sub-period, correlação com z_jk_purif, anti-JK, F(k_keep) curva).
+- `script/instrument_validation.R` — T1-T8 para `z_het_jk + yield_6m` (placebo, random-mask, sub-period, correlação com z_jk_purif, anti-JK, F(k_keep) curva, T2b paired benchmark z_het, T7 AR-order sensitivity, T8 Andrews QLR sup-F).
 - `script/instrument_audit.R` — auditoria de agregação × maturidade × filtro JK; produz `output/instrument_audit_report.md` e `output/instrument_audit_grid.csv`.
 - Código Matlab original em `codigo_alessi-mark/` (referência para tradução).
 
@@ -52,7 +52,7 @@ O projeto suporta oito variantes de instrumento externo para a proxy-SVAR no DFM
 | `z_het_3var`          | Choque Rigobon-Sack extraído de SVAR diária 3×3 (DI_3m, IBOV, BRL); rank-1 share = 0.987             | `instrument_het.R` |
 | **`z_het_jk_3var`**   | `z_het_3var` com filtro JK aplicado no nível diário — **default em `instrument.csv`**                | `instrument_het.R` |
 
-**Recomendação após auditoria + validação (2026-05-05):** `z_het_jk_3var` com normalização em `yield_6m`. F de primeiro estágio (y6m AR) = 55.98 (vs 21.29 do `z_het_jk` 4-var, vs 1.1 para `z_het` em `juros_selic`). T5 anti-JK F = 0.19 e T6 F-curve confirmam que o filtro JK é informativo, não só esparsificação. Ver `_instrucoes/Heteroscedasticidade.md`, `output/instrument_audit_report.md`, `output/instrument_diagnostics_report.md`, `output/het_validation_report.md`.
+**Recomendação após auditoria + validação (2026-05-05/06):** `z_het_jk_3var` com normalização em `yield_6m`. F de primeiro estágio (y6m AR) = 55.98 (vs 21.29 do `z_het_jk` 4-var, vs 1.1 para `z_het` em `juros_selic`). T5 anti-JK F = 0.19 e T6 F-curve confirmam que o filtro JK é informativo, não só esparsificação. T7 (AR-order p ∈ {3,6,12}) confirma F estável (20.7 / 21.3 / 22.4). T8 (Andrews QLR sup-F = 6.88) **fail to reject** evidência formal de quebra estrutural no slope do first-stage — o drop F sub-period é mecânico (var(innov) cresce 3.6× pós-COVID), não regime change. A3 het-ID separado pre/post-COVID: cosine(b_1) = 1.000, norm_ratio = 0.687 — direção do impact column estável; "A3 sustained". Ver `_instrucoes/Heteroscedasticidade.md`, `output/instrument_audit_report.md`, `output/instrument_diagnostics_report.md`, `output/het_validation_report.md`.
 
 A variante padrão escrita em `data/processed/instrument.csv` é controlada por `DEFAULT_VARIANT` em `script/instrument.R:25` (default atual: `z_het_jk_3var`).
 

@@ -1,37 +1,40 @@
-# Handoff — 2026-05-05 (segunda sessão)
-SESSLOG:[2026-05-05]
+# Handoff — 2026-05-06
+SESSLOG:[2026-05-06]
 
 ## Session Topic
-Fechados os 3 últimos itens CRÍTICOS de `_instrucoes/pendencias.md` (framing híbrido het+timing, T5 anti-JK mask, T6 curva F(k_keep)) + switch de `DEFAULT_VARIANT` para `z_het_jk_3var`. Os 6 críticos da seção CRÍTICO estão agora todos checados; restam itens MÉDIO e LEVE.
+Closed 6 of 7 MÉDIO items from `_instrucoes/pendencias.md`. Phase A (T2 honest framing in public docs), Phase B (T2b paired benchmark, T7 AR-order sensitivity, T8 Andrews QLR sup-F, T4 sub-period extension), Phase C (A3 het-ID separated pre/post-COVID with b_1 stability comparison). Item 7 (Seção IRF + benchmark Brazilian literature) explicitly out of scope at user request — will be retomado em sessão dedicada.
 
 ## Active Decisions
-- `DEFAULT_VARIANT = "z_het_jk_3var"` em `script/instrument.R:25`. `instrument.csv` agora aponta para o instrumento 3-var (rank-1 share 0.987, F (y6m AR) = 55.98).
-- Framing híbrido het+timing adotado em `_instrucoes/Heteroscedasticidade.md` ("Framing: instrumento híbrido het+timing"). Identifying assumption operativa: exclusion restriction mensal `E[z_het_jk_m · η_t^j] = 0` (Stock-Watson 2018 §4.7), **não** A1-A3 (que falham com 57% wrong-sign no diário).
-- T5 anti-JK: F = **0.194** sobre os 55 dias sign-equal "informacionais". Comparado a JK F = 21.29 (42 dias sign-opposite "monetários") e random-mask mean = 5.73 — evidência direta de que o filtro JK não é só esparsificação.
-- T6 F(k_keep) curva em k ∈ {20, 42, 60, 80}, n_draws=2000 cada. JK F = 21.29 sits at q99 do k=42; em k=80 nenhum random draw alcança JK F. p(F_random ≥ JK) = {0.034, 0.0095, 0.006, 0.000}.
-- Mantido o pre-existing `nboot=100` em `model_alessi.R` — fora do escopo dos críticos.
+- **T2 framing honesto** já no relatório público (`output/het_validation_report.md` §T2): "JK F sits AT q99 of equal-size random masks — gap is one percentile". T5 + T6 são os testes discriminantes mais fortes.
+- **A3 verdict: "A3 sustained"** — cosine(b_1_pre, b_1_post) = 1.000, norm_ratio = 0.687. Direção do impact column estável; magnitude no DI_3m cai 31% pós-COVID. Não viola identificação.
+- **Andrews QLR: fail to reject** — sup F = 6.88 em 2015-08 (não 2020), abaixo de cv5 = 8.85. **O drop F sub-period (38.1 → 11.2) é mecânico**: var(innov) cresce 3.6× pós-COVID (8.6e-6 → 3.1e-5), não há quebra estrutural no β.
+- **AR-order estável**: F (full) = 20.7 / 21.3 / 22.4 para p ∈ {3,6,12}. AR(3) sub-residualiza no pre_covid (38 → 13 inflation); AR(6) é o sweet spot.
+- **z_het puro**: F = 7.61 vs z_het_jk F = 21.29 (paired placebo, ambos passam — gap reflete identificação no diário, não data-snooping).
 
 ## Key Files
-- script/instrument.R                          (DEFAULT_VARIANT, het_variants, het pull loop)
-- R/identification/validation_tests.R          (+ anti_jk_test, random_mask_curve, random_mask_curve_summary)
-- script/instrument_validation.R               (+ T5, T6, plots, report sections)
-- _instrucoes/Heteroscedasticidade.md          (framing híbrido + recomendação 3-var)
-- _instrucoes/pendencias.md                    (críticos 4-6 checados)
-- CLAUDE.md                                    (default_variant note)
-- output/het_validation_anti_jk.csv            (novo)
-- output/het_validation_f_curve{,_summary}.csv (novos)
-- output/het_validation_f_curve.png            (novo)
-- output/het_validation_report.md              (T1-T6 atualizado)
-- data/processed/instrument.csv                (= z_het_jk_3var)
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/R/identification/validation_tests.R — nova função `qlr_supF()`.
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/script/instrument_validation.R — T2b, T7, T8, T4 sub-período (8 testes total agora).
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/script/instrument_het.R — wrapper `run_het_window()` para A3 pre/post-COVID.
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/_instrucoes/pendencias.md — 6 itens MÉDIO marcados [x].
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/het_validation_report.md — seções T2 (rewrite honesto), T2b, T4 sub-período, T7, T8 adicionadas.
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/het_a3_b_1_pre_vs_post.csv, het_a3_summary.csv — diagnostics A3.
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/het_validation_{ar_sensitivity,qlr,qlr_curve,placebo_zhet,correlation_by_window,var_innov_by_window}.csv — outputs T2b/T7/T8/T4 ext.
 
 ## Next Steps
-- [ ] Pendências MÉDIO: corrigir framing T2 nos docs públicos (random-mask gap é um percentil, não p<0.01); placebo+random-mask para z_het puro (benchmark pareado); AR-order sens p ∈ {3, 12}; A3 het-ID separado pre/post-COVID; QLR Andrews 1993; cor por sub-período; seção IRF + benchmark literatura brasileira.
-- [ ] Pendências LEVE: Cragg-Donald formal rank test; Piffer-Podstawski nested bootstrap para b_1; identificar v_2; guard sign-flip mp_var_idx; alinhar NA handling; script mestre run_all.R.
-- [ ] Paper writeup com `z_het_jk_3var + yield_6m` como spec principal.
+- [ ] **Item MÉDIO 7 — Seção IRF completa + benchmark literatura brasileira** (próxima sessão dedicada). Cross-instrument IRFs (z_het_jk_3var vs z_jk_purif), bandas 68/90, comparação Minella (2003) e GRG (2025). Minella PDF não está em `artigos/` — baixar via SSRN/BCB antes de redigir.
+- [ ] Pendências LEVE: Cragg-Donald rank test, Piffer-Podstawski nested bootstrap, identify v_2, sign-flip guard, NA handling alignment, master `script/run_all.R`, MAX_GAP_DAYS docstring.
+- [ ] Paper writeup com `z_het_jk_3var + yield_6m` como primary spec.
+- [ ] Pequena regressão fixada nesta sessão: `parents[3]` → `parents[4]` em `relatorio/correspondence/referee2/replication/referee2_replicate_validation.py` (depth depois da consolidação `relatorio/`).
 
 ## Working Artifacts
-- Plano da sessão: `/home/gabriel/.claude/plans/leia-o-handof-md-e-sorted-naur.md` (overwrite do plano da sessão anterior).
-- Reviews gemini sobre os 3 .R modificados — 4 falsos positivos descartados (NA-handling de shocks_C/ibov_C já tratado upstream; subperiod_F já lida com drop_covid; ts coercion fora do uso atual; "F=21" hardcoded era cosmético). Aplicados: `na.rm=TRUE` em counts do anti_jk_test, `k_keep > n_total` guard, sprintf no F do report, T3 doc text alinhado ao código, posição do label JK no curve plot.
+- /home/gabriel/.claude/plans/leia-os-md-da-valiant-deer.md — plano da sessão (3 fases A, B, C; Item 7 explicitamente fora de escopo).
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/relatorio/ — relatórios anteriores (council, blindspot, referee2 round1/round2). Sem alterações nesta sessão.
 
 ## Context
-Sessão de continuação: 1ª sessão (commit `4e2192f`) fechou os críticos 1-3 (mp_var, A2 + 3-var, dois Fs). Esta 2ª sessão fechou os críticos 4-6 (framing, anti-JK, F-curve) + DEFAULT_VARIANT switch. Resultado material: o filtro JK no nível diário é **provavelmente** parte da identificação (não cosmético), com evidência empírica em T5 (F=0.19 no complemento) e T6 (curva monotônica em q99 com k). O framing híbrido é defensível: identifying assumption mensal mais fraca que A1-A3 e compartilhada com Gertler-Karadi proxy-SVARs. Próximo bloco lógico é endereçar os MÉDIO antes do paper writeup.
+A seção MÉDIO de `_instrucoes/pendencias.md` está 6/7 fechada. As três descobertas mais "papelistas" desta sessão:
+
+1. **Andrews QLR vs sub-period drop**: a estabilidade formal de β contradiz a interpretação inicial de "regime change pós-COVID". O drop F é puramente mecânico (var(innov) sobe 3.6×). Isso reforça a identificação: o instrumento **funciona igual** em ambos os regimes; o que muda é o sinal-ruído da variável dependente.
+2. **A3 sustained com norm_ratio = 0.69**: cosine = 1 mostra que o impact column tem direção estável; o ||b_1|| menor pós-COVID indica menor variância de choque de política — consistente com BCB mais previsível pós-2022 sob arcabouço fiscal.
+3. **z_het puro F = 7.61**: paired benchmark mostra que o gap z_het_jk vs z_het (21.3 vs 7.6) é idiossincrático ao filtro JK aplicado no nível diário, não acidentalmente atribuível a data-snooping mensal (placebo p tanto para z_het quanto z_het_jk).
+
+Próxima sessão pode focar diretamente no Item 7 (IRFs cross-instrument com benchmark Minella/GRG) ou começar o paper writeup tendo `z_het_jk_3var + yield_6m` como primary spec e a suíte T1-T8 como appendix de robustez.

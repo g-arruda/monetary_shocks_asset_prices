@@ -4,13 +4,16 @@
 
 > **A estratégia principal mudou.** A auditoria (`output/instrument_audit_report.md`) mostrou que as quatro variantes GK descritas neste documento sofrem atenuação severa por descasamento de maturidade contra `juros_selic` (BCB 4189, fluxo) e por contaminação por *information shocks*. A estratégia adotada é **identificação por heterocedasticidade** (Rigobon-Sack 2003), na variante **`z_het_jk_3var`** (default em `script/instrument.R:25`) com **`yield_6m`** como variável de política para normalização. A escolha 3-var (DI_3m, IBOV, BRL) sobre 4-var (que adiciona DI_2y) é motivada por dois resultados do `instrument_diagnostics.R`: rank-1 share = 0.987 (vs 0.840 no 4-var) e F (y6m AR) = 55.98 (vs 21.29 no 4-var). Documentação completa em `_instrucoes/Heteroscedasticidade.md`.
 >
-> **Validação completa (T1-T6, 2026-05-05):** `script/instrument_validation.R` executa seis robustezes:
+> **Validação completa (T1-T8, 2026-05-06):** `script/instrument_validation.R` executa oito robustezes:
 > - **T1 placebo** (n=2000): F=21.3 não é data-snooping (p=0.0005);
 > - **T2 random-mask k=42** (n=2000): JK F sits at q99 (p=0.0105 — gap de um percentil);
+> - **T2b paired benchmark z_het puro**: F=7.61 (placebo p=0.008); ambos passam, gap reflete identificação no diário, não data-snooping;
 > - **T3 sub-period**: F estável (10–38) em pre-COVID / COVID+post / drop_covid;
-> - **T4 correlação com z_jk_purif** (n=36 both-nonzero): pearson 0.93, spearman 0.94 — het-ID e timing-ID convergem;
+> - **T4 correlação com z_jk_purif** (n=36 both-nonzero): pearson 0.93, spearman 0.94 — het-ID e timing-ID convergem; cor estável 0.93–0.95 por sub-período (não mascara COVID);
 > - **T5 anti-JK mask**: F = **0.194** sobre os 55 dias sign-equal "informacionais" — evidência direta de que JK não é só esparsificação;
-> - **T6 F(k_keep) curva** k ∈ {20, 42, 60, 80}: p(F_random ≥ JK) = {0.034, 0.0095, 0.006, 0.000}; em k=80 nenhum random draw alcança JK F.
+> - **T6 F(k_keep) curva** k ∈ {20, 42, 60, 80}: p(F_random ≥ JK) = {0.034, 0.0095, 0.006, 0.000}; em k=80 nenhum random draw alcança JK F;
+> - **T7 AR-order sensitivity** p ∈ {3, 6, 12}: F (full) = 20.7 / 21.3 / 22.4 — estável; AR(3) sub-residualiza no pre_covid;
+> - **T8 Andrews (1993) QLR sup-F**: sup F = 6.88 em 2015-08, **fail to reject** vs cv5=8.85 — o drop F sub-period é mecânico (var(innov) cresce 3.6× pós-COVID), não quebra estrutural.
 >
 > Replicação cross-language R↔Python (T1-T4) bate a 6 decimais. Relatório referee2 round 2: **Accept**. Os 6 itens CRÍTICOS de `_instrucoes/pendencias.md` foram fechados nos commits `4e2192f` (críticos 1-3) e `a3af0e4` (críticos 4-6 + DEFAULT_VARIANT).
 >

@@ -1,5 +1,5 @@
 # Heteroskedasticity instrument — validation report
-Date: 2026-05-05
+Date: 2026-05-06
 Specification: z_het_jk + yield_6m, AR(6) residualization
 Sample: 2013-01-01 to 2025-12-31 (156 months)
 
@@ -18,16 +18,44 @@ Histogram: `output/het_validation_placebo.png`
 ## T2 — Random-mask vs JK filter
 
 Random subsets of 42 Copom days (matching JK count) are kept; the
-remaining days are zeroed before monthly aggregation. If the JK F merely
-reflects sparsification, the JK F would lie inside the random-mask
-distribution. If JK is genuinely informative (sign filter separates
-monetary from information shocks), JK F sits in the upper tail.
+remaining days are zeroed before monthly aggregation. The random-mask
+distribution is the appropriate null for the JK F: if the JK gain reflects
+only sparsification, the JK F would sit inside that distribution; if the
+sign filter is informative, the JK F sits in the upper tail.
 
 - JK observed F = 21.293 (k_keep = 42 / 97)
 - random mask: n_draws = 2000, mean F = 5.733, median F = 4.207, q95 = 15.108, q99 = 21.463, max = 41.131
 - p-value (P(F_mask ≥ JK)) = 0.0105
 
+**Honest reading.** The JK F sits *at* the 99th percentile of equal-size
+random masks (q99 ≈ F_obs ≈ 21). The filter is informative, not just
+sparsifying, but the margin is tight on this single test. T5 (anti-JK)
+and T6 (F(k_keep) curve) are the stronger discriminating tests; both
+confirm informativeness without ambiguity. Avoid framing this T2 result
+as 'p ≈ 0.01 confirms'; report it as 'JK F sits at the 99th percentile
+of random masks of equal size'.
+
 Histogram: `output/het_validation_random_mask.png`
+
+## T2b — Paired benchmark: placebo for z_het puro vs z_het_jk
+
+Permutes the unfiltered z_het instrument and compares its placebo
+distribution against the z_het_jk placebo. The two nulls share shape
+(uniform over month assignments) but the observed Fs differ by ~3×;
+neither rejects under permutation, which confirms the gap reflects
+informativeness of the daily-level identification rather than data
+snooping in either instrument.
+
+Random-mask is not paired here because the unfiltered side has
+k_keep = n_total (97 / 97), so any random mask returns the same
+deterministic monthly sum.
+
+| instrument | observed F | mean F null | q95 | q99 | p-value |
+|------------|-----------:|------------:|----:|----:|--------:|
+| z_het_jk   | 21.293 | 1.224 | 4.732 | 8.078 | 0.0005 |
+| z_het      | 7.607 | 1.081 | 4.035 | 6.605 | 0.0080 |
+
+Overlay histogram: `output/het_validation_placebo_zhet.png`
 
 ## T3 — Sub-period stability
 
@@ -56,6 +84,29 @@ the both-nonzero subset should be high.
 | all           | 156 | 0.745 | 0.715 |
 | union_nonzero | 71  | 0.745 | 0.740 |
 | both_nonzero  | 36  | 0.933 | 0.937 |
+
+### T4 by sub-period (both_nonzero subset)
+
+The full-sample cor = 0.93 may mask divergence during COVID. Split into
+pre-COVID (2013-2019) and COVID + post (2020-2025) to check.
+
+| window      |  n  | pearson | spearman |
+|-------------|-----|---------|----------|
+| full        |  36 | 0.933 | 0.937 |
+| pre_covid   |  12 | 0.947 | 0.965 |
+| covid_post  |  24 | 0.926 | 0.912 |
+
+### Variance of innov(yield_6m) and z_het_jk per window
+
+Quantifies the heterogeneity that drives the T3 sub-period F drop:
+the first-stage F is `(beta * sd_z)^2 / var(innov)` × n / (1 - r2),
+so simultaneous changes in var(innov) and var(z) compound the drop.
+
+| window      |  n  | var(innov) | var(z_het_jk) |
+|-------------|-----|-----------:|--------------:|
+| full        | 150 | 1.951e-05 | 0.369 |
+| pre_covid   |  78 | 8.597e-06 | 0.326 |
+| covid_post  |  72 | 3.136e-05 | 0.405 |
 
 ## T5 — Anti-JK mask
 
@@ -88,14 +139,45 @@ the dashed reference line in the plot.
 
 Boxplot: `output/het_validation_f_curve.png`
 
+## T7 — AR-order sensitivity
+
+Re-residualizes yield_6m at p ∈ {3, 6, 12} and recomputes the observed F
+for z_het_jk plus the T3 sub-period Fs. AR(6) is the default; this table
+verifies the result is not an artefact of lag-order choice.
+
+| p  | F (full) | F (pre_covid) | F (covid_post) | F (drop_covid) | R²    |
+|----|---------:|--------------:|---------------:|---------------:|-------|
+|  3 | 20.745 | 13.120 | 17.798 | 21.816 | 0.191 |
+|  6 | 21.293 | 38.097 | 11.240 | 24.231 | 0.190 |
+| 12 | 22.383 | 33.429 | 11.193 | 24.882 | 0.178 |
+
+## T8 — Andrews (1993) QLR sup-F
+
+Tests for a single structural break in the first-stage slope
+(`innov ~ z + D_tau + z*D_tau`, HC0 Wald F on the interaction). Trim
+pi_0 = 0.15; m = 1. Critical values from Andrews (1993, Tab. 1)
+asymptotic for the sup-F process indexed by the break fraction.
+
+- sup F = 6.88 at tau* = 2015-08-01 (n = 150, trim = 0.15)
+- Andrews (1993) critical values (m = 1, pi_0 = 0.15): cv5 = 8.85, cv1 = 12.16
+- verdict: **fail to reject**
+
+QLR curve: `output/het_validation_qlr_curve.csv`
+
 ## Files
 
-- `output/het_validation_placebo.csv` — F across permutations
-- `output/het_validation_random_mask.csv` — F across random masks (k = JK)
-- `output/het_validation_subperiod.csv` — sub-period F table
-- `output/het_validation_correlation.csv` — Pearson / Spearman
-- `output/het_validation_anti_jk.csv` — single-row T5 summary
-- `output/het_validation_f_curve.csv` — per-draw F across k_keep grid
-- `output/het_validation_f_curve_summary.csv` — summary by k_keep
-- PNG: `het_validation_placebo.png`, `het_validation_random_mask.png`,
-  `het_validation_f_curve.png`
+- `output/het_validation_placebo.csv` — T1 F across permutations (z_het_jk)
+- `output/het_validation_placebo_zhet.csv` — T2b paired placebo (z_het puro)
+- `output/het_validation_random_mask.csv` — T2 F across random masks (k = JK)
+- `output/het_validation_subperiod.csv` — T3 sub-period F table
+- `output/het_validation_correlation.csv` — T4 Pearson / Spearman (full)
+- `output/het_validation_correlation_by_window.csv` — T4 by sub-period
+- `output/het_validation_var_innov_by_window.csv` — var(innov) per window
+- `output/het_validation_anti_jk.csv` — T5 single-row summary
+- `output/het_validation_f_curve.csv` — T6 per-draw F across k_keep grid
+- `output/het_validation_f_curve_summary.csv` — T6 summary by k_keep
+- `output/het_validation_ar_sensitivity.csv` — T7 AR-order ∈ {3,6,12}
+- `output/het_validation_qlr.csv` — T8 sup-F summary
+- `output/het_validation_qlr_curve.csv` — T8 per-tau Wald F
+- PNG: `het_validation_placebo.png`, `het_validation_placebo_zhet.png`,
+  `het_validation_random_mask.png`, `het_validation_f_curve.png`
