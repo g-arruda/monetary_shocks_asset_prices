@@ -37,7 +37,7 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 
 ## MÉDIO — robustez importante, deve entrar no paper
 
-> **Status (2026-05-06):** 6 dos 7 itens fechados na sessão de hoje (commits a serem criados após este update). O item IRF + benchmark literatura brasileira fica pendente para sessão dedicada.
+> **Status (2026-05-06):** **TODOS os 7 itens MÉDIO fechados.** Os 6 itens menores (1-6) na sessão da manhã (commits `0cdc7e7`, `78452b9`, `78a9c0e`); o Item 7 (IRF + benchmark GRG) na sessão da tarde. Próximo bloco lógico é a seção LEVE (qualidade de código) ou paper writeup direto.
 
 - [x] **Corrigir framing de T2 nos documentos públicos** — *concluído 2026-05-06*
   `output/het_validation_report.md` (seção T2) reescrito com leitura honesta: "The JK F sits *at* the 99th percentile of equal-size random masks ... the gap is one percentile". Inclui binomial SE 0.0023 e 95% CI [0.006, 0.015]. `_instrucoes/Heteroscedasticidade.md` já tinha framing honesto desde 2026-05-05 (verificado).
@@ -63,8 +63,10 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
   Extensão T4 em `script/instrument_validation.R`: `monthly_correlation()` rodado em 3 janelas (full / pre_covid / covid_post) + `var(innov)` por janela. **Resultado:** cor (both_nonzero) = 0.95 (pre, n=12) / 0.93 (post, n=24) / 0.93 (full, n=36) — convergência het-ID × timing-ID estável; o cor=0.93 do full **não mascara** divergência. var(innov) cresce ~3.6× pós-COVID (8.6e-6 → 3.1e-5), explicando mecanicamente o sub-period F drop sem precisar invocar regime change. Outputs: `het_validation_correlation_by_window.csv`, `het_validation_var_innov_by_window.csv`. Sub-tabelas T4 do report.
   *Fonte: Blindspot 04-26 action item 5.*
 
-- [ ] **Seção IRF completa + benchmark literatura brasileira**
-  IRFs com 68/90% para z_het_jk e z_jk_purif; comparar com Minella (2003) e GRG (2025). Necessário para o paper ser uma contribuição empírica, não só metodológica. **Fora de escopo da sessão 2026-05-06; sessão dedicada.**
+- [x] **Seção IRF completa + benchmark GRG (2025)** — *concluído 2026-05-06 (sessão tarde)*
+  IRFs cross-instrument (`z_het_jk_3var` vs `z_jk_purif`) com bandas 68/90 e nboot=800 implementadas em `script/irf_cross_instrument.R`; benchmark numérico per-50bp contra GRG Tabs 4 e 5 em `script/build_grg_benchmark.R`. **Decisão do usuário: drop Minella (2003) — só GRG.**
+  Outputs: `output/irf_zhetjk3var.pdf`, `output/irf_zjkpurif.pdf`, `output/irf_comparison.pdf`, `output/irf_results_{zhetjk3var,zjkpurif}.rds`, `output/grg_benchmark.csv`, `output/irf_section.md` (§5 standalone do paper).
+  **Findings principais:** (i) `z_het_jk_3var` recupera o canal de desinflação de GRG (Δipca = -0.10 pp ≈ GRG -0.13 pp); `z_jk_purif` falha (Δipca ≈ 0). (ii) Ambos os instrumentos mostram BRL depreciation e CDS widening na contração (sinal oposto a GRG no diário) — interpretado como sinal de fiscal-dominance no horizonte mensal. (iii) Term-structure tight (todas maturidades sobem com bandas claras). (iv) Phase 2 (VAR overlay) deferida — `model_var.R` hard-coda `juros_selic`, fora-de-amostra Stock-Yogo com `z_het_jk`.
   *Fonte: Harsh Referee (council optional 3).*
 
 ---
