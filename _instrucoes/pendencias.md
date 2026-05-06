@@ -6,6 +6,9 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 
 ## CRÍTICO — blockers de identificação / inconsistências no código
 
+> **Status (2026-05-05): seção fechada.** Os 6 itens críticos foram resolvidos nos commits `4e2192f` (1-3) e `a3af0e4` (4-6 + DEFAULT_VARIANT). Próximo bloco lógico é a seção MÉDIO antes do paper writeup.
+
+
 - [x] **Corrigir mismatch `script/model_alessi.R:35`** — *concluído 2026-05-05*
   IRFs estavam sendo normalizados por `juros_selic` (F≈1.1), agora `mp_var = "yield_6m"` (F=21.3) tanto no default da função quanto na chamada (linhas 35, 117). Resultados empíricos voltam à escala correta.
   *Fonte: Methodologist (council Required 2), Round 1 major concern.*
