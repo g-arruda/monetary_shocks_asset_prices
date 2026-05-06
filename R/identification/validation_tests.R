@@ -318,6 +318,93 @@ random_mask_curve_summary <- function(curve_tbl, observed_F) {
     )
 }
 
+#' Andrews (1993) QLR sup-F test for a structural break in the first-stage slope
+#'
+#' Runs a Quandt likelihood-ratio sup-F over a trimmed grid of break dates,
+#' testing the single-coefficient null beta_1 = beta_2 in the augmented model
+#'
+#'   innov_t = alpha + beta z_t + gamma D_tau,t + delta (z_t * D_tau,t) + eps_t
+#'
+#' where D_tau,t = 1{t > tau}. The Wald (HC0) statistic on delta has m = 1.
+#' Critical values are taken from Andrews (1993, Econometrica, Tab. 1) for
+#' m = 1 and trim pi_0 = 0.15: cv5 = 8.85, cv1 = 12.16. p-values via
+#' bootstrap (Hansen 1997) are NOT computed here; we report the verdict only
+#' against the asymptotic critical values, which is sufficient for the present
+#' diagnostic (sub-period F already documents heterogeneity informally).
+#'
+#' Sub-period drop in T3 (38.1 -> 11.2 across pre/post-COVID) motivates
+#' formalising the break date; if sup-F clears cv1 with tau_star near 2020,
+#' the two sub-periods are different first-stage regressions and not just
+#' noisy estimates of one.
+#'
+#' @param z Monthly instrument vector aligned to innov.
+#' @param innov Pre-computed AR(p) residual vector from residualize_target().
+#' @param target_dates Month-start Date vector aligned to z and innov.
+#' @param trim Trim fraction pi_0 (default 0.15; CVs above assume this value).
+#'
+#' @return List with sup_F, tau_star (integer index, post-NA-drop),
+#'   tau_star_date, n, trim, cv_5pct, cv_1pct, verdict (chr), and detail
+#'   (per-tau tibble).
+qlr_supF <- function(z, innov, target_dates, trim = 0.15) {
+  ok <- !is.na(innov) & !is.na(z)
+  z_v <- z[ok]
+  e_v <- innov[ok]
+  d_v <- target_dates[ok]
+  n   <- length(z_v)
+
+  tau_min <- max(2L, floor(trim * n))
+  tau_max <- min(n - 2L, floor((1 - trim) * n))
+  if (tau_max <= tau_min) {
+    return(list(sup_F = NA_real_, tau_star = NA_integer_,
+                tau_star_date = as.Date(NA), n = n, trim = trim,
+                cv_5pct = 8.85, cv_1pct = 12.16,
+                verdict = NA_character_, detail = tibble()))
+  }
+
+  detail <- purrr::map_dfr(seq.int(tau_min, tau_max), function(tau) {
+    d_t <- as.integer(seq_len(n) > tau)
+    if (length(unique(d_t)) < 2L) return(tibble(tau = tau,
+                                                tau_date = d_v[tau],
+                                                F_int = NA_real_))
+    fit <- lm(y ~ z * d_t, data = data.frame(y = e_v, z = z_v, d_t = d_t))
+    ct  <- coeftest(fit, vcov = vcovHC(fit, type = "HC0"))
+    f_int <- if ("z:d_t" %in% rownames(ct)) ct["z:d_t", "t value"]^2 else NA_real_
+    tibble(tau = tau, tau_date = d_v[tau], F_int = f_int)
+  })
+
+  if (all(is.na(detail$F_int))) {
+    return(list(sup_F = NA_real_, tau_star = NA_integer_,
+                tau_star_date = as.Date(NA), n = n, trim = trim,
+                cv_5pct = NA_real_, cv_1pct = NA_real_,
+                verdict = "all-NA", detail = detail))
+  }
+
+  best  <- detail[which.max(detail$F_int), ]
+  sup_F <- best$F_int
+
+  cv_5 <- 8.85
+  cv_1 <- 12.16
+  if (!isTRUE(all.equal(trim, 0.15))) {
+    warning(sprintf(
+      "qlr_supF: critical values (cv5=%.2f, cv1=%.2f) are tabulated for trim = 0.15 (Andrews 1993, Tab. 1, m=1). The verdict for trim = %.2f is reported against these cv but is not size-correct.",
+      cv_5, cv_1, trim
+    ))
+  }
+  verdict <- if (sup_F > cv_1)            "reject 1%"
+             else if (sup_F > cv_5)       "reject 5%"
+             else                         "fail to reject"
+
+  list(sup_F = sup_F,
+       tau_star = best$tau,
+       tau_star_date = best$tau_date,
+       n = n,
+       trim = trim,
+       cv_5pct = cv_5,
+       cv_1pct = cv_1,
+       verdict = verdict,
+       detail = detail)
+}
+
 #' Pearson and Spearman correlation between two monthly instruments
 #'
 #' Computes correlation over (i) all months, (ii) the union of months where

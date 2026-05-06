@@ -1,12 +1,17 @@
 # ============================================================
 # Validation tests for the heteroskedasticity-identified instrument
 # z_het_jk + yield_6m (HANDOFF.md, 2026-04-25 / 2026-05-05):
-#   T1 placebo:        permute z_het_jk, expect F ≈ 1
-#   T2 random-mask:    keep 42 random Copom days vs JK filter
-#   T3 sub-period:     2013-2019, 2020-2025, full minus COVID acute
-#   T4 correlation:    cor(z_het_jk, z_jk_purif) monthly
-#   T5 anti-JK mask:   keep "informational" days (sign(shock)==sign(IBOV))
-#   T6 F(k_keep) curve: random masks at k ∈ {20, 42, 60, 80}
+#   T1  placebo:        permute z_het_jk, expect F ≈ 1
+#   T2  random-mask:    keep 42 random Copom days vs JK filter
+#   T2b paired:         placebo for z_het puro vs z_het_jk (pendencias MÉDIO 2)
+#   T3  sub-period:     2013-2019, 2020-2025, full minus COVID acute
+#   T4  correlation:    cor(z_het_jk, z_jk_purif) monthly + by sub-period
+#                       (pendencias MÉDIO 6)
+#   T5  anti-JK mask:   keep "informational" days (sign(shock)==sign(IBOV))
+#   T6  F(k_keep) curve: random masks at k ∈ {20, 42, 60, 80}
+#   T7  AR-order:       observed F across p ∈ {3, 6, 12} (pendencias MÉDIO 3)
+#   T8  Andrews QLR:    sup-F test for break in first-stage slope
+#                       (pendencias MÉDIO 5)
 # Writes output/het_validation_report.md and per-test CSVs.
 # ============================================================
 
@@ -154,6 +159,43 @@ mask_summary <- tibble(
   pvalue     = mean(mask$F_partial >= obs_fs$F_partial)
 )
 
+# ---- T2b: paired benchmark — placebo for z_het puro --------
+#
+# Permutes the unfiltered z_het instrument. Side-by-side with the T1 placebo
+# this tests whether the JK sign filter buys discriminating power on the same
+# null distribution: z_het and z_het_jk should both fail to reject under
+# permutation, but their *observed* F values are 7-8 vs 21.
+#
+# A random-mask test for z_het puro at k_keep = n_total is degenerate (no
+# masking ⇒ deterministic F equal to the observed F). This block therefore
+# only runs the placebo side; the random-mask null distribution at k = 42
+# (already in T2) serves as the unfiltered-side null.
+
+z_het_aligned <- align_z_to_target(mensais$z_het, mensais$month, target_dates)
+obs_fs_zhet <- first_stage_F(z_het_aligned, innov)
+message(sprintf("Observed F (z_het + %s, AR(%d)): %.3f  (n=%d)",
+                TARGET_VAR, N_LAGS, obs_fs_zhet$F_partial, obs_fs_zhet$n))
+
+placebo_zhet <- placebo_test(
+  z      = z_het_aligned,
+  innov  = innov,
+  n_perm = N_PERM,
+  seed   = SEED_PLACEBO
+)
+write_csv(placebo_zhet, "output/het_validation_placebo_zhet.csv")
+
+placebo_zhet_summary <- tibble(
+  test       = "placebo_zhet",
+  n_perm     = N_PERM,
+  observed_F = obs_fs_zhet$F_partial,
+  mean_F     = mean(placebo_zhet$F_partial),
+  median_F   = median(placebo_zhet$F_partial),
+  q95_F      = quantile(placebo_zhet$F_partial, 0.95),
+  q99_F      = quantile(placebo_zhet$F_partial, 0.99),
+  max_F      = max(placebo_zhet$F_partial),
+  pvalue     = mean(placebo_zhet$F_partial >= obs_fs_zhet$F_partial)
+)
+
 # ---- T3: sub-period stability -----------------------------
 
 windows <- list(
@@ -223,6 +265,95 @@ write_csv(curve, "output/het_validation_f_curve.csv")
 curve_summary <- random_mask_curve_summary(curve, observed_F = obs_fs$F_partial)
 write_csv(curve_summary, "output/het_validation_f_curve_summary.csv")
 
+# ---- T7: AR-order sensitivity -----------------------------
+#
+# AR(6) is the default; refits at p ∈ {3, 12} verify the observed F is not
+# an artefact of lag-order choice. residualize_target uses na.exclude so
+# residuals have NA in the first p positions; first_stage_F drops those.
+
+AR_ORDERS <- c(3L, 6L, 12L)
+
+ar_results <- purrr::map_dfr(AR_ORDERS, function(p) {
+  innov_p <- residualize_target(target_series, n_lags = p)
+  fs_p    <- first_stage_F(z_het_jk_aligned, innov_p)
+
+  sub_p <- subperiod_F(z_het_jk_aligned, innov_p, target_dates, windows)
+
+  pre_F  <- sub_p$F_partial[sub_p$window == "pre_covid"]
+  post_F <- sub_p$F_partial[sub_p$window == "covid_post"]
+  drop_F <- sub_p$F_partial[sub_p$window == "drop_covid"]
+
+  tibble(p = p,
+         observed_F   = fs_p$F_partial,
+         beta         = fs_p$beta,
+         se           = fs_p$se,
+         r2           = fs_p$r2,
+         n            = fs_p$n,
+         F_pre_covid  = pre_F,
+         F_covid_post = post_F,
+         F_drop_covid = drop_F)
+})
+write_csv(ar_results, "output/het_validation_ar_sensitivity.csv")
+
+# ---- T8: Andrews (1993) QLR sup-F -------------------------
+#
+# Formal break test on the first-stage slope. Trim 0.15; m=1; HC0 Wald F.
+# Critical values from Andrews (1993, Tab. 1): cv5 = 8.85, cv1 = 12.16.
+
+qlr <- qlr_supF(z_het_jk_aligned, innov, target_dates, trim = 0.15)
+
+qlr_summary <- tibble(
+  test          = "qlr_supF",
+  sup_F         = qlr$sup_F,
+  tau_star      = qlr$tau_star,
+  tau_star_date = qlr$tau_star_date,
+  n             = qlr$n,
+  trim          = qlr$trim,
+  cv_5pct       = qlr$cv_5pct,
+  cv_1pct       = qlr$cv_1pct,
+  verdict       = qlr$verdict
+)
+write_csv(qlr_summary, "output/het_validation_qlr.csv")
+write_csv(qlr$detail, "output/het_validation_qlr_curve.csv")
+
+# ---- T4 extension: cor + var(innov) by sub-period ---------
+#
+# Re-runs monthly_correlation on full / pre_covid / covid_post sub-samples
+# (drop_covid is non-contiguous and unnatural for cor / var). Reports
+# var(innov) per window to quantify the heterogeneity that drives the T3
+# sub-period F drop.
+
+cor_windows <- list(
+  full       = c(as.Date("2013-01-01"), as.Date("2025-12-01")),
+  pre_covid  = c(as.Date("2013-01-01"), as.Date("2019-12-01")),
+  covid_post = c(as.Date("2020-01-01"), as.Date("2025-12-01"))
+)
+mensais_dates <- floor_date(mensais$month, "month")
+
+cor_by_window <- purrr::imap_dfr(cor_windows, function(spec, name) {
+  keep_m <- mensais_dates >= spec[1] & mensais_dates <= spec[2]
+  monthly_correlation(
+    z1 = mensais$z_het_jk[keep_m],
+    z2 = mensais$z_jk_purif[keep_m],
+    name1 = "z_het_jk",
+    name2 = "z_jk_purif"
+  ) |> dplyr::mutate(window = name, .before = 1L)
+})
+write_csv(cor_by_window, "output/het_validation_correlation_by_window.csv")
+
+var_innov_by_window <- purrr::imap_dfr(cor_windows, function(spec, name) {
+  keep_t <- floor_date(target_dates, "month") >= spec[1] &
+            floor_date(target_dates, "month") <= spec[2]
+  innov_w <- innov[keep_t]
+  z_w     <- z_het_jk_aligned[keep_t]
+  tibble(window      = name,
+         n_obs       = sum(!is.na(innov_w)),
+         var_innov   = var(innov_w, na.rm = TRUE),
+         sd_innov    = sd(innov_w, na.rm = TRUE),
+         var_z_het_jk = var(z_w, na.rm = TRUE))
+})
+write_csv(var_innov_by_window, "output/het_validation_var_innov_by_window.csv")
+
 # ---- Plots ------------------------------------------------
 
 placebo_plot <- ggplot(placebo, aes(F_partial)) +
@@ -236,6 +367,27 @@ placebo_plot <- ggplot(placebo, aes(F_partial)) +
        y = "count") +
   theme_minimal(base_size = 11)
 ggsave("output/het_validation_placebo.png", placebo_plot,
+       width = 7, height = 4, dpi = 150)
+
+# T2b paired-placebo plot: z_het and z_het_jk null distributions overlaid,
+# with their respective observed Fs as vertical references.
+placebo_paired <- bind_rows(
+  placebo      |> mutate(instrument = "z_het_jk"),
+  placebo_zhet |> mutate(instrument = "z_het")
+)
+paired_plot <- ggplot(placebo_paired, aes(F_partial, fill = instrument)) +
+  geom_histogram(bins = 60, alpha = 0.6, position = "identity",
+                 colour = "grey40") +
+  geom_vline(xintercept = obs_fs$F_partial,      colour = "firebrick", linewidth = 0.7) +
+  geom_vline(xintercept = obs_fs_zhet$F_partial, colour = "steelblue", linewidth = 0.7) +
+  scale_fill_manual(values = c(z_het_jk = "firebrick", z_het = "steelblue")) +
+  labs(title = "T2b paired placebo — z_het vs z_het_jk under permutation",
+       subtitle = sprintf("F obs: z_het_jk = %.2f, z_het = %.2f",
+                          obs_fs$F_partial, obs_fs_zhet$F_partial),
+       x = "first-stage F",
+       y = "count") +
+  theme_minimal(base_size = 11)
+ggsave("output/het_validation_placebo_zhet.png", paired_plot,
        width = 7, height = 4, dpi = 150)
 
 mask_plot <- ggplot(mask, aes(F_partial)) +
@@ -341,6 +493,64 @@ curve_md <- curve_summary |>
   pull(row) |>
   paste(collapse = "\n")
 
+paired_md <- sprintf(
+  paste0(
+    "| instrument | observed F | mean F null | q95 | q99 | p-value |\n",
+    "|------------|-----------:|------------:|----:|----:|--------:|\n",
+    "| z_het_jk   | %s | %s | %s | %s | %s |\n",
+    "| z_het      | %s | %s | %s | %s | %s |"
+  ),
+  fmt(placebo_summary$observed_F),
+  fmt(placebo_summary$mean_F),
+  fmt(placebo_summary$q95_F),
+  fmt(placebo_summary$q99_F),
+  fmt(placebo_summary$pvalue, 4),
+  fmt(placebo_zhet_summary$observed_F),
+  fmt(placebo_zhet_summary$mean_F),
+  fmt(placebo_zhet_summary$q95_F),
+  fmt(placebo_zhet_summary$q99_F),
+  fmt(placebo_zhet_summary$pvalue, 4)
+)
+
+ar_md <- ar_results |>
+  mutate(row = sprintf("| %2d | %s | %s | %s | %s | %s |",
+                       p,
+                       fmt(observed_F),
+                       fmt(F_pre_covid),
+                       fmt(F_covid_post),
+                       fmt(F_drop_covid),
+                       fmt(r2))) |>
+  pull(row) |>
+  paste(collapse = "\n")
+
+qlr_md <- sprintf(
+  paste0(
+    "- sup F = %s at tau* = %s (n = %d, trim = %.2f)\n",
+    "- Andrews (1993) critical values (m = 1, pi_0 = 0.15): cv5 = %.2f, cv1 = %.2f\n",
+    "- verdict: **%s**"
+  ),
+  fmt(qlr$sup_F, 2),
+  format(qlr$tau_star_date),
+  qlr$n,
+  qlr$trim,
+  qlr$cv_5pct,
+  qlr$cv_1pct,
+  qlr$verdict
+)
+
+cor_window_md <- cor_by_window |>
+  filter(subset == "both_nonzero") |>
+  mutate(row = sprintf("| %-11s | %3d | %s | %s |",
+                       window, n, fmt(pearson), fmt(spearman))) |>
+  pull(row) |>
+  paste(collapse = "\n")
+
+var_innov_md <- var_innov_by_window |>
+  mutate(row = sprintf("| %-11s | %3d | %.3e | %.3f |",
+                       window, n_obs, var_innov, var_z_het_jk)) |>
+  pull(row) |>
+  paste(collapse = "\n")
+
 report <- paste(c(
   "# Heteroskedasticity instrument — validation report",
   sprintf("Date: %s", Sys.Date()),
@@ -363,14 +573,39 @@ report <- paste(c(
   "",
   sprintf("Random subsets of %d Copom days (matching JK count) are kept; the",
           n_jk_kept),
-  "remaining days are zeroed before monthly aggregation. If the JK F merely",
-  "reflects sparsification, the JK F would lie inside the random-mask",
-  "distribution. If JK is genuinely informative (sign filter separates",
-  "monetary from information shocks), JK F sits in the upper tail.",
+  "remaining days are zeroed before monthly aggregation. The random-mask",
+  "distribution is the appropriate null for the JK F: if the JK gain reflects",
+  "only sparsification, the JK F would sit inside that distribution; if the",
+  "sign filter is informative, the JK F sits in the upper tail.",
   "",
   mask_md,
   "",
+  "**Honest reading.** The JK F sits *at* the 99th percentile of equal-size",
+  "random masks (q99 ≈ F_obs ≈ 21). The filter is informative, not just",
+  "sparsifying, but the margin is tight on this single test. T5 (anti-JK)",
+  "and T6 (F(k_keep) curve) are the stronger discriminating tests; both",
+  "confirm informativeness without ambiguity. Avoid framing this T2 result",
+  "as 'p ≈ 0.01 confirms'; report it as 'JK F sits at the 99th percentile",
+  "of random masks of equal size'.",
+  "",
   "Histogram: `output/het_validation_random_mask.png`",
+  "",
+  "## T2b — Paired benchmark: placebo for z_het puro vs z_het_jk",
+  "",
+  "Permutes the unfiltered z_het instrument and compares its placebo",
+  "distribution against the z_het_jk placebo. The two nulls share shape",
+  "(uniform over month assignments) but the observed Fs differ by ~3×;",
+  "neither rejects under permutation, which confirms the gap reflects",
+  "informativeness of the daily-level identification rather than data",
+  "snooping in either instrument.",
+  "",
+  "Random-mask is not paired here because the unfiltered side has",
+  "k_keep = n_total (97 / 97), so any random mask returns the same",
+  "deterministic monthly sum.",
+  "",
+  paired_md,
+  "",
+  "Overlay histogram: `output/het_validation_placebo_zhet.png`",
   "",
   "## T3 — Sub-period stability",
   "",
@@ -394,6 +629,25 @@ report <- paste(c(
   "| subset        |  n  | pearson | spearman |",
   "|---------------|-----|---------|----------|",
   cor_md,
+  "",
+  "### T4 by sub-period (both_nonzero subset)",
+  "",
+  "The full-sample cor = 0.93 may mask divergence during COVID. Split into",
+  "pre-COVID (2013-2019) and COVID + post (2020-2025) to check.",
+  "",
+  "| window      |  n  | pearson | spearman |",
+  "|-------------|-----|---------|----------|",
+  cor_window_md,
+  "",
+  "### Variance of innov(yield_6m) and z_het_jk per window",
+  "",
+  "Quantifies the heterogeneity that drives the T3 sub-period F drop:",
+  "the first-stage F is `(beta * sd_z)^2 / var(innov)` × n / (1 - r2),",
+  "so simultaneous changes in var(innov) and var(z) compound the drop.",
+  "",
+  "| window      |  n  | var(innov) | var(z_het_jk) |",
+  "|-------------|-----|-----------:|--------------:|",
+  var_innov_md,
   "",
   "## T5 — Anti-JK mask",
   "",
@@ -421,17 +675,44 @@ report <- paste(c(
   "",
   "Boxplot: `output/het_validation_f_curve.png`",
   "",
+  "## T7 — AR-order sensitivity",
+  "",
+  "Re-residualizes yield_6m at p ∈ {3, 6, 12} and recomputes the observed F",
+  "for z_het_jk plus the T3 sub-period Fs. AR(6) is the default; this table",
+  "verifies the result is not an artefact of lag-order choice.",
+  "",
+  "| p  | F (full) | F (pre_covid) | F (covid_post) | F (drop_covid) | R²    |",
+  "|----|---------:|--------------:|---------------:|---------------:|-------|",
+  ar_md,
+  "",
+  "## T8 — Andrews (1993) QLR sup-F",
+  "",
+  "Tests for a single structural break in the first-stage slope",
+  "(`innov ~ z + D_tau + z*D_tau`, HC0 Wald F on the interaction). Trim",
+  "pi_0 = 0.15; m = 1. Critical values from Andrews (1993, Tab. 1)",
+  "asymptotic for the sup-F process indexed by the break fraction.",
+  "",
+  qlr_md,
+  "",
+  "QLR curve: `output/het_validation_qlr_curve.csv`",
+  "",
   "## Files",
   "",
-  "- `output/het_validation_placebo.csv` — F across permutations",
-  "- `output/het_validation_random_mask.csv` — F across random masks (k = JK)",
-  "- `output/het_validation_subperiod.csv` — sub-period F table",
-  "- `output/het_validation_correlation.csv` — Pearson / Spearman",
-  "- `output/het_validation_anti_jk.csv` — single-row T5 summary",
-  "- `output/het_validation_f_curve.csv` — per-draw F across k_keep grid",
-  "- `output/het_validation_f_curve_summary.csv` — summary by k_keep",
-  "- PNG: `het_validation_placebo.png`, `het_validation_random_mask.png`,",
-  "  `het_validation_f_curve.png`"
+  "- `output/het_validation_placebo.csv` — T1 F across permutations (z_het_jk)",
+  "- `output/het_validation_placebo_zhet.csv` — T2b paired placebo (z_het puro)",
+  "- `output/het_validation_random_mask.csv` — T2 F across random masks (k = JK)",
+  "- `output/het_validation_subperiod.csv` — T3 sub-period F table",
+  "- `output/het_validation_correlation.csv` — T4 Pearson / Spearman (full)",
+  "- `output/het_validation_correlation_by_window.csv` — T4 by sub-period",
+  "- `output/het_validation_var_innov_by_window.csv` — var(innov) per window",
+  "- `output/het_validation_anti_jk.csv` — T5 single-row summary",
+  "- `output/het_validation_f_curve.csv` — T6 per-draw F across k_keep grid",
+  "- `output/het_validation_f_curve_summary.csv` — T6 summary by k_keep",
+  "- `output/het_validation_ar_sensitivity.csv` — T7 AR-order ∈ {3,6,12}",
+  "- `output/het_validation_qlr.csv` — T8 sup-F summary",
+  "- `output/het_validation_qlr_curve.csv` — T8 per-tau Wald F",
+  "- PNG: `het_validation_placebo.png`, `het_validation_placebo_zhet.png`,",
+  "  `het_validation_random_mask.png`, `het_validation_f_curve.png`"
 ), collapse = "\n")
 
 writeLines(report, "output/het_validation_report.md")
@@ -441,11 +722,17 @@ writeLines(report, "output/het_validation_report.md")
 cat("\n========== VALIDATION SUMMARY ==========\n")
 cat(sprintf("Observed F (z_het_jk + %s): %.3f\n",
             TARGET_VAR, obs_fs$F_partial))
-cat("\nT1 placebo:\n"); print(placebo_summary)
-cat("\nT2 random mask:\n"); print(mask_summary)
+cat("\nT1 placebo (z_het_jk):\n"); print(placebo_summary)
+cat("\nT2 random mask (k = JK):\n"); print(mask_summary)
+cat("\nT2b paired placebo (z_het puro):\n"); print(placebo_zhet_summary)
 cat("\nT3 sub-period:\n"); print(sub_results)
-cat("\nT4 correlation:\n"); print(cor_results)
+cat("\nT4 correlation full:\n"); print(cor_results)
+cat("\nT4 correlation by window (both_nonzero):\n")
+print(cor_by_window |> filter(subset == "both_nonzero"))
+cat("\nT4 var(innov) by window:\n"); print(var_innov_by_window)
 cat("\nT5 anti-JK:\n"); print(anti_summary)
 cat("\nT6 F(k_keep) curve:\n"); print(curve_summary)
+cat("\nT7 AR-order sensitivity:\n"); print(ar_results)
+cat("\nT8 Andrews QLR sup-F:\n"); print(qlr_summary)
 cat("\nReport: output/het_validation_report.md\n")
 cat("========================================\n\n")

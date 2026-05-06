@@ -1,0 +1,2 @@
+test,sup_F,tau_star,tau_star_date,n,trim,cv_5pct,cv_1pct,verdict
+qlr_supF,6.8828470853050066,26,2015-08-01,150,0.15,8.85,12.16,fail to reject
