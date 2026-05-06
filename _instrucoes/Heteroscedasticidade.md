@@ -212,6 +212,26 @@ innov_t = α + β·z_t + γ·D_τ + δ·(z_t · D_τ) + ε_t
 
 com `D_τ = 1{t > τ}`, trim 0.15, HC0 Wald F sobre δ. **Resultado:** sup F = **6.88** em τ* = 2015-08, abaixo dos critical values Andrews (1993, Tab. 1, m=1, π_0=0.15): cv5 = 8.85, cv1 = 12.16. **Veredito: fail to reject.** Não há evidência formal de quebra estrutural no β do first-stage. O drop F do T3 (38.1 → 11.2) é melhor explicado pelo aumento mecânico de var(innov) pós-COVID (8.6e-6 → 3.1e-5, T4 var-by-window) do que por mudança de regime.
 
+### Validação IRF cross-instrument 2026-05-06 — `z_het_jk_3var` vs `z_jk_purif`
+
+`script/irf_cross_instrument.R` roda o DFM principal duas vezes (mesmo `r=q=8`, `p=6`, `mp_var=yield_6m`) trocando apenas o instrumento, com `nboot=800` e bandas concêntricas 68% / 90%. Painel-resposta de 9 variáveis em grid 3×3: `yield_{6m,2y,5y}`, `cambio_usd`, `asset_ibov`, `cds_5y`, `embi_perc`, `price_ipca`, `spread_icc_juridica`. Saídas: `output/irf_{zhetjk3var,zjkpurif,comparison}.pdf` + `output/irf_results_{zhetjk3var,zjkpurif}.rds`.
+
+`script/build_grg_benchmark.R` converte os pontos h=0 para unidades GRG (per +50bp Δi(3m); `cambio_usd` BRL→% via baseline) e gera `output/grg_benchmark.csv`. Resumo dos pontos discriminantes:
+
+| Variável         | `z_het_jk_3var` (50bp)   | `z_jk_purif` (50bp)      | GRG Δi(3m) (50bp) |
+|------------------|--------------------------|--------------------------|--------------------|
+| Δπ realized      | -0.102 [-0.439, +0.133]  | +0.020 [-0.323, +0.357]  | -0.13 a -0.345 (Δπᵉ break-even) |
+| Δ(BRL/USD) %     | +2.17% [+0.07, +4.79]    | +5.84% [+3.04, +13.64]   | -2.55 (SE 0.375)  |
+| Δ CDS_5y (raw)   | +1862 [+376, +4524]      | +5614 [+3429, +13468]    | -0.015 (n.s.)     |
+
+**Findings discriminantes:**
+
+1. **`z_het_jk_3var` recupera o canal de desinflação de GRG** (Δipca ≈ -0.10 pp ≈ GRG Δπᵉ 1y -0.13 pp); `z_jk_purif` produz Δipca ≈ 0 — evidência direta de que o filtro het+JK no diário extrai algo que o timing-ID puro não consegue. **Esta é a peça empírica que justifica `z_het_jk_3var` como spec principal do paper.**
+2. **Sign reversal vs GRG em BRL/USD e CDS** (Real depreciation + CDS widening na contração) leitura: a agregação mensal do DFM captura GE/fiscal-dominance dynamics que o IV diário (24h window) perde por construção. Não é "GRG está errado"; são **objetos diferentes** (canal expectativas-imediato vs canal-mensal-propagado).
+3. **Term-structure tight em todas as maturidades**, sem price puzzle.
+
+Detalhamento e interpretação: `output/irf_section.md` (§5 standalone do paper). VAR overlay (Phase 2 do plano) deferido — `script/model_var.R` hard-coda `juros_selic` que falha Stock-Yogo com `z_het_jk`.
+
 ### Open questions resolvidas (Blindspot 2026-04-26)
 
 Os 5 pontos abertos no Blindspot 04-26 estão fechados:

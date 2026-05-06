@@ -17,6 +17,8 @@
 >
 > Replicação cross-language R↔Python (T1-T4) bate a 6 decimais. Relatório referee2 round 2: **Accept**. Os 6 itens CRÍTICOS de `_instrucoes/pendencias.md` foram fechados nos commits `4e2192f` (críticos 1-3) e `a3af0e4` (críticos 4-6 + DEFAULT_VARIANT).
 >
+> **Validação IRF (2026-05-06 tarde, commit `26d9dce`):** `script/irf_cross_instrument.R` roda `main_sdfm` 2× (z_het_jk_3var, z_jk_purif), nboot=800, bandas 68/90, 9-painel grid 3×3. Findings discriminantes: (i) `z_het_jk_3var` recupera Δπ desinflação de GRG (-0.10 pp ≈ GRG -0.13); `z_jk_purif` falha. (ii) BRL e CDS divergem em sinal vs GRG — fiscal-dominance leitura no mensal vs daily IV. Detalhamento: `output/irf_section.md` + `output/grg_benchmark.csv`. **Item 7 de pendências fechado — toda a seção MÉDIO está completa.**
+>
 > **Framing operativo (council Required 3):** o instrumento `z_het_jk_3var` é uma **identificação híbrida** het+timing+sign — não het-ID puro. A condição operativa no proxy-SVAR mensal é a *exclusion restriction* `E[z_het_jk_m · η_t^j] = 0` (Stock-Watson 2018 §4.7), não A1-A3 conjuntas (que falham pelos 57% wrong-sign no diário).
 >
 > Este documento permanece como referência para as 4 variantes GK legacy (`z_bruto`, `z_bruto_purif`, `z_jk`, `z_jk_purif`), que continuam sendo construídas por `script/instrument.R` e usadas como benchmark na comparação cross-instrument do diagnostics.

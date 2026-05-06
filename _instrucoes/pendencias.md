@@ -101,3 +101,13 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 - [ ] **Documentar MAX_GAP_DAYS rationale em `script/instrument_het.R`**
   Atualmente explicado apenas no docstring interno de `build_daily_regimes`. Adicionar comentário no nível do script.
   *Fonte: Round 1 trivial.*
+
+- [ ] **Corrigir convenção de unit scaling em `yield_6m` (Gemini P1 #1, flagged 2026-05-06)**
+  No painel, `yield_6m` está em proporção decimal (0.0975 = 9.75%). A convenção atual `normalize_value = SHOCK_BPS / 100 = 0.5` força a IRF h=0 de `yield_6m` a +0.5 em unidades nativas — i.e., +50 percentage points (= 5000bp), não +50bp. Corrigir via `normalize_value = 0.005` ou pré-multiplicar `yield_6m × 100` antes do fit. A correção invalida todos os audit reports anteriores; exige revisão coordenada de `output/irf_*.pdf`, `output/grg_benchmark.csv`, e todos os relatórios de diagnóstico. Documentado em `_instrucoes/justificativa_uso_yield-6m.md` (caveat de unit scaling) e `HANDOFF.md` (sessão 2026-05-06 tarde). A conversão explícita per-+50bp já é feita em `script/build_grg_benchmark.R::scale_to_grg_units` para comparação com GRG.
+  Arquivos afetados: `script/model_alessi.R`, `script/irf_cross_instrument.R`, todos os `output/irf_*.pdf`, `output/grg_benchmark.csv`, `output/instrument_diagnostics_report.md`, `output/het_validation_report.md`.
+  *Fonte: Gemini review P1 #1 de `script/irf_cross_instrument.R` (sessão 2026-05-06 tarde).*
+
+- [ ] **Adicionar break-even inflation (ANBIMA NTNB-LTN) ao painel mensal**
+  O painel atual usa `price_ipca` (IPCA realizado) como proxy de expectativas de inflação para benchmark contra GRG Tab 4 (`Δπᵉ` em horizontes 1m, 3m, 6m, 1y). Incorporar break-even inflation (diferença de rendimento entre LTN e NTN-B na mesma maturidade; dados ANBIMA) permite benchmark direto per-horizonte sem o caveat de IPCA-realizado-como-proxy. GRG 2025 usa Focus survey; break-even é alternativa de mercado complementar.
+  Arquivos afetados: `script/download.R` (adicionar série ANBIMA), `script/clean.R` (transformação), `data/processed/data_log_deseasonalized.csv` (nova coluna), `output/irf_section.md` §5.4 (atualizar caveat).
+  *Fonte: HANDOFF.md sessão 2026-05-06 tarde (Next Steps item 3); GRG 2025 Tab 4 benchmark.*
