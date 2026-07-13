@@ -1,6 +1,8 @@
 # Identificação por heterocedasticidade — `z_het` e `z_het_jk`
 
-Este documento descreve as duas variantes de instrumento por heterocedasticidade do projeto: **`z_het`** (Rigobon-Sack puro) e **`z_het_jk`** (com filtro Jarociński-Karadi diário). Ambas são construídas por `script/instrument_het.R`, salvas em `data/processed/instrument_z_het.csv` e `data/processed/instrument_z_het_jk.csv` respectivamente, e consumidas pela pipeline DFM existente (`compute_irf_dfm`, `ident_ext_instr`, wild bootstrap GK) sem qualquer modificação no código de modelagem. **Recomendação após auditoria (2026-04-25): `z_het_jk` com normalização em `yield_6m`** — ver seção final.
+Este documento descreve as duas variantes de instrumento por heterocedasticidade do projeto: **`z_het`** (Rigobon-Sack puro) e **`z_het_jk`** (com filtro Jarociński-Karadi diário). Ambas são construídas por `script/instrument_het.R`, salvas em `data/processed/instrument_z_het.csv` e `data/processed/instrument_z_het_jk.csv` respectivamente, e consumidas pela pipeline DFM existente (`compute_irf_dfm`, `ident_ext_instr`, wild bootstrap GK) sem qualquer modificação no código de modelagem.
+
+> **Status 2026-05-08 — rebaixado de default a robustez.** A auditoria de identificação de 2026-04-25 e a auditoria de validação de 2026-05-05/06 estabeleceram `z_het_jk_3var` como default por F (y6m AR) = 55.98. A sessão 2026-05-08 reabriu a questão ao expor as IRFs após o fix de unit scaling de 2026-05-07 (normalize_value 0.5 → 0.005): com `z_het_jk_3var`, IRFs apresentam sinais teoricamente invertidos e bandas largas. Diagnóstico em `R/modeling/impulse_responde.R::ident_ext_instr` revelou **F (factor-space) = 2.74** vs F (y6m AR) = 55.98 — o instrumento é forte contra a inovação AR(6) univariada de `yield_6m` mas severamente fraco no espaço dos q fatores dinâmicos onde a proxy-SVAR realmente projeta `H = (Z'η)/(Z'Z)`. **Default trocado para `z_jk_purif`** (única variante com F factor-space ≥ 10). `z_het_jk_3var` permanece como **secondary spec / robustez** em `script/irf_cross_instrument.R`.
 
 ## Motivação
 
@@ -47,6 +49,31 @@ Sigma_NC = E[u u' | NC] = B_d D_NC B_d'    com D_NC = diag(σ²_{1,NC}, σ²_2, 
 
 ⇒ ΔΣ tem rank 1, e `b_1 = sqrt(λ_1) · v_1`, onde `(λ_1, v_1)` é o par autovalor-autovetor líder. O sinal é fixado por convenção: `b_1[DI_3m] > 0` (choque contracionário sobe DI). A força da identificação é monitorada pelo *eigenvalue gap* `λ_1/|λ_2|` e pelo *rank-1 share* `|λ_1|/Σ|λ_j|`. O código alerta quando `rank1_share < 0.6` ou quando `|λ_min|/λ_1 > 0.3` (PSD severamente violado).
 
+### Testes formais de rank (2026-05-07)
+
+A gate informal `rank1_share > 0.6` foi complementada por uma bateria de dois testes formais
+(`formal_rank_test_battery` em `R/identification/het_shock_extraction.R`):
+
+**Gate A — Rigobon (2003, *RES*) Proposição 1 (proporcionalidade):**
+H₀: Σ_C = a · Σ_NC para algum escalar a > 0. Estatística: LR de Mauchly sobre autovalores de
+Σ_C Σ_NC⁻¹. Calibrada por wild bootstrap (n_boot=1000; n_C≈50 é pequeno demais para χ²).
+Resultado (4-var): LR=135.13, p_boot < 0.001 ⇒ **rejeitar H₀ ⇒ gate de identificação satisfeito**.
+Resultado (3-var): LR=106.54, p_boot < 0.001 ⇒ idem.
+
+**Gate B — Lanne-Lütkepohl (2008, *JMCB*) LR rank-1:**
+H₀: rank(ΔΣ) = 1. Estatística canônica de Wilks: `(n_eff/2) · Σ_{i>1}(log λᵢ + 1/λᵢ − 1)`,
+onde λᵢ são autovalores generalizados de (Σ_C, Σ_NC). Bootstrap-calibrado sob H₀ de rank-1.
+Resultado (4-var): LR=102.60, p_boot=0.137 ⇒ fail-to-reject rank=1 (pouco poder com n_C≈50).
+Resultado (3-var): LR=28.42, p_boot=0.298 ⇒ fail-to-reject rank=1.
+
+**Bootstrap CI do rank-1 share (descritor):**
+4-var: [0.666, 0.930] (ponto 0.840). 3-var: [0.948, 0.995] (ponto 0.987).
+
+**Nota:** O Hansen J-test para sobreidentificação (Rigobon 2003, Proposição 2) é **indisponível**
+no nosso setup R=2, K=0: com dois regimes e zero choques comuns, o sistema é exatamente
+just-identified (df=0). Para desbloquear o J-test seria necessário R≥3 (e.g., dividir NC em
+três sub-regimes). Adiado para trabalho futuro.
+
 A série diária do choque em dias C é recuperada pela projeção GLS de Mertens-Ravn (2013, *AER*, §II.B):
 
 ```
@@ -54,6 +81,21 @@ A série diária do choque em dias C é recuperada pela projeção GLS de Merten
 ```
 
 Em dias NC não recuperamos ε_1 porque a relação sinal-ruído colapsa.
+
+### Segundo eigenpair v_2 (descritor, 2026-05-07)
+
+O segundo autovetor de ΔΣ (λ_2, v_2) é retornado por `extract_shock_rigobon_sack` como
+`b_2 = sqrt(|λ_2|)·v_2` (loadings) e `shocks2_C` (série diária via GLS conjunto sobre B=[b_1,b_2]).
+Salvo em `output/instrument/het_b_2{,_3var}.csv` e `data/processed/instrument_z_het2{,_3var}.csv`.
+
+Loadings (4-var): DI_3m=+5.85, DI_2y=−2.62, IBOV=−0.14, BRL=−0.17 — perfil "tilt" (curto sobe,
+longo cai), consistente com um choque de forward guidance / belly-of-curve que viola A2 em DI_2y
+(λ_2 ≈ 41 no bloco 4-var).
+
+**Status:** **descritor apenas** — sob A1-A3 puros, v_2 é arbitrário (qualquer base ortogonal
+do null-space de ΔΣ é válida). Apenas quando A2 falha em DI_2y (4-var) v_2 carrega informação
+estrutural. Não substitui o instrumento padrão `z_het_jk_3var`; documentado como candidato para
+análise de robustez.
 
 ## Framing: instrumento híbrido het+timing (council Required 3, 2026-05-05)
 
@@ -110,22 +152,28 @@ DEFAULT_VARIANT <- "z_het_jk"   # script/instrument.R linha 25 (recomendado)
 
 Após `Rscript script/instrument.R`, o legacy `data/processed/instrument.csv` apontará para a variante escolhida e `script/model_alessi.R` (e `script/model_var.R`) o consome via `ident_ext_instr` sem nenhuma mudança de código. O wild bootstrap recursive GK (Gonçalves-Kilian 2004) permanece a inferência principal: o indicador de regime C/NC é fixo entre draws (calendário é exógeno).
 
-**Variável de política para normalização (`mpind`):** após auditoria, recomenda-se `yield_6m` (passa Stock-Yogo F > 10). `juros_selic` apresenta atenuação severa por descasamento de maturidade.
+**Variável de política para normalização (`mpind`):** após auditoria, recomenda-se `yield_6m` (passa Stock-Yogo F (y6m AR) > 10). `juros_selic` apresenta atenuação severa por descasamento de maturidade.
+
+**Atenção (2026-05-08):** F (y6m AR) é uma medida *univariada* de relevância (Z explica a inovação AR(6) de `yield_6m`?). Para validar uso em proxy-SVAR sobre o DFM é necessário **também** F (factor-space) — max univariada sobre os q fatores dinâmicos `η = u K M⁻¹`. Para `z_het_jk_3var`, F (y6m AR) = 55.98 mas F (factor-space) = 2.74 — discrepância de 20× que motivou o rebaixamento desta variante para robustez. Helper `R/identification/factor_space_diagnostics.R::diagnose_instrument_in_factor_space` e relatório `output/instrument/factor_space_F_grid.csv` quantificam ambas para os 8 instrumentos.
 
 ## Diagnostics
 
-`script/instrument_diagnostics.R` (Seção 4) lê três artefatos produzidos por `script/instrument_het.R`:
+`script/instrument_diagnostics.R` (Seção 4) lê os artefatos produzidos por `script/instrument_het.R`:
 
-- `output/het_variance_validation.csv` — Tabela 1 do GRG.
-- `output/het_eigenvalues.csv` — espectro de ΔΣ.
-- `output/het_b_1.csv` — coluna de impacto.
+- `output/instrument/het_variance_validation{,_3var}.csv` — Tabela 1 do GRG.
+- `output/instrument/het_eigenvalues{,_3var}.csv` — espectro de ΔΣ.
+- `output/instrument/het_b_1{,_3var}.csv` — coluna de impacto principal.
+- `output/instrument/het_rank_test{,_3var,_pre_covid,_covid_post}.csv` — testes formais de rank (Gate A + Gate B).
+- `output/instrument/het_rank1_share_ci{,_3var,_pre_covid,_covid_post}.csv` — bootstrap 95% CI do rank-1 share.
+- `output/instrument/het_b_2{,_3var}.csv` — segundo eigenpair loadings (descritor).
 
 E reporta:
 
 - **Seção 1** — comparação first-stage F dos 8 instrumentos (4 GK + `z_het`, `z_het_jk`, `z_het_3var`, `z_het_jk_3var`) com **dois F lado a lado**: F (DFM) contra o resíduo do primeiro fator do VAR (alvo do AK 2019; governa viés de instrumento fraco no proxy-SVAR) e F (y6m AR) contra a inovação AR(6) de `yield_6m` (relevância Selic-equivalente; mesmo cálculo do `instrument_audit.R`). HC0, partial F, Olea-Stock-Watson ξ_1. As colunas `n (DFM)` e `n (y6m)` da tabela tornam explícita a diferença de amostra entre os dois.
 - **Seção 4.1** — replica da Tabela 1 do GRG; gates A1 (DI_3m ratio > 1, IC 99% exclui 1) e A2 (IBOV/BRL CIs incluem 1).
-- **Seção 4.2** — espectro de ΔΣ; gate `rank1_share > 0.6`. Plot em `output/het_eigenvalues.png`.
+- **Seção 4.2** — espectro de ΔΣ; gate informal `rank1_share > 0.6` + resultados dos testes formais Gate A (Rigobon Prop 1) e Gate B (Lanne-Lütkepohl 2008); nota sobre indisponibilidade do Hansen J-test no setup R=2. Plot em `output/instrument/het_eigenvalues.png`.
 - **Seção 4.3** — `b_1` com nomes das variáveis e sinais.
+- **Seção 4.4** — `b_2`: loadings do segundo eigenpair (4-var × 3-var); interpretação estrutural condicional à violação de A2 em DI_2y.
 
 Para auditoria de relevância first-stage por maturidade alvo, ver `script/instrument_audit.R` e `output/instrument_audit_report.md`. Esse script faz o grid (4 variantes het × 7 candidatos a alvo mensal) e apura o F = 21.3 do `z_het_jk` × `yield_6m`.
 
@@ -232,6 +280,27 @@ com `D_τ = 1{t > τ}`, trim 0.15, HC0 Wald F sobre δ. **Resultado:** sup F = *
 
 Detalhamento e interpretação: `output/irf_section.md` (§5 standalone do paper). VAR overlay (Phase 2 do plano) deferido — `script/model_var.R` hard-coda `juros_selic` que falha Stock-Yogo com `z_het_jk`.
 
+### Validação 2026-05-07 — Testes formais de rank + v_2
+
+`R/identification/het_shock_extraction.R` (`formal_rank_test_battery`) adiciona dois testes formais
+à bateria de identificação (ver seção "Testes formais de rank" acima). Resultados em 4-var e 3-var:
+
+| Teste | Bloco | Estatística | p_boot | Veredito |
+|-------|-------|-------------|--------|----------|
+| Rigobon Prop 1 (proporcionalidade) | 4-var | LR=135.13 | < 0.001 | Rejeitar H₀ ✓ gate OK |
+| Rigobon Prop 1 (proporcionalidade) | 3-var | LR=106.54 | < 0.001 | Rejeitar H₀ ✓ gate OK |
+| Lanne-Lütkepohl rank-1 | 4-var | LR=102.60 | 0.137 | Fail-to-reject rank=1 |
+| Lanne-Lütkepohl rank-1 | 3-var | LR=28.42 | 0.298 | Fail-to-reject rank=1 |
+
+O discriminante entre 4-var e 3-var aparece no bootstrap CI do rank-1 share: 4-var = [0.67, 0.93],
+3-var = [0.95, 0.99]. A estatística L-L canônica é underpowered com n_C ≈ 50 e não rejeita rank=1
+em nenhum bloco, mas o Gate A satisfaz a condição de identificação de Rigobon (2003) em ambos.
+O bloco default `z_het_jk_3var` segue inalterado.
+
+Outputs: `output/instrument/het_rank_test{,_3var,_pre_covid,_covid_post}.csv`,
+`output/instrument/het_rank1_share_ci{...}.csv`, `output/instrument/het_b_2{,_3var}.csv`,
+`data/processed/instrument_z_het2{,_3var}.csv`.
+
 ### Open questions resolvidas (Blindspot 2026-04-26)
 
 Os 5 pontos abertos no Blindspot 04-26 estão fechados:
@@ -250,3 +319,31 @@ Pontos a destacar (não enterrar) no paper:
 4. **Cross-language replication discipline** (R + Python a 6 decimais) em methods footnote.
 
 Detalhe completo em `working-notes/2026-04-26_blindspot_validation.md`.
+
+### Atualização 2026-07-11 — varredura de especificações: a fraqueza factor-space é COVID-driven
+
+A varredura de 320 células (`script/irf_spec_sweep.R`; ver
+`relatorio/working-notes/2026-07-11_varredura_irf.md`) qualifica o rebaixamento
+de 2026-05-08. O F (factor-space) das variantes het depende fortemente da
+janela e do grid (r, q):
+
+| variante | full (melhor grid) | pre_covid (r=6, q=5) |
+|---|---|---|
+| z_het_jk_3var | 4.06 (8,8) | **11.13** ✓ |
+| z_het_3var | 4.02 (8,8) | **10.83** ✓ |
+| z_het | 3.64 (5,4) | 3.73 |
+| z_het_jk | 9.33 (5,4) | 4.72 |
+
+Leitura: a fraqueza no espaço dos fatores **não é estrutural** ao esquema
+Rigobon-Sack — na janela 2013-2019 com (r=6, q=5) os blocos 3-var cruzam
+Stock-Yogo e produzem sinais hard e de transmissão coerentes. É a amostra
+COVID+pós que destrói a relevância factor-space (consistente com o T4:
+var(innov) ↑ 3.6× pós-2020). Com bootstrap (nboot=800), porém, as bandas
+seguem largas (0/3 hard vars com CI90 excluindo zero) — o het permanece
+**robustez qualitativa**, não spec primária.
+
+Destaque: `z_het_3var` pre_covid (6,5) é a **única célula do grid inteiro com
+apreciação cambial** (h0 = −0.086 BRL, n.s.), desinflação e ordenação
+amortecida da curva (|y5y| < |y2y| < |y6m|) — o canal standard de GRG (2025).
+Candidato natural a nota de robustez sobre a não-universalidade da leitura de
+dominância fiscal; se usado, com bandas Anderson-Rubin.

@@ -6,7 +6,15 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 
 ## CRÍTICO — blockers de identificação / inconsistências no código
 
-> **Status (2026-05-05): seção fechada.** Os 6 itens críticos foram resolvidos nos commits `4e2192f` (1-3) e `a3af0e4` (4-6 + DEFAULT_VARIANT). Próximo bloco lógico é a seção MÉDIO antes do paper writeup.
+> **Status (2026-07-11):** diagnóstico de sinais invertidos **fechado em definitivo** pela varredura sistemática de especificações (item abaixo). **Status (2026-05-08):** +1 item crítico resolvido na sessão 2026-05-08 (instrumento fraco no espaço dos fatores). DEFAULT_VARIANT trocado de `z_het_jk_3var` → `z_jk_purif`. Os 6 itens críticos originais foram resolvidos nos commits `4e2192f` (1-3) e `a3af0e4` (4-6).
+
+- [x] **Varredura sistemática de especificações IRF (instrumento × mp_var × (r,q) × amostra)** — *concluída 2026-07-11*
+  Grid de 320 células (`script/irf_spec_sweep.R`: 8 instrumentos × mp_var ∈ {yield_3m, 6m, 1y, 2y, juros_selic} × (r,q) ∈ {(5,4) auto-IC, (6,5), (7,6), (8,8)} × {full, pre_covid}), Etapa 1 ponto-estimativa com cache de 8 DFMs + Etapa 2 (`script/irf_spec_stage2.R`) bootstrap nboot=800 nas 6 células vencedoras. **Resultado central: zero células `sign_puzzle` e zero `unstable_normalization` — toda inversão de sinal no grid é F (factor-space) < 10.** Sempre que F ≥ 10, os sinais hard (curva ↑, IBOV ↓) e de transmissão (IPCA ↓, PIB ↓, varejo ↓ em h=24) saem coerentes, em qualquer combinação. Descobertas adicionais: (i) a família JK cruza Stock-Yogo em (6,5)/(7,6)/(8,8) no full — "z_jk_purif único" era artefato do grid antigo com r fixo em 7; (ii) **pre_covid (r=6,q=5) é o pico do grid** — 5 instrumentos ≥ 10, incluindo as variantes het (a fraqueza delas é COVID-driven, não estrutural); (iii) `z_het_3var` pre_covid (6,5) é a única célula com apreciação cambial + ordenação amortecida (canal GRG standard), sem significância; (iv) auto-IC (5,4) é borderline-weak (9.20) no full; (v) magnitudes esclarecidas — `cds_5y` em escala ×100 (h0 ≈ +41bp), `cambio_usd` em nível BRL/USD (+0.24 ≈ +5% full, significante). Validação: reproduziu 10.17 / 9.20 / 55-vs-2.7 e o ponto exato do RDS de produção (seed 123). Outputs: `output/irf/spec_sweep_{cells,irf_long}.csv`, `spec_sweep_{report,stage2,conclusoes}.md`, `irf_spec_<tag>.{rds,pdf}`, `irf_spec_stage2_overlay.pdf`. Relatório didático: `relatorio/working-notes/2026-07-11_varredura_irf.md`.
+  *Fonte: solicitação do usuário 2026-07-11 (IRFs inconsistentes com a teoria); plano em `~/.claude/plans/contexto-as-irfs-impulse-concurrent-penguin.md`.*
+
+- [x] **F (factor-space) ≪ F (y6m AR) — instrumento fraco onde o proxy-SVAR projeta** — *concluído 2026-05-08*
+  Após o fix de unit scaling em `yield_6m` (item LEVE 2026-05-07) expor as IRFs reais (sem o fator amplificador de +5000bp), as IRFs com `z_het_jk_3var` apresentaram sinais teoricamente invertidos (PIB ↑, núcleo ↑, BRL deprecia, sinais opostos entre `juros_selic` e `yield_6m`) com bandas largas. Diagnóstico instrumentado em `R/modeling/impulse_responde.R::ident_ext_instr` (gated por `getOption("dfm.irf.diagnose")`) revelou: F (factor-space, max sobre os q fatores dinâmicos) = **2.74** para `z_het_jk_3var`, vs F (y6m AR) reportado = 55.98. Grid (q ∈ {2,3,4,6}) × (8 variantes) em `script/diagnose_factor_space_F.R` mostra que **`z_jk_purif` é a única variante que cruza Stock-Yogo F (factor-sp) ≥ 10** (= 10.17). DEFAULT_VARIANT alterado em `script/instrument.R:25`. Re-run de `model_alessi.R` produz IRFs com sinais coerentes em todos os blocos macro (curva sobe, ações caem, atividade cai, risco soberano widens). `script/instrument_diagnostics.R` agora reporta F (factor-sp) lado-a-lado com F (DFM) e F (y6m AR), com flag WEAK-FACT (< 10). Helper `R/identification/factor_space_diagnostics.R::diagnose_instrument_in_factor_space`. **Lição:** F (y6m AR) mede relevância univariada Selic-equivalente, F (DFM) mede relevância contra o resíduo do *primeiro* fator do VAR; ambos podem ser altos mesmo quando F (factor-space) — o relevante para a projeção `H = (Z'η)/(Z'Z)` no espaço dos q fatores dinâmicos — é fraco.
+  *Fonte: investigação 2026-05-08 a partir de relato de IRFs invertidas pelo usuário; plano em `~/.claude/plans/minhas-irfs-nao-estao-jiggly-umbrella.md`.*
 
 
 - [x] **Corrigir mismatch `script/model_alessi.R:35`** — *concluído 2026-05-05*
@@ -37,7 +45,33 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 
 ## MÉDIO — robustez importante, deve entrar no paper
 
-> **Status (2026-05-06):** **TODOS os 7 itens MÉDIO fechados.** Os 6 itens menores (1-6) na sessão da manhã (commits `0cdc7e7`, `78452b9`, `78a9c0e`); o Item 7 (IRF + benchmark GRG) na sessão da tarde. Próximo bloco lógico é a seção LEVE (qualidade de código) ou paper writeup direto.
+> **Status (2026-07-11):** varredura de especificações abriu **3 itens novos** (abaixo). **Status (2026-05-06):** os 7 itens MÉDIO originais fechados. Os 6 itens menores (1-6) na sessão da manhã (commits `0cdc7e7`, `78452b9`, `78a9c0e`); o Item 7 (IRF + benchmark GRG) na sessão da tarde.
+
+- [x] **Aplicar (r,q) = (6,5) como override explícito em `script/model_alessi.R`** — *concluído 2026-07-11 (mesma sessão, após relato do usuário de câmbio ↑ / IPCA em corcova / núcleo ↑ no auto-IC)*
+  Override `r = 6L, q = 5L` na chamada `main_sdfm()` com comentário citando a varredura; auto-IC mantido como referência impressa; `ggsave` novo para `output/irf/irf_model_alessi_r6q5.pdf`. **Re-run confirma a previsão da varredura:** pib agora negativo em todo o horizonte (antes: +0.42 em h24 no auto-IC (5,4)); corcova do IPCA encolhe e vira desinflação em h12-h30; curva e varejo com sinais corretos e CI apertados; câmbio +0.3 BRL no impacto revertendo (dominância fiscal, não defeito). **Núcleo ex0 permanece positivo (~+0.05-0.10, bandas contêm 0) em (5,4), (6,5) e (7,6)** — diagnóstico barato via `compute_irf_dfm(nboot=0)` mostrou que NÃO é artefato do grid: é a limitação conhecida do canal de desinflação do `z_jk_purif` (irf_section.md); os núcleos ex1 e dw viram negativos em h12-h24 nos grids fortes.
+  *Fonte: varredura 2026-07-11, `output/irf/spec_sweep_conclusoes.md` §4; fecha o item aberto do HANDOFF 2026-05-08.*
+
+- [x] **Adicionar robustez pre_covid (6,5) cross-instrumento ao §5** — *concluído 2026-07-12 (rewrite completo do §5)*
+  Na janela 2013-2019 com (r=6, q=5), cinco instrumentos cruzam Stock-Yogo (z_jk_purif 15.4, z_jk 15.2, z_het_jk_3var 11.1, z_het_3var 10.8, z_bruto_purif 10.4) com sinais hard e de transmissão coerentes — dois esquemas de identificação independentes concordando. Incorporado como §5.6.1 do novo `output/irf/irf_section.md` (rewrite 2026-07-12: z_jk_purif primário × (6,5), ex1 como preço primário, price puzzle decomposto, crédito BG95, spreads duas fases, curva como prêmio fiscal, reconciliação GRG via z_het_3var pre_covid).
+  *Fonte: varredura 2026-07-11.*
+
+- [ ] **Investigar compressão dos spreads ICC pós-choque (sinal oposto ao prior)** *(novo 2026-07-11, coerência h)*
+  `spread_icc_juridica` cai com CI90 em h0-h6 (share correto = 0%) e `spread_icc_fisica` idem (23%) — oposto ao prior financial-accelerator (+). Hipótese: ICC é taxa média da *carteira*; captação reprecifica mais rápido que a carteira na alta da Selic → compressão mecânica de curto prazo. Reavaliar o prior ou trocar a medida (spread de concessões novas) antes de tratar como falha. Ver `output/irf/irf_coherence_report.md` §Leitura.
+  *(2026-07-12)* **Substancialmente resolvido pela análise h-a-h completa** (`relatorio/working-notes/2026-07-12_irf_credito_ativos_financeiros.md`): os spreads têm resposta em DUAS fases — compressão significativa h0-h7 (reprecificação carteira-vs-captação, mecânica) seguida de **abertura com CI68 em h19-h30** (juridica pico +0.08 em h25; fisica +0.13 em h25) — o financial accelerator (BG95, GZ12, GK15) aparece com defasagem. O prior não estava errado; a janela h0-12 da régua estava. Resta (não-bloqueante): testar spread de concessões novas, que deve abrir já no curto prazo.
+  *Fonte: checagem de coerência ponto a ponto 2026-07-11; análise crédito/ativos 2026-07-12.*
+
+- [ ] **`commodity_metal` responde ao choque (placebo externa violada)** *(novo 2026-07-11, coerência h)*
+  contain0 = 0.64 (regra: ≥ 0.90); +14 a +19 pts com CI90 excluindo zero em h0-h8. Metais não entram na purificação Bauer-Swanson (SP500/VIX/Brent). Testar purificação incluindo índice de metais; se persistir, documentar como caveat de exogeneidade. Demais placebos (sp500_vix, msci, epu_us) ok.
+  *Fonte: checagem de coerência ponto a ponto 2026-07-11.*
+
+- [x] **Núcleo do paper: preferir ex1 (ou reportar ex0/ex1/dw com leitura)** — *concluído 2026-07-12 (§5.5 do rewrite adota ex1 como medida primária, difusão como corroboração, ex0/dw com leitura)*
+  ex1 é coerente_forte (share 84%, desinflação significativa de h≈15); ex0 (0%) e dw (49%) concentram a limitação de desinflação do z_jk_purif.
+  *(2026-07-12)* Diagnóstico do headline **fechado** (`relatorio/working-notes/2026-07-12_price_puzzle_ipca.md`): a corcova positiva do IPCA (h0-h12) é n.s. (CI90 sempre contém 0; CI68 só h4-h8), universal entre os 8 instrumentos em (6,5) full, e desaparece pre-COVID com a mesma identificação (IPCA < 0 em todo h; F = 15.4 > full 10.1) → price puzzle amostral (COVID 2021-22), **não** erro de identificação. Framing §5: headline com corcova n.s. + robustez pre-COVID; ex1 primária.
+  *Fonte: checagem de coerência ponto a ponto 2026-07-11.*
+
+- [x] **Mencionar `z_het_3var` pre_covid como robustez qualitativa do canal de apreciação** — *concluído 2026-07-12 (§5.3 e §5.6.2 do rewrite: célula usada como reconciliação com GRG 2025 — o desacordo de sinal do câmbio é regime-driven, não method-driven; condicionada a bandas Anderson-Rubin se promovida além de robustez qualitativa)*
+  Única célula do grid com apreciação cambial + desinflação + ordenação amortecida da curva (canal GRG 2025 standard); ponto coerente mas CI90 largos (F = 10.8 borderline). Nuance importante: a leitura de dominância fiscal (44/48 células elegíveis) não é universal.
+  *Fonte: varredura 2026-07-11, `spec_sweep_conclusoes.md` §3.*
 
 - [x] **Corrigir framing de T2 nos documentos públicos** — *concluído 2026-05-06*
   `output/het_validation_report.md` (seção T2) reescrito com leitura honesta: "The JK F sits *at* the 99th percentile of equal-size random masks ... the gap is one percentile". Inclui binomial SE 0.0023 e 95% CI [0.006, 0.015]. `_instrucoes/Heteroscedasticidade.md` já tinha framing honesto desde 2026-05-05 (verificado).
@@ -73,22 +107,22 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 
 ## LEVE — qualidade de código e documentação, opcional
 
-- [ ] **Teste formal de rank para ΔΣ**
-  Substituir o gate informal `rank1_share > 0.6` por Cragg-Donald (1997) LR rank test ou Rigobon (2003) GMM distance statistic.
-  Arquivo: `R/identification/het_shock_extraction.R`.
+- [x] **Teste formal de rank para ΔΣ** — *concluído 2026-05-07*
+  Implementado em `R/identification/het_shock_extraction.R`: (i) `rigobon_proportionality_test()` testa H₀: Σ_C = a Σ_NC (Rigobon 2003 Proposição 1) via Mauchly LR + wild-bootstrap-calibrado (n_boot=1000); (ii) `rank1_lr_test()` testa H₀: rank(ΔΣ)=1 (Lanne-Lütkepohl 2008 Wilks LR `(n/2) Σ (logλ + 1/λ − 1)`, λ = generalized eigenvalues de (Σ_C, Σ_NC)) com bootstrap sob H₀ rank-1; (iii) `bootstrap_rank1_share_ci()` produz CI 95% sobre rank-1 share. **Resultado:** Rigobon Prop 1 rejeita proporcionalidade fortemente em todos os blocos (p_boot ≤ 0.011) — gate de identificação satisfeito. L-L rank-1: 4-var p_boot=0.137, 3-var p_boot=0.298, pre_covid p_boot=0.174, covid_post p_boot=0.287 — todos fail-to-reject rank-1 sob a estatística canônica, refletindo limitação de poder com n_C ≈ 50. Bootstrap rank-1 share 95% CI: 4-var [0.666, 0.930], 3-var [0.948, 0.995] — o 3-var fica muito mais próximo de 1, descritor que continua discriminando os dois blocos. Hansen J indisponível em R=2 (Rigobon 2003 Prop 2: df=0). Outputs: `output/instrument/het_rank_test{,_3var,_pre_covid,_covid_post}.csv` + diagnostics report §4.2.
   *Fonte: Methodologist (council), Blindspot 04-25.*
 
-- [ ] **Bootstrap propagando incerteza de b_1 (Piffer-Podstawski 2018, JEEA)**
-  Nested bootstrap: re-amostrar pares Wed→Thu dentro de C e NC, re-extrair b_1, re-computar z_het, e então rodar o wild bootstrap mensal da DFM. As bandas atuais subestimam incerteza.
-  *Fonte: Round 1 minor concern, Methodologist (council optional 2).*
 
-- [ ] **Identificar v_2 (segundo autovetor de ΔΣ) explicitamente**
-  λ_2=41.1 não é ruído — provavelmente choque de forward guidance/curva média. Reportar loadings de v_2; potencial segundo instrumento z_het².
+- [x] **Identificar v_2 (segundo autovetor de ΔΣ) explicitamente** — *concluído 2026-05-07*
+  `extract_shock_rigobon_sack` agora retorna `b_2`, `v_2`, `shocks2_C` (projeção GLS Mertens-Ravn paralela a ε̂_1). Persistido em `output/instrument/het_b_2{,_3var}.csv` e `data/processed/instrument_z_het2{,_3var}.csv`. Diagnostics §4.4. **Resultado:** 4-var b_2 carrega DI_3m=+5.85, DI_2y=−2.62, IBOV=−0.14, BRL=−0.17 — perfil "tilt" (curto sobe, longo cai), consistente com choque de forward guidance / belly-of-curve quando A2 falha em DI_2y; 3-var b_2 é ruído (rank-1 share=0.987 ⇒ λ_2≈0). Documentado como descritor — não usado como segundo instrumento sob A1-A3.
   *Fonte: Blindspot 04-25 virtue 1.*
 
 - [ ] **Guard sign-flip em `R/identification/het_shock_extraction.R:208`**
   Se `b_1[mp_var_idx] == 0`, o sinal é indefinido. Adicionar guard ou documentar precondição.
   *Fonte: Round 1 minor concern.*
+
+- [ ] **`irf_mp_raw` em `R/modeling/impulse_responde.R::ident_ext_instr` retorna IRF normalizado** (gemini review 2026-05-08, P1 #3)
+  O retorno `irf_mp_raw = irf_mp` ocorre **após** `irf_mp <- irf_mp / irf_mp[mpind, 1] * normalize_value`, então `irf_mp_raw` é normalized-pre-tcode, não truly-raw. Renomear para `irf_mp_pre_tcode` ou adicionar um campo `irf_mp_pre_norm` separado. Não altera nenhum output de produção (só o nome no list de retorno).
+  *Fonte: gemini-review 2026-05-08 sobre `impulse_responde.R`.*
 
 - [ ] **Alinhar NA handling entre `validate_variance_split` e `extract_shock_rigobon_sack`**
   `validate_variance_split` usa filtragem por coluna (n_C=104); `extract_shock_rigobon_sack` usa complete.cases (n_C=97). Documentar assimetria ou alinhar os dois.
@@ -102,12 +136,10 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
   Atualmente explicado apenas no docstring interno de `build_daily_regimes`. Adicionar comentário no nível do script.
   *Fonte: Round 1 trivial.*
 
-- [ ] **Corrigir convenção de unit scaling em `yield_6m` (Gemini P1 #1, flagged 2026-05-06)**
-  No painel, `yield_6m` está em proporção decimal (0.0975 = 9.75%). A convenção atual `normalize_value = SHOCK_BPS / 100 = 0.5` força a IRF h=0 de `yield_6m` a +0.5 em unidades nativas — i.e., +50 percentage points (= 5000bp), não +50bp. Corrigir via `normalize_value = 0.005` ou pré-multiplicar `yield_6m × 100` antes do fit. A correção invalida todos os audit reports anteriores; exige revisão coordenada de `output/irf_*.pdf`, `output/grg_benchmark.csv`, e todos os relatórios de diagnóstico. Documentado em `_instrucoes/justificativa_uso_yield-6m.md` (caveat de unit scaling) e `HANDOFF.md` (sessão 2026-05-06 tarde). A conversão explícita per-+50bp já é feita em `script/build_grg_benchmark.R::scale_to_grg_units` para comparação com GRG.
-  Arquivos afetados: `script/model_alessi.R`, `script/irf_cross_instrument.R`, todos os `output/irf_*.pdf`, `output/grg_benchmark.csv`, `output/instrument_diagnostics_report.md`, `output/het_validation_report.md`.
+- [x] **Corrigir convenção de unit scaling em `yield_6m`** — *concluído 2026-05-07*
+  `normalize_value = SHOCK_BPS / 10000 = 0.005` em `script/model_alessi.R:69-72` e `script/irf_cross_instrument.R::run_spec` (a IRF h=0 de `yield_6m` agora é +0.005 em proporção = +50bp, não +5000bp). `script/build_grg_benchmark.R::scale_to_grg_units` foi simplificado: a divisão por 100 sumiu — `raw_value` já está per-+50bp. Apenas `cambio_usd` segue convertido para `%` via `raw_value / brl_usd_baseline * 100`. O default `normalize_value = 0.5` em `R/modeling/impulse_responde.R::ident_ext_instr` foi mantido (compat com `script/model_var.R` que hard-coda `juros_selic` em escala percentual); docstring documenta a convenção. **Audit reports anteriores ficam fora-de-escala em 100× nas magnitudes; sinais e formas inalterados.** Após regenerar `output/irf/irf_*.pdf` e `output/benchmark/grg_benchmark.csv`, conferir: `our_point_50bp` numericamente idêntico ao anterior (porque `raw_old / 100 = raw_new`); IRF h=0 de yield_6m agora exibido como +0.005 (não +0.5).
   *Fonte: Gemini review P1 #1 de `script/irf_cross_instrument.R` (sessão 2026-05-06 tarde).*
 
-- [ ] **Adicionar break-even inflation (ANBIMA NTNB-LTN) ao painel mensal**
-  O painel atual usa `price_ipca` (IPCA realizado) como proxy de expectativas de inflação para benchmark contra GRG Tab 4 (`Δπᵉ` em horizontes 1m, 3m, 6m, 1y). Incorporar break-even inflation (diferença de rendimento entre LTN e NTN-B na mesma maturidade; dados ANBIMA) permite benchmark direto per-horizonte sem o caveat de IPCA-realizado-como-proxy. GRG 2025 usa Focus survey; break-even é alternativa de mercado complementar.
-  Arquivos afetados: `script/download.R` (adicionar série ANBIMA), `script/clean.R` (transformação), `data/processed/data_log_deseasonalized.csv` (nova coluna), `output/irf_section.md` §5.4 (atualizar caveat).
+- [x] **Adicionar break-even inflation (ANBIMA NTNB-LTN) ao painel mensal** — *infraestrutura concluída 2026-05-07; download diferido*
+  Função `download_breakeven_curve()` + helper `fetch_anbima_reference_rates()` em `R/data_download/anbima_breakeven.R` usam `rb3::yc_brl_get` / `rb3::yc_ipca_get` (cache em `~/rb3-cache`), interpolam para 252/504/1260 du via spline cúbica (mesmo protocolo Svensson) e retornam `breakeven_{1y,2y,5y}` mensal. Wired em `script/download.R` (linha após `monthly_yield_curve`); retorna tibble vazio com warning quando o cache rb3 não está populado, sem quebrar o pipeline. `script/build_grg_benchmark.R::mapping` foi reescrito para auto-detectar `breakeven_*` no painel: usa break-even quando presente (DIRECT, sem caveat) e cai em `price_ipca` com nota PROXY caso contrário. **Pendente:** popular o cache rb3 chamando `fetch_anbima_reference_rates(from='2010-01-01', to='2026-12-31')` antes de rodar `download.R` (a depuração da fetch_marketdata da B3 ficou para o usuário).
   *Fonte: HANDOFF.md sessão 2026-05-06 tarde (Next Steps item 3); GRG 2025 Tab 4 benchmark.*

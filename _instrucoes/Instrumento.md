@@ -1,8 +1,17 @@
 # Instrumento.md — Construção do Instrumento Externo para o Proxy-SVAR/DFM
 
-## Status (2026-05-05, pós-auditoria + validação completa)
+## Status (2026-07-11, pós-varredura de especificações)
 
-> **A estratégia principal mudou.** A auditoria (`output/instrument_audit_report.md`) mostrou que as quatro variantes GK descritas neste documento sofrem atenuação severa por descasamento de maturidade contra `juros_selic` (BCB 4189, fluxo) e por contaminação por *information shocks*. A estratégia adotada é **identificação por heterocedasticidade** (Rigobon-Sack 2003), na variante **`z_het_jk_3var`** (default em `script/instrument.R:25`) com **`yield_6m`** como variável de política para normalização. A escolha 3-var (DI_3m, IBOV, BRL) sobre 4-var (que adiciona DI_2y) é motivada por dois resultados do `instrument_diagnostics.R`: rank-1 share = 0.987 (vs 0.840 no 4-var) e F (y6m AR) = 55.98 (vs 21.29 no 4-var). Documentação completa em `_instrucoes/Heteroscedasticidade.md`.
+> A varredura sistemática (320 células: 8 instrumentos × 5 mp_vars × 4 grids (r,q) × 2 amostras; `script/irf_spec_sweep.R` + `script/irf_spec_stage2.R`) **confirma `z_jk_purif` como default** e refina três pontos do status 2026-05-08 abaixo:
+> 1. "Único que cruza Stock-Yogo" era artefato do grid antigo (r fixo = 7): `z_jk_purif` cruza F (factor-sp) ≥ 10 no full em (6,5)/(7,6)/(8,8) — 10.08/10.17/11.76 — e `z_jk` cruza em (8,8). Na janela **pre_covid (2013-19) com (r=6, q=5), cinco instrumentos cruzam** (z_jk_purif 15.4, z_jk 15.2, z_het_jk_3var 11.1, z_het_3var 10.8, z_bruto_purif 10.4).
+> 2. O auto-IC (r=5, q=4) usado por `model_alessi.R` é **borderline-weak** (9.20) — pendência aberta para migrar o caso base para (6,5) ou (7,6).
+> 3. Zero células `sign_puzzle` no grid inteiro: F (factor-sp) ≥ 10 ⇒ sinais teoricamente coerentes, sem exceção. O diagnóstico de sinais invertidos está **fechado** — é weak-IV no espaço dos fatores, e nada mais.
+>
+> Detalhes: `output/irf/spec_sweep_conclusoes.md`, `relatorio/working-notes/2026-07-11_varredura_irf.md`.
+
+## Status (2026-05-08, pós-investigação F factor-space)
+
+> **Default revertido para `z_jk_purif` (GK timing-ID + Bauer-Swanson + JK).** A auditoria de 2026-04-25 (`output/instrument_audit_report.md`) recomendou `z_het_jk_3var` por F (y6m AR) = 55.98. A sessão 2026-05-08 reabriu a decisão: após o fix de unit scaling em `yield_6m` (LEVE 2026-05-07) expor as IRFs reais, ficou claro que F (y6m AR) **não** é a métrica relevante para proxy-SVAR sobre o DFM. A métrica relevante é F (factor-space) — max univariada sobre os q fatores dinâmicos `η = u K M⁻¹`, onde a projeção `H = (Z'η)/(Z'Z)` ocorre. Grid em `script/diagnose_factor_space_F.R` (q ∈ {2,3,4,6}) × (8 variantes) mostra: **`z_jk_purif` é o único variante que cruza Stock-Yogo F (factor-sp) ≥ 10 (= 10.17)**; `z_het_jk_3var` tem F (factor-sp) ≈ 2.7 — severamente fraco. **Default 2026-05-08:** `z_jk_purif` (em `script/instrument.R:25`) com `yield_6m` para normalização. `z_het_jk_3var` permanece como secondary spec em `script/irf_cross_instrument.R`. Documentação completa: `_instrucoes/Heteroscedasticidade.md` (rebaixamento para robustez), `_instrucoes/pendencias.md` (CRÍTICO 2026-05-08).
 >
 > **Validação completa (T1-T8, 2026-05-06):** `script/instrument_validation.R` executa oito robustezes:
 > - **T1 placebo** (n=2000): F=21.3 não é data-snooping (p=0.0005);
@@ -186,18 +195,24 @@ Para cada variante de $z_t$:
 - **F ∈ [5, 10]:** usar intervalos Anderson-Rubin (robustos a instrumento fraco)
 - **F < 5:** instrumento fraco
 
-**Resultados observados na amostra 2013-01–2025-12 (auditoria de 2026-04-25, contra inovação AR(6) de yield_6m):**
+> **2026-05-08:** três F são reportados em `script/instrument_diagnostics.R` lado-a-lado: F (DFM) (resíduo do primeiro fator, OSW), F (y6m AR) (relevância univariada Selic-equivalente) e **F (factor-sp)** (max sobre os q fatores dinâmicos — métrica que governa o viés na projeção do proxy-SVAR `H = (Z'η)/(Z'Z)`). **F (factor-sp) é o relevante** para validar uma variante como instrumento do DFM. F (y6m AR) e F (factor-sp) podem divergir em 20× (ex: `z_het_jk_3var` tem F (y6m AR) = 56 e F (factor-sp) = 2.7).
 
-| Variante       | F     | Veredito |
-|----------------|------:|----------|
-| z_bruto        |   ~5  | fraco/limite |
-| z_bruto_purif  |   ~5  | fraco/limite |
-| z_jk           |   ~3  | fraco |
-| z_jk_purif     |   ~3  | fraco |
-| z_het          |   ~8  | limite |
-| **z_het_jk**   |  **21** | **forte** |
+**Resultados observados na amostra 2013-01–2025-12 (sessão 2026-05-08):**
 
-Tabela completa (4 variantes het × 7 candidatos a alvo) em `output/instrument_audit_grid.csv`.
+| Variante         | F (y6m AR) | F (factor-sp) | Veredito |
+|------------------|-----------:|--------------:|----------|
+| z_bruto          |     ~5     |   4.19        | fraco em ambos |
+| z_bruto_purif    |     ~5     |   5.10        | fraco em ambos |
+| z_jk             |     ~9     |   8.41        | limite em ambos |
+| **z_jk_purif**   |  **11.4**  | **10.17** ✓   | **forte em ambos — default 2026-05-08** |
+| z_het            |     ~8     |   3.07        | forte em y6m AR, fraco em factor-sp |
+| z_het_jk         |    21.3    |   6.89        | forte em y6m AR, limite em factor-sp |
+| z_het_3var       |     —      |   1.11        | severamente fraco em factor-sp |
+| z_het_jk_3var    |   55.98    |   2.74        | forte em y6m AR, **severamente fraco em factor-sp** (era default 2026-05-05) |
+
+✓ = único cruzando Stock-Yogo F (factor-sp) ≥ 10. Grid completo (q ∈ {2,3,4,6}) × (8 variantes) em `output/instrument/factor_space_F_grid.csv`. Tabela detalhada (F (DFM) + F (y6m AR) + F (factor-sp) + flag WEAK-FACT por variante) em `output/instrument/instrument_diagnostics_report.md` §1.
+
+Tabela legacy (4 variantes het × 7 candidatos a alvo, contra inovação AR(6) de cada candidato) permanece em `output/instrument_audit_grid.csv`.
 
 ---
 
