@@ -1,0 +1,589 @@
+\UseRawInputEncoding
+
+\documentclass[
+% -- opções da classe memoir --
+article,			% indica que é um artigo acadêmico
+12pt,				% tamanho da fonte
+oneside,			% para impressão apenas no verso. Oposto a twoside
+a4paper,			% tamanho do papel.
+hidelinks, 
+% -- opções da classe abntex2 --
+%chapter=TITLE,		% títulos de capítulos convertidos em letras maiúsculas
+%section=TITLE,		% títulos de seções convertidos em letras maiúsculas
+%subsection=TITLE,	% títulos de subseções convertidos em letras maiúsculas
+%subsubsection=TITLE % títulos de subsubseções convertidos em letras maiúsculas
+% -- opções do pacote babel --
+english,			% idioma adicional para hifenização
+brazil,				% o último idioma é o principal do documento
+]{abntex2}
+
+% ---
+% Pacotes fundamentais 
+% ---
+\usepackage{lmodern}			% Usa a fonte Latin Modern
+\usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
+\usepackage{indentfirst}		% Indenta o primeiro parágrafo de cada seção.
+\usepackage{nomencl} 			% Lista de simbolos
+\usepackage{color}				% Controle das cores
+\usepackage{graphicx}			% Inclusão de gráficos
+\usepackage{microtype} 			% para melhorias de justificação
+\usepackage{amsmath}			% alinhar as equações
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[brazilian,noabbrev]{cleveref}
+\usepackage{multirow}			
+\usepackage{tikz}				% Grafico
+\usetikzlibrary{calc}			% alinhar o grafico por coordenadas
+\usepackage{physics}
+\usepackage{caption}
+\usepackage{tikz-cd}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+% ---
+
+
+% Ambiente de teoremas e provas
+\renewenvironment{proof}{{\bfseries \textit{Prova}.	}}{\qed}
+
+\theoremstyle{plain}
+\newtheorem{teorema}{Teorema}
+
+\theoremstyle{definition}
+\newtheorem{definicao}{Definição}
+
+\theoremstyle{remark}
+\newtheorem{rascunho}{Rascunho}[teorema]
+% ---
+
+
+% Comandos criados
+\newcommand{\R}{\mathbb{R}}   % comando para facilitar ao escrever o R de numeros reais - \R 
+\newcommand\inner[2]{\left \langle #1, #2 \right \rangle}   % Comando para criar um porduto interno
+\crefformat{equation}{equação #2#1#3}
+\crefmultiformat{equation}{equações #2#1#3}{ e #2#1#3}{, #2#1#3}{ e #2#1#3}
+% ---
+
+
+
+
+
+% Pacotes tabela
+\usepackage{booktabs,tabularx}
+\usepackage[input-decimal-markers=,]{siunitx}
+\usepackage{float}
+\usepackage{longtable}
+% ---
+
+% ---
+% Pacotes de citações
+% ---
+\usepackage[brazilian,hyperpageref]{backref}	 % Paginas com as citações na bibl
+\usepackage[alf, abnt-emphasize=bf,abnt-etal-cite=2,abnt-etal-list=2]{abntex2cite}	% Citações padrão ABNT
+% ---
+
+
+
+% ---
+% Informações de dados para CAPA e FOLHA DE ROSTO
+% ---
+\instituicao{a}
+\tituloestrangeiro{}
+\titulo{Choques monetário nos preços dos ativos}
+\autor{Gabriel Arruda\thanks{Doutorando em Economia - PPGEco-UFSC} \\ g.arruda@hotmail.com}
+\data{}
+% ---
+
+% ---
+% Configurações de aparência do PDF final
+
+% alterando o aspecto da cor azul
+\definecolor{blue}{RGB}{41,5,195}
+
+% informações do PDF
+\makeatletter
+\hypersetup{
+	%pagebackref=true,
+	pdftitle={\@title}, 
+	pdfauthor={\@author},
+	pdfsubject={Macroeconomia},
+	pdfcreator={Gabriel Arruda},
+	pdfkeywords={SDFM}{choques monetários}{mercado financeiro}{macroeconomia}{politica monetária}, 
+	colorlinks=true,       		% false: boxed links; true: colored links
+	linkcolor=black,          	% color of internal links
+	citecolor=black,        		% color of links to bibliography
+	filecolor=magenta,      		% color of file links
+	urlcolor=black,
+	bookmarksdepth=4
+}
+\makeatother
+
+% ---
+% Altera as margens padrões
+% ---
+\setlrmarginsandblock{3cm}{3cm}{*}
+\setulmarginsandblock{3cm}{3cm}{*}
+\checkandfixthelayout
+% ---
+
+% O tamanho do parágrafo é dado por:
+\setlength{\parindent}{1.3cm}
+
+% Controle do espaçamento entre um parágrafo e outro:
+\setlength{\parskip}{0.2cm}  % tente também \onelineskip
+
+% Espaçamento simples
+\SingleSpacing
+
+% ----
+% Início do documento
+% ----
+\begin{document}
+
+% Retira espaço extra obsoleto entre as frases.
+\frenchspacing 
+
+% ----------------------------------------------------------
+% ELEMENTOS PRÉ-TEXTUAIS
+% ----------------------------------------------------------
+
+%---
+%
+% Se desejar escrever o artigo em duas colunas, descomente a linha abaixo
+% e a linha com o texto ``FIM DE ARTIGO EM DUAS COLUNAS''.
+% \twocolumn[    		% INICIO DE ARTIGO EM DUAS COLUNAS
+%
+%---
+% página de titulo
+\maketitle
+
+% resumo em português
+\renewcommand{\resumoname}{Resumo}
+\begin{resumoumacoluna}
+    Um choque contracionista de 50 pontos-base na política monetária brasileira leva a uma queda imediata de aproximadamente 3\% no mercado acionário e a uma apreciação de 8\% na taxa de câmbio. A análise também revela um aumento significativo nos yields de títulos de diferentes maturidades e respostas assimétricas entre as classes de ativos, com efeitos mais pronunciados nos ativos de maior risco e no setor imobiliário. Estes resultados são obtidos por meio de um modelo de fatores dinâmicos estruturais (SDFM), que supera as limitações de não-fundamentalidade dos modelos VAR tradicionais ao incorporar um amplo conjunto de informações macroeconômicas e financeiras do Brasil.
+\vspace{\onelineskip} 
+\end{resumoumacoluna}
+
+
+\textual
+
+\section{Intro}
+
+A compreensão dos canais de transmissão da política monetária é um dos temas centrais da macroeconomia, pois as decisões do banco central afetam diretamente as condições de crédito, as expectativas dos agentes e a atividade econômica. Dentre os diversos canais, a resposta dos preços dos ativos financeiros — como ações, títulos e a taxa de câmbio — é particularmente relevante, pois reflete a reação imediata dos mercados e serve como um importante mecanismo de transmissão para a economia real. A literatura recente tem dedicado atenção considerável a quantificar essa relação, utilizando modelos cada vez mais sofisticados para isolar o impacto de choques monetários na precificação de risco (e.g., \citeonline{BEKAERT2013771}, \citeonline{alessi}). No contexto de economias emergentes como o Brasil, caracterizadas por maior volatilidade e particularidades institucionais, a análise desses efeitos torna-se ainda mais crucial para a condução da política monetária e a gestão de portfólios.
+
+A correta identificação desses efeitos depende crucialmente da informação disponível para o econometrista. Modelos tradicionais, como os Vetores Autorregressivos Estruturais (SVAR), frequentemente sofrem do problema da não-fundamentalidade, pois não conseguem incorporar o vasto conjunto de dados que os agentes econômicos e o próprio banco central utilizam em suas decisões, o que pode levar a uma má especificação do choque monetário \cite{villaverde}. Estudos mostram que, por consequência, os SVARs tendem a subestimar a magnitude do impacto da política monetária e a gerar respostas contraintuitivas em algumas variáveis \cite{alessi}.
+
+Para superar essa limitação, este estudo emprega um Modelo de Fatores Dinâmicos Estruturais (SDFM). Ao extrair fatores comuns de um grande conjunto de variáveis macroeconômicas e financeiras, o SDFM permite uma identificação mais robusta dos choques, capturando a informação relevante de maneira parcimoniosa \cite{STOCK2016415}. A principal contribuição deste trabalho é, portanto, fornecer uma quantificação mais precisa dos canais de transmissão da política monetária no Brasil, mostrando que os efeitos sobre os preços dos ativos são mais fortes e rápidos do que a literatura baseada em modelos de menor dimensão tipicamente encontra. O restante do artigo detalha a metodologia, os dados e aprofunda a análise dos resultados.
+
+\section{Revisão de literatura}
+
+A literatura sobre os efeitos da política monetária nos mercados financeiros tem evoluído significativamente nas últimas décadas. Esta evolução é marcada tanto pelo desenvolvimento de modelos teóricos cada vez mais sofisticados quanto pelo surgimento de novas metodologias empíricas que permitem uma melhor identificação dos choques monetários e seus efeitos \cite{STOCK2016415}.
+
+Os fundamentos teóricos desta literatura são estabelecidos por modelos de equilíbrio geral que buscam compreender os mecanismos de transmissão da política monetária para os mercados financeiros. \citeonline{castelnuovo} desenvolvem um modelo DSGE que incorpora rigidez nominal de salários e interações entre diferentes tipos de investidores, demonstrando como flutuações na riqueza financeira afetam o consumo. Complementarmente, \citeonline{Cooley} propõem um modelo de equilíbrio geral com empresas heterogêneas que revela como a estrutura financeira das empresas influencia sua resposta a choques monetários.
+
+Embora os modelos teóricos forneçam importantes insights, a necessidade de quantificar precisamente estes efeitos levou ao desenvolvimento de análises empíricas. Os primeiros trabalhos utilizaram modelos VAR tradicionais. \citeonline{CHATZIANTONIOU2013754} empregam um VAR para mostrar como as políticas fiscal e monetária afetam conjuntamente o desempenho do mercado acionário. No entanto, os modelos VAR tradicionais enfrentam limitações na identificação precisa dos choques monetários. Esta limitação motivou o desenvolvimento dos modelos SVAR, que impõem restrições teoricamente fundamentadas para identificar os choques estruturais. \citeonline{BEKAERT2013771} decompõem o índice VIX em componentes de aversão ao risco e incerteza, e utilizam um SVAR para mostrar como a política monetária expansionista afeta a aversão ao risco.
+
+Uma limitação importante dos modelos VAR/SVAR é sua incapacidade de incorporar grandes conjuntos de informação, o que pode levar ao problema de não-fundamentalidade dos choques estruturais. \citeonline{alessi} fornecem evidência clara deste problema ao comparar os resultados de um SVAR com um modelo de fatores dinâmicos estrutural (SDFM) usando o mesmo instrumento de alta frequência para identificar choques monetários. Os autores mostram que os SVARs subestimam consistentemente a magnitude do impacto da política monetária e produzem respostas contra-intuitivas em várias variáveis financeiras. Em contraste, o SDFM, ao incorporar um conjunto mais amplo de informações, encontra efeitos mais fortes e mais rápidos nos preços dos ativos, consistentes com a teoria macroeconômica padrão e com evidências de estudos de eventos. Outros modelos de grande dimensão, como os FAVAR, também têm contribuído para esta literatura \cite{lutz,miranda}. Metodologias mais recentes buscam refinar ainda mais a identificação, utilizando, por exemplo, instrumentos de alta frequência \cite{miranda-transmi,alessi} ou modelos com parâmetros variáveis no tempo \cite{pascal}.
+
+
+% \section{Revisão de literatura}
+
+% A literatura sobre os efeitos da política monetária nos mercados financeiros tem evoluído significativamente nas últimas décadas. Esta evolução é marcada tanto pelo desenvolvimento de modelos teóricos cada vez mais sofisticados quanto pelo surgimento de novas metodologias empíricas que permitem uma melhor identificação dos choques monetários e seus efeitos \cite{STOCK2016415}.
+
+% Os fundamentos teóricos desta literatura são estabelecidos por modelos de equilíbrio geral que buscam compreender os mecanismos de transmissão da política monetária para os mercados financeiros. \citeonline{castelnuovo} desenvolvem um modelo DSGE que incorpora rigidez nominal de salários e interações entre diferentes tipos de investidores, demonstrando como flutuações na riqueza financeira afetam o consumo. O modelo fornece evidências robustas do papel dos preços das ações na atividade real e identifica uma resposta significativa do Federal Reserve às flutuações do mercado acionário. Complementarmente, \citeonline{Cooley} propõem um modelo de equilíbrio geral com empresas heterogêneas que revela como a estrutura financeira das empresas influencia sua resposta a choques monetários. Um resultado central deste modelo é que empresas menores, devido à maior alavancagem financeira, são mais sensíveis a variações nas taxas de juros.
+
+% Embora os modelos teóricos forneçam importantes insights sobre os mecanismos de transmissão, a necessidade de quantificar precisamente estes efeitos levou ao desenvolvimento de análises empíricas. Os primeiros trabalhos empíricos utilizaram modelos VAR tradicionais. \citeonline{CHATZIANTONIOU2013754} empregam um VAR para mostrar como as políticas fiscal e monetária afetam conjuntamente o desempenho do mercado acionário. Seus resultados revelam diferenças importantes entre países: enquanto no Reino Unido tanto a política fiscal quanto a monetária afetam diretamente o mercado de ações, na Alemanha e nos EUA os efeitos são mais indiretos e complexos.
+
+% No entanto, os modelos VAR tradicionais enfrentam limitações na identificação precisa dos choques monetários. Esta limitação motivou o desenvolvimento dos modelos SVAR, que impõem restrições teoricamente fundamentadas para identificar os choques estruturais. \citeonline{BEKAERT2013771} decompoem o indice VIX em componentes de aversão ao risco e incerteza, e utilizam um SVAR mostrando que uma política monetária expansionista reduz consistentemente a aversão ao risco após cerca de nove meses. \citeonline{li} emprega um MS-VAR (Markov-switching VAR) para examinar efeitos assimétricos do sentimento do investidor e da política monetária nos preços das ações, mostrando que os choques de sentimento têm impacto maior e mais duradouro durante períodos de baixa do mercado.
+
+% Uma limitação importante dos modelos VAR/SVAR é sua incapacidade de incorporar grandes conjuntos de informação, o que pode levar ao problema de não-fundamentalidade dos choques estruturais. \citeonline{alessi} fornecem evidência clara deste problema ao comparar os resultados de um SVAR com um modelo de fatores dinâmicos estrutural (SDFM) usando o mesmo instrumento de alta frequência para identificar choques monetários. Os autores mostram que os SVARs subestimam consistentemente a magnitude do impacto da política monetária e produzem respostas contra-intuitivas em várias variáveis financeiras. Em contraste, o SDFM, ao incorporar um conjunto mais amplo de informações, encontra efeitos mais fortes e mais rápidos nos preços dos ativos, consistentes com a teoria macroeconômica padrão e com evidências de estudos de eventos.
+
+% \citeonline{hanisch} utilizam um modelo dinâmico estrutural de fatores (SDFM) com 135 variáveis para analisar a eficácia da política monetária convencional e não convencional do Banco do Japão. Seus resultados mostram que choques expansionistas estimularam a economia em ambos os períodos, mas com efeitos diferentes: no período pré-QE, a redução das taxas de juros teve forte impacto na atividade econômica real, enquanto no período QE, o aumento da base monetária teve efeito mais forte nos preços dos ativos.
+
+% Os modelos FAVAR também têm contribuído significativamente para esta literatura ao combinar a abordagem de fatores com a estrutura VAR tradicional. \citeonline{lutz} examinam como a política monetária convencional e não convencional afeta o sentimento dos investidores, encontrando que uma redução surpresa na taxa dos fed funds durante o período convencional leva a um aumento significativo no sentimento dos investidores e nos preços dos ativos. \citeonline{miranda} utilizam um FAVAR para demonstrar como um aperto monetário americano provoca uma desalavancagem significativa de intermediários financeiros globais e uma contração nos preços globais de ativos de risco.
+
+% Metodologias mais recentes têm buscado refinar ainda mais a identificação dos choques monetários. \citeonline{miranda-transmi} desenvolvem um novo instrumento baseado em surpresas de alta frequência nos mercados futuros de juros, controlando para as projeções econômicas do Fed. Esta abordagem permite identificar com maior precisão o impacto dos choques monetários nos spreads corporativos e no prêmio de risco dos títulos. Em linha similar, \citeonline{pascal} empregam um VAR com parâmetros variando no tempo para mostrar que os preços de ações e imóveis apresentam respostas heterogêneas a choques monetários ao longo do tempo.
+
+
+\section{Metodologia e Estratégia Empírica}
+
+\subsection{O Modelo de Fatores Dinâmicos Estruturais (SDFM)}
+
+O modelo empírico baseia-se na abordagem de Fatores Dinâmicos Estruturais (SDFM), que pode ser representada por três equações principais:
+\begin{align}
+    \overset{n\times 1}{X_t} &= \overset{n\times r}{\Lambda} \overset{r\times 1}{F_t} + \overset{n\times 1}{e_t}\label{eq:4}\\[4pt]
+    \overset{r\times r}{\Phi(L)}\overset{r\times 1}{F_t} &= \overset{r\times q}{G} \overset{q\times 1}{\eta_t} \label{eq:5}\\[4pt]
+    \overset{q\times 1}{\eta_t} &= \overset{q\times q}{H} \overset{q\times 1}{\varepsilon_t} \label{eq:6}
+\end{align}
+A primeira equação, \cref{eq:4}, é a equação de observação, onde o vetor de $n$ variáveis observáveis ($X_t$) é decomposto em um componente comum, determinado por $r$ fatores latentes ($F_t$) através da matriz de cargas fatoriais $\Lambda$, e um componente idiossincrático ($e_t$). A dinâmica dos fatores é descrita na \cref{eq:5}, onde $\Phi(L)$ é um polinômio de defasagens e $\eta_t$ é um vetor de $q$ choques aos fatores. Finalmente, a \cref{eq:6} relaciona esses choques aos $q$ choques estruturais de interesse ($\varepsilon_t$) através da matriz $H$.
+
+Juntando as equações, o modelo pode ser escrito em sua forma de média móvel, que expressa as variáveis observáveis em termos dos choques estruturais:
+\begin{align}\label{eq:7}
+    X_t=\Lambda \Phi(L)^{-1}GH\varepsilon_t + e_t
+\end{align}
+A estimação e identificação do modelo requerem a determinação do número de fatores estáticos ($r$) e dinâmicos ($q$), e a imposição de restrições de normalização sobre as matrizes $\Lambda$, $G$ e $H$.
+
+\subsection{Base de Dados}
+
+Este estudo utiliza uma base de dados composta por 71 variáveis mensais para a economia brasileira, abrangendo o período de janeiro de 2013 a dezembro de 2024. A escolha do período inicial deve-se a uma mudança metodológica na PNAD Contínua. Os dados são provenientes de fontes oficiais, como o Banco Central do Brasil (BCB), IBGE, B3, Tesouro Nacional e ANBIMA, e cobrem as categorias de atividade econômica, mercado de trabalho, inflação, commodities, e variáveis monetárias e de mercado de capitais. A lista completa de variáveis e suas respectivas transformações para garantir a estacionariedade encontra-se no Anexo (Tabela \ref{tab:lista_variaveis}).
+
+Para construir séries de taxas de juros com maturidades fixas (3 meses, 1, 2, 3 e 5 anos), empregou-se o modelo de \citeonline{svensson1994estimating} aos dados das Letras do Tesouro Nacional (LTN). Adicionalmente, as séries foram dessazonalizadas quando necessário, utilizando o procedimento X-13ARIMA-SEATS \cite{sax2018seasonal}.
+
+
+
+\subsection{Parametrização e Estimação}
+
+A estratégia de estimação segue de perto a de \citeonline{alessi}. O processo inicia-se com a determinação da dimensionalidade do sistema, onde o número de fatores estáticos foi definido como $r=7$, com base nos critérios de informação de \citeonline{bai-ng}, e o número de fatores dinâmicos foi estabelecido em $q=4$, seguindo o procedimento de \citeonline{amengual2007consistent}.
+
+Antes da extração dos fatores, os dados são tratados com a normalização utilizada por \citeonline{alessi}, uma abordagem projetada para acomodar séries com diferentes ordens de integração e volatilidades. O objetivo dessa etapa é garantir que a extração dos fatores comuns não seja dominada por um pequeno número de variáveis com alta variância. Especificamente, cada série em nível e sem tendência ($X_{it}$) é dividida pelo desvio padrão de sua primeira diferença ($s_{iy}$):
+\begin{equation}
+    Z_{it} = \frac{X_{it}}{s_{iy}}
+\end{equation}
+Essa técnica equaliza a volatilidade entre as séries, ponderando cada uma de acordo com a magnitude de suas flutuações. A partir desta matriz de dados normalizados ($Z_t$), os fatores estáticos ($F_t$) são então extraídos através da decomposição de valor singular (SVD) da matriz de covariância.
+
+A dinâmica desses fatores é modelada por um Vetor Autorregressivo de ordem 1, ou VAR(1), e para corrigir o conhecido viés de pequena amostra, aplicamos a correção proposta por \citeonline{kilian1998small} aos coeficientes estimados. Para identificar os choques estruturais, adotamos a hipótese de que a ordem causal entre os fatores segue a sequência: a economia real impacta os preços, que por sua vez impactam as variáveis monetárias, que então impactam os ativos financeiros. Com essa ordenação, o terceiro fator é interpretado como o choque de política monetária. O choque é identificado através de uma hipótese de ordenamento recursivo, implementada pela decomposição de Cholesky da matriz de covariância dos resíduos ($\Sigma_u = SS'$). Essa estrutura de ordenamento recursivo implica que o choque de política monetária (terceiro na ordem) pode responder contemporaneamente a choques na atividade real e nos preços (fatores 1 e 2), mas não responde no mesmo período a choques nos ativos financeiros.
+
+
+
+Por fim, para garantir a interpretação econômica, o choque de política monetária é normalizado para que a resposta contemporânea da variável de juros corresponda a um aumento de 50 pontos-base. As funções de impulso-resposta (IRF) são calculadas para um horizonte de 50 meses, com os intervalos de confiança construídos pelo método de \textit{bootstrap wild}, com 800 replicações. Essa técnica é preferível ao bootstrap simples por ser robusta à presença de heterocedasticidade nos resíduos.
+
+
+% \section{Metodologia}
+
+% % \subsection{Normalização e estimação}
+
+% % \subsubsection{Normalização dos fatores}
+
+% % Como os fatores são não observados, eles apenas são identificados por uma normalização arbitraria. Na forma estática do DFM (\ref{eq:4}), apenas o espaço gerado por $F_t$ é identificado e não os fatores em si. Podemos então reescrever, $\Lambda F_t=(\Lambda Q^{-1})(QF_t)$, onde $Q$ é qualquer matriz $r\times r$ invertível.
+
+% % Em algumas aplicações como monitoramento de variáveis ou previsão queremos apenas identificar o espaço gerado dos fatores, mas no contexto de análise de impulso e resposta essa normalização é necessária.
+
+% % A primeira forma a ser apresentada é a \textbf{Named Factor Normalization}, a ideia é por restrições onde podemos associar cada fator a uma ou mais variáveis\footnote{Vale ressaltar que é apenas uma forma de normalização e não um conteúdo propriamente estrutural.}.
+
+% % Primeiro deve-se ordenar as variáveis em $X_t$ de modo que as $r$ primeiras variáveis sejam aquelas que queremos nomear. Então a normalização passa a ser:
+% % \begin{align}
+% %     \Lambda^{NF}=\begin{bmatrix}
+% %         I_r \\[1ex]
+% %         \Lambda^{NF}_{r+1:n}
+% %     \end{bmatrix}
+% % \end{align}
+
+% % Sob esta normalização, os fatores geralmente são correlacionados contemporaneamente.
+
+% % Para utilizar este tipo de normalização, dois requisitos devem ser satisfeitos: As variáveis de nomeação deve ser suficientemente entre si; A matriz $\Lambda_{1:r}$ deve ser invertível, para que $\Lambda^{NF}_{r+1:n}=\Lambda^{-1}_{1:r}\Lambda_{r+1:n}$
+
+% % A segunda normalização, é utilizada para identificar os choques estruturais que também são não-observados. A mais utilizada nesse tipo de metodologia, é a \textit{unit effect normalization}, esta normalização fixa o sinal e a escala do \textit{j-ésimo} choque, tal que o aumento de uma unidade em $\varepsilon_{jt}$, corresponde a um aumento contemporâneo de uma unidade em $X_{jt}$.
+% % \begin{align}
+% %     H_{jj}=1
+% % \end{align}
+
+% % Sendo necessário ter pelo menos $n(n-1)/2$ restrições, onde $n$ é o numero de fatores.
+
+% % \subsubsection{Estimação dos Fatores}
+
+% Se os distúrbios idiossincráticos tiverem variações diferentes e/ou alguns estiverem correlacionados de forma cruzada, se usa mínimo quadrados generalizados. O estimador se da minimizando a seguinte função objetivo:
+% \begin{align}\label{eq:3}
+%     \min_{F_1,\ldots,F_t,\Lambda} T^{-1} \sum^{T}_{t=1} (X_t - \Lambda F_t)'\Sigma_e^{-1}(X_t - \Lambda F_t)
+% \end{align}
+% Em que a solução da o estimador $\tilde{F}_t=N^{-1}\tilde{\Lambda}' X_t$. Onde $\tilde{\Lambda}'$ é dado pelos autovetores ordenado, correspondentes aos $r$ maiores autovalores de $\Sigma_e^{-1/2}\Sigma_{xx}\Sigma_e^{-1'}$. Como $\Sigma_e$ é desconhecido, então deve-se utilizar um estimador $\hat{\Sigma}_e$, a metodologia mais recomendada é a proposta por \citeonline{BOIVIN2006169}.
+
+
+
+% \subsection{O modelo SDFM}
+
+% O SDFM pode ser representado por três equações principais:
+
+% \begin{align}
+%     \overset{n\times 1}{X_t} &= \overset{n\times r}{\Lambda} \overset{r\times 1}{F_t} + \overset{n\times 1}{e_t}\label{eq:4}\\[4pt]
+%     \overset{r\times r}{\Phi(L)}\overset{r\times 1}{F_t} &= \overset{r\times q}{G} \overset{q\times 1}{\eta_t} \label{eq:5}\\[4pt]
+%     \overset{q\times 1}{\eta_t} &= \overset{q\times q}{H} \overset{q\times 1}{\varepsilon_t} \label{eq:6}
+% \end{align}
+
+% Vamos ter que $\Phi(L) = I - \Phi_1L - \Phi_2L^2 - ... - \Phi_pL^p$ é um polinômio de defasagens que descreve a dinâmica dos fatores. A matriz de cargas $\Lambda$ relaciona os fatores às variáveis observadas e captura a importância relativa de cada fator. A matriz $H$ relaciona inovações dos fatores aos choques estruturais.
+
+% Juntando as \cref{eq:4,eq:5,,eq:6}, podemos reescrever o modelo da seguinte forma:
+% \begin{align}\label{eq:7}
+%     X_t=\Lambda \Phi(L)^{-1}GH\varepsilon_t + e_t
+% \end{align}
+
+% O lado direito da \cref{eq:7} é a representação de média móvel dos componentes comum de $X_t$ em termos de choque estrutural. Note que a \cref{eq:7} requer três normalizações: $\Lambda$, $G$ e $H$. E para isso, devemos considerar dois casos: $r=q$ e $r>q$.
+
+% % \subsubsection{Determinando o numero de fatores}
+% % \subsubsubsection{Determinando os fatores estáticos}
+
+% % Existe diferentes maneiras de se estimar o numero de fatores estáticos $r$, uma delas é a metodologia proposta por \citeonline{bai-ng}, os autores extendem a ideia do critério de informação de Akaike (AIC) para o caso de fatores dinâmicos, em que a inclusão de fatores adicionais penaliza a soma dos quadrados dos resíduos,
+% % \begin{align}
+% %     IC_r = \ln V_{r}(\hat{\Lambda}, \hat{F})+rg (N,T)
+% % \end{align}
+% % onde $V_{r}(\hat{\Lambda}, \hat{F})$ é a função objetivo dos mínimos quadrados, em outras palavras, os componentes principais avaliado em $(\hat{\Lambda}$ e $\hat{F})$, $g(N,T)$ é o fator de penalidade tal que $g(N,T)\to 0$ e min$(N,T)g(N,T)\to \infty$ quando $N,T\to\infty$. 
+
+
+% % \subsubsection{Normalização quando $r=q$}
+
+% % Nesse caso vamos ter que $G=I$, a normalização de $\Lambda$ é feita por \textit{named factor} e de $H$ por \textit{unit effect normalization}. Usando essas duas normalizações, temos que conseguimos assegurar a inferência sobre a função estrutural de impulso e resposta (SIRF). Lembrando que $\Lambda$ pode ser identificado por named factor
+% % \begin{align}
+% %     \hat{\Lambda} = \begin{bmatrix} I_r \\[1ex]
+% %     \hat{\Lambda}^{PC}_{r+1:n}(\hat{\Lambda}^{PC}_{1:r})^{-1} \end{bmatrix}
+% % \end{align}
+% % e $H$ pode ser identificado por \textit{unit effect normalization}.
+
+% % \subsubsection{Normalização quando $r>q$}
+
+% % Caso o número de fatores dinâmicos seja menor que o de fatores estáticos, $G$ precisa ser estimada e os passos da estimação devem ser consistentes com a \textit{unit effect normalization}. $G$ é normalizado da seguinte maneira:
+% % \begin{align}
+% %     G = \begin{bmatrix}
+% %             I_q \\
+% %             G_{q+1:r}
+% %         \end{bmatrix}
+% % \end{align}
+
+% % Em que $G$ tem dimensão $r \times q$, $I_q$ é matriz identidade $q \times q$ e $G_{q+1:r}$ é uma matriz de dimensão $(r-q) \times q" irrestrita. 
+
+% % A matriz $G_{q+1:r}$ deve ser estimada e a metodologia de estimação dessa matriz pode ser vista em \citeonline{STOCK2016415}
+
+% \section{Dados}
+
+% Este estudo utiliza uma base de dados composta por 71 variáveis mensais, abrangendo o período até janeiro de 2013 até dezembro de 2024. Embora a maior parte dos dados tenham um período maior, os dados referente ao mercado de trabalho sofreram uma mudança metodológica na PNAD em 2013. Os dados são provenientes de diversas fontes oficiais, incluindo o Banco central do Brasil (BCB), IBGE, B3, Tesouro Nacional e ANBIMA. A base cobre dados Monetários, atividade econômica, mercado de trabalho, inflação, commodities e mercado de capitais. A Tabela 2 mostra a lista de variáveis utilizadas, junto a todas as transformações feitas na série.
+
+% Para construir séries de taxas de juros com maturidades fixas, empregamos o modelo de \citeonline{svensson1994estimating} aos dados das Letras do Tesouro Nacional (LTN). Este modelo estende a especificação de Nelson-Siegel ao adicionar um segundo termo de curvatura, permitindo um ajuste mais flexível da estrutura a termo. A função de taxa a termo é parametrizada por seis coeficientes: um nível de longo prazo ($\beta_0$), um componente de curto prazo ($\beta_1$), dois componentes de médio prazo ($\beta_2$ e $\beta_3$) e dois parâmetros de decaimento ($\tau_1$ e $\tau_2$). Para cada data, estimamos estes parâmetros via otimização numérica L-BFGS-B, minimizando a soma dos quadrados dos erros entre as taxas observadas e as previstas pelo modelo. A partir dos parâmetros estimados, interpolamos as taxas para maturidades fixas de 3 meses, 1, 2, 3 e 5 anos, gerando séries temporais consistentes para a análise.
+
+% Após a coleta e estimação de algumas séries, foi realizada uma análise preliminar dos dados para garantir a adequação do modelo. Testamos a presença de sazonalidade utilizando uma combinação dos testes QS (periodicidade sazonal), Friedman (variação sazonal não-paramétrica) e Kruskal-Wallis (diferenças sazonais) com frequência mensal, e, quando identificada, aplicamos o procedimento X-11 ARIMA\footnote{O procedimento foi implementado com a ajuda do pacote seasonal do R, que serve como interface com o software X-13ARIMA-SEATS, desenvolvido pelo United States Census Bureau \cite{sax2018seasonal}} para remover os componentes sazonais. Em seguida, verificamos a estacionariedade das séries através de testes de raiz unitária de Dickey-Fuller aumentado. A tabela de transformação das séries pode ser vista na Tabela 2.
+
+
+% \section{Parametrização do modelo}
+
+% Para a determinaçao do número de fatores estáticos, utilizamos os critérios de informação de \citeonline{bai-ng} para determinar o número de fatores estáticos ($r$). Os critérios IC1, IC2 e IC3 são calculados com diferentes termos de penalização:
+
+% \begin{align}
+%     IC_{1r} &= \ln V_{r}(\hat{\Lambda}, \hat{F}) + r \left( \frac{N+T}{NT} \right) \ln \left( \frac{NT}{N+T} \right); \\
+%     IC_{2r} &= \ln V_{r}(\hat{\Lambda}, \hat{F}) + r \left( \frac{N+T}{NT} \right) \ln(\min(N,T)); \\
+%     IC_{3r} &= \ln V_{r}(\hat{\Lambda}, \hat{F}) + r \frac{\ln(\min(N,T))}{\min(N,T)}.
+% \end{align}
+% os autores recomendam utilizar o IC2. 
+
+% Outra analise para o número de fatores estáticos, foi conduzida a variação o número de fatores estáticos de 5 a 9. O modelo com 7 fatores, nossa especificação base, explica 65,22\% da variância total dos dados. O ganho marginal na variância explicada diminui consistentemente: o incremento de 5 para 6 fatores é de 4,61\%, de 6 para 7 fatores é de 3,54\%, de 7 para 8 é de 3,29\%, e de 8 para 9 fatores é de 2,91\%.
+
+% \begin{figure}[H]
+%     \centering
+%     \caption{Scree}
+%     \includegraphics[width=0.7\textwidth]{"img/scree.png"}
+%     \label{fig:scree}
+% \end{figure}
+
+% O scree plot apresentado na \autoref{fig:scree} scree mostra a contribuição marginal de cada fator adicional para a variância explicada. Observa-se uma clara inflexão após o sétimo fator, sugerindo que fatores adicionais contribuem marginalmente menos para a explicação da variância total. Esta análise visual, combinada com a decomposição da variância e os critérios de informação discutidos em \citeonline{bai-ng}, corrobora nossa escolha de sete fatores, alinhando-se com a literatura empírica sobre modelos de fatores dinâmicos para variáveis macroeconômicas e financeiras (e.g., \citeonline{stock2002macroeconomic}, \citeonline{forni2005generalized}).
+
+% Em seguida, aplicamos o procedimento de \citeonline{amengual2007consistent} para estimar o número de fatores dinâmicos ($q$), que permite que $q$ seja menor que $r$. Este procedimento envolve a extração de $r$ fatores estáticos via componentes principais, seguida de uma filtragem da projeções de X nos fatores defasados e a aplicação do critério IC2 de Bai-Ng nos resíduos.
+
+
+
+
+
+
+
+% \section{Estratégia de Estimação}
+
+% A estratégia de estimação do modelo baseia-se na metodologia utilizada por \citeonline{alessi}. A estimação do modelo SDFM começa com a extração dos fatores estáticos através do método de componentes principais. Seguindo \citeonline{alessi}, padronizamos os dados dividindo cada série pelo desvio padrão de sua primeira diferença. A dinâmica dos fatores é então modelada através de um VAR(1), onde implementamos a correção de viés proposta por \citeonline{kilian1998small} para amostras finitas.
+
+% Para a identificação dos choques estruturais, foi empregada a decomposição de Cholesky. E as funções impulso-resposta são computadas utilizando a estrutura completa do modelo, que combina as cargas fatoriais estimadas ($\Lambda$), os coeficientes do VAR corrigidos, a matriz de transformação e a matriz de identificação. Para quantificar a incerteza em torno das estimativas, implementamos um procedimento de bootstrap wild com 800 replicações. Este método preserva a possível heteroscedasticidade presente nos dados ao multiplicar os resíduos por variáveis aleatórias que assumem os valores 1 ou -1 com igual probabilidade.
+
+
+% O horizonte de análise para as funções impulso-resposta é definido em 50 períodos, permitindo capturar tanto os efeitos imediatos quanto as dinâmicas de médio prazo dos choques monetários. A normalização dos choques é calibrada para representar um aperto monetário de 50 pontos-base, facilitando a interpretação econômica dos resultados e a comparação com estudos anteriores.
+
+
+
+\section{Resultados}
+
+A \autoref{fig:irf_resultados} apresenta as funções de impulso-resposta para um conjunto de variáveis financeiras após o choque de política monetária contracionista. O impacto sobre o mercado de ações (IBRx-100) e sobre o mercado de dívida corporativa (IDA) é imediato e negativo, refletindo o canal do preço dos ativos. O efeito é particularmente pronunciado sobre as ações de empresas do segmento imobiliário (IMob).
+
+No mercado cambial, a função de impulso-resposta indica uma forte sensibilidade da taxa USD/BRL, que se aprecia aproximadamente 8\% no pico da resposta. A queda no IPP, mais rápida que a do IPCA, corrobora essa dinâmica. No mercado de renda fixa, o impacto da política monetária varia ao longo da estrutura a termo, com os yields de vencimentos mais longos mostrando maior sensibilidade. A contração observada nos spreads de crédito sugere que a política monetária impacta as condições de financiamento, possivelmente alterando a percepção de risco dos agentes, em linha com \citeonline{ehrmann}.
+
+\begin{figure}[H]
+    \centering
+    \caption{Funções de Impulso-Resposta a um Choque Monetário Contracionista}
+    \includegraphics[width=0.8\textwidth]{"img/irf.png"}
+    \label{fig:irf_resultados}
+\end{figure}    
+
+
+\section{Conclusão}
+
+Este artigo quantificou os efeitos da política monetária sobre os preços dos ativos no Brasil, empregando um modelo de fatores dinâmicos estruturais (SDFM) para lidar com o problema da não-fundamentalidade. Os resultados mostram que os canais de transmissão monetária são robustos e rápidos: um choque contracionista impacta imediatamente o mercado de ações, a taxa de câmbio e a estrutura a termo dos juros, com efeitos heterogêneos entre os diferentes ativos.
+
+As implicações para a política monetária são relevantes. A magnitude e a rapidez das respostas sugerem que o Banco Central deve considerar cuidadosamente os potenciais efeitos colaterais de suas decisões sobre a estabilidade financeira. A sensibilidade particular de setores como o imobiliário reforça a necessidade de uma análise granular dos impactos da política de juros. Como limitação e direção para pesquisa futura, a identificação dos choques poderia ser aprimorada com o uso de dados de alta frequência, como em \citeonline{alessi}, para isolar com ainda mais precisão a surpresa monetária.
+
+% \section{Discussão}
+
+% Esta seção discute os principais desafios metodológicos enfrentados durante a pesquisa e suas possíveis implicações para os resultados. A transparência sobre estas limitações é fundamental para a interpretação adequada dos resultados.
+
+% \subsection{Evolução da Metodologia}
+
+% Um aspecto importante do desenvolvimento deste trabalho foi a mudança na abordagem metodológica durante o processo de pesquisa. Inicialmente, a estimação do modelo seguia a metodologia proposta por \citeonline{STOCK2016415}, que é amplamente reconhecida na literatura de modelos fatoriais. Esta abordagem inicial apresentou diversos desafios, particularmente na identificação dos choques estruturais e na obtenção de funções impulso-resposta economicamente consistentes.
+
+% Diante das dificuldades encontradas e das restrições de tempo para conclusão da pesquisa, optou-se por adotar a metodologia de \citeonline{alessi}. 
+
+% É importante notar que esta mudança metodológica, embora necessária e benéfica para os resultados do trabalho, pode ter introduzido algumas limitações adicionais, principalmente devido ao tempo reduzido para implementação e teste completo do novo modelo. 
+
+% \subsection{Construção da Base de Dados}
+
+% Um desafio foi a construção da base de dados para o período de janeiro de 2013 a dezembro de 2024, principalmente devido à mudança metodológica na PNAD. Esta alteração metodológica criou uma potencial descontinuidade nas séries temporais, especialmente nas variáveis relacionadas ao mercado de trabalho. 
+
+% \subsection{Estimação das Séries de Yield}
+
+% A construção das séries de yield merece atenção especial devido à sua importância central para a análise dos mecanismos de transmissão da política monetária. Embora eu tenha utilizado o método de Svensson para a interpolação das taxas. Uma análise mais robusta destas séries, incorporando diferentes valores para a estimaçao dos parametros e incluindo diagnosticos melhores para identificar possiveis problemas.
+
+% \subsection{Identificação dos Choques Estruturais}
+
+% Uma limitação importante do presente estudo em relação à metodologia original de \citeonline{alessi} foi a não utilização de instrumentos externos para a identificação dos choques estruturais. Os autores originais empregaram surpresas de alta frequência nos mercados futuros de juros como instrumento para identificação, uma abordagem que não foi possível replicar no contexto brasileiro devido à limitação de dados. A identificação por Cholesky utilizada, embora amplamente empregada na literatura, pode não capturar completamente a natureza dos choques monetários, especialmente em um ambiente de política monetária mais complexo.
+
+% \subsection{Normalização e Magnitude dos Choques}
+
+% Um desafio técnico significativo foi encontrado na normalização dos dados e na construção das funções impulso-resposta (IRF). Apesar de o formato das IRFs apresentar consistência com a teoria econômica, houve dificuldades em calibrar corretamente a magnitude dos choques. Este problema pode estar relacionado a vários fatores:
+
+% \begin{itemize}
+%     \item Diferenças nas escalas das variáveis e seus impactos na normalização
+%     \item Possíveis questões na transformação das variáveis e sua posterior recuperação para as unidades originais
+% \end{itemize}
+
+% Estas limitações sugerem a necessidade de cautela e reavaliação posterior dos resultados, embora as conclusões qualitativas sobre a direção e o timing dos efeitos permaneçam robustas.
+
+
+% ----------------------------------------------------------
+% Referências bibliográficas
+% ----------------------------------------------------------
+\newpage
+\bibliography{./references.bib}
+
+
+
+
+\begin{anexosenv}
+
+
+\partanexos
+\chapter{Tabela}
+
+\begin{ThreePartTable}
+\begin{TableNotes}
+\item[*] \textbf{Códigos de Transformação:} 
+0 = Sem transformação; 
+1 = Log; 
+2 = Primeira diferença; 
+3 = Segunda diferença; 
+4 = Dessazonalizada; 
+5 = Log + Dessazonalizada; 
+6 = Log + Primeira diferença; 
+7 = Log + Segunda diferença; 
+8 = Dessazonalizada + Primeira diferença; 
+9 = Dessazonalizada + Segunda diferença; 
+10 = Log + Dessazonalizada + Primeira diferença; 
+11 = Log + Dessazonalizada + Segunda diferença.
+\end{TableNotes}
+
+\begin{longtable}{llll}
+\caption{Lista de Variáveis Utilizadas} \\
+\toprule
+\textbf{Variável} & \textbf{Fonte} & \textbf{Grupo} & \textbf{Código} \\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Variável} & \textbf{Fonte} & \textbf{Grupo} & \textbf{Código} \\
+\midrule
+\endhead
+
+
+
+\bottomrule
+\insertTableNotes
+\endlastfoot
+
+cambio usd & Yahoo Finance & Câmbio & 2 \\
+cambio eur & Yahoo Finance & Câmbio & 2 \\
+cambio gbp & Yahoo Finance & Câmbio & 2 \\
+cambio ars & Yahoo Finance & Câmbio & 2 \\
+cambio jpy & Yahoo Finance & Câmbio & 2 \\
+cambio cny & Yahoo Finance & Câmbio & 0 \\
+cambio rub & Yahoo Finance & Câmbio & 0 \\
+juros selic & BCB (4189) & Monetária & 3 \\
+juros cdi & BCB (4392) & Monetária & 3 \\
+credito agro & BCB (22027) & Monetária & 6 \\
+credito industria total & BCB (22043) & Monetária & 10 \\
+credito construcao & BCB (22030) & Monetária & 11 \\
+credito comercio & BCB (22036) & Monetária & 10 \\
+credito transporte & BCB (22037) & Monetária & 6 \\
+credito pessoa fisica & BCB (22050) & Monetária & 10 \\
+spread icc juridica & BCB (27444) & Monetária & 8 \\
+spread icc fisica & BCB (27445) & Monetária & 8 \\
+titulo 0 25ano & Tesouro Nacional & Monetária & 2 \\
+titulo 1ano & Tesouro Nacional & Monetária & 2 \\
+titulo 2ano & Tesouro Nacional & Monetária & 2 \\
+titulo 3ano & Tesouro Nacional & Monetária & 2 \\
+titulo 5ano & Tesouro Nacional & Monetária & 2 \\
+veiculos automoveis & BCB (7384) & Atividade Econômica & 5 \\
+veiculos leves & BCB (7385) & Atividade Econômica & 10 \\
+veiculos caminhoes & BCB (7386) & Atividade Econômica & 10 \\
+veiculos onibus & BCB (7387) & Atividade Econômica & 1 \\
+consumo gasolina & BCB (1393) & Atividade Econômica & 10 \\
+consumo glp & BCB (1394) & Atividade Econômica & 5 \\
+consumo oleo combustivel & BCB (1395) & Atividade Econômica & 6 \\
+consumo oleo diesel & BCB (1396) & Atividade Econômica & 11 \\
+consumo demais derivados & BCB (1397) & Atividade Econômica & 10 \\
+consumo alcool & BCB (1401) & Atividade Econômica & 5 \\
+consumo eletricidade comecial & BCB (1402) & Atividade Econômica & 11 \\
+consumo eletricidade residencial & BCB (1403) & Atividade Econômica & 10 \\
+consumo eletricidade industrial & BCB (1404) & Atividade Econômica & 10 \\
+consumo eletricidade outros & BCB (1405) & Atividade Econômica & 10 \\
+producao bens consumo & BCB (21865) & Atividade Econômica & 4 \\
+producao bens duraveis & BCB (21866) & Atividade Econômica & 4 \\
+producao bens nao duraveis & BCB (21867) & Atividade Econômica & 4 \\
+producao bens capital & BCB (21863) & Atividade Econômica & 8 \\
+producao transformacao & BCB (21862) & Atividade Econômica & 4 \\
+capacidade instalada industria & BCB (28554) & Atividade Econômica & 2 \\
+vendas varejo & BCB (1455) & Atividade Econômica & 4 \\
+vendas servicos & BCB (23982) & Atividade Econômica & 8 \\
+trab caged & BCB (28763) & Mercado de trabalho & 10 \\
+trab pop forca trab & BCB (24378) & Mercado de trabalho & 6 \\
+trab pop ocupada & BCB (28543) & Mercado de trabalho & 10 \\
+trab tx desemprego & BCB (24369) & Mercado de trabalho & 8 \\
+trab hrs trabalhadas industria & BCB (28556) & Mercado de trabalho & 6 \\
+trab razao vagas desempregados & Calculado & Mercado de trabalho & 8 \\
+price ipca & BCB (433) & Inflação & 0 \\
+price igp m & BCB (189) & Inflação & 0 \\
+price ipc & BCB (191) & Inflação & 0 \\
+price incc & BCB (192) & Inflação & 4 \\
+price inpc & BCB (188) & Inflação & 0 \\
+price ipp & IPEA & Inflação & 0 \\
+indice commodity agro & BCB (27575) & Commodities & 2 \\
+indice commodity metal & BCB (27576) & Commodities & 2 \\
+indice commodity energia & BCB (27577) & Commodities & 2 \\
+trab menos de 1 mes & IBGE/SIDRA & Mercado de trabalho & 10 \\
+trab de 1 mes a menos de 1 ano & IBGE/SIDRA & Mercado de trabalho & 10 \\
+trab de 1 ano a menos de 2 anos & IBGE/SIDRA & Mercado de trabalho & 6 \\
+trab x2 anos ou mais & IBGE/SIDRA & Mercado de trabalho & 10 \\
+asset ibrx100 & B3 & Índices de Mercado & 0 \\
+asset imat & B3 & Índices de Mercado & 0 \\
+asset indx & B3 & Índices de Mercado & 0 \\
+asset ifnc & B3 & Índices de Mercado & 0 \\
+asset ifix & B3 & Índices de Mercado & 0 \\
+asset imob & B3 & Índices de Mercado & 0 \\
+asset MLCX & B3 & Índices de Mercado & 0 \\
+asset smll & B3 & Índices de Mercado & 0 \\
+retorno mensal & ANBIMA (IDA) & Índices de Mercado & 0 \\
+
+\end{longtable}
+\end{ThreePartTable}
+
+
+\end{anexosenv}
+
+
+\end{document}
+
+
+
+
+
+
+
+
+

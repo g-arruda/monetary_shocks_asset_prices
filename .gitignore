@@ -15,3 +15,14 @@ codigo_alessi-mark/
 codigo_Jarocinski_e_Karadi/
 codigo_bauer_swanson/
 abc/
+
+# LaTeX build artifacts
+tex/*.aux
+tex/*.log
+tex/*.fdb_latexmk
+tex/*.fls
+tex/*.synctex.gz
+tex/*.bbl
+tex/*.blg
+tex/*.brf
+tex/main.pdf
