@@ -22,15 +22,21 @@ SAMPLE_START <- as.Date("2013-01-01")
 SAMPLE_END   <- as.Date("2025-12-31")
 LOAD_START   <- as.Date("2012-06-01")   # earlier so Wed→Thu pairs at sample start work
 TARGET_BD    <- 126                      # ~6 months in business days (best F in grid search)
-DEFAULT_VARIANT <- "z_het_jk_3var" # legacy data/processed/instrument.csv
+DEFAULT_VARIANT <- "z_jk_purif" # legacy data/processed/instrument.csv
 # Supported variants: z_bruto, z_bruto_purif, z_jk, z_jk_purif (built here)
 # and z_het, z_het_jk, z_het_3var, z_het_jk_3var (heteroskedasticity-
 # identified, built by script/instrument_het.R; the *_3var variants drop
 # DI_2y from the daily SVAR for cleaner rank-1 spectrum). When DEFAULT_VARIANT
 # is any het variant, run script/instrument_het.R FIRST so that the het
-# columns are present in instrumentos_mensais.csv. The diagnostics report
-# (output/instrument_diagnostics_report.md) recommends z_het_jk_3var paired
-# with the yield_6m equation in the monthly DFM (F (y6m AR) = 55.98).
+# columns are present in instrumentos_mensais.csv.
+#
+# 2026-05-08 update: DEFAULT_VARIANT switched from z_het_jk_3var to z_jk_purif.
+# Reason: z_het_jk_3var has F (y6m AR) = 55.98 but F (factor-sp) ≈ 2.7-4.1
+# (severely weak in the q-dimensional space where the proxy-SVAR projects),
+# producing weak-instrument-driven sign reversals in the IRFs once the
+# unit-scaling fix exposed the underlying noise. z_jk_purif is the only
+# variant that crosses Stock-Yogo F (factor-sp) >= 10. See the 2026-05-08
+# entries in instrument_diagnostics_report.md and pendencias.md.
 
 # ---- Load data ---------------------------------------------
 

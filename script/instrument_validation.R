@@ -29,7 +29,7 @@ source("R/instrument/di_surprise.R")
 source("R/identification/het_shock_extraction.R")
 source("R/identification/validation_tests.R")
 
-dir.create("output", showWarnings = FALSE)
+dir.create("output/validation", showWarnings = FALSE, recursive = TRUE)
 
 # ---- Config -----------------------------------------------
 
@@ -118,7 +118,7 @@ placebo <- placebo_test(
   n_perm = N_PERM,
   seed   = SEED_PLACEBO
 )
-write_csv(placebo, "output/het_validation_placebo.csv")
+write_csv(placebo, "output/validation/het_validation_placebo.csv")
 
 placebo_summary <- tibble(
   test       = "placebo",
@@ -144,7 +144,7 @@ mask <- random_mask_test(
   n_draws      = N_DRAWS,
   seed         = SEED_MASK
 )
-write_csv(mask, "output/het_validation_random_mask.csv")
+write_csv(mask, "output/validation/het_validation_random_mask.csv")
 
 mask_summary <- tibble(
   test       = "random_mask",
@@ -182,7 +182,7 @@ placebo_zhet <- placebo_test(
   n_perm = N_PERM,
   seed   = SEED_PLACEBO
 )
-write_csv(placebo_zhet, "output/het_validation_placebo_zhet.csv")
+write_csv(placebo_zhet, "output/validation/het_validation_placebo_zhet.csv")
 
 placebo_zhet_summary <- tibble(
   test       = "placebo_zhet",
@@ -210,7 +210,7 @@ sub_results <- subperiod_F(
   target_dates = target_dates,
   windows      = windows
 )
-write_csv(sub_results, "output/het_validation_subperiod.csv")
+write_csv(sub_results, "output/validation/het_validation_subperiod.csv")
 
 # ---- T4: monthly correlation ------------------------------
 
@@ -220,7 +220,7 @@ cor_results <- monthly_correlation(
   name1 = "z_het_jk",
   name2 = "z_jk_purif"
 )
-write_csv(cor_results, "output/het_validation_correlation.csv")
+write_csv(cor_results, "output/validation/het_validation_correlation.csv")
 
 # ---- T5: anti-JK mask -------------------------------------
 
@@ -246,7 +246,7 @@ anti_summary <- tibble(
   jk_F          = obs_fs$F_partial,
   random_mean_F = mask_summary$mean_F
 )
-write_csv(anti_summary, "output/het_validation_anti_jk.csv")
+write_csv(anti_summary, "output/validation/het_validation_anti_jk.csv")
 
 # ---- T6: F(k_keep) curve ----------------------------------
 
@@ -260,10 +260,10 @@ curve <- random_mask_curve(
   n_draws      = N_DRAWS,
   seed         = SEED_FCURVE
 )
-write_csv(curve, "output/het_validation_f_curve.csv")
+write_csv(curve, "output/validation/het_validation_f_curve.csv")
 
 curve_summary <- random_mask_curve_summary(curve, observed_F = obs_fs$F_partial)
-write_csv(curve_summary, "output/het_validation_f_curve_summary.csv")
+write_csv(curve_summary, "output/validation/het_validation_f_curve_summary.csv")
 
 # ---- T7: AR-order sensitivity -----------------------------
 #
@@ -293,7 +293,7 @@ ar_results <- purrr::map_dfr(AR_ORDERS, function(p) {
          F_covid_post = post_F,
          F_drop_covid = drop_F)
 })
-write_csv(ar_results, "output/het_validation_ar_sensitivity.csv")
+write_csv(ar_results, "output/validation/het_validation_ar_sensitivity.csv")
 
 # ---- T8: Andrews (1993) QLR sup-F -------------------------
 #
@@ -313,8 +313,8 @@ qlr_summary <- tibble(
   cv_1pct       = qlr$cv_1pct,
   verdict       = qlr$verdict
 )
-write_csv(qlr_summary, "output/het_validation_qlr.csv")
-write_csv(qlr$detail, "output/het_validation_qlr_curve.csv")
+write_csv(qlr_summary, "output/validation/het_validation_qlr.csv")
+write_csv(qlr$detail, "output/validation/het_validation_qlr_curve.csv")
 
 # ---- T4 extension: cor + var(innov) by sub-period ---------
 #
@@ -339,7 +339,7 @@ cor_by_window <- purrr::imap_dfr(cor_windows, function(spec, name) {
     name2 = "z_jk_purif"
   ) |> dplyr::mutate(window = name, .before = 1L)
 })
-write_csv(cor_by_window, "output/het_validation_correlation_by_window.csv")
+write_csv(cor_by_window, "output/validation/het_validation_correlation_by_window.csv")
 
 var_innov_by_window <- purrr::imap_dfr(cor_windows, function(spec, name) {
   keep_t <- floor_date(target_dates, "month") >= spec[1] &
@@ -352,7 +352,7 @@ var_innov_by_window <- purrr::imap_dfr(cor_windows, function(spec, name) {
          sd_innov    = sd(innov_w, na.rm = TRUE),
          var_z_het_jk = var(z_w, na.rm = TRUE))
 })
-write_csv(var_innov_by_window, "output/het_validation_var_innov_by_window.csv")
+write_csv(var_innov_by_window, "output/validation/het_validation_var_innov_by_window.csv")
 
 # ---- Plots ------------------------------------------------
 
@@ -366,7 +366,7 @@ placebo_plot <- ggplot(placebo, aes(F_partial)) +
        x = "first-stage F",
        y = "count") +
   theme_minimal(base_size = 11)
-ggsave("output/het_validation_placebo.png", placebo_plot,
+ggsave("output/validation/het_validation_placebo.png", placebo_plot,
        width = 7, height = 4, dpi = 150)
 
 # T2b paired-placebo plot: z_het and z_het_jk null distributions overlaid,
@@ -387,7 +387,7 @@ paired_plot <- ggplot(placebo_paired, aes(F_partial, fill = instrument)) +
        x = "first-stage F",
        y = "count") +
   theme_minimal(base_size = 11)
-ggsave("output/het_validation_placebo_zhet.png", paired_plot,
+ggsave("output/validation/het_validation_placebo_zhet.png", paired_plot,
        width = 7, height = 4, dpi = 150)
 
 mask_plot <- ggplot(mask, aes(F_partial)) +
@@ -401,7 +401,7 @@ mask_plot <- ggplot(mask, aes(F_partial)) +
        x = "first-stage F",
        y = "count") +
   theme_minimal(base_size = 11)
-ggsave("output/het_validation_random_mask.png", mask_plot,
+ggsave("output/validation/het_validation_random_mask.png", mask_plot,
        width = 7, height = 4, dpi = 150)
 
 # Position the JK reference label over the k=42 box (or whichever k matches
@@ -421,7 +421,7 @@ curve_plot <- ggplot(curve, aes(x = factor(k_keep), y = F_partial)) +
        x = "k_keep (Copom days retained)",
        y = "first-stage F") +
   theme_minimal(base_size = 11)
-ggsave("output/het_validation_f_curve.png", curve_plot,
+ggsave("output/validation/het_validation_f_curve.png", curve_plot,
        width = 7, height = 4, dpi = 150)
 
 # ---- Report -----------------------------------------------
@@ -715,7 +715,7 @@ report <- paste(c(
   "  `het_validation_random_mask.png`, `het_validation_f_curve.png`"
 ), collapse = "\n")
 
-writeLines(report, "output/het_validation_report.md")
+writeLines(report, "output/validation/het_validation_report.md")
 
 # ---- Console summary --------------------------------------
 

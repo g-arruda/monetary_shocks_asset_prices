@@ -243,6 +243,6 @@ report <- paste(c(
             as.numeric(r[["f_part"]]), as.numeric(r[["xi1"]])))
 ), collapse = "\n")
 
-writeLines(report, "output/instrument_grid_report.md")
-write_csv(grid_df, "output/instrument_grid.csv")
+writeLines(report, "output/instrument/instrument_grid_report.md")
+write_csv(grid_df, "output/instrument/instrument_grid.csv")
 message("Wrote output/instrument_grid_report.md and output/instrument_grid.csv")

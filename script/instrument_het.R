@@ -91,7 +91,7 @@ message(sprintf(
 
 # ---- Validate variance split (GRG Table 1) -----------------
 
-dir.create("output", showWarnings = FALSE)
+dir.create("output/instrument", showWarnings = FALSE, recursive = TRUE)
 
 val_4var <- validate_variance_split(changes_4var, regime_tbl, alpha = 0.01,
                                     n_boot = 1000L, seed = 42L) |>
@@ -100,8 +100,8 @@ val_3var <- validate_variance_split(changes_3var, regime_tbl, alpha = 0.01,
                                     n_boot = 1000L, seed = 42L) |>
   classify_a2_verdict(mp_var = MP_VAR)
 
-write_csv(val_4var, "output/het_variance_validation.csv")
-write_csv(val_3var, "output/het_variance_validation_3var.csv")
+write_csv(val_4var, "output/instrument/het_variance_validation.csv")
+write_csv(val_3var, "output/instrument/het_variance_validation_3var.csv")
 
 cat("\n========== VARIANCE SPLIT VALIDATION (4-var) ==========\n")
 print(val_4var)
@@ -156,7 +156,7 @@ run_het <- function(changes_matrix, label) {
   cat(sprintf("  n_C = %d   n_NC = %d   k_d = %d\n", ext$n_C, ext$n_NC, k_d))
   cat("  eigenvalues of dSigma:\n")
   print(setNames(round(ext$lambda_all, 4), colnames(changes_matrix)))
-  cat(sprintf("  rank1_share    = %.3f  (gate: > 0.6)\n", ext$rank1_share))
+  cat(sprintf("  rank1_share    = %.3f  (informal gate: > 0.6)\n", ext$rank1_share))
   cat(sprintf("  eigenvalue_gap = %.3f\n", ext$eigenvalue_gap))
   cat(sprintf("  psd_min_eig    = %.4g\n", ext$psd_min_eig))
   if (ext$rank1_share < 0.6) {
@@ -167,14 +167,80 @@ run_het <- function(changes_matrix, label) {
   }
   cat("  impact column b_1:\n")
   print(setNames(round(ext$b_1, 4), colnames(changes_matrix)))
+  cat("  second eigenpair b_2 (descriptor; arbitrary under A1-A3):\n")
+  print(setNames(round(ext$b_2, 4), colnames(changes_matrix)))
   cat(sprintf("  JK sign filter: %d / %d Copom days kept (%.1f%% pure monetary)\n",
               built$n_jk_kept, length(built$jk_mask), 100 * mean(built$jk_mask)))
 
   built
 }
 
+# Formal rank-test battery (Rigobon 2003 Prop 1 + Lanne-Lütkepohl 2008).
+# Uses bootstrap-calibrated p-values because n_C ~ 50 makes asymptotic
+# chi^2 unreliable. RANK_TEST_NBOOT = 1000 keeps wall-time under ~30s per
+# block; bump only if p_boot falls suspiciously close to a decision threshold.
+RANK_TEST_NBOOT <- 1000L
+RANK_TEST_SEED  <- 42L
+
+run_rank_tests <- function(ext, label) {
+  cat(sprintf("\n========== FORMAL RANK TESTS (%s) ==========\n", label))
+  battery <- formal_rank_test_battery(
+    X_C = ext$X_C, X_NC = ext$X_NC,
+    n_boot = RANK_TEST_NBOOT, seed = RANK_TEST_SEED
+  )
+  pt <- battery$prop_test
+  rt <- battery$rank1_test
+  sc <- battery$share_ci
+  cat(sprintf(
+    "  Rigobon (2003) Prop 1 proportionality:  LR=%7.2f  df=%d  p_chi2=%.4f  p_boot=%.4f\n",
+    pt$statistic, pt$df, pt$p_chi2, pt$p_boot
+  ))
+  cat(sprintf(
+    "  Lanne-Lütkepohl (2008) rank-1 LR:       LR=%7.2f  df=%d  p_chi2=%.4f  p_boot=%.4f\n",
+    rt$statistic, rt$df, rt$p_chi2, rt$p_boot
+  ))
+  cat(sprintf(
+    "  Bootstrap rank-1 share %g%% CI:          [%.3f, %.3f]   (point=%.3f)\n",
+    100 * sc$ci_level, sc$share_lo, sc$share_hi, sc$share_point
+  ))
+  if (pt$p_boot > 0.05) {
+    warning(sprintf(
+      "Proportionality test fails to reject (p_boot=%.3f) for %s: identification gate weak.",
+      pt$p_boot, label
+    ))
+  }
+  battery
+}
+
+persist_rank_tests <- function(battery, suffix = "") {
+  pt <- battery$prop_test
+  rt <- battery$rank1_test
+  tibble(
+    test      = c(pt$test, rt$test),
+    statistic = c(pt$statistic, rt$statistic),
+    df        = c(pt$df, rt$df),
+    p_chi2    = c(pt$p_chi2, rt$p_chi2),
+    p_boot    = c(pt$p_boot, rt$p_boot),
+    n_boot    = c(pt$n_boot, rt$n_boot)
+  ) |> write_csv(sprintf("output/instrument/het_rank_test%s.csv", suffix))
+
+  sc <- battery$share_ci
+  tibble(
+    share_point = sc$share_point,
+    share_lo    = sc$share_lo,
+    share_hi    = sc$share_hi,
+    ci_level    = sc$ci_level,
+    n_boot      = sc$n_boot
+  ) |> write_csv(sprintf("output/instrument/het_rank1_share_ci%s.csv", suffix))
+}
+
 built_4var <- run_het(changes_4var, "4-var")
 built_3var <- run_het(changes_3var, "3-var robustness")
+
+rank_4var <- run_rank_tests(built_4var$ext, "4-var")
+rank_3var <- run_rank_tests(built_3var$ext, "3-var robustness")
+persist_rank_tests(rank_4var, suffix = "")
+persist_rank_tests(rank_3var, suffix = "_3var")
 
 # ---- Persist eigenvalue and b_1 diagnostics ----------------
 
@@ -183,8 +249,9 @@ persist_diagnostics <- function(built, changes_matrix, suffix = "") {
   ext  <- built$ext
   k_d  <- length(vars)
 
-  eig_path <- sprintf("output/het_eigenvalues%s.csv", suffix)
-  b1_path  <- sprintf("output/het_b_1%s.csv",         suffix)
+  eig_path <- sprintf("output/instrument/het_eigenvalues%s.csv", suffix)
+  b1_path  <- sprintf("output/instrument/het_b_1%s.csv",         suffix)
+  b2_path  <- sprintf("output/instrument/het_b_2%s.csv",         suffix)
 
   tibble(
     rank      = seq_along(ext$lambda_all),
@@ -193,7 +260,8 @@ persist_diagnostics <- function(built, changes_matrix, suffix = "") {
     abs_share = abs(ext$lambda_all) / sum(abs(ext$lambda_all))
   ) |> write_csv(eig_path)
 
-  tibble(variable = vars, b_1 = ext$b_1) |> write_csv(b1_path)
+  tibble(variable = vars, b_1 = ext$b_1, v_1 = ext$v_1) |> write_csv(b1_path)
+  tibble(variable = vars, b_2 = ext$b_2, v_2 = ext$v_2) |> write_csv(b2_path)
 }
 
 persist_diagnostics(built_4var, changes_4var, suffix = "")
@@ -236,8 +304,11 @@ run_het_window <- function(daily_start, daily_end, label, suffix) {
   cat("  b_1:\n")
   print(setNames(round(built_w$ext$b_1, 4), colnames(changes_w)))
 
-  write_csv(val_w, sprintf("output/het_variance_validation%s.csv", suffix))
+  write_csv(val_w, sprintf("output/instrument/het_variance_validation%s.csv", suffix))
   persist_diagnostics(built_w, changes_w, suffix = suffix)
+
+  rank_w <- run_rank_tests(built_w$ext, label)
+  persist_rank_tests(rank_w, suffix = suffix)
 
   list(built = built_w, val = val_w, label = label,
        n_C = sum(reg_w$regime == "C"),
@@ -271,7 +342,7 @@ a3_summary <- tibble(
   abs_diff = abs(b1_post - b1_pre),
   rel_diff = abs(b1_post - b1_pre) / pmax(abs(b1_pre), 1e-8)
 )
-write_csv(a3_summary, "output/het_a3_b_1_pre_vs_post.csv")
+write_csv(a3_summary, "output/instrument/het_a3_b_1_pre_vs_post.csv")
 
 a3_meta <- tibble(
   cosine_similarity = cos_sim,
@@ -286,7 +357,7 @@ a3_meta <- tibble(
     TRUE                                                ~ "A3 violated (regime change)"
   )
 )
-write_csv(a3_meta, "output/het_a3_summary.csv")
+write_csv(a3_meta, "output/instrument/het_a3_summary.csv")
 
 cat("\n========== A3 b_1 STABILITY (3-var) ==========\n")
 print(a3_summary)
@@ -338,6 +409,13 @@ built_3var$z_het    |> transmute(month, shock = z_het)         |>
   write_csv("data/processed/instrument_z_het_3var.csv")
 built_3var$z_het_jk |> transmute(month, shock = z_het_jk)      |>
   write_csv("data/processed/instrument_z_het_jk_3var.csv")
+
+# Second-eigenpair monthly series. Descriptor only -- not a default
+# instrument. Useful for residual/diagnostic comparisons against z_het.
+built_4var$z_het2 |> transmute(month, shock = z_het2)          |>
+  write_csv("data/processed/instrument_z_het2.csv")
+built_3var$z_het2 |> transmute(month, shock = z_het2)          |>
+  write_csv("data/processed/instrument_z_het2_3var.csv")
 
 # ---- Console summary ---------------------------------------
 

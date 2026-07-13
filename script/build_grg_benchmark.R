@@ -42,8 +42,8 @@ load_irf_bundle <- function(path) {
        label = NA_character_, mp_var = NA_character_)
 }
 
-bundle_zhetjk3var <- load_irf_bundle("output/irf_results_zhetjk3var.rds")
-bundle_zjkpurif   <- load_irf_bundle("output/irf_results_zjkpurif.rds")
+bundle_zhetjk3var <- load_irf_bundle("output/irf/irf_results_zhetjk3var.rds")
+bundle_zjkpurif   <- load_irf_bundle("output/irf/irf_results_zjkpurif.rds")
 
 # Helper: pull (point, lo90, hi90, lo68, hi68) at horizon h for a
 # response variable identified by name.
@@ -89,40 +89,52 @@ grg_per_50bp <- tribble(
 # against price_ipca (realized) — caveat documented in report.
 # IBOV not in GRG; left out of benchmark CSV.
 
-mapping <- tribble(
-  ~target_grg,               ~our_var,         ~our_label,             ~note,
-  "Δπᵉ 1y (break-even)",     "price_ipca",     "IPCA realized",        "PROXY: GRG uses break-even expectation; our panel has only realized IPCA",
-  "Δπᵉ 2y (break-even)",     "price_ipca",     "IPCA realized",        "PROXY: same caveat",
-  "Δπᵉ 5y (break-even)",     "price_ipca",     "IPCA realized",        "PROXY: same caveat (longer horizon mismatch)",
-  "Δ(BRL/USD) %",            "cambio_usd",     "BRL/USD",              "DIRECT: same currency pair, sign convention checked",
-  "Δ CDS_5y",                "cds_5y",         "CDS 5y",               "DIRECT: same maturity"
+# Prefer ANBIMA break-even columns (added by R/data_download/anbima_breakeven.R)
+# when present in the panel; fall back to realized IPCA with PROXY caveat.
+panel_vars      <- bundle_zhetjk3var$var_names
+has_breakeven_1y <- "breakeven_1y" %in% panel_vars
+has_breakeven_2y <- "breakeven_2y" %in% panel_vars
+has_breakeven_5y <- "breakeven_5y" %in% panel_vars
+
+map_breakeven_row <- function(target_grg, breakeven_var, has_be, horizon_label) {
+  if (has_be) {
+    tibble(target_grg = target_grg,
+           our_var    = breakeven_var,
+           our_label  = sprintf("Break-even %s (ANBIMA)", horizon_label),
+           note       = "DIRECT: same construction as GRG Tab 4")
+  } else {
+    tibble(target_grg = target_grg,
+           our_var    = "price_ipca",
+           our_label  = "IPCA realized",
+           note       = sprintf("PROXY: GRG uses break-even %s; panel has only realized IPCA",
+                                horizon_label))
+  }
+}
+
+mapping <- bind_rows(
+  map_breakeven_row("Δπᵉ 1y (break-even)", "breakeven_1y", has_breakeven_1y, "1y"),
+  map_breakeven_row("Δπᵉ 2y (break-even)", "breakeven_2y", has_breakeven_2y, "2y"),
+  map_breakeven_row("Δπᵉ 5y (break-even)", "breakeven_5y", has_breakeven_5y, "5y"),
+  tribble(
+    ~target_grg,        ~our_var,      ~our_label,   ~note,
+    "Δ(BRL/USD) %",     "cambio_usd",  "BRL/USD",    "DIRECT: same currency pair, sign convention checked",
+    "Δ CDS_5y",         "cds_5y",      "CDS 5y",     "DIRECT: same maturity"
+  )
 )
 
 # ---- Build the benchmark table ------------------------------
 
-# Project convention: normalize_value = 0.5 forces yield_6m IRF h=0
-# to equal +0.5 in the variable's native units. yield_6m is stored
-# as a decimal proportion (0.05 = 5%), so a "+50bp" label corresponds
-# to +0.5 in proportion = +50pp = +5000bp at face value (a known
-# project-wide scaling convention -- see Gemini review P1 #1).
-# The numerical comparison with GRG (per +100bp) requires dividing
-# our IRF magnitudes by 100 to express them per +50bp:
-#
-#   our_per_50bp = irf_value / 100
-#
-# For cambio_usd, GRG reports % change in BRL/USD; our IRF is in
-# raw BRL units. Convert: pct_change = (irf / baseline) * 100.
-# Combined: our_pct_per_50bp = (irf / 100) / baseline * 100 = irf / baseline.
+# After the 2026-05-07 unit-scaling fix, normalize_value = 0.005 forces
+# yield_6m IRF h=0 to equal +0.005 in decimal proportion = +50bp. All
+# response variables are already per-+50bp in their native units, so the
+# raw IRF value goes straight to the benchmark table. Only cambio_usd
+# (BRL level) needs conversion to GRG's percent-change convention.
 
 scale_to_grg_units <- function(var_name, raw_value) {
-  # raw_value is the IRF in our convention (yield_6m IRF h=0 = +0.5).
-  per_50bp <- raw_value / 100
   if (var_name == "cambio_usd") {
-    # convert per-50bp BRL change to percent change of BRL/USD
-    return(per_50bp / brl_usd_baseline * 100)
+    return(raw_value / brl_usd_baseline * 100)
   }
-  # cds_5y, price_ipca, etc.: report in native unit per +50bp.
-  per_50bp
+  raw_value
 }
 
 build_row <- function(grg_target, bundle, irf_label) {
@@ -155,8 +167,8 @@ bench <- bind_rows(
                  bundle = bundle_zjkpurif,   irf_label = "z_jk_purif")
 )
 
-dir.create("output", showWarnings = FALSE)
-write_csv(bench, "output/grg_benchmark.csv")
+dir.create("output/benchmark", showWarnings = FALSE, recursive = TRUE)
+write_csv(bench, "output/benchmark/grg_benchmark.csv")
 
 # ---- Console summary ----------------------------------------
 

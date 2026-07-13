@@ -23,7 +23,7 @@ source("R/instrument/di_surprise.R")
 source("R/identification/het_shock_extraction.R")
 source("R/modeling/factor_estimation.R")
 
-dir.create("output", showWarnings = FALSE)
+dir.create("output/instrument", showWarnings = FALSE, recursive = TRUE)
 
 # ---- Config ------------------------------------------------
 
@@ -211,7 +211,7 @@ daily_diag <- list(
 
 # ---- Report ------------------------------------------------
 
-write_csv(results, "output/instrument_audit_grid.csv")
+write_csv(results, "output/instrument/instrument_audit_grid.csv")
 
 best <- results |> arrange(desc(F_partial)) |> head(5)
 
@@ -301,7 +301,7 @@ report <- paste(c(
   "shocks contain information shocks; orthogonal to the aggregation fix."
 ), collapse = "\n")
 
-writeLines(report, "output/instrument_audit_report.md")
+writeLines(report, "output/instrument/instrument_audit_report.md")
 
 cat("\n========== AUDIT GRID (top 8 by F) ==========\n")
 print(results |> arrange(desc(F_partial)) |> head(8))
