@@ -21,7 +21,9 @@ results_bai_ng <- bai_ng_criteria(X, max_r = 20, apply_bll = TRUE)
 
 
 # Aplicar amengual_watson assumindo r = 8 e p = 6
-results_amengual_watson <- amengual_watson(X, r = 8, p = 6, max_q = 15, apply_bll = TRUE)
+results_amengual_watson <- amengual_watson(X,
+  r = results_bai_ng$r_hat$IC2, p = 12, max_q = 15, apply_bll = TRUE
+)
 
 
 
@@ -65,8 +67,11 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
     stop("mp_var deve ser nome (character) ou indice (numeric) de coluna")
   }
 
-  # 50 bps -> 0.5 (mesma normalizacao do MATLAB original)
-  normalize_value <- shock_size_bps / 100
+  # `yield_6m` is stored in decimal proportion (0.0975 = 9.75%); a +50bp
+  # shock in proportion is therefore 0.005, not 0.5. The earlier convention
+  # (`/ 100`) implicitly normalized to +5000bp and was corrected on
+  # 2026-05-07. See `_instrucoes/justificativa_uso_yield-6m.md`.
+  normalize_value <- shock_size_bps / 10000
 
   # Load instrument
   instrument <- readr::read_csv(instrument_path)
@@ -92,7 +97,8 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
     mpind = mpind,
     normalize_value = normalize_value,
     tcode = tcode,
-    ci_levels = ci_levels
+    ci_levels = ci_levels,
+    var_names = colnames(data)
   )
 
   return(list(
@@ -109,14 +115,21 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
 set.seed(123)
 
 # Execute main analysis
+# Override explícito r=6, q=5 (2026-07-11, varredura de especificações):
+# o auto-IC (r = bai_ng IC2 = 5, q = amengual_watson = 4) é borderline-weak
+# para z_jk_purif no full sample (F factor-space = 9.20 < 10) e produz
+# pib com sinal invertido em h24. (6,5) cruza Stock-Yogo no full (F = 10.08)
+# e é o pico do pre_covid (F = 15.4) — ver output/irf/spec_sweep_conclusoes.md
+# e output/irf/spec_sweep_cells.csv. A família JK também cruza em (7,6) e (8,8).
+# Instrumento: data/processed/instrument.csv = z_jk_purif (default desde 2026-05-08).
 sdfm_results <- main_sdfm(
-  r = 8,
-  q = 8,
+  r = 6L,
+  q = 5L,
   p = 6,
   shock_size_bps = 50,
   mp_var = "yield_6m",
-  ci_levels = c(0.90),
-  nboot = 100
+  ci_levels = c(0.68, 0.90),
+  nboot = 800
 )
 
 
@@ -124,17 +137,20 @@ sdfm_results <- main_sdfm(
 colnames(sdfm_results$data)
 
 
-# Generate IRF plots for key economic variables
+# Generate IRF plots for key economic variables. Os indices abaixo foram
+# verificados contra colnames(data) em 2026-05-08; trocar para nome (string)
+# se a ordem do painel mudar.
 response_vars <- list(
-  c("Cambio USD" = 5),
-  c("yield 6m" = 8),
-  c("yield 5y" = 12), 
-  c("Spread Juridica" = 26),
-  c("vendas varejo" = 38),
-  c("vendas automoveis" = 40),
-  c("pib" = 55),
-  c("ipca" = 73),
-  c("nucle ipca ex0" = 75)
+  c("Cambio USD"            = "cambio_usd"),
+  c("yield 6m"              = "yield_6m"),
+  c("yield 5y"              = "yield_5y"),
+  c("Spread ICC juridica"   = "spread_icc_juridica"),
+  c("vendas varejo"         = "vendas_varejo"),
+  c("ind automoveis"        = "ind_automoveis"),
+  c("pib"                   = "pib"),
+  c("ipca"                  = "price_ipca"),
+  c("nucleo ipca ex0"       = "price_core_ipca_ex0"),
+  c("CDS 5y"                = "cds_5y")
 )
 
 # IRF plots - escolha entre cumulative = TRUE ou FALSE
@@ -145,7 +161,10 @@ irf_plot <- plot_irf(sdfm_results$irfs,
   cumulative = FALSE,
   var_names = colnames(sdfm_results$data),
   tcode = sdfm_results$tcode,
-  ci_to_plot = c(0.90)
+  ci_to_plot = c(0.68, 0.90)
 )
 
 print(irf_plot)
+
+ggplot2::ggsave("output/irf/irf_model_alessi_r6q5.pdf", irf_plot,
+                width = 11, height = 9, dpi = 200)

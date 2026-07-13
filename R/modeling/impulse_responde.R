@@ -31,13 +31,42 @@ sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
 # IDENTIFICAÇÃO POR INSTRUMENTO EXTERNO
 # Equivalente a IdentExtInstr.m
 # ===================================================================
+#' Identification via external instrument (equivalent to IdentExtInstr.m)
+#'
+#' `normalize_value` is in the policy variable's *native units*. For the
+#' default DFM where the policy variable is `yield_6m` (decimal proportion,
+#' 0.05 = 5%), a +50bp shock corresponds to `normalize_value = 0.005`.
+#' The historical default of 0.5 (kept for backward compatibility with
+#' calls that target a percent-scale policy variable, such as
+#' `juros_selic` in `script/model_var.R`) implicitly normalises to +5000bp
+#' on a decimal-proportion variable. Callers should set
+#' `normalize_value = shock_bps / 10000` when the policy variable is in
+#' decimal proportion. See `_instrucoes/justificativa_uso_yield-6m.md`.
+#'
+#' @param rawimp Reduced-form IRF array (n_vars x q x h+1).
+#' @param rsh_sel Reduced-form factor innovations aligned with the instrument.
+#' @param Z_sel Instrument vector aligned with `rsh_sel`.
+#' @param h Horizon of the IRF (excluding impact).
+#' @param mpind Index of the policy variable in `rawimp[, , 1]`. If NULL, no
+#'   impact normalization is applied.
+#' @param normalize_value Target value of `irf_mp[mpind, 1]` after normalization,
+#'   in native units of the policy variable.
+#' @param tcode Vector of transformation codes for `cumimp_transform`.
+#' @param diagnose If TRUE, print diagnostic information about `H`, the
+#'   pre-normalization impact response, and the factor-space first-stage F.
+#'   Use only on the point estimate; never inside bootstrap loops.
+#' @param var_names Optional column names for printing the impact vector when
+#'   `diagnose` is TRUE.
+#'
+#' @return List with `irf_mp` (transformed IRFs), `irf_mp_raw` (pre-tcode IRFs),
+#'   and `H` (factor-space loadings).
 ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
                             mpind = NULL, normalize_value = 0.5,
-                            tcode = NULL) {
-  # Desmeanar choques de forma reduzida
+                            tcode = NULL, diagnose = FALSE,
+                            var_names = NULL) {
   rsh_mean0 <- sweep(rsh_sel, 2, colMeans(rsh_sel))
 
-  # Regressão OLS do instrumento nos choques: H = (Z \ rsh_mean0)'
+  # Proxy-SVAR loadings: H = (Z' eta) / (Z'Z) — Stock-Watson (2018) eq. 4
   Z_mat <- as.matrix(Z_sel)
   H <- drop(crossprod(Z_mat, rsh_mean0)) / drop(crossprod(Z_mat))
 
@@ -49,15 +78,70 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
     irf_mp[, j] <- rawimp_j %*% H
   }
 
-  # Normalizar efeito impacto na variável de política monetária
+  if (isTRUE(diagnose) && !is.null(mpind)) {
+    impact_pre <- irf_mp[mpind, 1]
+    f_factor   <- compute_factor_space_F(rsh_mean0, Z_mat)
+
+    cat("\n========== ident_ext_instr DIAGNOSTIC ==========\n")
+    cat(sprintf("H (factor-space loadings, length %d):\n", length(H)))
+    cat(sprintf("  %s\n", paste(sprintf("%.4e", H), collapse = "  ")))
+    cat(sprintf("irf_mp[mpind=%d, 1] (pre-norm) = %.4e   sign = %s\n",
+                mpind, impact_pre,
+                if (impact_pre > 0) "POSITIVE" else if (impact_pre < 0) "NEGATIVE" else "ZERO"))
+    cat(sprintf("F (factor-space, max across q factors) = %.3f\n", f_factor))
+    if (f_factor < 10) {
+      cat("[!!!] WARNING: F (factor-space) < 10 — instrument is WEAK in the\n")
+      cat("      space where the proxy-SVAR projects. F (y6m AR) reported in\n")
+      cat("      instrument_diagnostics.R measures relevance against a single\n")
+      cat("      reduced-form variable, not the factor space. Wide IRF bands\n")
+      cat("      and unstable signs are mechanical consequences of weak F here.\n")
+    }
+    cat("Impact (raw, pre-norm) per variable:\n")
+    impact_vec <- irf_mp[, 1]
+    if (!is.null(var_names) && length(var_names) == length(impact_vec)) {
+      names(impact_vec) <- var_names
+    }
+    print(impact_vec)
+    if (impact_pre < 0) {
+      cat("\n[!!!] WARNING: impact_pre < 0 — normalization will FLIP ALL IRF SIGNS.\n")
+      cat("      Likely root cause: sign of H or of dynamic-factor rotation K\n")
+      cat("      is not aligned with instrument's sign convention.\n")
+    }
+    cat("================================================\n\n")
+  }
+
   if (!is.null(mpind)) {
     irf_mp <- irf_mp / irf_mp[mpind, 1] * normalize_value
   }
 
-  # Transformar IRFs para unidades econômicas (como em IdentExtInstr.m)
   irf_mp_transformed <- cumimp_transform(irf_mp, tcode)
 
   list(irf_mp = irf_mp_transformed, irf_mp_raw = irf_mp, H = H)
+}
+
+
+#' Factor-space first-stage F statistic
+#'
+#' Reports the maximum F-statistic across q univariate regressions of each
+#' factor innovation on the instrument. A small max-F (<10) indicates the
+#' instrument is weak in factor space — even if it is strong against a
+#' reduced-form variable like `yield_6m`. This is the relevant weak-instrument
+#' diagnostic for the proxy-SVAR projection through factors.
+#'
+#' @param eta Matrix of factor innovations (T x q), already demeaned.
+#' @param Z Instrument vector or column matrix (T x 1).
+#'
+#' @return Scalar: max F-stat across the q factor regressions.
+compute_factor_space_F <- function(eta, Z) {
+  Z <- as.numeric(Z)
+  q <- ncol(eta)
+  fs <- numeric(q)
+  for (k in seq_len(q)) {
+    fit <- lm(eta[, k] ~ Z)
+    s <- summary(fit)
+    fs[k] <- if (is.null(s$fstatistic)) NA_real_ else s$fstatistic[["value"]]
+  }
+  max(fs, na.rm = TRUE)
 }
 
 
@@ -131,7 +215,9 @@ infer_tcode_from_varnames <- function(var_names) {
 compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                             bootstrap_seed = NULL, mpind = NULL,
                             normalize_value = 0.5, data_dates = NULL,
-                            tcode = NULL, ci_levels = c(0.90, 0.95)) {
+                            tcode = NULL, ci_levels = c(0.90, 0.95),
+                            diagnose = getOption("dfm.irf.diagnose", FALSE),
+                            var_names = NULL) {
 
   if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
 
@@ -228,7 +314,9 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   # --- Identificação por instrumento externo (estimativa pontual) ---
   eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
   point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
-                                  mpind, normalize_value, tcode)
+                                  mpind, normalize_value, tcode,
+                                  diagnose = diagnose,
+                                  var_names = var_names)
   irf_point <- point_result$irf_mp
 
   # --- Wild Bootstrap (Gertler & Karadi 2015 / DFMest_BLL_Boot.m) ---

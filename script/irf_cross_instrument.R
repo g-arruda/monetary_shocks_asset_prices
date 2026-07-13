@@ -1,21 +1,27 @@
 # ============================================================
 # Cross-instrument IRFs for the paper (MÉDIO 7).
 #
-# Runs the same DFM specification twice -once with z_het_jk_3var
-# (recommended hybrid het+timing+sign instrument) and once with
-# z_jk_purif (legacy timing-ID with Bauer-Swanson purification) —
-# and produces three PDFs:
+# 2026-05-08: primary spec switched from z_het_jk_3var to z_jk_purif.
+# Reason: z_het_jk_3var has F (factor-sp) ≈ 2.7 (severely weak in the
+# q-dimensional space where the proxy-SVAR projects) while z_jk_purif
+# crosses Stock-Yogo (F factor-sp = 10.17). See pendencias.md and
+# instrument_diagnostics_report.md (2026-05-08 entries).
 #
-#   output/irf_zhetjk3var.pdf      -main spec, 9-panel grid
-#   output/irf_zjkpurif.pdf        -robustness spec, 9-panel grid
-#   output/irf_comparison.pdf      -overlay (firebrick = z_het_jk_3var,
-#                                            steelblue = z_jk_purif)
+# Runs the same DFM specification twice — once with z_jk_purif (primary,
+# Gertler-Karadi timing-ID with Bauer-Swanson purification + JK sign filter)
+# and once with z_het_jk_3var (robustness, hybrid het+timing+sign) — and
+# produces three PDFs:
+#
+#   output/irf_zjkpurif.pdf        - primary spec, 9-panel grid
+#   output/irf_zhetjk3var.pdf      - robustness spec, 9-panel grid
+#   output/irf_comparison.pdf      - overlay (steelblue = z_jk_purif primary,
+#                                             firebrick = z_het_jk_3var)
 #
 # Plus two RDS objects with the full irf_results so the downstream
 # benchmark + report scripts can consume without re-bootstrapping:
 #
-#   output/irf_results_zhetjk3var.rds
 #   output/irf_results_zjkpurif.rds
+#   output/irf_results_zhetjk3var.rds
 #
 # Bands: 68% and 90% concentric. Bootstrap: nboot = 800 (wild
 # recursive Goncalves-Kilian 2004) with Kilian (1998) bias correction
@@ -43,15 +49,15 @@ source("R/modeling/impulse_responde.R")
 
 DATA_PATH       <- "data/processed/data_log_deseasonalized.csv"
 INSTRUMENTS     <- list(
-  zhetjk3var = list(
-    label = "z_het_jk_3var",
-    path  = "data/processed/instrument_z_het_jk_3var.csv",
-    color = "firebrick"
-  ),
   zjkpurif   = list(
     label = "z_jk_purif",
     path  = "data/processed/instrument_jk_purif.csv",
     color = "steelblue"
+  ),
+  zhetjk3var = list(
+    label = "z_het_jk_3var",
+    path  = "data/processed/instrument_z_het_jk_3var.csv",
+    color = "firebrick"
   )
 )
 N_BOOT          <- 800L
@@ -77,7 +83,7 @@ RESPONSE_VARS <- list(
   c("ICC spread juridica" = "spread_icc_juridica")
 )
 
-dir.create("output", showWarnings = FALSE)
+dir.create("output/irf", showWarnings = FALSE, recursive = TRUE)
 
 # ---- Run a single specification -----------------------------
 
@@ -97,20 +103,25 @@ run_spec <- function(label, path) {
                       dates = dates, instrument = instrument,
                       apply_kilian = TRUE)
 
+  # yield_6m is stored as decimal proportion (0.05 = 5%); a +50bp shock
+  # corresponds to +0.005 in proportion (= +50bp = +0.5pp), not +0.5.
+  # See `_instrucoes/justificativa_uso_yield-6m.md`.
+  norm_val <- SHOCK_BPS / 10000
+
   irf <- compute_irf_dfm(
     dfm,
     h = HORIZON,
     nboot = N_BOOT,
     bootstrap_seed = BOOT_SEED,
     mpind = mpind,
-    normalize_value = SHOCK_BPS / 100,
+    normalize_value = norm_val,
     tcode = tcode,
     ci_levels = CI_LEVELS
   )
 
   list(label = label, dfm = dfm, irf = irf,
        data = data_mat, tcode = tcode, mpind = mpind,
-       normalize_value = SHOCK_BPS / 100,
+       normalize_value = norm_val,
        var_names = colnames(data_mat))
 }
 
@@ -209,7 +220,7 @@ specs <- purrr::imap(INSTRUMENTS, function(meta, key) {
          label = out$label, mp_var = MP_VAR,
          shock_size_bps = SHOCK_BPS,
          normalize_value = out$normalize_value),
-    sprintf("output/irf_results_%s.rds", key)
+    sprintf("output/irf/irf_results_%s.rds", key)
   )
   out
 })
@@ -217,15 +228,15 @@ specs <- purrr::imap(INSTRUMENTS, function(meta, key) {
 response_idx <- build_response_index(specs[[1]]$var_names)
 
 # Per-instrument 9-panel PDFs
-ggsave("output/irf_zhetjk3var.pdf",
+ggsave("output/irf/irf_zhetjk3var.pdf",
        plot_one(specs$zhetjk3var, response_idx, "z_het_jk_3var (recommended)"),
        width = 11, height = 9, dpi = 200)
-ggsave("output/irf_zjkpurif.pdf",
+ggsave("output/irf/irf_zjkpurif.pdf",
        plot_one(specs$zjkpurif, response_idx, "z_jk_purif (legacy timing-ID)"),
        width = 11, height = 9, dpi = 200)
 
 # Cross-instrument overlay
-ggsave("output/irf_comparison.pdf",
+ggsave("output/irf/irf_comparison.pdf",
        plot_overlay(specs, response_idx),
        width = 11, height = 9, dpi = 200)
 
