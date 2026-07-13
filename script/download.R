@@ -1,7 +1,11 @@
 # Getting auxiliary functions ----
 source("R/data_download/bcb.R")
 source("R/data_download/exchange.R")
+source("R/data_download/anbima_breakeven.R")
 source("R/modeling/svensson_model.R")
+
+# rb3 cache directory must be set before calling ANBIMA fetch helpers.
+options(rb3.cachedir = "~/rb3-cache")
 
 
 # Taxa de cambio ----
@@ -50,6 +54,15 @@ monthly_yield_curve <- yield_curve |>
 
 juros <- juros |>
   dplyr::left_join(monthly_yield_curve, by = "ref.date")
+
+
+# Break-even inflation (ANBIMA NTN-B vs PRE) ----
+# Used as response variable for the GRG (2025) Tab 4 benchmark; their
+# dependent is break-even, not realized IPCA. To populate the rb3 cache
+# the first time, run `fetch_anbima_reference_rates(from, to)` once;
+# `download_breakeven_curve` returns an empty tibble (with warning) when
+# the cache is missing, so the rest of the pipeline still completes.
+breakeven <- download_breakeven_curve(from = "2010-01-01", to = "2026-12-31")
 
 
 
@@ -430,6 +443,7 @@ all_dfs <- list(
   ativ_economica = ativ_economica,
   emprego = emprego,
   inflacao = inflacao,
+  breakeven = breakeven,
   commodity = commodity,
   tempo_procura = resultado_mensal,
   indices = indices,
