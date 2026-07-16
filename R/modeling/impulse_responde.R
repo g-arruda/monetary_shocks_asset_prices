@@ -293,8 +293,11 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                             normalize_value = 0.5, data_dates = NULL,
                             tcode = NULL, ci_levels = c(0.90, 0.95),
                             diagnose = getOption("dfm.irf.diagnose", FALSE),
-                            var_names = NULL) {
+                            var_names = NULL,
+                            identification = c("proxy", "het"),
+                            regime_labels = NULL, het_weight = "identity") {
 
+  identification <- match.arg(identification)
   if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
 
   # --- Extrair componentes do DFM (OLS, sem Kilian — para ponto estimado) ---
@@ -309,12 +312,23 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   n_vars <- nrow(Lambda)
   rp     <- nrow(A)
 
-  # --- Resolver instrumento ---
-  if (is.null(instrument) && !is.null(dfm_results$instrument)) {
-    instrument <- dfm_results$instrument
-  }
-  if (is.null(instrument)) {
-    stop("instrument deve ser fornecido diretamente ou via dfm_results$instrument")
+  # --- Resolver identificação ---
+  if (identification == "het") {
+    if (!exists("ident_het_regimes")) {
+      stop("identification = 'het' requer source('R/identification/het_primary.R')")
+    }
+    n_resid <- nrow(dfm_results$var_residuals)
+    if (is.null(regime_labels) || length(regime_labels) != n_resid) {
+      stop("regime_labels deve ter comprimento ", n_resid,
+           " (linhas dos residuos do VAR); use build_monthly_regimes + align_regimes_to_eta")
+    }
+  } else {
+    if (is.null(instrument) && !is.null(dfm_results$instrument)) {
+      instrument <- dfm_results$instrument
+    }
+    if (is.null(instrument)) {
+      stop("instrument deve ser fornecido diretamente ou via dfm_results$instrument")
+    }
   }
 
   ci_levels <- sort(unique(as.numeric(ci_levels)))
@@ -330,33 +344,37 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     tcode <- rep(1L, n_vars)
   }
 
-  # --- Parsear instrumento ---
-  if (is.data.frame(instrument)) {
-    if (!all(c("month", "shock") %in% names(instrument)))
-      stop("Instrument data.frame deve conter colunas 'month' e 'shock'")
+  # --- Parsear instrumento (só no ramo proxy) ---
+  rsh_sel_ind <- NULL
+  inst_sel    <- NULL
+  if (identification == "proxy") {
+    if (is.data.frame(instrument)) {
+      if (!all(c("month", "shock") %in% names(instrument)))
+        stop("Instrument data.frame deve conter colunas 'month' e 'shock'")
 
-    dates_vec <- data_dates
-    if (is.null(dates_vec) && !is.null(dfm_results$dates))
-      dates_vec <- dfm_results$dates
-    if (is.null(dates_vec))
-      stop("data_dates ou dfm_results$dates necessario para alinhamento temporal")
+      dates_vec <- data_dates
+      if (is.null(dates_vec) && !is.null(dfm_results$dates))
+        dates_vec <- dfm_results$dates
+      if (is.null(dates_vec))
+        stop("data_dates ou dfm_results$dates necessario para alinhamento temporal")
 
-    dates_vec <- as.Date(dates_vec)
-    align     <- sel_ext_inst_sample(dates_vec, p, instrument)
-    rsh_sel_ind <- align$rsh_sel_ind
-    inst_sel    <- align$inst_sel
+      dates_vec <- as.Date(dates_vec)
+      align     <- sel_ext_inst_sample(dates_vec, p, instrument)
+      rsh_sel_ind <- align$rsh_sel_ind
+      inst_sel    <- align$inst_sel
 
-    if (sum(rsh_sel_ind) == 0)
-      stop("Nenhuma data comum entre instrumento e residuos do VAR")
-  } else if (is.numeric(instrument)) {
-    n_resid <- nrow(dfm_results$var_residuals)
-    if (length(instrument) != n_resid)
-      stop("Vetor de instrumento (", length(instrument),
-           ") deve ter mesmo comprimento que residuos do VAR (", n_resid, ")")
-    rsh_sel_ind <- rep(TRUE, n_resid)
-    inst_sel    <- instrument
-  } else {
-    stop("instrument deve ser vetor numerico ou data.frame com colunas 'month' e 'shock'")
+      if (sum(rsh_sel_ind) == 0)
+        stop("Nenhuma data comum entre instrumento e residuos do VAR")
+    } else if (is.numeric(instrument)) {
+      n_resid <- nrow(dfm_results$var_residuals)
+      if (length(instrument) != n_resid)
+        stop("Vetor de instrumento (", length(instrument),
+             ") deve ter mesmo comprimento que residuos do VAR (", n_resid, ")")
+      rsh_sel_ind <- rep(TRUE, n_resid)
+      inst_sel    <- instrument
+    } else {
+      stop("instrument deve ser vetor numerico ou data.frame com colunas 'month' e 'shock'")
+    }
   }
 
   # --- Matrizes B de propagação (companion OLS, sem Kilian) ---
@@ -387,12 +405,21 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     eta <- u %*% K %*% solve(M)
   }
 
-  # --- Identificação por instrumento externo (estimativa pontual) ---
-  eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
-  point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
-                                  mpind, normalize_value, tcode,
-                                  diagnose = diagnose,
-                                  var_names = var_names)
+  # --- Identificação (estimativa pontual) ---
+  if (identification == "het") {
+    point_result <- ident_het_regimes(rawimp, eta, regime_labels, h,
+                                      mpind, normalize_value, tcode,
+                                      weight = het_weight,
+                                      diagnose = diagnose,
+                                      var_names = var_names)
+    b_point <- point_result$b
+  } else {
+    eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
+    point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
+                                    mpind, normalize_value, tcode,
+                                    diagnose = diagnose,
+                                    var_names = var_names)
+  }
   irf_point <- point_result$irf_mp
 
   # --- Wild Bootstrap (Gertler & Karadi 2015 / DFMest_BLL_Boot.m) ---
@@ -414,6 +441,13 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     Idio <- dfm_results$detrended_data - Chi
 
     irf_boot <- array(0, dim = c(n_vars, h + 1, nboot))
+
+    # Diagnósticos por draw do ramo het (sinal/identidade do choque):
+    # impacto pré-normalização na variável de política (denominador da
+    # normalização) e |cos| entre o b do draw e o b do ponto (label
+    # switching por cruzamento de autovalores). Ver plano het-primária.
+    het_boot_impact <- if (identification == "het") rep(NA_real_, nboot) else NULL
+    het_boot_cos    <- if (identification == "het") rep(NA_real_, nboot) else NULL
 
     for (b in seq_len(nboot)) {
       tryCatch({
@@ -478,14 +512,26 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
           eta_boot <- u_boot %*% K_boot %*% solve(M_boot)
         }
 
-        # Wild bootstrap do instrumento (mesmo rr)
-        rr_sel <- rr[rsh_sel_ind]
-        inst_boot <- inst_sel * rr_sel
-
         # Identificação bootstrapada
-        eta_boot_sel <- eta_boot[rsh_sel_ind, , drop = FALSE]
-        boot_result <- ident_ext_instr(rawimp_boot, eta_boot_sel, inst_boot,
-                                       h, mpind, normalize_value, tcode)
+        if (identification == "het") {
+          # Labels de regime fixos (calendário exógeno); o multiplicador
+          # Rademacher preserva os segundos momentos por observação, então
+          # a estrutura de covariância por regime sobrevive ao draw.
+          boot_result <- ident_het_regimes(rawimp_boot, eta_boot,
+                                           regime_labels, h,
+                                           mpind, normalize_value, tcode)
+          het_boot_impact[b] <- boot_result$impact_pre
+          het_boot_cos[b] <- abs(sum(boot_result$b * b_point)) /
+            sqrt(sum(boot_result$b^2) * sum(b_point^2))
+        } else {
+          # Wild bootstrap do instrumento (mesmo rr)
+          rr_sel <- rr[rsh_sel_ind]
+          inst_boot <- inst_sel * rr_sel
+
+          eta_boot_sel <- eta_boot[rsh_sel_ind, , drop = FALSE]
+          boot_result <- ident_ext_instr(rawimp_boot, eta_boot_sel, inst_boot,
+                                         h, mpind, normalize_value, tcode)
+        }
         irf_boot[, , b] <- boot_result$irf_mp
 
       }, error = function(e) {
@@ -523,12 +569,31 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   irf_point_3d <- array(0, dim = c(n_vars, h + 1, 1))
   irf_point_3d[, , 1] <- irf_point
 
-  list(
+  out <- list(
     irf_point = irf_point_3d,
     irf_point_matrix = irf_point,
     ci = ci,
-    ci_levels = ci_levels
+    ci_levels = ci_levels,
+    identification = identification
   )
+
+  if (identification == "het") {
+    out$b_point     <- point_result$b
+    out$het_point   <- point_result[c("lambda_all", "rank1_share",
+                                      "impact_pre", "n_C", "n_NC", "md_fit")]
+    if (nboot > 0) {
+      out$het_boot <- list(
+        impact_pre      = het_boot_impact,
+        cos_theta       = het_boot_cos,
+        frac_small_den  = mean(abs(het_boot_impact) <
+                                 0.1 * abs(point_result$impact_pre),
+                               na.rm = TRUE),
+        frac_low_cos    = mean(het_boot_cos < 0.7, na.rm = TRUE)
+      )
+    }
+  }
+
+  out
 }
 
 
