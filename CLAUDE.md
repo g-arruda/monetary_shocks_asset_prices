@@ -37,6 +37,8 @@ Two functions in `R/modeling/impulse_responde.R` are the contract between the DF
 
 The same `ident_ext_instr` consumes `z_het` without any change: only the *origin* of the instrument differs (heteroskedasticity-extracted vs Copom-day timing).
 
+**Het-primary branch (2026-07-16, branch `identificacao-heterocedasticidade`):** `compute_irf_dfm` and `main_sdfm` accept `identification = c("proxy", "het")`; the het branch (`R/identification/het_primary.R`: monthly Copom/non-Copom regimes on the factor-VAR innovations, rank-1 MD/GMM per Rigobon 2003, SW 2016 §5.1.2.3) is implemented and simulation-validated (`script/validate_het_primary_sim.R`), but the feasibility gates (`script/het_primary_feasibility.R` → `output/het_primary/feasibility_report.md`) **rejected architecture A in all 16 grid cells** — no monthly-frequency variance shift (permutation placebo p 0.26–0.86; Σ_C ∝ Σ_NC never rejected). Production stays proxy (`z_jk_bs_purif`); the choice between fallback B (daily RS-2004 het as declared identification + explicit proxy bridge) and the current design is an open author decision (`_instrucoes/plano_reimplementacao_het.md` §4.3, `_instrucoes/pendencias.md`).
+
 The bootstrap uses Kilian-corrected coefficients for the DGP but the **point estimate uses plain OLS** (faithful to `DFMest_BLL.m`); `apply_kilian = TRUE` only affects the bootstrap. `R/modeling/factor_estimation.R` implements the BLL standardization, Bai-Ng IC for `r`, Amengual-Watson for `q`, plus `infer_tcode_from_varnames()` and `validate_dfm_results()`.
 
 ## Common commands

@@ -9,6 +9,8 @@ library(patchwork)
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/identification/het_shock_extraction.R")
+source("R/identification/het_primary.R")
 
 
 
@@ -35,8 +37,19 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
                       q = results_amengual_watson$q_hat, p = 6,
                       h = 50, nboot = 800, bootstrap_seed = 123,
                       mp_var = "yield_6m", shock_size_bps = 50,
-                      tcode = NULL, ci_levels = c(0.90, 0.95)) {
-  
+                      tcode = NULL, ci_levels = c(0.90, 0.95),
+                      identification = c("proxy", "het"),
+                      het_weight = "optimal") {
+
+  # Ramo het (Rigobon 2003, regimes mensais Copom/nao-Copom sobre as
+  # inovacoes do factor-VAR): implementado e validado, mas REPROVADO
+  # pelos gates de viabilidade em todo o grid (2026-07-16) — o placebo
+  # de permutacao nao distingue os labels do calendario (p_perm
+  # 0.26-0.86) e a proporcionalidade Sigma_C ~ Sigma_NC nunca e
+  # rejeitada. Ver output/het_primary/feasibility_report.md. O default
+  # de producao segue "proxy" ate decisao do autor.
+  identification <- match.arg(identification)
+
   # Load and prepare data (preservar ref.date para alinhamento)
   raw_data <- readr::read_csv(data_path) |>
     tidyr::drop_na()
@@ -73,14 +86,24 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
   # 2026-05-07. See `_instrucoes/justificativa_uso_yield-6m.md`.
   normalize_value <- shock_size_bps / 10000
 
-  # Load instrument
-  instrument <- readr::read_csv(instrument_path)
+  # Instrumento so no ramo proxy; no ramo het o painel fica integral
+  # (sem trimming de alinhamento) e a identificacao vem dos regimes.
+  instrument <- NULL
+  if (identification == "proxy") {
+    instrument <- readr::read_csv(instrument_path)
+  }
 
   # Estimate SDFM com datas e instrumento para alinhamento temporal
   # apply_kilian = TRUE: computa coeficientes corrigidos para o DGP do bootstrap
   # O ponto estimado usa VAR OLS (sem Kilian), fiel ao DFMest_BLL.m
   dfm_results <- estimate_dfm(data, r, q, p, dates = dates, instrument = instrument,
                               apply_kilian = TRUE)
+
+  regime_labels <- NULL
+  if (identification == "het") {
+    regimes <- build_monthly_regimes(month_range = range(dates))
+    regime_labels <- align_regimes_to_eta(dfm_results$dates, p, regimes)
+  }
   
   # Validate results
   validation <- validate_dfm_results(dfm_results)
@@ -98,7 +121,10 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
     normalize_value = normalize_value,
     tcode = tcode,
     ci_levels = ci_levels,
-    var_names = colnames(data)
+    var_names = colnames(data),
+    identification = identification,
+    regime_labels = regime_labels,
+    het_weight = het_weight
   )
 
   return(list(
@@ -107,7 +133,8 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
     data = data,
     tcode = tcode,
     mpind = mpind,
-    normalize_value = normalize_value
+    normalize_value = normalize_value,
+    identification = identification
   ))
 }
 
