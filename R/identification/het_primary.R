@@ -507,6 +507,78 @@ rigobon_crossprod_test <- function(eta, regime_labels, direction,
 }
 
 
+#' Full-system identification from two volatility regimes
+#'
+#' Episode-regime (BPSS-style) identification: with Sigma_1 = B B' and
+#' Sigma_2 = B Lambda B' (Lambda diagonal), B is recovered from the
+#' generalized eigendecomposition of (Sigma_2, Sigma_1):
+#' B = Sigma_1^{1/2} V with V the orthonormal eigenvectors of
+#' Sigma_1^{-1/2} Sigma_2 Sigma_1^{-1/2} and Lambda the eigenvalues
+#' (relative shock variances in regime 2). Point-identified up to column
+#' sign/permutation iff the eigenvalues are distinct (Rigobon 2003;
+#' Lanne-Lutkepohl 2008). Columns are returned sorted by decreasing
+#' lambda; distinctness is summarized by the minimum relative gap.
+#'
+#' Requires mat_sym_sqrt / mat_sym_inv_sqrt from
+#' R/identification/het_shock_extraction.R.
+#'
+#' @param Sigma_1 Covariance of eta in the reference regime.
+#' @param Sigma_2 Covariance of eta in the comparison regime.
+#'
+#' @return List with B (q x q, columns = structural impact vectors in
+#'   eta space, normalized so Lambda_1 = I), lambda (sorted decreasing),
+#'   min_rel_gap (min over adjacent pairs of (l_i - l_{i+1}) / l_i).
+fit_two_regime_system <- function(Sigma_1, Sigma_2) {
+  S1_half     <- mat_sym_sqrt(Sigma_1)
+  S1_inv_half <- mat_sym_inv_sqrt(Sigma_1)
+
+  W   <- S1_inv_half %*% Sigma_2 %*% S1_inv_half
+  eig <- eigen(W, symmetric = TRUE)
+
+  B      <- S1_half %*% eig$vectors
+  lambda <- eig$values
+
+  gaps <- (lambda[-length(lambda)] - lambda[-1]) /
+    pmax(abs(lambda[-length(lambda)]), 1e-12)
+
+  list(B = B, lambda = lambda, min_rel_gap = min(gaps))
+}
+
+
+#' Relative variance profile of fixed structural shocks across episodes
+#'
+#' Holds B fixed (from fit_two_regime_system) and reports the diagonal of
+#' B^{-1} Sigma_s B^{-1}' per episode — the BPSS-style variance path of
+#' each structural shock. Off-diagonal mass is summarized per episode as
+#' a check on the constancy of B (should be ~0 if the two-regime B also
+#' diagonalizes the finer episodes).
+#'
+#' @param eta Factor innovations (T_eff x q).
+#' @param episode_labels Character vector of episode names, aligned to eta.
+#' @param B Structural impact matrix from fit_two_regime_system.
+#'
+#' @return Tibble with one row per (episode, shock): n_obs, rel_var,
+#'   offdiag_share (episode-level, repeated across shocks).
+episode_variance_profile <- function(eta, episode_labels, B) {
+  B_inv <- solve(B)
+  purrr::map_dfr(unique(episode_labels), function(ep) {
+    rows <- episode_labels == ep
+    X    <- sweep(eta[rows, , drop = FALSE], 2,
+                  colMeans(eta[rows, , drop = FALSE]))
+    Sig  <- crossprod(X) / (nrow(X) - 1L)
+    Lam  <- B_inv %*% Sig %*% t(B_inv)
+    tibble::tibble(
+      episode       = ep,
+      shock         = seq_len(ncol(B)),
+      n_obs         = sum(rows),
+      rel_var       = diag(Lam),
+      offdiag_share = sum(abs(Lam[lower.tri(Lam)])) /
+        (sum(abs(Lam[lower.tri(Lam)])) + sum(abs(diag(Lam))))
+    )
+  })
+}
+
+
 #' Fieller confidence interval for a ratio from bootstrap draws
 #'
 #' Weak-identification-robust interval for rho = E[num]/E[den] built from
