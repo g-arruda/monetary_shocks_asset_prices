@@ -4,6 +4,15 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 
 ---
 
+## PIVÔ 2026-07-16 — identificação por heterocedasticidade como PRIMÁRIA
+
+> Decisão do autor (2026-07-16): o instrumento externo (surpresas GK/JK) deixa de ser a identificação principal — o Copom anuncia ~18h30, após o fechamento, e a janela Wed→Thu de ~24h fragiliza a exclusion restriction do proxy (crítica RS-2004 ao event-study). A identificação passa a ser **integralmente por heterocedasticidade, fiel a Rigobon (2003)**, na branch `identificacao-heterocedasticidade`. Plano completo (leitura + arquitetura + confronto svars + sequência de código): **`_instrucoes/plano_reimplementacao_het.md`**. Notas de leitura: `artigos/{rigobon, Rigobon-Sack, Stock e Watson}/*_notes.md`.
+
+- [ ] **Fase de código do pivô** (seção 6 do plano): gates G1-G6 + pré-cheque de spanning → `ident_het_regimes()` (arquitetura A: regimes mensais Copom/não-Copom sobre η_t, SW §5.1.2.3) → re-run produção → re-escopo de sweep/validação/diagnostics → docs → tex.
+- **Itens abaixo re-escopados pelo pivô** (redigidos sob o primário `z_jk_bs_purif`, que passa a braço de robustez): "Reescrever §5 sob `z_jk_bs_purif`", "Bandas Anderson-Rubin para o primário", "Benchmark GRG sem a célula het", "Promoção de `z_jk_raw_purif`". Reavaliar os quatro após a fase de código: o §5 será reescrito sob o novo primário het, as bandas AR viram bandas weak-ID het (Magnusson-Mavroeidis/Nakamura-Steinsson), e a comparação GRG muda de natureza (mesma família de identificação, frequências diferentes).
+
+---
+
 ## CRÍTICO — blockers de identificação / inconsistências no código
 
 > **Status (2026-07-11):** diagnóstico de sinais invertidos **fechado em definitivo** pela varredura sistemática de especificações (item abaixo). **Status (2026-05-08):** +1 item crítico resolvido na sessão 2026-05-08 (instrumento fraco no espaço dos fatores). DEFAULT_VARIANT trocado de `z_het_jk_3var` → `z_jk_purif`. Os 6 itens críticos originais foram resolvidos nos commits `4e2192f` (1-3) e `a3af0e4` (4-6).
