@@ -1,8 +1,8 @@
 # Varredura de especificações IRF — Etapa 1 (ponto-estimativa)
 
-Gerado por `script/irf_spec_sweep.R` em 2026-07-11.
+Gerado por `script/irf_spec_sweep.R` em 2026-07-15.
 
-Grid: 2 amostras x 4 combinações (r,q) x 8 instrumentos x 5 variáveis de política = 320 células; p = 6, h = 24, choque = 50bp.
+Grid: 2 amostras x 4 combinações (r,q) x 12 instrumentos x 5 variáveis de política = 480 células; p = 6, h = 24, choque = 50bp.
 
 Sem bootstrap (`nboot = 0`): apenas sinais, magnitudes e F de primeiro estágio.
 A Etapa 2 (`script/irf_spec_stage2.R`) roda bootstrap completo nas células vencedoras.
@@ -31,8 +31,8 @@ A Etapa 2 (`script/irf_spec_stage2.R`) roda bootstrap completo nas células venc
 | pre_covid |     6 |     5 | z_jk | yield_6m | 15.17 | 30.03 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -0.1423 | 0.07044 |
 | pre_covid |     6 |     5 | z_jk | yield_1y | 15.17 | 17.38 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -0.118 | 0.0584 |
 | pre_covid |     6 |     5 | z_jk | yield_2y | 15.17 |    14 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -0.09736 | 0.04818 |
-| full |     8 |     8 | z_jk_purif | yield_3m | 11.76 | 4.288 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -0.1598 | 0.419 |
-| full |     8 |     8 | z_jk_purif | yield_6m | 11.76 | 11.33 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -0.09154 |  0.24 |
+| pre_covid |     6 |     5 | z_jk_raw_purif | yield_3m | 11.95 | 71.24 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -0.145 | 0.1009 |
+| pre_covid |     6 |     5 | z_jk_raw_purif | yield_6m | 11.95 | 47.72 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -0.1175 | 0.08179 |
 
 ## F (factor-space) por instrumento x (r,q)
 
@@ -47,6 +47,10 @@ tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
 | z_bruto_purif | 6.855 | 6.107 | 5.102 | 4.467 |
 | z_jk | 7.718 | 8.271 | 8.407 | 10.25 |
 | z_jk_purif | 9.203 | 10.08 | 10.17 | 11.76 |
+| z_jk_raw_purif | 8.594 | 5.527 | 6.783 | 5.091 |
+| z_jk_raw | 9.242 | 5.558 | 6.564 | 4.996 |
+| z_bs_purif | 6.088 | 5.183 |  4.29 | 3.663 |
+| z_jk_bs_purif | 9.018 |  5.12 | 6.293 |  5.27 |
 | z_het | 3.641 | 3.467 | 3.071 | 3.064 |
 | z_het_jk | 9.331 | 5.575 | 6.891 | 3.852 |
 | z_het_3var | 2.425 | 1.522 | 1.114 |  4.02 |
@@ -60,6 +64,10 @@ tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
 | z_bruto_purif | 7.702 | 10.38 | 5.789 | 5.628 |
 | z_jk | 10.54 | 15.17 | 10.45 | 7.987 |
 | z_jk_purif | 10.79 |  15.4 | 9.612 |  8.07 |
+| z_jk_raw_purif | 6.365 | 11.95 |  2.72 | 4.214 |
+| z_jk_raw | 5.898 | 11.42 |  2.86 | 4.115 |
+| z_bs_purif | 7.987 | 10.65 | 5.658 | 5.537 |
+| z_jk_bs_purif | 5.874 | 11.66 | 2.355 | 3.369 |
 | z_het | 2.954 | 3.726 | 4.964 | 4.553 |
 | z_het_jk | 3.164 | 4.718 | 2.844 | 4.176 |
 | z_het_3var |  7.65 | 10.83 | 9.137 | 6.575 |
@@ -69,10 +77,10 @@ tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
 
 | failure_class | full | pre_covid |
 |---|---|---|
-| negative_control |    32 |    32 |
-| ok |    16 |    32 |
-| weak_factor_space |    44 |    56 |
-| weak_factor_space_severe |    68 |    40 |
+| negative_control |    48 |    48 |
+| ok |    16 |    48 |
+| weak_factor_space |    96 |    80 |
+| weak_factor_space_severe |    80 |    64 |
 
 ## Controle negativo (juros_selic)
 
@@ -80,25 +88,25 @@ tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
 
 | n | f_reduced_max | f_reduced_median |
 |---|---|---|
-|    64 |  2.49 | 0.4411 |
+|    96 |  2.49 | 0.4411 |
 
 ## Canais cambial e de risco nas células elegíveis
 
 | fx_channel | risk_channel | n |
 |---|---|---|
 | apreciacao | fiscal_dominance |     4 |
-| depreciacao | fiscal_dominance |    44 |
+| depreciacao | fiscal_dominance |    60 |
 
 ## z_jk_purif x yield_6m através do grid (decisão r=7,q=6 vs r=5,q=4 do HANDOFF)
 
 | sample | r | q | f_factor | f_reduced | impact_mp_pre | denom_ratio | score_hard | n_hard_avail | score_ext | fx_channel | failure_class |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| full |     5 |     4 | 9.203 | 11.33 | 6.568e-05 | 0.888 |     3 |     3 |     2 | depreciacao | weak_factor_space |
-| full |     6 |     5 | 10.08 | 11.33 | 6.591e-05 | 0.8911 |     3 |     3 |     3 | depreciacao | ok |
-| full |     7 |     6 | 10.17 | 11.33 | 6.164e-05 | 0.8334 |     3 |     3 |     3 | depreciacao | ok |
-| full |     8 |     8 | 11.76 | 11.33 | 6.226e-05 | 0.8417 |     3 |     3 |     3 | depreciacao | ok |
-| pre_covid |     5 |     4 | 10.79 | 31.33 | 9.681e-05 | 0.9381 |     3 |     3 |     2 | depreciacao | ok |
-| pre_covid |     6 |     5 |  15.4 | 31.33 | 8.272e-05 | 0.8015 |     3 |     3 |     3 | depreciacao | ok |
-| pre_covid |     7 |     6 | 9.612 | 31.33 | 3.707e-05 | 0.3592 |     3 |     3 |     0 | depreciacao | weak_factor_space |
-| pre_covid |     8 |     8 |  8.07 | 31.33 | 2.984e-05 | 0.2891 |     1 |     3 |     3 | apreciacao | weak_factor_space |
+| full |     5 |     4 | 9.203 | 11.33 | 6.568e-05 | 0.8742 |     3 |     3 |     2 | depreciacao | weak_factor_space |
+| full |     6 |     5 | 10.08 | 11.33 | 6.591e-05 | 0.8772 |     3 |     3 |     3 | depreciacao | ok |
+| full |     7 |     6 | 10.17 | 11.33 | 6.164e-05 | 0.8204 |     3 |     3 |     3 | depreciacao | ok |
+| full |     8 |     8 | 11.76 | 11.33 | 6.226e-05 | 0.8286 |     3 |     3 |     3 | depreciacao | ok |
+| pre_covid |     5 |     4 | 10.79 | 31.33 | 9.681e-05 |  1.52 |     3 |     3 |     2 | depreciacao | ok |
+| pre_covid |     6 |     5 |  15.4 | 31.33 | 8.272e-05 | 1.299 |     3 |     3 |     3 | depreciacao | ok |
+| pre_covid |     7 |     6 | 9.612 | 31.33 | 3.707e-05 | 0.582 |     3 |     3 |     0 | depreciacao | weak_factor_space |
+| pre_covid |     8 |     8 |  8.07 | 31.33 | 2.984e-05 | 0.4685 |     1 |     3 |     3 | apreciacao | weak_factor_space |
 

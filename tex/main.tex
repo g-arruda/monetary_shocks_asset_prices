@@ -206,190 +206,95 @@ Uma limitação importante dos modelos VAR/SVAR é sua incapacidade de incorpora
 
 
 \section{Metodologia e Estratégia Empírica}
+\label{sec:metodologia}
 
-\subsection{O Modelo de Fatores Dinâmicos Estruturais (SDFM)}
+\subsection{O Modelo de Fatores Dinâmicos Estruturais}
 
-O modelo empírico baseia-se na abordagem de Fatores Dinâmicos Estruturais (SDFM), que pode ser representada por três equações principais:
+O modelo empírico é um Modelo de Fatores Dinâmicos Estruturais (SDFM), representado por três equações:
 \begin{align}
     \overset{n\times 1}{X_t} &= \overset{n\times r}{\Lambda} \overset{r\times 1}{F_t} + \overset{n\times 1}{e_t}\label{eq:4}\\[4pt]
     \overset{r\times r}{\Phi(L)}\overset{r\times 1}{F_t} &= \overset{r\times q}{G} \overset{q\times 1}{\eta_t} \label{eq:5}\\[4pt]
     \overset{q\times 1}{\eta_t} &= \overset{q\times q}{H} \overset{q\times 1}{\varepsilon_t} \label{eq:6}
 \end{align}
-A primeira equação, \cref{eq:4}, é a equação de observação, onde o vetor de $n$ variáveis observáveis ($X_t$) é decomposto em um componente comum, determinado por $r$ fatores latentes ($F_t$) através da matriz de cargas fatoriais $\Lambda$, e um componente idiossincrático ($e_t$). A dinâmica dos fatores é descrita na \cref{eq:5}, onde $\Phi(L)$ é um polinômio de defasagens e $\eta_t$ é um vetor de $q$ choques aos fatores. Finalmente, a \cref{eq:6} relaciona esses choques aos $q$ choques estruturais de interesse ($\varepsilon_t$) através da matriz $H$.
+A \cref{eq:4} é a equação de observação: o vetor de $n$ variáveis observáveis $X_t$ decompõe-se em um componente comum, dado por $r$ fatores latentes $F_t$ e pela matriz de cargas $\Lambda$, e um componente idiossincrático $e_t$. A \cref{eq:5} descreve a dinâmica dos fatores, com $\Phi(L) = I - \Phi_1 L - \dots - \Phi_p L^p$ um polinômio de defasagens de ordem $p$ e $\eta_t$ um vetor de $q$ inovações fatoriais. A \cref{eq:6} liga essas inovações aos $q$ choques estruturais $\varepsilon_t$ pela matriz $H$. A ordem do VAR dos fatores é fixada em $p = 6$, suficiente para acomodar a persistência das séries mensais brasileiras sem sobreparametrizar a dinâmica.
 
-Juntando as equações, o modelo pode ser escrito em sua forma de média móvel, que expressa as variáveis observáveis em termos dos choques estruturais:
+Combinando as três equações, o modelo assume a forma de média móvel que escreve as observáveis em termos dos choques estruturais:
 \begin{align}\label{eq:7}
     X_t=\Lambda \Phi(L)^{-1}GH\varepsilon_t + e_t
 \end{align}
-A estimação e identificação do modelo requerem a determinação do número de fatores estáticos ($r$) e dinâmicos ($q$), e a imposição de restrições de normalização sobre as matrizes $\Lambda$, $G$ e $H$.
+A estimação requer determinar o número de fatores estáticos $r$ e dinâmicos $q$ e normalizar as matrizes $\Lambda$, $G$ e $H$.
 
-\subsection{Base de Dados}
-
-Este estudo utiliza uma base de dados composta por 71 variáveis mensais para a economia brasileira, abrangendo o período de janeiro de 2013 a dezembro de 2024. A escolha do período inicial deve-se a uma mudança metodológica na PNAD Contínua. Os dados são provenientes de fontes oficiais, como o Banco Central do Brasil (BCB), IBGE, B3, Tesouro Nacional e ANBIMA, e cobrem as categorias de atividade econômica, mercado de trabalho, inflação, commodities, e variáveis monetárias e de mercado de capitais. A lista completa de variáveis e suas respectivas transformações para garantir a estacionariedade encontra-se no Anexo (Tabela \ref{tab:lista_variaveis}).
-
-Para construir séries de taxas de juros com maturidades fixas (3 meses, 1, 2, 3 e 5 anos), empregou-se o modelo de \citeonline{svensson1994estimating} aos dados das Letras do Tesouro Nacional (LTN). Adicionalmente, as séries foram dessazonalizadas quando necessário, utilizando o procedimento X-13ARIMA-SEATS \cite{sax2018seasonal}.
-
-
-
-\subsection{Parametrização e Estimação}
-
-A estratégia de estimação segue de perto a de \citeonline{alessi}. O processo inicia-se com a determinação da dimensionalidade do sistema, onde o número de fatores estáticos foi definido como $r=7$, com base nos critérios de informação de \citeonline{bai-ng}, e o número de fatores dinâmicos foi estabelecido em $q=4$, seguindo o procedimento de \citeonline{amengual2007consistent}.
-
-Antes da extração dos fatores, os dados são tratados com a normalização utilizada por \citeonline{alessi}, uma abordagem projetada para acomodar séries com diferentes ordens de integração e volatilidades. O objetivo dessa etapa é garantir que a extração dos fatores comuns não seja dominada por um pequeno número de variáveis com alta variância. Especificamente, cada série em nível e sem tendência ($X_{it}$) é dividida pelo desvio padrão de sua primeira diferença ($s_{iy}$):
+O painel é não-estacionário por construção, pois reúne séries em nível, séries em taxa e séries já diferenciadas, com ordens de integração distintas. Extrair fatores diretamente sobre esse painel faria com que as séries de maior variância dominassem a decomposição. Seguindo \citeonline{barigozzi2016non}, cada série sem tendência $X_{it}$ é dividida pelo desvio padrão de sua primeira diferença $s_{iy}$:
 \begin{equation}
     Z_{it} = \frac{X_{it}}{s_{iy}}
 \end{equation}
-Essa técnica equaliza a volatilidade entre as séries, ponderando cada uma de acordo com a magnitude de suas flutuações. A partir desta matriz de dados normalizados ($Z_t$), os fatores estáticos ($F_t$) são então extraídos através da decomposição de valor singular (SVD) da matriz de covariância.
+A padronização equaliza a escala das flutuações sem diferenciar as séries, o que preserva a informação de baixa frequência usada pelo modelo. Por essa razão os critérios de \citeonline{bai-ng} não entram na forma padrão: eles pressupõem um painel estacionário, hipótese que o desenho dos dados viola. O tratamento de \citeonline{barigozzi2016non} mantém a estrutura de fatores válida sob não-estacionariedade.
 
-A dinâmica desses fatores é modelada por um Vetor Autorregressivo de ordem 1, ou VAR(1), e para corrigir o conhecido viés de pequena amostra, aplicamos a correção proposta por \citeonline{kilian1998small} aos coeficientes estimados. Para identificar os choques estruturais, adotamos a hipótese de que a ordem causal entre os fatores segue a sequência: a economia real impacta os preços, que por sua vez impactam as variáveis monetárias, que então impactam os ativos financeiros. Com essa ordenação, o terceiro fator é interpretado como o choque de política monetária. O choque é identificado através de uma hipótese de ordenamento recursivo, implementada pela decomposição de Cholesky da matriz de covariância dos resíduos ($\Sigma_u = SS'$). Essa estrutura de ordenamento recursivo implica que o choque de política monetária (terceiro na ordem) pode responder contemporaneamente a choques na atividade real e nos preços (fatores 1 e 2), mas não responde no mesmo período a choques nos ativos financeiros.
+O uso de um painel grande responde ao problema de não-fundamentalidade dos choques estruturais \cite{villaverde}. Um VAR de pequena dimensão raramente contém a informação que os agentes e o banco central de fato observam, e o choque recuperado nesse espaço restrito é uma combinação de choques estruturais, não o choque de política monetária isolado. Ao extrair fatores comuns de um conjunto amplo de variáveis, o SDFM aproxima o espaço de informação relevante e recupera choques fundamentais, como mostram \citeonline{alessi} ao comparar o SDFM a um VAR de referência sob o mesmo instrumento.
 
+\subsection{Base de Dados}
 
+A base reúne cerca de 110 séries mensais para a economia brasileira entre janeiro de 2013 e setembro de 2025, o que corresponde a 147 meses após o alinhamento das séries. O início em 2013 acompanha a mudança metodológica da PNAD Contínua no mercado de trabalho. As fontes são oficiais (Banco Central do Brasil, IBGE, B3, Tesouro Nacional e ANBIMA), somadas a indicadores de risco soberano e mercado externo (EMBI, CDS de cinco anos e MSCI) e a um índice de incerteza de política econômica (EPU). Os blocos cobrem atividade real, mercado de trabalho, inflação, commodities, agregados monetários e de crédito, e preços de ativos.
 
-Por fim, para garantir a interpretação econômica, o choque de política monetária é normalizado para que a resposta contemporânea da variável de juros corresponda a um aumento de 50 pontos-base. As funções de impulso-resposta (IRF) são calculadas para um horizonte de 50 meses, com os intervalos de confiança construídos pelo método de \textit{bootstrap wild}, com 800 replicações. Essa técnica é preferível ao bootstrap simples por ser robusta à presença de heterocedasticidade nos resíduos.
+As taxas de juros de maturidade fixa (3 meses, 6 meses, 1, 2, 5 e 10 anos) vêm do ajuste do modelo de \citeonline{svensson1994estimating} sobre os contratos de DI futuro em cada data. As séries nominais entram em logaritmo e, quando os testes indicam componente sazonal, são ajustadas pelo procedimento X-13ARIMA-SEATS \cite{sax2018seasonal}. A lista completa de séries, fontes e transformações está no Anexo (Tabela \ref{tab:lista_variaveis}).
 
+\subsection{Identificação por instrumento externo}
 
-% \section{Metodologia}
+A identificação do choque de política monetária usa um instrumento externo, no arcabouço de proxy-SVAR de \citeonline{stockwatson2018}, \citeonline{mertensravn2013} e \citeonline{gertler2015}, transposto para o DFM como em \citeonline{alessi}. A abordagem dispensa a ordenação recursiva entre os fatores. No lugar dela entra uma variável observada fora do modelo, correlacionada com o choque de interesse e ortogonal aos demais choques estruturais.
 
-% % \subsection{Normalização e estimação}
+Seja $z_t$ o instrumento e $\varepsilon_t^{p}$ o choque de política monetária da \cref{eq:6}. O instrumento é válido sob duas condições: relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, e exogeneidade, $E[z_t \varepsilon_t^{j}] = 0$ para todo choque estrutural $j \neq p$ \cite{stockwatson2018}. Sob essas condições, a projeção das inovações fatoriais $\eta_t$ sobre o instrumento identifica, a menos de escala, a coluna de $H$ associada ao choque de política monetária. Empilhando $\eta_t$ e $z_t$ na amostra alinhada, essa coluna é estimada por $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$. O alinhamento temporal entre o instrumento mensal e as inovações do modelo segue a rotina de seleção de amostra de \citeonline{alessi}.
 
-% % \subsubsection{Normalização dos fatores}
+O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal. A escolha do yield de 6 meses como variável de política, em vez da Selic overnight, segue a distinção de \citeonline{gertler2015} entre o instrumento de política, a taxa overnight, e o indicador de política, uma taxa de prazo mais longo que incorpora a revisão das expectativas de juros embutida na decisão. No caso brasileiro a distinção é mais aguda. As decisões do Copom saem após o fechamento do mercado, e a surpresa é medida na curva de DI entre a quarta e a quinta-feira, não na taxa overnight. A Selic mensal, uma média do overnight dentro do mês, quase não embute essa surpresa. A regressão da inovação AR(6) do yield de 6 meses sobre o instrumento primário tem F de primeiro estágio de $25{,}2$. Com a Selic mensal no lugar do yield, o F não passa de $1{,}6$ em nenhuma dimensão da varredura de especificações.
 
-% % Como os fatores são não observados, eles apenas são identificados por uma normalização arbitraria. Na forma estática do DFM (\ref{eq:4}), apenas o espaço gerado por $F_t$ é identificado e não os fatores em si. Podemos então reescrever, $\Lambda F_t=(\Lambda Q^{-1})(QF_t)$, onde $Q$ é qualquer matriz $r\times r$ invertível.
+\subsection{Construção do instrumento}
 
-% % Em algumas aplicações como monitoramento de variáveis ou previsão queremos apenas identificar o espaço gerado dos fatores, mas no contexto de análise de impulso e resposta essa normalização é necessária.
+O instrumento primário combina três camadas: a surpresa de juros em dias de reunião do Copom, medida como em \citeonline{gertler2015}, a ortogonalização em relação à informação pública anterior ao anúncio, de \citeonline{bauer2023}, e o filtro de sinal de \citeonline{jarocinski2020}, que separa choques de política de choques de informação.
 
-% % A primeira forma a ser apresentada é a \textbf{Named Factor Normalization}, a ideia é por restrições onde podemos associar cada fator a uma ou mais variáveis\footnote{Vale ressaltar que é apenas uma forma de normalização e não um conteúdo propriamente estrutural.}.
+A primeira camada mede a surpresa como a variação do DI futuro no vértice de 126 dias úteis, cerca de 6 meses, entre o fechamento da quarta-feira da reunião e o da quinta-feira seguinte. A decisão do Copom é anunciada após o fechamento do mercado, de modo que a janela de um dia captura a primeira sessão em que os preços incorporam a decisão. A amostra tem 95 reuniões entre 2013 e 2025. As surpresas são somadas dentro de cada mês, o esquema de agregação de \citeonline{jarocinski2020}, e o instrumento vale zero nos meses sem reunião.
 
-% % Primeiro deve-se ordenar as variáveis em $X_t$ de modo que as $r$ primeiras variáveis sejam aquelas que queremos nomear. Então a normalização passa a ser:
-% % \begin{align}
-% %     \Lambda^{NF}=\begin{bmatrix}
-% %         I_r \\[1ex]
-% %         \Lambda^{NF}_{r+1:n}
-% %     \end{bmatrix}
-% % \end{align}
+A segunda camada remove o componente previsível da surpresa. \citeonline{bauer2023} mostram que surpresas de alta frequência são correlacionadas com informação pública anterior ao anúncio, porque o mercado subestima a resposta do banco central às notícias. Uma surpresa previsível viola a exogeneidade do instrumento. Seguindo o desenho dos autores, a surpresa é regredida sobre preditores medidos até o fechamento da quarta-feira: uma tendência temporal, as variações acumuladas em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent, do câmbio BRL/USD e da inclinação da curva de DI (2 anos menos 3 meses), e as revisões em 20 pregões das medianas da pesquisa Focus para o IPCA acumulado em 12 meses e para a Selic no fim do ano seguinte. O resíduo dessa regressão é a surpresa ortogonalizada. O $R^2$ é $0{,}024$, na faixa esperada. \citeonline{bauer2023} obtêm entre $0{,}12$ e $0{,}20$ incluindo surpresas de divulgações macroeconômicas que não existem em frequência diária para o Brasil, e um $R^2$ alto indicaria vazamento de informação contemporânea na regressão. A exigência de que todos os preditores sejam predeterminados disciplina a especificação. Variáveis domésticas contemporâneas à janela do anúncio respondem ao próprio choque e enviesariam o resíduo. Variáveis predeterminadas, domésticas ou não, são informação disponível antes da decisão, exatamente o que a correção de \citeonline{bauer2023} usa.
 
-% % Sob esta normalização, os fatores geralmente são correlacionados contemporaneamente.
+A terceira camada separa o choque de política monetária do choque de informação do banco central. \citeonline{jarocinski2020} distinguem os dois pelo sinal do co-movimento entre a surpresa de juros e a do mercado de ações no mesmo dia. Juros em alta com ações em queda indicam um choque de política. Juros e ações em alta juntos indicam que o comunicado revelou informação favorável sobre a economia. O filtro classifica cada reunião pelo co-movimento dos resíduos ortogonalizados da surpresa de DI e do retorno do Ibovespa, mantém os dias de co-movimento negativo e zera os demais. Das 95 reuniões, 62 são classificadas como choque de política e 33, ou $34{,}7\%$, como informação, proporção próxima do terço que os autores encontram para o Fed. Como os preditores da segunda camada são predeterminados, a classificação preserva o co-movimento observado no dia do anúncio, em vez de depender de resíduos construídos com informação da própria janela. A série mensal resultante é o instrumento primário do trabalho.
 
-% % Para utilizar este tipo de normalização, dois requisitos devem ser satisfeitos: As variáveis de nomeação deve ser suficientemente entre si; A matriz $\Lambda_{1:r}$ deve ser invertível, para que $\Lambda^{NF}_{r+1:n}=\Lambda^{-1}_{1:r}\Lambda_{r+1:n}$
+\subsection{Seleção de $(r, q)$ e estimação}
 
-% % A segunda normalização, é utilizada para identificar os choques estruturais que também são não-observados. A mais utilizada nesse tipo de metodologia, é a \textit{unit effect normalization}, esta normalização fixa o sinal e a escala do \textit{j-ésimo} choque, tal que o aumento de uma unidade em $\varepsilon_{jt}$, corresponde a um aumento contemporâneo de uma unidade em $X_{jt}$.
-% % \begin{align}
-% %     H_{jj}=1
-% % \end{align}
+Os critérios de \citeonline{bai-ng} na variante padronizada e o procedimento de \citeonline{amengual2007consistent} servem de referência para a dimensão do sistema e apontam $(r, q) = (5, 4)$. A escolha final é $(r, q) = (6, 5)$, definida pela força do primeiro estágio nas duas janelas amostrais. A \autoref{tab:rq_sweep} reporta, para o instrumento primário, a estatística $\xi_{mp}$ de \citeonline{montielolea} por dimensão e janela. A estatística é a Wald de primeiro estágio na direção do impacto sobre o yield de 6 meses, robusta à heterocedasticidade. Valores acima de $10$ sustentam bandas convencionais. Valores entre $3{,}84$ e $10$ indicam instrumento fraco com conjunto de confiança de Anderson-Rubin limitado.
 
-% % Sendo necessário ter pelo menos $n(n-1)/2$ restrições, onde $n$ é o numero de fatores.
+O par $(6, 5)$ é o único acima de $10$ na janela pré-COVID, com $12{,}49$, e fica em $6{,}94$ na amostra completa, dentro da zona de instrumento fraco. A amostra completa favorece dimensões maiores, com $13{,}13$ em $(8, 8)$, mas $r \geq 7$ colapsa na janela pré-COVID, com $6{,}90$ em $(7, 6)$ e $5{,}14$ em $(8, 8)$. Os 84 meses dessa janela não sustentam a estimação de um número maior de fatores. O par $(6, 5)$ é o único com identificação utilizável nas duas janelas e por isso é mantido em ambas.
 
-% % \subsubsection{Estimação dos Fatores}
+\begin{table}[htbp]
+\centering
+\caption{Força do instrumento primário por dimensão $(r, q)$ e janela amostral}
+\label{tab:rq_sweep}
+\begin{threeparttable}
+\begin{tabular}{ccc}
+\toprule
+$(r, q)$ & Amostra completa & Pré-COVID \\
+\midrule
+$(5, 4)$ & 5,22  & 9,69  \\
+$(6, 5)$ & 6,94  & 12,49 \\
+$(7, 6)$ & 9,67  & 6,90  \\
+$(8, 8)$ & 13,13 & 5,14  \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item Estatística $\xi_{mp}$ de \citeonline{montielolea}: Wald de primeiro estágio, robusta à heterocedasticidade, na direção do impacto do choque sobre o yield de 6 meses. Acima de $10$, bandas convencionais são confiáveis. Entre $3{,}84$ e $10$, o instrumento é fraco e o conjunto de Anderson-Rubin de 95\% é um intervalo limitado. Instrumento primário, com ortogonalização pré-evento e filtro de sinal. Amostra completa: 2013--2025. Pré-COVID: 2013--2019.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
 
-% Se os distúrbios idiossincráticos tiverem variações diferentes e/ou alguns estiverem correlacionados de forma cruzada, se usa mínimo quadrados generalizados. O estimador se da minimizando a seguinte função objetivo:
-% \begin{align}\label{eq:3}
-%     \min_{F_1,\ldots,F_t,\Lambda} T^{-1} \sum^{T}_{t=1} (X_t - \Lambda F_t)'\Sigma_e^{-1}(X_t - \Lambda F_t)
-% \end{align}
-% Em que a solução da o estimador $\tilde{F}_t=N^{-1}\tilde{\Lambda}' X_t$. Onde $\tilde{\Lambda}'$ é dado pelos autovetores ordenado, correspondentes aos $r$ maiores autovalores de $\Sigma_e^{-1/2}\Sigma_{xx}\Sigma_e^{-1'}$. Como $\Sigma_e$ é desconhecido, então deve-se utilizar um estimador $\hat{\Sigma}_e$, a metodologia mais recomendada é a proposta por \citeonline{BOIVIN2006169}.
+Os fatores estáticos são extraídos por componentes principais sobre o painel padronizado. A dinâmica segue o VAR(6) da \cref{eq:5}. A estimativa pontual das funções de impulso-resposta usa os coeficientes de mínimos quadrados ordinários, fiel à implementação de \citeonline{alessi}. A incerteza vem de um \textit{bootstrap wild} \cite{goncalveskilian2004}, com 800 replicações, robusto à heterocedasticidade dos resíduos. A correção de viés de pequena amostra de \citeonline{kilian1998small} entra apenas no processo gerador do bootstrap, não na estimativa pontual. As funções de impulso-resposta cobrem horizontes de 0 a 48 meses, com bandas de 68\% e 90\%.
 
+\subsection{Relevância do instrumento}
 
+A validade da inferência no proxy-SVAR depende da força do instrumento \cite{montielolea}. Com instrumento fraco, o estimador de impacto é uma razão de normais correlacionadas, com viés na direção da identificação recursiva e cobertura incorreta das bandas. A alternativa nesse caso são os intervalos de Anderson-Rubin, válidos sob qualquer força do primeiro estágio.
 
-% \subsection{O modelo SDFM}
+Três estatísticas de primeiro estágio podem ser calculadas, e elas medem coisas diferentes. O F contra a inovação AR(6) do yield de 6 meses mede a relevância univariada para a leitura do choque em pontos de Selic. O F contra o resíduo do primeiro fator é a estatística usual de proxy-SVAR com uma única variável de forma reduzida. Para o instrumento primário na amostra completa, as duas valem $25{,}2$ e $2{,}8$. A diferença de quase uma ordem de grandeza não é contradição. A variação associada à política monetária carrega em fatores além do primeiro, e a estatística de um único fator não é o diagnóstico adequado para a projeção $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$, que usa o vetor $\eta_t$ inteiro.
 
-% O SDFM pode ser representado por três equações principais:
+O diagnóstico que governa essa projeção é a estatística $\xi_{mp}$ da \autoref{tab:rq_sweep}, a Wald de \citeonline{montielolea} na direção da normalização. Ela projeta o primeiro estágio na combinação das inovações fatoriais que determina o impacto sobre o yield de 6 meses, com erros padrão de Eicker-White e com o instrumento residualizado nas defasagens do VAR dos fatores. O conjunto de Anderson-Rubin de 95\% é um intervalo limitado se e somente se $\xi_{mp} > 3{,}84$. A implementação reproduz os números que \citeonline{montielolea} publicam para a aplicação ao choque de petróleo de Kilian, com Wald individual de $4{,}4$ e F robusta de $9{,}4$.
 
-% \begin{align}
-%     \overset{n\times 1}{X_t} &= \overset{n\times r}{\Lambda} \overset{r\times 1}{F_t} + \overset{n\times 1}{e_t}\label{eq:4}\\[4pt]
-%     \overset{r\times r}{\Phi(L)}\overset{r\times 1}{F_t} &= \overset{r\times q}{G} \overset{q\times 1}{\eta_t} \label{eq:5}\\[4pt]
-%     \overset{q\times 1}{\eta_t} &= \overset{q\times q}{H} \overset{q\times 1}{\varepsilon_t} \label{eq:6}
-% \end{align}
-
-% Vamos ter que $\Phi(L) = I - \Phi_1L - \Phi_2L^2 - ... - \Phi_pL^p$ é um polinômio de defasagens que descreve a dinâmica dos fatores. A matriz de cargas $\Lambda$ relaciona os fatores às variáveis observadas e captura a importância relativa de cada fator. A matriz $H$ relaciona inovações dos fatores aos choques estruturais.
-
-% Juntando as \cref{eq:4,eq:5,,eq:6}, podemos reescrever o modelo da seguinte forma:
-% \begin{align}\label{eq:7}
-%     X_t=\Lambda \Phi(L)^{-1}GH\varepsilon_t + e_t
-% \end{align}
-
-% O lado direito da \cref{eq:7} é a representação de média móvel dos componentes comum de $X_t$ em termos de choque estrutural. Note que a \cref{eq:7} requer três normalizações: $\Lambda$, $G$ e $H$. E para isso, devemos considerar dois casos: $r=q$ e $r>q$.
-
-% % \subsubsection{Determinando o numero de fatores}
-% % \subsubsubsection{Determinando os fatores estáticos}
-
-% % Existe diferentes maneiras de se estimar o numero de fatores estáticos $r$, uma delas é a metodologia proposta por \citeonline{bai-ng}, os autores extendem a ideia do critério de informação de Akaike (AIC) para o caso de fatores dinâmicos, em que a inclusão de fatores adicionais penaliza a soma dos quadrados dos resíduos,
-% % \begin{align}
-% %     IC_r = \ln V_{r}(\hat{\Lambda}, \hat{F})+rg (N,T)
-% % \end{align}
-% % onde $V_{r}(\hat{\Lambda}, \hat{F})$ é a função objetivo dos mínimos quadrados, em outras palavras, os componentes principais avaliado em $(\hat{\Lambda}$ e $\hat{F})$, $g(N,T)$ é o fator de penalidade tal que $g(N,T)\to 0$ e min$(N,T)g(N,T)\to \infty$ quando $N,T\to\infty$. 
-
-
-% % \subsubsection{Normalização quando $r=q$}
-
-% % Nesse caso vamos ter que $G=I$, a normalização de $\Lambda$ é feita por \textit{named factor} e de $H$ por \textit{unit effect normalization}. Usando essas duas normalizações, temos que conseguimos assegurar a inferência sobre a função estrutural de impulso e resposta (SIRF). Lembrando que $\Lambda$ pode ser identificado por named factor
-% % \begin{align}
-% %     \hat{\Lambda} = \begin{bmatrix} I_r \\[1ex]
-% %     \hat{\Lambda}^{PC}_{r+1:n}(\hat{\Lambda}^{PC}_{1:r})^{-1} \end{bmatrix}
-% % \end{align}
-% % e $H$ pode ser identificado por \textit{unit effect normalization}.
-
-% % \subsubsection{Normalização quando $r>q$}
-
-% % Caso o número de fatores dinâmicos seja menor que o de fatores estáticos, $G$ precisa ser estimada e os passos da estimação devem ser consistentes com a \textit{unit effect normalization}. $G$ é normalizado da seguinte maneira:
-% % \begin{align}
-% %     G = \begin{bmatrix}
-% %             I_q \\
-% %             G_{q+1:r}
-% %         \end{bmatrix}
-% % \end{align}
-
-% % Em que $G$ tem dimensão $r \times q$, $I_q$ é matriz identidade $q \times q$ e $G_{q+1:r}$ é uma matriz de dimensão $(r-q) \times q" irrestrita. 
-
-% % A matriz $G_{q+1:r}$ deve ser estimada e a metodologia de estimação dessa matriz pode ser vista em \citeonline{STOCK2016415}
-
-% \section{Dados}
-
-% Este estudo utiliza uma base de dados composta por 71 variáveis mensais, abrangendo o período até janeiro de 2013 até dezembro de 2024. Embora a maior parte dos dados tenham um período maior, os dados referente ao mercado de trabalho sofreram uma mudança metodológica na PNAD em 2013. Os dados são provenientes de diversas fontes oficiais, incluindo o Banco central do Brasil (BCB), IBGE, B3, Tesouro Nacional e ANBIMA. A base cobre dados Monetários, atividade econômica, mercado de trabalho, inflação, commodities e mercado de capitais. A Tabela 2 mostra a lista de variáveis utilizadas, junto a todas as transformações feitas na série.
-
-% Para construir séries de taxas de juros com maturidades fixas, empregamos o modelo de \citeonline{svensson1994estimating} aos dados das Letras do Tesouro Nacional (LTN). Este modelo estende a especificação de Nelson-Siegel ao adicionar um segundo termo de curvatura, permitindo um ajuste mais flexível da estrutura a termo. A função de taxa a termo é parametrizada por seis coeficientes: um nível de longo prazo ($\beta_0$), um componente de curto prazo ($\beta_1$), dois componentes de médio prazo ($\beta_2$ e $\beta_3$) e dois parâmetros de decaimento ($\tau_1$ e $\tau_2$). Para cada data, estimamos estes parâmetros via otimização numérica L-BFGS-B, minimizando a soma dos quadrados dos erros entre as taxas observadas e as previstas pelo modelo. A partir dos parâmetros estimados, interpolamos as taxas para maturidades fixas de 3 meses, 1, 2, 3 e 5 anos, gerando séries temporais consistentes para a análise.
-
-% Após a coleta e estimação de algumas séries, foi realizada uma análise preliminar dos dados para garantir a adequação do modelo. Testamos a presença de sazonalidade utilizando uma combinação dos testes QS (periodicidade sazonal), Friedman (variação sazonal não-paramétrica) e Kruskal-Wallis (diferenças sazonais) com frequência mensal, e, quando identificada, aplicamos o procedimento X-11 ARIMA\footnote{O procedimento foi implementado com a ajuda do pacote seasonal do R, que serve como interface com o software X-13ARIMA-SEATS, desenvolvido pelo United States Census Bureau \cite{sax2018seasonal}} para remover os componentes sazonais. Em seguida, verificamos a estacionariedade das séries através de testes de raiz unitária de Dickey-Fuller aumentado. A tabela de transformação das séries pode ser vista na Tabela 2.
-
-
-% \section{Parametrização do modelo}
-
-% Para a determinaçao do número de fatores estáticos, utilizamos os critérios de informação de \citeonline{bai-ng} para determinar o número de fatores estáticos ($r$). Os critérios IC1, IC2 e IC3 são calculados com diferentes termos de penalização:
-
-% \begin{align}
-%     IC_{1r} &= \ln V_{r}(\hat{\Lambda}, \hat{F}) + r \left( \frac{N+T}{NT} \right) \ln \left( \frac{NT}{N+T} \right); \\
-%     IC_{2r} &= \ln V_{r}(\hat{\Lambda}, \hat{F}) + r \left( \frac{N+T}{NT} \right) \ln(\min(N,T)); \\
-%     IC_{3r} &= \ln V_{r}(\hat{\Lambda}, \hat{F}) + r \frac{\ln(\min(N,T))}{\min(N,T)}.
-% \end{align}
-% os autores recomendam utilizar o IC2. 
-
-% Outra analise para o número de fatores estáticos, foi conduzida a variação o número de fatores estáticos de 5 a 9. O modelo com 7 fatores, nossa especificação base, explica 65,22\% da variância total dos dados. O ganho marginal na variância explicada diminui consistentemente: o incremento de 5 para 6 fatores é de 4,61\%, de 6 para 7 fatores é de 3,54\%, de 7 para 8 é de 3,29\%, e de 8 para 9 fatores é de 2,91\%.
-
-% \begin{figure}[H]
-%     \centering
-%     \caption{Scree}
-%     \includegraphics[width=0.7\textwidth]{"img/scree.png"}
-%     \label{fig:scree}
-% \end{figure}
-
-% O scree plot apresentado na \autoref{fig:scree} scree mostra a contribuição marginal de cada fator adicional para a variância explicada. Observa-se uma clara inflexão após o sétimo fator, sugerindo que fatores adicionais contribuem marginalmente menos para a explicação da variância total. Esta análise visual, combinada com a decomposição da variância e os critérios de informação discutidos em \citeonline{bai-ng}, corrobora nossa escolha de sete fatores, alinhando-se com a literatura empírica sobre modelos de fatores dinâmicos para variáveis macroeconômicas e financeiras (e.g., \citeonline{stock2002macroeconomic}, \citeonline{forni2005generalized}).
-
-% Em seguida, aplicamos o procedimento de \citeonline{amengual2007consistent} para estimar o número de fatores dinâmicos ($q$), que permite que $q$ seja menor que $r$. Este procedimento envolve a extração de $r$ fatores estáticos via componentes principais, seguida de uma filtragem da projeções de X nos fatores defasados e a aplicação do critério IC2 de Bai-Ng nos resíduos.
-
-
-
-
-
-
-
-% \section{Estratégia de Estimação}
-
-% A estratégia de estimação do modelo baseia-se na metodologia utilizada por \citeonline{alessi}. A estimação do modelo SDFM começa com a extração dos fatores estáticos através do método de componentes principais. Seguindo \citeonline{alessi}, padronizamos os dados dividindo cada série pelo desvio padrão de sua primeira diferença. A dinâmica dos fatores é então modelada através de um VAR(1), onde implementamos a correção de viés proposta por \citeonline{kilian1998small} para amostras finitas.
-
-% Para a identificação dos choques estruturais, foi empregada a decomposição de Cholesky. E as funções impulso-resposta são computadas utilizando a estrutura completa do modelo, que combina as cargas fatoriais estimadas ($\Lambda$), os coeficientes do VAR corrigidos, a matriz de transformação e a matriz de identificação. Para quantificar a incerteza em torno das estimativas, implementamos um procedimento de bootstrap wild com 800 replicações. Este método preserva a possível heteroscedasticidade presente nos dados ao multiplicar os resíduos por variáveis aleatórias que assumem os valores 1 ou -1 com igual probabilidade.
-
-
-% O horizonte de análise para as funções impulso-resposta é definido em 50 períodos, permitindo capturar tanto os efeitos imediatos quanto as dinâmicas de médio prazo dos choques monetários. A normalização dos choques é calibrada para representar um aperto monetário de 50 pontos-base, facilitando a interpretação econômica dos resultados e a comparação com estudos anteriores.
-
-
+Na especificação de produção, $\xi_{mp}$ vale $6{,}94$ na amostra completa e $12{,}49$ na janela pré-COVID. Na amostra completa o instrumento é fraco no sentido de \citeonline{montielolea}, o conjunto de Anderson-Rubin é limitado e os resultados dessa janela são lidos com essa qualificação. Na janela pré-COVID as bandas convencionais são adequadas. A Wald conjunta sobre as $q$ inovações fatoriais é baixa nas duas janelas, com forma-F de $1{,}75$ e $2{,}74$. Wald conjunta baixa com $\xi_{mp}$ alto é o padrão esperado sob exogeneidade: a relevância se concentra na direção do choque de política, não espalhada pelo espaço dos fatores. O contraste entre as janelas repete o resultado da \autoref{tab:rq_sweep}. As observações a partir de 2020 adicionam ruído ao primeiro estágio, não informação.
 
 \section{Resultados}
 
@@ -410,42 +315,6 @@ No mercado cambial, a função de impulso-resposta indica uma forte sensibilidad
 Este artigo quantificou os efeitos da política monetária sobre os preços dos ativos no Brasil, empregando um modelo de fatores dinâmicos estruturais (SDFM) para lidar com o problema da não-fundamentalidade. Os resultados mostram que os canais de transmissão monetária são robustos e rápidos: um choque contracionista impacta imediatamente o mercado de ações, a taxa de câmbio e a estrutura a termo dos juros, com efeitos heterogêneos entre os diferentes ativos.
 
 As implicações para a política monetária são relevantes. A magnitude e a rapidez das respostas sugerem que o Banco Central deve considerar cuidadosamente os potenciais efeitos colaterais de suas decisões sobre a estabilidade financeira. A sensibilidade particular de setores como o imobiliário reforça a necessidade de uma análise granular dos impactos da política de juros. Como limitação e direção para pesquisa futura, a identificação dos choques poderia ser aprimorada com o uso de dados de alta frequência, como em \citeonline{alessi}, para isolar com ainda mais precisão a surpresa monetária.
-
-% \section{Discussão}
-
-% Esta seção discute os principais desafios metodológicos enfrentados durante a pesquisa e suas possíveis implicações para os resultados. A transparência sobre estas limitações é fundamental para a interpretação adequada dos resultados.
-
-% \subsection{Evolução da Metodologia}
-
-% Um aspecto importante do desenvolvimento deste trabalho foi a mudança na abordagem metodológica durante o processo de pesquisa. Inicialmente, a estimação do modelo seguia a metodologia proposta por \citeonline{STOCK2016415}, que é amplamente reconhecida na literatura de modelos fatoriais. Esta abordagem inicial apresentou diversos desafios, particularmente na identificação dos choques estruturais e na obtenção de funções impulso-resposta economicamente consistentes.
-
-% Diante das dificuldades encontradas e das restrições de tempo para conclusão da pesquisa, optou-se por adotar a metodologia de \citeonline{alessi}. 
-
-% É importante notar que esta mudança metodológica, embora necessária e benéfica para os resultados do trabalho, pode ter introduzido algumas limitações adicionais, principalmente devido ao tempo reduzido para implementação e teste completo do novo modelo. 
-
-% \subsection{Construção da Base de Dados}
-
-% Um desafio foi a construção da base de dados para o período de janeiro de 2013 a dezembro de 2024, principalmente devido à mudança metodológica na PNAD. Esta alteração metodológica criou uma potencial descontinuidade nas séries temporais, especialmente nas variáveis relacionadas ao mercado de trabalho. 
-
-% \subsection{Estimação das Séries de Yield}
-
-% A construção das séries de yield merece atenção especial devido à sua importância central para a análise dos mecanismos de transmissão da política monetária. Embora eu tenha utilizado o método de Svensson para a interpolação das taxas. Uma análise mais robusta destas séries, incorporando diferentes valores para a estimaçao dos parametros e incluindo diagnosticos melhores para identificar possiveis problemas.
-
-% \subsection{Identificação dos Choques Estruturais}
-
-% Uma limitação importante do presente estudo em relação à metodologia original de \citeonline{alessi} foi a não utilização de instrumentos externos para a identificação dos choques estruturais. Os autores originais empregaram surpresas de alta frequência nos mercados futuros de juros como instrumento para identificação, uma abordagem que não foi possível replicar no contexto brasileiro devido à limitação de dados. A identificação por Cholesky utilizada, embora amplamente empregada na literatura, pode não capturar completamente a natureza dos choques monetários, especialmente em um ambiente de política monetária mais complexo.
-
-% \subsection{Normalização e Magnitude dos Choques}
-
-% Um desafio técnico significativo foi encontrado na normalização dos dados e na construção das funções impulso-resposta (IRF). Apesar de o formato das IRFs apresentar consistência com a teoria econômica, houve dificuldades em calibrar corretamente a magnitude dos choques. Este problema pode estar relacionado a vários fatores:
-
-% \begin{itemize}
-%     \item Diferenças nas escalas das variáveis e seus impactos na normalização
-%     \item Possíveis questões na transformação das variáveis e sua posterior recuperação para as unidades originais
-% \end{itemize}
-
-% Estas limitações sugerem a necessidade de cautela e reavaliação posterior dos resultados, embora as conclusões qualitativas sobre a direção e o timing dos efeitos permaneçam robustas.
-
 
 % ----------------------------------------------------------
 % Referências bibliográficas
@@ -480,7 +349,7 @@ As implicações para a política monetária são relevantes. A magnitude e a ra
 \end{TableNotes}
 
 \begin{longtable}{llll}
-\caption{Lista de Variáveis Utilizadas} \\
+\caption{Lista de Variáveis Utilizadas}\label{tab:lista_variaveis} \\
 \toprule
 \textbf{Variável} & \textbf{Fonte} & \textbf{Grupo} & \textbf{Código} \\
 \midrule

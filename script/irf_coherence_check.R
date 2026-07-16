@@ -29,7 +29,7 @@ source("R/identification/irf_coherence.R")
 R_FACTORS  <- 6L
 Q_DYNAMIC  <- 5L
 P_LAGS     <- 6L
-INSTRUMENT <- "z_jk_purif"
+INSTRUMENT <- "z_jk_bs_purif"
 MP_VAR     <- "yield_6m"
 HORIZON    <- 48L
 N_BOOT     <- 800L

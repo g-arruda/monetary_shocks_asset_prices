@@ -45,7 +45,19 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 
 ## MÉDIO — robustez importante, deve entrar no paper
 
-> **Status (2026-07-11):** varredura de especificações abriu **3 itens novos** (abaixo). **Status (2026-05-06):** os 7 itens MÉDIO originais fechados. Os 6 itens menores (1-6) na sessão da manhã (commits `0cdc7e7`, `78452b9`, `78a9c0e`); o Item 7 (IRF + benchmark GRG) na sessão da tarde.
+> **Status (2026-07-15):** default trocado para `z_jk_bs_purif` e cadeia de estimação re-rodada (sweep 480 células, stage 2, `model_alessi.R`, coerência); decisão editorial de manter o het fora do paper. Abriu **3 itens novos** (abaixo). **Status (2026-07-11):** varredura de especificações abriu 3 itens. **Status (2026-05-06):** os 7 itens MÉDIO originais fechados. Os 6 itens menores (1-6) na sessão da manhã (commits `0cdc7e7`, `78452b9`, `78a9c0e`); o Item 7 (IRF + benchmark GRG) na sessão da tarde.
+
+- [ ] **Reescrever §5 (`output/irf/irf_section.md`) sob o novo primário `z_jk_bs_purif`** *(novo 2026-07-15, troca de default)*
+  A cadeia foi re-estimada mas o texto do §5 e as leituras interpretativas de 2026-07-12 (price puzzle, crédito/ativos, dentadas) descrevem a rodada `z_jk_purif`. História qualitativa igual, magnitudes ~30–45% menores (Ibov h0 −1.1% vs −8.9%; BRL +0.185 vs +0.245; EMBI +25bp vs +46bp; CDS +34bp vs +56bp em escala ×100). Vereditos da coerência que mudaram: crédito PJ e juros_cdi/selic melhoram (juros com share 100%), pib e desemprego caem para parcial, asset_idiv vira incoerente. Releitura ponto-a-ponto + re-append da seção manual do `irf_coherence_report.md` (nota de datação já inserida).
+  *Fonte: re-estimação 2026-07-15; comparação old×new no scratchpad da sessão.*
+
+- [ ] **Bandas Anderson-Rubin para o primário na amostra completa** *(novo 2026-07-15; herda o escopo do item AR de 2026-07-14)*
+  `z_jk_bs_purif` (6,5) full: ξ_mp = 6.94 < 10 (AR limitado, > 3.84) — bandas AR obrigatórias para os resultados full-sample; pre-COVID (6,5) dispensa (12.49). Protocolo anti-screening de MOSW (footnote 6): reportar ξ e usar AR, não filtrar pelo F.
+  *Fonte: grid MOSW; `output/instrument/mosw_strength_grid.md`.*
+
+- [ ] **Benchmark GRG (2025) sem a célula het** *(novo 2026-07-15, het fora do paper)*
+  A reconciliação do sinal do câmbio usava a célula `z_het_3var` × pre-COVID × (6,5), que saiu do paper. Decidir como discutir o desacordo com GRG (frequência diária vs mensal GE, janela amostral, regime de dominância fiscal 2020-25) sem essa célula.
+  *Fonte: decisão editorial 2026-07-15; `relatorio/estrutura_paper_v2.md` §5.3 e pendência 6.6.*
 
 - [x] **Aplicar (r,q) = (6,5) como override explícito em `script/model_alessi.R`** — *concluído 2026-07-11 (mesma sessão, após relato do usuário de câmbio ↑ / IPCA em corcova / núcleo ↑ no auto-IC)*
   Override `r = 6L, q = 5L` na chamada `main_sdfm()` com comentário citando a varredura; auto-IC mantido como referência impressa; `ggsave` novo para `output/irf/irf_model_alessi_r6q5.pdf`. **Re-run confirma a previsão da varredura:** pib agora negativo em todo o horizonte (antes: +0.42 em h24 no auto-IC (5,4)); corcova do IPCA encolhe e vira desinflação em h12-h30; curva e varejo com sinais corretos e CI apertados; câmbio +0.3 BRL no impacto revertendo (dominância fiscal, não defeito). **Núcleo ex0 permanece positivo (~+0.05-0.10, bandas contêm 0) em (5,4), (6,5) e (7,6)** — diagnóstico barato via `compute_irf_dfm(nboot=0)` mostrou que NÃO é artefato do grid: é a limitação conhecida do canal de desinflação do `z_jk_purif` (irf_section.md); os núcleos ex1 e dw viram negativos em h12-h24 nos grids fortes.
@@ -55,6 +67,11 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
   Na janela 2013-2019 com (r=6, q=5), cinco instrumentos cruzam Stock-Yogo (z_jk_purif 15.4, z_jk 15.2, z_het_jk_3var 11.1, z_het_3var 10.8, z_bruto_purif 10.4) com sinais hard e de transmissão coerentes — dois esquemas de identificação independentes concordando. Incorporado como §5.6.1 do novo `output/irf/irf_section.md` (rewrite 2026-07-12: z_jk_purif primário × (6,5), ex1 como preço primário, price puzzle decomposto, crédito BG95, spreads duas fases, curva como prêmio fiscal, reconciliação GRG via z_het_3var pre_covid).
   *Fonte: varredura 2026-07-11.*
 
+- [ ] **Decidir promoção de `z_jk_raw_purif` a robustez full-sample no paper** *(novo 2026-07-14, ordem purificação ↔ JK)*
+  A variante com máscara JK nos sinais brutos (ordem "JK → purificação"; `script/instrument.R`) supera `z_jk_purif` em ξ_mp em **13/14 células full** do grid MOSW (única GK ≥ 10 em células full: (7,7) e todo r=8; em (6,5) full é o mais forte dos 10 instrumentos, 6.61) — a máscara bruta exclui 2020-03-19 (pânico COVID que a máscara residual classifica como monetário). No pre_covid (6,5) fica ≥ 10 mas abaixo do default (10.80 vs 13.25) — default inalterado. Falta: rodar `irf_spec_sweep.R` Etapa 1 com a variante para checar coerência de sinais nas células fortes antes de citá-la no texto; `z_jk_raw_purif_local` já foi descartada (dominada em 26/28 células). Detalhes: `relatorio/working-notes/2026-07-14_ordem_purificacao_jk.md`.
+  *(2026-07-15)* A Etapa 1 foi rodada com as 4 variantes da auditoria (grid de 480 células, zero `sign_puzzle`); o default mudou para `z_jk_bs_purif`, que carrega máscara predeterminada equivalente. Resta só a decisão editorial de citar `z_jk_raw_purif`/`z_jk_raw` como robustez de máscara no §5.6.
+  *Fonte: pedido do usuário 2026-07-14; grid MOSW 280 células.*
+
 - [ ] **Investigar compressão dos spreads ICC pós-choque (sinal oposto ao prior)** *(novo 2026-07-11, coerência h)*
   `spread_icc_juridica` cai com CI90 em h0-h6 (share correto = 0%) e `spread_icc_fisica` idem (23%) — oposto ao prior financial-accelerator (+). Hipótese: ICC é taxa média da *carteira*; captação reprecifica mais rápido que a carteira na alta da Selic → compressão mecânica de curto prazo. Reavaliar o prior ou trocar a medida (spread de concessões novas) antes de tratar como falha. Ver `output/irf/irf_coherence_report.md` §Leitura.
   *(2026-07-12)* **Substancialmente resolvido pela análise h-a-h completa** (`relatorio/working-notes/2026-07-12_irf_credito_ativos_financeiros.md`): os spreads têm resposta em DUAS fases — compressão significativa h0-h7 (reprecificação carteira-vs-captação, mecânica) seguida de **abertura com CI68 em h19-h30** (juridica pico +0.08 em h25; fisica +0.13 em h25) — o financial accelerator (BG95, GZ12, GK15) aparece com defasagem. O prior não estava errado; a janela h0-12 da régua estava. Resta (não-bloqueante): testar spread de concessões novas, que deve abrir já no curto prazo.
@@ -62,7 +79,8 @@ Consolidado a partir do council (`relatorio/council_2026-05-05.md`), blindspot r
 
 - [ ] **`commodity_metal` responde ao choque (placebo externa violada)** *(novo 2026-07-11, coerência h)*
   contain0 = 0.64 (regra: ≥ 0.90); +14 a +19 pts com CI90 excluindo zero em h0-h8. Metais não entram na purificação Bauer-Swanson (SP500/VIX/Brent). Testar purificação incluindo índice de metais; se persistir, documentar como caveat de exogeneidade. Demais placebos (sp500_vix, msci, epu_us) ok.
-  *Fonte: checagem de coerência ponto a ponto 2026-07-11.*
+  *(2026-07-15)* Persiste na rodada com `z_jk_bs_purif` (único `placebo_viola` da coerência). A ortogonalização pré-evento usa Brent mas não metais; testar preditor de metais 65d ou documentar como caveat.
+  *Fonte: checagem de coerência ponto a ponto 2026-07-11; re-rodada 2026-07-15.*
 
 - [x] **Núcleo do paper: preferir ex1 (ou reportar ex0/ex1/dw com leitura)** — *concluído 2026-07-12 (§5.5 do rewrite adota ex1 como medida primária, difusão como corroboração, ex0/dw com leitura)*
   ex1 é coerente_forte (share 84%, desinflação significativa de h≈15); ex0 (0%) e dw (49%) concentram a limitação de desinflação do z_jk_purif.

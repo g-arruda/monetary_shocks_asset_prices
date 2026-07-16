@@ -19,7 +19,7 @@ Paper independente que replica a metodologia de Alessi & Kerssenfischer (2019) a
 - **Dados brutos mensais:** `data/raw_data.csv`.
 - **Dados processados (log + sazonalidade):** `data/processed/data_log_deseasonalized.csv`.
 - **Instrumento default consumido pela DFM:** `data/processed/instrument.csv` (sobrescrito conforme `DEFAULT_VARIANT`; default atual: **`z_jk_purif`**, atualizado em 2026-05-08 — ver pendencias.md CRÍTICO 2026-05-08).
-- **Painel de instrumentos lado-a-lado:** `data/processed/instrumentos_mensais.csv` (4 GK + 4 het = 8 colunas).
+- **Painel de instrumentos lado-a-lado:** `data/processed/instrumentos_mensais.csv` (6 GK + 4 het = 10 colunas; as duas GK adicionais de 2026-07-14 são o par de máscara bruta `z_jk_raw_purif`/`z_jk_raw_purif_local` — ver `relatorio/working-notes/2026-07-14_ordem_purificacao_jk.md`).
 - **Dados diários para identificação por heterocedasticidade:** `data/di.csv`, `data/yields/yields_dia.csv` (Svensson), `data/processed/ibov_daily.csv`, `data/processed/brl_usd_daily.csv`, `data/copom_historico.csv`.
 - **Curva de juros (Svensson):** `data/yields/yields.csv` (mensal), `data/yields/yields_dia.csv` (diária), `data/yields/fatores.csv`.
 
@@ -28,7 +28,7 @@ Paper independente que replica a metodologia de Alessi & Kerssenfischer (2019) a
 - `R/modeling/factor_estimation.R` — estimação do modelo.
 - `R/modeling/impulse_responde.R` — funções de IRF.
 - `R/preprocessing/` — sazonalidade e transformaçao log.
-- `script/instrument.R` — construção dos 4 instrumentos por timing (Gertler-Karadi); importa as 4 variantes het no arquivo combinado.
+- `script/instrument.R` — construção dos 6 instrumentos por timing (Gertler-Karadi; inclui desde 2026-07-14 o par de máscara JK em sinais brutos `z_jk_raw_purif`/`z_jk_raw_purif_local` — ordem "JK → purificação", inversa à do `z_jk_purif`); importa as 4 variantes het no arquivo combinado.
 - `script/instrument_het.R` — construção dos instrumentos `z_het`, `z_het_jk` (4-var production) e `z_het_3var`, `z_het_jk_3var` (3-var robustez) por heterocedasticidade (Rigobon-Sack 2003). Novos artefatos (2026-05-07): `output/instrument/het_rank_test{,_3var,_pre_covid,_covid_post}.csv` (testes formais de rank Gate A + Gate B), `output/instrument/het_b_2{,_3var}.csv` (segundo eigenpair loadings — descritor), `data/processed/instrument_z_het2{,_3var}.csv` (série mensal do segundo eigenpair — candidato robustez).
 - `R/identification/het_shock_extraction.R` — primitivas (regimes Wed→Thu, eigendecomp de ΔΣ, GLS de Mertens-Ravn, agregação mensal, `validate_variance_split`, `classify_a2_verdict`, `build_het_instrument`).
 - `R/identification/validation_tests.R` — primitivas para `instrument_validation.R` (T1-T8: `placebo_test`, `random_mask_test`, `subperiod_F`, `monthly_correlation`, `anti_jk_test`, `random_mask_curve`, `qlr_supF`).

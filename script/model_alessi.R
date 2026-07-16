@@ -121,15 +121,18 @@ set.seed(123)
 # pib com sinal invertido em h24. (6,5) cruza Stock-Yogo no full (F = 10.08)
 # e é o pico do pre_covid (F = 15.4) — ver output/irf/spec_sweep_conclusoes.md
 # e output/irf/spec_sweep_cells.csv. A família JK também cruza em (7,6) e (8,8).
-# Instrumento: data/processed/instrument.csv = z_jk_purif (default desde 2026-05-08).
+# Instrumento: data/processed/instrument.csv = z_jk_bs_purif (default desde
+# 2026-07-15; máscara JK em resíduos pré-evento BS — auditoria de fidelidade).
+# Sob a régua MOSW, (6,5) é forte no pre_covid (ξ_mp = 12.49) e fica na zona
+# AR no full (ξ_mp = 6.94 > 3.84) — ver mosw_strength_grid.md.
 sdfm_results <- main_sdfm(
-  r = 6L,
-  q = 5L,
-  p = 6,
+  r = 8L,
+  q = 8L,
+  p = 3 ,
   shock_size_bps = 50,
   mp_var = "yield_6m",
   ci_levels = c(0.68, 0.90),
-  nboot = 800
+  nboot = 200
 )
 
 
@@ -142,15 +145,16 @@ colnames(sdfm_results$data)
 # se a ordem do painel mudar.
 response_vars <- list(
   c("Cambio USD"            = "cambio_usd"),
+  c("CDS 5y"                = "cds_5y"),
   c("yield 6m"              = "yield_6m"),
   c("yield 5y"              = "yield_5y"),
   c("Spread ICC juridica"   = "spread_icc_juridica"),
-  c("vendas varejo"         = "vendas_varejo"),
-  c("ind automoveis"        = "ind_automoveis"),
+  c("ibov"                  = "asset_ibov"),
+  c("imob"                  = "asset_imob"),
+  c("ifix"                  = "asset_ifix"),
   c("pib"                   = "pib"),
-  c("ipca"                  = "price_ipca"),
-  c("nucleo ipca ex0"       = "price_core_ipca_ex0"),
-  c("CDS 5y"                = "cds_5y")
+  c("ipca"                  = "price_ipca")
+
 )
 
 # IRF plots - escolha entre cumulative = TRUE ou FALSE

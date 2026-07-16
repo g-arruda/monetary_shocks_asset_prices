@@ -81,6 +81,7 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
   if (isTRUE(diagnose) && !is.null(mpind)) {
     impact_pre <- irf_mp[mpind, 1]
     f_factor   <- compute_factor_space_F(rsh_mean0, Z_mat)
+    wald_fs    <- compute_factor_space_wald(rsh_mean0, Z_mat)
 
     cat("\n========== ident_ext_instr DIAGNOSTIC ==========\n")
     cat(sprintf("H (factor-space loadings, length %d):\n", length(H)))
@@ -88,9 +89,16 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
     cat(sprintf("irf_mp[mpind=%d, 1] (pre-norm) = %.4e   sign = %s\n",
                 mpind, impact_pre,
                 if (impact_pre > 0) "POSITIVE" else if (impact_pre < 0) "NEGATIVE" else "ZERO"))
-    cat(sprintf("F (factor-space, max across q factors) = %.3f\n", f_factor))
-    if (f_factor < 10) {
-      cat("[!!!] WARNING: F (factor-space) < 10 — instrument is WEAK in the\n")
+    cat(sprintf("F (factor-space, max across q factors, homosk. legacy) = %.3f\n",
+                f_factor))
+    cat(sprintf("MOSW Wald per factor xi_k: min = %.3f  max = %.3f\n",
+                wald_fs$wald_min, wald_fs$wald_max))
+    cat(sprintf("MOSW joint Wald = %.3f  (F_joint = %.3f, chi2_%d p = %.4f)\n",
+                wald_fs$wald_joint, wald_fs$F_joint, wald_fs$q, wald_fs$p_joint))
+    cat("      [no lag controls here — instrument_diagnostics.R reports the\n")
+    cat("      Shat-corrected version with factor-VAR lags residualized out]\n")
+    if (f_factor < 10 || wald_fs$F_joint < 10) {
+      cat("[!!!] WARNING: factor-space relevance < 10 — instrument is WEAK in the\n")
       cat("      space where the proxy-SVAR projects. F (y6m AR) reported in\n")
       cat("      instrument_diagnostics.R measures relevance against a single\n")
       cat("      reduced-form variable, not the factor space. Wide IRF bands\n")
@@ -142,6 +150,74 @@ compute_factor_space_F <- function(eta, Z) {
     fs[k] <- if (is.null(s$fstatistic)) NA_real_ else s$fstatistic[["value"]]
   }
   max(fs, na.rm = TRUE)
+}
+
+
+#' Montiel Olea-Stock-Watson Wald statistics for instrument relevance in factor space
+#'
+#' Implements the relevance diagnostics of Montiel Olea, Stock & Watson
+#' (2021, J. Econometrics, sec. 4.2) against the q factor innovations:
+#'
+#' - per-factor Wald  xi_k = T * Gamma_k^2 / W_kk        (paper's xi_1, eq. in sec. 4.2)
+#' - joint Wald       xi_joint = T * Gamma' W^{-1} Gamma (the authors' `WaldstatFull`,
+#'   MSWfunction.m:389, chi^2_q under the null of irrelevance)
+#'
+#' with Gamma = (1/T) sum_t z_t eta_t and W the Eicker-White covariance of the
+#' moment z_t eta_t (Newey-West with 0 lags, matching NWlags = 0 in the
+#' authors' applications). When `controls` is supplied (the factor-VAR
+#' regressors: lags + constant), z is residualized on them first — this
+#' reproduces the Shat correction of CovAhat_Sigmahat_Gamma.m, which
+#' propagates the VAR estimation error into W. Without controls, z is only
+#' demeaned (the constant-only version of the same correction; Gamma is
+#' unchanged either way because the VAR residuals are orthogonal to the
+#' regressors in-sample).
+#'
+#' The per-factor xi_k is heteroskedasticity-robust by construction. The
+#' joint statistic is the conservative headline: it does not cherry-pick the
+#' strongest factor equation (unlike `compute_factor_space_F`, kept as the
+#' legacy metric for comparability with the 2026-07-11 spec sweep).
+#'
+#' @param eta Matrix of factor innovations (T x q).
+#' @param Z Instrument vector or column matrix (T x 1), aligned to eta.
+#' @param controls Optional matrix/data.frame of VAR regressors aligned to eta
+#'   (lags of the factors; a constant is added internally).
+#'
+#' @return List: `wald_k` (length-q vector), `wald_min`, `wald_max`,
+#'   `wald_joint`, `F_joint` (= wald_joint / q), `p_joint` (chi^2_q),
+#'   `q`, `T_eff`.
+compute_factor_space_wald <- function(eta, Z, controls = NULL) {
+  eta <- as.matrix(eta)
+  Z   <- as.numeric(Z)
+  T_eff <- length(Z)
+  q     <- ncol(eta)
+
+  if (!is.null(controls)) {
+    Z_use <- as.numeric(qr.resid(qr(cbind(1, as.matrix(controls))), Z))
+  } else {
+    Z_use <- Z - mean(Z)
+  }
+
+  G_mat <- Z_use * eta                       # T x q, rows z_t * eta_t'
+  Gamma <- colMeans(G_mat)
+  V     <- sweep(G_mat, 2, Gamma)
+  W     <- crossprod(V) / T_eff              # Eicker-White (NW lags = 0)
+
+  wald_k     <- T_eff * Gamma^2 / diag(W)
+  wald_joint <- tryCatch(
+    T_eff * drop(t(Gamma) %*% solve(W, Gamma)),
+    error = function(e) NA_real_
+  )
+
+  list(
+    wald_k     = wald_k,
+    wald_min   = min(wald_k),
+    wald_max   = max(wald_k),
+    wald_joint = wald_joint,
+    F_joint    = wald_joint / q,
+    p_joint    = pchisq(wald_joint, df = q, lower.tail = FALSE),
+    q          = q,
+    T_eff      = T_eff
+  )
 }
 
 

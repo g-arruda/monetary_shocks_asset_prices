@@ -77,6 +77,11 @@ variants <- list(
   "z_bruto_purif"  = "data/processed/instrument_bruto_purif.csv",
   "z_jk"           = "data/processed/instrument_jk.csv",
   "z_jk_purif"     = "data/processed/instrument_jk_purif.csv",
+  "z_jk_raw_purif" = "data/processed/instrument_jk_raw_purif.csv",
+  "z_jk_raw"       = "data/processed/instrument_jk_raw.csv",
+  "z_bs_purif"     = "data/processed/instrument_bs_purif.csv",
+  "z_jk_bs_purif"  = "data/processed/instrument_jk_bs_purif.csv",
+  "z_jk_purif_us"  = "data/processed/instrument_jk_purif_us.csv",
   "z_het"          = "data/processed/instrument_z_het.csv",
   "z_het_jk"       = "data/processed/instrument_z_het_jk.csv",
   "z_het_3var"     = "data/processed/instrument_z_het_3var.csv",
@@ -118,6 +123,16 @@ run_variant <- function(name, path) {
   W11     <- mean((Z_t * res_al - gamma)^2)
   xi1     <- T_eff * gamma^2 / W11
 
+  # xi1 with the MOSW Shat correction (CovAhat_Sigmahat_Gamma.m): the
+  # asymptotic variance of Gamma-hat propagates the VAR estimation error,
+  # which algebraically amounts to residualizing Z on the VAR regressors
+  # (factor lags + constant) before forming the moment products. Gamma-hat
+  # itself is unchanged in-sample (residuals are orthogonal to regressors).
+  Z_resid  <- as.numeric(residuals(lm(Z_t ~ ctrl_al)))
+  gamma_m  <- mean(Z_resid * res_al)
+  W11_m    <- mean((Z_resid * res_al - gamma_m)^2)
+  xi1_mosw <- T_eff * gamma_m^2 / W11_m
+
   n_lags <- 6
   ex_df <- tibble(Z = Z_t)
   for (k in seq_len(n_lags)) ex_df[[paste0("lag", k)]] <- dplyr::lag(res_al, k)
@@ -152,6 +167,7 @@ run_variant <- function(name, path) {
     p_value      = pval,
     f_partial    = f_part,
     xi1          = xi1,
+    xi1_mosw     = xi1_mosw,
     r2_fs        = r2,
     exog_f       = exog_f,
     exog_p       = exog_pv,
@@ -159,6 +175,12 @@ run_variant <- function(name, path) {
     r2_y6m       = fs_y6m$r2,
     n_y6m        = fs_y6m$n,
     f_factor_sp  = diag_fs$f_factor,
+    wald_min     = diag_fs$wald_min,
+    wald_max     = diag_fs$wald_max,
+    wald_joint   = diag_fs$wald_joint,
+    f_joint      = diag_fs$F_joint,
+    p_joint      = diag_fs$p_joint,
+    wald_mp      = diag_fs$wald_mp,
     impact_y6m   = diag_fs$impact_mp,
     sign_y6m     = diag_fs$sign_mp
   )
@@ -332,6 +354,36 @@ rows <- apply(res_tbl, 1, function(r)
           r["exog_f"], r["exog_p"], r["weak_flag"], r["fs_flag"]))
 tbl_md <- paste(c(hdr, sep, rows), collapse = "\n")
 
+# MOSW Wald block (sec. 4.2 of the paper + MSWfunction.m). Kept as a
+# separate table so the legacy table above stays byte-comparable across runs.
+mosw_tbl <- results |>
+  transmute(
+    variant,
+    ar_bounded = ifelse(wald_mp > qchisq(0.95, df = 1), "yes",
+                        "NO (unbounded)"),
+    mosw_flag  = case_when(
+      f_joint >= 10                        ~ "OK",
+      wald_mp > qchisq(0.95, df = 1)       ~ "WEAK (AR bounded)",
+      TRUE                                 ~ "WEAK (AR may be unbounded)"
+    ),
+    xi1        = sprintf("%.3f", xi1),
+    xi1_mosw   = sprintf("%.3f", xi1_mosw),
+    wald_min   = sprintf("%.3f", wald_min),
+    wald_max   = sprintf("%.3f", wald_max),
+    wald_joint = sprintf("%.3f", wald_joint),
+    f_joint    = sprintf("%.3f", f_joint),
+    p_joint    = map_chr(p_joint, fmt_p),
+    wald_mp    = sprintf("%.3f", wald_mp)
+  )
+mosw_hdr <- "| Variant | ξ₁ (legado) | ξ₁ (Shat) | min ξ_k | max ξ_k | Wald conj. | F conj. (ξ/q) | p (χ²_q) | ξ_mp | AR limitado? | MOSW-Flag |"
+mosw_sep <- "|---|---|---|---|---|---|---|---|---|---|---|"
+mosw_rows <- apply(mosw_tbl, 1, function(r)
+  sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |",
+          r["variant"], r["xi1"], r["xi1_mosw"], r["wald_min"], r["wald_max"],
+          r["wald_joint"], r["f_joint"], r["p_joint"], r["wald_mp"],
+          r["ar_bounded"], r["mosw_flag"]))
+mosw_tbl_md <- paste(c(mosw_hdr, mosw_sep, mosw_rows), collapse = "\n")
+
 var_md <- if (!is.null(var_tests)) {
   v <- var_tests |>
     mutate(across(where(is.numeric), ~ signif(.x, 3)))
@@ -501,6 +553,32 @@ report <- paste(
   "",
   tbl_md,
   "",
+  "### 1.1 Bloco Wald MOSW (leitura conservadora)",
+  "",
+  "Estatísticas de Wald de Montiel Olea-Stock-Watson (2021, §4.2), validadas",
+  "contra o código oficial dos autores (`codigo_olea/`, MSWfunction.m e",
+  "CovAhat_Sigmahat_Gamma.m). Todas usam Eicker-White (Newey-West 0 lags) e",
+  "residualizam Z nos regressores do VAR de fatores (correção Shat), exceto a",
+  "coluna legada ξ₁:",
+  "",
+  "- **ξ₁ (legado)** — T·Γ̂₁²/Ŵ₁₁ contra o resíduo do 1º fator, sem correção",
+  "  Shat (coluna mantida por comparabilidade).",
+  "- **ξ₁ (Shat)** — mesma estatística com Z residualizado em lags + constante,",
+  "  exatamente como `CovAhat_Sigmahat_Gamma.m` propaga o erro de estimação do VAR.",
+  "- **min/max ξ_k** — Wald robusta por inovação de fator, k = 1..q. O mínimo",
+  "  é a leitura conservadora por equação; o máximo compara com a coluna",
+  "  legada F (factor-sp), que é homocedástica e não robusta.",
+  "- **Wald conjunta** — ξ = T·Γ̂'Ŵ⁻¹Γ̂ ~ χ²_q sob irrelevância (o `WaldstatFull`",
+  "  dos autores, MSWfunction.m:389). Não faz cherry-pick da equação mais forte.",
+  "  **F conjunta = ξ/q** é a forma-F para leitura na régua Stock-Yogo.",
+  "- **ξ_mp** — Wald na direção c'Γ̂ com c = linha de `yield_6m` na matriz de",
+  "  impacto Λ·K·M: é o análogo exato do `Waldstat` oficial (Γ̂ da variável",
+  "  normalizadora) na nossa parametrização, e governa o denominador da",
+  "  normalização. **O conjunto AR 95% é intervalo limitado sse ξ_mp > 3.84**",
+  "  (Fieller/Anderson-Rubin, footnote 13 do paper).",
+  "",
+  mosw_tbl_md,
+  "",
   "---",
   "",
   "## 2. Scatterplot — purified surprises on Copom days",
@@ -600,6 +678,13 @@ report <- paste(
   "- **F > 10 / ξ₁ > 10**: inference standard OK.  ",
   "- **F ∈ [5, 10]**: use Anderson-Rubin robust intervals.  ",
   "- **ξ₁ < 3.84**: instrument flagged as weak; AR CIs possibly unbounded.  ",
+  "- **Leitura conservadora (§1.1)**: a decisão de força do instrumento deve",
+  "  usar a **F conjunta (ξ/q)** e a **ξ_mp**, não o máximo por equação. A regra",
+  "  F > 10 aplicada ao máximo de q regressões é anti-conservadora (viés de",
+  "  seleção da equação mais forte); a coluna F (factor-sp) permanece apenas",
+  "  por comparabilidade com o spec sweep de 2026-07-11. MOSW (§4.2, footnote 6)",
+  "  advertem ainda contra *screening* no F: reportar F/ξ e usar rotineiramente",
+  "  os conjuntos AR robustos, não condicionar a inferência no pré-teste.  ",
   "- Compare z_bruto vs. z_JK to assess whether the JK filter changes identification, and vs. their `_purif` counterparts for the role of global-factor contamination.",
   "- **z_het** is identified by heteroskedasticity (Rigobon-Sack 2003 QJE) on the daily SVAR and is independent of the timing assumption that underlies the four GK-style variants. Convergence of `z_het` results with `z_jk_purif` is the central robustness check.",
   sep = "\n"
