@@ -1,5 +1,13 @@
 # Varredura de especificações IRF — Conclusões e diagnóstico
 
+> **⚠️ CORPO DESATUALIZADO — banner de 2026-07-26.** Escrito em 2026-07-11/15 sob `z_jk_purif`,
+> produção (6,5) e vintage pré-refresh. Os CSVs que ele consolida (`spec_sweep_cells.csv`,
+> `spec_sweep_report.md`, `spec_sweep_stage2.md`) foram **regenerados em 2026-07-24** sob 106 séries
+> e (7,6) — os números aqui não batem com eles. Duas afirmações caíram: "pre-COVID (6,5) é o pico do
+> grid" e "sempre que F ≥ 10 os sinais saem coerentes". Leituras correntes em
+> `output/irf/irf_section.md`; histórico em `_instrucoes/historico_decisoes.md` §3 e §6.
+
+
 Consolida `spec_sweep_report.md` (Etapa 1, 320 células ponto-estimativa) e
 `spec_sweep_stage2.md` (Etapa 2, bootstrap nboot = 800 nas 6 células vencedoras).
 Gerado em 2026-07-11; scripts: `script/irf_spec_sweep.R`, `script/irf_spec_stage2.R`.

@@ -1,5 +1,12 @@
 # Instrument Validity Diagnostics Report
 
+> **⚠️ CORPO DESATUALIZADO — banner de 2026-07-26.** Gerado em 2026-07-15, antes do refresh de
+> vintage. Além disso a §4 (heteroskedasticity-identification) **não existe mais**: o bloco het foi
+> arquivado em 2026-07-26 e o script emissor (`script/instrument_diagnostics.R`) já não o produz.
+> Re-rodar `Rscript script/instrument_diagnostics.R` regenera este arquivo sem a §4 e com as 106
+> séries. A grade de força corrente é `output/instrument/mosw_strength_grid.md` (2026-07-24).
+
+
 **Date generated:** 2026-07-15  
 **DFM sample:** 2013-01-01 to 2025-09-01  
 **Identification:** proxy-SVAR with external instrument (Olea, Stock & Watson 2020).

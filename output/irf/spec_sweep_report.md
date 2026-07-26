@@ -1,6 +1,6 @@
 # Varredura de especificações IRF — Etapa 1 (ponto-estimativa)
 
-Gerado por `script/irf_spec_sweep.R` em 2026-07-15.
+Gerado por `script/irf_spec_sweep.R` em 2026-07-24.
 
 Grid: 2 amostras x 4 combinações (r,q) x 12 instrumentos x 5 variáveis de política = 480 células; p = 6, h = 24, choque = 50bp.
 
@@ -23,16 +23,16 @@ A Etapa 2 (`script/irf_spec_stage2.R`) roda bootstrap completo nas células venc
 
 | sample | r | q | instrument | mp_var | f_factor | f_reduced | score_hard | n_hard_avail | score_ext | fx_channel | risk_channel | yield_ordering_ok | h0_ibov | h0_cambio |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| pre_covid |     6 |     5 | z_jk_purif | yield_3m |  15.4 |  29.3 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -0.1737 | 0.08446 |
-| pre_covid |     6 |     5 | z_jk_purif | yield_6m |  15.4 | 31.33 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -0.1402 | 0.06817 |
-| pre_covid |     6 |     5 | z_jk_purif | yield_1y |  15.4 | 16.59 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -0.1169 | 0.05683 |
-| pre_covid |     6 |     5 | z_jk_purif | yield_2y |  15.4 | 12.95 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -0.09704 | 0.04719 |
-| pre_covid |     6 |     5 | z_jk | yield_3m | 15.17 | 27.24 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -0.1768 | 0.08752 |
-| pre_covid |     6 |     5 | z_jk | yield_6m | 15.17 | 30.03 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -0.1423 | 0.07044 |
-| pre_covid |     6 |     5 | z_jk | yield_1y | 15.17 | 17.38 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -0.118 | 0.0584 |
-| pre_covid |     6 |     5 | z_jk | yield_2y | 15.17 |    14 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -0.09736 | 0.04818 |
-| pre_covid |     6 |     5 | z_jk_raw_purif | yield_3m | 11.95 | 71.24 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -0.145 | 0.1009 |
-| pre_covid |     6 |     5 | z_jk_raw_purif | yield_6m | 11.95 | 47.72 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -0.1175 | 0.08179 |
+| full |     6 |     5 | z_jk_purif | yield_3m | 12.84 | 4.288 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -17.3 | 0.4501 |
+| full |     6 |     5 | z_jk_purif | yield_6m | 12.84 | 11.33 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -8.923 | 0.2321 |
+| full |     6 |     5 | z_jk_purif | yield_1y | 12.84 | 11.32 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -5.609 | 0.1459 |
+| full |     6 |     5 | z_jk_purif | yield_2y | 12.84 | 14.48 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -4.122 | 0.1072 |
+| full |     7 |     6 | z_jk_purif | yield_3m | 11.08 | 4.288 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -16.83 | 0.4799 |
+| full |     7 |     6 | z_jk_purif | yield_6m | 11.08 | 11.33 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -8.702 | 0.2481 |
+| full |     7 |     6 | z_jk_purif | yield_1y | 11.08 | 11.32 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -5.486 | 0.1564 |
+| full |     7 |     6 | z_jk_purif | yield_2y | 11.08 | 14.48 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -4.007 | 0.1143 |
+| full |     6 |     5 | z_jk | yield_3m |  10.9 | 5.219 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -14.31 | 0.4218 |
+| full |     6 |     5 | z_jk | yield_6m |  10.9 | 13.36 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -7.541 | 0.2223 |
 
 ## F (factor-space) por instrumento x (r,q)
 
@@ -43,44 +43,45 @@ tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
 
 | instrument | r5_q4 | r6_q5 | r7_q6 | r8_q8 |
 |---|---|---|---|---|
-| z_bruto | 6.258 | 4.822 | 4.186 | 3.783 |
-| z_bruto_purif | 6.855 | 6.107 | 5.102 | 4.467 |
-| z_jk | 7.718 | 8.271 | 8.407 | 10.25 |
-| z_jk_purif | 9.203 | 10.08 | 10.17 | 11.76 |
-| z_jk_raw_purif | 8.594 | 5.527 | 6.783 | 5.091 |
-| z_jk_raw | 9.242 | 5.558 | 6.564 | 4.996 |
-| z_bs_purif | 6.088 | 5.183 |  4.29 | 3.663 |
-| z_jk_bs_purif | 9.018 |  5.12 | 6.293 |  5.27 |
-| z_het | 3.641 | 3.467 | 3.071 | 3.064 |
-| z_het_jk | 9.331 | 5.575 | 6.891 | 3.852 |
-| z_het_3var | 2.425 | 1.522 | 1.114 |  4.02 |
-| z_het_jk_3var | 3.168 | 2.368 | 2.742 | 4.057 |
+| z_bruto | 6.609 | 6.054 | 4.348 | 2.564 |
+| z_bruto_purif | 8.079 | 6.588 | 5.487 | 3.126 |
+| z_jk |  9.91 |  10.9 | 9.217 | 8.558 |
+| z_jk_purif | 11.67 | 12.84 | 11.08 |  9.95 |
+| z_jk_raw_purif | 5.305 | 9.359 | 6.585 | 4.023 |
+| z_jk_raw | 5.855 | 9.395 | 6.506 | 3.885 |
+| z_bs_purif | 6.969 | 5.466 | 4.548 | 2.804 |
+| z_jk_bs_purif |  5.52 | 8.648 | 6.313 | 3.995 |
+| z_het | 3.864 | 2.855 | 2.709 | 2.567 |
+| z_het_jk | 6.145 | 8.903 | 6.159 | 3.129 |
+| z_het_3var | 2.358 | 1.574 | 1.348 | 3.677 |
+| z_het_jk_3var | 2.131 | 4.547 | 2.899 | 4.069 |
 
 ### Amostra pre_covid (2013-2019)
 
 | instrument | r5_q4 | r6_q5 | r7_q6 | r8_q8 |
 |---|---|---|---|---|
-| z_bruto | 7.197 | 9.762 | 5.973 |  5.78 |
-| z_bruto_purif | 7.702 | 10.38 | 5.789 | 5.628 |
-| z_jk | 10.54 | 15.17 | 10.45 | 7.987 |
-| z_jk_purif | 10.79 |  15.4 | 9.612 |  8.07 |
-| z_jk_raw_purif | 6.365 | 11.95 |  2.72 | 4.214 |
-| z_jk_raw | 5.898 | 11.42 |  2.86 | 4.115 |
-| z_bs_purif | 7.987 | 10.65 | 5.658 | 5.537 |
-| z_jk_bs_purif | 5.874 | 11.66 | 2.355 | 3.369 |
-| z_het | 2.954 | 3.726 | 4.964 | 4.553 |
-| z_het_jk | 3.164 | 4.718 | 2.844 | 4.176 |
-| z_het_3var |  7.65 | 10.83 | 9.137 | 6.575 |
-| z_het_jk_3var | 5.989 | 11.13 | 3.947 |  2.65 |
+| z_bruto | 4.331 | 5.292 |  5.95 | 4.934 |
+| z_bruto_purif | 4.471 | 5.656 | 6.018 | 4.704 |
+| z_jk | 7.684 | 6.738 | 7.197 | 4.386 |
+| z_jk_purif |  7.64 | 6.678 | 7.389 | 4.207 |
+| z_jk_raw_purif | 3.703 | 3.241 | 3.218 | 3.208 |
+| z_jk_raw | 3.725 | 3.525 |  3.24 | 2.978 |
+| z_bs_purif | 4.933 | 5.416 | 5.039 | 5.099 |
+| z_jk_bs_purif | 3.826 | 3.742 | 3.093 | 2.075 |
+| z_het | 2.712 | 1.051 | 4.933 | 4.954 |
+| z_het_jk | 4.081 | 1.375 | 4.194 | 1.557 |
+| z_het_3var | 6.141 | 3.555 | 10.36 | 5.918 |
+| z_het_jk_3var | 6.186 | 2.947 | 4.328 | 2.428 |
 
 ## Taxonomia de falhas
 
 | failure_class | full | pre_covid |
 |---|---|---|
 | negative_control |    48 |    48 |
-| ok |    16 |    48 |
-| weak_factor_space |    96 |    80 |
-| weak_factor_space_severe |    80 |    64 |
+| ok |    16 |     0 |
+| weak_factor_space |    92 |    64 |
+| weak_factor_space_severe |    84 |   124 |
+| sign_puzzle |     0 |     4 |
 
 ## Controle negativo (juros_selic)
 
@@ -94,19 +95,18 @@ tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
 
 | fx_channel | risk_channel | n |
 |---|---|---|
-| apreciacao | fiscal_dominance |     4 |
-| depreciacao | fiscal_dominance |    60 |
+| depreciacao | fiscal_dominance |    16 |
 
 ## z_jk_purif x yield_6m através do grid (decisão r=7,q=6 vs r=5,q=4 do HANDOFF)
 
 | sample | r | q | f_factor | f_reduced | impact_mp_pre | denom_ratio | score_hard | n_hard_avail | score_ext | fx_channel | failure_class |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| full |     5 |     4 | 9.203 | 11.33 | 6.568e-05 | 0.8742 |     3 |     3 |     2 | depreciacao | weak_factor_space |
-| full |     6 |     5 | 10.08 | 11.33 | 6.591e-05 | 0.8772 |     3 |     3 |     3 | depreciacao | ok |
-| full |     7 |     6 | 10.17 | 11.33 | 6.164e-05 | 0.8204 |     3 |     3 |     3 | depreciacao | ok |
-| full |     8 |     8 | 11.76 | 11.33 | 6.226e-05 | 0.8286 |     3 |     3 |     3 | depreciacao | ok |
-| pre_covid |     5 |     4 | 10.79 | 31.33 | 9.681e-05 |  1.52 |     3 |     3 |     2 | depreciacao | ok |
-| pre_covid |     6 |     5 |  15.4 | 31.33 | 8.272e-05 | 1.299 |     3 |     3 |     3 | depreciacao | ok |
-| pre_covid |     7 |     6 | 9.612 | 31.33 | 3.707e-05 | 0.582 |     3 |     3 |     0 | depreciacao | weak_factor_space |
-| pre_covid |     8 |     8 |  8.07 | 31.33 | 2.984e-05 | 0.4685 |     1 |     3 |     3 | apreciacao | weak_factor_space |
+| full |     5 |     4 | 11.67 | 11.33 | 5.484e-05 | 0.7668 |     3 |     3 |     1 | depreciacao | ok |
+| full |     6 |     5 | 12.84 | 11.33 | 7.088e-05 | 0.9911 |     3 |     3 |     3 | depreciacao | ok |
+| full |     7 |     6 | 11.08 | 11.33 | 6.48e-05 | 0.9061 |     3 |     3 |     3 | depreciacao | ok |
+| full |     8 |     8 |  9.95 | 11.33 | 5.841e-05 | 0.8168 |     3 |     3 |     3 | depreciacao | weak_factor_space |
+| pre_covid |     5 |     4 |  7.64 | 31.33 | 7.697e-05 | 1.422 |     3 |     3 |     3 | depreciacao | weak_factor_space |
+| pre_covid |     6 |     5 | 6.678 | 31.33 | 6.805e-05 | 1.258 |     3 |     3 |     3 | depreciacao | weak_factor_space |
+| pre_covid |     7 |     6 | 7.389 | 31.33 | 6.797e-05 | 1.256 |     3 |     3 |     3 | depreciacao | weak_factor_space |
+| pre_covid |     8 |     8 | 4.207 | 31.33 | 2.993e-05 | 0.553 |     3 |     3 |     0 | depreciacao | weak_factor_space_severe |
 
