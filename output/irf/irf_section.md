@@ -1,260 +1,422 @@
 # §5 — IRFs: the transmission of monetary policy shocks in Brazil
 
-**Date:** 2026-07-12 (full rewrite; supersedes the 2026-05-06 draft and its
-2026-05-08 status note — the old text treated `z_het_jk_3var` as primary and
-ran on the legacy r=8/q=8 grid; every table below is from the current
-production estimation and the 2026-07-11/12 diagnostic sessions).
+**Date:** 2026-07-26 (full rewrite; supersedes the 2026-07-12 draft, archived at
+`arquivo/output/irf_section_2026-07-12.md`). The previous text ran on the
+`z_jk_purif` instrument, the (r=6, q=5) grid and the pre-refresh data vintage.
+Every number below is read off the production artifacts regenerated on
+2026-07-24 (`irf_coherence_h.csv`, `spec_sweep_stage2.md`,
+`mosw_strength_grid.csv`). **All heteroskedasticity-identified material has been
+removed** — the het track was empirically rejected on 2026-07-16 and is out of
+the paper by author decision.
 
-**Specification (production):** DFM (Alessi-Kerssenfischer 2019),
-**r = 6** static factors, **q = 5** dynamic shocks, VAR(**p = 6**) on
-factors, full sample 2013-01–2025-09 (147 aligned months). Identification by
-external instrument **`z_jk_purif`** (Copom Wed→Thu DI-futures surprises,
-Bauer-Swanson purification, Jarociński-Karadi sign filter), projection
-`H = (Z'η)/(Z'Z)` (Stock-Watson 2018). Shock normalized to **+50 bp on
-`yield_6m`** at impact. Wild bootstrap (Gonçalves-Kilian 2004) with Kilian
-(1998) bias correction in the bootstrap DGP, `nboot = 800`, seed 123, bands
-**68% / 90%**, horizon 0–48 months.
+**Specification (production).** DFM (Alessi-Kerssenfischer 2019), **r = 7**
+static factors, **q = 6** dynamic shocks, VAR(**p = 6**) on the factors, panel
+of **106 monthly series**, full sample 2013-01–2025-09 (147 aligned months).
+Identification by external instrument **`z_jk_bs_purif`** — Copom Wed→Thu DI
+futures surprises at the 126-business-day vertex, orthogonalized on
+**predetermined pre-event** predictors in the Bauer-Swanson (2023) design, then
+masked by the Jarociński-Karadi (2020) sign filter applied to those
+predetermined residuals. Projection `H = (Z'η)/(Z'Z)` onto the q factor
+innovations (Stock-Watson 2018). Shock normalized to **+50 bp on `yield_6m`** at
+impact (+0.0050 in decimal proportion). Wild bootstrap (Gonçalves-Kilian 2004)
+with Kilian (1998) bias correction **in the bootstrap DGP only** — the point
+estimate is plain OLS — `nboot = 800`, seed 123, bands **68% / 90%**, horizons
+0–48.
 
-**Why this spec.** The 320-cell specification sweep
-(`output/irf/spec_sweep_conclusoes.md`) showed that every sign inversion in
-the instrument × mp_var × (r,q) × sample grid is weak factor-space relevance
-(F < 10) — zero `sign_puzzle` or `unstable_normalization` cells. `z_jk_purif`
-at (6,5) is the only full-sample cell crossing Stock-Yogo (**F factor-space
-= 10.08**) that is also the pre-COVID grid peak (**15.40**). The auto-IC
-choice (5,4) is borderline-weak (9.20) and is never used as base case.
-`juros_selic` as mp_var is the negative control (max reduced-form F = 2.49).
+## Why this specification
+
+The instrument's strength is measured by **ξ_mp**, the Montiel Olea-Stock-Watson
+robust Wald statistic in the `yield_6m` impact direction (Eicker-White with the
+Ŝ correction, `z` residualized on the factor-VAR lags). At (7, 6):
+
+| sample | n | ξ_mp | AR set bounded |
+|---|---|---|---|
+| full 2013-01–2025-09 | 147 | **10.43** | yes |
+| pre-COVID 2013-2019 | 78 | **12.22** | yes |
+
+Among the four dimensions carried through the specification sweep, **(7, 6) is
+the only one above 10 in both windows** — (5,4) 5.45 / 7.94; (6,5) 6.36 / 11.00;
+(8,8) 12.57 / 8.99. On the full 14-cell MOSW grid the neighbours (7,5)
+10.45 / 12.76, (7,7) 12.90 / 12.27, (8,5) 10.01 / 10.33 and (8,6) 10.03 / 10.76
+also clear the bar, so **r = 7 is a robust plateau, not a knife-edge choice**.
+The 95% Anderson-Rubin set is bounded (ξ_mp > 3.84) in all 28 cells of the
+production instrument.
+
+This position is recent and data-driven: it followed the **2026-07-24 vintage
+refresh**, which dropped a duplicated block of four labour-search series
+(a doubled join in `download.R`) and the all-NA ANBIMA break-even columns,
+taking the panel to 106 series. Removing those artifacts is what lifted ξ_mp at
+(7, 6) above 10 in both windows; on the previous vintage the reading favoured
+(6, 5) pre-COVID and no dimension was strong in both.
+
+**Note on the two rulers (read before cross-checking the tables).** The
+specification sweep still classifies `failure_class` by the *legacy* max-F in
+factor space (`f_factor` in `spec_sweep_cells.csv`), under which
+`z_jk_bs_purif` scores 6.31 at (7,6) and therefore never appears among the
+"eligible" cells of `spec_sweep_report.md`. The two statistics rank the
+instruments almost inversely at this dimension — `z_jk_purif` has `f_factor`
+11.08 but ξ_mp 5.77, while `z_jk_bs_purif` has `f_factor` 6.31 but ξ_mp 10.43.
+The statistic that governs weak-instrument bias and the width of the AR set for
+the single-proxy/single-shock design is **ξ_mp**, validated end-to-end against
+the numbers Montiel Olea-Stock-Watson publish for the Kilian oil application
+(ξ₁ = 4.4, robust F = 9.4; `script/validate_olea_kilian.R`). MOSW's own protocol
+(their footnote 6) is to *report* ξ and use AR intervals, never to screen on a
+first-stage F. The sweep's taxonomy is kept for continuity of the earlier
+diagnostic but is not the decision rule of this paper.
+
+`juros_selic` is the documented negative control: max reduced-form F = 2.49
+across the whole grid.
 
 ---
 
 ## 5.1 Term structure
 
-Impact responses (decimal proportion; +0.0050 = +50 bp):
+Impact and path by maturity (decimal proportion, reported in bp; +0.0050 = +50 bp):
 
-| maturity | h0 | h6 | h12 | h24 | significance |
-|---|---|---|---|---|---|
-| 3m | +27 bp | +20 | +1 | −13 | CI90 h0-1 |
-| 6m | +50 bp | (normalization) | | | — |
-| 1y | +77 bp | +62 | +14 | −19 | CI90 h0-3 |
-| 2y | +105 bp | +81 | +21 | −21 | CI90 h0-3 |
-| 5y | +122 bp | +88 | +25 | −22 | CI90 h0-7 |
-| 10y | +112 bp | +81 | +24 | −21 | CI90 h0-7 |
+| maturity | h0 | h3 | h6 | h12 | h24 | CI90 | CI68 |
+|---|---|---|---|---|---|---|---|
+| 3m | **+27.9** | +38.4 | +30.6 | −1.7 | −65.9 | h0-3 + | h0-4, h6 +; h24-43 − |
+| 6m | **+50.0** | — | — | — | — | (normalization) | — |
+| 1y | **+73.5** | +80.8 | +51.1 | −6.2 | −67.7 | h0-5 + | h0-7 +; h19-40 − |
+| 2y | **+91.6** | +94.0 | +56.0 | −7.5 | −59.9 | h0-6 + | h0-7 +; h18-37 − |
+| 5y | **+92.7** | +87.6 | +51.3 | −6.0 | −46.8 | h0-6 + | h0-7 +; h17-34 − |
+| 10y | **+80.8** | +74.8 | +44.0 | −5.8 | −41.0 | h0-6 + | h0-7 +; h17-33 − |
 
-Pass-through is **increasing in maturity** up to 5y — the opposite of the
-US pattern (Kuttner 2001; Gürkaynak-Sack-Swanson 2005, where the long end
-barely moves). This is not a defect: it is the signature of a fiscal risk
-premium in an emerging market (Blanchard 2004). The same shock that raises
-the expected policy path widens EMBI (+46 bp) and CDS (+56 bp) with CI90 at
-h0-7 (§5.3), and the risk premium loads on the long end. The mild 5y→10y
+All five scored maturities are `coerente_forte` with a **100% correct-sign share**
+in the theory window — the cleanest block of the panel together with activity.
+
+**Pass-through is increasing in maturity up to 5y** (+92.7 bp at 5y per +50 bp at
+6m) and rolls off at 10y (+80.8 bp). This is the opposite of the US pattern
+(Kuttner 2001; Gürkaynak-Sack-Swanson 2005), where the long end barely moves. It
+is the signature of a fiscal risk premium in an emerging market (Blanchard 2004):
+the same shock that raises the expected policy path widens EMBI and CDS with CI90
+at impact (§5.3), and that premium loads on the long end. The mild 5y→10y
 roll-off is consistent with expected normalization dominating at very long
-horizons. The whole curve crosses zero at h≈13-18 (the subsequent easing
-cycle) and turns mildly negative with CI68 on the long end at h≈35-38.
+horizons. The curve peaks at **h1** (2y +107 bp, 5y +106 bp), crosses zero at
+**h≈11-12**, and turns negative with CI68 from h17-19 through h33-40 — the
+subsequent easing cycle, internally consistent with the risk premia reverting
+over the same horizons.
 
-`juros_cdi`/`juros_selic` respond only +2 bp (never significant): the
-month-average overnight rate does not embed the 6m surprise within the
-shock month — the known maturity-mismatch attenuation
-(`_instrucoes/justificativa_uso_yield-6m.md`), which is why `yield_6m` is
-the policy variable.
+`juros_cdi` / `juros_selic` respond **−4.8 bp at impact and are never
+significant at 90%**, turning negative with CI68 only from h25. The
+month-average overnight rate does not embed a 6-month surprise within the shock
+month — the maturity-mismatch attenuation documented in
+`_instrucoes/justificativa_uso_yield-6m.md`, and the reason `yield_6m` is the
+policy variable.
 
 ## 5.2 Equities
 
-All eight B3 indices drop on impact with significance (CI90 in six, CI68+
-in all), stay negative with CI68 at h1, and revert to ≈0 from h2 on with
-**no positively significant horizon** (one exception below). This is
-immediate, complete repricing — what forward-looking asset prices should
-do; the price level jumps and then follows a random walk.
+All eight B3 indices fall on impact, in a range of **−0.3% to −2.9%**, with the
+trough at h1 (−3.1% to −5.5%). **None is significant at 90% at impact.**
 
-| index | h0 | reading |
-|---|---|---|
-| IBOV | −8.9% | CI90 at h0 |
-| MLCX (large caps) | −8.8% | CI90 at h0 |
-| SMLL (small caps) | −10.4% | small > large: financial-conditions sensitivity (Gertler-Gilchrist 1994 analogue) |
-| IDIV (dividends) | −9.0% | duration-heavy cash flows |
-| IFNC (banks) | **−11.2%** | largest drop; duration losses dominate on impact, later margin recovery (English-Van den Heuvel-Zakrajšek 2018) |
-| IMOB (real estate dev.) | −10.9% | rate-sensitive demand |
-| IFIX (real estate income) | **−3.8%** | smallest drop, only index never crossing zero (negative through h48): repricing like long fixed income |
-| IMAT (materials/exporters) | −4.7% | **only index with a significant positive segment (CI68, h2-9)**: BRL depreciation (§5.3) lifts exporter revenue — the FX channel resolves the ambiguity |
+| index | h0 | trough | significance | medium-run |
+|---|---|---|---|---|
+| IBOV | −1.67% | −3.11 (h1) | CI90 contains zero: [−7.77, +1.76]; CI68 at h1 | +20.3% at h24, CI68 h14-26 |
+| SMLL (small caps) | −2.68% | −5.36 (h1) | CI68 h0-2 | +11.4% at h23 |
+| IDIV (dividends) | −2.04% | −3.57 (h1) | CI68 h0-1 | +28.6% at h32 |
+| IMOB (real-estate dev.) | −2.89% | −5.49 (h1) | CI68 h0-1 | +22.9% at h33 |
+| MLCX (large caps) | −1.74% | −3.29 (h1) | CI68 h1 | +17.0% at h24, CI68 h20-24 |
+| IFNC (banks) | −1.97% | −3.27 (h1) | CI68 h1 | +48.1% at h37, CI68 h17-35 |
+| IMAT (materials) | −0.31% | −0.31 (h0) | never significant | +5.4% at h14, then −18.0% at h48 |
+| **IFIX (real-estate income)** | **−1.03%** | **−33.3 (h48)** | **CI68 h0-8** | **negative at every horizon** |
 
-**Magnitude caveat (honest).** Bernanke-Kuttner (2005) find ≈ −1% on the
-S&P per +25 bp of *target* surprise. Our −9% per +50 bp is above Brazilian
-Copom-day event studies (order of 1-2% per 100 bp). Three compounding
-reasons, to be stated in the text: (i) the shock is a persistent *path*
-shift (a 6m-rate surprise ≈ the GSS path factor, which moves equities far
-more than the target factor); (ii) the response is monthly and general-
-equilibrium — it embeds the +5-6% FX depreciation and +50 bp sovereign-risk
-widening that amplify the discount rate, unlike 1-day event windows;
-(iii) EM equity beta. Report as upper-bound magnitude with this
-decomposition — not as a violation.
+Three readings, in order of how much weight they can carry:
+
+1. **The impact repricing is economically sensible but statistically weak.**
+   The cross-section ordering survives — small caps fall more than large caps
+   (Gertler-Gilchrist 1994 financial-conditions channel), real-estate developers
+   most, materials/exporters least (the BRL depreciation of §5.3 cushions
+   exporter revenue) — but only SMLL, IDIV, IMOB and IFIX reach CI68 at impact
+   and **no index reaches CI90**. The equity block should be reported as
+   *directionally consistent, individually imprecise*, not as a significant
+   finding.
+2. **IFIX is the one clean result.** Listed real-estate *income* funds are the
+   only index negative at every horizon through h48 (−33% cumulative), with CI68
+   from h0 to h8. Contracted-rent cash flows price like long fixed income, so a
+   permanent shift in the discount rate is not undone by the subsequent easing
+   cycle — exactly the asset where the textbook prediction should be sharpest.
+3. **The medium-run positive overshoot is the honest weak point.** Six of the
+   eight indices turn positive from h≈5-10 and peak between h23 and h37 at
+   implausible magnitudes (IFNC +48%, IDIV +29%). These segments reach CI68
+   (IBOV h14-26, MLCX h20-24, IFNC h17-35) but **never CI90**. The accumulated
+   level of a monthly return series is a random walk plus estimation error, so
+   the level drifts with the accumulated point estimate while the bands widen;
+   the honest statement is that the model has no information about the equity
+   level beyond the first year. Report the impact window and the IFIX path; treat
+   h > 12 as uninformative rather than as a finding.
+
+**A note on magnitudes, which improved.** The previous draft reported −9% on the
+IBOV per +50 bp and needed a three-part caveat explaining why that exceeded
+Brazilian Copom event studies (typically 1–2% per 100 bp). Under the current
+instrument, dimension and vintage the impact is **−1.7%, squarely inside the
+event-study range**. The tension is gone: what remains is imprecision, not
+implausible size.
 
 ## 5.3 Exchange rate and sovereign risk — the fiscal-dominance channel
 
-| var | h0 | h6 | h12 | h24 | h31-37 | significance |
-|---|---|---|---|---|---|---|
-| BRL/USD | +0.245 (≈ +6%) | +0.234 | +0.079 | −0.069 | ≈0 | CI90 + at impact |
-| EMBI | +0.46 pp | +0.30 | +0.08 | −0.14 | negative | CI90 + h0-7; CI68 − h33-36 |
-| CDS 5y | +56 bp | +38 | +12 | −13 | negative | CI90 + h0-7; CI68 − h31-37 |
+| var | h0 | h3 | h6 | h12 | h24 | CI90 | CI68 |
+|---|---|---|---|---|---|---|---|
+| BRL/USD | **+0.1498** (≈ +3.6%) | +0.133 | +0.069 | −0.021 | −0.041 | h0-4 + | h0-5 + |
+| BRL/EUR | +0.1446 | +0.120 | +0.051 | −0.030 | −0.005 | h0-3 + | h0-4 + |
+| EMBI | **+0.1995 pp** (≈ +20 bp) | +0.121 | +0.068 | −0.049 | −0.170 | h0-1 + | h0-4 +; h18-32 − |
+| CDS 5y | **+29.1 bp** | +22.4 | +13.6 | −3.0 | −17.5 | h0-4 + | h0-6 +; h18-31 − |
 
-A contractionary shock **depreciates** the BRL and **widens** sovereign
-risk, all significant at 90% on impact — the fiscal-dominance reading
-(Blanchard 2004): tightening worsens debt dynamics in the short run. The
-responses decay monotonically and **cross below baseline with CI68 at
-h≈31-37**, when disinflation and the easing cycle improve the premium —
-internally consistent with the curve turning negative at the same horizons.
+(BRL/USD in level; +0.1498 on a sample mean of 4.11 ≈ +3.6%. CDS on the panel's
+×100 scale: +2907 = +29.1 bp.)
 
-**Benchmark vs GRG (2025).** GRG's daily heteroskedasticity-IV finds BRL
-**appreciation** (−2.55% per +50 bp) and no CDS response. Our full-sample
-DFM finds the opposite sign. The sweep resolves this as **sample- and
-horizon-driven, not method-driven**: (i) the monthly DFM aggregates GE
-propagation (debt rollover, term-premium repricing) that a 24-hour window
-cannot capture; (ii) on the pre-COVID window, `z_het_3var` × (6,5) — the
-identification closest to GRG's — is the grid's only cell with FX
-**appreciation**, disinflation, and damped curve ordering (the GRG standard
-channel), with F = 10.8 but wide bands. We report that cell as qualitative
-robustness (with Anderson-Rubin bands if promoted into the paper): the
-fiscal-dominance reading is dominant in the 2013-25 sample but **not
-universal** — it is a property of the fiscal regime, concentrated in the
-COVID/post period.
+A contractionary shock **depreciates** the BRL and **widens** sovereign risk,
+all four series significant at 90% at impact. This is the fiscal-dominance
+reading (Blanchard 2004): when the debt path is the binding constraint,
+tightening worsens debt dynamics in the short run, and the currency and the
+sovereign spread price that deterioration rather than the higher carry. The four
+series are scored `soft_*_fiscal_dom` precisely because the textbook prior points
+the other way — and they are significant *against* that prior, which is the
+finding, not an anomaly.
+
+The channel is internally consistent across blocks: the responses decay
+monotonically, cross zero at h≈9-11, and reach their most negative point with
+CI68 at **h18-32** — the same horizons at which the yield curve turns negative
+(§5.1) and disinflation arrives (§5.5). One shock, one premium, three markets
+telling the same story with the same timing.
+
+Magnitudes are ~40% smaller than the previous draft reported (BRL +0.150 vs
++0.245; EMBI +20 vs +46 bp; CDS +29 vs +56 bp). The sign, the significance and
+the timing are unchanged.
+
+**Benchmark vs GRG (2025).** Gonçalves-Rodrigues-Genta's daily
+heteroskedasticity-IV finds BRL *appreciation* (−2.55% per +50 bp) and no CDS
+response; our monthly DFM finds the opposite sign for the currency and a
+significant widening of risk. The previous draft reconciled this through a
+`z_het_3var` pre-COVID cell, which is no longer available — the het track is out
+of the paper. The disagreement must therefore be discussed on its own terms, and
+three differences are candidates:
+(i) **frequency and object** — a 24-hour window prices the announcement, a
+monthly DFM prices the general-equilibrium propagation (debt rollover,
+term-premium repricing) that the daily window cannot reach;
+(ii) **sample window** — our sample is 2013-2025 and the fiscal-dominance
+reading is concentrated in the post-2020 regime;
+(iii) **fiscal regime** — the sign is a property of the debt regime, not of the
+method, so it is not expected to be universal across samples.
+Discriminating among these is an open item, not something this section settles.
 
 ## 5.4 Credit
 
-Stocks (log-points ×100 ≈ %):
+**Aggregates contract monotonically; the initial expansion is a sectoral
+phenomenon.** This is a genuine change from the previous draft, which reported a
+significant aggregate expansion at h0-h6.
 
 | var | h0 | h6 | h12 | h24 | trough (h) | significance |
 |---|---|---|---|---|---|---|
-| total outstanding | +0.43 | +0.37 | −0.08 | −0.63 | −0.88 (38) | CI90 + h0-2 |
-| firms: comércio | +0.48 | +0.80 | −0.23 | −1.62 | −1.72 (29) | CI90 + h1 |
-| firms: transporte | +1.97 | +1.80 | +0.22 | −1.48 | +2.37 peak (1) | CI90 + h0-6 |
-| firms: indústria | +0.88 | +1.03 | +0.07 | −1.19 | −1.30 (30) | CI90 + h0-4 |
-| firms: agro | +0.89 | +1.16 | −0.07 | −1.47 | −1.69 (32) | CI90 + h0-3 |
-| firms: construção | +0.02 | +0.43 | −0.28 | −1.45 | −1.82 (39) | CI68 + h1 only |
-| households (PF) | +0.01 | −0.01 | −0.15 | −0.29 | −0.73 (43) | never |
+| total outstanding | −0.057 | −0.047 | −0.427 | −1.171 | −1.23 (29) | CI68 − h17-39 |
+| households (PF) | −0.072 | +0.066 | −0.207 | −0.818 | −0.94 (32) | CI68 − h22-42 |
+| firms: comércio | −0.263 | −0.491 | −1.172 | −2.176 | −2.19 (26) | CI68 − h15-37 |
+| firms: construção | −0.318 | −0.303 | −0.876 | −2.319 | −2.44 (29) | CI68 − h19-41 |
+| firms: indústria | **+0.188** | −0.208 | −0.767 | −1.625 | −1.63 (25) | CI68 + h0; CI68 − h16-38 |
+| firms: transporte | **+0.751** | +0.104 | −0.924 | −1.967 | −1.97 (24) | **CI90 + h0-1**; CI68 − h15-35 |
+| firms: agro | **+1.009** | +0.530 | −0.500 | −1.469 | −1.47 (25) | **CI90 + h0-3**; CI68 − h16-37 |
 
-The dominant pattern — **significant expansion at h0-h6, zero-crossing at
-h≈10-14, contraction troughing at h≈29-43** — is the classic credit-channel
-chronology: Bernanke-Gertler (1995) document that total credit *rises* in
-the first quarters after a tightening; Gertler-Gilchrist (1994) show firms
-draw pre-approved credit lines to finance working capital and involuntary
-inventories as cash flow tightens; the contraction arrives as lines mature
-and banks reprice. The cross-section confirms the mechanism: **households —
-who have no credit lines to draw — show no initial expansion** and decline
-from h6. Earmarked credit gives a mixed verdict on Bonomo-Martins (2016):
-**construção fully confirms attenuation** (slowest zero-crossing, latest
-trough, no significant response in either direction — SFH funding at
-regulated rates insulates the sector), while **agro does not** (responds
-like free credit — plausibly because equalized rural rates still reference
-the Selic and the free share of agro funding grew over 2013-25).
+(log-points ×100 ≈ %; `credit_outstanding` and `credito_pessoa_fisica` are
+`coerente_forte` with 100% and 90% correct-sign share.)
 
-**Bank spreads (ICC)** respond in **two phases**: significant *compression*
-at h0-h7 (juridica CI90 h0-4; the ICC is the average rate on the
-*outstanding stock*, which reprices slower than funding costs when the
-Selic rises — mechanical), then **widening with CI68 at h19-h30** (juridica
-peak +0.08 at h25; fisica +0.13) — the financial accelerator
-(Bernanke-Gertler 1995; Gilchrist-Zakrajšek 2012; Gertler-Karadi 2015)
-arriving with the lag at which the stock has repriced and cycle
-delinquencies bind. A new-concessions spread would be expected to widen
-already in the short run — a desirable (non-blocking) addition.
+The Bernanke-Gertler (1995) / Gertler-Gilchrist (1994) chronology — firms draw
+pre-approved credit lines to finance working capital and involuntary inventories
+as cash flow tightens, and the contraction arrives only as lines mature and banks
+reprice — **holds for the sectoral cross-section but not for the aggregate**.
+Transporte and agro expand with CI90 at impact, indústria with CI68; comércio and
+construção never expand; and the aggregate stock, which mixes them with
+households, contracts from the start. The cross-section still supports the
+mechanism in the way that matters most: **households, who have no lines to draw,
+show no initial expansion**, while the three sectors with the heaviest working-
+capital cycles do. But the aggregate claim from the earlier draft has to be
+withdrawn.
 
-## 5.5 Activity, labor, and prices
+Earmarked credit gives a mixed verdict on Bonomo-Martins (2016): **construção
+confirms attenuation** (no expansion, latest trough at h29, CI68 only from h19 —
+SFH funding at regulated rates insulates the sector), while **agro does not** —
+it has the *largest* initial expansion in the panel, plausibly because equalized
+rural rates still reference the Selic and the free share of agro funding grew
+over 2013-25.
 
-**Activity: the demand channel is complete and significant.** All nine
-activity variables (IBC-Br, PIB, industrial transformation, durables,
-capital goods, retail, services, autos, capacity utilization) are negative
-from h=3 with CI68+ significance and 100% sign-share in the h3-24 window.
-Unemployment rises from h≥6; industrial hours fall (both significant).
+**Bank spreads (ICC) respond in two phases**, and the pattern is now cleaner than
+in the previous draft: mechanical *compression* at impact (juridica −0.016,
+fisica −0.031), then **widening peaking at h11** (juridica +0.072, fisica +0.134)
+with CI68 at h14-19 and h8-16 respectively. The ICC is the average rate on the
+*outstanding stock*, which reprices more slowly than funding costs when the Selic
+rises, so the short-run compression is a measurement property; the delayed
+widening is the financial accelerator (Bernanke-Gertler 1995;
+Gilchrist-Zakrajšek 2012; Gertler-Karadi 2015) arriving at the lag at which the
+stock has repriced and cyclical delinquencies bind. A new-concessions spread
+should widen already in the short run and would be a desirable, non-blocking
+addition.
 
-**Prices: report honestly, with the sample decomposition.** The headline
-IPCA shows a positive hump at h0-h12 that is **never significant at 90%**
-(CI68 only at h4-h8, peak +0.21) and crosses zero at h≈21. Three facts
-close the diagnosis (`relatorio/working-notes/2026-07-12_price_puzzle_ipca.md`):
-(i) the hump appears with **all 8 instruments** at (6,5) full-sample —
-including the heteroskedasticity-identified ones that share nothing with
-Copom-day timing — and the JK sign filter does not shrink it, ruling out
-information-shock contamination; (ii) with the **same identification, the
-pre-COVID window shows disinflation at every horizon** (h9 −0.21, h24
-−0.15, n.s.), precisely where the instrument is strongest (F = 15.4);
-(iii) the transitory price puzzle is the most documented anomaly in
-monetary VARs (Sims 1992; Ramey 2016 — CPI flat-to-positive for 12-24
-months even in Gertler-Karadi external-instrument designs; for Brazil,
-Minella 2003). The full-sample hump is the 2021-22 composition (Selic
-2%→13.75% while supply/commodity/fiscal shocks pushed IPCA up), not an
-identification failure.
+## 5.5 Activity, labour, and prices
 
-**The paper's primary price measure is the core `ex1`** — coherent-strong
-(84% correct-sign share in h12-48, disinflation significant at CI68 from
-h≈15), corroborated by the IPCA diffusion index (92% share). Cores ex0 and
-DW concentrate the weak-disinflation limitation of `z_jk_purif` and are
-reported with that reading.
+**Activity: the demand channel is the strongest block in the panel.** Six of the
+nine activity variables are `coerente_forte` with a 100% correct-sign share, and
+four are significant at **90%** at impact: industrial transformation (−1.41),
+durable goods (−5.47), capital goods (−2.60, also CI90 at h11-12) and retail
+sales (−1.04, also CI90 at h11). IBC-Br (−0.39), services (−0.45), autos and
+capacity utilization are negative with CI68. The trough for the industrial block
+is at **h11-12**, the textbook lag.
+
+`pib` is the one activity series positive at impact (+0.163, not significant); it
+turns negative from h≈10 and reaches −0.56 at h35 with CI68 from h31 — the
+quarterly-interpolated series carries the least monthly information, and its
+verdict is `coerente` (82% share) rather than strong.
+
+**Labour** confirms the channel with the expected delay: unemployment is flat for
+a year, then rises to +0.33 pp at h35 with CI68 from h27; employed population
+rises at first (CI68 at h0) and falls with CI68 from h36; industrial hours worked
+fall **−0.98 with CI90 at impact**, tracking the industrial block exactly.
+
+**Prices — the section that must be reported most carefully.**
+
+| measure | h0 | hump peak | disinflation | verdict |
+|---|---|---|---|---|
+| headline IPCA | −0.070 | **+0.181 at h5, CI90** | h9-33, min −0.077 (h12), n.s. | `parcial` (59%) |
+| IPCA diffusion | +0.070 | +0.827 at h5, CI68 | h9-45, min −1.006 (h23), n.s. | `coerente` (100%) |
+| core ex0 | +0.018 | +0.131 at h5, **CI90 h2, h4-8** | never negative | **`incoerente` (0%)** |
+| **core ex1** | −0.055 | +0.071 at h5, CI68 | h9-45, min −0.063 (h21), **CI68 h21-22** | **`coerente_forte` (92%)** |
+| core DW | +0.001 | +0.085 at h5, **CI90 h4-5, h7** | h11-34, n.s. | `parcial` (62%) |
+| INPC | −0.113 | +0.142 at h5, CI68 | h9-38, min −0.133 (h12), CI68 h12 | `parcial` (73%) |
+
+Two things changed relative to the previous draft and both cut against it:
+**the short-run price hump is now significant at 90%** in headline (h5), ex0
+(h2, h4-8) and DW (h4-5, h7) — the earlier text could say "never significant at
+90%" and no longer can — and **core ex0 is now `incoerente`**, positive at every
+horizon in the window.
+
+What survives, and should carry the section:
+
+- **Core ex1 is the primary price measure**: 92% correct-sign share, negative
+  from h9 through h45, with CI68 disinflation at h21-22. It is the only measure
+  that is `coerente_forte`.
+- **The diffusion index corroborates it** with a 100% share: the *breadth* of
+  price increases falls from h9 and troughs at h23, which is the disinflation
+  signal least contaminated by the composition of the basket.
+- **The hump is concentrated at h2-h8 and dies by h9** in every measure except
+  ex0, and its timing (peak uniformly at h5) is common across measures — the
+  signature of a common component, not of six independent puzzles.
+- The transitory price puzzle is the most documented anomaly in monetary VARs
+  (Sims 1992; Ramey 2016 — CPI flat-to-positive for 12-24 months even in
+  Gertler-Karadi external-instrument designs; for Brazil, Minella 2003).
+
+The previous draft closed this diagnosis by showing the hump was universal
+across instruments and vanished pre-COVID under the same identification
+(`relatorio/working-notes/2026-07-12_price_puzzle_ipca.md`). That evidence was
+built on the old vintage and the old instrument; **the note's conclusion is
+plausible but its numbers no longer reproduce**, and re-running the
+cross-instrument IPCA comparison under (7,6) is an open item before this framing
+can be used in the paper. Until then §5.5 should claim disinflation on ex1 and
+diffusion, report the ex0 failure openly, and not assert that the hump is
+sample-driven.
 
 ## 5.6 Robustness
 
-1. **Pre-COVID cross-instrument (headline robustness).** On 2013-2019 with
-   (r=6, q=5), **five instruments cross Stock-Yogo** (z_jk_purif 15.4, z_jk
-   15.2, z_het_jk_3var 11.1, z_het_3var 10.8, z_bruto_purif 10.4) spanning
-   **two independent identification schemes** (Copom-day timing and
-   Rigobon-Sack heteroskedasticity) and agree on the hard signs and the
-   transmission signs — including IPCA negative at every horizon for all
-   eight instruments. Table/figure: `output/irf/spec_sweep_report.md`,
-   `irf_spec_stage2_overlay.pdf`.
-2. **`z_het_3var` pre-COVID appreciation cell** as qualitative
-   reconciliation with GRG (§5.3), with Anderson-Rubin bands if promoted.
-3. **Specification grid.** 320 cells; every failure is weak factor-space F;
-   whenever F ≥ 10, hard signs are correct in any combination.
-4. **Point-by-point coherence.** 52 panel variables scored at every h
-   against theory windows (`output/irf/irf_coherence_report.md`): the
-   verdicts and the localized anomalies (ICC window, headline hump) are all
-   traced to measurement or sample composition, none to identification.
-5. **Jaggedness (footnote-level).** Short-horizon wiggles in low-
-   commonality series (equities, headline IPCA) trace to 3-4-month complex
-   roots of the factor VAR(6) (modulus 0.82) and are inside the bands at
-   every h; roughness correlates −0.50 (Spearman) with commonality
-   (`relatorio/working-notes/2026-07-12_irf_dentadas.md`). No ex-post
-   smoothing.
+1. **Instrument strength at the production dimension is a mask property.** At
+   (7, 6) full sample, exactly three of the fourteen instrument variants clear
+   ξ_mp ≥ 10: **`z_jk_raw` 10.55, `z_jk_bs_purif` 10.43, `z_jk_raw_purif`
+   10.39** — precisely the three whose JK sign mask is built on **predetermined**
+   information. Every variant whose mask is classified on contemporaneous
+   residuals falls short (`z_jk` 6.30, `z_jk_purif` 5.77, `z_jk_purif_us` 5.44),
+   as do the raw un-masked surprises (`z_bruto` 7.57, `z_bruto_purif` 6.62). This
+   is the independent confirmation of the 2026-07-14 fidelity audit's finding
+   that instrument strength lives in the mask rather than in the purified values:
+   a contemporaneous mask classifies 2020-03-19 (the COVID liquidity panic) as a
+   monetary day, and that single misclassification is enough to halve ξ_mp.
+2. **Pre-COVID cross-instrument agreement.** On 2013-2019 at (7, 6), **twelve of
+   the fourteen variants clear ξ_mp ≥ 10** (`z_bruto_purif` 17.67, `z_bruto`
+   17.02, `z_bs_purif` 16.14, `z_jk_purif` 13.68, `z_jk` 12.84,
+   **`z_jk_bs_purif` 12.22**, `z_jk_raw_purif` 11.10, `z_jk_raw` 10.45, …) —
+   masks and values built by four distinct recipes (raw or orthogonalized ×
+   with or without the sign filter) deliver the same answer where identification
+   is strong. Figure: `output/irf/irf_spec_stage2_overlay.pdf`.
+3. **Specification sweep, 480 cells** (12 instruments × 5 policy variables ×
+   4 (r,q) × 2 windows): zero `sign_puzzle` and zero `unstable_normalization`
+   cells in the full sample — every sign inversion in the grid traces to weak
+   relevance, none to an unstable normalization or a genuine puzzle. See the
+   ruler caveat in "Why this specification" before comparing the sweep's
+   eligibility flags with ξ_mp.
+4. **Point-by-point coherence, 52 variables × 49 horizons** scored against theory
+   windows (`output/irf/irf_coherence_report.md`): **21 `coerente_forte`,
+   5 `coerente`, 11 `parcial`, 1 `incoerente`** (core ex0), 6 ambiguous,
+   4 soft-channel (FX/risk), 3 placebos passing and **1 placebo violated**
+   (§Caveats).
+5. **Jaggedness (footnote-level).** Short-horizon wiggles in low-commonality
+   series (equities, headline IPCA) trace to 3-4-month complex roots of the
+   factor VAR(6) and lie inside the bands at every horizon; roughness correlates
+   −0.50 (Spearman) with commonality
+   (`relatorio/working-notes/2026-07-12_irf_dentadas.md` — mechanism is
+   instrument- and dimension-independent, so the diagnosis carries over even
+   though its magnitudes are from the old vintage). **No ex-post smoothing.**
 
 ## 5.7 Paper-worthy findings (summary)
 
-1. **Transmission under fiscal fragility** (the pitch): the long curve
-   amplifies (+122 bp at 5y per +50 bp at 6m — opposite of the US), the
-   BRL depreciates and sovereign risk widens, all CI90 at impact; the
-   medium run reverses (CI68) as disinflation arrives. Three faces of one
-   fiscal-premium channel, internally consistent.
-2. **Complete, significant demand channel**: 9/9 activity variables, labor,
-   and credit stocks respond with textbook signs and CI68+ significance.
-3. **Credit-channel chronology matches BG95/GG94** including the
-   firms-vs-households cross-section and the two-phase spread response;
-   earmarked-credit attenuation confirmed for construção, not agro.
-4. **Prices**: disinflation lives in core ex1 and diffusion (CI68); the
-   headline hump is n.s., sample-driven, and vanishes pre-COVID under the
-   same identification — a price-puzzle decomposition, not a puzzle claim.
-5. **Two identification paradigms agree** where both are strong (pre-COVID
-   grid), and the lone GRG-style appreciation cell shows the
-   fiscal-dominance reading is regime-dependent — an empirical statement
-   about the fiscal regime, not a methodological artifact.
+1. **Transmission under fiscal fragility** (the pitch): the long curve amplifies
+   (+92.7 bp at 5y per +50 bp at 6m — the opposite of the US pattern), the BRL
+   depreciates ≈3.6% and sovereign risk widens (EMBI +20 bp, CDS +29 bp), all
+   with CI90 at impact; all three revert with CI68 over h17-32 as disinflation
+   arrives. Three faces of one fiscal-premium channel, with matching timing.
+2. **A complete and significant demand channel**: 8 of 9 activity variables
+   negative at impact (all nine by h12), four with CI90 at impact, industrial
+   trough at h11-12; industrial hours −0.98 with CI90; unemployment +0.33 pp
+   with CI68 from h27.
+3. **The credit channel is sectoral, not aggregate**: transporte, agro and
+   indústria expand at impact (two with CI90) while households and the aggregate
+   stock contract from the start — the Gertler-Gilchrist credit-line mechanism
+   shows up exactly where working-capital cycles are heaviest. ICC spreads
+   compress mechanically then widen at h11 (financial accelerator).
+   Earmarked-credit attenuation is confirmed for construção, rejected for agro.
+4. **Disinflation lives in core ex1 and in the diffusion index**, not in the
+   headline: ex1 is the only `coerente_forte` price measure (92% share, CI68 at
+   h21-22) and diffusion corroborates at 100%. The h2-h8 hump is significant at
+   90% in headline, ex0 and DW and is reported as an open limitation.
+5. **Instrument strength is a property of the sign mask.** Only predetermined-
+   mask variants clear the MOSW threshold at the production dimension — a
+   methodological result that is useful independently of the Brazilian
+   application, and that follows from a fidelity audit rather than from a
+   specification search.
 
 ## Files
 
-- Production IRFs: `output/irf/irf_model_alessi_r6q5.pdf` (from
-  `script/model_alessi.R`, r=6/q=5 override).
+- Production IRFs: `output/irf/irf_model_alessi_r7q6.pdf` (from
+  `script/model_alessi.R`, explicit `r = 7L, q = 6L` override).
 - Coherence: `output/irf/irf_coherence_{h,summary}.csv`,
-  `irf_coherence_report.md`, `irf_coherence_plots.pdf`,
-  `irf_coherence_cell.rds`.
+  `irf_coherence_report.md`, `irf_coherence_plots.pdf`, `irf_coherence_cell.rds`
+  (full estimation object — reuse it instead of re-estimating).
 - Sweep: `output/irf/spec_sweep_{cells,irf_long}.csv`,
-  `spec_sweep_{report,stage2,conclusoes}.md`, `irf_spec_<tag>.{rds,pdf}`,
+  `spec_sweep_{report,stage2}.md`, `irf_spec_full_r7q6_z_jk_bs_purif.{rds,pdf}`,
   `irf_spec_stage2_overlay.pdf`.
-- Working notes (2026-07-12): `price_puzzle_ipca`,
-  `irf_credito_ativos_financeiros`, `irf_dentadas` under
-  `relatorio/working-notes/`.
+- Instrument strength: `output/instrument/mosw_strength_grid.{csv,md}`,
+  `olea_alignment_audit.md`, `instrument_diagnostics_report.md`.
 
 ## Caveats
 
-- **Units**: yields in decimal proportion (+0.005 = 50 bp); equities in
-  log-points (≈ %); `cambio_usd` in BRL/USD level (+0.245 ≈ +6% at the
-  sample mean ≈ 4.1); `cds_5y` on the panel ×100 scale (+5604 = +56 bp);
-  credit stocks in log-points ×100 (tcode 4).
-- **Weak-IV margin**: full-sample F factor-space = 10.08 sits at the
-  Stock-Yogo threshold; the strong window (pre-COVID, F = 15.4) has n = 78.
-  Anderson-Rubin bands are the pre-submission to-do, mandatory for any het
-  variant promoted beyond qualitative robustness.
-- **Headline disinflation is not claimed**: the h21-40 negative segment of
-  headline IPCA is n.s.; the disinflation claim rests on ex1/diffusion at
-  CI68 and on the pre-COVID window.
-- **nboot = 800** (paper-quality); 2000 draws would marginally tighten
-  tails only.
+- **Units.** Yields in decimal proportion (+0.005 = 50 bp); equity indices are
+  monthly returns cumulated to a price level (tcode 2), in log-points ≈ %;
+  `cambio_usd` in BRL/USD level (sample mean 4.11, so +0.1498 ≈ +3.6%);
+  `cds_5y` on the panel's ×100 scale (+2907 = +29.1 bp); `embi_perc` in
+  percentage points; credit stocks in log-points ×100 (tcode 4).
+- **Placebo violated: `commodity_metal`.** The metals index responds **+10.4%
+  at impact with CI90 through h4** to a Brazilian monetary shock, which is not
+  economically interpretable — a small open economy does not move world metal
+  prices. This is a live exogeneity caveat: metals are *not* among the
+  pre-event predictors of the Bauer-Swanson orthogonalization (Brent is), so the
+  instrument plausibly retains a global commodity/risk component. The other three
+  placebos pass (`sp500_vix`, `msci`, `epu_us`). Extending the orthogonalization
+  to a metals factor is the natural test and is an open item.
+- **Weak-IV margin.** ξ_mp = 10.43 (full) sits just above the Stock-Yogo
+  threshold; the AR set is bounded in both windows, so conventional bands are
+  approximately valid and Anderson-Rubin intervals are **optional robustness**
+  rather than mandatory. Following MOSW's protocol, ξ is reported rather than
+  used as a screening filter.
+- **Core ex0 is incoherent** (positive at every horizon, CI90 at h2 and h4-8) and
+  the short-run hump is significant at 90% in the headline and DW cores. The
+  disinflation claim rests on ex1 and the diffusion index; it is not claimed for
+  the headline.
+- **Equities are directionally consistent but individually imprecise**: no index
+  reaches CI90 at impact, and the medium-run positive overshoot (CI68 only)
+  should be treated as uninformative rather than as a finding. IFIX is the
+  exception worth reporting.
+- **`nboot = 800`** (paper quality); 2000 draws would tighten tails only
+  marginally.
