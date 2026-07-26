@@ -9,11 +9,14 @@
 # Data files
 data/
 
-# Code files to exclude
-script/model.R
+# Reference code — read-only translation sources, not project code (see CLAUDE.md)
 codigo_alessi-mark/
 codigo_Jarocinski_e_Karadi/
 codigo_bauer_swanson/
+codigo_olea/
+
+# Code files to exclude
+script/model.R
 abc/
 
 # LaTeX build artifacts

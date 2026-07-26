@@ -1,0 +1,1286 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Journal of Econometrics",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          215.93359375,
+          85.6806640625
+        ],
+        [
+          370.75390625,
+          85.6806640625
+        ],
+        [
+          370.75390625,
+          100.9136962890625
+        ],
+        [
+          215.93359375,
+          100.9136962890625
+        ]
+      ]
+    },
+    {
+      "title": "Delta-method inference for a class of set-identified SVARs\u2729",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          30.265625,
+          163.2197265625
+        ],
+        [
+          409.75,
+          163.2197265625
+        ],
+        [
+          409.75,
+          182.6044921875
+        ],
+        [
+          30.265625,
+          182.6044921875
+        ]
+      ]
+    },
+    {
+      "title": "a r t i c l e i n f o",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          30.84765625,
+          244.24493408203125
+        ],
+        [
+          127.36075592041016,
+          244.24493408203125
+        ],
+        [
+          127.36075592041016,
+          254.32812499999997
+        ],
+        [
+          30.84765625,
+          254.32812499999997
+        ]
+      ]
+    },
+    {
+      "title": "a b s t r a c t",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          193.81640625,
+          244.24493408203125
+        ],
+        [
+          261.3415832519531,
+          244.24493408203125
+        ],
+        [
+          261.3415832519531,
+          253.5699462890625
+        ],
+        [
+          193.81640625,
+          253.5699462890625
+        ]
+      ]
+    },
+    {
+      "title": "1. Introduction",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          32.711997985839844,
+          429.95410156249994
+        ],
+        [
+          95.744140625,
+          429.95410156249994
+        ],
+        [
+          95.744140625,
+          439.7276306152344
+        ],
+        [
+          32.711997985839844,
+          439.7276306152344
+        ]
+      ]
+    },
+    {
+      "title": "2. Model, set-identifying restrictions, and overview of main\ntheoretical results",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          310.7607052896725,
+          53.50195312499999
+        ],
+        [
+          563.98828125,
+          53.50195312499999
+        ],
+        [
+          563.98828125,
+          72.72710103871576
+        ],
+        [
+          310.7607052896725,
+          72.72710103871576
+        ]
+      ]
+    },
+    {
+      "title": "2.1. SVAR model and impulse-response coefficients",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          310.22265625,
+          125.22558593749999
+        ],
+        [
+          497.6675062972292,
+          125.22558593749999
+        ],
+        [
+          497.6675062972292,
+          134.95750708215297
+        ],
+        [
+          310.22265625,
+          134.95750708215297
+        ]
+      ]
+    },
+    {
+      "title": "2.2. Set-identifying restrictions",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          310.513671875,
+          500.09254013220016
+        ],
+        [
+          427.10831234256926,
+          500.09254013220016
+        ],
+        [
+          427.10831234256926,
+          509.81933593749994
+        ],
+        [
+          310.513671875,
+          509.81933593749994
+        ]
+      ]
+    },
+    {
+      "title": "2.3. Overview of the main results",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          30.775818639798487,
+          460.3550519357884
+        ],
+        [
+          154.62972292191435,
+          460.3550519357884
+        ],
+        [
+          154.62972292191435,
+          469.49902343749994
+        ],
+        [
+          30.775818639798487,
+          469.49902343749994
+        ]
+      ]
+    },
+    {
+      "title": "3. Running example: unconventional monetary policy shocks",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          299.74609375,
+          620.0547686496694
+        ],
+        [
+          550.2115869017632,
+          620.0547686496694
+        ],
+        [
+          550.2115869017632,
+          630.7802734375
+        ],
+        [
+          299.74609375,
+          630.7802734375
+        ]
+      ]
+    },
+    {
+      "title": "4. Theorems",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          40.451171875,
+          467.17285156249994
+        ],
+        [
+          93.82871536523929,
+          467.17285156249994
+        ],
+        [
+          93.82871536523929,
+          477.5996222851747
+        ],
+        [
+          40.451171875,
+          477.5996222851747
+        ]
+      ]
+    },
+    {
+      "title": "4.1. Theorem 1",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          40.53400503778337,
+          491.98535156249994
+        ],
+        [
+          97.58186397984886,
+          491.98535156249994
+        ],
+        [
+          97.58186397984886,
+          500.84230406043434
+        ],
+        [
+          40.53400503778337,
+          500.84230406043434
+        ]
+      ]
+    },
+    {
+      "title": "4.1.1. Assumptions",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          40.53400503778337,
+          593.8130311614731
+        ],
+        [
+          113.34508816120906,
+          593.8130311614731
+        ],
+        [
+          113.34508816120906,
+          602.8662109375
+        ],
+        [
+          40.53400503778337,
+          602.8662109375
+        ]
+      ]
+    },
+    {
+      "title": "4.1.2. Algorithm",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          309.931640625,
+          217.4315391879131
+        ],
+        [
+          372.3123425692695,
+          217.4315391879131
+        ],
+        [
+          372.3123425692695,
+          226.02636718749997
+        ],
+        [
+          309.931640625,
+          226.02636718749997
+        ]
+      ]
+    },
+    {
+      "title": "4.1.3. Using the algorithm in the UMP example",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          30.775818639798487,
+          479.57910156249994
+        ],
+        [
+          204.92191435768262,
+          479.57910156249994
+        ],
+        [
+          204.92191435768262,
+          489.5958451369216
+        ],
+        [
+          30.775818639798487,
+          489.5958451369216
+        ]
+      ]
+    },
+    {
+      "title": "4.2. Theorem 2",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          300.328125,
+          354.6383380547686
+        ],
+        [
+          358.05037783375315,
+          354.6383380547686
+        ],
+        [
+          358.05037783375315,
+          363.6355051935788
+        ],
+        [
+          300.328125,
+          363.6355051935788
+        ]
+      ]
+    },
+    {
+      "title": "4.2.1. Assumptions",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          301.00251889168766,
+          433.05566406249994
+        ],
+        [
+          373.06297229219143,
+          433.05566406249994
+        ],
+        [
+          373.06297229219143,
+          442.360717658168
+        ],
+        [
+          301.00251889168766,
+          442.360717658168
+        ]
+      ]
+    },
+    {
+      "title": "4.2.2. Directional differentiability",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          301.00251889168766,
+          549.5769593956562
+        ],
+        [
+          425.6070528967254,
+          549.5769593956562
+        ],
+        [
+          425.6070528967254,
+          559.4443359375
+        ],
+        [
+          301.00251889168766,
+          559.4443359375
+        ]
+      ]
+    },
+    {
+      "title": "Proof. See Appendix A.4.",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          309.640625,
+          665.6728515625
+        ],
+        [
+          409.0931989924433,
+          665.6728515625
+        ],
+        [
+          409.0931989924433,
+          675.537299338999
+        ],
+        [
+          309.640625,
+          675.537299338999
+        ]
+      ]
+    },
+    {
+      "title": "4.3. Theorem 3",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          30.775818639798487,
+          541.6103515625
+        ],
+        [
+          89.3249370277078,
+          541.6103515625
+        ],
+        [
+          89.3249370277078,
+          551.0764872521246
+        ],
+        [
+          30.775818639798487,
+          551.0764872521246
+        ]
+      ]
+    },
+    {
+      "title": "4.3.1. Assumptions",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          301.00251889168766,
+          581.9306640625
+        ],
+        [
+          373.06297229219143,
+          581.9306640625
+        ],
+        [
+          373.06297229219143,
+          590.8139754485363
+        ],
+        [
+          301.00251889168766,
+          590.8139754485363
+        ]
+      ]
+    },
+    {
+      "title": "4.3.2. Large-sample coverage and robust Bayesian credibility",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          40.53400503778337,
+          335.14447592067984
+        ],
+        [
+          265.7229219143577,
+          335.14447592067984
+        ],
+        [
+          265.7229219143577,
+          344.14164305949004
+        ],
+        [
+          40.53400503778337,
+          344.14164305949004
+        ]
+      ]
+    },
+    {
+      "title": "Proof. See Appendix A.5.",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          309.640625,
+          302.90462700661
+        ],
+        [
+          409.0931989924433,
+          302.90462700661
+        ],
+        [
+          409.0931989924433,
+          312.8701171875
+        ],
+        [
+          309.640625,
+          312.8701171875
+        ]
+      ]
+    },
+    {
+      "title": "4.3.3. Monte-Carlo Evidence",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          310.7607052896725,
+          402.0400390625
+        ],
+        [
+          417.607421875,
+          402.0400390625
+        ],
+        [
+          417.607421875,
+          410.87063267233236
+        ],
+        [
+          310.7607052896725,
+          410.87063267233236
+        ]
+      ]
+    },
+    {
+      "title": "5. Unconventional monetary policy shocks",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          30.775818639798487,
+          650.1650390625
+        ],
+        [
+          205.67254408060452,
+          650.1650390625
+        ],
+        [
+          205.67254408060452,
+          659.042492917847
+        ],
+        [
+          30.775818639798487,
+          659.042492917847
+        ]
+      ]
+    },
+    {
+      "title": "6. Conclusion",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          31.720703125,
+          616.0478515625
+        ],
+        [
+          88.33052825927734,
+          616.0478515625
+        ],
+        [
+          88.33052825927734,
+          627.4406280517578
+        ],
+        [
+          31.720703125,
+          627.4406280517578
+        ]
+      ]
+    },
+    {
+      "title": "Acknowledgments",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          40.451171875,
+          53.50195312499999
+        ],
+        [
+          117.12841033935547,
+          53.50195312499999
+        ],
+        [
+          117.12841033935547,
+          63.7666015625
+        ],
+        [
+          40.451171875,
+          63.7666015625
+        ]
+      ]
+    },
+    {
+      "title": "Appendix A. Supplementary data",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          41.615234375,
+          233.00488281249997
+        ],
+        [
+          176.064453125,
+          233.00488281249997
+        ],
+        [
+          176.064453125,
+          241.59967041015625
+        ],
+        [
+          41.615234375,
+          241.59967041015625
+        ]
+      ]
+    },
+    {
+      "title": "References",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          39.869140625,
+          286.89453125
+        ],
+        [
+          86.16936492919922,
+          286.89453125
+        ],
+        [
+          86.16936492919922,
+          295.3977355957031
+        ],
+        [
+          39.869140625,
+          295.3977355957031
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          283
+        ],
+        [
+          "Line",
+          92
+        ],
+        [
+          "Text",
+          18
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "Reference",
+          5
+        ],
+        [
+          "ListItem",
+          3
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          195
+        ],
+        [
+          "Line",
+          122
+        ],
+        [
+          "Text",
+          16
+        ],
+        [
+          "Reference",
+          8
+        ],
+        [
+          "Equation",
+          5
+        ],
+        [
+          "Footnote",
+          4
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          140
+        ],
+        [
+          "Line",
+          134
+        ],
+        [
+          "Text",
+          26
+        ],
+        [
+          "Equation",
+          10
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Footnote",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          158
+        ],
+        [
+          "Line",
+          128
+        ],
+        [
+          "Text",
+          21
+        ],
+        [
+          "TableCell",
+          20
+        ],
+        [
+          "Equation",
+          9
+        ],
+        [
+          "Reference",
+          6
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          199
+        ],
+        [
+          "Line",
+          103
+        ],
+        [
+          "Text",
+          19
+        ],
+        [
+          "Equation",
+          6
+        ],
+        [
+          "Reference",
+          6
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          102
+        ],
+        [
+          "Line",
+          94
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "Equation",
+          9
+        ],
+        [
+          "Reference",
+          5
+        ],
+        [
+          "Footnote",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          118
+        ],
+        [
+          "Span",
+          116
+        ],
+        [
+          "Text",
+          20
+        ],
+        [
+          "Equation",
+          11
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Footnote",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          139
+        ],
+        [
+          "Line",
+          125
+        ],
+        [
+          "Text",
+          22
+        ],
+        [
+          "Equation",
+          14
+        ],
+        [
+          "Reference",
+          5
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          116
+        ],
+        [
+          "Span",
+          34
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Equation",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Footnote",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 9,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          126
+        ],
+        [
+          "Span",
+          34
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "Reference",
+          5
+        ],
+        [
+          "Footnote",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 10,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          168
+        ],
+        [
+          "Line",
+          59
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Reference",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 11,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          509
+        ],
+        [
+          "Line",
+          114
+        ],
+        [
+          "Reference",
+          42
+        ],
+        [
+          "ListItem",
+          41
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Text",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/Gafarov, meier, olea - Delta-method inference for a class of set-identified SVARs"
+}
