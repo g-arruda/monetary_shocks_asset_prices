@@ -9,8 +9,9 @@ library(patchwork)
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
-source("R/identification/het_shock_extraction.R")
-source("R/identification/het_primary.R")
+# The het identification branch was archived on 2026-07-26 (empirically rejected
+# 2026-07-16). Production runs identification = "proxy"; to revive the het branch
+# source arquivo/R/identification/het_{shock_extraction,primary}.R first.
 
 
 
@@ -46,8 +47,9 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
   # pelos gates de viabilidade em todo o grid (2026-07-16) — o placebo
   # de permutacao nao distingue os labels do calendario (p_perm
   # 0.26-0.86) e a proporcionalidade Sigma_C ~ Sigma_NC nunca e
-  # rejeitada. Ver output/het_primary/feasibility_report.md. O default
-  # de producao segue "proxy" ate decisao do autor.
+  # rejeitada, e o mesmo para regimes de episodio (BPSS 2021). Codigo e
+  # artefatos arquivados em 2026-07-26; ver _instrucoes/historico_decisoes.md
+  # secao 1.2. Producao segue "proxy" (z_jk_bs_purif).
   identification <- match.arg(identification)
 
   # Load and prepare data (preservar ref.date para alinhamento)
@@ -142,24 +144,21 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
 set.seed(123)
 
 # Execute main analysis
-# Override explícito r=6, q=5 (2026-07-11, varredura de especificações):
-# o auto-IC (r = bai_ng IC2 = 5, q = amengual_watson = 4) é borderline-weak
-# para z_jk_purif no full sample (F factor-space = 9.20 < 10) e produz
-# pib com sinal invertido em h24. (6,5) cruza Stock-Yogo no full (F = 10.08)
-# e é o pico do pre_covid (F = 15.4) — ver output/irf/spec_sweep_conclusoes.md
-# e output/irf/spec_sweep_cells.csv. A família JK também cruza em (7,6) e (8,8).
+# Especificação de produção r=7, q=6, p=6 (movida de (6,5) em 2026-07-24 após o
+# refresh de vintage). Sob a régua MOSW, (7,6) é a única dimensão da varredura com
+# ξ_mp > 10 nas duas janelas (10.43 full / 12.22 pre_covid), enquanto (6,5) caiu
+# para a zona AR no full (6.36) — ver output/instrument/mosw_strength_grid.md.
 # Instrumento: data/processed/instrument.csv = z_jk_bs_purif (default desde
-# 2026-07-15; máscara JK em resíduos pré-evento BS — auditoria de fidelidade).
-# Sob a régua MOSW, (6,5) é forte no pre_covid (ξ_mp = 12.49) e fica na zona
-# AR no full (ξ_mp = 6.94 > 3.84) — ver mosw_strength_grid.md.
+# 2026-07-15; máscara JK em resíduos pré-evento BS). Bootstrap wild nboot=800
+# (Gonçalves-Kilian), correção de viés Kilian só no DGP do bootstrap.
 sdfm_results <- main_sdfm(
-  r = 8L,
-  q = 8L,
-  p = 3 ,
+  r = 7L,
+  q = 6L,
+  p = 6,
   shock_size_bps = 50,
   mp_var = "yield_6m",
   ci_levels = c(0.68, 0.90),
-  nboot = 200
+  nboot = 800
 )
 
 
@@ -197,5 +196,5 @@ irf_plot <- plot_irf(sdfm_results$irfs,
 
 print(irf_plot)
 
-ggplot2::ggsave("output/irf/irf_model_alessi_r6q5.pdf", irf_plot,
+ggplot2::ggsave("output/irf/irf_model_alessi_r7q6.pdf", irf_plot,
                 width = 11, height = 9, dpi = 200)

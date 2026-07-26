@@ -1,6 +1,6 @@
 # ===================================================================
 # Point-by-point theory-coherence check of the production IRFs across
-# ~40 key panel variables (z_jk_purif x yield_6m x r=6 q=5, full sample,
+# ~40 key panel variables (z_jk_bs_purif x yield_6m x r=7 q=6, full sample,
 # wild bootstrap nboot=800). For each variable, every horizon h = 0..48
 # is checked for sign and CI68/CI90 significance against the theory
 # window defined in R/identification/irf_coherence.R.
@@ -26,8 +26,8 @@ source("R/identification/irf_coherence.R")
 
 # ---- Config (production spec) --------------------------------------
 
-R_FACTORS  <- 6L
-Q_DYNAMIC  <- 5L
+R_FACTORS  <- 7L
+Q_DYNAMIC  <- 6L
 P_LAGS     <- 6L
 INSTRUMENT <- "z_jk_bs_purif"
 MP_VAR     <- "yield_6m"

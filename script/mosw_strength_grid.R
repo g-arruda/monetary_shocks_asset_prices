@@ -39,8 +39,7 @@ SAMPLES <- list(
 
 VARIANTS <- c("z_bruto", "z_bruto_purif", "z_jk", "z_jk_purif",
               "z_jk_raw_purif", "z_jk_raw_purif_local",
-              "z_jk_raw", "z_bs_purif", "z_jk_bs_purif", "z_jk_purif_us",
-              "z_het", "z_het_jk", "z_het_3var", "z_het_jk_3var")
+              "z_jk_raw", "z_bs_purif", "z_jk_bs_purif", "z_jk_purif_us")
 
 DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
 INST_PATH <- "data/processed/instrumentos_mensais.csv"
@@ -153,7 +152,7 @@ summary_tbl <- grid |>
   arrange(sample, desc(xi_mp_median))
 
 prod_tbl <- grid |>
-  filter(r == 6, q == 5) |>
+  filter(r == 7, q == 6) |>
   select(sample, instrument, f_factor, wald_min, wald_max,
          wald_joint, f_joint, p_joint, wald_mp, ar_bounded) |>
   arrange(sample, desc(wald_mp))
@@ -187,7 +186,7 @@ sections <- c(
   "",
   md_table(summary_tbl),
   "",
-  "## Especificação de produção (r=6, q=5)",
+  "## Especificação de produção (r=7, q=6)",
   "",
   md_table(prod_tbl),
   ""

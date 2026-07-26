@@ -43,7 +43,7 @@ source("R/identification/irf_coherence.R")
 # ---- Config -------------------------------------------------------
 
 INSTRUMENTS <- c("z_jk_bs_purif", "z_jk_purif", "z_jk_raw_purif",
-                 "z_bruto", "z_jk", "z_het_jk_3var")
+                 "z_bruto", "z_jk")
 RQ <- list(c(6L, 5L), c(7L, 6L), c(8L, 8L))
 SAMPLES <- c("full", "pre_covid")
 WINDOWS <- list(full      = as.Date(c("2013-01-01", "2025-12-31")),

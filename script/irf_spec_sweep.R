@@ -42,8 +42,7 @@ SAMPLES <- list(
 )
 
 VARIANTS <- c("z_bruto", "z_bruto_purif", "z_jk", "z_jk_purif",
-              "z_jk_raw_purif", "z_jk_raw", "z_bs_purif", "z_jk_bs_purif",
-              "z_het", "z_het_jk", "z_het_3var", "z_het_jk_3var")
+              "z_jk_raw_purif", "z_jk_raw", "z_bs_purif", "z_jk_bs_purif")
 
 MP_VARS <- c("yield_3m", "yield_6m", "yield_1y", "yield_2y", "juros_selic")
 

@@ -81,11 +81,7 @@ variants <- list(
   "z_jk_raw"       = "data/processed/instrument_jk_raw.csv",
   "z_bs_purif"     = "data/processed/instrument_bs_purif.csv",
   "z_jk_bs_purif"  = "data/processed/instrument_jk_bs_purif.csv",
-  "z_jk_purif_us"  = "data/processed/instrument_jk_purif_us.csv",
-  "z_het"          = "data/processed/instrument_z_het.csv",
-  "z_het_jk"       = "data/processed/instrument_z_het_jk.csv",
-  "z_het_3var"     = "data/processed/instrument_z_het_3var.csv",
-  "z_het_jk_3var"  = "data/processed/instrument_z_het_jk_3var.csv"
+  "z_jk_purif_us"  = "data/processed/instrument_jk_purif_us.csv"
 )
 variants <- variants[file.exists(unlist(variants))]
 
@@ -265,63 +261,7 @@ if (exists("diag")) {
   var_tests <- NULL
 }
 
-# ---- 5. Heteroskedasticity-identification diagnostics -------
-# Reads the artifacts produced by script/instrument_het.R. If any are missing,
-# the corresponding section is skipped in the report.
-
-het_val_path <- "output/instrument/het_variance_validation.csv"
-het_eig_path <- "output/instrument/het_eigenvalues.csv"
-het_b1_path  <- "output/instrument/het_b_1.csv"
-
-het_val_3var_path <- "output/instrument/het_variance_validation_3var.csv"
-het_b1_3var_path  <- "output/instrument/het_b_1_3var.csv"
-
-het_b2_path       <- "output/instrument/het_b_2.csv"
-het_b2_3var_path  <- "output/instrument/het_b_2_3var.csv"
-
-het_rank_path        <- "output/instrument/het_rank_test.csv"
-het_rank_3var_path   <- "output/instrument/het_rank_test_3var.csv"
-het_share_path       <- "output/instrument/het_rank1_share_ci.csv"
-het_share_3var_path  <- "output/instrument/het_rank1_share_ci_3var.csv"
-
-het_val <- if (file.exists(het_val_path)) read_csv(het_val_path, show_col_types = FALSE) else NULL
-het_eig <- if (file.exists(het_eig_path)) read_csv(het_eig_path, show_col_types = FALSE) else NULL
-het_b1  <- if (file.exists(het_b1_path))  read_csv(het_b1_path,  show_col_types = FALSE) else NULL
-
-het_val_3var <- if (file.exists(het_val_3var_path)) read_csv(het_val_3var_path, show_col_types = FALSE) else NULL
-het_b1_3var  <- if (file.exists(het_b1_3var_path))  read_csv(het_b1_3var_path,  show_col_types = FALSE) else NULL
-
-het_b2      <- if (file.exists(het_b2_path))      read_csv(het_b2_path,      show_col_types = FALSE) else NULL
-het_b2_3var <- if (file.exists(het_b2_3var_path)) read_csv(het_b2_3var_path, show_col_types = FALSE) else NULL
-
-het_rank      <- if (file.exists(het_rank_path))       read_csv(het_rank_path,       show_col_types = FALSE) else NULL
-het_rank_3var <- if (file.exists(het_rank_3var_path))  read_csv(het_rank_3var_path,  show_col_types = FALSE) else NULL
-het_share     <- if (file.exists(het_share_path))      read_csv(het_share_path,      show_col_types = FALSE) else NULL
-het_share_3var<- if (file.exists(het_share_3var_path)) read_csv(het_share_3var_path, show_col_types = FALSE) else NULL
-
-if (!is.null(het_eig)) {
-  het_eig <- het_eig |>
-    mutate(label = ifelse(is.na(variable),
-                          paste0("eig_", rank),
-                          paste0(variable, " (#", rank, ")")))
-
-  abs_lambda_sorted <- sort(abs(het_eig$lambda), decreasing = TRUE)
-  rank1_share <- abs_lambda_sorted[1] / sum(abs_lambda_sorted)
-  eig_gap     <- abs_lambda_sorted[1] / abs_lambda_sorted[2]
-
-  p_eig <- ggplot(het_eig, aes(x = reorder(label, -rank), y = lambda)) +
-    geom_col(fill = "#1f77b4") +
-    geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey50") +
-    coord_flip() +
-    labs(title = "Eigenvalues of dSigma = Sigma_C - Sigma_NC",
-         subtitle = sprintf("rank-1 share = %.2f, eigenvalue gap = %.2f",
-                            rank1_share, eig_gap),
-         x = NULL, y = "lambda") +
-    theme_minimal(base_size = 11)
-  ggsave("output/instrument/het_eigenvalues.png", p_eig, width = 7, height = 4, dpi = 150)
-}
-
-# ---- 6. Report ---------------------------------------------
+# ---- 5. Report ---------------------------------------------
 
 fmt_num_or_na <- function(x, d = 3) {
   ifelse(is.na(x), "NA", sprintf(paste0("%.", d, "f"), x))
@@ -399,120 +339,6 @@ var_md <- if (!is.null(var_tests)) {
   "_(event diagnostics not available)_"
 }
 
-format_var_split_md <- function(tbl) {
-  if (is.null(tbl)) return("_(run script/instrument_het.R to populate this section)_")
-  has_status <- "a2_status" %in% names(tbl)
-  v <- tbl |>
-    mutate(across(c(var_C, var_NC, ratio, ci_low, ci_high),
-                  ~ signif(.x, 3)))
-  if (has_status) {
-    paste(c(
-      "| Variable | n_C | n_NC | Var(C) | Var(NC) | Ratio | CI 99% low | CI 99% high | A2 verdict |",
-      "|---|---|---|---|---|---|---|---|---|",
-      apply(v, 1, function(r)
-        sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s |",
-                r["var"], r["n_C"], r["n_NC"], r["var_C"], r["var_NC"],
-                r["ratio"], r["ci_low"], r["ci_high"], r["a2_status"]))
-    ), collapse = "\n")
-  } else {
-    paste(c(
-      "| Variable | n_C | n_NC | Var(C) | Var(NC) | Ratio | CI 99% low | CI 99% high |",
-      "|---|---|---|---|---|---|---|---|",
-      apply(v, 1, function(r)
-        sprintf("| %s | %s | %s | %s | %s | %s | %s | %s |",
-                r["var"], r["n_C"], r["n_NC"], r["var_C"], r["var_NC"],
-                r["ratio"], r["ci_low"], r["ci_high"]))
-    ), collapse = "\n")
-  }
-}
-het_val_md      <- format_var_split_md(het_val)
-het_val_3var_md <- format_var_split_md(het_val_3var)
-
-het_eig_md <- if (!is.null(het_eig)) {
-  v <- het_eig |>
-    mutate(lambda    = signif(lambda, 3),
-           abs_share = signif(abs_share, 3))
-  paste(c(
-    "| Rank | Variable (heuristic) | Lambda | |Lambda|/Sum(|Lambda|) |",
-    "|---|---|---|---|",
-    apply(v, 1, function(r)
-      sprintf("| %s | %s | %s | %s |",
-              r["rank"],
-              ifelse(is.na(r["variable"]), "-", r["variable"]),
-              r["lambda"], r["abs_share"]))
-  ), collapse = "\n")
-} else {
-  "_(run script/instrument_het.R to populate this section)_"
-}
-
-het_b1_md <- if (!is.null(het_b1)) {
-  b1_4 <- het_b1 |>
-    transmute(variable, b_1_4var = signif(b_1, 4))
-  b1_3 <- if (!is.null(het_b1_3var)) {
-    het_b1_3var |> transmute(variable, b_1_3var = signif(b_1, 4))
-  } else {
-    tibble(variable = character(), b_1_3var = numeric())
-  }
-  joined <- b1_4 |>
-    full_join(b1_3, by = "variable") |>
-    mutate(across(c(b_1_4var, b_1_3var),
-                  ~ ifelse(is.na(.x), "-", as.character(.x))))
-  paste(c(
-    "| Variable | b_1 (4-var) | b_1 (3-var, drops DI_2y) |",
-    "|---|---|---|",
-    apply(joined, 1, function(r)
-      sprintf("| %s | %s | %s |", r["variable"], r["b_1_4var"], r["b_1_3var"]))
-  ), collapse = "\n")
-} else {
-  "_(run script/instrument_het.R to populate this section)_"
-}
-
-het_b2_md <- if (!is.null(het_b2)) {
-  b2_4 <- het_b2 |>
-    transmute(variable, b_2_4var = signif(b_2, 4))
-  b2_3 <- if (!is.null(het_b2_3var)) {
-    het_b2_3var |> transmute(variable, b_2_3var = signif(b_2, 4))
-  } else {
-    tibble(variable = character(), b_2_3var = numeric())
-  }
-  joined <- b2_4 |>
-    full_join(b2_3, by = "variable") |>
-    mutate(across(c(b_2_4var, b_2_3var),
-                  ~ ifelse(is.na(.x), "-", as.character(.x))))
-  paste(c(
-    "| Variable | b_2 (4-var) | b_2 (3-var, drops DI_2y) |",
-    "|---|---|---|",
-    apply(joined, 1, function(r)
-      sprintf("| %s | %s | %s |", r["variable"], r["b_2_4var"], r["b_2_3var"]))
-  ), collapse = "\n")
-} else {
-  "_(run script/instrument_het.R to populate this section)_"
-}
-
-format_rank_md <- function(rank_tbl, share_tbl, label) {
-  if (is.null(rank_tbl)) return(sprintf("_%s: rank-test artifact missing — run script/instrument_het.R._", label))
-  pieces <- character(0)
-  pieces <- c(pieces, sprintf("**%s**", label))
-  for (i in seq_len(nrow(rank_tbl))) {
-    r <- rank_tbl[i, ]
-    pieces <- c(pieces, sprintf(
-      "- `%s`: LR = %.2f (df = %d), p_chi2 = %s, p_boot = %s, n_boot = %d",
-      r$test, r$statistic, r$df, fmt_p(r$p_chi2), fmt_p(r$p_boot), r$n_boot
-    ))
-  }
-  if (!is.null(share_tbl) && nrow(share_tbl) > 0) {
-    s <- share_tbl[1, ]
-    pieces <- c(pieces, sprintf(
-      "- Bootstrap rank-1 share %g%% CI: [%.3f, %.3f] (point %.3f, n_boot = %d)",
-      100 * s$ci_level, s$share_lo, s$share_hi, s$share_point, s$n_boot
-    ))
-  }
-  paste(pieces, collapse = "\n")
-}
-
-het_rank_md      <- format_rank_md(het_rank,      het_share,      "4-var production block")
-het_rank_3var_md <- format_rank_md(het_rank_3var, het_share_3var, "3-var robustness block")
-
 report <- paste(
   "# Instrument Validity Diagnostics Report",
   "",
@@ -544,12 +370,10 @@ report <- paste(
   "  IRFs become noise-dominated regardless of how strong Z is against any",
   "  single reduced-form variable. **FS-Flag = WEAK-FACT when F (factor-sp) < 10.**",
   "  Disagreement between F (factor-sp) and F (y6m AR) was the root cause",
-  "  of the 2026-05-08 IRF investigation: `z_het_jk_3var` had F (y6m AR) ≈ 56",
-  "  but F (factor-sp) ≈ 2.7, producing weak-instrument-driven sign reversals.",
+  "  of the 2026-05-08 IRF investigation (see _instrucoes/historico_decisoes.md).",
   "",
-  "The three answers can disagree: e.g. `z_het` was reported with F (DFM) ≈ 1.5",
-  "and F (y6m AR) ≈ 7.6 in earlier runs. ξ₁ uses the Olea-Stock-Watson",
-  "convention; threshold = 3.84.",
+  "The three answers can disagree by an order of magnitude. ξ₁ uses the",
+  "Olea-Stock-Watson convention; threshold = 3.84.",
   "",
   tbl_md,
   "",
@@ -600,80 +424,7 @@ report <- paste(
   "",
   "---",
   "",
-  "## 4. Heteroskedasticity-identification (z_het)",
-  "",
-  "### 4.1 GRG (2025) Table 1 — variance split between Copom (C) and non-Copom (NC) Wed→Thu pairs",
-  "",
-  "Hypothesis A1 (policy shock variance shifts) requires the ratio for the policy variable to exclude 1 from above.  ",
-  "Hypothesis A2 (other shock variances stable) requires the remaining variables' CIs to include 1.  ",
-  "`a2_status` is `policy` for the policy variable, `pass` if the 99% CI includes 1, and `violated` otherwise (CI excludes 1 by either side).",
-  "",
-  "**4-var production block (DI_3m, DI_2y, IBOV, BRL):**",
-  "",
-  het_val_md,
-  "",
-  "**3-var robustness block (DI_3m, IBOV, BRL):** drops DI_2y to test whether",
-  "the second eigenvalue of dSigma was driven by a separate shock (council Required 1).",
-  "Compare b_1 with the 4-var block in §4.3.",
-  "",
-  het_val_3var_md,
-  "",
-  "### 4.2 Eigenvalue spectrum of dSigma = Sigma_C - Sigma_NC",
-  "",
-  "Under the rank-1 hypothesis (Rigobon-Sack 2003 §III), only one eigenvalue is non-zero.  ",
-  "Informal gate: leading eigenvalue should account for > 60% of |sum| of eigenvalues.",
-  "",
-  het_eig_md,
-  "",
-  if (file.exists("output/instrument/het_eigenvalues.png")) "![eigenvalues](het_eigenvalues.png)" else "_(plot not generated)_",
-  "",
-  "**Formal rank tests** (replace the informal `rank1_share > 0.6` gate):",
-  "",
-  "- _Rigobon (2003) Proposition 1 proportionality test_ — H0: Σ_C = a · Σ_NC.",
-  "  Failure to reject means the regimes' covariance matrices are similar up to",
-  "  scale, so dSigma carries no rotation and b_1 is undefined. Mauchly LR with",
-  "  wild-bootstrap-calibrated p-value (n_C ≈ 50 makes χ² unreliable).",
-  "- _Lanne-Lütkepohl (2008) LR rank-1 test_ — H0: rank(dSigma) = 1.",
-  "  Failure to reject means a rank-1 approximation is adequate (the leading",
-  "  eigenpair captures the entire shift), justifying b_1 = sqrt(λ_1) v_1.",
-  "- _Bootstrap rank-1 share CI_ — non-parametric bootstrap quantiles of",
-  "  λ_1 / sum |λ_j|, descriptor alongside the LR tests.",
-  "",
-  "Hansen J overidentification test is unavailable in our R = 2 setup",
-  "(Rigobon 2003, Proposition 2: df = 0); to unlock it the NC regime would",
-  "have to be sub-split into ≥ 3 windows.",
-  "",
-  het_rank_md,
-  "",
-  het_rank_3var_md,
-  "",
-  "### 4.3 Impact column b_1 (sign normalized so b_1[DI_3m] > 0)",
-  "",
-  "Side-by-side comparison of the 4-var production block and the 3-var",
-  "robustness block. If A2 is violated by DI_2y, the 4-var b_1 conflates the",
-  "policy shock with a second structural shock; the 3-var b_1 is the cleaner",
-  "estimate. Compare the magnitude and (especially) the relative weights on",
-  "DI_3m, IBOV, BRL across columns.",
-  "",
-  het_b1_md,
-  "",
-  "### 4.4 Second eigenpair b_2 (descriptor only — arbitrary under A1-A3)",
-  "",
-  "Under the rank-1 identifying restrictions A1-A3 (Rigobon-Sack 2003 §III),",
-  "the second eigenvector of dSigma lies in the rank-1 nullspace and is",
-  "arbitrary. When A2 fails for some non-policy variable (e.g., DI_2y in the",
-  "4-var SVAR with λ_2 ≈ 41), v_2 carries structural information consistent",
-  "with a second policy-adjacent shock — most likely a forward-guidance /",
-  "belly-of-curve shock. Treat as a descriptor: do not use as a second",
-  "identified instrument under A1-A3 alone.",
-  "",
-  het_b2_md,
-  "",
-  "Daily ε̂_2 series is persisted to `data/processed/instrument_z_het2{,_3var}.csv`.",
-  "",
-  "---",
-  "",
-  "## 5. Interpretation",
+  "## 4. Interpretation",
   "",
   "- **F > 10 / ξ₁ > 10**: inference standard OK.  ",
   "- **F ∈ [5, 10]**: use Anderson-Rubin robust intervals.  ",
@@ -686,7 +437,6 @@ report <- paste(
   "  advertem ainda contra *screening* no F: reportar F/ξ e usar rotineiramente",
   "  os conjuntos AR robustos, não condicionar a inferência no pré-teste.  ",
   "- Compare z_bruto vs. z_JK to assess whether the JK filter changes identification, and vs. their `_purif` counterparts for the role of global-factor contamination.",
-  "- **z_het** is identified by heteroskedasticity (Rigobon-Sack 2003 QJE) on the daily SVAR and is independent of the timing assumption that underlies the four GK-style variants. Convergence of `z_het` results with `z_jk_purif` is the central robustness check.",
   sep = "\n"
 )
 

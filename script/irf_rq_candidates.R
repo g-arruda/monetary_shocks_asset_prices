@@ -39,9 +39,9 @@ source("R/identification/irf_coherence.R")
 CANDIDATES <- list(
   c(r = 8L, q = 4L),
   c(r = 7L, q = 7L),
-  c(r = 7L, q = 6L),
+  c(r = 7L, q = 6L),   # baseline de producao (ancora, desde 2026-07-24)
   c(r = 6L, q = 6L),
-  c(r = 6L, q = 5L)   # baseline de producao (ancora)
+  c(r = 6L, q = 5L)
 )
 
 P_LAGS     <- 6L

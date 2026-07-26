@@ -16,7 +16,7 @@ REPORT <- tibble::tribble(
   "price_ipca",            "IPCA cheio",             "-",
   "price_core_ipca_ex0",   "Nucleo IPCA (ex0)",      "-",
   "cds_5y",                "CDS 5y",                 "-")
-INSTRUMENTS <- c("z_jk_bs_purif","z_jk_purif","z_jk_raw_purif","z_bruto","z_jk","z_het_jk_3var")
+INSTRUMENTS <- c("z_jk_bs_purif","z_jk_purif","z_jk_raw_purif","z_bruto","z_jk")
 DEFAULT_INST <- "z_jk_bs_purif"
 cfg_levels <- c("r6q5.full","r7q6.full","r8q8.full","r6q5.pre_covid","r7q6.pre_covid","r8q8.pre_covid")
 

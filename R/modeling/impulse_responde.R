@@ -266,11 +266,12 @@ cumimp_transform <- function(Imp, tcode = NULL) {
 # ===================================================================
 # DICIONÁRIO DE TCODES COM BASE NAS TRANSFORMAÇÕES DO CLEAN
 # Padrão: tcode = 1 (nível)
-# Não-padrão (transformadas por log no clean):
+# Não-padrão:
 # - base_*                -> tcode = 4 (log-level)
 # - credit* / credito_*   -> tcode = 4 (log-level)
 # - fin_inst_reserve_req  -> tcode = 4 (log-level)
 # - pib                   -> tcode = 4 (log-level)
+# - asset_*               -> tcode = 2 (retorno mensal; IRF cumulada p/ nível)
 # ===================================================================
 infer_tcode_from_varnames <- function(var_names) {
   tcode <- rep(1L, length(var_names))
@@ -281,6 +282,12 @@ infer_tcode_from_varnames <- function(var_names) {
     var_names %in% c("fin_inst_reserve_req", "pib")
 
   tcode[loglevel_idx] <- 4L
+
+  # asset_* são retornos mensais (download.R: prod(1+r)-1), não níveis.
+  # tcode = 2 acumula a IRF (cumsum) para recuperar a resposta de nível de preço,
+  # que é o objeto teórico ("o mercado cai X%") e o que a janela de coerência pontua.
+  tcode[grepl("^asset_", var_names)] <- 2L
+
   tcode
 }
 
@@ -315,7 +322,7 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   # --- Resolver identificação ---
   if (identification == "het") {
     if (!exists("ident_het_regimes")) {
-      stop("identification = 'het' requer source('R/identification/het_primary.R')")
+      stop("identification = 'het' requer source('arquivo/R/identification/het_primary.R') (modulo arquivado em 2026-07-26)")
     }
     n_resid <- nrow(dfm_results$var_residuals)
     if (is.null(regime_labels) || length(regime_labels) != n_resid) {

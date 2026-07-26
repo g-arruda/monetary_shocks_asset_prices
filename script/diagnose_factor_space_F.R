@@ -32,7 +32,7 @@ if (is.na(mp_idx)) stop("mp_var not found in panel")
 inst_panel <- readr::read_csv("data/processed/instrumentos_mensais.csv",
                               show_col_types = FALSE)
 variants <- c("z_bruto", "z_bruto_purif", "z_jk", "z_jk_purif",
-              "z_het", "z_het_jk", "z_het_3var", "z_het_jk_3var")
+              "z_jk_raw_purif", "z_jk_raw", "z_bs_purif", "z_jk_bs_purif")
 
 
 # --- Grid -----------------------------------------------------------

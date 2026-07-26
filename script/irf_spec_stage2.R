@@ -42,7 +42,7 @@ SAMPLES <- list(
   pre_covid = as.Date(c("2013-01-01", "2019-12-31"))
 )
 
-BASELINE <- data.frame(sample = "full", r = 6L, q = 5L,
+BASELINE <- data.frame(sample = "full", r = 7L, q = 6L,
                        instrument = "z_jk_bs_purif", mp_var = "yield_6m",
                        stringsAsFactors = FALSE)
 

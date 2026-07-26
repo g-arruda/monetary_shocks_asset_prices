@@ -65,7 +65,7 @@ first_stage_F <- function(z_aligned, innov) {
 #' A small empirical p-value (count of placebo F >= observed F) indicates the
 #' observed F is not driven by chance alignment.
 #'
-#' @param z Monthly instrument vector (e.g., z_het_jk).
+#' @param z Monthly instrument vector (e.g., z_jk_bs_purif).
 #' @param innov Pre-computed AR(p) residual vector aligned to z; produced once
 #'   on the full sample by residualize_target() and reused across permutations.
 #' @param n_perm Number of permutations (default 2000).
@@ -84,7 +84,7 @@ placebo_test <- function(z, innov, n_perm = 2000L, seed = NULL) {
 
 #' Random-mask test: random subsample vs Jarocinski-Karadi sign filter
 #'
-#' Tests whether the F-gain of z_het_jk over z_het is driven by the
+#' Tests whether the F-gain of the sign-filtered instrument over the unfiltered one is driven by the
 #' INFORMATIVENESS of the JK sign criterion (true purification) or simply by
 #' SPARSIFICATION (any reduction to k_keep days raises F). Each draw randomly
 #' keeps k_keep Copom days out of n_total and zeros the rest, then aggregates

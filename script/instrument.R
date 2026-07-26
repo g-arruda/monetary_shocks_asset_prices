@@ -38,20 +38,10 @@ SAMPLE_END   <- as.Date("2025-12-31")
 LOAD_START   <- as.Date("2012-06-01")   # earlier so Wed→Thu pairs at sample start work
 TARGET_BD    <- 126                      # ~6 months in business days (best F in grid search)
 DEFAULT_VARIANT <- "z_jk_bs_purif" # legacy data/processed/instrument.csv
-# Supported variants: z_bruto, z_bruto_purif, z_jk, z_jk_purif (built here)
-# and z_het, z_het_jk, z_het_3var, z_het_jk_3var (heteroskedasticity-
-# identified, built by script/instrument_het.R; the *_3var variants drop
-# DI_2y from the daily SVAR for cleaner rank-1 spectrum). When DEFAULT_VARIANT
-# is any het variant, run script/instrument_het.R FIRST so that the het
-# columns are present in instrumentos_mensais.csv.
-#
-# 2026-05-08 update: DEFAULT_VARIANT switched from z_het_jk_3var to z_jk_purif.
-# Reason: z_het_jk_3var has F (y6m AR) = 55.98 but F (factor-sp) ≈ 2.7-4.1
-# (severely weak in the q-dimensional space where the proxy-SVAR projects),
-# producing weak-instrument-driven sign reversals in the IRFs once the
-# unit-scaling fix exposed the underlying noise. z_jk_purif is the only
-# variant that crosses Stock-Yogo F (factor-sp) >= 10. See the 2026-05-08
-# entries in instrument_diagnostics_report.md and pendencias.md.
+# Supported variants: the 10 GK-family instruments built by this script.
+# The 4 heteroskedasticity-identified variants (z_het*) were archived on
+# 2026-07-26 together with script/instrument_het.R — see
+# _instrucoes/historico_decisoes.md section 1.
 #
 # 2026-07-15 update: DEFAULT_VARIANT switched from z_jk_purif to z_jk_bs_purif.
 # Reason: the fidelity audit (working-note 2026-07-14_auditoria_fidelidade_jk_bs.md)
@@ -331,20 +321,6 @@ instrumentos <- monthly_grid |>
 
 dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
 
-# Pull het variants from the single-CSV outputs of script/instrument_het.R
-# BEFORE writing instrumentos_mensais.csv, so the combined file carries all
-# variants side-by-side regardless of which script ran last.
-for (v in c("z_het", "z_het_jk", "z_het_3var", "z_het_jk_3var")) {
-  het_path <- sprintf("data/processed/instrument_%s.csv", v)
-  if (file.exists(het_path)) {
-    df <- read_csv(het_path, show_col_types = FALSE) |>
-      transmute(month = as.Date(month), !!v := shock)
-    instrumentos <- instrumentos |>
-      left_join(df, by = "month") |>
-      mutate(!!v := replace_na(.data[[v]], 0))
-  }
-}
-
 write_csv(instrumentos, "data/processed/instrumentos_mensais.csv")
 
 write_variant <- function(colname, filename) {
@@ -364,11 +340,6 @@ write_variant("z_jk_bs_purif", "data/processed/instrument_jk_bs_purif.csv")
 write_variant("z_jk_purif_us", "data/processed/instrument_jk_purif_us.csv")
 
 # Legacy file consumed by model_alessi.R / model_var.R
-het_variants <- c("z_het", "z_het_jk", "z_het_3var", "z_het_jk_3var")
-if (DEFAULT_VARIANT %in% het_variants && !DEFAULT_VARIANT %in% names(instrumentos)) {
-  stop(sprintf("DEFAULT_VARIANT = '%s' but the column is not available. Run script/instrument_het.R first.",
-               DEFAULT_VARIANT))
-}
 write_variant(DEFAULT_VARIANT, "data/processed/instrument.csv")
 
 # Daily diagnostics panel (for scatterplot & variance F-test)
