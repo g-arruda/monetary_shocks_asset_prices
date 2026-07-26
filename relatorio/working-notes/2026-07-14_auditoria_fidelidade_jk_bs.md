@@ -1,5 +1,15 @@
 # Auditoria de fidelidade: filtro JK e "purificação Bauer-Swanson" (2026-07-14)
 
+> **ℹ️ CONCLUSÃO ADOTADA, NÚMEROS ANTIGOS — banner de 2026-07-26.** Escrita sob `z_jk_purif` ×
+> (6,5), vintage pré-refresh. **A recomendação foi adotada:** `z_jk_bs_purif` virou o primário em
+> 2026-07-15 e continua sendo. O achado central — *a força mora na máscara, não nos valores
+> purificados* (2020-03-19) — foi **confirmado de forma independente em 2026-07-26**: em (7,6) full,
+> as únicas três variantes com ξ_mp ≥ 10 são exatamente as de máscara predeterminada
+> (`z_jk_raw` 10,55, `z_jk_bs_purif` 10,43, `z_jk_raw_purif` 10,39).
+> **Antigo:** as tabelas de ξ_mp são do vintage pré-refresh e da dimensão (6,5).
+> Versão mais completa em `relatorio/2026-07-15_relatorio_auditoria_fidelidade_instrumento.md`.
+
+
 ## Pergunta
 
 O filtro Jarociński-Karadi e a purificação atribuída a Bauer-Swanson em `script/instrument.R` foram implementados fielmente aos artigos/códigos originais? A regressão de purificação — que usa apenas SP500/VIX/Brent contemporâneos — deveria ter outras variáveis? Isso impacta a força do instrumento sob a régua ξ_mp (Wald de Montiel Olea-Stock-Watson na direção do impacto em `yield_6m`)?

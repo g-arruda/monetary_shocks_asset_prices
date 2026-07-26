@@ -1,5 +1,15 @@
 # O "price puzzle" do IPCA na IRF de produção: diagnóstico
 
+> **⚠️ SUPERADA — banner de 2026-07-26.** Escrita sob `z_jk_purif` × (6,5), vintage pré-refresh.
+> **A conclusão não se sustenta com os números atuais.** A nota fecha o diagnóstico afirmando que a
+> corcova do IPCA "nunca é significativa a 90%"; na rodada (7,6) o headline é **sig90 em h5**, o
+> núcleo ex0 é sig90 em h2 e h4-8 (e virou `incoerente`), e o DW é sig90 em h4-5 e h7.
+> **Sobrevive como hipótese, não como resultado:** o argumento de que a corcova é amostral
+> (composição 2021-22) depende da comparação cross-instrumento e do sumiço pre-COVID, que foram
+> construídos no vintage antigo e **não reproduzem**. Re-rodar sob (7,6) é item aberto em
+> `_instrucoes/pendencias.md`. Até lá o §5.5 não afirma que a corcova é amostral.
+
+
 **Data:** 2026-07-12
 **Pergunta:** na IRF de produção (`z_jk_purif` × `yield_6m` × r=6, q=5, full
 sample, +50bp), o IPCA é positivo em h=0, cai levemente, volta a subir e só se

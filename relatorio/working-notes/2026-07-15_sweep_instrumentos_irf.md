@@ -1,5 +1,14 @@
 # Varredura de instrumentos × (r,q): nenhum salva as IRFs — e por que ξ_mp>0 gera IRF errada
 
+> **⚠️ SUPERADA — banner de 2026-07-26.** Vintage pré-refresh, grade com 6 instrumentos incluindo
+> `z_het_jk_3var`, dimensões (6,5)/(7,6)/(8,8).
+> **Sobrevive e é importante:** relevância ≠ validade — a inversão da curva é estatisticamente
+> **independente** da força do instrumento (`cor(curve_slope, ξ_mp) = −0,04`), logo fortalecer o
+> instrumento não conserta as IRFs. É esta nota que derruba a afirmação central de
+> `2026-07-11_varredura_irf.md`. **Antigo:** os números, e o próprio diagnóstico de "0 de 36 células
+> limpas" — no vintage atual em (7,6) a curva não está invertida (ver `output/irf/irf_section.md` §5.1).
+
+
 **Data:** 2026-07-15 · **Script:** `script/irf_instrument_diag_sweep.R` ·
 **Grade:** 6 instrumentos × 3 (r,q) {(6,5),(7,6),(8,8)} × 2 amostras {full, pre_covid} = **36 células**,
 config de produção idêntica (nboot=800, seed=123, p=6, h=48, +50bp, `mp_var=yield_6m`). Sanity: impacto

@@ -1,5 +1,11 @@
 # Por que algumas IRFs ficam "dentadas" — diagnóstico
 
+> **ℹ️ VINTAGE ANTIGO — banner de 2026-07-26.** Escrita sob `z_jk_purif` × (6,5), vintage
+> pré-refresh, mas **o mecanismo não depende do instrumento nem de (r,q)**: raízes complexas de
+> 3-4 meses do VAR(6) sobre séries de baixa comunalidade. p=6 segue em produção e a recomendação
+> de não suavizar ex-post continua valendo. A mais durável do lote de 07-12.
+
+
 **Data:** 2026-07-12
 **Pergunta:** algumas IRFs da spec de produção (`z_jk_purif` × `yield_6m`,
 r=6, q=5, p=6) aparecem serrilhadas. É problema de parametrização do DFM/VAR

@@ -1,5 +1,12 @@
 # Reação de cada variável a +50bp, por instrumento × configuração
 
+> **⚠️ SUPERADA — banner de 2026-07-26.** Vintage pré-refresh e **anterior à correção de tcode dos
+> índices B3** — todas as linhas de `asset_*` estão fora de escala.
+> **Sobrevive:** a conclusão de que a escolha de instrumento quase não move as IRFs (as 6 linhas se
+> sobrepõem) e que **a amostra (full × pre-COVID) é que dirige tudo**.
+> **Antigo:** as 36 células incluem `z_het_jk_3var` e usam (6,5)/(8,8) no vintage velho.
+
+
 **Data:** 2026-07-15 · **Scripts:** `script/irf_instrument_report.R` (+ `_plots.R`) ·
 **Grade:** 6 instrumentos × 3 (r,q) {(6,5),(7,6),(8,8)} × 2 amostras {full, pre_covid} = 36 células,
 produção (nboot=800, seed=123, h=48, +50bp, `mp_var=yield_6m`). Lido ponto a ponto h=0..40.

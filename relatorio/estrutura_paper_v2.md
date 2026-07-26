@@ -14,6 +14,13 @@ het (antiga §3.4.4, antigo Apêndice C, itens het do §5.6) foram removidos des
 roteiro; o pipeline het permanece no repositório como diagnóstico interno;
 (iii) cadeia de estimação (sweep, stage 2, model_alessi, coerência) re-rodada
 sob o novo primário.
+**Revisão 2026-07-26:** (i) produção migrou para **(r=7, q=6)** após o refresh de
+vintage de 2026-07-24 (**106 séries**, não ~111) — todas as menções a (6,5) e os
+ξ_mp abaixo foram atualizados; (ii) o **§5 foi reescrito** e está em
+`output/irf/irf_section.md` (a pendência 6.1 está fechada, mas **várias
+afirmações inverteram** — ver a tabela na pendência 6.1); (iii) removida do §5.6
+a afirmação "F ≥ 10 ⇒ sinais corretos", contraditada pela working-note de
+2026-07-15; (iv) todo o material het foi arquivado em `arquivo/`.
 **Objetivo:** mapear a distância entre `tex/main.tex` (versão compilada atual) e o
 estado real do projeto, e propor a estrutura das seções **Metodologia**,
 **Resultados** e **Apêndice/Anexo** da próxima versão. Para cada subseção:
@@ -30,24 +37,25 @@ O `main.tex` está **duas gerações metodológicas atrás**:
 |---|---|---|
 | Identificação | Cholesky recursivo no VAR dos fatores ("3º fator = choque MP") | **Instrumento externo** `z_jk_bs_purif` (proxy-SVAR, Stock-Watson 2018), projeção `H = (Z'η)/(Z'Z)` |
 | Instrumento | inexistente — citado como "pesquisa futura" na Conclusão | 10 variantes GK-style construídas e auditadas (surpresas DI em dias de Copom; primário = ortogonalização Bauer-Swanson pré-evento + filtro de sinal Jarociński-Karadi). As 4 variantes het-ID existem no pipeline mas ficam fora do paper (decisão 2026-07-15) |
-| (r, q) | r=7, q=4 | **r=6, q=5** (justificado por varredura de especificações; auto-IC (5,4) é borderline-weak; sob a régua MOSW ξ_mp do primário: forte em pre-COVID (12.49), zona AR no full (6.94)) |
+| (r, q) | r=7, q=4 | **r=7, q=6** (única das 4 dimensões da varredura com ξ_mp > 10 nas **duas** janelas: 10,43 full / 12,22 pre-COVID; auto-IC (5,4) é borderline-weak) |
 | VAR dos fatores | VAR(1) | VAR(**p=6**) |
-| Painel | 71 variáveis, 2013–2024 | ~111 séries, 2013-01 a 2025-09 (147 meses alinhados) |
+| Painel | 71 variáveis, 2013–2024 | **106 séries**, 2013-01 a 2025-09 (147 meses efetivos após os lags do VAR(6)) |
 | Variável de política | "variável de juros" genérica | **`yield_6m`** com normalização +50bp no impacto (`juros_selic` é controle negativo: F máx = 2.49) |
-| Resultados | 2 parágrafos + 1 figura; magnitudes antigas | §5 reescrito (2026-07-12) em `output/irf/irf_section.md` — **desatualizado desde 2026-07-15**: a cadeia foi re-estimada sob `z_jk_bs_purif` e o §5 precisa de releitura com os novos artefatos |
-| Robustez | nenhuma | Varredura de especificações (480 células, 12 instrumentos), coerência ponto-a-ponto (52 variáveis), grade MOSW ξ_mp (392 células) |
+| Resultados | 2 parágrafos + 1 figura; magnitudes antigas | **§5 reescrito em 2026-07-26** em `output/irf/irf_section.md`, sob `z_jk_bs_purif` × (7,6) e vintage novo, sem material het. Pronto para conversão ao tex |
+| Robustez | nenhuma | Varredura de especificações, coerência ponto-a-ponto (52 variáveis × 49 horizontes), grade MOSW ξ_mp por (r,q) × amostra × instrumento |
 | Apêndice | só a tabela de variáveis (referenciada, não presente) | dezenas de artefatos prontos em `output/{instrument,validation,irf,benchmark}/` |
 
 **Atenção — o Resultado atual do tex tem o sinal do câmbio INVERTIDO em relação
 ao resultado de produção.** O abstract e o §Resultados dizem "apreciação de 8%";
-a estimativa de produção é **depreciação** de ≈ +6% com CI90, acompanhada de
-abertura de EMBI/CDS — a leitura de dominância fiscal (Blanchard 2004). Abstract,
+a estimativa de produção é **depreciação** de ≈ +3,6% com CI90 (BRL/USD +0,1498
+sobre média amostral 4,11), acompanhada de abertura de EMBI (+20bp) e CDS
+(+29bp) — a leitura de dominância fiscal (Blanchard 2004). Abstract,
 Intro e Conclusão precisam de rewrite completo (fora do escopo desta nota, mas
 sinalizado no §6 abaixo).
 
 **O que sobrevive do tex:**
 - As equações (1)–(4) do SDFM (§3.1 atual) — apenas atualizar o texto ao redor.
-- A subseção Base de Dados — atualizar números (71→111 séries; 2024→2025-09) e
+- A subseção Base de Dados — atualizar números (71→**106** séries; 2024→2025-09) e
   manter Svensson + X-13.
 - Bai-Ng / Amengual-Watson como ponto de partida da escolha de fatores (mas a
   decisão final agora é da varredura — ver §3.5).
@@ -82,7 +90,7 @@ sinalizado no §6 abaixo).
 - Fechar com a lógica de não-fundamentalidade (já bem escrita no tex).
 
 ### 3.2 Base de Dados
-- ~111 séries mensais, 2013-01–2025-09 (147 meses alinhados); justificativa do
+- **106** séries mensais, 2013-01–2025-09 (147 meses efetivos); justificativa do
   início em 2013 (PNAD Contínua) permanece.
 - Fontes (BCB, IBGE, B3, Tesouro, ANBIMA, EMBI/CDS/MSCI, EPU) e blocos
   (atividade, trabalho, inflação, commodities, monetário, crédito, ativos).
@@ -136,17 +144,22 @@ sinalizado no §6 abaixo).
 
 ### 3.5 Seleção de (r, q) e Estimação
 - Bai-Ng IC2 / Amengual-Watson nas variantes BLL-standardized como *referência*
-  (indicam (5,4)); decisão final **(r=6, q=5)**. Justificativa em duas camadas:
-  (i) a varredura de especificações apontou (6,5) como a escolha consistente
-  nas duas janelas (auto-IC (5,4) é borderline-weak); (ii) a régua rigorosa
-  MOSW (ξ_mp) para o primário `z_jk_bs_purif`: **(6,5) é o único par ≥ 10 em
-  pre-COVID (12.49, bandas padrão OK); no full fica na zona AR (6.94 > 3.84,
-  conjunto AR limitado)**. O full-sample favorece r=8 ((8,8): 13.13), mas
-  r ∈ {7,8} colapsa em pre-COVID ((7,6): 6.90; (8,8): 5.14; T = 84 meses não
-  sustenta r alto) — argumento de força, além do IC, para não subir a
-  dimensão. Tabela ξ_mp do primário por (r,q) × janela no corpo. Fontes:
-  `output/instrument/mosw_strength_grid.md`;
-  `output/irf/spec_sweep_conclusoes.md` + adendos 2026-07-14/15.
+  (indicam (5,4)); decisão final **(r=7, q=6)**. Justificativa pela régua MOSW
+  (ξ_mp) do primário `z_jk_bs_purif`: **é a única das quatro dimensões da
+  varredura acima de 10 nas duas janelas — 10,43 full e 12,22 pre-COVID**
+  ((5,4) 5,45/7,94; (6,5) 6,36/11,00; (8,8) 12,57/8,99). Na grade completa de 14
+  células, (7,5) 10,45/12,76, (7,7) 12,90/12,27, (8,5) 10,01/10,33 e (8,6)
+  10,03/10,76 também cruzam: **r=7 é um platô, não uma escolha de canivete** —
+  esse é o argumento a levar ao texto. O conjunto AR 95% é limitado
+  (ξ_mp > 3,84) em todas as 28 células do primário. Registrar que a força em
+  (7,6) veio do **refresh de vintage de 2026-07-24**. Tabela ξ_mp por (r,q) ×
+  janela no corpo. Fonte: `output/instrument/mosw_strength_grid.{md,csv}`.
+- **Ressalva a declarar** (senão um referee cruza as tabelas e acha contradição):
+  a varredura ainda classifica `failure_class` pela max-F legada (`f_factor`),
+  sob a qual `z_jk_bs_purif` marca 6,31 em (7,6) e **não aparece em nenhuma
+  célula "elegível"** do `spec_sweep_report.md`, enquanto `z_jk_purif` marca
+  11,08 lá mas tem ξ_mp 5,77. A régua de decisão do paper é ξ_mp. Ver
+  `output/irf/irf_section.md`, seção "Why this specification".
 - Estimação: PCA sobre painel BLL-padronizado; VAR(6) nos fatores; ponto por
   OLS puro (fiel a `DFMest_BLL.m`); correção de Kilian (1998) apenas no DGP do
   **wild bootstrap** (Gonçalves-Kilian 2004), nboot=800, bandas 68/90, h=0–48.
@@ -169,34 +182,28 @@ sinalizado no §6 abaixo).
   relevância unidirecional (Γ = α·Θ₀,₁) sob exogeneidade. Implementação
   validada end-to-end contra os números publicados (Kilian oil: ξ₁ = 4.399 vs
   4.4; F robusta = 9.438 vs 9.4, convenção HC1 — `script/validate_olea_kilian.R`).
-- Números do primário `z_jk_bs_purif` (6,5): **ξ_mp = 6.94 (full, zona AR:
-  intervalo AR limitado, bandas AR pendentes) / 12.49 (pre-COVID, bandas
-  padrão OK)**; F conjunta 1.75 (p = 0.12) / 2.74 (p = 0.018). No full, 6 de
-  14 células (r,q) cruzam ξ_mp ≥ 10 (mediana 9.73). Tabela compacta no corpo;
+- Números do primário `z_jk_bs_purif` (7,6): **ξ_mp = 10,43 (full) / 12,22
+  (pre-COVID)** — bandas convencionais aproximadamente válidas nas duas janelas,
+  conjunto AR limitado. No full, 7 de 14 células (r,q) cruzam ξ_mp ≥ 10
+  (mediana 9,72); em pre-COVID, 9 de 14 (mediana 10,55). Tabela compacta no corpo;
   tabela completa variantes GK × {3 Fs legados + bloco MOSW} → **Apêndice B**
   (fontes: `output/instrument/instrument_diagnostics_report.md` §1-1.1,
   `factor_space_F_grid.csv`, `mosw_strength_grid.csv`,
   `olea_alignment_audit.md`).
-- A identificação é mais forte na janela pre-COVID do que na amostra completa
-  (12.49 vs 6.94): as observações pós-2020 adicionam ruído à relevância, não
-  informação — mesma leitura da varredura de especificações.
+- A identificação segue mais forte na janela pre-COVID do que na completa
+  (12,22 vs 10,43), mas **as duas cruzam o limiar** — a leitura antiga de que as
+  observações pós-2020 só adicionavam ruído era em parte artefato do bloco
+  duplicado de séries removido no refresh de 2026-07-24.
 
 ---
 
 ## 3. Seção **Resultados** (proposta)
 
-> Fonte canônica: `output/irf/irf_section.md` (rewrite 2026-07-12) — **escrita
-> sob o primário antigo (`z_jk_purif`) e desatualizada desde 2026-07-15**: a
-> cadeia foi re-estimada com `z_jk_bs_purif` × `yield_6m`, (6,5), p=6, full
-> sample, +50bp, nboot=800, seed 123, e os artefatos
-> (`irf_model_alessi_r6q5.pdf`, `irf_coherence_*.{csv,md,pdf}`,
-> `irf_coherence_cell.rds`) já refletem o novo primário. As subseções 5.1–5.5
-> abaixo descrevem a rodada antiga; a história qualitativa sobrevive (curva
-> sobe, BRL deprecia com EMBI/CDS abrindo, corcova n.s. do IPCA, crédito em
-> duas fases), mas as magnitudes caem ~30–45% (BRL h0 +0.185 vs +0.245; EMBI
-> +25bp vs +46bp; Ibov h0 −1.1% vs −8.9%) e o bloco de crédito/juros melhora
-> de veredito. O §5 precisa ser reescrito a partir dos novos artefatos antes
-> de ir ao tex (pendência 6.1).
+> **Fonte canônica: `output/irf/irf_section.md`, reescrito em 2026-07-26** sob
+> `z_jk_bs_purif` × `yield_6m`, (r=7, q=6), p=6, full sample, +50bp, nboot=800,
+> seed 123, painel de 106 séries. **Use aquele arquivo, não o esqueleto 5.1–5.6
+> abaixo**, que ficou da versão de 2026-07-12 e descreve a rodada antiga.
+> As mudanças que invertem afirmações estão listadas na pendência 6.1.
 
 **Política de figuras** (working-note `2026-07-12_irf_dentadas.md`): as figuras
 principais são os blocos lisos de alta comunalidade — curva, crédito,
@@ -241,7 +248,7 @@ rugosidade×comunalidade = −0.50). **Sem suavização ex-post.**
   fica em: diferença de frequência (diário vs mensal GE), de janela amostral
   e de regime (dominância fiscal como propriedade de 2020-25, não universal).
   Como fechar essa discussão é decisão aberta (pendência 6.6).
-- Fontes: `irf_section.md` §5.3; `output/benchmark/grg_benchmark.csv`;
+- Fontes: `irf_section.md` §5.3 (o `grg_benchmark.csv` foi apagado em 2026-07-26 — era construído a partir de bundles het);
   `spec_sweep_conclusoes.md` §3.
 
 ### 5.4 Crédito
@@ -290,10 +297,12 @@ rugosidade×comunalidade = −0.50). **Sem suavização ex-post.**
    quatro receitas distintas (bruto/ortogonalizado × com/sem filtro de sinal)
    entregam a mesma resposta onde a identificação é forte. Figura:
    `output/irf/irf_spec_stage2_overlay.pdf`.
-2. **Varredura de 480 células** (12 instrumentos × 5 mp_vars × 4 (r,q) × 2
-   janelas): zero `sign_puzzle`, zero `unstable_normalization` — toda
-   inversão de sinal do grid é F factor-space < 10; sempre que F ≥ 10 os
-   sinais saem corretos → **Apêndice C**.
+2. **Varredura de especificações**: zero `sign_puzzle` e zero
+   `unstable_normalization` no full sample — nenhuma inversão de sinal do grid
+   vem de normalização instável ou de puzzle genuíno → **Apêndice C**.
+   ⚠️ **Não** afirmar "sempre que F ≥ 10 os sinais saem corretos": a
+   working-note de 2026-07-15 (`sweep_instrumentos_irf`) mostra
+   `cor(curve_slope, ξ_mp) = −0,04` — relevância não implica validade.
 3. **Coerência ponto-a-ponto** (52 variáveis × 49 horizontes): anomalias
    localizadas todas rastreadas a medida ou amostra, nenhuma a identificação
    → **Apêndice C**. Releitura sob o novo primário pendente (6.1).
@@ -333,7 +342,7 @@ rugosidade×comunalidade = −0.50). **Sem suavização ex-post.**
   `relatorio/working-notes/2026-07-14_auditoria_fidelidade_jk_bs.md`.
 - Scatterplot das surpresas em dias de Copom
   (`output/instrument/scatterplot_surpresas_copom.png`).
-- Grid vértice × amostra de purificação (`output/instrument/instrument_grid.csv`).
+- Grid vértice × amostra de purificação (`arquivo/output/instrument_grid.csv`, arquivado — cobre só as 4 variantes legadas, anterior ao `z_jk_bs_purif`; regerar se for ao apêndice).
 
 *(O antigo Apêndice C, identificação por heterocedasticidade, e a suite
 T1–T8 associada saíram do roteiro — decisão de 2026-07-15 de manter o het
@@ -364,8 +373,8 @@ como diagnóstico interno.)*
 ### Apêndice D — IRFs completas
 - Painel completo por bloco (curva, ações, câmbio/risco, crédito, atividade,
   trabalho, preços), 68/90, h=0-48
-  (`output/irf/irf_model_alessi_r6q5.pdf`, `irf_coherence_plots.pdf` —
-  re-gerados 2026-07-15 sob o novo primário).
+  (`output/irf/irf_model_alessi_r7q6.pdf`, `irf_coherence_plots.pdf` —
+  re-gerados 2026-07-24 sob (7,6) e o vintage de 106 séries).
 - Tabela de unidades e escalas (proporção decimal para yields; log-pontos para
   ações; nível BRL/USD; escala ×100 do CDS; tcode 4 para estoques de crédito)
   — transcrever de `irf_section.md` §Caveats.
@@ -376,8 +385,8 @@ como diagnóstico interno.)*
 
 | Artefato existente | Vai para |
 |---|---|
-| `output/irf/irf_section.md` | corpo §5 (fonte canônica — reescrever sob o novo primário, pendência 6.1) |
-| `output/irf/irf_model_alessi_r6q5.pdf` | figuras §5 + Apêndice D |
+| `output/irf/irf_section.md` | corpo §5 (fonte canônica, reescrita 2026-07-26 sob (7,6)) |
+| `output/irf/irf_model_alessi_r7q6.pdf` | figuras §5 + Apêndice D |
 | `output/irf/spec_sweep_{cells,irf_long}.csv`, `spec_sweep_*.md` | §3.5, §5.6, Apêndice C |
 | `output/irf/irf_spec_stage2_overlay.pdf` | §5.6 figura |
 | `output/irf/irf_coherence_*.{csv,md,pdf}` | Apêndice C, D |
@@ -385,31 +394,41 @@ como diagnóstico interno.)*
 | `output/instrument/mosw_strength_grid.{csv,md}`, `olea_alignment_audit.md` | §3.5, §3.6, §5.6 + Apêndice B |
 | `relatorio/working-notes/2026-07-14_auditoria_fidelidade_jk_bs.md` | §3.4 + Apêndice B |
 | `R/data_download/focus_fred.R` → `data/processed/focus_daily.csv`, `data/fred_dgs2.csv` | insumos do §3.4.2 (preditores pré-evento) |
-| `output/instrument/scatterplot_surpresas_copom.png`, `instrument_grid.csv` | Apêndice B |
-| `output/benchmark/grg_benchmark.csv` | §5.3 (re-tratamento pendente, 6.6) |
+| `output/instrument/scatterplot_surpresas_copom.png` | Apêndice B |
+| `output/irf/irf_coherence_h.csv` | fonte numérica do §5 (ponto + bandas 68/90 + flags de significância) |
 | `_instrucoes/justificativa_uso_yield-6m.md` | §3.3 |
 | `relatorio/working-notes/2026-07-1*` | leituras econômicas do §5 + Apêndice C |
 
-*(Artefatos het — `het_validation_report.md`, `het_*` — ficam fora do paper;
-permanecem no repositório como diagnóstico interno.)*
+*(Todo o material het foi arquivado em `arquivo/` em 2026-07-26 e os artefatos
+regeneráveis apagados — ver `arquivo/README.md` e `_instrucoes/historico_decisoes.md` §1.)*
 
 ## 6. Pendências que a nova versão deve sinalizar (não bloqueiam a estrutura)
 
-1. **Reescrever o §5 (Resultados) sob o novo primário**: a cadeia foi
-   re-estimada em 2026-07-15 com `z_jk_bs_purif`, mas `irf_section.md` e as
-   leituras interpretativas das working-notes de 2026-07-12 (price puzzle,
-   crédito, dentadas) descrevem a rodada antiga. História qualitativa igual,
-   magnitudes ~30–45% menores (Ibov h0 −1.1% vs −8.9%; BRL +0.185 vs +0.245;
-   EMBI +25bp vs +46bp). Releitura ponto-a-ponto + rewrite do
-   `irf_section.md` antes de converter o §5 para o tex.
-2. **Bandas Anderson-Rubin** (weak-IV robust): obrigatórias para o primário
-   full-sample (`z_jk_bs_purif` (6,5): ξ_mp = 6.94 < 10; AR limitado,
-   > 3.84). Pre-COVID (6,5) dispensa (12.49 ≥ 10, bandas padrão OK).
-   Protocolo anti-screening do próprio MOSW (footnote 6): reportar ξ e usar
-   AR, não filtrar pelo F.
-3. **Placebo `commodity_metal` violado** (responde ao choque com CI90;
-   persiste na rodada 2026-07-15): documentar como caveat de exogeneidade ou
-   testar ortogonalização estendida (metais não entram nos preditores).
+1. **§5 reescrito em 2026-07-26 — FECHADA.** Mas o esqueleto 5.1–5.6 desta nota
+   e as working-notes de 2026-07-12 descrevem a rodada antiga. **Afirmações que
+   inverteram** e que não podem ser recicladas do texto velho:
+
+   | tema | texto antigo | rodada (7,6) |
+   |---|---|---|
+   | ações | 8 índices caem, CI90 em 6 de 8, −3,8% a −11,2% | −0,3% a −2,9%; **nenhum atinge CI90 no impacto**; IBOV −1,67% com CI90 [−7,77; +1,76] |
+   | ações, médio prazo | "sem horizonte positivo significativo" | overshoot positivo em 6 de 8 índices (IBOV +20% em h24), CI68, nunca CI90 — tratar como não informativo |
+   | crédito | expansão significativa do agregado em h0-h6 | agregado e PF **contraem monotonicamente**; a alta inicial é só setorial (transporte +0,75 CI90, agro +1,01 CI90, indústria +0,19 CI68) |
+   | preços | "corcova nunca significativa a 90%" | headline **sig90 em h5**; ex0 sig90 em h2 e h4-8 e virou `incoerente`; DW sig90 em h4-5 e h7 |
+   | câmbio/risco | BRL +6%, EMBI +46bp, CDS +56bp | BRL +3,6%, EMBI +20bp, CDS +29bp — sinal, significância e timing iguais |
+   | placebo | (não reportado) | **`commodity_metal` violado**: +10,4% com CI90 até h4 |
+
+   O caveat de magnitude das ações ("−9% é borda superior vs Bernanke-Kuttner")
+   **deixa de ser necessário** — as magnitudes agora batem com os event studies
+   brasileiros. Falta converter o §5 para o tex.
+2. **Bandas Anderson-Rubin: agora OPCIONAIS.** Em (7,6) o primário tem
+   ξ_mp ≥ 10 nas duas janelas (10,43 / 12,22), então bandas convencionais
+   bastam. Manter AR como robustez, seguindo o protocolo anti-screening do
+   próprio MOSW (footnote 6): reportar ξ, não filtrar pelo F.
+3. **Placebo `commodity_metal` violado** — persiste em (7,6): +10,4% no impacto
+   com CI90 até h4. Metais **não** entram nos preditores pré-evento da
+   ortogonalização BS (Brent entra), então o instrumento plausivelmente retém um
+   componente global de commodity/risco. É o caveat mais concreto contra a
+   validade do instrumento: documentar, ou testar ortogonalização estendida.
 4. **Spread de concessões novas** como complemento ao ICC (deve abrir já no
    curto prazo) — desejável, não-bloqueante.
 5. **Abstract, Introdução e Conclusão**: rewrite completo (sinais/magnitudes da

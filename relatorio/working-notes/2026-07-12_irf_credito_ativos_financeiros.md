@@ -1,5 +1,15 @@
 # Composição h-a-h da IRF: blocos de crédito e ativos financeiros
 
+> **⚠️ SUPERADA — banner de 2026-07-26.** Escrita sob `z_jk_purif` × (6,5), vintage pré-refresh e
+> **antes da correção de tcode dos índices B3** (`asset_*` eram tratados como nível, não retorno).
+> **Sobrevive:** o mapeamento de literatura (BG95/GG94 para crédito, Bonomo-Martins para
+> direcionado) e o diagnóstico de que a janela de scoring dos spreads ICC estava errada, não o prior.
+> **Morreu:** todas as magnitudes. O impacto de −8,9% no Ibov que a nota interpreta longamente é
+> nulo duas vezes (novo primário + correção de tcode: hoje −1,67%, sem significância a 90%), e a
+> expansão inicial do crédito **agregado** não se confirma em (7,6) — é fenômeno setorial.
+> Números correntes: `output/irf/irf_section.md` §5.2 e §5.4.
+
+
 **Data:** 2026-07-12
 **Especificação:** `z_jk_purif` × `yield_6m`, r=6, q=5, p=6, full sample,
 choque +50bp, wild bootstrap nboot=800 (seed 123), bandas 68/90, h=0..48.

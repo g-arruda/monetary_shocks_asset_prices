@@ -1,5 +1,12 @@
 # Ordem purificação ↔ filtro JK: variantes de máscara bruta (2026-07-14)
 
+> **⚠️ SUPERADA — banner de 2026-07-26.** Escrita sob `z_jk_purif` × (6,5), vintage pré-refresh.
+> **Decisão revertida em menos de 24h:** a nota recomenda *manter `z_jk_purif` como default*, e o
+> default passou a `z_jk_bs_purif` em 2026-07-15 pela auditoria de fidelidade.
+> **Sobrevive:** o mecanismo da máscara 2020-03-19 (citado por três notas posteriores) e o descarte
+> de `z_jk_raw_purif_local`. **Antigo:** as tabelas de 280 células, no vintage e dimensão antigos.
+
+
 ## Motivação e descoberta
 
 Pedido original: criar um instrumento "z_t → purificação → filtro JK", sob a premissa de que o `z_jk_purif` atual fosse "JK → purificação". A leitura de `script/instrument.R` mostrou que a premissa estava invertida: **o pipeline atual já purifica primeiro** — os resíduos `e_di`/`e_ibov` (regressão de `delta_di` e `r_ibov` em SP500/VIX/Brent sobre o painel completo de quintas-feiras) são calculados antes, e a classificação JK usa os **sinais dos resíduos** (`sign(e_di) != sign(e_ibov)`). A ordenação que não existia era a inversa: máscara JK decidida pelos **sinais brutos** (`delta_di` × `r_ibov`), purificação depois.

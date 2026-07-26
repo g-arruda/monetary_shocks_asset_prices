@@ -1,5 +1,13 @@
 # Seleção de (r,q): força do instrumento × coerência das IRFs
 
+> **ℹ️ NOTA DE 2026-07-26 (leia antes do banner abaixo).** A recomendação original de **(7,6)**
+> acabou sendo a spec de produção desde 2026-07-24 — mas por outro motivo: depois do refresh de
+> vintage, (7,6) é a única das quatro dimensões da varredura com ξ_mp > 10 nas **duas** janelas
+> (10,43 full / 12,22 pre-COVID). O banner "SUPERADA" abaixo é de 2026-07-15 e se refere ao
+> argumento original (contaminação idêntica entre (r,q)), que continua correto no vintage daquela
+> data. As "Ressalvas para periódico" da nota seguem abertas.
+
+
 > **⚠️ SUPERADA (2026-07-15).** A recomendação de (7,6) abaixo **não se sustenta**: ao inspecionar as
 > IRFs, o choque é contaminado (curva invertida no h0 com pico no 5y, price puzzle no núcleo até h40,
 > câmbio/CDS significativamente errados) e o defeito é **idêntico em (7,6) e (6,5)** — varrer (r,q)

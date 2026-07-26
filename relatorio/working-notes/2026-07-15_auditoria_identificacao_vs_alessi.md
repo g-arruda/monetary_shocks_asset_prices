@@ -1,5 +1,13 @@
 # Auditoria da identificação vs Alessi-Kerssenfischer + diagnóstico amostra × rotação
 
+> **ℹ️ PARTE 1 VIVA, NÚMEROS ANTIGOS — banner de 2026-07-26.** Escrita sob `z_jk_bs_purif` ×
+> (6,5)/(8,8), vintage pré-refresh.
+> **Sobrevive integralmente:** a verificação do port R↔MATLAB contra `codigo_alessi-mark/`
+> (5 de 5 pontos fiéis) — é independente de instrumento, dimensão e vintage, e é a referência de
+> fidelidade do projeto. **Antigo:** os diagnósticos numéricos de contaminação amostral × rotação,
+> que são do vintage pré-refresh (o refresh mudou a força do instrumento em (7,6)).
+
+
 **Data:** 2026-07-15 · **Instrumento:** `z_jk_bs_purif` · **Scripts:** `script/irf_sample_diagnostic.R`
 (numérico), referência `codigo_alessi-mark/{DFMest_BLL,IdentExtInstr}.m` · **Motivação:** o choque
 identificado parecia contaminado (curva invertida no h0, price puzzle no núcleo até h40, câmbio/CDS

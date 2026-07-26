@@ -1,5 +1,15 @@
 # Varredura sistemática de especificações IRF — relatório didático
 
+> **⚠️ SUPERADA — banner de 2026-07-26.** Escrita sob `z_jk_purif` × (6,5), vintage pré-refresh.
+> **Sobrevive:** a taxonomia didática das três Fs de primeiro estágio (§2) e o desenho do grid.
+> **Morreu:** as duas recomendações-manchete — o default foi trocado por `z_jk_bs_purif` em
+> 2026-07-15 e a produção migrou para (7,6) em 2026-07-24; e todo o conteúdo het (§4.3, §5, §6.4).
+> **⚠️ CONTRADITADA:** a afirmação central "sempre que F ≥ 10 os sinais hard saem coerentes" é
+> contrariada por `2026-07-15_sweep_instrumentos_irf.md` (0 de 36 células limpas,
+> `cor(curve_slope, ξ_mp) = −0,04`). A nota de 07-15 vence na evidência — inspeciona trajetórias
+> inteiras, não só sinais no impacto. Ver `_instrucoes/historico_decisoes.md` §6.
+
+
 **Data:** 2026-07-11
 **Scripts novos:** `script/irf_spec_sweep.R` (Etapa 1), `script/irf_spec_stage2.R` (Etapa 2), `R/identification/spec_sweep.R` (helpers)
 **Relatórios gerados:** `output/irf/spec_sweep_report.md`, `output/irf/spec_sweep_stage2.md`, `output/irf/spec_sweep_conclusoes.md`
