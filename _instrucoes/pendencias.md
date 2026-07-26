@@ -113,7 +113,9 @@ O que **continua aberto** no tex, além do §5:
   argumento "a corcova é universal entre instrumentos e some pre-COVID" fecha o
   diagnóstico do price puzzle, mas foi construído no vintage e instrumento
   antigos e **não reproduz**. Sem ele, o §5.5 não pode afirmar que a corcova é
-  amostral. Fonte a regenerar: `spec_sweep_irf_long.csv`.
+  amostral. Fonte a regenerar: `spec_sweep_irf_long.csv` — **já regenerado em
+  2026-07-26** (320 células, 8 instrumentos, (7,6) incluso) junto com a migração
+  da taxonomia, então este item deixou de estar bloqueado; falta só a análise.
 - [ ] **Benchmark GRG (2025) sem a célula het** — a reconciliação do sinal do
   câmbio usava `z_het_3var` × pre-COVID, que saiu do paper. Decidir como
   discutir o desacordo (frequência diária × mensal GE, janela amostral, regime
@@ -129,23 +131,42 @@ O que **continua aberto** no tex, além do §5:
 
 ## Aberto — código e higiene
 
-- [ ] **Taxonomia do `irf_spec_sweep.R` usa a régua errada.** `failure_class`
-  classifica por `f_factor` (max-F legada), não por ξ_mp. Consequência prática:
-  o instrumento de produção **não aparece em nenhuma célula `ok`** do
-  `spec_sweep_report.md` (em (7,6) full, `z_jk_bs_purif` tem f_factor 6,31 e
-  ξ_mp 10,43; `z_jk_purif` tem o inverso, 11,08 e 5,77). Migrar a taxonomia para
-  ξ_mp, ou documentar a divergência em todo lugar que cite as duas tabelas.
-  Hoje está documentada só no `irf_section.md`.
-- [ ] **Re-apensar "Leitura e diagnóstico"** em
-  `output/irf/irf_coherence_report.md` — o corpo auto-gerado sobrescreve o
-  arquivo a cada rodada, e a seção manual + adendos datados se perdem.
-  Considerar emitir o corpo em arquivo separado.
-- [ ] **`irf_mp_raw` mal nomeado** em `ident_ext_instr`
-  (`R/modeling/impulse_responde.R`): o retorno acontece **depois** da
-  normalização, então é normalized-pre-tcode, não raw. Renomear para
-  `irf_mp_pre_tcode` ou acrescentar um campo separado. Não altera output.
-- [ ] **`script/run_all.R`** — orquestrador end-to-end
-  (`download → yield_curve → clean → instrument → model_alessi`).
+- [ ] **Seleção da etapa 2 é dominada pela janela pre-COVID** (aberto em
+  2026-07-26). Com a taxonomia migrada, 23 células ficam `ok` em `yield_6m` e
+  **todas empatam** em `score_hard_frac = 1` e `score_ext = 3`, então o
+  desempate é só ξ_mp — que é sistematicamente maior pre-COVID. Resultado: o
+  top-5 é inteiramente `pre_covid`, e o baseline de produção (full, 7, 6) entra
+  pelo force-append. A comparação da etapa 2 acaba confundindo escolha de
+  instrumento com escolha de janela. Considerar um teto por amostra análogo ao
+  `MAX_PER_INSTRUMENT`, ou desempatar por `f_reduced`.
+- [x] **Taxonomia do `irf_spec_sweep.R` migrada para ξ_mp** (2026-07-26).
+  `classify_sweep_cells` agora classifica por `wald_mp` com os limiares MOSW
+  (`weak_xi_mp_severe` < 3,84 — conjunto AR ilimitado; `weak_xi_mp` < 10), e as
+  ordenações da etapa 1 e da etapa 2 desempatam por ξ_mp. `f_factor` continua
+  reportado por célula e ganhou tabela própria sob o rótulo "régua legada", mas
+  não decide mais. Artefatos regerados: 320 células, 8 instrumentos, coluna
+  `wald_mp` conferida contra `mosw_strength_grid.csv`. O instrumento de produção
+  agora é `ok` em (7,6) full — o force-append da etapa 2 virou rede de
+  segurança (ver o item de seleção acima).
+- [x] **Prosa do coherence separada do corpo gerado** (2026-07-26). A leitura
+  interpretativa vive em `output/irf/irf_coherence_leitura.md`, escrita à mão e
+  não tocada por script; `irf_coherence_report.md` continua sendo o corpo
+  gerado, agora com aviso e ponteiro no cabeçalho. A leitura foi **reescrita sob
+  (7,6)** a partir do `irf_coherence_h.csv` corrente — a versão perdida no
+  `fc0ef58` era de 2026-07-12 sob `z_jk_purif` × (6,5) e não foi restaurada.
+- [x] **`irf_mp_raw` renomeado para `irf_mp_pre_tcode`** (2026-07-26) em
+  `ident_ext_instr` (`R/modeling/impulse_responde.R`). Não havia consumidor do
+  campo em lugar nenhum; o docblock agora explicita que é pós-normalização e
+  pré-tcode. Zero mudança de output (smoke test 5/5). A ocorrência em
+  `arquivo/R/identification/het_primary.R` ficou congelada de propósito.
+- [x] **`script/run_all.R`** (2026-07-26) — orquestrador de 8 estágios
+  (`di → external_factors → focus_fred → ibov → download → clean → instrument
+  → model`), **um processo `Rscript` por estágio**, porque os
+  scripts começam com `rm(list = ls())` e os dois downloaders só executam sob
+  `if (sys.nframe() == 0)`. Flags: `--list`, `--dry-run`, `--from`, `--to`,
+  `--only`, `--skip`, `--skip-existing`, `--continue-on-error`. Preflight aborta
+  antes de rodar qualquer coisa se faltar insumo; log por estágio em
+  `output/logs/` (gitignored).
 - [x] **Branches consolidadas** (2026-07-26). As cinco branches locais eram uma
   cadeia linear sem divergência; todas foram merged em `main` por fast-forward e
   apagadas. `codigo_olea/` (87 MB de referência MATLAB, commitado por engano no
@@ -165,6 +186,7 @@ passar em qualquer commit dela.
 - **Escrita vai direto na `main`**, em commits pequenos: §5 para o tex, resumo,
   introdução, conclusão, revisão de literatura. Não é experimento, não pode
   "falhar", e só toca `tex/`.
-- **Higiene e re-runs de diagnóstico vão direto na `main`**: `run_all.R`,
-  renomear `irf_mp_raw`, migrar a taxonomia do sweep para ξ_mp, o placebo
-  `commodity_metal`, a comparação cross-instrumento do IPCA.
+- **Higiene e re-runs de diagnóstico vão direto na `main`**: o bloco de higiene
+  de 2026-07-26 (`run_all.R`, renomear `irf_mp_raw`, taxonomia por ξ_mp,
+  separar a leitura do coherence) foi feito assim. Segue valendo para o placebo
+  `commodity_metal` e a comparação cross-instrumento do IPCA.

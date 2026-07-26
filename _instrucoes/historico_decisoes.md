@@ -148,6 +148,16 @@ está fora de escala.**
 
 Resolvidos e verificados; ficam aqui só para não serem reabertos.
 
+- **`script/yield_curve.R` apagado** (2026-07-26). Ajuste Svensson próprio sobre
+  os contratos DI, escrito para gerar a curva a vértices fixos. **Não dava bom
+  resultado** e foi abandonado pelo autor; a curva que o painel usa sempre foi
+  `data/yields/yields_dia.csv`, **insumo externo fixo fornecido pelo
+  orientador**, lido direto pelo `script/download.R`. A saída do script
+  (`data/curva_juros/`) nunca foi consumida por estágio nenhum. Recuperável no
+  histórico do git. Consequência: `R/modeling/svensson_model.R` ficou sem
+  consumidor (o `source()` no `download.R` era chamada morta e foi removido) —
+  **não reimplementar a curva sem antes decidir o que fazer com esse módulo.**
+
 - **Mismatch de `mp_var`** (2026-05-05) — IRFs eram normalizadas por
   `juros_selic` (F≈1,1); passou a `yield_6m` (F=21,3). `juros_selic` fica como
   **controle negativo documentado** (F reduzida máx = 2,49 em todo o grid).
