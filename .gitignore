@@ -9,6 +9,9 @@
 # Data files
 data/
 
+# Per-stage logs written by script/run_all.R (output/ is otherwise tracked)
+output/logs/
+
 # Reference code — read-only translation sources, not project code (see CLAUDE.md)
 codigo_alessi-mark/
 codigo_Jarocinski_e_Karadi/
