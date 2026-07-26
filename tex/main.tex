@@ -224,27 +224,27 @@ Combinando as três equações, o modelo assume a forma de média móvel que esc
 \end{align}
 A estimação requer determinar o número de fatores estáticos $r$ e dinâmicos $q$ e normalizar as matrizes $\Lambda$, $G$ e $H$.
 
-O painel é não-estacionário por construção, pois reúne séries em nível, séries em taxa e séries já diferenciadas, com ordens de integração distintas. Extrair fatores diretamente sobre esse painel faria com que as séries de maior variância dominassem a decomposição. Seguindo \citeonline{barigozzi2016non}, cada série sem tendência $X_{it}$ é dividida pelo desvio padrão de sua primeira diferença $s_{iy}$:
+O conjunto de séries é não-estacionário por construção, pois reúne séries em nível, séries em taxa e séries já diferenciadas, com ordens de integração distintas. Extrair fatores diretamente sobre esse conjunto faria com que as séries de maior variância dominassem a decomposição. Seguindo \citeonline{barigozzi2016non}, cada série sem tendência $X_{it}$ é dividida pelo desvio padrão de sua primeira diferença $s_{iy}$:
 \begin{equation}
     Z_{it} = \frac{X_{it}}{s_{iy}}
 \end{equation}
-A padronização equaliza a escala das flutuações sem diferenciar as séries, o que preserva a informação de baixa frequência usada pelo modelo. Por essa razão os critérios de \citeonline{bai-ng} não entram na forma padrão: eles pressupõem um painel estacionário, hipótese que o desenho dos dados viola. O tratamento de \citeonline{barigozzi2016non} mantém a estrutura de fatores válida sob não-estacionariedade.
+A padronização equaliza a escala das flutuações sem diferenciar as séries, o que preserva a informação de baixa frequência usada pelo modelo. Por essa razão os critérios de \citeonline{bai-ng} não entram na forma padrão: eles pressupõem séries estacionárias, hipótese que o desenho dos dados viola. O tratamento de \citeonline{barigozzi2016non} mantém a estrutura de fatores válida sob não-estacionariedade.
 
-O uso de um painel grande responde ao problema de não-fundamentalidade dos choques estruturais \cite{villaverde}. Um VAR de pequena dimensão raramente contém a informação que os agentes e o banco central de fato observam, e o choque recuperado nesse espaço restrito é uma combinação de choques estruturais, não o choque de política monetária isolado. Ao extrair fatores comuns de um conjunto amplo de variáveis, o SDFM aproxima o espaço de informação relevante e recupera choques fundamentais, como mostram \citeonline{alessi} ao comparar o SDFM a um VAR de referência sob o mesmo instrumento.
+O uso de um grande conjunto de séries responde ao problema de não-fundamentalidade dos choques estruturais \cite{villaverde}. Um VAR de pequena dimensão raramente contém a informação que os agentes e o banco central de fato observam, e o choque recuperado nesse espaço restrito é uma combinação de choques estruturais, não o choque de política monetária isolado. Ao extrair fatores comuns de um conjunto amplo de variáveis, o SDFM aproxima o espaço de informação relevante e recupera choques fundamentais, como mostram \citeonline{alessi} ao comparar o SDFM a um VAR de referência sob o mesmo instrumento.
 
 \subsection{Base de Dados}
 
 A base reúne cerca de 110 séries mensais para a economia brasileira entre janeiro de 2013 e setembro de 2025, o que corresponde a 147 meses após o alinhamento das séries. O início em 2013 acompanha a mudança metodológica da PNAD Contínua no mercado de trabalho. As fontes são oficiais (Banco Central do Brasil, IBGE, B3, Tesouro Nacional e ANBIMA), somadas a indicadores de risco soberano e mercado externo (EMBI, CDS de cinco anos e MSCI) e a um índice de incerteza de política econômica (EPU). Os blocos cobrem atividade real, mercado de trabalho, inflação, commodities, agregados monetários e de crédito, e preços de ativos.
 
-As taxas de juros de maturidade fixa (3 meses, 6 meses, 1, 2, 5 e 10 anos) vêm do ajuste do modelo de \citeonline{svensson1994estimating} sobre os contratos de DI futuro em cada data. As séries nominais entram em logaritmo e, quando os testes indicam componente sazonal, são ajustadas pelo procedimento X-13ARIMA-SEATS \cite{sax2018seasonal}. A lista completa de séries, fontes e transformações está no Anexo (Tabela \ref{tab:lista_variaveis}).
+As taxas de juros de maturidade fixa (3 meses, 6 meses, 1, 2, 5 e 10 anos) vêm do ajuste do modelo de \citeonline{svensson1994estimating} sobre os contratos de DI futuro em cada data. As séries nominais entram em logaritmo e, quando os testes indicam componente sazonal, são ajustadas pelo procedimento X-13ARIMA-SEATS \cite{sax2018seasonal}. A lista completa de séries, fontes e transformações está no Anexo \ref{anexo-A} (\autoref{tab:lista_variaveis}).
 
 \subsection{Identificação por instrumento externo}
 
-A identificação do choque de política monetária usa um instrumento externo, no arcabouço de proxy-SVAR de \citeonline{stockwatson2018}, \citeonline{mertensravn2013} e \citeonline{gertler2015}, transposto para o DFM como em \citeonline{alessi}. A abordagem dispensa a ordenação recursiva entre os fatores. No lugar dela entra uma variável observada fora do modelo, correlacionada com o choque de interesse e ortogonal aos demais choques estruturais.
+A identificação do choque de política monetária usa um instrumento externo, no arcabouço de proxy-SVAR de \citeonline{stockwatson2018} e \citeonline{gertler2015}, transposto para o DFM como em \citeonline{alessi}. A abordagem dispensa a ordenação recursiva entre os fatores. No lugar dela entra uma variável observada fora do modelo, correlacionada com o choque de interesse e ortogonal aos demais choques estruturais.
 
 Seja $z_t$ o instrumento e $\varepsilon_t^{p}$ o choque de política monetária da \cref{eq:6}. O instrumento é válido sob duas condições: relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, e exogeneidade, $E[z_t \varepsilon_t^{j}] = 0$ para todo choque estrutural $j \neq p$ \cite{stockwatson2018}. Sob essas condições, a projeção das inovações fatoriais $\eta_t$ sobre o instrumento identifica, a menos de escala, a coluna de $H$ associada ao choque de política monetária. Empilhando $\eta_t$ e $z_t$ na amostra alinhada, essa coluna é estimada por $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$. O alinhamento temporal entre o instrumento mensal e as inovações do modelo segue a rotina de seleção de amostra de \citeonline{alessi}.
 
-O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal. A escolha do yield de 6 meses como variável de política, em vez da Selic overnight, segue a distinção de \citeonline{gertler2015} entre o instrumento de política, a taxa overnight, e o indicador de política, uma taxa de prazo mais longo que incorpora a revisão das expectativas de juros embutida na decisão. No caso brasileiro a distinção é mais aguda. As decisões do Copom saem após o fechamento do mercado, e a surpresa é medida na curva de DI entre a quarta e a quinta-feira, não na taxa overnight. A Selic mensal, uma média do overnight dentro do mês, quase não embute essa surpresa. A regressão da inovação AR(6) do yield de 6 meses sobre o instrumento primário tem F de primeiro estágio de $25{,}2$. Com a Selic mensal no lugar do yield, o F não passa de $1{,}6$ em nenhuma dimensão da varredura de especificações.
+O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal. A escolha do yield de 6 meses como variável de política, em vez da Selic overnight, segue a distinção de \citeonline{gertler2015} entre o instrumento de política, a taxa overnight, e o indicador de política, uma taxa de prazo mais longo que incorpora a revisão das expectativas de juros embutida na decisão. No caso brasileiro a distinção é mais aguda. As decisões do Copom saem após o fechamento do mercado, e a surpresa é medida na curva de DI entre a quarta e a quinta-feira, não na taxa overnight. A Selic mensal, uma média do overnight dentro do mês, quase não embute essa surpresa. Sob o diagnóstico de relevância de \citeonline{montielolea}, a normalização pela Selic não alcança o limiar de instrumento utilizável em nenhuma dimensão da varredura de especificações, enquanto a normalização pelo yield de 6 meses alcança, como reporta a \autoref{tab:rq_sweep}.
 
 \subsection{Construção do instrumento}
 
@@ -254,67 +254,128 @@ A primeira camada mede a surpresa como a variação do DI futuro no vértice de 
 
 A segunda camada remove o componente previsível da surpresa. \citeonline{bauer2023} mostram que surpresas de alta frequência são correlacionadas com informação pública anterior ao anúncio, porque o mercado subestima a resposta do banco central às notícias. Uma surpresa previsível viola a exogeneidade do instrumento. Seguindo o desenho dos autores, a surpresa é regredida sobre preditores medidos até o fechamento da quarta-feira: uma tendência temporal, as variações acumuladas em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent, do câmbio BRL/USD e da inclinação da curva de DI (2 anos menos 3 meses), e as revisões em 20 pregões das medianas da pesquisa Focus para o IPCA acumulado em 12 meses e para a Selic no fim do ano seguinte. O resíduo dessa regressão é a surpresa ortogonalizada. O $R^2$ é $0{,}024$, na faixa esperada. \citeonline{bauer2023} obtêm entre $0{,}12$ e $0{,}20$ incluindo surpresas de divulgações macroeconômicas que não existem em frequência diária para o Brasil, e um $R^2$ alto indicaria vazamento de informação contemporânea na regressão. A exigência de que todos os preditores sejam predeterminados disciplina a especificação. Variáveis domésticas contemporâneas à janela do anúncio respondem ao próprio choque e enviesariam o resíduo. Variáveis predeterminadas, domésticas ou não, são informação disponível antes da decisão, exatamente o que a correção de \citeonline{bauer2023} usa.
 
-A terceira camada separa o choque de política monetária do choque de informação do banco central. \citeonline{jarocinski2020} distinguem os dois pelo sinal do co-movimento entre a surpresa de juros e a do mercado de ações no mesmo dia. Juros em alta com ações em queda indicam um choque de política. Juros e ações em alta juntos indicam que o comunicado revelou informação favorável sobre a economia. O filtro classifica cada reunião pelo co-movimento dos resíduos ortogonalizados da surpresa de DI e do retorno do Ibovespa, mantém os dias de co-movimento negativo e zera os demais. Das 95 reuniões, 62 são classificadas como choque de política e 33, ou $34{,}7\%$, como informação, proporção próxima do terço que os autores encontram para o Fed. Como os preditores da segunda camada são predeterminados, a classificação preserva o co-movimento observado no dia do anúncio, em vez de depender de resíduos construídos com informação da própria janela. A série mensal resultante é o instrumento primário do trabalho.
+A terceira camada separa o choque de política monetária do choque de informação do banco central. \citeonline{jarocinski2020} distinguem os dois pelo sinal do co-movimento entre a surpresa de juros e a do mercado de ações no mesmo dia. Juros em alta com ações em queda indicam um choque de política. Juros e ações em alta juntos indicam que o comunicado revelou informação favorável sobre a economia. O filtro classifica cada reunião pelo co-movimento dos resíduos ortogonalizados da surpresa de DI e do retorno do Ibovespa, mantém os dias de co-movimento negativo e zera os demais. Das 95 reuniões, 62 são classificadas como choque de política e 33, ou $34{,}7\%$, como informação, proporção próxima do terço que os autores encontram para o Fed. Como os preditores da segunda camada são predeterminados, a classificação preserva o co-movimento observado no dia do anúncio, em vez de depender de resíduos construídos com informação da própria janela. Essa é a variante fiel às duas metodologias de origem, a ortogonalização por preditores predeterminados de \citeonline{bauer2023} e a regra de sinal com agregação mensal por soma de \citeonline{jarocinski2020}. A única diferença em relação ao filtro literal de \citeonline{jarocinski2020}, que classifica e agrega a surpresa bruta, é o uso dos resíduos predeterminados no lugar dela, sem efeito prático sobre a classificação pela razão acima. %Máscaras construídas sobre a surpresa bruta ou sobre resíduos contemporâneos da própria janela ficam como verificações de robustez. A série mensal resultante é o instrumento primário do trabalho.
 
 \subsection{Seleção de $(r, q)$ e estimação}
 
-Os critérios de \citeonline{bai-ng} na variante padronizada e o procedimento de \citeonline{amengual2007consistent} servem de referência para a dimensão do sistema e apontam $(r, q) = (5, 4)$. A escolha final é $(r, q) = (6, 5)$, definida pela força do primeiro estágio nas duas janelas amostrais. A \autoref{tab:rq_sweep} reporta, para o instrumento primário, a estatística $\xi_{mp}$ de \citeonline{montielolea} por dimensão e janela. A estatística é a Wald de primeiro estágio na direção do impacto sobre o yield de 6 meses, robusta à heterocedasticidade. Valores acima de $10$ sustentam bandas convencionais. Valores entre $3{,}84$ e $10$ indicam instrumento fraco com conjunto de confiança de Anderson-Rubin limitado.
+Os critérios de \citeonline{bai-ng} na variante padronizada e o procedimento de \citeonline{amengual2007consistent} servem de referência para a dimensão do sistema e apontam $(r, q) = (5, 4)$. A escolha final é $(r, q) = (7, 6)$, a única dimensão da varredura que cruza o limiar de relevância de primeiro estágio nas duas janelas amostrais. A \autoref{tab:rq_sweep} reporta, para o instrumento primário, três estatísticas de relevância de \citeonline{montielolea} por dimensão e janela: a Wald $\xi_{mp}$ na direção do impacto sobre o yield de 6 meses, a Wald conjunta sobre as $q$ inovações fatoriais e a forma-F dessa Wald conjunta. As três são robustas à heterocedasticidade, com o instrumento residualizado nas defasagens do VAR dos fatores. A leitura de força segue $\xi_{mp}$. Valores acima de $10$ sustentam bandas convencionais. Valores entre $3{,}84$ e $10$ indicam instrumento fraco com conjunto de confiança de Anderson-Rubin limitado.
 
-O par $(6, 5)$ é o único acima de $10$ na janela pré-COVID, com $12{,}49$, e fica em $6{,}94$ na amostra completa, dentro da zona de instrumento fraco. A amostra completa favorece dimensões maiores, com $13{,}13$ em $(8, 8)$, mas $r \geq 7$ colapsa na janela pré-COVID, com $6{,}90$ em $(7, 6)$ e $5{,}14$ em $(8, 8)$. Os 84 meses dessa janela não sustentam a estimação de um número maior de fatores. O par $(6, 5)$ é o único com identificação utilizável nas duas janelas e por isso é mantido em ambas.
+O par $(7, 6)$ fica em $10{,}43$ na amostra completa e $12{,}22$ na janela pré-COVID, acima do limiar de $10$ nas duas. É a única dimensão utilizável em ambas as janelas. O $(5, 4)$ indicado pelos critérios de informação e o mais parcimonioso $(6, 5)$ ficam abaixo do limiar na amostra completa, com $5{,}45$ e $6{,}36$, e o $(8, 8)$ cruza na amostra completa mas cai para $8{,}99$ na pré-COVID. Por isso a produção adota $(7, 6)$, com os critérios de informação servindo de referência inferior para a dimensão do sistema.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \caption{Força do instrumento primário por dimensão $(r, q)$ e janela amostral}
 \label{tab:rq_sweep}
 \begin{threeparttable}
-\begin{tabular}{ccc}
+\begin{tabular}{c ccc ccc}
 \toprule
-$(r, q)$ & Amostra completa & Pré-COVID \\
+ & \multicolumn{3}{c}{Amostra completa} & \multicolumn{3}{c}{Pré-COVID} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+$(r, q)$ & $\xi_{mp}$ & Wald conj. & F conj. & $\xi_{mp}$ & Wald conj. & F conj. \\
 \midrule
-$(5, 4)$ & 5,22  & 9,69  \\
-$(6, 5)$ & 6,94  & 12,49 \\
-$(7, 6)$ & 9,67  & 6,90  \\
-$(8, 8)$ & 13,13 & 5,14  \\
+$(5, 4)$ &  5,45 &  8,58 & 2,14 &  7,94 &  8,44 & 2,11 \\
+$(6, 5)$ &  6,36 &  9,15 & 1,83 & 11,00 & 11,44 & 2,29 \\
+$(7, 6)$ & 10,43 & 13,99 & 2,33 & 12,22 & 16,22 & 2,70 \\
+$(8, 8)$ & 12,57 & 16,03 & 2,00 &  8,99 & 19,02 & 2,38 \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[flushleft]
 \footnotesize
-\item Estatística $\xi_{mp}$ de \citeonline{montielolea}: Wald de primeiro estágio, robusta à heterocedasticidade, na direção do impacto do choque sobre o yield de 6 meses. Acima de $10$, bandas convencionais são confiáveis. Entre $3{,}84$ e $10$, o instrumento é fraco e o conjunto de Anderson-Rubin de 95\% é um intervalo limitado. Instrumento primário, com ortogonalização pré-evento e filtro de sinal. Amostra completa: 2013--2025. Pré-COVID: 2013--2019.
+\item Três estatísticas de relevância de \citeonline{montielolea}, robustas à heterocedasticidade, com o instrumento residualizado nas defasagens do VAR dos fatores. $\xi_{mp}$: Wald de primeiro estágio na direção do impacto do choque sobre o yield de 6 meses, distribuição $\chi^2_1$. Wald conj.: Wald conjunta sobre as $q$ inovações fatoriais, distribuição $\chi^2_q$, com $q$ igual a 4, 5, 6 e 8 nas quatro linhas. F conj.: forma-F da Wald conjunta, igual à Wald conjunta dividida por $q$, comparável entre dimensões. A leitura de força usa $\xi_{mp}$. Acima de $10$, bandas convencionais são confiáveis. Entre $3{,}84$ e $10$, o instrumento é fraco e o conjunto de Anderson-Rubin de 95\% é um intervalo limitado. Instrumento primário, com ortogonalização pré-evento e filtro de sinal. Amostra completa: 2013--2025. Pré-COVID: 2013--2019.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
 
-Os fatores estáticos são extraídos por componentes principais sobre o painel padronizado. A dinâmica segue o VAR(6) da \cref{eq:5}. A estimativa pontual das funções de impulso-resposta usa os coeficientes de mínimos quadrados ordinários, fiel à implementação de \citeonline{alessi}. A incerteza vem de um \textit{bootstrap wild} \cite{goncalveskilian2004}, com 800 replicações, robusto à heterocedasticidade dos resíduos. A correção de viés de pequena amostra de \citeonline{kilian1998small} entra apenas no processo gerador do bootstrap, não na estimativa pontual. As funções de impulso-resposta cobrem horizontes de 0 a 48 meses, com bandas de 68\% e 90\%.
+Os fatores estáticos são extraídos por componentes principais sobre o conjunto de séries padronizado. A dinâmica segue o VAR(6) da \cref{eq:5}. A estimativa pontual das funções de impulso-resposta usa os coeficientes de mínimos quadrados ordinários, fiel à implementação de \citeonline{alessi}. A incerteza vem de um \textit{bootstrap wild} \cite{goncalveskilian2004}, com 800 replicações, robusto à heterocedasticidade dos resíduos. A correção de viés de pequena amostra de \citeonline{kilian1998small} entra apenas no processo gerador do bootstrap, não na estimativa pontual. As funções de impulso-resposta cobrem horizontes de 0 a 48 meses, com bandas de 68\% e 90\%.
 
 \subsection{Relevância do instrumento}
 
 A validade da inferência no proxy-SVAR depende da força do instrumento \cite{montielolea}. Com instrumento fraco, o estimador de impacto é uma razão de normais correlacionadas, com viés na direção da identificação recursiva e cobertura incorreta das bandas. A alternativa nesse caso são os intervalos de Anderson-Rubin, válidos sob qualquer força do primeiro estágio.
 
-Três estatísticas de primeiro estágio podem ser calculadas, e elas medem coisas diferentes. O F contra a inovação AR(6) do yield de 6 meses mede a relevância univariada para a leitura do choque em pontos de Selic. O F contra o resíduo do primeiro fator é a estatística usual de proxy-SVAR com uma única variável de forma reduzida. Para o instrumento primário na amostra completa, as duas valem $25{,}2$ e $2{,}8$. A diferença de quase uma ordem de grandeza não é contradição. A variação associada à política monetária carrega em fatores além do primeiro, e a estatística de um único fator não é o diagnóstico adequado para a projeção $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$, que usa o vetor $\eta_t$ inteiro.
+O diagnóstico que governa essa projeção é a estatística $\xi_{mp}$ da \autoref{tab:rq_sweep}, a Wald de \citeonline{montielolea} na direção da normalização. Ela projeta o primeiro estágio na combinação das inovações fatoriais que determina o impacto sobre o yield de 6 meses, com erros padrão de Eicker-White e com o instrumento residualizado nas defasagens do VAR dos fatores. O conjunto de Anderson-Rubin de 95\% é um intervalo limitado se e somente se $\xi_{mp} > 3{,}84$. %A implementação reproduz os números que \citeonline{montielolea} publicam para a aplicação ao choque de petróleo de Kilian, com Wald individual de $4{,}4$ e F robusta de $9{,}4$ na convenção HC1, conferida contra o código oficial dos autores.
 
-O diagnóstico que governa essa projeção é a estatística $\xi_{mp}$ da \autoref{tab:rq_sweep}, a Wald de \citeonline{montielolea} na direção da normalização. Ela projeta o primeiro estágio na combinação das inovações fatoriais que determina o impacto sobre o yield de 6 meses, com erros padrão de Eicker-White e com o instrumento residualizado nas defasagens do VAR dos fatores. O conjunto de Anderson-Rubin de 95\% é um intervalo limitado se e somente se $\xi_{mp} > 3{,}84$. A implementação reproduz os números que \citeonline{montielolea} publicam para a aplicação ao choque de petróleo de Kilian, com Wald individual de $4{,}4$ e F robusta de $9{,}4$.
+Na especificação de produção, $\xi_{mp}$ vale $10{,}43$ na amostra completa e $12{,}22$ na janela pré-COVID, acima do limiar de $10$ nas duas. As bandas convencionais são adequadas em ambas as janelas e o conjunto de Anderson-Rubin é um intervalo limitado. A forma-F da Wald conjunta sobre as $q$ inovações fatoriais permanece baixa, $2{,}33$ e $2{,}70$, o padrão esperado sob exogeneidade, com a relevância concentrada na direção do choque de política e não espalhada pelo espaço dos fatores. %Forma-F baixa com $\xi_{mp}$ alto é o padrão esperado sob exogeneidade: a relevância se concentra na direção do choque de política, não espalhada pelo espaço dos fatores. O contraste entre as janelas repete o resultado da \autoref{tab:rq_sweep}. As observações a partir de 2020 adicionam ruído ao primeiro estágio, não informação.
 
-Na especificação de produção, $\xi_{mp}$ vale $6{,}94$ na amostra completa e $12{,}49$ na janela pré-COVID. Na amostra completa o instrumento é fraco no sentido de \citeonline{montielolea}, o conjunto de Anderson-Rubin é limitado e os resultados dessa janela são lidos com essa qualificação. Na janela pré-COVID as bandas convencionais são adequadas. A Wald conjunta sobre as $q$ inovações fatoriais é baixa nas duas janelas, com forma-F de $1{,}75$ e $2{,}74$. Wald conjunta baixa com $\xi_{mp}$ alto é o padrão esperado sob exogeneidade: a relevância se concentra na direção do choque de política, não espalhada pelo espaço dos fatores. O contraste entre as janelas repete o resultado da \autoref{tab:rq_sweep}. As observações a partir de 2020 adicionam ruído ao primeiro estágio, não informação.
+% \subsection{Identificação por heterocedasticidade nas inovações}
 
-\section{Resultados}
+% Uma alternativa ao instrumento externo identifica a coluna de política de $H$ diretamente de uma mudança de regime na variância das inovações fatoriais $\eta_t$, sem instrumento \cite{rigobon2003, STOCK2016415}. A ideia é que, se a variância do choque de política sobe em um regime conhecido e a dos demais choques não, a diferença de covariância entre regimes tem posto um e seu autovetor líder é a direção do choque de política. Testamos essa estratégia em dois esquemas de regime sobre as inovações do VAR dos fatores. Nenhum identifica o choque monetário nesta frequência, e as duas subseções seguintes reportam os testes.
 
-A \autoref{fig:irf_resultados} apresenta as funções de impulso-resposta para um conjunto de variáveis financeiras após o choque de política monetária contracionista. O impacto sobre o mercado de ações (IBRx-100) e sobre o mercado de dívida corporativa (IDA) é imediato e negativo, refletindo o canal do preço dos ativos. O efeito é particularmente pronunciado sobre as ações de empresas do segmento imobiliário (IMob).
+% A condição de posto exige que a covariância das inovações não seja proporcional entre regimes, $\Sigma_C \neq a\,\Sigma_{NC}$ \cite{rigobon2003}. Sob proporcionalidade a heterocedasticidade re-escala o sistema inteiro e não identifica direção alguma. O teste formal é a razão de verossimilhança de proporcionalidade de \citeonline{rigobon2003}. Um placebo complementa o gate. Permutar os rótulos de regime destrói a informação de calendário e preserva a distribuição de $\eta_t$, de modo que o salto de variância estimado nos rótulos verdadeiros deve superar o dos rótulos permutados para haver sinal identificador.
 
-No mercado cambial, a função de impulso-resposta indica uma forte sensibilidade da taxa USD/BRL, que se aprecia aproximadamente 8\% no pico da resposta. A queda no IPP, mais rápida que a do IPCA, corrobora essa dinâmica. No mercado de renda fixa, o impacto da política monetária varia ao longo da estrutura a termo, com os yields de vencimentos mais longos mostrando maior sensibilidade. A contração observada nos spreads de crédito sugere que a política monetária impacta as condições de financiamento, possivelmente alterando a percepção de risco dos agentes, em linha com \citeonline{ehrmann}.
+% O primeiro esquema define os regimes pelo calendário do Copom, meses com reunião contra meses sem. A \autoref{tab:het_calendar} reporta as oito células de dimensão e janela com defasagem seis. A razão de variância na direção estimada fica entre $2{,}0$ e $3{,}3$, com intervalo de confiança acima de um, mas é artefato da própria estimação da direção, que escolhe o autovetor que maximiza a diferença entre os grupos. O placebo de permutação não distingue os rótulos verdadeiros dos permutados em quinze das dezesseis células do grid completo, com $p$ acima de $0{,}28$ e uma única exceção marginal que ainda assim não rejeita a proporcionalidade, e a razão de verossimilhança de proporcionalidade nunca rejeita $\Sigma_C \propto \Sigma_{NC}$. A homocedasticidade dos choques não monetários não é rejeitada nas células reportadas, o produto cruzado que testaria heterocedasticidade em pares de choques não rejeita em nenhuma célula, e nenhuma variável global exibe salto de variância próprio. O componente comum do yield de 6 meses é bem explicado, com $R^2$ entre $0{,}76$ e $0{,}97$, então o problema não é o espaço dos fatores.
 
-\begin{figure}[H]
-    \centering
-    \caption{Funções de Impulso-Resposta a um Choque Monetário Contracionista}
-    \includegraphics[width=0.8\textwidth]{"img/irf.png"}
-    \label{fig:irf_resultados}
-\end{figure}    
+% \begin{table}[H]
+% \centering
+% \caption{Viabilidade da identificação por heterocedasticidade, regimes de calendário}
+% \label{tab:het_calendar}
+% \begin{threeparttable}
+% \begin{tabular}{l c c c c c c}
+% \toprule
+% Amostra & $(r,q)$ & $n_C/n_{NC}$ & Razão [IC 99\%] & $p_{\text{perm}}$ & $p_{\text{prop}}$ & Força \\
+% \midrule
+% Completa  & $(5,4)$ & 98/49 & 2,32 [1,45;\, 5,14] & 0,36 & 0,10 & fraco \\
+% Completa  & $(6,5)$ & 98/49 & 2,41 [1,87;\, 5,20] & 0,49 & 0,37 & fraco \\
+% Completa  & $(7,6)$ & 98/49 & 2,87 [2,18;\, 6,12] & 0,30 & 0,36 & fraco \\
+% Completa  & $(8,8)$ & 98/49 & 2,00 [1,71;\, 4,45] & 0,29 & 0,56 & fraco \\
+% \midrule
+% Pré-COVID & $(5,4)$ & 52/26 & 2,64 [1,94;\, 8,46] & 0,32 & 0,66 & fraco \\
+% Pré-COVID & $(6,5)$ & 52/26 & 3,32 [2,20;\, 11,33] & 0,31 & 0,76 & fraco \\
+% Pré-COVID & $(7,6)$ & 52/26 & 2,74 [2,39;\, 9,05] & 0,71 & 0,93 & fraco \\
+% Pré-COVID & $(8,8)$ & 52/26 & 2,27 [2,03;\, 6,30] & 0,29 & 0,45 & fraco \\
+% \bottomrule
+% \end{tabular}
+% \begin{tablenotes}[flushleft]
+% \footnotesize
+% \item Regimes definidos pelo calendário do Copom, $n_C$ meses com reunião e $n_{NC}$ sem, com defasagem seis no VAR dos fatores. Razão é a razão de variância na direção estimada do choque de política, com intervalo de confiança de 99\% por bootstrap. $p_{\text{perm}}$: $p$-valor do placebo por permutação dos rótulos de regime. $p_{\text{prop}}$: $p$-valor da razão de verossimilhança de proporcionalidade de \citeonline{rigobon2003}, hipótese nula $\Sigma_C \propto \Sigma_{NC}$. Veredito: triagem de instrumento fraco. Amostra completa 2013--2025, pré-COVID 2013--2019.
+% \end{tablenotes}
+% \end{threeparttable}
+% \end{table}
+
+% O segundo esquema substitui o calendário por episódios de volatilidade plurianuais, pré-2020 contra 2020 em diante, à maneira de \citeonline{brunnermeier2021}. A \autoref{tab:het_episode} mostra o mesmo diagnóstico. A proporcionalidade entre episódios nunca rejeita ao nível de 5\%, e o placebo por rotação circular das fronteiras confirma que a partição pré-2020 e pós-2020 não é especial. Os autovalores generalizados são estatisticamente indistinguíveis, com gap relativo mínimo entre $0{,}06$ e $0{,}19$, de modo que a matriz de impacto não seria identificada ponto a ponto mesmo se a condição de posto passasse. A coluna que mais carrega no yield de 6 meses, candidata a choque de política, tem variância relativa $\lambda \approx 1$ entre os episódios, ou seja, é justamente a direção que não muda de variância. As direções que mudam não têm assinatura de política monetária, e a correlação descritiva do choque candidato com as surpresas de Copom fica entre $0{,}17$ e $0{,}30$.
+
+% \begin{table}[H]
+% \centering
+% \caption{Viabilidade da identificação por heterocedasticidade, regimes de episódio}
+% \label{tab:het_episode}
+% \begin{threeparttable}
+% \begin{tabular}{c c c c c c}
+% \toprule
+% $(r,q)$ & $p_{\text{prop}}$ & $p_{\text{rot}}$ & Gap mín.\ [IC] & $\lambda_{\text{cand}}$ & Cor.\ Copom \\
+% \midrule
+% $(5,4)$ & 0,67 & 0,91 & 0,19 [0,06;\, 0,43] & 1,32 & 0,18 \\
+% $(6,5)$ & 0,24 & 0,45 & 0,19 [0,04;\, 0,38] & 1,14 & 0,28 \\
+% $(7,6)$ & 0,09 & 0,11 & 0,12 [0,04;\, 0,32] & 1,01 & 0,30 \\
+% $(8,8)$ & 0,10 & 0,12 & 0,06 [0,03;\, 0,25] & 0,95 & 0,17 \\
+% \bottomrule
+% \end{tabular}
+% \begin{tablenotes}[flushleft]
+% \footnotesize
+% \item Episódios pré-2020 e 2020 em diante nas inovações do VAR dos fatores. $p_{\text{prop}}$: $p$-valor bootstrap da razão de verossimilhança de proporcionalidade entre episódios. $p_{\text{rot}}$: placebo por rotação circular das fronteiras dos episódios. Gap mín.: menor gap relativo entre autovalores generalizados adjacentes, com intervalo de confiança por bootstrap. $\lambda_{\text{cand}}$: variância relativa 2020+ contra pré-2020 do choque candidato, a coluna com maior impacto no yield de 6 meses. Cor.\ Copom: correlação descritiva do choque candidato com as surpresas mensais de Copom.
+% \end{tablenotes}
+% \end{threeparttable}
+% \end{table}
+
+% A rotina foi validada por simulação. Sob um processo gerador com salto de variância de posto um verdadeiro o estimador recupera a matriz de impacto, então a reprovação vem dos dados, não do código. A leitura econômica é que a elevação de variância do choque de política é um fenômeno de dia de anúncio. Na agregação mensal ela dilui em cerca de 21 pregões e vaza para os meses vizinhos sem reunião, o que apaga o salto de variância que identificaria a direção. Em \citeonline{brunnermeier2021} a identificação funciona porque as variâncias relativas dos choques mudam entre episódios, o que não ocorre neste conjunto de séries mensais. Por isso a identificação de produção segue o instrumento externo descrito acima, e a heterocedasticidade fica registrada como alternativa testada e inviável nesta frequência.
+
+% \section{Resultados}
+
+% A \autoref{fig:irf_resultados} apresenta as funções de impulso-resposta para um conjunto de variáveis financeiras após o choque de política monetária contracionista. O impacto sobre o mercado de ações (IBRx-100) e sobre o mercado de dívida corporativa (IDA) é imediato e negativo, refletindo o canal do preço dos ativos. O efeito é particularmente pronunciado sobre as ações de empresas do segmento imobiliário (IMob).
+
+% No mercado cambial, a função de impulso-resposta indica uma forte sensibilidade da taxa USD/BRL, que se aprecia aproximadamente 8\% no pico da resposta. A queda no IPP, mais rápida que a do IPCA, corrobora essa dinâmica. No mercado de renda fixa, o impacto da política monetária varia ao longo da estrutura a termo, com os yields de vencimentos mais longos mostrando maior sensibilidade. A contração observada nos spreads de crédito sugere que a política monetária impacta as condições de financiamento, possivelmente alterando a percepção de risco dos agentes, em linha com \citeonline{ehrmann}.
+
+% \begin{figure}[H]
+%     \centering
+%     \caption{Funções de Impulso-Resposta a um Choque Monetário Contracionista}
+%     \includegraphics[width=0.8\textwidth]{"img/irf.png"}
+%     \label{fig:irf_resultados}
+% \end{figure}    
 
 
-\section{Conclusão}
+% \section{Conclusão}
 
-Este artigo quantificou os efeitos da política monetária sobre os preços dos ativos no Brasil, empregando um modelo de fatores dinâmicos estruturais (SDFM) para lidar com o problema da não-fundamentalidade. Os resultados mostram que os canais de transmissão monetária são robustos e rápidos: um choque contracionista impacta imediatamente o mercado de ações, a taxa de câmbio e a estrutura a termo dos juros, com efeitos heterogêneos entre os diferentes ativos.
+% Este artigo quantificou os efeitos da política monetária sobre os preços dos ativos no Brasil, empregando um modelo de fatores dinâmicos estruturais (SDFM) para lidar com o problema da não-fundamentalidade. Os resultados mostram que os canais de transmissão monetária são robustos e rápidos: um choque contracionista impacta imediatamente o mercado de ações, a taxa de câmbio e a estrutura a termo dos juros, com efeitos heterogêneos entre os diferentes ativos.
 
-As implicações para a política monetária são relevantes. A magnitude e a rapidez das respostas sugerem que o Banco Central deve considerar cuidadosamente os potenciais efeitos colaterais de suas decisões sobre a estabilidade financeira. A sensibilidade particular de setores como o imobiliário reforça a necessidade de uma análise granular dos impactos da política de juros. Como limitação e direção para pesquisa futura, a identificação dos choques poderia ser aprimorada com o uso de dados de alta frequência, como em \citeonline{alessi}, para isolar com ainda mais precisão a surpresa monetária.
+% As implicações para a política monetária são relevantes. A magnitude e a rapidez das respostas sugerem que o Banco Central deve considerar cuidadosamente os potenciais efeitos colaterais de suas decisões sobre a estabilidade financeira. A sensibilidade particular de setores como o imobiliário reforça a necessidade de uma análise granular dos impactos da política de juros. Como limitação e direção para pesquisa futura, a identificação dos choques poderia ser aprimorada com o uso de dados de alta frequência, como em \citeonline{alessi}, para isolar com ainda mais precisão a surpresa monetária.
 
 % ----------------------------------------------------------
 % Referências bibliográficas
@@ -329,26 +390,17 @@ As implicações para a política monetária são relevantes. A magnitude e a ra
 
 
 \partanexos
-\chapter{Tabela}
+\chapter{Tabela}\label{anexo-A}
 
 \begin{ThreePartTable}
 \begin{TableNotes}
-\item[*] \textbf{Códigos de Transformação:} 
-0 = Sem transformação; 
-1 = Log; 
-2 = Primeira diferença; 
-3 = Segunda diferença; 
-4 = Dessazonalizada; 
-5 = Log + Dessazonalizada; 
-6 = Log + Primeira diferença; 
-7 = Log + Segunda diferença; 
-8 = Dessazonalizada + Primeira diferença; 
-9 = Dessazonalizada + Segunda diferença; 
-10 = Log + Dessazonalizada + Primeira diferença; 
-11 = Log + Dessazonalizada + Segunda diferença.
+\footnotesize
+\item[*] Código de transformação com que a série entra na extração de fatores e é recuperada em unidades econômicas na função de impulso-resposta. 1 = nível. 2 = retorno mensal, com a função de impulso-resposta acumulada para recuperar a resposta de nível de preço. 4 = log-nível. Os índices de mercado da B3 entram como retorno mensal. Os volumes nominais (base monetária, agregados, crédito, PIB e recolhimentos compulsórios) entram em logaritmo. As séries com sazonalidade detectada são ajustadas por X-13ARIMA-SEATS \cite{sax2018seasonal}. Todas as séries são padronizadas pelo desvio padrão da primeira diferença \cite{barigozzi2016non} antes da extração de fatores. As séries em nível não são diferenciadas, a não-estacionariedade é acomodada pela padronização.
 \end{TableNotes}
 
-\begin{longtable}{llll}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}p{5.2cm} l l c@{}}
 \caption{Lista de Variáveis Utilizadas}\label{tab:lista_variaveis} \\
 \toprule
 \textbf{Variável} & \textbf{Fonte} & \textbf{Grupo} & \textbf{Código} \\
@@ -366,78 +418,112 @@ As implicações para a política monetária são relevantes. A magnitude e a ra
 \insertTableNotes
 \endlastfoot
 
-cambio usd & Yahoo Finance & Câmbio & 2 \\
-cambio eur & Yahoo Finance & Câmbio & 2 \\
-cambio gbp & Yahoo Finance & Câmbio & 2 \\
-cambio ars & Yahoo Finance & Câmbio & 2 \\
-cambio jpy & Yahoo Finance & Câmbio & 2 \\
-cambio cny & Yahoo Finance & Câmbio & 0 \\
-cambio rub & Yahoo Finance & Câmbio & 0 \\
-juros selic & BCB (4189) & Monetária & 3 \\
-juros cdi & BCB (4392) & Monetária & 3 \\
-credito agro & BCB (22027) & Monetária & 6 \\
-credito industria total & BCB (22043) & Monetária & 10 \\
-credito construcao & BCB (22030) & Monetária & 11 \\
-credito comercio & BCB (22036) & Monetária & 10 \\
-credito transporte & BCB (22037) & Monetária & 6 \\
-credito pessoa fisica & BCB (22050) & Monetária & 10 \\
-spread icc juridica & BCB (27444) & Monetária & 8 \\
-spread icc fisica & BCB (27445) & Monetária & 8 \\
-titulo 0 25ano & Tesouro Nacional & Monetária & 2 \\
-titulo 1ano & Tesouro Nacional & Monetária & 2 \\
-titulo 2ano & Tesouro Nacional & Monetária & 2 \\
-titulo 3ano & Tesouro Nacional & Monetária & 2 \\
-titulo 5ano & Tesouro Nacional & Monetária & 2 \\
-veiculos automoveis & BCB (7384) & Atividade Econômica & 5 \\
-veiculos leves & BCB (7385) & Atividade Econômica & 10 \\
-veiculos caminhoes & BCB (7386) & Atividade Econômica & 10 \\
-veiculos onibus & BCB (7387) & Atividade Econômica & 1 \\
-consumo gasolina & BCB (1393) & Atividade Econômica & 10 \\
-consumo glp & BCB (1394) & Atividade Econômica & 5 \\
-consumo oleo combustivel & BCB (1395) & Atividade Econômica & 6 \\
-consumo oleo diesel & BCB (1396) & Atividade Econômica & 11 \\
-consumo demais derivados & BCB (1397) & Atividade Econômica & 10 \\
-consumo alcool & BCB (1401) & Atividade Econômica & 5 \\
-consumo eletricidade comecial & BCB (1402) & Atividade Econômica & 11 \\
-consumo eletricidade residencial & BCB (1403) & Atividade Econômica & 10 \\
-consumo eletricidade industrial & BCB (1404) & Atividade Econômica & 10 \\
-consumo eletricidade outros & BCB (1405) & Atividade Econômica & 10 \\
-producao bens consumo & BCB (21865) & Atividade Econômica & 4 \\
-producao bens duraveis & BCB (21866) & Atividade Econômica & 4 \\
-producao bens nao duraveis & BCB (21867) & Atividade Econômica & 4 \\
-producao bens capital & BCB (21863) & Atividade Econômica & 8 \\
-producao transformacao & BCB (21862) & Atividade Econômica & 4 \\
-capacidade instalada industria & BCB (28554) & Atividade Econômica & 2 \\
-vendas varejo & BCB (1455) & Atividade Econômica & 4 \\
-vendas servicos & BCB (23982) & Atividade Econômica & 8 \\
-trab caged & BCB (28763) & Mercado de trabalho & 10 \\
-trab pop forca trab & BCB (24378) & Mercado de trabalho & 6 \\
-trab pop ocupada & BCB (28543) & Mercado de trabalho & 10 \\
-trab tx desemprego & BCB (24369) & Mercado de trabalho & 8 \\
-trab hrs trabalhadas industria & BCB (28556) & Mercado de trabalho & 6 \\
-trab razao vagas desempregados & Calculado & Mercado de trabalho & 8 \\
-price ipca & BCB (433) & Inflação & 0 \\
-price igp m & BCB (189) & Inflação & 0 \\
-price ipc & BCB (191) & Inflação & 0 \\
-price incc & BCB (192) & Inflação & 4 \\
-price inpc & BCB (188) & Inflação & 0 \\
-price ipp & IPEA & Inflação & 0 \\
-indice commodity agro & BCB (27575) & Commodities & 2 \\
-indice commodity metal & BCB (27576) & Commodities & 2 \\
-indice commodity energia & BCB (27577) & Commodities & 2 \\
-trab menos de 1 mes & IBGE/SIDRA & Mercado de trabalho & 10 \\
-trab de 1 mes a menos de 1 ano & IBGE/SIDRA & Mercado de trabalho & 10 \\
-trab de 1 ano a menos de 2 anos & IBGE/SIDRA & Mercado de trabalho & 6 \\
-trab x2 anos ou mais & IBGE/SIDRA & Mercado de trabalho & 10 \\
-asset ibrx100 & B3 & Índices de Mercado & 0 \\
-asset imat & B3 & Índices de Mercado & 0 \\
-asset indx & B3 & Índices de Mercado & 0 \\
-asset ifnc & B3 & Índices de Mercado & 0 \\
-asset ifix & B3 & Índices de Mercado & 0 \\
-asset imob & B3 & Índices de Mercado & 0 \\
-asset MLCX & B3 & Índices de Mercado & 0 \\
-asset smll & B3 & Índices de Mercado & 0 \\
-retorno mensal & ANBIMA (IDA) & Índices de Mercado & 0 \\
+Câmbio USD/BRL & Yahoo Finance & Câmbio & 1 \\
+Câmbio EUR/BRL & Yahoo Finance & Câmbio & 1 \\
+Câmbio CNY/BRL & Yahoo Finance & Câmbio & 1 \\
+Câmbio ARS/BRL & Yahoo Finance & Câmbio & 1 \\
+Câmbio INR/BRL & Yahoo Finance & Câmbio & 1 \\
+Selic (meta acumulada) & BCB (4189) & Juros e curva & 1 \\
+CDI acumulado & BCB (4392) & Juros e curva & 1 \\
+DI 3 meses & Svensson/B3 & Juros e curva & 1 \\
+DI 6 meses & Svensson/B3 & Juros e curva & 1 \\
+DI 1 ano & Svensson/B3 & Juros e curva & 1 \\
+DI 2 anos & Svensson/B3 & Juros e curva & 1 \\
+DI 5 anos & Svensson/B3 & Juros e curva & 1 \\
+DI 10 anos & Svensson/B3 & Juros e curva & 1 \\
+Base monetária & BCB (1788) & Agregados monetários & 4 \\
+Meios de pagamento & BCB (27789) & Agregados monetários & 4 \\
+Depósitos à vista & BCB (27790) & Agregados monetários & 4 \\
+Depósitos de poupança & BCB (1835) & Agregados monetários & 4 \\
+M1 & BCB (27791) & Agregados monetários & 4 \\
+M2 & BCB (27810) & Agregados monetários & 4 \\
+M3 & BCB (27813) & Agregados monetários & 4 \\
+Crédito agropecuário & BCB (22027) & Crédito & 4 \\
+Crédito indústria & BCB (22043) & Crédito & 4 \\
+Crédito construção & BCB (22030) & Crédito & 4 \\
+Crédito comércio & BCB (22036) & Crédito & 4 \\
+Crédito transporte & BCB (22037) & Crédito & 4 \\
+Crédito pessoa física & BCB (22050) & Crédito & 4 \\
+Spread ICC pessoa jurídica & BCB (27444) & Crédito & 1 \\
+Spread ICC pessoa física & BCB (27445) & Crédito & 1 \\
+Saldo de crédito total & BCB (20542) & Crédito & 4 \\
+Recolhimentos compulsórios & BCB (17633) & Crédito & 4 \\
+Consumo de gasolina & BCB (1393) & Atividade econômica & 1 \\
+Consumo de GLP & BCB (1394) & Atividade econômica & 1 \\
+Consumo de óleo combustível & BCB (1395) & Atividade econômica & 1 \\
+Consumo de óleo diesel & BCB (1396) & Atividade econômica & 1 \\
+Consumo de demais derivados & BCB (1397) & Atividade econômica & 1 \\
+Consumo de álcool & BCB (1401) & Atividade econômica & 1 \\
+Utilização da capacidade instalada (CNI) & BCB (28554) & Atividade econômica & 1 \\
+Vendas no varejo & BCB (1455) & Atividade econômica & 1 \\
+Vendas de serviços & BCB (23982) & Atividade econômica & 1 \\
+Produção de automóveis & BCB (7384) & Atividade econômica & 1 \\
+Produção de veículos leves & BCB (7385) & Atividade econômica & 1 \\
+Produção de caminhões & BCB (7386) & Atividade econômica & 1 \\
+Produção de ônibus & BCB (7387) & Atividade econômica & 1 \\
+Produção de bens de consumo & BCB (21865) & Atividade econômica & 1 \\
+Produção de bens duráveis & BCB (21866) & Atividade econômica & 1 \\
+Produção de bens não duráveis & BCB (21867) & Atividade econômica & 1 \\
+Produção de bens de capital & BCB (21863) & Atividade econômica & 1 \\
+Produção da indústria de transformação & BCB (21862) & Atividade econômica & 1 \\
+Produção da indústria extrativa & BCB (21861) & Atividade econômica & 1 \\
+Utilização da capacidade instalada (FGV) & BCB (24352) & Atividade econômica & 1 \\
+Consumo de energia comercial & BCB (1402) & Atividade econômica & 1 \\
+Consumo de energia residencial & BCB (1403) & Atividade econômica & 1 \\
+Consumo de energia industrial & BCB (1404) & Atividade econômica & 1 \\
+Consumo de energia outros & BCB (1405) & Atividade econômica & 1 \\
+PIB acumulado no ano & BCB (4381) & Atividade econômica & 4 \\
+IBC-Br & BCB (24364) & Atividade econômica & 1 \\
+Índice de confiança do consumidor & BCB (4393) & Atividade econômica & 1 \\
+Índice de confiança de serviços & BCB (17660) & Atividade econômica & 1 \\
+Emprego formal Sudeste & BCB (13901) & Mercado de trabalho & 1 \\
+Emprego formal Sul & BCB (13564) & Mercado de trabalho & 1 \\
+Emprego formal Nordeste & BCB (13941) & Mercado de trabalho & 1 \\
+Emprego formal Norte & BCB (28152) & Mercado de trabalho & 1 \\
+Emprego formal Centro-Oeste & BCB (21991) & Mercado de trabalho & 1 \\
+Salário mínimo & BCB (1619) & Mercado de trabalho & 1 \\
+População na força de trabalho & BCB (24378) & Mercado de trabalho & 1 \\
+População ocupada & BCB (28543) & Mercado de trabalho & 1 \\
+Taxa de desemprego & BCB (24369) & Mercado de trabalho & 1 \\
+Horas trabalhadas na indústria & BCB (28556) & Mercado de trabalho & 1 \\
+Tempo de procura: até 1 mês & IBGE/SIDRA (1616) & Mercado de trabalho & 1 \\
+Tempo de procura: 1 mês a 1 ano & IBGE/SIDRA (1616) & Mercado de trabalho & 1 \\
+Tempo de procura: 1 a 2 anos & IBGE/SIDRA (1616) & Mercado de trabalho & 1 \\
+Tempo de procura: 2 anos ou mais & IBGE/SIDRA (1616) & Mercado de trabalho & 1 \\
+IPCA & BCB (433) & Inflação & 1 \\
+IPCA índice de difusão & BCB (21379) & Inflação & 1 \\
+IPCA núcleo EX0 & BCB (29677) & Inflação & 1 \\
+IPCA núcleo EX1 & BCB (29678) & Inflação & 1 \\
+IPCA núcleo médias aparadas & BCB (16122) & Inflação & 1 \\
+IGP-M & BCB (189) & Inflação & 1 \\
+IPC & BCB (191) & Inflação & 1 \\
+IPC núcleo & BCB (4467) & Inflação & 1 \\
+INCC & BCB (192) & Inflação & 1 \\
+INPC & BCB (188) & Inflação & 1 \\
+IPP & IPEA (IPP12\_IPPCG12) & Inflação & 1 \\
+Índice de commodities agropecuária & BCB (27575) & Commodities & 1 \\
+Índice de commodities metal & BCB (27576) & Commodities & 1 \\
+Índice de commodities energia & BCB (27577) & Commodities & 1 \\
+Ibovespa (retorno mensal) & B3 & Índices de mercado & 2 \\
+IDIV (retorno mensal) & B3 & Índices de mercado & 2 \\
+IFIX (retorno mensal) & B3 & Índices de mercado & 2 \\
+IFNC (retorno mensal) & B3 & Índices de mercado & 2 \\
+IMAT (retorno mensal) & B3 & Índices de mercado & 2 \\
+IMOB (retorno mensal) & B3 & Índices de mercado & 2 \\
+MLCX (retorno mensal) & B3 & Índices de mercado & 2 \\
+SMLL (retorno mensal) & B3 & Índices de mercado & 2 \\
+EMBI+ Brasil & JP Morgan & Risco e incerteza & 1 \\
+CDS soberano 5 anos & Investing.com & Risco e incerteza & 1 \\
+MSCI mercados emergentes & Investing.com & Risco e incerteza & 1 \\
+VIX & CBOE & Risco e incerteza & 1 \\
+EPU Brasil & policyuncertainty.com & Risco e incerteza & 1 \\
+EPU Canadá & policyuncertainty.com & Risco e incerteza & 1 \\
+EPU Chile & policyuncertainty.com & Risco e incerteza & 1 \\
+EPU China & policyuncertainty.com & Risco e incerteza & 1 \\
+EPU Alemanha & policyuncertainty.com & Risco e incerteza & 1 \\
+EPU Índia & policyuncertainty.com & Risco e incerteza & 1 \\
+EPU Rússia & policyuncertainty.com & Risco e incerteza & 1 \\
+EPU Estados Unidos & policyuncertainty.com & Risco e incerteza & 1 \\
 
 \end{longtable}
 \end{ThreePartTable}
