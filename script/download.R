@@ -445,7 +445,6 @@ all_dfs <- list(
   inflacao = inflacao,
   breakeven = breakeven,
   commodity = commodity,
-  tempo_procura = resultado_mensal,
   indices = indices,
   risco = risco,
   epu = epu
@@ -457,6 +456,10 @@ all_dfs <- list(
 merged_df <- all_dfs |>
   purrr::reduce(dplyr::left_join, by = "ref.date") |>
   dplyr::arrange(ref.date)
+
+
+# Persistir o painel bruto ----
+readr::write_csv(merged_df, "data/raw_data.csv")
 
 
 

@@ -1,11 +1,15 @@
 rm(list = ls())
 
 source("R/preprocessing/seasonality.R")
-source("R/preprocessing/stationarity.R")
+# source("R/preprocessing/stationarity.R")  # arquivo inexistente, chamada morta (padronização BLL ocorre em factor_estimation.R)
 
 
 # loading data ----
 raw_data <- readr::read_csv("data/raw_data.csv") |> dplyr::filter(ref.date >= "2013-01-01" & ref.date <= "2025-09-01")
+
+# Descarta colunas totalmente vazias na janela (ex.: break-even ANBIMA sem cache rb3),
+# que quebrariam o teste de sazonalidade e o drop_na do DFM.
+raw_data <- raw_data |> dplyr::select(dplyr::where(~ !all(is.na(.))))
 
 # Verificar NAs
 colSums(is.na(raw_data))
@@ -122,6 +126,10 @@ data <- data |>
       ~ data_no_season[[dplyr::cur_column()]]
     )
   )
+
+
+# Persistir o painel log + dessazonalizado ----
+readr::write_csv(data, "data/processed/data_log_deseasonalized.csv")
 
 
 
