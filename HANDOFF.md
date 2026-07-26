@@ -26,7 +26,9 @@ Reorganização do repositório após o abandono da identificação por heteroce
 - 33 arquivos R fazem parse; os 6 módulos vivos carregam sem erro.
 - `main_sdfm(r=7, q=6, nboot=0)` reproduz o ponto de produção: `yield_2y` 0,009164 · `yield_5y` 0,009274 · `asset_ibov` −1,673 · `cambio_usd` 0,1498 · `yield_6m` 0,005 — 5 de 5.
 - Nenhum caminho pendurado em `CLAUDE.md` nem em `estrutura_paper_v2.md`.
-- **Nada foi commitado** — tudo em working tree.
+- **Tudo commitado em 8 commits temáticos e merged em `main` por fast-forward.** As cinco branches locais (todas contidas em `main`, nenhuma divergente) foram apagadas; sobra só `main`.
+- `codigo_olea/` (87 MB, 229 arquivos, commitado por engano no `4f39ad9`) removido da história não-enviada e adicionado ao `.gitignore`. Pack do repositório: **28,5 MB**. Cópia de segurança em `/mnt/storage/Github/Modelo/codigo_olea.bak`, verificada idêntica ao diretório em disco — apagar quando estiver confortável.
+- Smoke test roda limpo em `main`: 5 de 5.
 
 ## Next Steps
 - [ ] **Gate de não-gaussianidade em η** (Jarque-Bera + curtose por fator, ≤1 gaussiana) usando `output/irf/irf_coherence_cell.rds`. Decide a rota LMS/GMR. É o próximo passo natural e é barato.
@@ -34,7 +36,7 @@ Reorganização do repositório após o abandono da identificação por heteroce
 - [ ] Placebo `commodity_metal` violado (+10,4%, CI90 até h4): documentar ou estender a ortogonalização BS com um fator de metais.
 - [ ] Re-rodar a comparação cross-instrumento do IPCA sob (7,6) — sem ela o §5.5 não pode afirmar que a corcova de preços é amostral.
 - [ ] Re-rodar `script/instrument_diagnostics.R` para regenerar o relatório sem a §4 e com 106 séries.
-- [ ] Branch `identificacao-heterocedasticidade` não descreve mais o trabalho: merge para `main` ou rename.
+- [ ] `git push origin main` (13 commits à frente) e `git push origin --delete feature/het-identified-instrument include-instrument` — a sessão não tinha credencial do GitHub.
 
 ## Context
 Três afirmações do §5 antigo **inverteram** na rodada (7,6) e estão documentadas em

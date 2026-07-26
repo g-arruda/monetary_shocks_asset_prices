@@ -146,5 +146,25 @@ O que **continua aberto** no tex, além do §5:
   `irf_mp_pre_tcode` ou acrescentar um campo separado. Não altera output.
 - [ ] **`script/run_all.R`** — orquestrador end-to-end
   (`download → yield_curve → clean → instrument → model_alessi`).
-- [ ] **Branch** — `identificacao-heterocedasticidade` não descreve mais o
-  trabalho. Merge para `main` ou rename.
+- [x] **Branches consolidadas** (2026-07-26). As cinco branches locais eram uma
+  cadeia linear sem divergência; todas foram merged em `main` por fast-forward e
+  apagadas. `codigo_olea/` (87 MB de referência MATLAB, commitado por engano no
+  `4f39ad9`) foi removido da história não-enviada e entrou no `.gitignore`, junto
+  dos três `codigo_*` irmãos.
+
+## Convenção de branches
+
+**`main` é o estado sempre reproduzível** — o smoke test de `CLAUDE.md` tem que
+passar em qualquer commit dela.
+
+- **Uma branch por aposta metodológica que pode ser rejeitada.** Foi o caso da
+  het: se estivesse isolada, teria sido descartada inteira em vez de deixar
+  resíduo espalhado por seis scripts. A próxima é
+  **`identificacao-nao-gaussiana`** (gate em η + ramo
+  `identification = "nongaussian"`).
+- **Escrita vai direto na `main`**, em commits pequenos: §5 para o tex, resumo,
+  introdução, conclusão, revisão de literatura. Não é experimento, não pode
+  "falhar", e só toca `tex/`.
+- **Higiene e re-runs de diagnóstico vão direto na `main`**: `run_all.R`,
+  renomear `irf_mp_raw`, migrar a taxonomia do sweep para ξ_mp, o placebo
+  `commodity_metal`, a comparação cross-instrumento do IPCA.
