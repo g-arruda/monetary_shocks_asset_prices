@@ -109,13 +109,19 @@ O que **continua aberto** no tex, além do §5:
   plausivelmente retém um componente global de commodity/risco. Testar
   ortogonalização estendida com um fator de metais, ou documentar como ressalva
   de exogeneidade. É o caveat mais concreto contra a validade do instrumento.
-- [ ] **Re-rodar a comparação cross-instrumento do IPCA sob (7,6)** — o
-  argumento "a corcova é universal entre instrumentos e some pre-COVID" fecha o
-  diagnóstico do price puzzle, mas foi construído no vintage e instrumento
-  antigos e **não reproduz**. Sem ele, o §5.5 não pode afirmar que a corcova é
-  amostral. Fonte a regenerar: `spec_sweep_irf_long.csv` — **já regenerado em
-  2026-07-26** (320 células, 8 instrumentos, (7,6) incluso) junto com a migração
-  da taxonomia, então este item deixou de estar bloqueado; falta só a análise.
+- [ ] **Comparação cross-instrumento do IPCA sob (7,6)** — *destravado em
+  2026-07-26; falta só a análise.* O argumento "a corcova é universal entre
+  instrumentos e some pre-COVID" fecha o diagnóstico do price puzzle, mas foi
+  construído no vintage e instrumento antigos e não reproduzia. A fonte
+  (`output/irf/spec_sweep_irf_long.csv`) **já foi regenerada** junto com a
+  migração da taxonomia — 320 células, 8 instrumentos, (7,6) e as duas janelas
+  inclusos. Falta rodar a comparação e escrever o resultado; sem ele o §5.5 não
+  pode afirmar que a corcova é amostral. Contexto novo do
+  `irf_coherence_leitura.md`: a corcova vive em **h2-h8** e é o pedaço
+  significativo (`price_ipca` sig90 em h5; `ex0` em h2 e h4-h8; `dw` em h4/h5/h7),
+  **fora** da janela escorada h12-h48 — então o veredito `incoerente` do
+  `price_core_ipca_ex0` é outra coisa (ele nunca volta a negativo no médio
+  prazo), e a comparação tem que olhar h2-h8, não a janela da régua.
 - [ ] **Benchmark GRG (2025) sem a célula het** — a reconciliação do sinal do
   câmbio usava `z_het_3var` × pre-COVID, que saiu do paper. Decidir como
   discutir o desacordo (frequência diária × mensal GE, janela amostral, regime
@@ -139,6 +145,14 @@ O que **continua aberto** no tex, além do §5:
   pelo force-append. A comparação da etapa 2 acaba confundindo escolha de
   instrumento com escolha de janela. Considerar um teto por amostra análogo ao
   `MAX_PER_INSTRUMENT`, ou desempatar por `f_reduced`.
+- [ ] **`R/modeling/svensson_model.R` ficou sem consumidor** (aberto em
+  2026-07-26). Era o motor do `script/yield_curve.R`, apagado na mesma data — a
+  curva do painel é o insumo fixo do orientador (`data/yields/yields_dia.csv`).
+  O `source()` no `download.R` era chamada morta e foi removido; nenhuma das 7
+  funções do módulo é chamada em lugar nenhum. São ~600 linhas de código de
+  modelagem reutilizável, então **não apaguei**. Decidir: apagar, mover para
+  `arquivo/` (convenção do repo para código não executado e não citado pelo
+  paper), ou manter como utilitário. Ver `historico_decisoes.md` §4.
 - [x] **Taxonomia do `irf_spec_sweep.R` migrada para ξ_mp** (2026-07-26).
   `classify_sweep_cells` agora classifica por `wald_mp` com os limiares MOSW
   (`weak_xi_mp_severe` < 3,84 — conjunto AR ilimitado; `weak_xi_mp` < 10), e as
