@@ -180,7 +180,10 @@ evaluate_sweep_cell <- function(dfm, data_sub, dates_sub, inst_df,
   cell <- data.frame(
     mp_var          = mp_var,
     n_obs_align     = diag_fs$n_obs,
-    f_factor        = diag_fs$f_factor,
+    wald_mp         = diag_fs$wald_mp,      # xi_mp — MOSW decision ruler
+    wald_joint      = diag_fs$wald_joint,   # T * Gamma' W^-1 Gamma ~ chi2_q
+    wald_min        = diag_fs$wald_min,     # weakest per-factor xi_k
+    f_factor        = diag_fs$f_factor,     # legacy max-F, kept for continuity
     f_reduced       = fs$F_partial,
     fs_beta         = fs$beta,
     fs_n            = fs$n,
@@ -208,14 +211,30 @@ evaluate_sweep_cell <- function(dfm, data_sub, dates_sub, inst_df,
 
 #' Classify sweep cells into a failure taxonomy
 #'
+#' The ruler is `wald_mp` — the Montiel Olea-Stock-Watson Wald in the
+#' mp-variable impact direction (xi_mp), computed with the Shat correction in
+#' `diagnose_instrument_in_factor_space`. Thresholds are MOSW's, not
+#' Stock-Yogo's: the 95% Anderson-Rubin set is a bounded interval iff
+#' xi_mp > 3.84 = `qchisq(0.95, 1)`, and conventional bands are approximately
+#' valid from xi_mp >= 10. The legacy homoskedastic max-F (`f_factor`) is still
+#' reported per cell but no longer classifies — under it the production
+#' instrument `z_jk_bs_purif` never reached `ok` (6.31 at (7,6) full against
+#' xi_mp 10.43), while `z_jk_purif` had the mirror image (11.08 / 5.77).
+#'
 #' Mutually exclusive classes, first match wins:
 #' `estimation_failed` / `no_variation_in_window` (set upstream) →
 #' `negative_control` (juros_selic, documented F < 2) →
-#' `weak_factor_space` (F factor-space < 10; the weak-IV sign-inversion class) →
-#' `unstable_normalization` (F ok but |impact_mp_pre| under 10% of the
+#' `weak_xi_mp_severe` (xi_mp < 3.84; AR set unbounded) →
+#' `weak_xi_mp` (xi_mp < 10; conventional bands not valid) →
+#' `unstable_normalization` (strength ok but |impact_mp_pre| under 10% of the
 #' sample x mp_var group median → denominator of the impact normalization
 #' near zero → exploding magnitudes) →
-#' `sign_puzzle` (F ok, denominator ok, hard signs still wrong) → `ok`.
+#' `sign_puzzle` (strength ok, denominator ok, hard signs still wrong) → `ok`.
+#'
+#' Note that `evaluate_sweep_cell` calls the diagnostic with the cell's own
+#' `mpind`, so `wald_mp` is the Wald in *that cell's* normalization direction.
+#' It therefore matches `output/instrument/mosw_strength_grid.csv` only on the
+#' `mp_var == "yield_6m"` rows, where the grid fixes MP_VAR.
 #'
 #' @param cells Data.frame of bound cell rows (must have `failure_class`
 #'   pre-filled for mechanical failures, NA otherwise).
@@ -235,9 +254,9 @@ classify_sweep_cells <- function(cells) {
       failure_class = dplyr::case_when(
         !is.na(failure_class)            ~ failure_class,
         mp_var == "juros_selic"          ~ "negative_control",
-        is.na(f_factor)                  ~ "estimation_failed",
-        f_factor < 5                     ~ "weak_factor_space_severe",
-        f_factor < 10                    ~ "weak_factor_space",
+        is.na(wald_mp)                   ~ "estimation_failed",
+        wald_mp < 3.84                   ~ "weak_xi_mp_severe",
+        wald_mp < 10                     ~ "weak_xi_mp",
         denom_ratio < 0.10               ~ "unstable_normalization",
         score_hard < n_hard_avail        ~ "sign_puzzle",
         TRUE                             ~ "ok"

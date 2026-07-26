@@ -3,9 +3,11 @@
 # the winning cells of stage 1 (script/irf_spec_sweep.R).
 # Selection: eligible cells (failure_class == "ok") with mp_var fixed at
 # yield_6m for comparability with the paper's normalization, ranked by
-# hard-sign score, extended score and F (factor-space), capped at 2 cells
-# per instrument, TOP_N total; the current baseline (full, r=7, q=6,
-# z_jk_purif, yield_6m) is force-appended if not selected.
+# hard-sign score, extended score and xi_mp (MOSW), capped at 2 cells
+# per instrument, TOP_N total; the production baseline (full, r=7, q=6,
+# z_jk_bs_purif, yield_6m) is force-appended if not selected. Since the
+# stage-1 taxonomy migrated from f_factor to xi_mp (2026-07-26) the baseline
+# qualifies on its own, so the force-append is a safety net, not a workaround.
 # Outputs: output/irf/irf_spec_<tag>.rds/.pdf, irf_spec_stage2_overlay.pdf,
 #          spec_sweep_stage2.md
 # ===================================================================
@@ -77,18 +79,21 @@ cells <- read_csv(file.path(OUT_DIR, "spec_sweep_cells.csv"),
 winners <- cells |>
   filter(failure_class == "ok", mp_var == STAGE2_MP) |>
   mutate(score_hard_frac = score_hard / n_hard_avail) |>
-  arrange(desc(score_hard_frac), desc(score_ext), desc(f_factor)) |>
+  arrange(desc(score_hard_frac), desc(score_ext), desc(wald_mp)) |>
   group_by(instrument) |>
   slice_head(n = MAX_PER_INSTRUMENT) |>
   ungroup() |>
-  arrange(desc(score_hard_frac), desc(score_ext), desc(f_factor)) |>
+  arrange(desc(score_hard_frac), desc(score_ext), desc(wald_mp)) |>
   slice_head(n = TOP_N) |>
   select(sample, r, q, instrument, mp_var)
 
 already_in <- nrow(semi_join(BASELINE, winners,
                              by = c("sample", "r", "q", "instrument", "mp_var"))) > 0
 if (!already_in) {
+  cat("[!] Baseline de produção NAO foi selecionado pela etapa 1 — force-append.\n")
   winners <- bind_rows(winners, BASELINE)
+} else {
+  cat("[ok] Baseline de produção selecionado pela própria etapa 1 (sem force-append).\n")
 }
 winners <- winners |>
   mutate(tag = sprintf("%s_r%dq%d_%s", sample, r, q, instrument),

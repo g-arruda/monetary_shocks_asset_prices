@@ -6,6 +6,13 @@
 > e (7,6) — os números aqui não batem com eles. Duas afirmações caíram: "pre-COVID (6,5) é o pico do
 > grid" e "sempre que F ≥ 10 os sinais saem coerentes". Leituras correntes em
 > `output/irf/irf_section.md`; histórico em `_instrucoes/historico_decisoes.md` §3 e §6.
+>
+> **Adendo 2026-07-26 — a régua mudou.** O `spec_sweep_report.md` companheiro agora
+> classifica `failure_class` por **ξ_mp** (limiares MOSW 3,84 e 10), não pela max-F
+> homocedástica. Toda discussão de elegibilidade neste corpo — inclusive as células
+> chamadas de "fortes" por F ≥ 10 — está na régua antiga. Sob ξ_mp são 23 células
+> `ok` em `yield_6m`, e o instrumento de produção `z_jk_bs_purif` passou a ser uma
+> delas em (7,6) full (ξ_mp 10,43 contra f_factor 6,31).
 
 
 Consolida `spec_sweep_report.md` (Etapa 1, 320 células ponto-estimativa) e

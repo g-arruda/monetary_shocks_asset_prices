@@ -1,9 +1,11 @@
 # ===================================================================
 # Stage 1 of the IRF specification sweep: point-estimate IRFs (no
 # bootstrap) over instrument x mp_var x (r,q) x sample window.
-# For each cell records F (factor-space), F (reduced-form AR6), impact
-# sign/magnitude and shape of the key responses, scores them against
-# theory-consistent signs, and classifies failures.
+# For each cell records the MOSW Wald block (xi_mp, joint), the legacy
+# F (factor-space), F (reduced-form AR6), impact sign/magnitude and shape
+# of the key responses, scores them against theory-consistent signs, and
+# classifies failures. The taxonomy classifies on xi_mp (MOSW); f_factor is
+# reported but no longer decides — migrated 2026-07-26.
 # DFMs are cached: one estimate_dfm per (sample, r, q) — instrument and
 # mp_var only enter the cheap projection step.
 # Outputs: output/irf/spec_sweep_cells.csv, spec_sweep_irf_long.csv,
@@ -169,22 +171,26 @@ cat(sprintf("\nWrote %d cell rows and %d response rows\n",
 eligible <- cells |>
   filter(failure_class == "ok") |>
   mutate(score_hard_frac = score_hard / n_hard_avail) |>
-  arrange(desc(score_hard_frac), desc(score_ext), desc(f_factor))
+  arrange(desc(score_hard_frac), desc(score_ext), desc(wald_mp))
 
 top10 <- eligible |>
   slice_head(n = 10) |>
-  select(sample, r, q, instrument, mp_var, f_factor, f_reduced,
+  select(sample, r, q, instrument, mp_var, wald_mp, f_factor, f_reduced,
          score_hard, n_hard_avail, score_ext, fx_channel, risk_channel,
          yield_ordering_ok, h0_ibov, h0_cambio)
 
-heat_tables <- lapply(names(SAMPLES), function(s) {
+heat_of <- function(s, metric) {
   cells |>
     filter(sample == s, mp_var == "yield_6m") |>
     mutate(rq = sprintf("r%d_q%d", r, q)) |>
-    select(instrument, rq, f_factor) |>
-    pivot_wider(names_from = rq, values_from = f_factor)
-})
-names(heat_tables) <- names(SAMPLES)
+    select(instrument, rq, dplyr::all_of(metric)) |>
+    pivot_wider(names_from = rq, values_from = dplyr::all_of(metric))
+}
+
+heat_tables    <- lapply(names(SAMPLES), heat_of, metric = "wald_mp")
+heat_tables_f  <- lapply(names(SAMPLES), heat_of, metric = "f_factor")
+names(heat_tables)   <- names(SAMPLES)
+names(heat_tables_f) <- names(SAMPLES)
 
 taxonomy <- cells |>
   count(sample, failure_class) |>
@@ -200,8 +206,8 @@ channels <- eligible |>
   count(fx_channel, risk_channel)
 
 baseline_cmp <- cells |>
-  filter(instrument == "z_jk_purif", mp_var == "yield_6m") |>
-  select(sample, r, q, f_factor, f_reduced, impact_mp_pre, denom_ratio,
+  filter(instrument == "z_jk_bs_purif", mp_var == "yield_6m") |>
+  select(sample, r, q, wald_mp, f_factor, f_reduced, impact_mp_pre, denom_ratio,
          score_hard, n_hard_avail, score_ext, fx_channel, failure_class) |>
   arrange(sample, r, q)
 
@@ -215,29 +221,40 @@ report <- c(
           length(SAMPLES), length(RQ_GRID), length(VARIANTS), length(MP_VARS),
           nrow(cells), P_LAGS, H_SWEEP, SHOCK_BPS),
   "",
-  "Sem bootstrap (`nboot = 0`): apenas sinais, magnitudes e F de primeiro estágio.",
+  "Sem bootstrap (`nboot = 0`): apenas sinais, magnitudes e força de primeiro estágio.",
   "A Etapa 2 (`script/irf_spec_stage2.R`) roda bootstrap completo nas células vencedoras.",
   "",
   "## Critérios",
   "",
+  "- **Régua de força: ξ_mp** (Montiel Olea-Stock-Watson), o Wald na direção do",
+  "  impacto da mp_var, com correção Shat. Conjunto AR limitado sse ξ_mp > 3,84;",
+  "  bandas convencionais aproximadamente válidas a partir de ξ_mp ≥ 10.",
+  "  A max-F homocedástica legada (`f_factor`) continua reportada para",
+  "  continuidade com a varredura de 2026-07-11, mas **não classifica mais**",
+  "  (migração de 2026-07-26): sob ela o instrumento de produção nunca era",
+  "  elegível — em (7,6) full `z_jk_bs_purif` tem f_factor 6,31 contra ξ_mp 10,43,",
+  "  e `z_jk_purif` tem o espelho, 11,08 contra 5,77.",
   "- **score_hard** (h=0): yield_6m +, yield_2y +, yield_5y +, asset_ibov −;",
   "  a própria mp_var é excluída do score (impacto mecânico pela normalização).",
   "- **score_ext** (h=24): price_ipca −, pib −, vendas_varejo −.",
   "- **soft** (registrado, não penalizado): cambio_usd, cds_5y, embi_perc —",
   "  depreciação + abertura de risco = canal de dominância fiscal (ver irf_section.md).",
   "- **Taxonomia de falha** (primeira que casa): `negative_control` (juros_selic),",
-  "  `weak_factor_space[_severe]` (F factor-space < 10 / < 5),",
+  "  `weak_xi_mp_severe` (ξ_mp < 3,84 — conjunto AR ilimitado),",
+  "  `weak_xi_mp` (ξ_mp < 10 — bandas convencionais inválidas),",
   "  `unstable_normalization` (denominador da normalização < 10% da mediana do grupo),",
-  "  `sign_puzzle` (F ok mas sinais hard errados), `ok`.",
+  "  `sign_puzzle` (força ok mas sinais hard errados), `ok`.",
   "",
   "## Top-10 células elegíveis (failure_class = ok)",
   "",
   if (nrow(top10) > 0) md_table(top10) else "*Nenhuma célula elegível.*",
   "",
-  "## F (factor-space) por instrumento x (r,q)",
+  "## ξ_mp por instrumento x (r,q) — régua de decisão",
   "",
-  "F não depende da mp_var (só das inovações fatoriais e do instrumento);",
-  "tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.",
+  "Ao contrário da max-F, ξ_mp **depende** da mp_var (é o Wald na direção do",
+  "impacto dela); as tabelas abaixo saem das células com mp_var = yield_6m e",
+  "por isso são comparáveis a `output/instrument/mosw_strength_grid.csv`.",
+  "Limiares MOSW: 3,84 (AR limitado) e 10 (bandas convencionais).",
   "",
   "### Amostra full",
   "",
@@ -246,6 +263,20 @@ report <- c(
   "### Amostra pre_covid (2013-2019)",
   "",
   md_table(heat_tables$pre_covid),
+  "",
+  "## F (factor-space) por instrumento x (r,q) — régua legada",
+  "",
+  "Max-F homocedástica entre as q regressões fatoriais. Mantida só para",
+  "comparabilidade com a varredura de 2026-07-11; **não classifica**. F não",
+  "depende da mp_var, então uma tabela por amostra basta.",
+  "",
+  "### Amostra full",
+  "",
+  md_table(heat_tables_f$full),
+  "",
+  "### Amostra pre_covid (2013-2019)",
+  "",
+  md_table(heat_tables_f$pre_covid),
   "",
   "## Taxonomia de falhas",
   "",
@@ -263,7 +294,11 @@ report <- c(
   "",
   if (nrow(channels) > 0) md_table(channels) else "*Nenhuma célula elegível.*",
   "",
-  "## z_jk_purif x yield_6m através do grid (decisão r=7,q=6 vs r=5,q=4 do HANDOFF)",
+  "## Instrumento de produção (z_jk_bs_purif x yield_6m) através do grid",
+  "",
+  paste0("`z_jk_bs_purif` é o `DEFAULT_VARIANT` desde 2026-07-15 e a produção é ",
+         "(r=7, q=6) desde 2026-07-24. As duas colunas de força mostram por que a ",
+         "régua importa: as células são elegíveis por ξ_mp, não por f_factor."),
   "",
   md_table(baseline_cmp),
   ""

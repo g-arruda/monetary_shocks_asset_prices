@@ -1,43 +1,86 @@
 # Varredura de especificações IRF — Etapa 1 (ponto-estimativa)
 
-Gerado por `script/irf_spec_sweep.R` em 2026-07-24.
+Gerado por `script/irf_spec_sweep.R` em 2026-07-26.
 
-Grid: 2 amostras x 4 combinações (r,q) x 12 instrumentos x 5 variáveis de política = 480 células; p = 6, h = 24, choque = 50bp.
+Grid: 2 amostras x 4 combinações (r,q) x 8 instrumentos x 5 variáveis de política = 320 células; p = 6, h = 24, choque = 50bp.
 
-Sem bootstrap (`nboot = 0`): apenas sinais, magnitudes e F de primeiro estágio.
+Sem bootstrap (`nboot = 0`): apenas sinais, magnitudes e força de primeiro estágio.
 A Etapa 2 (`script/irf_spec_stage2.R`) roda bootstrap completo nas células vencedoras.
 
 ## Critérios
 
+- **Régua de força: ξ_mp** (Montiel Olea-Stock-Watson), o Wald na direção do
+  impacto da mp_var, com correção Shat. Conjunto AR limitado sse ξ_mp > 3,84;
+  bandas convencionais aproximadamente válidas a partir de ξ_mp ≥ 10.
+  A max-F homocedástica legada (`f_factor`) continua reportada para
+  continuidade com a varredura de 2026-07-11, mas **não classifica mais**
+  (migração de 2026-07-26): sob ela o instrumento de produção nunca era
+  elegível — em (7,6) full `z_jk_bs_purif` tem f_factor 6,31 contra ξ_mp 10,43,
+  e `z_jk_purif` tem o espelho, 11,08 contra 5,77.
 - **score_hard** (h=0): yield_6m +, yield_2y +, yield_5y +, asset_ibov −;
   a própria mp_var é excluída do score (impacto mecânico pela normalização).
 - **score_ext** (h=24): price_ipca −, pib −, vendas_varejo −.
 - **soft** (registrado, não penalizado): cambio_usd, cds_5y, embi_perc —
   depreciação + abertura de risco = canal de dominância fiscal (ver irf_section.md).
 - **Taxonomia de falha** (primeira que casa): `negative_control` (juros_selic),
-  `weak_factor_space[_severe]` (F factor-space < 10 / < 5),
+  `weak_xi_mp_severe` (ξ_mp < 3,84 — conjunto AR ilimitado),
+  `weak_xi_mp` (ξ_mp < 10 — bandas convencionais inválidas),
   `unstable_normalization` (denominador da normalização < 10% da mediana do grupo),
-  `sign_puzzle` (F ok mas sinais hard errados), `ok`.
+  `sign_puzzle` (força ok mas sinais hard errados), `ok`.
 
 ## Top-10 células elegíveis (failure_class = ok)
 
-| sample | r | q | instrument | mp_var | f_factor | f_reduced | score_hard | n_hard_avail | score_ext | fx_channel | risk_channel | yield_ordering_ok | h0_ibov | h0_cambio |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| full |     6 |     5 | z_jk_purif | yield_3m | 12.84 | 4.288 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -17.3 | 0.4501 |
-| full |     6 |     5 | z_jk_purif | yield_6m | 12.84 | 11.33 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -8.923 | 0.2321 |
-| full |     6 |     5 | z_jk_purif | yield_1y | 12.84 | 11.32 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -5.609 | 0.1459 |
-| full |     6 |     5 | z_jk_purif | yield_2y | 12.84 | 14.48 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -4.122 | 0.1072 |
-| full |     7 |     6 | z_jk_purif | yield_3m | 11.08 | 4.288 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -16.83 | 0.4799 |
-| full |     7 |     6 | z_jk_purif | yield_6m | 11.08 | 11.33 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -8.702 | 0.2481 |
-| full |     7 |     6 | z_jk_purif | yield_1y | 11.08 | 11.32 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -5.486 | 0.1564 |
-| full |     7 |     6 | z_jk_purif | yield_2y | 11.08 | 14.48 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -4.007 | 0.1143 |
-| full |     6 |     5 | z_jk | yield_3m |  10.9 | 5.219 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -14.31 | 0.4218 |
-| full |     6 |     5 | z_jk | yield_6m |  10.9 | 13.36 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -7.541 | 0.2223 |
+| sample | r | q | instrument | mp_var | wald_mp | f_factor | f_reduced | score_hard | n_hard_avail | score_ext | fx_channel | risk_channel | yield_ordering_ok | h0_ibov | h0_cambio |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pre_covid |     7 |     6 | z_bruto_purif | yield_3m | 17.97 | 6.018 | 69.75 |     4 |     4 |     3 | apreciacao | fiscal_dominance | TRUE | -2.245 | -0.02025 |
+| pre_covid |     7 |     6 | z_bruto_purif | yield_6m | 17.67 | 6.018 | 40.97 |     3 |     3 |     3 | apreciacao | fiscal_dominance | TRUE | -2.055 | -0.01853 |
+| pre_covid |     7 |     6 | z_bruto | yield_3m | 17.27 |  5.95 | 67.35 |     4 |     4 |     3 | apreciacao | fiscal_dominance | TRUE | -2.262 | -0.02178 |
+| pre_covid |     7 |     6 | z_bruto | yield_6m | 17.02 |  5.95 | 39.96 |     3 |     3 |     3 | apreciacao | fiscal_dominance | TRUE | -2.068 | -0.01991 |
+| pre_covid |     7 |     6 | z_bs_purif | yield_3m | 16.76 | 5.039 | 56.35 |     4 |     4 |     3 | apreciacao | fiscal_dominance | TRUE | -2.49 | -0.03119 |
+| pre_covid |     7 |     6 | z_bs_purif | yield_6m | 16.14 | 5.039 | 33.95 |     3 |     3 |     3 | apreciacao | fiscal_dominance | TRUE | -2.284 | -0.02861 |
+| pre_covid |     7 |     6 | z_bruto_purif | yield_1y | 14.13 | 6.018 | 15.55 |     4 |     4 |     3 | apreciacao | fiscal_dominance | TRUE | -2.077 | -0.01873 |
+| pre_covid |     7 |     6 | z_jk_purif | yield_1y | 13.94 | 7.389 | 16.59 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -7.959 | 0.05731 |
+| pre_covid |     7 |     6 | z_jk_purif | yield_6m | 13.68 | 7.389 | 31.33 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -9.133 | 0.06576 |
+| pre_covid |     7 |     6 | z_bruto | yield_1y | 13.68 |  5.95 |  15.5 |     4 |     4 |     3 | apreciacao | fiscal_dominance | TRUE | -2.091 | -0.02013 |
 
-## F (factor-space) por instrumento x (r,q)
+## ξ_mp por instrumento x (r,q) — régua de decisão
 
-F não depende da mp_var (só das inovações fatoriais e do instrumento);
-tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
+Ao contrário da max-F, ξ_mp **depende** da mp_var (é o Wald na direção do
+impacto dela); as tabelas abaixo saem das células com mp_var = yield_6m e
+por isso são comparáveis a `output/instrument/mosw_strength_grid.csv`.
+Limiares MOSW: 3,84 (AR limitado) e 10 (bandas convencionais).
+
+### Amostra full
+
+| instrument | r5_q4 | r6_q5 | r7_q6 | r8_q8 |
+|---|---|---|---|---|
+| z_bruto | 3.911 | 4.611 | 7.574 | 6.756 |
+| z_bruto_purif | 3.703 | 4.053 | 6.621 | 5.752 |
+| z_jk |  5.52 | 5.888 | 6.302 | 5.187 |
+| z_jk_purif | 5.416 | 5.525 | 5.773 | 4.702 |
+| z_jk_raw_purif | 5.017 | 6.356 | 10.39 | 12.19 |
+| z_jk_raw | 5.494 | 6.711 | 10.55 | 12.28 |
+| z_bs_purif | 3.374 | 3.638 | 6.106 | 4.832 |
+| z_jk_bs_purif | 5.445 | 6.356 | 10.43 | 12.57 |
+
+### Amostra pre_covid (2013-2019)
+
+| instrument | r5_q4 | r6_q5 | r7_q6 | r8_q8 |
+|---|---|---|---|---|
+| z_bruto | 7.948 | 10.68 | 17.02 | 12.21 |
+| z_bruto_purif | 8.426 | 11.23 | 17.67 | 12.01 |
+| z_jk |  10.7 | 12.16 | 12.84 | 6.695 |
+| z_jk_purif |  11.2 | 12.68 | 13.68 | 6.526 |
+| z_jk_raw_purif | 7.727 | 9.414 |  11.1 | 8.543 |
+| z_jk_raw | 7.509 | 9.305 | 10.45 | 8.455 |
+| z_bs_purif | 8.209 | 10.77 | 16.14 | 10.86 |
+| z_jk_bs_purif | 7.945 |    11 | 12.22 | 8.986 |
+
+## F (factor-space) por instrumento x (r,q) — régua legada
+
+Max-F homocedástica entre as q regressões fatoriais. Mantida só para
+comparabilidade com a varredura de 2026-07-11; **não classifica**. F não
+depende da mp_var, então uma tabela por amostra basta.
 
 ### Amostra full
 
@@ -51,10 +94,6 @@ tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
 | z_jk_raw | 5.855 | 9.395 | 6.506 | 3.885 |
 | z_bs_purif | 6.969 | 5.466 | 4.548 | 2.804 |
 | z_jk_bs_purif |  5.52 | 8.648 | 6.313 | 3.995 |
-| z_het | 3.864 | 2.855 | 2.709 | 2.567 |
-| z_het_jk | 6.145 | 8.903 | 6.159 | 3.129 |
-| z_het_3var | 2.358 | 1.574 | 1.348 | 3.677 |
-| z_het_jk_3var | 2.131 | 4.547 | 2.899 | 4.069 |
 
 ### Amostra pre_covid (2013-2019)
 
@@ -68,20 +107,16 @@ tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
 | z_jk_raw | 3.725 | 3.525 |  3.24 | 2.978 |
 | z_bs_purif | 4.933 | 5.416 | 5.039 | 5.099 |
 | z_jk_bs_purif | 3.826 | 3.742 | 3.093 | 2.075 |
-| z_het | 2.712 | 1.051 | 4.933 | 4.954 |
-| z_het_jk | 4.081 | 1.375 | 4.194 | 1.557 |
-| z_het_3var | 6.141 | 3.555 | 10.36 | 5.918 |
-| z_het_jk_3var | 6.186 | 2.947 | 4.328 | 2.428 |
 
 ## Taxonomia de falhas
 
 | failure_class | full | pre_covid |
 |---|---|---|
-| negative_control |    48 |    48 |
-| ok |    16 |     0 |
-| weak_factor_space |    92 |    64 |
-| weak_factor_space_severe |    84 |   124 |
-| sign_puzzle |     0 |     4 |
+| negative_control |    32 |    32 |
+| ok |    21 |    47 |
+| weak_xi_mp |    94 |    68 |
+| weak_xi_mp_severe |    13 |    11 |
+| sign_puzzle |     0 |     2 |
 
 ## Controle negativo (juros_selic)
 
@@ -89,24 +124,27 @@ tabelas extraídas das células com mp_var = yield_6m. Limiar Stock-Yogo ~ 10.
 
 | n | f_reduced_max | f_reduced_median |
 |---|---|---|
-|    96 |  2.49 | 0.4411 |
+|    64 | 2.296 | 0.903 |
 
 ## Canais cambial e de risco nas células elegíveis
 
 | fx_channel | risk_channel | n |
 |---|---|---|
-| depreciacao | fiscal_dominance |    16 |
+| apreciacao | fiscal_dominance |    10 |
+| depreciacao | fiscal_dominance |    58 |
 
-## z_jk_purif x yield_6m através do grid (decisão r=7,q=6 vs r=5,q=4 do HANDOFF)
+## Instrumento de produção (z_jk_bs_purif x yield_6m) através do grid
 
-| sample | r | q | f_factor | f_reduced | impact_mp_pre | denom_ratio | score_hard | n_hard_avail | score_ext | fx_channel | failure_class |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| full |     5 |     4 | 11.67 | 11.33 | 5.484e-05 | 0.7668 |     3 |     3 |     1 | depreciacao | ok |
-| full |     6 |     5 | 12.84 | 11.33 | 7.088e-05 | 0.9911 |     3 |     3 |     3 | depreciacao | ok |
-| full |     7 |     6 | 11.08 | 11.33 | 6.48e-05 | 0.9061 |     3 |     3 |     3 | depreciacao | ok |
-| full |     8 |     8 |  9.95 | 11.33 | 5.841e-05 | 0.8168 |     3 |     3 |     3 | depreciacao | weak_factor_space |
-| pre_covid |     5 |     4 |  7.64 | 31.33 | 7.697e-05 | 1.422 |     3 |     3 |     3 | depreciacao | weak_factor_space |
-| pre_covid |     6 |     5 | 6.678 | 31.33 | 6.805e-05 | 1.258 |     3 |     3 |     3 | depreciacao | weak_factor_space |
-| pre_covid |     7 |     6 | 7.389 | 31.33 | 6.797e-05 | 1.256 |     3 |     3 |     3 | depreciacao | weak_factor_space |
-| pre_covid |     8 |     8 | 4.207 | 31.33 | 2.993e-05 | 0.553 |     3 |     3 |     0 | depreciacao | weak_factor_space_severe |
+`z_jk_bs_purif` é o `DEFAULT_VARIANT` desde 2026-07-15 e a produção é (r=7, q=6) desde 2026-07-24. As duas colunas de força mostram por que a régua importa: as células são elegíveis por ξ_mp, não por f_factor.
+
+| sample | r | q | wald_mp | f_factor | f_reduced | impact_mp_pre | denom_ratio | score_hard | n_hard_avail | score_ext | fx_channel | failure_class |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| full |     5 |     4 | 5.445 |  5.52 | 25.03 | 5.961e-05 | 1.041 |     3 |     3 |     1 | depreciacao | weak_xi_mp |
+| full |     6 |     5 | 6.356 | 8.648 | 25.03 | 7.938e-05 | 1.386 |     3 |     3 |     3 | depreciacao | weak_xi_mp |
+| full |     7 |     6 | 10.43 | 6.313 | 25.03 | 8.636e-05 | 1.508 |     3 |     3 |     3 | depreciacao | ok |
+| full |     8 |     8 | 12.57 | 3.995 | 25.03 | 9.376e-05 | 1.637 |     3 |     3 |     3 | depreciacao | ok |
+| pre_covid |     5 |     4 | 7.945 | 3.826 | 42.09 | 5.531e-05 | 1.147 |     3 |     3 |     3 | depreciacao | weak_xi_mp |
+| pre_covid |     6 |     5 |    11 | 3.742 | 42.09 | 5.15e-05 | 1.068 |     3 |     3 |     3 | depreciacao | ok |
+| pre_covid |     7 |     6 | 12.22 | 3.093 | 42.09 | 5.221e-05 | 1.083 |     3 |     3 |     3 | depreciacao | ok |
+| pre_covid |     8 |     8 | 8.986 | 2.075 | 42.09 | 3.22e-05 | 0.6677 |     3 |     3 |     2 | depreciacao | weak_xi_mp |
 
