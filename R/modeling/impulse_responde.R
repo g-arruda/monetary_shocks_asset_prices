@@ -58,8 +58,10 @@ sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
 #' @param var_names Optional column names for printing the impact vector when
 #'   `diagnose` is TRUE.
 #'
-#' @return List with `irf_mp` (transformed IRFs), `irf_mp_raw` (pre-tcode IRFs),
-#'   and `H` (factor-space loadings).
+#' @return List with `irf_mp` (normalized + tcode-transformed IRFs),
+#'   `irf_mp_pre_tcode` (normalized but before `cumimp_transform`; the
+#'   normalization at line 122 happens before this field is filled, so it is
+#'   not a raw IRF), and `H` (factor-space loadings).
 ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
                             mpind = NULL, normalize_value = 0.5,
                             tcode = NULL, diagnose = FALSE,
@@ -124,7 +126,7 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
 
   irf_mp_transformed <- cumimp_transform(irf_mp, tcode)
 
-  list(irf_mp = irf_mp_transformed, irf_mp_raw = irf_mp, H = H)
+  list(irf_mp = irf_mp_transformed, irf_mp_pre_tcode = irf_mp, H = H)
 }
 
 
