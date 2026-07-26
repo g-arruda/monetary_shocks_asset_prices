@@ -1,6 +1,10 @@
 # Coerência ponto a ponto das IRFs — especificação de produção
 
-Gerado por `script/irf_coherence_check.R` em 2026-07-24.
+Gerado por `script/irf_coherence_check.R` em 2026-07-26.
+
+> **Arquivo gerado — sobrescrito por inteiro a cada rodada.** Não escreva
+> prosa aqui: ela se perde no próximo run. A leitura interpretativa vive em
+> [`irf_coherence_leitura.md`](irf_coherence_leitura.md), que nenhum script toca.
 
 Especificação: `z_jk_bs_purif` x `yield_6m`, r=7, q=6, p=6, full sample, choque +50bp, wild bootstrap nboot=800 (seed 123), bandas 68/90, h=0..48.
 

@@ -5,7 +5,13 @@
 # is checked for sign and CI68/CI90 significance against the theory
 # window defined in R/identification/irf_coherence.R.
 # Outputs: output/irf/irf_coherence_h.csv, irf_coherence_summary.csv,
-#          irf_coherence_report.md, irf_coherence_plots.pdf
+#          irf_coherence_report.md, irf_coherence_plots.pdf,
+#          irf_coherence_cell.rds
+# NOT an output: output/irf/irf_coherence_leitura.md — the interpretive
+# reading lives there precisely because irf_coherence_report.md is
+# rewritten in full on every run (that is how ~95 lines of hand-written
+# prose were lost in commit fc0ef58 on 2026-07-26). Never write prose into
+# the report; write it into the sibling.
 # ===================================================================
 
 rm(list = ls())
@@ -145,6 +151,10 @@ report <- c(
   "# Coerência ponto a ponto das IRFs — especificação de produção",
   "",
   sprintf("Gerado por `script/irf_coherence_check.R` em %s.", format(Sys.Date())),
+  "",
+  "> **Arquivo gerado — sobrescrito por inteiro a cada rodada.** Não escreva",
+  "> prosa aqui: ela se perde no próximo run. A leitura interpretativa vive em",
+  "> [`irf_coherence_leitura.md`](irf_coherence_leitura.md), que nenhum script toca.",
   "",
   sprintf(paste0("Especificação: `%s` x `%s`, r=%d, q=%d, p=%d, full sample, ",
                  "choque +%dbp, wild bootstrap nboot=%d (seed %d), bandas 68/90, h=0..%d."),
