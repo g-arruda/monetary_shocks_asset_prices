@@ -114,6 +114,28 @@ alinhada entre misturas de gaussianas e Student-t. E a A.5 morde como o artigo
 diz — com q secantes hiperbólicas idênticas, 58 de 60 partidas empatam no mesmo
 valor do critério (§2.2: se as `g_i` são iguais e pares, todo `P(Ĉ)` é máximo).
 
+### 0.7 A causa: a agregação do DFM destrói a não-gaussianidade
+
+| objeto | n | % rejeita JB (5%) | curtose mediana |
+|---|---:|---:|---:|
+| séries do painel (1ª dif.) | 106 | **88,7** | 6,67 |
+| resíduos do VAR de fatores | 7 | 71,4 | 5,77 |
+| `eta` (inovações dinâmicas) | 6 | **50,0** | 4,50 |
+
+Gradiente monótono: **o `eta` mensal é o objeto mais gaussiano do pipeline.**
+Agregação temporal (choque diário somado dentro do mês → TCL) e transversal
+(combinação linear de 106 séries). O ICA precisa do que o DFM elimina.
+
+**Não tente contornar com `q` menor.** A não-gaussianidade concentra-se em
+`eta_1-3`, mas o Amengual-Watson em r = 7 dá **q̂ = 8** (critério −1,358 em q = 3
+contra −1,398 no mínimo). Reduzir q para o gate passar é specification shopping.
+
+Isto também explica §1.2 (het rejeitada neste painel): het e não-gaussianidade
+exploram os **mesmos momentos de ordem superior**. Qualquer método futuro que
+identifique por momentos de ordem > 2 nas inovações **mensais** do DFM vai bater
+na mesma parede. Métodos que precisam disso devem rodar em frequência diária,
+sobre observáveis, não sobre `eta`.
+
 ---
 
 ## 1. Identificação por heterocedasticidade — abandonada em duas frentes

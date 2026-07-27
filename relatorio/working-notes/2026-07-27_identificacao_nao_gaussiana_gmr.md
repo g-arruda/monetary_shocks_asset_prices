@@ -122,6 +122,41 @@ especificação da densidade). A secante hiperbólica entra como **contra-exempl
 deliberado**: com q densidades idênticas e pares, 58 de 60 partidas empatam no
 mesmo valor, exatamente como o §2.2 do artigo prevê.
 
+## Por que falhou: a agregação do DFM destrói a matéria-prima
+
+Medido, não conjecturado. Jarque-Bera ao longo do pipeline:
+
+| objeto | n | % rejeita normalidade (5%) | curtose mediana |
+|---|---:|---:|---:|
+| séries do painel (1ª diferença) | 106 | **88,7** | 6,67 |
+| resíduos do VAR de fatores (`u`) | 7 | 71,4 | 5,77 |
+| `eta` (inovações dinâmicas) | 6 | **50,0** | 4,50 |
+
+O gradiente é monótono: **o `eta` mensal é o objeto mais gaussiano do pipeline
+inteiro.** Duas agregações fazem isso:
+
+- **Temporal** — o choque é diário (surpresa de DI em dia de Copom); somar
+  dentro do mês empurra para a normal pelo TCL e mata a assimetria que a A.5
+  exige.
+- **Transversal** — fatores dinâmicos são combinações lineares de 106 séries.
+  Média de 106 séries é mecanicamente mais gaussiana que qualquer uma delas.
+
+O ICA precisa exatamente do que a construção do DFM elimina. Não é falha de
+implementação nem de amostra: é incompatibilidade estrutural entre o método e o
+objeto.
+
+**A saída barata está fechada.** A ideia óbvia seria rodar com `q` menor, já que
+a não-gaussianidade se concentra em `eta_1-3`. Mas o Amengual-Watson em r = 7 dá
+**q̂ = 8**, com o critério em q = 3 valendo −1,358 contra −1,398 no mínimo — a
+AW quer *mais* fatores dinâmicos, não menos. Escolher q = 3 para o gate passar
+seria *specification shopping* e um referee veria.
+
+**Padrão maior:** a identificação por heterocedasticidade já falhou neste mesmo
+painel (§1 do `historico_decisoes.md`). Het e não-gaussianidade extraem
+identificação dos **mesmos momentos de ordem superior**. Duas falhas pelo mesmo
+motivo não são azar — são propriedade do painel, e a tabela acima é o número que
+explica as duas.
+
 ## Recomendação de enquadramento
 
 O autor decidiu em 2026-07-27 tratar a rota como **identificação de manchete**,
