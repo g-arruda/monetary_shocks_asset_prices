@@ -107,7 +107,8 @@ trabalho do projeto, em qualquer dos cinco.
 - **Papel:** idêntico ao #1 (identifica independente, rotula pelo proxy). É o **par de
   robustez** de #1: LMS = ML paramétrico (chuta densidade); GMR = pseudo-ML (imune ao chute).
   Reportar os dois blinda a rota não-gaussiana contra a hipótese distribucional.
-- **Código:** `svars::id.dc` / `id.cvm` (R nativo). MC do paper mostra boa aproximação já
+- **Código:** ver o Adendo 3 — o estimador do artigo está em **`IdSS`**, pacote do próprio
+  Renne (`estim.SVAR.ICA`), não em `svars`. MC do paper mostra boa aproximação já
   em T=200 (o projeto tem 147, na mesma ordem).
 - **Veredito:** **integrável, frequentista, mesmo papel de robustez que #1. Tier 1.**
 
@@ -211,7 +212,8 @@ ou Braun-Brüggemann) como apêndice que blinda contra a crítica weak-IV. Não 
 
 | Artigo | Pacote público | Linguagem | Faz o mapeamento de fatores? |
 |--------|----------------|-----------|------------------------------|
-| LMS 2017 / GMR 2017 | **`svars`** (`id.ngml`, `id.dc`, `id.cvm`) — CRAN + github.com/alexanderlange53/svars | **R (nativo!)** | Não — mas roda sobre um objeto VAR (`vars`/`tsDyn`), então basta alimentar o VAR de fatores |
+| **GMR 2017** | **`IdSS`** — github.com/jrenne/IdSS, pacote **do próprio autor** (`estim.SVAR.ICA` = o PML do artigo; `make.Asympt.Cov.delta` = a cov. assintótica da Prop. 4, insumo do Wald da §2.5) | **R (nativo!)** | Não — roda sobre resíduos, então basta alimentar η |
+| LMS 2017 | **`svars`** (`id.ngml`) — CRAN + github.com/alexanderlange53/svars | **R (nativo!)** | Não — mas roda sobre um objeto VAR (`vars`/`tsDyn`), então basta alimentar o VAR de fatores |
 | Braun-Brüggemann | replicação JBES 2023 / BoE (toolbox ARRW 2018) | MATLAB | Não |
 | Caldara-Herbst | AEA/openICPSR (sampler BP-SVAR) | MATLAB | Não |
 | Antolín-Díaz-RR | AEA/openICPSR (toolbox ARRW/RWZ) | MATLAB | Não |
@@ -220,9 +222,10 @@ ou Braun-Brüggemann) como apêndice que blinda contra a crítica weak-IV. Não 
 implementação do *estimador* — real e valioso, sobretudo para os três bayesianos, cujo
 sampler é a parte cara. Mas **em todos os cinco** ainda sobra (a) a **adaptação ao espaço de
 fatores** (alimentar η/z e propagar por Λ), que nenhum pacote faz, e (b) para os bayesianos
-o **porte MATLAB→R**. Por isso a rota **LMS/GMR domina em custo**: `svars` é **R**, a mesma
-linguagem do projeto, e opera sobre um objeto VAR — basta passar o VAR de fatores e um passo
-de rotulagem pelo proxy (correlação com `z`), que é trivial e não está no pacote.
+o **porte MATLAB→R**. Por isso a rota **LMS/GMR domina em custo**: `svars` e `IdSS` são **R**,
+a mesma linguagem do projeto, e operam sobre resíduos / um objeto VAR — basta passar as
+inovações fatoriais e um passo de rotulagem pelo proxy (correlação com `z`), que é trivial e
+não está em nenhum dos dois. Ver o Adendo 3 sobre o `IdSS`.
 
 ---
 
@@ -381,7 +384,165 @@ fatores. Isso rebaixa a conveniência do ACF frente à rota não-gaussiana (`sva
 | Diagnóstico de força do proxy (zero-censored) | **ACF (2024)** pré-teste bootstrap (sem viés de pré-teste) — *sem código público* |
 | Bandas robustas a IV fraco (k=1) | MOSW AR (já no pipeline) / grid MBB AR |
 | Driblar o proxy fraco de vez | **ACF (2024)** indirect-MD via choque não-alvo forte — *sem código público* |
-| Corroboração independente do choque | **LMS/GMR** ICA não-gaussiana (`svars`, R — pronto) |
+| Corroboração independente do choque | **LMS/GMR** ICA não-gaussiana (`svars` + `IdSS`, R — pronto) |
 
 Nenhum exige virar bayesiano. Todos precisam da mesma adaptação a espaço de fatores
 (identificar nas q inovações, propagar via Λ) que os ramos `proxy`/`het` já implementam.
+
+---
+
+## Adendo 3 (2026-07-26) — o código do GMR é do próprio autor: pacote `IdSS`
+
+Corrige a tabela de disponibilidade de código da §5 e a ficha do #2, que apontavam
+`svars::id.dc`/`id.cvm` como implementação do GMR (2017). **Não são.**
+
+- **`IdSS`** — <https://github.com/jrenne/IdSS>, `devtools::install_github("jrenne/IdSS")`.
+  v0.1.0, Kenza Benhima & Jean-Paul Renne, licença MIT, depende só de `vars` + `stats`.
+  É o material de apoio do livro *Identification of Structural Shocks*, capítulo
+  não-gaussiano: <https://jrenne.github.io/IdentifStructShocks/NonGaussian.html>.
+- **`estim.SVAR.ICA()`** é o PML do artigo (roda sobre resíduos padronizados, com as
+  pseudo-densidades passadas pelo usuário). **`make.Asympt.Cov.delta()`** devolve a
+  covariância assintótica da Prop. 4 — que é o insumo direto do Wald da §2.5. Ou seja:
+  **o teste da restrição do proxy vem junto com o estimador**, não precisa ser derivado.
+  Também exporta `make.M` / `make.C` / `make.Omega` (parametrização da ortogonal),
+  `do.permut` / `do.signs` (a indeterminação de permutação e sinal do ICA),
+  `nonparam.bootstrap` / `param.bootstrap` / `bootstrap.after.bootstrap`.
+- **Sobre `svar.iv` e `make.LPIV.irf` (conferido no fonte, `R/various_proc_LP.R`):** *não*
+  servem como conferência do ramo proxy. Ambas consomem **observáveis `Y`, não `eta`** —
+  passar os 7 fatores ancoraria a normalização no primeiro fator, que não tem sentido
+  econômico, e deixaria de fora a propagação por Λ e o +50bp em `yield_6m`. Além disso o
+  bootstrap do `svar.iv` é **paramétrico gaussiano**, incomparável com o wild bootstrap
+  Gonçalves-Kilian de produção. O que se sustenta é o `make.LPIV.irf`, mas por outro
+  motivo: é um **estimador diferente da mesma identificação** (nenhuma dependência de
+  `p = 6` nem da inversão do polinômio autorregressivo) e roda nativamente em observáveis,
+  dispensando a adaptação a fatores. Seria robustez à especificação dinâmica — escopo
+  novo, subseção própria, fora desta rota. Ressalva: continua dependendo de
+  `z_jk_bs_purif` ser relevante e exógeno, então não responde ao ξ_mp no limiar nem ao
+  placebo `commodity_metal`.
+- **Atribuição correta:** `svars::id.ngml` = LMS (2017); `svars::id.dc` = Matteson-Tsay
+  (2017); `svars::id.cvm` = Herwartz-Plödt. Os dois últimos são ICA baseada em
+  dependência — mesmo espírito semiparamétrico do GMR, **não** o PML do artigo. Citá-los
+  como "GMR" no paper seria erro de citação.
+
+**Efeito no ranking:** reforça o Tier 1. A rota não-gaussiana agora tem os **dois**
+estimadores do par de robustez disponíveis em R, um deles escrito pelo autor do artigo,
+com a assintótica do teste já implementada. O `nonparam.bootstrap` do `IdSS` também
+resolve um problema que o wild bootstrap de produção tem nesta rota: o Rademacher
+(`±1`) preserva a curtose mas **zera os momentos ímpares**, destruindo a assimetria de
+que o ICA extrai identificação — o ramo novo precisa de bootstrap iid de resíduos, como
+em LMS §5.2 (percentil de Hall), não do Gonçalves-Kilian.
+
+---
+
+## Adendo 4 (2026-07-27) — LMS vs. GMR cabeça a cabeça: robustez, custo de
+## implementação e venue (ANPEC vs. SBE)
+
+Pergunta do usuário: dentro do par não-gaussiano (Tier 1), qual dos dois é
+metodologicamente mais robusto, qual é mais difícil de encaixar no framework, e para
+qual dos dois congressos brasileiros (ANPEC / SBE) o paper tem mais cara. Releitura das
+notas por artigo (`…_notes.md` de cada um, já existentes) + inspeção do **código-fonte
+real** dos dois pacotes (baixado `svars` do CRAN, clonado `IdSS` do GitHub) para
+verificar a alegação de custo de implementação — a nota da §5/Adendo 3 dizia
+genericamente que o GMR "roda sobre resíduos"; o código mostra que não é bem isso.
+
+### (a) Robustez metodológica: **GMR domina LMS**
+
+Os dois compartilham a mesma identificação estatística (Comon 1994 / Ilmonen-Paindaveine:
+choques independentes, ≤ 1 gaussiano ⇒ B identificado). A diferença é o **estimador**:
+
+- **LMS** = ML paramétrico puro. Exige **escolher a família de densidade certa** por
+  componente (t-Student, ν próprio por equação, estimado por ML). Eficiente **se** a
+  família estiver certa; nada garante isso a priori, e o artigo não oferece um teste de
+  especificação da densidade.
+- **GMR** generaliza LMS explicitamente. É **pseudo-ML semi-paramétrico**: a Prop. 3
+  prova que a rotação C fica **consistente mesmo com a densidade errada** (as condições
+  de primeira ordem zeram no valor verdadeiro só por independência, não por acertar a
+  densidade). O Corolário 1 mostra que ICA por curtose/cumulantes brutos é **subótima**,
+  sobretudo perto da gaussiana — não é para maximizar curtose crua.
+
+**Por que isso pesa no painel do projeto:** os 6 fatores atravessam a COVID, então é
+plausível que ao menos um tenha um choque de cauda pesada e possivelmente **bimodal**
+(regime pré/pós-pandemia), não uma t-Student simétrica limpa. O `IdSS` do GMR já expõe
+pseudo-densidades `"mixt.gaussian"` (confirmado no código, `various_proc_ICA.R:203-216`,
+junto com `"student"`, `"gaussian"`, `"laplace"`, `"hyper.sec"`) para exatamente esse
+caso; o `svars::id.ngml` do LMS está travado em t-Student. **GMR é a aposta
+metodologicamente mais segura** — LMS só ganha em eficiência *se* a t-Student estiver
+certa.
+
+### (b) Custo de implementação: **LMS é mais difícil** (achado novo, não estava na §5)
+
+Checagem no código-fonte das duas APIs públicas:
+
+- **`svars::id.ngml(x, stage3, restriction_matrix)`** — `x` precisa ser um objeto de
+  classe `varest`/`nlVar`/`vec2var`. A função interna `get_var_objects()` chama
+  `residuals(x)`, `coef(x)`, `vars::Bcoef(x)` via despacho S3. O VAR de fatores do
+  projeto **não** vem do pacote `vars` — vem do código BLL-padronizado próprio em
+  `factor_estimation.R`. Para usar a API pública seria preciso **reajustar o VAR(6) dos
+  fatores em paralelo via `vars::VAR()`** (estimação-espelho redundante, risco de
+  divergência numérica frente à OLS própria do projeto) **ou** entrar no interno não
+  exportado `identifyNGML()` (aceita `u`/`Sigma_hat`/`k`/`Tob` soltos sem o objeto
+  `varest` — funciona, mas é função interna, não documentada, sujeita a quebrar entre
+  versões do pacote).
+- **`IdSS::estim.SVAR.ICA(endog.var, distri, p)`** — aceita uma **matriz T×q crua** de
+  níveis + a ordem de defasagem `p`, e por dentro roda sua própria OLS
+  equação-por-equação (`various_proc_ICA.R:66-70`) — exatamente a convenção "ponto
+  estimado por OLS pura" que o projeto já usa (`DFMest_BLL.m` / `factor_estimation.R:759`).
+  Basta passar os níveis dos 7 fatores e `p=6`; nenhuma classe S3 exigida. **Correção à
+  §5/Adendo 3:** a função **não** consome `eta` pré-computado diretamente — ela
+  redescobre os resíduos reduzidos internamente a partir dos níveis. Isso não é um
+  problema (o refit deveria reproduzir a mesma `eta` do VAR de fatores do projeto, já
+  que ambos são OLS equação-por-equação simples), mas é uma descrição mais precisa do
+  que "roda sobre resíduos".
+
+Bônus que a §5/Adendo 3 já registrava e a leitura do código confirma:
+`IdSS::make.Asympt.Cov.delta()` devolve de graça a covariância assintótica da Prop. 4 —
+o teste de Wald da restrição do proxy (§2.5 do GMR) **vem embutido no estimador**. O
+`svars::id.ngml` devolve erros-padrão via Hessiana observada (`Fish`, `B_stand_SE`), mas
+não um helper equivalente para "coluna identificada ≈ coluna do proxy" — essa peça
+teria que ser montada à mão a partir da Hessiana.
+
+**Conclusão (a)+(b):** GMR não é só mais robusto, é também o mais barato de acoplar —
+não é trade-off, é dominância nos dois critérios. Recomendação: **GMR como robustez
+primária** (testar 2-3 famílias de pseudo-densidade, incluindo `mixt.gaussian`); **LMS
+como checagem confirmatória secundária** (se a coluna bater, é evidência de que a
+t-Student não fazia diferença; se não bater, aponta para má especificação de densidade —
+algo que a robustez teórica do GMR já preveniria).
+
+### (c) Venue — ANPEC ou SBE?
+
+(Assumindo SBE = Sociedade Brasileira de Econometria / Encontro Brasileiro de
+Econometria — a leitura abaixo depende dessa leitura da sigla.)
+
+O núcleo do paper é uma **história sobre a economia brasileira** — dominância fiscal,
+compressão de spread de crédito, price puzzle full-sample vs. pré-COVID, reação de
+câmbio/IBOV a um choque de política monetária identificado por instrumento de alta
+frequência. A maquinaria econométrica (DFM, proxy-SVAR, MOSW, wild bootstrap, e agora a
+camada não-gaussiana) é **emprestada e adaptada** da fronteira internacional, não é uma
+contribuição de teoria econométrica nova. É o perfil que a Área 4 (Macro/Monetária) e a
+Área 8 (Financeira) da ANPEC recompensam: identificação de ponta aplicada com cuidado a
+uma pergunta institucional brasileira específica.
+
+SBE/EBE calibra a régua para papers cuja contribuição **principal** é o método em si —
+um estimador novo, um resultado assintótico novo. A camada não-gaussiana aqui é
+robustez, não o produto principal; reforça a credibilidade do resultado aplicado sem
+reposicionar o paper como um paper de métodos.
+
+**Veredito: ANPEC** é o venue de melhor encaixe. Efeito colateral favorável: acoplar o
+GMR **fortalece** o caso ANPEC, porque preempta a objeção óbvia de parecerista sobre
+ξ_mp raspando o limiar (10,43) sem exigir reescrever o paper como paper de métodos. Se um
+dia a rota não-gaussiana virar objeto de estudo autônomo (ex.: "testar restrições de
+proxy via ICA não-gaussiano em modelo de fatores" como contribuição per se), aí sim seria
+material de SBE — não é o caso do `irf_section.md` atual.
+
+### Direcionamento final
+
+1. Gate de não-gaussianidade em η (JB/curtose por fator, (7,6)) continua o passo zero —
+   já listado em `_instrucoes/pendencias.md`.
+2. Implementar `identification = "nongaussian"` com **GMR (`IdSS::estim.SVAR.ICA`)** como
+   estimador primário, nos níveis dos 7 fatores com `p=6`.
+3. Rodar **LMS (`svars::id.ngml`)** como checagem confirmatória — via `vars::VAR()`
+   espelhando o VAR de fatores (rota pública, mais robusta a longo prazo que depender de
+   `identifyNGML()` não exportado).
+4. Rotular a coluna monetária por correlação com `z_jk_bs_purif`; reportar o teste de
+   Wald da restrição do proxy via `make.Asympt.Cov.delta` (GMR).
+5. Mirar **ANPEC** (Área 4 ou 8) como venue principal.
