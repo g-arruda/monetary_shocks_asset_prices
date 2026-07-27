@@ -1,3 +1,14 @@
+> **PARCIALMENTE SUPERADA (revisto em 2026-07-27).** O corpo da nota e os
+> Adendos 1-3 continuam válidos: o toolkit ACF (2024) segue aberto e intocado, e
+> a identificação do `IdSS` como código de referência do GMR está certa — **com a
+> correção de que o pacote está quebrado para n ≥ 4** e teve de ser traduzido
+> (`historico_decisoes.md` §0.1). O que **caiu** é a recomendação do **Adendo 4**:
+> o GMR foi implementado em 07-27 e **não tem poder neste painel** (bandas contêm
+> zero em tudo; CI90 da bolsa [−49, +81]). "GMR domina LMS" continua verdadeiro
+> como propriedade teórica — e foi confirmado empiricamente (colunas 0,916
+> alinhadas entre famílias de densidade) —, mas não sustenta adotá-lo como
+> estimativa. Ver `2026-07-27_identificacao_nao_gaussiana_gmr.md`.
+
 # Avaliação dos 5 artigos de identificação — dá para integrar ao framework e reforçar a robustez?
 
 **Data:** 2026-07-24 · **Autor da nota:** revisão de leitura (skill `split-pdf-md`, notas
