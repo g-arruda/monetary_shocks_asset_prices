@@ -254,7 +254,7 @@ A primeira camada mede a surpresa como a variação do DI futuro no vértice de 
 
 A segunda camada remove o componente previsível da surpresa. \citeonline{bauer2023} mostram que surpresas de alta frequência são correlacionadas com informação pública anterior ao anúncio, porque o mercado subestima a resposta do banco central às notícias. Uma surpresa previsível viola a exogeneidade do instrumento. Seguindo o desenho dos autores, a surpresa é regredida sobre preditores medidos até o fechamento da quarta-feira: uma tendência temporal, as variações acumuladas em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent, do câmbio BRL/USD e da inclinação da curva de DI (2 anos menos 3 meses), e as revisões em 20 pregões das medianas da pesquisa Focus para o IPCA acumulado em 12 meses e para a Selic no fim do ano seguinte. O resíduo dessa regressão é a surpresa ortogonalizada. O $R^2$ é $0{,}024$, na faixa esperada. \citeonline{bauer2023} obtêm entre $0{,}12$ e $0{,}20$ incluindo surpresas de divulgações macroeconômicas que não existem em frequência diária para o Brasil, e um $R^2$ alto indicaria vazamento de informação contemporânea na regressão. A exigência de que todos os preditores sejam predeterminados disciplina a especificação. Variáveis domésticas contemporâneas à janela do anúncio respondem ao próprio choque e enviesariam o resíduo. Variáveis predeterminadas, domésticas ou não, são informação disponível antes da decisão, exatamente o que a correção de \citeonline{bauer2023} usa.
 
-A terceira camada separa o choque de política monetária do choque de informação do banco central. \citeonline{jarocinski2020} distinguem os dois pelo sinal do co-movimento entre a surpresa de juros e a do mercado de ações no mesmo dia. Juros em alta com ações em queda indicam um choque de política. Juros e ações em alta juntos indicam que o comunicado revelou informação favorável sobre a economia. O filtro classifica cada reunião pelo co-movimento dos resíduos ortogonalizados da surpresa de DI e do retorno do Ibovespa, mantém os dias de co-movimento negativo e zera os demais. Das 95 reuniões, 62 são classificadas como choque de política e 33, ou $34{,}7\%$, como informação, proporção próxima do terço que os autores encontram para o Fed. Como os preditores da segunda camada são predeterminados, a classificação preserva o co-movimento observado no dia do anúncio, em vez de depender de resíduos construídos com informação da própria janela. Essa é a variante fiel às duas metodologias de origem, a ortogonalização por preditores predeterminados de \citeonline{bauer2023} e a regra de sinal com agregação mensal por soma de \citeonline{jarocinski2020}. A única diferença em relação ao filtro literal de \citeonline{jarocinski2020}, que classifica e agrega a surpresa bruta, é o uso dos resíduos predeterminados no lugar dela, sem efeito prático sobre a classificação pela razão acima. %Máscaras construídas sobre a surpresa bruta ou sobre resíduos contemporâneos da própria janela ficam como verificações de robustez. A série mensal resultante é o instrumento primário do trabalho.
+A terceira camada separa o choque de política monetária do choque de informação do banco central. \citeonline{jarocinski2020} distinguem os dois pelo sinal do co-movimento entre a surpresa de juros e a do mercado de ações no mesmo dia. Juros em alta com ações em queda indicam um choque de política. Juros e ações em alta juntos indicam que o comunicado revelou informação favorável sobre a economia. O filtro classifica cada reunião pelo co-movimento dos resíduos ortogonalizados da surpresa de DI e do retorno do Ibovespa, mantém os dias de co-movimento negativo e zera os demais. Das 95 reuniões, 62 são classificadas como choque de política e 33, ou $34{,}7\%$, como informação, proporção próxima do terço que os autores encontram para o Fed. Como os preditores da segunda camada são predeterminados, a classificação preserva o co-movimento observado no dia do anúncio, em vez de depender de resíduos construídos com informação da própria janela. Essa é a variante fiel às duas metodologias de origem, a ortogonalização por preditores predeterminados de \citeonline{bauer2023} e a regra de sinal com agregação mensal por soma de \citeonline{jarocinski2020}. A única diferença em relação ao filtro literal de \citeonline{jarocinski2020}, que classifica e agrega a surpresa bruta, é o uso dos resíduos predeterminados no lugar dela, sem efeito prático sobre a classificação pela razão acima. 
 
 \subsection{Seleção de $(r, q)$ e estimação}
 
@@ -292,97 +292,28 @@ Os fatores estáticos são extraídos por componentes principais sobre o conjunt
 
 A validade da inferência no proxy-SVAR depende da força do instrumento \cite{montielolea}. Com instrumento fraco, o estimador de impacto é uma razão de normais correlacionadas, com viés na direção da identificação recursiva e cobertura incorreta das bandas. A alternativa nesse caso são os intervalos de Anderson-Rubin, válidos sob qualquer força do primeiro estágio.
 
-O diagnóstico que governa essa projeção é a estatística $\xi_{mp}$ da \autoref{tab:rq_sweep}, a Wald de \citeonline{montielolea} na direção da normalização. Ela projeta o primeiro estágio na combinação das inovações fatoriais que determina o impacto sobre o yield de 6 meses, com erros padrão de Eicker-White e com o instrumento residualizado nas defasagens do VAR dos fatores. O conjunto de Anderson-Rubin de 95\% é um intervalo limitado se e somente se $\xi_{mp} > 3{,}84$. %A implementação reproduz os números que \citeonline{montielolea} publicam para a aplicação ao choque de petróleo de Kilian, com Wald individual de $4{,}4$ e F robusta de $9{,}4$ na convenção HC1, conferida contra o código oficial dos autores.
+O diagnóstico que governa essa projeção é a estatística $\xi_{mp}$ da \autoref{tab:rq_sweep}, a Wald de \citeonline{montielolea} na direção da normalização. Ela projeta o primeiro estágio na combinação das inovações fatoriais que determina o impacto sobre o yield de 6 meses, com erros padrão de Eicker-White e com o instrumento residualizado nas defasagens do VAR dos fatores. O conjunto de Anderson-Rubin de 95\% é um intervalo limitado se e somente se $\xi_{mp} > 3{,}84$.
 
-Na especificação de produção, $\xi_{mp}$ vale $10{,}43$ na amostra completa e $12{,}22$ na janela pré-COVID, acima do limiar de $10$ nas duas. As bandas convencionais são adequadas em ambas as janelas e o conjunto de Anderson-Rubin é um intervalo limitado. A forma-F da Wald conjunta sobre as $q$ inovações fatoriais permanece baixa, $2{,}33$ e $2{,}70$, o padrão esperado sob exogeneidade, com a relevância concentrada na direção do choque de política e não espalhada pelo espaço dos fatores. %Forma-F baixa com $\xi_{mp}$ alto é o padrão esperado sob exogeneidade: a relevância se concentra na direção do choque de política, não espalhada pelo espaço dos fatores. O contraste entre as janelas repete o resultado da \autoref{tab:rq_sweep}. As observações a partir de 2020 adicionam ruído ao primeiro estágio, não informação.
-
-% \subsection{Identificação por heterocedasticidade nas inovações}
-
-% Uma alternativa ao instrumento externo identifica a coluna de política de $H$ diretamente de uma mudança de regime na variância das inovações fatoriais $\eta_t$, sem instrumento \cite{rigobon2003, STOCK2016415}. A ideia é que, se a variância do choque de política sobe em um regime conhecido e a dos demais choques não, a diferença de covariância entre regimes tem posto um e seu autovetor líder é a direção do choque de política. Testamos essa estratégia em dois esquemas de regime sobre as inovações do VAR dos fatores. Nenhum identifica o choque monetário nesta frequência, e as duas subseções seguintes reportam os testes.
-
-% A condição de posto exige que a covariância das inovações não seja proporcional entre regimes, $\Sigma_C \neq a\,\Sigma_{NC}$ \cite{rigobon2003}. Sob proporcionalidade a heterocedasticidade re-escala o sistema inteiro e não identifica direção alguma. O teste formal é a razão de verossimilhança de proporcionalidade de \citeonline{rigobon2003}. Um placebo complementa o gate. Permutar os rótulos de regime destrói a informação de calendário e preserva a distribuição de $\eta_t$, de modo que o salto de variância estimado nos rótulos verdadeiros deve superar o dos rótulos permutados para haver sinal identificador.
-
-% O primeiro esquema define os regimes pelo calendário do Copom, meses com reunião contra meses sem. A \autoref{tab:het_calendar} reporta as oito células de dimensão e janela com defasagem seis. A razão de variância na direção estimada fica entre $2{,}0$ e $3{,}3$, com intervalo de confiança acima de um, mas é artefato da própria estimação da direção, que escolhe o autovetor que maximiza a diferença entre os grupos. O placebo de permutação não distingue os rótulos verdadeiros dos permutados em quinze das dezesseis células do grid completo, com $p$ acima de $0{,}28$ e uma única exceção marginal que ainda assim não rejeita a proporcionalidade, e a razão de verossimilhança de proporcionalidade nunca rejeita $\Sigma_C \propto \Sigma_{NC}$. A homocedasticidade dos choques não monetários não é rejeitada nas células reportadas, o produto cruzado que testaria heterocedasticidade em pares de choques não rejeita em nenhuma célula, e nenhuma variável global exibe salto de variância próprio. O componente comum do yield de 6 meses é bem explicado, com $R^2$ entre $0{,}76$ e $0{,}97$, então o problema não é o espaço dos fatores.
-
-% \begin{table}[H]
-% \centering
-% \caption{Viabilidade da identificação por heterocedasticidade, regimes de calendário}
-% \label{tab:het_calendar}
-% \begin{threeparttable}
-% \begin{tabular}{l c c c c c c}
-% \toprule
-% Amostra & $(r,q)$ & $n_C/n_{NC}$ & Razão [IC 99\%] & $p_{\text{perm}}$ & $p_{\text{prop}}$ & Força \\
-% \midrule
-% Completa  & $(5,4)$ & 98/49 & 2,32 [1,45;\, 5,14] & 0,36 & 0,10 & fraco \\
-% Completa  & $(6,5)$ & 98/49 & 2,41 [1,87;\, 5,20] & 0,49 & 0,37 & fraco \\
-% Completa  & $(7,6)$ & 98/49 & 2,87 [2,18;\, 6,12] & 0,30 & 0,36 & fraco \\
-% Completa  & $(8,8)$ & 98/49 & 2,00 [1,71;\, 4,45] & 0,29 & 0,56 & fraco \\
-% \midrule
-% Pré-COVID & $(5,4)$ & 52/26 & 2,64 [1,94;\, 8,46] & 0,32 & 0,66 & fraco \\
-% Pré-COVID & $(6,5)$ & 52/26 & 3,32 [2,20;\, 11,33] & 0,31 & 0,76 & fraco \\
-% Pré-COVID & $(7,6)$ & 52/26 & 2,74 [2,39;\, 9,05] & 0,71 & 0,93 & fraco \\
-% Pré-COVID & $(8,8)$ & 52/26 & 2,27 [2,03;\, 6,30] & 0,29 & 0,45 & fraco \\
-% \bottomrule
-% \end{tabular}
-% \begin{tablenotes}[flushleft]
-% \footnotesize
-% \item Regimes definidos pelo calendário do Copom, $n_C$ meses com reunião e $n_{NC}$ sem, com defasagem seis no VAR dos fatores. Razão é a razão de variância na direção estimada do choque de política, com intervalo de confiança de 99\% por bootstrap. $p_{\text{perm}}$: $p$-valor do placebo por permutação dos rótulos de regime. $p_{\text{prop}}$: $p$-valor da razão de verossimilhança de proporcionalidade de \citeonline{rigobon2003}, hipótese nula $\Sigma_C \propto \Sigma_{NC}$. Veredito: triagem de instrumento fraco. Amostra completa 2013--2025, pré-COVID 2013--2019.
-% \end{tablenotes}
-% \end{threeparttable}
-% \end{table}
-
-% O segundo esquema substitui o calendário por episódios de volatilidade plurianuais, pré-2020 contra 2020 em diante, à maneira de \citeonline{brunnermeier2021}. A \autoref{tab:het_episode} mostra o mesmo diagnóstico. A proporcionalidade entre episódios nunca rejeita ao nível de 5\%, e o placebo por rotação circular das fronteiras confirma que a partição pré-2020 e pós-2020 não é especial. Os autovalores generalizados são estatisticamente indistinguíveis, com gap relativo mínimo entre $0{,}06$ e $0{,}19$, de modo que a matriz de impacto não seria identificada ponto a ponto mesmo se a condição de posto passasse. A coluna que mais carrega no yield de 6 meses, candidata a choque de política, tem variância relativa $\lambda \approx 1$ entre os episódios, ou seja, é justamente a direção que não muda de variância. As direções que mudam não têm assinatura de política monetária, e a correlação descritiva do choque candidato com as surpresas de Copom fica entre $0{,}17$ e $0{,}30$.
-
-% \begin{table}[H]
-% \centering
-% \caption{Viabilidade da identificação por heterocedasticidade, regimes de episódio}
-% \label{tab:het_episode}
-% \begin{threeparttable}
-% \begin{tabular}{c c c c c c}
-% \toprule
-% $(r,q)$ & $p_{\text{prop}}$ & $p_{\text{rot}}$ & Gap mín.\ [IC] & $\lambda_{\text{cand}}$ & Cor.\ Copom \\
-% \midrule
-% $(5,4)$ & 0,67 & 0,91 & 0,19 [0,06;\, 0,43] & 1,32 & 0,18 \\
-% $(6,5)$ & 0,24 & 0,45 & 0,19 [0,04;\, 0,38] & 1,14 & 0,28 \\
-% $(7,6)$ & 0,09 & 0,11 & 0,12 [0,04;\, 0,32] & 1,01 & 0,30 \\
-% $(8,8)$ & 0,10 & 0,12 & 0,06 [0,03;\, 0,25] & 0,95 & 0,17 \\
-% \bottomrule
-% \end{tabular}
-% \begin{tablenotes}[flushleft]
-% \footnotesize
-% \item Episódios pré-2020 e 2020 em diante nas inovações do VAR dos fatores. $p_{\text{prop}}$: $p$-valor bootstrap da razão de verossimilhança de proporcionalidade entre episódios. $p_{\text{rot}}$: placebo por rotação circular das fronteiras dos episódios. Gap mín.: menor gap relativo entre autovalores generalizados adjacentes, com intervalo de confiança por bootstrap. $\lambda_{\text{cand}}$: variância relativa 2020+ contra pré-2020 do choque candidato, a coluna com maior impacto no yield de 6 meses. Cor.\ Copom: correlação descritiva do choque candidato com as surpresas mensais de Copom.
-% \end{tablenotes}
-% \end{threeparttable}
-% \end{table}
-
-% A rotina foi validada por simulação. Sob um processo gerador com salto de variância de posto um verdadeiro o estimador recupera a matriz de impacto, então a reprovação vem dos dados, não do código. A leitura econômica é que a elevação de variância do choque de política é um fenômeno de dia de anúncio. Na agregação mensal ela dilui em cerca de 21 pregões e vaza para os meses vizinhos sem reunião, o que apaga o salto de variância que identificaria a direção. Em \citeonline{brunnermeier2021} a identificação funciona porque as variâncias relativas dos choques mudam entre episódios, o que não ocorre neste conjunto de séries mensais. Por isso a identificação de produção segue o instrumento externo descrito acima, e a heterocedasticidade fica registrada como alternativa testada e inviável nesta frequência.
-
-% \section{Resultados}
-
-% A \autoref{fig:irf_resultados} apresenta as funções de impulso-resposta para um conjunto de variáveis financeiras após o choque de política monetária contracionista. O impacto sobre o mercado de ações (IBRx-100) e sobre o mercado de dívida corporativa (IDA) é imediato e negativo, refletindo o canal do preço dos ativos. O efeito é particularmente pronunciado sobre as ações de empresas do segmento imobiliário (IMob).
-
-% No mercado cambial, a função de impulso-resposta indica uma forte sensibilidade da taxa USD/BRL, que se aprecia aproximadamente 8\% no pico da resposta. A queda no IPP, mais rápida que a do IPCA, corrobora essa dinâmica. No mercado de renda fixa, o impacto da política monetária varia ao longo da estrutura a termo, com os yields de vencimentos mais longos mostrando maior sensibilidade. A contração observada nos spreads de crédito sugere que a política monetária impacta as condições de financiamento, possivelmente alterando a percepção de risco dos agentes, em linha com \citeonline{ehrmann}.
-
-% \begin{figure}[H]
-%     \centering
-%     \caption{Funções de Impulso-Resposta a um Choque Monetário Contracionista}
-%     \includegraphics[width=0.8\textwidth]{"img/irf.png"}
-%     \label{fig:irf_resultados}
-% \end{figure}    
+Na especificação de produção, $\xi_{mp}$ vale $10{,}43$ na amostra completa e $12{,}22$ na janela pré-COVID, acima do limiar de $10$ nas duas. As bandas convencionais são adequadas em ambas as janelas e o conjunto de Anderson-Rubin é um intervalo limitado. A forma-F da Wald conjunta sobre as $q$ inovações fatoriais permanece baixa, $2{,}33$ e $2{,}70$, o padrão esperado sob exogeneidade, com a relevância concentrada na direção do choque de política e não espalhada pelo espaço dos fatores.
 
 
-% \section{Conclusão}
 
-% Este artigo quantificou os efeitos da política monetária sobre os preços dos ativos no Brasil, empregando um modelo de fatores dinâmicos estruturais (SDFM) para lidar com o problema da não-fundamentalidade. Os resultados mostram que os canais de transmissão monetária são robustos e rápidos: um choque contracionista impacta imediatamente o mercado de ações, a taxa de câmbio e a estrutura a termo dos juros, com efeitos heterogêneos entre os diferentes ativos.
 
-% As implicações para a política monetária são relevantes. A magnitude e a rapidez das respostas sugerem que o Banco Central deve considerar cuidadosamente os potenciais efeitos colaterais de suas decisões sobre a estabilidade financeira. A sensibilidade particular de setores como o imobiliário reforça a necessidade de uma análise granular dos impactos da política de juros. Como limitação e direção para pesquisa futura, a identificação dos choques poderia ser aprimorada com o uso de dados de alta frequência, como em \citeonline{alessi}, para isolar com ainda mais precisão a surpresa monetária.
+\section{Resultados}
+
+  
+
+
+\section{Conclusão}
+
+
 
 % ----------------------------------------------------------
 % Referências bibliográficas
 % ----------------------------------------------------------
 \newpage
-\bibliography{./references.bib}
-
+\bibliography{references.bib}
+\bibliographystyle{abntex2-alf}
 
 
 
