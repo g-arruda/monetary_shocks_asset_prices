@@ -18,6 +18,14 @@
 #' @param dates Date vector aligned with the data panel rows.
 #' @param p VAR lag order used in `estimate_dfm`.
 #' @param mp_var_idx Column index of the policy variable.
+#' @param nw_lags Newey-West truncation lag passed to
+#'   `compute_factor_space_wald`. Default 0 (Eicker-White) reproduces every
+#'   published number in this project.
+#' @param return_moment_inputs If TRUE, also return the aligned triple
+#'   (`eta_sel`, `Z_sel`, `ctrl_sel`), the direction `c_mp` and the aligned
+#'   month dates, so a caller can recompute the Gamma moment on a subsample
+#'   without re-estimating the DFM (leave-one-month-out). Off by default
+#'   because these are large and grid callers keep hundreds of cells in memory.
 #'
 #' @return List with `f_factor` (legacy homoskedastic max-F), `impact_mp`
 #'   (pre-normalization impact response of the policy variable), `sign_mp`,
@@ -28,7 +36,9 @@
 #'   mp-variable row of the impact matrix, i.e. the statistic that governs
 #'   the normalization denominator (AR set bounded iff wald_mp > 3.84).
 diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
-                                                dates, p, mp_var_idx) {
+                                                dates, p, mp_var_idx,
+                                                nw_lags = 0L,
+                                                return_moment_inputs = FALSE) {
   align     <- sel_ext_inst_sample(dates, p, instrument_df)
   inst_sel  <- align$inst_sel
   sel_ind   <- align$rsh_sel_ind
@@ -76,13 +86,23 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
   }
   ctrl_sel <- ctrl[sel_ind, , drop = FALSE]
 
-  wald_fs <- compute_factor_space_wald(eta_sel, Z_mat, controls = ctrl_sel)
+  wald_fs <- compute_factor_space_wald(eta_sel, Z_mat, controls = ctrl_sel,
+                                       nw_lags = nw_lags)
 
   # Wald in the direction of the mp-variable impact: c'Gamma with
   # c = mp row of the impact matrix. Scale-invariant; q = 1.
   c_mp    <- as.numeric(rawimp_0[mp_var_idx, ])
   wald_mp <- compute_factor_space_wald(eta_sel %*% c_mp, Z_mat,
-                                       controls = ctrl_sel)$wald_joint
+                                       controls = ctrl_sel,
+                                       nw_lags = nw_lags)$wald_joint
+
+  moment_inputs <- if (isTRUE(return_moment_inputs)) {
+    list(eta_sel  = eta_sel,
+         Z_sel    = Z_mat,
+         ctrl_sel = ctrl_sel,
+         c_mp     = c_mp,
+         months   = dates[(p + 1):length(dates)][sel_ind])
+  } else NULL
 
   list(
     f_factor   = f_factor,
@@ -96,6 +116,8 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
     wald_joint = wald_fs$wald_joint,
     F_joint    = wald_fs$F_joint,
     p_joint    = wald_fs$p_joint,
-    wald_mp    = wald_mp
+    wald_mp    = wald_mp,
+    nw_lags    = nw_lags,
+    moment_inputs = moment_inputs
   )
 }

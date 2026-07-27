@@ -183,11 +183,20 @@ compute_factor_space_F <- function(eta, Z) {
 #' @param Z Instrument vector or column matrix (T x 1), aligned to eta.
 #' @param controls Optional matrix/data.frame of VAR regressors aligned to eta
 #'   (lags of the factors; a constant is added internally).
+#' @param nw_lags Newey-West truncation lag for W. The default 0 is the
+#'   Eicker-White estimator and reproduces `NWlags = 0` of the oil application
+#'   (`codigo_olea/OilSVARIV.m:50`), which is what every existing caller and
+#'   every published number in this project assume. Values > 0 apply the
+#'   Bartlett kernel of `codigo_olea/functions/RForm/NW_hac_STATA.m`. Only
+#'   needed when the moment z_t eta_t is serially correlated — e.g. under a
+#'   Gertler-Karadi position-weighted monthly aggregation, which splits each
+#'   event surprise across t and t+1 and so induces an MA(1). The official
+#'   suite uses `NWlags = 8` in the tax application (`TaxSVARIV.m:52`).
 #'
 #' @return List: `wald_k` (length-q vector), `wald_min`, `wald_max`,
 #'   `wald_joint`, `F_joint` (= wald_joint / q), `p_joint` (chi^2_q),
-#'   `q`, `T_eff`.
-compute_factor_space_wald <- function(eta, Z, controls = NULL) {
+#'   `q`, `T_eff`, `nw_lags`.
+compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L) {
   eta <- as.matrix(eta)
   Z   <- as.numeric(Z)
   T_eff <- length(Z)
@@ -204,6 +213,22 @@ compute_factor_space_wald <- function(eta, Z, controls = NULL) {
   V     <- sweep(G_mat, 2, Gamma)
   W     <- crossprod(V) / T_eff              # Eicker-White (NW lags = 0)
 
+  # Bartlett accumulation, transcribed from NW_hac_STATA.m: weight
+  # 1 - n/(lags+1), divisor T (no degrees-of-freedom correction), and
+  # lags = 0 collapses exactly to the Eicker-White W above.
+  nw_lags <- as.integer(nw_lags)
+  if (is.na(nw_lags) || nw_lags < 0L) {
+    stop("nw_lags must be a non-negative integer")
+  }
+  if (nw_lags >= T_eff) {
+    stop("nw_lags (", nw_lags, ") must be smaller than T_eff (", T_eff, ")")
+  }
+  for (l in seq_len(nw_lags)) {
+    Gl <- crossprod(V[seq_len(T_eff - l), , drop = FALSE],
+                    V[(1L + l):T_eff, , drop = FALSE]) / T_eff
+    W  <- W + (1 - l / (nw_lags + 1)) * (Gl + t(Gl))
+  }
+
   wald_k     <- T_eff * Gamma^2 / diag(W)
   wald_joint <- tryCatch(
     T_eff * drop(t(Gamma) %*% solve(W, Gamma)),
@@ -218,7 +243,8 @@ compute_factor_space_wald <- function(eta, Z, controls = NULL) {
     F_joint    = wald_joint / q,
     p_joint    = pchisq(wald_joint, df = q, lower.tail = FALSE),
     q          = q,
-    T_eff      = T_eff
+    T_eff      = T_eff,
+    nw_lags    = nw_lags
   )
 }
 
