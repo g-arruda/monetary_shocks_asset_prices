@@ -1,36 +1,31 @@
-# Handoff — 2026-07-26 (repositório consolidado em main)
-SESSLOG:[2026-07-26 13:32]
-<!-- written by: pop-os at 2026-07-26T13:32:00 -->
-*Project: Monetary Shocks Asset Prices*
+# Handoff — 2026-07-27 (identificação não-gaussiana GMR implementada)
+SESSLOG:[2026-07-27 12:51]
+<!-- written by: pop-os at 2026-07-27T12:51:16 -->
+*Project: monetary_shocks_asset_prices*
 
 ## Session Topic
-Consolidação de branches e commits: 9 commits temáticos, `codigo_olea` removido da
-história, 5 branches merged em `main` por fast-forward, push feito.
+GMR (2017) PML-ICA implementado como `identification = "nongaussian"`, validado contra a aplicação publicada do artigo, e empiricamente sem poder neste painel.
 
 ## Active Decisions
-- **`main` é o estado sempre reproduzível.** O smoke test de `CLAUDE.md` tem que passar em qualquer commit dela.
-- **Uma branch por aposta metodológica que pode ser rejeitada.** A próxima é `identificacao-nao-gaussiana`. Escrita (§5→tex, resumo, intro, conclusão, revisão), higiene e re-runs de diagnóstico vão **direto na `main`**.
-- Identificação de produção inalterada: proxy-SVAR `z_jk_bs_purif` × `yield_6m`, r=7, q=6, p=6, nboot=800. ξ_mp 10,43 full / 12,22 pré-COVID.
-- `codigo_olea/` é referência read-only e está no `.gitignore`, como os outros três `codigo_*`.
+- **Produção continua proxy-SVAR.** Para SBE/ANPEC, manter só ele — decidido nesta sessão.
+- **GMR é teste, não estimador** (recomendação; decisão final do autor pendente). Bandas contêm zero em tudo exceto a variável normalizada.
+- **Nunca usar `IdSS::estim.SVAR.ICA`** — caminho ICA quebrado para n >= 4; ver `historico_decisoes.md` §0.1.
+- **Ramo nongaussian usa bootstrap i.i.d.**, não Rademacher (A.5 exige assimetria). Proxy/het inalterados.
+- **Não reduzir q para o gate passar** — AW dá q̂ = 8; seria specification shopping.
 
 ## Key Files
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/_instrucoes/pendencias.md
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/relatorio/working-notes/2026-07-27_identificacao_nao_gaussiana_gmr.md
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/nongaussian/results.md
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/nongaussian/gate.md
 - /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/_instrucoes/historico_decisoes.md
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/irf/irf_section.md
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/irf/irf_coherence_cell.rds
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/tex/main.tex
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/_instrucoes/pendencias.md
 
 ## Next Steps
-- [ ] **Revogar o PAT `ghp_`** — está no transcript da sessão e em `~/.git-credentials` (texto puro). Gerar fine-grained limitado a este repositório.
-- [ ] Apagar `/mnt/storage/Github/Modelo/codigo_olea.bak` (87 MB, backup já verificado idêntico ao diretório em disco).
-- [ ] **Gate de não-gaussianidade em η** (Jarque-Bera + curtose por fator, ≤1 gaussiana) reusando `irf_coherence_cell.rds` → branch `identificacao-nao-gaussiana`. Decide a rota LMS/GMR.
-- [ ] Converter o §5 para o tex; depois resumo, introdução, conclusão e revisão de literatura (todos ainda da era Cholesky — o resumo traz "apreciação de 8%", sinal do câmbio invertido).
-- [ ] §3.2 do tex: "cerca de 110 séries" → **106**.
-- [ ] Placebo `commodity_metal` violado (+10,4%, CI90 até h4) e comparação cross-instrumento do IPCA sob (7,6).
+- [ ] Decidir enquadramento do GMR (manchete vs teste) e escrever o §5
+- [ ] Submeter SBE/ANPEC com proxy-SVAR apenas
+- [ ] Converter `output/irf/irf_section.md` para o `tex/main.tex` (§5 ainda não existe no tex)
+- [ ] Avaliar Gafarov-Meier-Olea (2018) como robustez frequentista de identificação por conjunto
+- [ ] Push das branches; `main` tem commits não enviados
 
 ## Context
-O `tex/main.tex` está mais adiantado do que a documentação dizia: o §3 inteiro já foi
-migrado para (7,6), com a `tab:rq_sweep` de três estatísticas MOSW, a subseção het
-comentada e a seção de Resultados da era Cholesky removida — só o §5 e a moldura
-faltam. `main` reproduz 5/5 no smoke test e está sincronizada com `origin/main` em
-`4b64c15`; só existe uma branch dos dois lados.
+A implementação é um sucesso verificado — reproduz o §3.2 do artigo (esquema recursivo rejeitado a 5% com output gap, não rejeitado a 10% com unemployment gap) e bate com `IdSS` a 1e-15 nas três funções corretas do pacote. O resultado econômico é negativo e a causa está medida: a agregação do DFM destrói a não-gaussianidade (88,7% → 71,4% → 50,0% de rejeição de JB ao longo do pipeline), o que também explica a rejeição anterior da het. Braun-Brüggemann e Antolín-Díaz foram lidos e são ambos bayesianos; a rota frequentista equivalente é Gafarov-Meier-Olea, já em `artigos/`.
