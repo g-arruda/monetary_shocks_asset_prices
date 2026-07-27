@@ -1,6 +1,6 @@
 # Pendências
 
-**Última revisão:** 2026-07-26. Só o que está **aberto**. O que foi tentado,
+**Última revisão:** 2026-07-27. Só o que está **aberto**. O que foi tentado,
 fechado ou revertido está em [`historico_decisoes.md`](historico_decisoes.md) —
 consulte antes de propor um caminho novo.
 
@@ -153,6 +153,27 @@ o que a rota foi buscar. Registro completo em
 
 ## Aberto — robustez e conteúdo
 
+- [ ] **Validade do wild bootstrap no proxy-SVAR (Jentsch-Lunsford)** — *aberto em
+  2026-07-27; não estava registrado em lugar nenhum do repo.* O bootstrap
+  multiplica o instrumento pelo **mesmo** draw Rademacher dos resíduos
+  (`impulse_responde.R:608-610`, `inst_boot <- inst_sel * rr_sel`) — é o esquema
+  Mertens-Ravn, e é exatamente o que Jentsch-Lunsford (2019, *AER* comment;
+  2022, *JBES*) mostram ser **inválido para proxy-SVAR independentemente da
+  força do instrumento**: o multiplicador destrói a dependência entre `z_t` e
+  `u_t` de que a variância assintótica depende. É problema de **validade**, não
+  de IV fraco — atinge todas as bandas do §5, inclusive as pré-COVID onde
+  ξ_mp = 12,22. O próprio MOSW (nota 21) diz que o bootstrap deles "could be
+  replaced by any other bootstrap procedure, such as the block bootstrap for
+  proxy SVARs proposed by Jentsch and Lunsford".
+  - **Contrapesos antes de trocar nada:** (i) Alessi-Kerssenfischer usam wild
+    bootstrap (`DFMest_BLL_Boot.m`) e este projeto é replicação fiel — desviar é
+    escolha metodológica deliberada, não conserto de bug; (ii) Mertens-Ravn
+    responderam e o debate não fechou; (iii) a camada DFM muda o objeto — aqui se
+    reamostra o resíduo do VAR **de fatores** e se re-estima o DFM inteiro por
+    draw, desenho que JL não analisam.
+  - **Mínimo aceitável:** um parágrafo no §3 declarando a escolha e citando o
+    debate. Um parecerista atento a método enxerga `inst_sel * rr_sel` de
+    imediato. Implementar MBB é caro e fica como decisão separada.
 - [ ] **Placebo `commodity_metal` violado** — responde +10,4% no impacto com
   CI90 até h4 a um choque monetário brasileiro. A hipótese original era que o
   instrumento retém um componente global de commodity/risco (metais **não**
@@ -180,9 +201,88 @@ o que a rota foi buscar. Registro completo em
   câmbio usava `z_het_3var` × pre-COVID, que saiu do paper. Decidir como
   discutir o desacordo (frequência diária × mensal GE, janela amostral, regime
   de dominância fiscal 2020-25). Ver §5.3 do `irf_section.md`.
-- [ ] **Bandas Anderson-Rubin** — agora **opcionais**. Com ξ_mp > 10 nas duas
-  janelas em (7,6) as bandas convencionais bastam; manter AR como robustez
-  (protocolo anti-screening de MOSW, footnote 6: reportar ξ, não filtrar pelo F).
+- [ ] **Bandas Anderson-Rubin** — *reclassificado de "opcional" para
+  **fazer** em 2026-07-27; **prioridade elevada no mesmo dia** pelo resultado do
+  leave-one-month-out.* O ξ_mp = **10,43** na amostra full raspa o limiar em
+  que as bandas convencionais são só "aproximadamente válidas"; publicar apenas
+  Wald nessa margem é o que um parecerista vai perguntar primeiro. O projeto
+  calcula ξ_mp — a estatística que diz se o conjunto AR é **limitado** — mas
+  **nunca inverteu o AR** para produzir bandas.
+  - **Razão empírica nova (2026-07-27):** o LOO mostra que **24 de 147** meses,
+    removidos um a um, derrubam ξ_mp abaixo de 10 — a validade das bandas
+    convencionais não sobrevive à remoção de um único mês. Em compensação
+    **nenhum** dos 147 descartes derruba abaixo de 3,84, então o conjunto AR é
+    limitado em toda a vizinhança amostral e a inversão **vale a pena**: ela
+    entrega um intervalo, não uma reta. Ver
+    `relatorio/working-notes/2026-07-27_robustez_xi_mp_e_construcao.md` §2.
+  - **Alvo de tradução já no repo:** `codigo_olea/MSWfunction.m` produz o grid
+    AR. É o mesmo exercício que já foi feito e validado ponta a ponta para o
+    bloco Wald (`script/validate_olea_kilian.R`, números publicados do petróleo
+    de Kilian).
+  - **Custo não trivial:** o AR de MOSW é sobre a IRF de um VAR em observáveis;
+    aqui a IRF é `Λ·B·K·M·H`, razão da mesma forma (linear em Γ sobre `c'Γ`), então
+    a lógica de Fieller carrega, mas exige a mesma adaptação "identifica nas q
+    inovações e propaga por Λ" que todo método do roadmap exige.
+  - **Apresentação:** plotar as duas bandas no mesmo gráfico — Wald pontilhada,
+    AR sombreada. A assimetria/expansão do AR *é* o conteúdo informativo.
+  - Segue valendo o protocolo anti-screening de MOSW (footnote 6): reportar ξ,
+    não filtrar pelo F.
+- [x] **Robustez do próprio ξ_mp** (2026-07-27). `script/xi_mp_robustness.R` →
+  `output/instrument/xi_mp_robustness.{csv,md}`. Nota:
+  `relatorio/working-notes/2026-07-27_robustez_xi_mp_e_construcao.md`.
+  - **Leave-one-month-out** (DFM fixo, só Γ recomputado). Produção, full:
+    ξ_mp 10,43 → min 8,43 / máx 12,21. **0 de 147** descartes derrubam abaixo de
+    3,84, então o **conjunto AR continua limitado sob qualquer amostra a menos de
+    um mês**; mas **24 de 147** derrubam abaixo de 10, então a afirmação "bandas
+    convencionais valem" *é* marginal. Nenhum dos 10 meses mais influentes é da
+    COVID (o maior é 2024-12, −2,00). Pré-COVID: 12,22, só 4 de 78 abaixo de 10.
+    O contraste confirma a máscara: `z_jk_purif` tem 147/147 abaixo de 10.
+  - **HAC.** `compute_factor_space_wald` ganhou `nw_lags` (default 0, portanto
+    nada mudou). Produção cruza 10 em **todas** as defasagens nas duas janelas, e
+    ξ_mp é **crescente** em NW no full (10,43 → 15,64 em NW(6)) — NW(0) é a
+    escolha **conservadora**, não uma conveniência.
+  - **Validação** (`script/validate_hac_kernel.R`): kernel exato contra a
+    transcrição literal de `NW_hac_STATA.m` em lags 0-8, e ponta a ponta contra a
+    aplicação oficial de impostos (`TaxSVARIV.m`, NWlags = 8) — bloco Γ de `WHat`
+    reproduzido a 2,6e-10 **e só em lag 8**. Isso também mede o que antes era só
+    argumento: residualizar `z` nos regressores equivale ao bloco
+    `−kron(Q₂Q₁⁻¹, I)` em **qualquer** defasagem.
+  - **Consequência para as bandas AR:** o item de AR abaixo **sobe de
+    prioridade** — agora tem razão empírica (24/147), não só de limiar.
+  - **Não feito, e por quê:** F efetivo de Montiel Olea-Pflueger (razão abaixo,
+    inalterada) e winsorização de `z` (encolheria exatamente os dias grandes, que
+    *são* a variação identificadora; o LOO é a resposta certa no lugar dela).
+- [x] **Robustez da construção do instrumento: vértice e esquema de agregação**
+  (2026-07-27). `script/instrument_construction_sweep.R` → 260 células em
+  `output/instrument/instrument_construction_sweep.{csv,md}` +
+  `vertex_irf_overlay.pdf`. A cadeia de construção foi extraída para
+  `R/instrument/build_variants.R` (regenera `instrumentos_mensais.csv`
+  **bit-idêntico**; smoke test 5/5).
+  - **Correção de registro:** o grid de vértice **existe**, arquivado em
+    `arquivo/output/instrument_grid.{csv,md}` (2026-04-12), e é a procedência do
+    comentário `# best F in grid search`. Estava obsoleto em três eixos (vintage
+    pré-refresh, régua F legada com vencedor 4,30 = "menos ruim", e só as 4
+    variantes legadas — `z_jk_bs_purif` não existia), mas não era inexistente.
+  - **Vértice.** 13 alvos de 21 a 504 du. **126 du não é o argmax em nenhuma
+    janela** (84 e 147 o superam no full; 42 domina pré-COVID), mas a maior
+    margem de um desafiante elegível é **1,16**, contra o limiar de **2,00**
+    fixado *ex ante* como a dispersão LOO do próprio ξ_mp. **A regra não dispara:
+    produção fica em 126 du.** A leitura é que o vértice **não é identificado com
+    precisão suficiente para escolher**, e a escolha herdada está dentro do
+    conjunto indistinguível do melhor.
+  - **O resultado que mais importa:** os 13 vértices dão **essencialmente a mesma
+    IRF**, dentro da banda de 68% em quase todo horizonte — `vertex_irf_overlay.pdf`,
+    o análogo da Figura A4 de Alessi-Kerssenfischer que faltava (eles rodam A1
+    `p`, A2 `r`, A3 `q`, A4 instrumento). O vértice move ξ_mp e **não move as
+    IRFs**.
+  - **Agregação.** O esquema GK (nota 11) **colapsa** ξ_mp para 0,30 no vértice
+    de produção contra 10,43 da soma, e não cruza 3,84 em nenhum vértice no full.
+    Previsto **antes de rodar**: a nota 11 condiciona a ponderação a um indicador
+    de **média mensal**, e `yield_6m` aqui é de **fim de mês**
+    (`download.R:49-53`, `slice_tail(n = 1)`). Implementação conferida contra
+    caso calculado à mão. Converte o "desvio documentado" do `CLAUDE.md` em
+    escolha justificada. (Sob GK os meses sem reunião deixam de ser zero, e o
+    MA(1) induzido invalidaria `NWlags = 0` para essas células.)
 - [ ] **LP-IV como robustez à especificação dinâmica** — *desejável, não
   bloqueante; o autor quer tentar se houver tempo (2026-07-26).* Local
   Projections com o mesmo instrumento: `IdSS::make.LPIV.irf` (uma regressão IV
@@ -209,11 +309,18 @@ o que a rota foi buscar. Registro completo em
 - [ ] **Spread de concessões novas** como complemento ao ICC — deve abrir já no
   curto prazo, ao contrário do ICC (taxa da carteira, reprecifica devagar).
   Desejável, não bloqueante.
-- [ ] **Decidir a subseção het comentada no `main.tex`** — remover ou manter
-  como nota de resultado negativo.
 
 ## Aberto — código e higiene
 
+- [ ] **Regenerar `instrument_diagnostics_report.md` e cortar a `tab:first_stage`** —
+  *aberto em 2026-07-27.* O corpo está stale (gerado em 2026-07-15, pré-refresh
+  de vintage, ainda com as variantes `z_het` arquivadas) sob banner. Re-rodar
+  `Rscript script/instrument_diagnostics.R` regenera em 106 séries e sem a §4.
+  O conteúdo da tabela de primeiro estágio que o §3 precisa **já existe** ali
+  (§1: β̂, SE(HC0), t, p, F, ξ₁, R²; §1.1: bloco MOSW completo com ξ_mp) — falta
+  regenerar e cortar como tabela de paper. `mosw_strength_grid.md` está corrente
+  mas é grid `(r,q) × amostra × instrumento`, não tabela de 1º estágio. **Sem**
+  os valores críticos de MOP (razão no item de robustez do ξ_mp).
 - [ ] **Seleção da etapa 2 é dominada pela janela pre-COVID** (aberto em
   2026-07-26). Com a taxonomia migrada, 23 células ficam `ok` em `yield_6m` e
   **todas empatam** em `score_hard_frac = 1` e `score_ext = 3`, então o

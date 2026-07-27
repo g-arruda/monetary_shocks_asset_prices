@@ -190,6 +190,28 @@ z_JK_t = Σ e_DI_τ     para todo τ ∈ {dias Copom monetários do mês t}
 z_JK_t = 0            se não houve Copom monetário no mês t
 ```
 
+### 5.2b Por que soma, e não a ponderação de Gertler-Karadi (2026-07-27)
+
+A soma dentro do mês é o esquema de **Jarociński-Karadi** (2020, §II.A: "*To
+construct m_t we add up the intraday surprises occurring in month t on the days
+with FOMC announcements*"), e é também o que o código do **Bauer-Swanson** faz.
+O **Gertler-Karadi** (2015, nota 11) usa outro: cumular as surpresas num nível
+diário → média mensal → primeira diferença, o que pondera por posição no mês.
+
+O GK enuncia a própria motivação **de forma condicional**: a ponderação existe
+porque o indicador de política deles é uma **média mensal** ("*as we use monthly
+average rates (not end of the month rates) for our monetary policy
+indicators…*"). Aqui `yield_6m` é observação de **fim de mês**
+(`script/download.R:49-53`, `slice_tail(n = 1)`), caso em que uma surpresa em
+qualquer dia de `t` já está integralmente refletida no valor de `t` — que é
+exatamente o que a soma assume.
+
+Medido em 2026-07-27 (`script/instrument_construction_sweep.R`): sob GK o ξ_mp
+cai de **10,43 para 0,30** no vértice de produção e não cruza 3,84 em nenhum
+vértice na amostra completa. Além disso, sob GK os meses sem reunião **deixam de
+ser zero** (a propriedade que JK e BS assumem) e o esquema induz **MA(1)**, o que
+invalidaria `NWlags = 0` no bloco Wald. **A soma fica.**
+
 ### 5.3 Output final
 
 Salvar `data/processed/instrumentos_mensais.csv` com colunas (incluindo as duas variantes por heterocedasticidade adicionadas posteriormente):
@@ -252,7 +274,20 @@ Horizonte: 0 a 24 meses. Bandas: 68% e 90%.
 
 ## Etapa 8 — Robustez
 
-1. **Vértice do DI:** substituir DI 3m por DI 6m e DI 12m
+1. ~~**Vértice do DI:** substituir DI 3m por DI 6m e DI 12m~~ — **feito em
+   2026-07-27**, e mais amplo do que o prescrito: 13 vértices de 21 a 504 du ×
+   2 esquemas de agregação × 5 variantes × 2 janelas, sob **ξ_mp** (a régua
+   corrente; o item foi escrito na era em que o baseline era 3m e a régua era o
+   F legado). `script/instrument_construction_sweep.R` →
+   `output/instrument/instrument_construction_sweep.{csv,md}`.
+   **Resultado:** 126 du (produção) **não** é o argmax em nenhuma janela, mas
+   nenhum desafiante vence por margem maior que a dispersão leave-one-month-out
+   do próprio ξ_mp (maior margem 1,16 contra limiar 2,00), então o vértice **não
+   é identificado com precisão suficiente para escolher** e a produção fica.
+   E, o que importa mais: **os 13 vértices dão essencialmente a mesma IRF**,
+   dentro da banda de 68% em quase todo horizonte
+   (`output/instrument/vertex_irf_overlay.pdf`, análogo da Figura A4 de
+   Alessi-Kerssenfischer). Ver a §5.2b acima para o eixo de agregação.
 2. **Excluir datas FOMC coincidentes** (dropar observações com `fomc_coincide = 1`)
 3. **Subamostras temporais:** janelas móveis de 10 anos (2009-2019, ..., 2014-2024)
 4. **Threshold de classificação:** excluir dias Copom com surpresas próximas de zero (dentro de ±1 d.p. de um dia não-Copom típico) para reduzir ruído na classificação JK
