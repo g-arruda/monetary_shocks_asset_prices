@@ -303,8 +303,10 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                             tcode = NULL, ci_levels = c(0.90, 0.95),
                             diagnose = getOption("dfm.irf.diagnose", FALSE),
                             var_names = NULL,
-                            identification = c("proxy", "het"),
-                            regime_labels = NULL, het_weight = "identity") {
+                            identification = c("proxy", "het", "nongaussian"),
+                            regime_labels = NULL, het_weight = "identity",
+                            ng_distri = NULL, ng_starts = 20L,
+                            ng_boot_starts = 3L) {
 
   identification <- match.arg(identification)
   if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
@@ -322,23 +324,43 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   rp     <- nrow(A)
 
   # --- Resolver identificação ---
-  if (identification == "het") {
-    if (!exists("ident_het_regimes")) {
-      stop("identification = 'het' requer source('arquivo/R/identification/het_primary.R') (modulo arquivado em 2026-07-26)")
-    }
-    n_resid <- nrow(dfm_results$var_residuals)
-    if (is.null(regime_labels) || length(regime_labels) != n_resid) {
-      stop("regime_labels deve ter comprimento ", n_resid,
-           " (linhas dos residuos do VAR); use build_monthly_regimes + align_regimes_to_eta")
-    }
-  } else {
-    if (is.null(instrument) && !is.null(dfm_results$instrument)) {
-      instrument <- dfm_results$instrument
-    }
-    if (is.null(instrument)) {
-      stop("instrument deve ser fornecido diretamente ou via dfm_results$instrument")
-    }
-  }
+  # Switch explícito de 3 vias: o antigo `else` era catch-all e um valor novo
+  # cairia silenciosamente no ramo proxy.
+  switch(identification,
+    "het" = {
+      if (!exists("ident_het_regimes")) {
+        stop("identification = 'het' requer source('arquivo/R/identification/het_primary.R') (modulo arquivado em 2026-07-26)")
+      }
+      n_resid <- nrow(dfm_results$var_residuals)
+      if (is.null(regime_labels) || length(regime_labels) != n_resid) {
+        stop("regime_labels deve ter comprimento ", n_resid,
+             " (linhas dos residuos do VAR); use build_monthly_regimes + align_regimes_to_eta")
+      }
+    },
+    "nongaussian" = {
+      if (!exists("ident_nongaussian")) {
+        stop("identification = 'nongaussian' requer source('R/identification/nongaussian_branch.R')")
+      }
+      # O instrumento aqui NÃO identifica: só rotula a coluna monetária. Ainda
+      # assim é obrigatório, porque sem ele não há como nomear a coluna.
+      if (is.null(instrument) && !is.null(dfm_results$instrument)) {
+        instrument <- dfm_results$instrument
+      }
+      if (is.null(instrument)) {
+        stop("identification = 'nongaussian' precisa do instrumento para ROTULAR ",
+             "a coluna monetaria (a identificacao vem da nao-gaussianidade)")
+      }
+    },
+    "proxy" = {
+      if (is.null(instrument) && !is.null(dfm_results$instrument)) {
+        instrument <- dfm_results$instrument
+      }
+      if (is.null(instrument)) {
+        stop("instrument deve ser fornecido diretamente ou via dfm_results$instrument")
+      }
+    },
+    stop("identification desconhecida: ", identification)
+  )
 
   ci_levels <- sort(unique(as.numeric(ci_levels)))
   if (length(ci_levels) == 0 || any(is.na(ci_levels)) ||
@@ -353,10 +375,10 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     tcode <- rep(1L, n_vars)
   }
 
-  # --- Parsear instrumento (só no ramo proxy) ---
+  # --- Parsear instrumento (ramo proxy, e nongaussian para rotulagem) ---
   rsh_sel_ind <- NULL
   inst_sel    <- NULL
-  if (identification == "proxy") {
+  if (identification %in% c("proxy", "nongaussian")) {
     if (is.data.frame(instrument)) {
       if (!all(c("month", "shock") %in% names(instrument)))
         stop("Instrument data.frame deve conter colunas 'month' e 'shock'")
@@ -422,6 +444,23 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                                       diagnose = diagnose,
                                       var_names = var_names)
     b_point <- point_result$b
+  } else if (identification == "nongaussian") {
+    # A identificação usa TODAS as linhas de eta (a não-gaussianidade é a fonte);
+    # rsh_sel_ind só seleciona as linhas que casam com o instrumento, e serve
+    # apenas para rotular a coluna.
+    point_result <- ident_nongaussian(rawimp, eta, h,
+                                      mpind = mpind,
+                                      normalize_value = normalize_value,
+                                      tcode = tcode,
+                                      z = inst_sel, sel = rsh_sel_ind,
+                                      distri = ng_distri,
+                                      n_starts = ng_starts,
+                                      diagnose = diagnose,
+                                      var_names = var_names)
+    b_point  <- point_result$b
+    C_point  <- point_result$C
+    a_point  <- point_result$a
+    col_mp   <- point_result$col_mp
   } else {
     eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
     point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
@@ -457,13 +496,32 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     # switching por cruzamento de autovalores). Ver plano het-primária.
     het_boot_impact <- if (identification == "het") rep(NA_real_, nboot) else NULL
     het_boot_cos    <- if (identification == "het") rep(NA_real_, nboot) else NULL
+    ng_boot_cos     <- if (identification == "nongaussian") rep(NA_real_, nboot) else NULL
+    ng_boot_switch  <- if (identification == "nongaussian") rep(NA, nboot) else NULL
 
     for (b in seq_len(nboot)) {
       tryCatch({
-        # Rademacher draw
+        # Esquema de reamostragem por ramo.
+        #
+        # proxy/het: wild bootstrap Rademacher (Gonçalves-Kilian 2004).
+        #
+        # nongaussian: NÃO pode usar Rademacher. O multiplicador ±1 zera todos
+        # os terceiros momentos (E[u³r³] = E[u³]E[r³] = 0), e a assimetria é
+        # exatamente o que a Assumption A.5 do GMR exige para o máximo global
+        # ser único — o DGP do bootstrap viraria um mundo simetrizado onde o
+        # ICA é muito menos identificado. Usa-se reamostragem i.i.d. com
+        # reposição, que preserva a distribuição marginal dos resíduos; é o que
+        # o apêndice online do próprio GMR (§E) e `IdSS::nonparam.bootstrap`
+        # fazem.
         n_resid <- nrow(boot_resids)
-        rr <- 1 - 2 * (runif(n_resid) > 0.5)
-        resid_boot <- boot_resids * rr  # resíduos OLS * rr
+        if (identification == "nongaussian") {
+          idx_boot   <- sample.int(n_resid, n_resid, replace = TRUE)
+          resid_boot <- boot_resids[idx_boot, , drop = FALSE]
+          rr <- NULL
+        } else {
+          rr <- 1 - 2 * (runif(n_resid) > 0.5)
+          resid_boot <- boot_resids * rr  # resíduos OLS * rr
+        }
 
         # Reconstruir fatores com coeficientes corrigidos e resíduos OLS
         F_boot <- matrix(0, nrow = nrow(dfm_results$static_factors), ncol = r)
@@ -532,6 +590,21 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
           het_boot_impact[b] <- boot_result$impact_pre
           het_boot_cos[b] <- abs(sum(boot_result$b * b_point)) /
             sqrt(sum(boot_result$b^2) * sum(b_point^2))
+        } else if (identification == "nongaussian") {
+          # Warm start no ponto estimado: mantém o draw na mesma bacia do
+          # ótimo (o objetivo tem muitos ótimos locais) e barateia a busca.
+          # `C_ref` + `col_mp` fixam o rótulo, resolvendo o label switching.
+          boot_result <- ident_nongaussian(rawimp_boot, eta_boot, h,
+                                           mpind = mpind,
+                                           normalize_value = normalize_value,
+                                           tcode = tcode,
+                                           C_ref = C_point, col_mp = col_mp,
+                                           distri = ng_distri,
+                                           n_starts = ng_boot_starts,
+                                           a_init = a_point)
+          ng_boot_cos[b] <- abs(sum(boot_result$b * b_point)) /
+            sqrt(sum(boot_result$b^2) * sum(b_point^2))
+          ng_boot_switch[b] <- boot_result$col_mp != col_mp
         } else {
           # Wild bootstrap do instrumento (mesmo rr)
           rr_sel <- rr[rsh_sel_ind]
@@ -585,6 +658,31 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     ci_levels = ci_levels,
     identification = identification
   )
+
+  if (identification == "nongaussian") {
+    out$b_point  <- point_result$b
+    out$ng_point <- list(
+      C          = point_result$C,
+      a          = point_result$a,
+      col_mp     = point_result$col_mp,
+      impact_pre = point_result$impact_pre,
+      eps        = point_result$eps,
+      label      = point_result$label,
+      logLik     = point_result$fit$logLik,
+      n_at_best  = point_result$fit$n_at_best,
+      converged  = point_result$fit$converged,
+      all_C      = point_result$fit$all_C,
+      obj_by_start = point_result$fit$obj_by_start
+    )
+    if (nboot > 0) {
+      out$ng_boot <- list(
+        cos_theta      = ng_boot_cos,
+        label_switched = ng_boot_switch,
+        frac_low_cos   = mean(ng_boot_cos < 0.7, na.rm = TRUE),
+        median_cos     = stats::median(ng_boot_cos, na.rm = TRUE)
+      )
+    }
+  }
 
   if (identification == "het") {
     out$b_point     <- point_result$b

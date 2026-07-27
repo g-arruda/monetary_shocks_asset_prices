@@ -10,6 +10,112 @@ As pendências **abertas** vivem em `pendencias.md`; este arquivo é só memóri
 
 ---
 
+## 0. Identificação não-gaussiana (GMR 2017) — achados que não se repetem
+
+Aberta em 2026-07-27 na branch `identificacao-nao-gaussiana`. O ramo está vivo
+(`identification = "nongaussian"`); o que está aqui são os **resultados
+negativos e as armadilhas** que custaram tempo e não devem ser redescobertos.
+
+### 0.1 O pacote `IdSS` do próprio autor está quebrado para n ≥ 4
+
+`github.com/jrenne/IdSS` (commit `20c8ea6`, v0.1.0) é o material de apoio do
+livro do Renne e implementa o estimador do artigo. **Três defeitos independentes
+aparecem só a partir de n = 4** — a aplicação publicada é n = 3, onde os três
+são invisíveis:
+
+1. **`make.M`** preenche o triângulo superior de `A` na ordem coluna-a-coluna
+   das *posições*, que não é a transposta da ordem do triângulo inferior. Para
+   n ≥ 4 o `A` resultante **não é antissimétrico**, logo
+   `C = (I+A)(I−A)^{-1}` **não é ortogonal** e a SIR3 é violada. É o caminho
+   que `estim.SVAR.ICA` usa para montar o `C.PML` que devolve.
+2. **`make.C`** repete o mesmo erro por conta própria, então a função objetivo
+   (`pseudo.log.L` → `func.2.minimize`) é avaliada sobre o mesmo conjunto errado.
+3. **O gradiente analítico** usa `dvec(C)/dvec(A) = R' ⊗ (I + A)`. O diferencial
+   de Cayley é `dC = (I + C) dA R`, logo o correto é `R' ⊗ (I + C)`. Conferido
+   contra `numDeriv` — a forma do pacote erra por ordens de grandeza.
+
+Consequência prática: **nada do caminho ICA do `IdSS` serve em q = 6.** Daí a
+tradução em `R/identification/nongaussian_gmr.R`. As três funções que recebem
+`C` como argumento em vez de construí-lo — `make.Omega`, `make.A.matrix`,
+`make.Asympt.Cov.delta` — estão **corretas em qualquer n** e são usadas como
+alvo de validação cruzada (batem com a tradução a 1e-15 em n = 3 e n = 6).
+`script/validate_gmr_ica.R` bloco E é um teste-guarda: se o upstream corrigir,
+ele avisa.
+
+### 0.2 A não-gaussianidade do painel é dirigida pela COVID
+
+Gate em `output/nongaussian/gate.md` (`script/nongaussian_gate.R`). Jarque-Bera
+nas q = 6 inovações fatoriais de (7,6):
+
+| janela | componentes que **não** rejeitam normalidade a 5% |
+|---|---|
+| full (T = 147) | 3 de 6 |
+| pré-COVID (T = 80) | **5 de 6** |
+
+GMR e LMS exigem **no máximo um** gaussiano. No full a identificação é
+**parcial** — `C` fica definida a menos de uma rotação dentro do bloco
+quase-gaussiano, mas as colunas não-gaussianas seguem identificadas. **Na janela
+pré-COVID a rota simplesmente não existe.** Isso é estrutural, não conjuntural:
+não adianta re-tentar a comparação GMR × proxy pré-COVID, que é justamente a
+janela onde o proxy é mais forte (ξ_mp 12,22). Confirmado por simulação em
+`validate_gmr_ica.R` bloco D: com 2 fontes gaussianas em n = 6, a coluna dentro
+do bloco gaussiano dobra de erro (0,39) enquanto a não-gaussiana não se mexe
+(0,20).
+
+### 0.3 O wild bootstrap Rademacher é inválido neste ramo
+
+O multiplicador ±1 zera **todos os terceiros momentos**
+(`E[u³r³] = E[u³]E[r³] = 0`). A assimetria é exatamente o que a Assumption A.5
+do GMR exige para o máximo global do critério ser único, então o DGP do
+bootstrap viraria um mundo simetrizado onde o ICA é muito menos identificado.
+O ramo usa **reamostragem i.i.d. com reposição**, como o apêndice online do
+próprio GMR (§E) e `IdSS::nonparam.bootstrap`. Os ramos proxy e het seguem no
+Rademacher, inalterados.
+
+### 0.4 Estabilidade multi-start só significa algo condicionada ao ótimo
+
+O critério tem muitos ótimos locais em q = 6 (15 parâmetros livres): de 100
+partidas, **1** chega ao melhor. Medir a dispersão de `C` sobre *todas* as
+partidas convergidas mistura não-identificação com falha do otimizador e produz
+um número catastrófico e enganoso (cosseno mínimo 0,67). Condicionando às
+partidas a ≤ 2 unidades de log-verossimilhança do ótimo, a coluna monetária é
+estável a **cosseno 0,996**. A métrica útil é o *perfil* por tolerância, que é o
+que o `gate.md` reporta.
+
+### 0.5 As bandas assintóticas da Prop. 4 subcobrem em T ≈ 150, n = 6
+
+Simulação em `validate_gmr_ica.R` bloco D: intervalo nominal de 95% cobre
+**0,79**. O artigo valida a aproximação assintótica em n = 2 com T = 200; em
+n = 6 com T = 150 — exatamente a nossa dimensão — ela é otimista. Os
+erros-padrão de `gmr_asympt_cov` devem ser lidos como piso, não como medida
+calibrada.
+
+### 0.6 O resultado empírico: o estimador não tem poder neste painel
+
+Rodada de produção (`output/nongaussian/results.md`, 200 draws i.i.d.):
+
+- Bandas de 90% no impacto **contêm zero em todas as variáveis** exceto a
+  normalizada. `asset_ibov` = −10,7 com CI90 **[−49,5, +80,8]**; o proxy dá
+  −1,67 com [−7,6, +1,8].
+- Cosseno mediano de **0,703** entre a direção monetária do draw e a do ponto,
+  com **49%** dos draws abaixo de 0,7. Zero trocas de rótulo em 200 (o
+  `C_ref` + warm start resolveram o label switching).
+- A Wald assintótica rejeita a restrição do proxy (ξ = 117,3, gl = 5,
+  p < 0,0001) e o esquema recursivo (ξ = 148,4, gl = 15, p < 0,0001). **Ambas
+  as rejeições são suspeitas** pela subcobertura documentada em §0.5.
+
+**A leitura errada é "as duas identificações discordam".** A leitura certa é que
+o GMR não determina nada aqui: o intervalo dele para a bolsa é compatível com o
+ponto do proxy e com quase tudo mais. Se alguém reabrir esta rota esperando um
+segundo conjunto de magnitudes para o §5, é este o resultado que já existe.
+
+Robustez à pseudo-densidade (Prop. 3) **funciona**: a coluna monetária é 0,916
+alinhada entre misturas de gaussianas e Student-t. E a A.5 morde como o artigo
+diz — com q secantes hiperbólicas idênticas, 58 de 60 partidas empatam no mesmo
+valor do critério (§2.2: se as `g_i` são iguais e pares, todo `P(Ĉ)` é máximo).
+
+---
+
 ## 1. Identificação por heterocedasticidade — abandonada em duas frentes
 
 ### 1.1 Como instrumento (`z_het*`, Rigobon-Sack 2003)

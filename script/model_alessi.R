@@ -9,9 +9,11 @@ library(patchwork)
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/identification/nongaussian_branch.R")
 # The het identification branch was archived on 2026-07-26 (empirically rejected
 # 2026-07-16). Production runs identification = "proxy"; to revive the het branch
 # source arquivo/R/identification/het_{shock_extraction,primary}.R first.
+# The nongaussian branch (GMR 2017 PML-ICA) is live — see script/model_nongaussian.R.
 
 
 
@@ -39,8 +41,9 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
                       h = 50, nboot = 800, bootstrap_seed = 123,
                       mp_var = "yield_6m", shock_size_bps = 50,
                       tcode = NULL, ci_levels = c(0.90, 0.95),
-                      identification = c("proxy", "het"),
-                      het_weight = "optimal") {
+                      identification = c("proxy", "het", "nongaussian"),
+                      het_weight = "optimal",
+                      ng_distri = NULL, ng_starts = 30L, ng_boot_starts = 3L) {
 
   # Ramo het (Rigobon 2003, regimes mensais Copom/nao-Copom sobre as
   # inovacoes do factor-VAR): implementado e validado, mas REPROVADO
@@ -90,8 +93,10 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
 
   # Instrumento so no ramo proxy; no ramo het o painel fica integral
   # (sem trimming de alinhamento) e a identificacao vem dos regimes.
+  # No ramo nongaussian o instrumento entra apenas como ROTULADOR da coluna
+  # monetária — a identificação vem da não-gaussianidade das inovações.
   instrument <- NULL
-  if (identification == "proxy") {
+  if (identification %in% c("proxy", "nongaussian")) {
     instrument <- readr::read_csv(instrument_path)
   }
 
@@ -126,7 +131,10 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
     var_names = colnames(data),
     identification = identification,
     regime_labels = regime_labels,
-    het_weight = het_weight
+    het_weight = het_weight,
+    ng_distri = ng_distri,
+    ng_starts = ng_starts,
+    ng_boot_starts = ng_boot_starts
   )
 
   return(list(

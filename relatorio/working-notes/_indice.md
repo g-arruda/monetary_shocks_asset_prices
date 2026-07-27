@@ -12,6 +12,7 @@ aberto) e `_instrucoes/historico_decisoes.md` (o que já foi tentado).
 
 | nota | data | veredito | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-07-27_identificacao_nao_gaussiana_gmr`](2026-07-27_identificacao_nao_gaussiana_gmr.md) | 07-27 | **CURRENT** | (7,6), `z_jk_bs_purif` | Tudo. GMR (2017) implementado e validado contra a aplicação publicada. **O estimador não tem poder neste painel** (CI90 da bolsa: [−49, +81]; bandas contêm zero em tudo), a rejeição assintótica da restrição do proxy é espúria (Prop. 4 subcobre 0,79 em T=150, n=6), e o gate só passa no full sample por causa da COVID. Serve como **teste**, não como estimativa |
 | [`2026-07-24_avaliacao_5_artigos_robustez`](2026-07-24_avaliacao_5_artigos_robustez.md) | 07-24 | **CURRENT** | (7,6), `z_jk_bs_purif` | Tudo. É a base da rota metodológica: ACF (2024) + não-gaussianidade LMS/GMR, frequentista |
 | [`2026-07-24_auditoria_analise_gemini`](2026-07-24_auditoria_analise_gemini.md) | 07-24 | premissa corrigida | (6,5), pré-refresh | A refutação técnica (F conjunta não é a estatística que governa; ξ_mp é). **Não vale** o enquadramento de "proxy abandonado" nem a recomendação P1 |
 | [`2026-07-15_auditoria_identificacao_vs_alessi`](2026-07-15_auditoria_identificacao_vs_alessi.md) | 07-15 | superseded | (6,5)/(8,8), pré-refresh | A verificação do port R↔MATLAB (5/5) — independente de spec e vintage. É a referência de fidelidade do projeto |

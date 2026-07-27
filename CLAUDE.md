@@ -33,7 +33,15 @@ Two functions in `R/modeling/impulse_responde.R` are the contract between the DF
 - `sel_ext_inst_sample()` — temporal alignment, equivalent to MATLAB `selextinstsample.m`.
 - `ident_ext_instr()` — projects raw IRFs through `H = (Z' rsh) / (Z'Z)` and normalizes the impact response of the policy variable to `normalize_value` in the policy variable's *native units*: `shock_bps/10000` for decimal-proportion yields (50bp → 0.005, the production convention since 2026-05-07) and `shock_bps/100` for percent-scale `juros_selic` (the function's legacy default 0.5, kept for `model_var.R`). Equivalent to `IdentExtInstr.m`.
 
-**Extension point.** `compute_irf_dfm` and `main_sdfm` accept `identification = c("proxy", "het")`. The het branch is inert in production (the modules were archived on 2026-07-26 and the branch `stop()`s unless they are sourced from `arquivo/`), but the **branch architecture is deliberately kept**: it is the template for the next identification to be added, `identification = "nongaussian"` (Lanne-Meitz-Saikkonen 2017 / Gouriéroux-Monfort-Renne 2017 via `svars::id.ngml` / `id.dc`), which consumes `eta` and returns IRFs in the same format. Do not delete it. Roadmap in `_instrucoes/pendencias.md`.
+**Three branches.** `compute_irf_dfm` and `main_sdfm` accept `identification = c("proxy", "het", "nongaussian")`, dispatched by an explicit 3-way `switch` (the old `else` was a catch-all that would silently route an unknown value into the proxy path). The het branch is inert in production (the modules were archived on 2026-07-26 and the branch `stop()`s unless they are sourced from `arquivo/`) but the architecture is deliberately kept.
+
+**`identification = "nongaussian"`** (added 2026-07-27, branch `identificacao-nao-gaussiana`) is Gouriéroux-Monfort-Renne (2017, *JoE* 196(1)) pseudo-ML ICA under SIR3, **translated in-repo** in `R/identification/nongaussian_gmr.R` with the adapter in `nongaussian_branch.R`. It prewhitens `eta`, estimates the orthogonal `C` by multi-start PML over the Cayley parametrization, labels the monetary column by `|cor(eps_j, z)|`, and returns `b = P c_mp` — so the instrument **labels** rather than identifies, and the proxy restriction becomes testable (`gmr_wald_column`). Three things not to re-derive:
+
+- **Do not call `IdSS::estim.SVAR.ICA`.** Renne's own package has the ICA path broken for n ≥ 4 (`make.M` and `make.C` both mis-order the skew-symmetric fill, so `C` is not orthogonal; the gradient uses `(I+A)` where Cayley requires `(I+C)`). q = 6 here. `make.Omega` / `make.A.matrix` / `make.Asympt.Cov.delta` *are* correct at any n and are the cross-validation targets. See `_instrucoes/historico_decisoes.md` §0.1.
+- **The wild bootstrap is invalid on this branch** — Rademacher multipliers zero all third moments and destroy the asymmetry Assumption A.5 needs. The branch resamples i.i.d. with replacement, as GMR's own online appendix §E does; proxy and het keep Rademacher unchanged.
+- **The gate is only partly passed**: 3 of 6 factor innovations do not reject normality on the full sample, 5 of 6 pre-COVID, against a requirement of at most one. Identification is *partial* (the near-Gaussian block is unidentified, the rest is not) and **does not exist pre-COVID**. `output/nongaussian/gate.md`.
+
+LMS (2017) via `svars::id.ngml` is still open as the parametric-ML twin. Note `svars::id.dc`/`id.cvm` are Matteson-Tsay and Herwartz-Plödt, **not** GMR — citing them as GMR would be a citation error.
 
 Monthly-frequency heteroskedasticity identification was implemented, simulation-validated and then **empirically rejected in both variants** (calendar regimes and BPSS-style episode regimes) on this panel — see `_instrucoes/historico_decisoes.md` §1.2. The 2026-07-16 author decision to abandon proxy identification altogether was **reverted on 2026-07-24**: the vintage refresh restored instrument strength and the proxy-SVAR remains the production identification. Current robustness roadmap is frequentist — Angelini-Cavaliere-Fanelli (2024) for weak-proxy inference plus the non-Gaussian route above.
 
@@ -66,6 +74,11 @@ Rscript script/model_alessi.R
 
 # VAR robustness
 Rscript script/model_var.R
+
+# Non-Gaussian identification (GMR 2017 PML-ICA)
+Rscript script/validate_gmr_ica.R            # translation vs IdSS + the paper's own application
+Rscript script/nongaussian_gate.R            # at-most-one-Gaussian precondition on eta
+Rscript script/model_nongaussian.R [nboot]   # production run + proxy comparison (~10 s/draw)
 ```
 
 There is no test suite, no linter, no build step. Iterate by running the relevant script.
@@ -81,7 +94,8 @@ Expected h0 (matches `output/irf/irf_coherence_h.csv`): `yield_6m` 0.005, `yield
 
 ## Repository layout
 
-- `script/` — the ordered pipeline plus diagnostics (18 files), with `run_all.R` as the orchestrator. `R/` — reusable modules, `source()`d one level deep by `script/`; nothing in `R/` sources anything in `script/`.
+- `script/` — the ordered pipeline plus diagnostics (21 files), with `run_all.R` as the orchestrator. `R/` — reusable modules, `source()`d one level deep by `script/`; nothing in `R/` sources anything in `script/`.
+- **The non-Gaussian track** lives in `R/identification/nongaussian_{gmr,branch}.R` and `script/{validate_gmr_ica,nongaussian_gate,model_nongaussian}.R`, writing to `output/nongaussian/`. `validate_gmr_ica.R` needs `remotes::install_github("jrenne/IdSS")` (commit `20c8ea6`) purely as a cross-validation target; the production path imports nothing from it.
 - **The yield curve is a fixed external input — there is no fitting stage.** `data/yields/yields_dia.csv` was supplied by the advisor and is what `script/download.R` consumes; no script here writes it, none should, and it is **not reproducible from this repository**. Treat it as read-only data. `script/yield_curve.R` (an in-house Svensson fit on DI) was **deleted on 2026-07-26** — it never produced good results and its output fed no stage; see `_instrucoes/historico_decisoes.md` §4. Consequence: `R/modeling/svensson_model.R` has no consumer left (the `source()` in `download.R` was dead and was removed). `run_all.R` fails preflight with a pointer if `yields_dia.csv` goes missing.
 - `output/` — **git-tracked** estimation artifacts (~3 MB). Everything currently in it is from the 2026-07-24 production run or later; anything older either does not reproduce against the 106-series panel or was archived.
 - `_instrucoes/` — project docs. `pendencias.md` (open only), `historico_decisoes.md` (negative results and reversed decisions), `Instrumento.md`, `justificativa_uso_yield-6m.md`.
@@ -110,6 +124,7 @@ Inputs and intermediate files live under `data/` (gitignored). Key paths the scr
 - `output/irf/spec_sweep_cells.csv`, `spec_sweep_irf_long.csv`, `spec_sweep_{report,stage2,conclusoes}.md`, `irf_spec_<tag>.{rds,pdf}`, `irf_spec_stage2_overlay.pdf` — specification-sweep artifacts (`irf_spec_sweep.R` / `irf_spec_stage2.R`).
 - `output/irf/irf_coherence_h.csv` — point + 68/90 bands + significance flags for 52 variables × 49 horizons; **the source of every number in `irf_section.md`**. `irf_coherence_cell.rds` holds the full estimation object so follow-up analyses never re-estimate.
 - `output/instrument/mosw_strength_grid.{csv,md}` — ξ_mp / joint Wald / ξ_k over (r,q) × sample × instrument; the strength ruler of record.
+- `output/nongaussian/gate.md` — the at-most-one-Gaussian precondition on `eta`, per window, plus where the proxy's impact direction sits relative to the Gaussian span and how stable the monetary column is across optimizer starts. `results.md` / `irf_comparison.{csv,pdf}` / `gmr_cell.rds` — the GMR production run, the Wald test of the proxy restriction and the GMR-vs-proxy IRF comparison.
 - `data/di.csv`, `data/copom_historico.csv`, `data/processed/ibov_daily.csv`, `data/processed/brl_usd_daily.csv`, `data/investing/external_factors_daily.csv` — daily inputs to instrument construction.
 - `data/yields/yields_dia.csv` — advisor-supplied yield curve at fixed maturities (3/6/12/24/60/120 months, `dd/mm/yyyy`), read by `download.R`. Fixed external input, no producer in the repo.
 

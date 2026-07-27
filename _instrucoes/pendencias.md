@@ -28,9 +28,24 @@ sem virar bayesiano. Fonte:
    **não-gaussianidade**: Lanne-Meitz-Saikkonen (2017, *JoE*, ML paramétrico) e
    Gouriéroux-Monfort-Renne (2017, *JoE*, pseudo-ML/ICA, imune ao chute de
    densidade). Identificam sem usar o proxy, que passa a **rotular** a coluna
-   monetária — e a restrição do proxy vira **testável** (Wald/LR). Pacote R
-   nativo (`svars::id.ngml`, `id.dc`/`id.cvm`). Rota mais barata e a única que
-   preserva o paradigma.
+   monetária — e a restrição do proxy vira **testável** (Wald/LR). Rota mais
+   barata e a única que preserva o paradigma. Código em R para as duas:
+
+   - **GMR (2017) literal** — ~~pacote `IdSS`~~ **traduzido para o repo em
+     2026-07-27**: `R/identification/nongaussian_gmr.R`. O pacote do Renne
+     (`remotes::install_github("jrenne/IdSS")`, commit `20c8ea6`) tem o caminho
+     ICA **quebrado para n ≥ 4** — `make.M`, `make.C` e o gradiente, os três —
+     e este projeto roda em q = 6. Ver `historico_decisoes.md` §0.1. O pacote
+     segue instalado e é usado **só** como alvo de validação cruzada em
+     `script/validate_gmr_ica.R` (`make.Omega`, `make.A.matrix`,
+     `make.Asympt.Cov.delta` estão corretas em qualquer n, e o dataset
+     `US3var` é o da aplicação publicada). Livro dos autores:
+     <https://jrenne.github.io/IdentifStructShocks/NonGaussian.html>.
+   - **LMS (2017)** — `svars::id.ngml` (ML paramétrico, Lange et al., *JSS* 2021).
+   - **Atenção à atribuição:** `svars::id.dc` e `id.cvm` são **Matteson-Tsay
+     (2017)** e **Herwartz-Plödt**, ICA baseada em dependência — do mesmo
+     espírito semiparamétrico do GMR, mas **não** o PML do artigo. Citá-los como
+     "GMR" seria erro de citação no paper; para GMR, use `IdSS`.
 2. **Robustez a IV fraco dentro do paradigma** — Angelini-Cavaliere-Fanelli
    (2024, *JoE*): pré-teste de força por bootstrap robusto a heterocedasticidade
    condicional e a proxies *zero-censored* (é o caso da máscara JK), sem viés de
@@ -46,16 +61,22 @@ de `compute_irf_dfm` já implementam.
 
 ## Aberto — bloqueante para o paper
 
-- [ ] **Gate de não-gaussianidade em η** — Jarque-Bera + curtose por fator no
-  (7,6); a rota LMS/GMR exige **no máximo uma** inovação gaussiana. Barato:
-  reusa `output/irf/irf_coherence_cell.rds`, sem re-estimar. **Decide se o item
-  seguinte acontece.**
-- [ ] **Ramo `identification = "nongaussian"`** em `compute_irf_dfm`
-  (`R/modeling/impulse_responde.R`) — condicionado ao gate. Chamar
-  `svars::id.ngml` / `id.dc` nas inovações fatoriais, rotular a coluna monetária
-  por `corr(coluna, z)`, propagar por Λ, e reportar o teste LR/Wald da restrição
-  do proxy. O ramo `identification = c("proxy","het")` é o molde: consome `eta`
-  e devolve IRFs no mesmo formato.
+- [x] **Gate de não-gaussianidade em η** (2026-07-27). `script/nongaussian_gate.R`
+  → `output/nongaussian/gate.md`. Resultado: **3 de 6** componentes não rejeitam
+  normalidade no full, **5 de 6** pré-COVID. A rota existe só no full sample e a
+  identificação é **parcial**. Correção: o gate **não** pode reusar
+  `output/irf/irf_coherence_cell.rds` — aquele arquivo guarda só
+  `irf`/`var_names`/`tcode`/`mpind`/..., não o objeto DFM; o script re-estima
+  (barato, sem bootstrap). Detalhes em `historico_decisoes.md` §0.2.
+- [x] **Ramo `identification = "nongaussian"`** (2026-07-27), branch
+  `identificacao-nao-gaussiana`. GMR (2017) PML-ICA **traduzido para o repo** em
+  `R/identification/nongaussian_gmr.R` + adaptador em `nongaussian_branch.R`;
+  cinco costuras em `compute_irf_dfm` (switch de 3 vias, parsing do instrumento
+  para rotulagem, despacho do ponto, esquema de reamostragem por ramo, bloco
+  `ng_point`/`ng_boot`). **Não** se usa `IdSS::estim.SVAR.ICA`: o pacote está
+  quebrado para n ≥ 4 e q = 6 cai em cheio — ver `historico_decisoes.md` §0.1.
+  Validação em `script/validate_gmr_ica.R` reproduz a aplicação publicada do
+  artigo (§3.2). Smoke test do proxy inalterado.
 - [ ] **Converter o §5 para o tex.** `output/irf/irf_section.md` foi reescrito
   em 2026-07-26 sob (7,6); falta levar para `tex/main.tex`, onde a seção de
   resultados hoje **não existe** (a `\section{Resultados}` da era Cholesky foi
@@ -101,14 +122,47 @@ O que **continua aberto** no tex, além do §5:
 - [ ] **Resumo, introdução, revisão de literatura e conclusão** seguem da era
   Cholesky — ver o item de rewrite acima.
 
+## Aberto — decisão sobre a rota não-gaussiana (2026-07-27)
+
+O ramo GMR está implementado e validado, e produziu um resultado que **não** é
+o que a rota foi buscar. Registro completo em
+`relatorio/working-notes/2026-07-27_identificacao_nao_gaussiana_gmr.md`.
+
+- [ ] **Decidir o enquadramento do GMR no paper.** O autor optou por
+  "identificação de manchete" em 2026-07-27, antes de os números existirem. O
+  que eles dizem: **o estimador não tem poder neste painel.** As bandas de 90%
+  no impacto **contêm zero em todas as variáveis** exceto a normalizada —
+  `asset_ibov` é −10,7 com CI90 **[−49,5, +80,8]**, contra −1,67 com
+  [−7,6, +1,8] do proxy. O bootstrap (200 draws i.i.d.) dá cosseno mediano 0,703
+  entre a direção do draw e a do ponto, com 49% dos draws abaixo de 0,7. A
+  rejeição assintótica da restrição do proxy (ξ = 117,3, p < 0,0001) é
+  **provavelmente espúria**: a simulação mostra a Prop. 4 cobrindo 0,79 contra
+  0,95 nominal em T = 150, n = 6. Não há contradição entre as duas
+  identificações a resolver — há um estimador que não determina nada.
+  **Recomendação:** usar o GMR como **teste** (ele rejeita o esquema recursivo,
+  que é o que o artigo original faz) e não como estimativa concorrente.
+  Argumentado na working-note.
+- [ ] **Inspecionar a IRF da segunda coluna mais correlacionada com `z`.** A
+  rotulagem escolhe por |cor| = 0,20 contra 0,17 — folga pequena demais para
+  sustentar sozinha o nome "monetária". Barato: o objeto está em
+  `output/nongaussian/gmr_cell.rds`.
+- [ ] **LMS (2017) como terceira leitura** — `svars::id.ngml`, ML paramétrico
+  sobre a mesma premissa de não-gaussianidade. Se LMS concordar com GMR, a
+  discordância é do proxy; se ficar no meio, é do método. É o desempate mais
+  barato disponível.
+
 ## Aberto — robustez e conteúdo
 
 - [ ] **Placebo `commodity_metal` violado** — responde +10,4% no impacto com
-  CI90 até h4 a um choque monetário brasileiro. Metais **não** estão entre os
-  preditores pré-evento da ortogonalização BS (Brent está), então o instrumento
-  plausivelmente retém um componente global de commodity/risco. Testar
-  ortogonalização estendida com um fator de metais, ou documentar como ressalva
-  de exogeneidade. É o caveat mais concreto contra a validade do instrumento.
+  CI90 até h4 a um choque monetário brasileiro. A hipótese original era que o
+  instrumento retém um componente global de commodity/risco (metais **não**
+  estão entre os preditores pré-evento da ortogonalização BS; Brent está).
+  **Revisar essa atribuição (2026-07-27):** a identificação não-gaussiana, que
+  **não usa o instrumento**, viola o mesmo placebo com magnitude parecida
+  (+12,0). Se a violação sobrevive sem `z`, a fonte mais provável é o **espaço
+  de fatores / o painel**, não a construção do instrumento — e a
+  ortogonalização estendida com um fator de metais não resolveria. Testar:
+  quanto do `commodity_metal` é comunalidade contra idiossincrático em (7,6).
 - [ ] **Comparação cross-instrumento do IPCA sob (7,6)** — *destravado em
   2026-07-26; falta só a análise.* O argumento "a corcova é universal entre
   instrumentos e some pre-COVID" fecha o diagnóstico do price puzzle, mas foi
@@ -129,6 +183,29 @@ O que **continua aberto** no tex, além do §5:
 - [ ] **Bandas Anderson-Rubin** — agora **opcionais**. Com ξ_mp > 10 nas duas
   janelas em (7,6) as bandas convencionais bastam; manter AR como robustez
   (protocolo anti-screening de MOSW, footnote 6: reportar ξ, não filtrar pelo F).
+- [ ] **LP-IV como robustez à especificação dinâmica** — *desejável, não
+  bloqueante; o autor quer tentar se houver tempo (2026-07-26).* Local
+  Projections com o mesmo instrumento: `IdSS::make.LPIV.irf` (uma regressão IV
+  por horizonte, controles opcionais de defasagens de `Y` e `Z`, erro-padrão HAC
+  via `tsls` com Newey-West em `h + 1`). O pacote já entra no projeto pela rota
+  não-gaussiana, então o custo marginal é baixo.
+  - **Por que vale:** é um **estimador diferente da mesma identificação**. Não
+    inverte o polinômio autorregressivo nem propaga por potências da companion,
+    logo **nada nele depende de `p = 6`** nem da forma funcional do VAR. E roda
+    nativamente em observáveis, dispensando a adaptação ao espaço de fatores que
+    todos os outros métodos do roadmap exigem. Rodar em `yield_6m`,
+    `asset_ibov`, `cambio_usd` e nas demais manchetes do §5 contra
+    `z_jk_bs_purif`, comparando com `output/irf/irf_coherence_h.csv`.
+  - **Cuidado na leitura:** LP-IV em observáveis crus **descarta o DFM**, então
+    uma divergência pode ser a especificação dinâmica *ou* a perda da estrutura
+    de fatores (variável omitida / notícia). Para isolar a primeira, incluir os
+    fatores estimados como controles. E a precisão de LP degrada nos horizontes
+    longos — com T = 147 a comparação em h próximo de 48 é frágil.
+  - **Detalhe de implementação:** `make.LPIV.irf` normaliza para efeito unitário
+    na **primeira coluna de `Y`** — ordenar `yield_6m` primeiro.
+  - **Ressalva:** continua dependendo de `z_jk_bs_purif` ser relevante e exógeno.
+    **Não** responde ao ξ_mp no limiar nem ao placebo `commodity_metal` — só a
+    rota não-gaussiana faz isso, porque só ela identifica sem `z`.
 - [ ] **Spread de concessões novas** como complemento ao ICC — deve abrir já no
   curto prazo, ao contrário do ICC (taxa da carteira, reprecifica devagar).
   Desejável, não bloqueante.
