@@ -1,0 +1,107 @@
+var,grupo,tcode,adf_rejeita_RU_5pct,kpss_p,kpss_rejeita_estac_5pct,veredito
+cambio_eur,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+cambio_cny,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+cambio_ars,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+cambio_inr,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+cambio_usd,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+juros_selic,juros,1,FALSE,0.06568555618484093,FALSE,ambiguo
+juros_cdi,juros,1,FALSE,0.06732499575954179,FALSE,ambiguo
+yield_3m,juros,1,FALSE,0.057644959065722666,FALSE,ambiguo
+yield_6m,juros,1,FALSE,0.057503309648203785,FALSE,ambiguo
+yield_1y,juros,1,FALSE,0.05245457565156161,FALSE,ambiguo
+yield_2y,juros,1,FALSE,0.04332733084328403,TRUE,I(1) — os dois concordam
+yield_5y,juros,1,FALSE,0.04352073564444119,TRUE,I(1) — os dois concordam
+yield_10y,juros,1,FALSE,0.054690455010936674,FALSE,ambiguo
+base_monetary_base,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+base_money_supply,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+base_demand_deposit,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+base_savings_deposit,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+base_m1,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+base_m2,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+base_m3,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+credito_agro,credito,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+credito_industria_total,credito,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+credito_construcao,credito,4,FALSE,0.015977664818585605,TRUE,I(1) — os dois concordam
+credito_comercio,credito,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+credito_transporte,credito,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+credito_pessoa_fisica,credito,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+spread_icc_juridica,credito,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+spread_icc_fisica,credito,1,FALSE,0.09537254388980353,FALSE,ambiguo
+credit_outstanding,credito,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+fin_inst_reserve_req,outros,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+consumo_gasolina,consumo,1,FALSE,0.04301249333843127,TRUE,I(1) — os dois concordam
+consumo_glp,consumo,1,TRUE,0.01,TRUE,ambiguo
+consumo_oleo_combustivel,consumo,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+consumo_oleo_diesel,consumo,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+consumo_demais_derivados,consumo,1,FALSE,0.016580373198125484,TRUE,I(1) — os dois concordam
+consumo_alcool,consumo,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+capacidade_instalada_industria,industria,1,FALSE,0.04178494813439813,TRUE,I(1) — os dois concordam
+vendas_varejo,consumo,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+vendas_servicos,consumo,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+ind_automoveis,industria,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+ind_leves,industria,1,FALSE,0.032010668395333314,TRUE,I(1) — os dois concordam
+ind_caminhoes,industria,1,FALSE,0.037150403142959254,TRUE,I(1) — os dois concordam
+ind_onibus,industria,1,FALSE,0.0748810114156198,FALSE,ambiguo
+ind_bens_consumo,industria,1,TRUE,0.01,TRUE,ambiguo
+ind_bens_duraveis,industria,1,TRUE,0.01,TRUE,ambiguo
+ind_bens_nao_duraveis,industria,1,TRUE,0.01,TRUE,ambiguo
+ind_bens_capital,industria,1,FALSE,0.03541462254290303,TRUE,I(1) — os dois concordam
+ind_transformacao,industria,1,TRUE,0.01,TRUE,ambiguo
+ind_min_extr,industria,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+ind_uti_cap_instalada,industria,1,TRUE,0.010758309908785298,TRUE,ambiguo
+energia_comercial,energia,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+energia_residencial,energia,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+energia_industrial,energia,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+energia_outros,energia,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+pib,atividade,4,FALSE,0.01,TRUE,I(1) — os dois concordam
+ibc_br,atividade,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+icc,atividade,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+ics,atividade,1,TRUE,0.04310465560530441,TRUE,ambiguo
+trab_employment_southest,trabalho,1,TRUE,0.01,TRUE,ambiguo
+trab_employment_south,trabalho,1,TRUE,0.01,TRUE,ambiguo
+trab_employment_northeast,trabalho,1,TRUE,0.01,TRUE,ambiguo
+trab_employment_north,trabalho,1,TRUE,0.01,TRUE,ambiguo
+trab_employment_central_west,trabalho,1,TRUE,0.01,TRUE,ambiguo
+trab_min_wage,trabalho,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+trab_pop_forca_trab,trabalho,1,TRUE,0.01,TRUE,ambiguo
+trab_pop_ocupada,trabalho,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+trab_tx_desemprego,trabalho,1,FALSE,0.013529513714856597,TRUE,I(1) — os dois concordam
+trab_hrs_trabalhadas_industria,trabalho,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+trab_menos_de_1_mes,trabalho,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+trab_de_1_mes_a_menos_de_1_ano,trabalho,1,FALSE,0.012679960342848967,TRUE,I(1) — os dois concordam
+trab_de_1_ano_a_menos_de_2_anos,trabalho,1,FALSE,0.010696950842586575,TRUE,I(1) — os dois concordam
+trab_x2_anos_ou_mais,trabalho,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+price_ipca,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+price_ipca_difusao,precos,1,TRUE,0.09061115881054392,FALSE,I(0) — os dois concordam
+price_core_ipca_ex0,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+price_core_ipca_ex1,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+price_core_ipca_dw,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+price_igp_m,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+price_ipc,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+price_core_ipc,precos,1,TRUE,0.01688041786491854,TRUE,ambiguo
+price_incc,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+price_inpc,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+price_ipp,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+commodity_agro,commodity,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+commodity_metal,commodity,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+commodity_energia,commodity,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+asset_ibov,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_idiv,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_ifix,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_ifnc,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_imat,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_imob,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_mlcx,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_smll,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
+embi_perc,risco_ext,1,FALSE,0.06272600981336285,FALSE,ambiguo
+cds_5y,risco_ext,1,FALSE,0.09942274001584975,FALSE,ambiguo
+msci,risco_ext,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+sp500_vix,risco_ext,1,TRUE,0.020485344351286915,TRUE,ambiguo
+epu_brazil,incerteza,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+epu_canada,incerteza,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+epu_chile,incerteza,1,TRUE,0.01,TRUE,ambiguo
+epu_china,incerteza,1,TRUE,0.01,TRUE,ambiguo
+epu_germany,incerteza,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+epu_india,incerteza,1,TRUE,0.048279115114846324,TRUE,ambiguo
+epu_russia,incerteza,1,TRUE,0.01,TRUE,ambiguo
+epu_us,incerteza,1,TRUE,0.01,TRUE,ambiguo

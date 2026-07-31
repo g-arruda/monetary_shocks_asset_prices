@@ -1,0 +1,6 @@
+fato,valor,consequencia
+"leave-one-month-out, full: min xi_mp",8.43,conjunto AR limitado em toda a vizinhanca amostral
+"leave-one-month-out, full: meses que derrubam abaixo de 3.84",0 de 147,a afirmacao 'AR e limitado' e ROBUSTA
+"leave-one-month-out, full: meses que derrubam abaixo de 10",24 de 147,a afirmacao 'bandas convencionais valem' e MARGINAL
+"leave-one-month-out, pre-COVID: meses abaixo de 10",4 de 78,pre-COVID e materialmente mais forte
+"HAC: xi_mp em NW(6), full",15.64 (crescente em NW),"NW(0) e a escolha conservadora, nao a conveniente"

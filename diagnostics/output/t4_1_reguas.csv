@@ -1,0 +1,6 @@
+regua,formula,fonte,onde_no_codigo,e_um_F_de_1o_estagio
+xi_mp,"T * (c'Gamma)^2 / (c'Wc), c = direcao de impacto de yield_6m","Montiel Olea-Stock-Watson (2021), sec. 4.2 — analogo exato do `Waldstat` oficial",impulse_responde.R:199-249 via diagnose_instrument_in_factor_space,NAO
+wald_joint,T * Gamma' W^-1 Gamma  ~  chi2_q,MSWfunction.m:389 (`WaldstatFull`),impulse_responde.R:233-235,NAO
+xi_k (min/max),"T * Gamma_k^2 / W_kk, por fator","MOSW (2021), sec. 4.2",impulse_responde.R:232,NAO
+f_factor,max_k F da regressao univariada eta_k ~ z (homocedastica),"regua LEGADA do projeto, nao e MOSW",impulse_responde.R:145-155,sim (mas homocedastico)
+f_reduced,F parcial de z contra a inovacao AR(6) de yield_6m,"regua LEGADA de forma reduzida, nao e MOSW",spec_sweep.R:142-145,sim

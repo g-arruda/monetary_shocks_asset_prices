@@ -1,0 +1,3 @@
+limiar,origem,producao_full,producao_pre
+xi_mp > 3.84,"qchisq(0.95, 1) — MOSW: o conjunto AR de 95% e um INTERVALO LIMITADO",TRUE,TRUE
+xi_mp >= 10,"convencao Staiger-Stock / Stock-Yogo herdada, NAO tabelada por MOSW",TRUE,TRUE

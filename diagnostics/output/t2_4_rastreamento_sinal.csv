@@ -1,0 +1,6 @@
+local,o_que,determinístico,risco
+factor_estimation.R:336-344,normalizacao de sinal dos loadings estaticos (SVD),SIM — maior |elemento| forcado positivo,nenhum
+factor_estimation.R:667-673,normalizacao de sinal dos autovetores dinamicos (SVD),SIM — maior |elemento| forcado positivo,nenhum
+factor_estimation.R:458,"Abias = -bias/T, interno a correcao de Kilian",SIM — nao toca sinal de IRF,nenhum
+impulse_responde.R:124,"divisao por irf_mp[mpind,1] (normalizacao do choque)","SIM — sinal fixado pelo dado, nao arbitrario",define o sinal global; se impact_pre<0 TODAS as IRFs viram
+impulse_responde.R:759-766,opcao invert_shock do plot,INATIVO em producao (default FALSE),nenhum
