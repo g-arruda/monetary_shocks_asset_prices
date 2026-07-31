@@ -146,23 +146,26 @@ Extremo de **médio prazo** (h ≥ 13) dentro de ±25% do quarto de ciclo: **10 
 
 ## 7. Decomposição espectral — apagar o par dominante de `B`
 
-| var | h_mp_completo | val_mp_completo | h_mp_sem_par1 | val_mp_sem_par1 | razao_sem_par1 | vale_sobrevive_sem_par1 |
-|---|---|---|---|---|---|---|
-| yield_3m | 32 | -0.008 | 13 | 0.012 | -1.575 | FALSE |
-| yield_6m | 31 | -0.008 | 13 | 0.012 | -1.516 | FALSE |
-| yield_2y | 26 | -0.006 | 13 | 0.008 | -1.233 | FALSE |
-| yield_10y | 22 | -0.004 | 13 | 0.004 | -1.013 | FALSE |
-| juros_selic | 34 | -0.778 | 13 | 1.235 | -1.586 | FALSE |
-| cds_5y | 20 | -18.001 | 25 | -18.792 | 1.044 | TRUE |
-| embi_perc | 22 | -0.172 | 13 | 0.153 | -0.890 | FALSE |
-| cambio_usd | 17 | -0.068 | 20 | -0.219 | 3.207 | TRUE |
-| credit_outstanding | 29 | -1.227 | 13 | 1.442 | -1.175 | FALSE |
-| credito_pessoa_fisica | 32 | -0.938 | 13 | 1.278 | -1.363 | FALSE |
-| credito_comercio | 26 | -2.187 | 13 | 1.796 | -0.821 | FALSE |
-| credito_construcao | 29 | -2.443 | 13 | 2.845 | -1.165 | FALSE |
-| credito_industria_total | 25 | -1.630 | 13 | 1.387 | -0.851 | FALSE |
-| credito_agro | 25 | -1.473 | 13 | 1.486 | -1.009 | FALSE |
+⚠ **Apagar modos muda o denominador da normalização.** `B₀` só é a identidade com todos os modos (`Σₖ vₖwₖ' = I`); sem o par dominante o impacto pré-normalização de `yield_6m` cai a **0.313** do original (sem o par 2, 1.034). O **sinal se preserva nos dois**, então a inversão do vale não é artefato, e o **horizonte** do extremo é invariante a escala. A **magnitude** admite duas leituras: renormalizar cada caminho a +50 pb responde *"se este modo não existisse, o que faria um choque de 50 pb?"*; pôr os dois na **escala comum** (multiplicando pela razão de denominadores) é a leitura de **decomposição**, porque a IRF é linear em `Bₕ` e os modos só somam antes da renormalização. A tabela traz a escala comum.
 
-Vale sobrevive à remoção do **par dominante** (mesmo sinal, > 50% da magnitude): **2 de 14**.
-Razão mediana |sem par 1| / completo: **1.170**. Sem par 2: 0.977.
+| var | h_mp_completo | val_mp_completo | h_mp_sem_par1 | razao_sem_par1_defl | inverte_sinal_sem_par1 | vale_sobrevive_sem_par1 |
+|---|---|---|---|---|---|---|
+| yield_3m | 32 | -0.008 | 13 | -0.493 | TRUE | FALSE |
+| yield_6m | 31 | -0.008 | 13 | -0.475 | TRUE | FALSE |
+| yield_2y | 26 | -0.006 | 13 | -0.386 | TRUE | FALSE |
+| yield_10y | 22 | -0.004 | 13 | -0.317 | TRUE | FALSE |
+| juros_selic | 34 | -0.778 | 13 | -0.497 | TRUE | FALSE |
+| cds_5y | 20 | -18.001 | 25 | 0.327 | FALSE | FALSE |
+| embi_perc | 22 | -0.172 | 13 | -0.279 | TRUE | FALSE |
+| cambio_usd | 17 | -0.068 | 20 | 1.004 | FALSE | TRUE |
+| credit_outstanding | 29 | -1.227 | 13 | -0.368 | TRUE | FALSE |
+| credito_pessoa_fisica | 32 | -0.938 | 13 | -0.427 | TRUE | FALSE |
+| credito_comercio | 26 | -2.187 | 13 | -0.257 | TRUE | FALSE |
+| credito_construcao | 29 | -2.443 | 13 | -0.365 | TRUE | FALSE |
+| credito_industria_total | 25 | -1.630 | 13 | -0.266 | TRUE | FALSE |
+| credito_agro | 25 | -1.473 | 13 | -0.316 | TRUE | FALSE |
+
+**Inverte de sinal** ao apagar o par dominante: **12 de 14**.
+Vale sobrevive (mesmo sinal **e** > 50% da magnitude em escala comum): **1 de 14**.
+Razão mediana em **escala comum**: **0.366** sem o par 1, contra **1.009** sem o par 2 (controle). Renormalizando cada caminho a +50 pb seriam 1.170 e 0.977.
 

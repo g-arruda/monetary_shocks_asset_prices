@@ -171,23 +171,43 @@ contrafactual pelo mesmo `ident_ext_instr` e pela mesma transformação de `tcod
 que a produção usa. (A reconstrução completa bate a produção a 5,2e-13 — é o
 auto-teste que licencia o exercício.)
 
+**⚠ Uma armadilha de escala que quase passou.** Apagar modos muda o denominador
+da normalização: `B₀` só é a identidade com todos os modos (`Σₖ vₖwₖ' = I`), e sem
+o par dominante o impacto pré-normalização de `yield_6m` cai a **0,313** do
+original (sem o par 2, 1,034). Como `ident_ext_instr` divide por esse impacto,
+o caminho contrafactual sai reescalado por ~3,2×. **O sinal não é afetado** — o
+denominador não troca de sinal, e isso é testado com `stopifnot` — e o
+**horizonte** do extremo é invariante a escala. Mas a magnitude admite duas
+leituras: renormalizar cada caminho a +50 pb responde *"se este modo não
+existisse, o que faria um choque de 50 pb?"*; pôr os dois na **escala comum** é a
+leitura de **decomposição**, que é a correta aqui, porque a IRF é linear em `Bₕ` e
+os modos só somam antes da renormalização. A tabela abaixo está em escala comum.
+
 **Sem o par dominante, o vale de médio prazo não some: ele inverte de sinal em
-12 das 14 séries**, e o horizonte do extremo colapsa de h≈22-34 para h=13, o
-próprio limite inferior da janela — ou seja, não sobra extremo interior nenhum.
+12 das 14 séries** e fica em ~37% da magnitude. O horizonte do extremo colapsa de
+h≈22-34 para h=13, o próprio limite inferior da janela — não sobra extremo
+interior nenhum.
 
-| série | vale completo | sem o par 1 | razão |
+| série | vale completo | razão em escala comum | inverte? |
 |---|---|---|---|
-| `yield_3m` | −0,00788 em h=32 | **+0,01241** em h=13 | −1,57 |
-| `yield_6m` | −0,00779 em h=31 | **+0,01181** em h=13 | −1,52 |
-| `juros_selic` | −0,778 em h=34 | **+1,235** em h=13 | −1,59 |
-| `credito_construcao` | −2,443 em h=29 | **+2,845** em h=13 | −1,16 |
-| `credit_outstanding` | −1,227 em h=29 | **+1,442** em h=13 | −1,18 |
-| `embi_perc` | −0,172 em h=22 | **+0,153** em h=13 | −0,89 |
+| `juros_selic` | −0,778 em h=34 | **−0,497** | sim |
+| `yield_3m` | −0,00788 em h=32 | **−0,493** | sim |
+| `yield_6m` | −0,00779 em h=31 | **−0,475** | sim |
+| `credito_pessoa_fisica` | −0,938 em h=32 | −0,427 | sim |
+| `yield_2y` | −0,00611 em h=26 | −0,386 | sim |
+| `credit_outstanding` | −1,227 em h=29 | −0,368 | sim |
+| `credito_construcao` | −2,443 em h=29 | −0,365 | sim |
+| `embi_perc` | −0,172 em h=22 | −0,279 | sim |
+| `cds_5y` | −18,00 em h=20 | +0,327 | não, mas resta 33% |
+| `cambio_usd` | −0,068 em h=17 | **+1,004** | **não — sobrevive inteiro** |
 
-Sobrevivem duas: `cds_5y` (razão 1,04) e `cambio_usd` (3,21, com o vale
-*aumentando*). **O controle fecha o argumento:** apagar o **segundo** par em vez
-do primeiro deixa a magnitude praticamente intacta — razão mediana **0,977**
-contra **1,170** (e sinal invertido) do primeiro. Não é "qualquer par"; é aquele.
+**Sobrevive uma só**, o `cambio_usd`: seu vale de médio prazo não vem do par
+dominante. O `cds_5y` mantém o sinal mas perde dois terços da magnitude.
+
+**O controle fecha o argumento.** Apagar o **segundo** par em vez do primeiro
+deixa tudo praticamente intacto — razão mediana **1,009**, contra **0,366** do
+primeiro com 12 inversões de sinal. Não é "apagar dois modos quaisquer quebra a
+IRF"; é aquele par.
 
 ## Veredito
 
@@ -227,6 +247,10 @@ impreciso, é **dinamicamente redundante** em relação ao curto prazo.
   persistência do VAR — o que é diferente de ser ruído. Um VECM não resolveria
   isso: BLL (2016b) mostram que ele é *pior* no curto prazo, e o problema aqui
   não é viés, é redundância de informação.
+- Que o `cambio_usd` esteja no mesmo balaio. Ele é a **única** das 14 cuja
+  reversão sobrevive inteira à remoção do par dominante (razão 1,004). O que o §4
+  diz sobre a persistência cambial — inclusive a dependência de estado da Tarefa
+  7, que vive em h=6-8 — **não** é atingido por este achado.
 
 ## Aberto daqui
 

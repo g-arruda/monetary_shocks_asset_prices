@@ -600,6 +600,16 @@ if (!is.null(rev_tbl)) {
   eta_sel <- eta[al$rsh_sel_ind, , drop = FALSE]
 
   #' IRF built from B_h with the eigenvalues in `drop_k` removed
+  #'
+  #' Also returns the PRE-NORMALIZATION impact of the policy variable,
+  #' because deleting modes changes it. B_0 = (A^0)[1:r,1:r] is the
+  #' identity only when every mode is kept: sum_k v_k w_k' = I. Drop two
+  #' and the h=0 response moves, so `ident_ext_instr` divides by a
+  #' different denominator and the whole counterfactual path is rescaled.
+  #' The sign of the trough is immune (the denominator keeps its sign),
+  #' and so is the horizon of the extremum, but the MAGNITUDE ratio is
+  #' not — it has to be deflated by the denominator ratio before it can
+  #' be read as "the trough shrank to x% of itself".
   irf_from_modes <- function(drop_k = integer(0)) {
     keep <- setdiff(seq_len(rp), drop_k)
     rawimp <- array(0, dim = c(nrow(Lm), ncol(Kd), H_MAX + 1))
@@ -609,16 +619,32 @@ if (!is.null(rev_tbl)) {
       Bh <- Re(Ah[1:rr, 1:rr, drop = FALSE])
       rawimp[, , j + 1] <- sweep(Re(Lm %*% Bh %*% Kd %*% Md), 1, sy, "*")
     }
-    ident_ext_instr(rawimp, eta_sel, al$inst_sel, H_MAX,
-                    mpind, norm_v, TCODE)$irf_mp
+    Z <- as.matrix(al$inst_sel)
+    Hh <- drop(crossprod(Z, sweep(eta_sel, 2, colMeans(eta_sel)))) / drop(crossprod(Z))
+    list(irf = ident_ext_instr(rawimp, eta_sel, al$inst_sel, H_MAX,
+                               mpind, norm_v, TCODE)$irf_mp,
+         den = drop((matrix(rawimp[, , 1], nrow = nrow(Lm)) %*% Hh)[mpind]))
   }
 
-  irf_all  <- irf_from_modes()
-  irf_nod  <- irf_from_modes(1:2)   # drop the dominant conjugate pair
-  irf_no34 <- irf_from_modes(3:4)   # drop the second pair, as a control
+  m_all  <- irf_from_modes()
+  m_nod  <- irf_from_modes(1:2)   # drop the dominant conjugate pair
+  m_no34 <- irf_from_modes(3:4)   # drop the second pair, as a control
+  irf_all <- m_all$irf; irf_nod <- m_nod$irf; irf_no34 <- m_no34$irf
+
+  k_nod <- m_nod$den / m_all$den     # denominator ratio, pair 1
+  k_no34 <- m_no34$den / m_all$den   # ditto, pair 2 (control)
+  cat(sprintf("    denominador da normalizacao (impacto pre-norm de %s): completo %.3g\n",
+              MP_VAR, m_all$den))
+  cat(sprintf("      sem par 1: %.3g (razao %.3f) | sem par 2: %.3g (razao %.3f)\n",
+              m_nod$den, k_nod, m_no34$den, k_no34))
+  cat("      sinal preservado nos dois, entao a INVERSAO do vale nao e artefato,\n")
+  cat("      e o HORIZONTE do extremo e invariante a escala. A MAGNITUDE tem duas\n")
+  cat("      leituras: renormalizada a +50pb, ou em escala comum (= decomposicao).\n")
+  stopifnot(sign(m_nod$den) == sign(m_all$den),
+            sign(m_no34$den) == sign(m_all$den))
 
   # Self-test: the full reconstruction must equal the production IRF
-  d_prod <- max(abs(irf_all[match(rev_tbl$var, VAR_NAMES), 1:49] -
+  d_prod <- max(abs(m_all$irf[match(rev_tbl$var, VAR_NAMES), 1:49] -
                     as.matrix(cell$irf$irf_point_matrix[
                       match(rev_tbl$var, VAR_NAMES), 1:49])))
   cat(sprintf("    self-test: reconstructed IRF vs production, max |diff| = %.3g\n",
@@ -642,17 +668,36 @@ if (!is.null(rev_tbl)) {
   }) |> bind_rows() |>
     mutate(razao_sem_par1 = val_mp_sem_par1 / val_mp_completo,
            razao_sem_par2 = val_mp_sem_par2 / val_mp_completo,
-           vale_sobrevive_sem_par1 = abs(razao_sem_par1) > 0.5 &
-             sign(val_mp_sem_par1) == sign(val_mp_completo))
+           # Two readings, and they answer different questions.
+           #  `razao_*`        — both paths renormalized to +50bp on the
+           #    policy variable. Answers "if this mode did not exist, what
+           #    would a 50bp shock do?". It is what the object returned by
+           #    ident_ext_instr already is.
+           #  `razao_*_defl`   — both paths on a COMMON scale, which is the
+           #    decomposition reading: the IRF is linear in B_h, so the modes
+           #    add up only before the per-path renormalization. Since the
+           #    reported ratio already carries d_full/d_cf, multiplying by
+           #    k = d_cf/d_full undoes it.
+           razao_sem_par1_defl = razao_sem_par1 * k_nod,
+           razao_sem_par2_defl = razao_sem_par2 * k_no34,
+           inverte_sinal_sem_par1 = sign(val_mp_sem_par1) != sign(val_mp_completo),
+           vale_sobrevive_sem_par1 = abs(razao_sem_par1_defl) > 0.5 &
+             !inverte_sinal_sem_par1)
 
   print(as.data.frame(spec_rows7 |>
           select(var, h_mp_completo, val_mp_completo, h_mp_sem_par1,
-                 val_mp_sem_par1, razao_sem_par1, vale_sobrevive_sem_par1)),
+                 razao_sem_par1_defl, inverte_sinal_sem_par1,
+                 vale_sobrevive_sem_par1)),
         row.names = FALSE, digits = 3)
 
-  cat(sprintf("\n    trough survives deletion of the DOMINANT pair (same sign, >50%% of magnitude): %d of %d\n",
+  cat(sprintf("\n    INVERTE de sinal ao apagar o par DOMINANTE: %d de %d\n",
+              sum(spec_rows7$inverte_sinal_sem_par1), nrow(spec_rows7)))
+  cat(sprintf("    vale sobrevive (mesmo sinal E > 50%% da magnitude, escala comum): %d de %d\n",
               sum(spec_rows7$vale_sobrevive_sem_par1), nrow(spec_rows7)))
-  cat(sprintf("    median |ratio| without pair 1: %.3f | without pair 2: %.3f\n",
+  cat(sprintf("    razao mediana em ESCALA COMUM — sem par 1: %.3f | sem par 2 (controle): %.3f\n",
+              median(abs(spec_rows7$razao_sem_par1_defl)),
+              median(abs(spec_rows7$razao_sem_par2_defl))))
+  cat(sprintf("    (renormalizando cada caminho a +50pb seriam %.3f e %.3f)\n",
               median(abs(spec_rows7$razao_sem_par1)),
               median(abs(spec_rows7$razao_sem_par2))))
 
@@ -770,12 +815,20 @@ if (!is.null(spec_rows7)) {
   md <- c(md,
     "## 7. Decomposição espectral — apagar o par dominante de `B`",
     "",
+    sprintf("⚠ **Apagar modos muda o denominador da normalização.** `B₀` só é a identidade com todos os modos (`Σₖ vₖwₖ' = I`); sem o par dominante o impacto pré-normalização de `%s` cai a **%.3f** do original (sem o par 2, %.3f). O **sinal se preserva nos dois**, então a inversão do vale não é artefato, e o **horizonte** do extremo é invariante a escala. A **magnitude** admite duas leituras: renormalizar cada caminho a +50 pb responde *\"se este modo não existisse, o que faria um choque de 50 pb?\"*; pôr os dois na **escala comum** (multiplicando pela razão de denominadores) é a leitura de **decomposição**, porque a IRF é linear em `Bₕ` e os modos só somam antes da renormalização. A tabela traz a escala comum.",
+            MP_VAR, k_nod, k_no34),
+    "",
     md_tbl(spec_rows7 |> select(var, h_mp_completo, val_mp_completo,
-                                h_mp_sem_par1, val_mp_sem_par1,
-                                razao_sem_par1, vale_sobrevive_sem_par1), 3),
-    sprintf("Vale sobrevive à remoção do **par dominante** (mesmo sinal, > 50%% da magnitude): **%d de %d**.",
+                                h_mp_sem_par1, razao_sem_par1_defl,
+                                inverte_sinal_sem_par1,
+                                vale_sobrevive_sem_par1), 3),
+    sprintf("**Inverte de sinal** ao apagar o par dominante: **%d de %d**.",
+            sum(spec_rows7$inverte_sinal_sem_par1), nrow(spec_rows7)),
+    sprintf("Vale sobrevive (mesmo sinal **e** > 50%% da magnitude em escala comum): **%d de %d**.",
             sum(spec_rows7$vale_sobrevive_sem_par1), nrow(spec_rows7)),
-    sprintf("Razão mediana |sem par 1| / completo: **%.3f**. Sem par 2: %.3f.",
+    sprintf("Razão mediana em **escala comum**: **%.3f** sem o par 1, contra **%.3f** sem o par 2 (controle). Renormalizando cada caminho a +50 pb seriam %.3f e %.3f.",
+            median(abs(spec_rows7$razao_sem_par1_defl)),
+            median(abs(spec_rows7$razao_sem_par2_defl)),
             median(abs(spec_rows7$razao_sem_par1)),
             median(abs(spec_rows7$razao_sem_par2))),
     "")

@@ -541,9 +541,21 @@ com as três críticas cruas, em `relatorio/council_2026-07-31.md`.
     **oposta** ao quarto de ciclo. (ii) **A decomposição espectral condena**:
     escrevendo `Aʰ = Σₖ λₖʰ vₖwₖ'` e apagando o par dominante de `B` — sem
     reestimar nada, com a reconstrução completa batendo a produção a **5,2e-13** —
-    **o vale inverte de sinal em 12 de 14 séries** e o horizonte do extremo
-    colapsa para o limite da janela. Apagar o **segundo** par não muda nada
-    (razão mediana 0,977 contra 1,170 e sinal invertido do primeiro).
+    **o vale inverte de sinal em 12 de 14 séries** e sobra ~37% da magnitude; o
+    horizonte do extremo colapsa para o limite da janela. Apagar o **segundo**
+    par não muda nada (razão mediana **1,009**, contra **0,366** do primeiro).
+  - **⚠ Armadilha de escala, testada com `stopifnot`.** Apagar modos muda o
+    denominador da normalização — `B₀` só é a identidade com todos os modos
+    (`Σₖ vₖwₖ' = I`) —, e sem o par dominante o impacto pré-normalização de
+    `yield_6m` cai a **0,313** do original, reescalando o contrafactual por
+    ~3,2×. **Sinal e horizonte são imunes**; a magnitude não, e tem de ser lida
+    em **escala comum** (a leitura de decomposição, porque a IRF é linear em `Bₕ`
+    e os modos só somam antes da renormalização). A primeira versão desta nota
+    reportou as razões renormalizadas (1,170 / 0,977) como se fossem
+    decomposição — corrigido.
+  - **O `cambio_usd` é a exceção e importa:** é a **única** das 14 cuja reversão
+    sobrevive inteira (razão 1,004). O que o §4 diz sobre persistência cambial —
+    incluindo a dependência de estado da Tarefa 7, em h=6-8 — **não** é atingido.
   - **A afirmação defensável, mais estreita que a acusação:** a reversão de médio
     prazo e a persistência quase-unitária do VAR de fatores são **o mesmo
     objeto**. O paper pode reportar a reversão como o que o modelo implica; **não
