@@ -1,767 +1,610 @@
 # ===================================================================
-# MODELO VAR DE ROBUSTEZ
-# IDENTIFICAÇÃO VIA INSTRUMENTO EXTERNO (PROXY SVAR)
-# Replicando Alessi & Kerssenfischer (2019) / Gertler & Karadi (2015)
+# The small-scale VAR benchmark: is the DFM stronger and faster?
+#
+# Council review of 2026-07-31 (relatorio/council_2026-07-31.md:23,73),
+# raised independently by the harsh referee and the macro theorist. The
+# introduction of the paper (tex/main.tex:183) claims the asset-price
+# responses are "mais fortes e rapidos do que a literatura baseada em
+# modelos de menor dimensao tipicamente encontra". That is
+# Alessi-Kerssenfischer's result, not one estimated here — and the
+# equity block, where the comparison would be most visible, has zero
+# sig90 cells in 392.
+#
+# This is the R translation of codigo_alessi-mark/MAIN_VARloop.m, which
+# is what produces Figures 1-4 of the replicated paper. What the
+# original code fixes, and this driver follows:
+#
+#  * 4-variable VARs, 3 core + 1 response, one VAR per response
+#    (MAIN_VARloop.m:11-12).
+#  * The core is {activity, prices, medium-term rate} and the rate is
+#    ALSO the normalization target: RUN_MAIN_US.m:7-9 has
+#    corevars = {INDPRO, CPIAUCSL, 2year_rate} with
+#    opts.mpind = corevars(3); the euro-area file uses
+#    {EKIPTOT.G, Z8ESA67UF, gov2y_DE}. AK never normalizes on an
+#    overnight rate — which is a second, independent reason not to use
+#    juros_selic here, on top of it being this project's documented
+#    negative control (max reduced-form F = 2.49 across the grid).
+#  * tcode is passed to the identification, SUBSET to the VAR's own
+#    variables (MAIN_VARloop.m:28), and cumimp runs inside
+#    IdentExtInstr, in the point estimate and in every replica.
+#  * varlist is the paper's asset-price list, the union of three figure
+#    groups (RUN_MAIN_US.m:3-5): credit spreads, bilateral exchange
+#    rates, equities and producer prices. It carries no yield-curve
+#    vertices — the four non-AK responses here are declared as this
+#    project's extension.
+#  * AK also keeps the CORE responses of every VAR (IRF_var_core,
+#    MAIN_VARloop.m:6,22) and overlays them against the single DFM panel
+#    (MAIN_plotfigs.m:49-71). Kept: it gives the yield_6m == 0.005
+#    self-test for free and diagnoses whether the small VAR is stable.
+#  * The comparison figure is two columns, VAR left and DFM right, with
+#    linkaxes (MAIN_plotfigs.m:1-46). The shared y axis is the whole
+#    point — it is what makes "stronger" and "narrower band" visible
+#    instead of asserted. Hence coord_cartesian with a common ylim per
+#    row, never scales = "free_y".
+#
+# ONE DELIBERATE DEVIATION, DECLARED: AK reports percentiles 5/10/90/95,
+# i.e. 90% and 80% bands. Production here uses 68/90, so the benchmark
+# uses 68/90 to match output/irf/irf_coherence_cell.rds.
+#
+# READING RULE, FIXED BEFORE THE NUMBERS EXIST:
+#   "stronger" = |IRF_DFM(peak)| > |IRF_VAR(peak)|
+#   "faster"   = peak_h_DFM < peak_h_VAR
+# Counts are reported over all responses AND over the 8 asset_* alone,
+# which is the block in the paper's title. The inconvenient variable
+# goes in the table, not in a footnote. And what this does NOT show is
+# declared: holding identification fixed, this tests "DFM vs small VAR",
+# not "vs the literature", which uses recursive identification.
+#
+# The DFM side is READ from output/irf/irf_coherence_cell.rds. Nothing
+# is re-estimated on that side.
+#
+# Outputs: output/var/var_benchmark_irf.csv
+#          output/var/var_benchmark_core.csv
+#          output/var/var_benchmark_compare.csv
+#          output/var/var_benchmark.md
+#          output/var/var_benchmark_{risco,cambio,acoes,core}.pdf
 # ===================================================================
 
 rm(list = ls())
 
-if (!require("pacman")) install.packages("pacman")
-pacman::p_load(
-  vars,
-  readr,
-  dplyr,
-  tidyr,
-  ggplot2,
-  patchwork,
-  lubridate
+suppressPackageStartupMessages({
+  library(readr)
+  library(dplyr)
+  library(tidyr)
+  library(ggplot2)
+  library(patchwork)
+})
+
+source("R/modeling/factor_estimation.R")   # kilian_correction, infer_tcode
+source("R/modeling/impulse_responde.R")    # sel_ext_inst_sample, ident_ext_instr
+source("R/modeling/var_proxy.R")           # var_est_ols, compute_irf_var_proxy
+source("R/identification/spec_sweep.R")    # norm_value_for
+
+
+# ---- Config: matched to script/irf_coherence_check.R ---------------
+
+P_LAGS     <- 6L
+HORIZON    <- 48L
+N_BOOT     <- 800L
+BOOT_SEED  <- 123L
+SHOCK_BPS  <- 50
+CI_LEVELS  <- c(0.68, 0.90)
+INSTRUMENT <- "z_jk_bs_purif"
+MP_VAR     <- "yield_6m"
+WINDOW     <- as.Date(c("2013-01-01", "2025-12-31"))
+
+# AK's corevars: activity, prices, medium-term rate (the last one is mpind)
+CORE_VARS <- c("ind_transformacao", "price_ipca", "yield_6m")
+
+# AK's varlist, by figure group. The `extensao` group has no counterpart
+# in RUN_MAIN_US.m and is declared as this project's addition.
+VARLIST <- list(
+  risco     = c("embi_perc", "cds_5y", "spread_icc_fisica",
+                "spread_icc_juridica"),
+  cambio    = c("cambio_usd"),
+  acoes     = c("asset_ibov", "asset_idiv", "asset_ifix", "asset_ifnc",
+                "asset_imat", "asset_imob", "asset_mlcx", "asset_smll",
+                "price_ipp"),
+  extensao  = c("yield_2y", "yield_10y", "ibc_br", "price_core_ipca_ex0")
 )
 
-# sel_ext_inst_sample e ident_ext_instr: mesmas funções usadas no DFM
-source("R/modeling/impulse_responde.R")
+DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
+INST_PATH <- "data/processed/instrumentos_mensais.csv"
+CELL_PATH <- "output/irf/irf_coherence_cell.rds"
+HCSV_PATH <- "output/irf/irf_coherence_h.csv"
+OUT_DIR   <- "output/var"
+
+dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
+
+run_benchmark <- function() {
+
+cat("=== VAR benchmark against the DFM ===\n\n")
 
 
 # ===================================================================
-# FUNÇÕES DE BAIXO NÍVEL: ESTIMAÇÃO E BOOTSTRAP
+# 1. Panel, instrument, cached DFM
 # ===================================================================
+cat("[1] loading\n")
 
+panel_df <- read_csv(DATA_PATH, show_col_types = FALSE) |>
+  filter(ref.date >= WINDOW[1], ref.date <= WINDOW[2]) |>
+  drop_na()
+DATES <- as.Date(panel_df$ref.date)
+PANEL <- panel_df |> select(-ref.date) |> as.matrix()
+VAR_NAMES <- colnames(PANEL)
+TCODE <- infer_tcode_from_varnames(VAR_NAMES)
 
-#' Correção de viés de Kilian (1998)
-#' @description Tradução fiel de kiliancorr.m (Pope 1990)
-kilian_correction <- function(A, SIGMA, T_total, N, p) {
-  T_eff <- T_total - p
-  Np <- N * p
+inst_df <- read_csv(INST_PATH, show_col_types = FALSE) |>
+  mutate(month = as.Date(month)) |>
+  select(month, shock = all_of(INSTRUMENT)) |>
+  filter(!is.na(shock))
 
-  I_Np <- diag(Np)
+cell <- readRDS(CELL_PATH)
+stopifnot(cell$instrument == INSTRUMENT, cell$r == 7L, cell$q == 6L,
+          cell$p == P_LAGS, cell$mp_var == MP_VAR)
 
-  # Covariância incondicional: vec(Σ_Y) = (I − A⊗A)^{−1} vec(Σ)
-  vecSIGMAY <- solve(diag(Np^2) - kronecker(A, A), as.vector(SIGMA))
-  SIGMAY <- matrix(vecSIGMAY, Np, Np)
+RESPONSES <- unlist(VARLIST, use.names = FALSE)
+missing <- setdiff(c(CORE_VARS, RESPONSES), VAR_NAMES)
+if (length(missing)) stop("ausentes no painel: ", paste(missing, collapse = ", "))
 
-  B <- t(A)
+MPIND <- match(MP_VAR, CORE_VARS)
+NORM_V <- norm_value_for(MP_VAR, SHOCK_BPS)
 
-  # Fórmula de Pope (1990): envolve autovalores do companion
-  peigen <- eigen(A)$values
-  sumeig <- matrix(0 + 0i, Np, Np)
-  for (hh in seq_len(Np)) {
-    sumeig <- sumeig + peigen[hh] * solve(I_Np - peigen[hh] * B)
-  }
-
-  bias <- SIGMA %*% (solve(I_Np - B) + B %*% solve(I_Np - B %*% B) + sumeig) %*%
-    solve(SIGMAY)
-  Abias <- -Re(bias) / T_eff
-
-  # Reduz a correção progressivamente até garantir estacionariedade
-  delta <- 1
-  bcA <- A
-  repeat {
-    bcA <- A - delta * Abias
-    if (all(abs(eigen(bcA)$values) < 1) || delta <= 0) break
-    delta <- delta - 0.01
-  }
-
-  bcA
-}
-
-
-#' Estimação OLS de VAR reduzido
-#' @description Tradução fiel de VARest.m (usada na re-estimação do bootstrap)
-var_est_ols <- function(X, p, h) {
-  T_total <- nrow(X)
-  N <- ncol(X)
-
-  RHS <- matrix(NA, T_total - p, N * p)
-  for (i in seq_len(p)) {
-    RHS[, ((i - 1) * N + 1):(i * N)] <- X[(p + 1 - i):(T_total - i), ]
-  }
-  LHS <- X[(p + 1):T_total, ]
-
-  design <- cbind(RHS, 1)
-  bet <- solve(crossprod(design), crossprod(design, LHS))
-  u <- LHS - design %*% bet
-
-  # Companion matrix
-  Np <- N * p
-  A <- matrix(0, Np, Np)
-  A[1:N, ] <- t(bet[1:Np, ])
-  if (p > 1) {
-    A[(N + 1):Np, 1:((p - 1) * N)] <- diag((p - 1) * N)
-  }
-
-  # Coeficientes MA via potências do companion
-  Bfull <- array(0, dim = c(Np, Np, h + 1))
-  Bfull[, , 1] <- diag(Np)
-  Bfull[, , 2] <- A
-  for (i in 3:(h + 1)) Bfull[, , i] <- Bfull[, , i - 1] %*% A
-
-  B <- array(0, dim = c(N, N, h + 1))
-  for (i in seq_len(h + 1)) B[, , i] <- Bfull[1:N, 1:N, i]
-
-  list(B = B, u = u, bet = bet, A = A)
-}
-
-
-#' Calcular IRFs via Proxy SVAR para VAR reduzido
-#'
-#' @description
-#' Encapsula IdentExtInstr.m + MAIN_VARloop.m + VARest_boot.m.
-#' Aceita instrumento como argumento para análise de sensibilidade.
-#'
-#' Diferença central em relação ao DFM: aqui os resíduos projetados no
-#' instrumento são os u_t da forma reduzida do VAR (N-dimensionais),
-#' e não as inovações de fatores dinâmicos η_t = u·K·M⁻¹ (q-dimensionais).
-#'
-#' @param var_model Objeto VAR estimado (pacote vars)
-#' @param instrument Data.frame com colunas 'month' e 'shock'
-#' @param data_dates Vetor Date com datas da amostra de dados
-#' @param h Horizonte de IRFs
-#' @param impulse Nome da variável que gera o impulso (para normalização)
-#' @param normalize_value Valor para normalizar a resposta no impacto (default 0.5 = 50bp)
-#' @param nboot Número de iterações de bootstrap
-#'
-#' @return Lista com irf_point, irf_ci, H, var_names
-compute_irf_var_proxy <- function(var_model, instrument, data_dates,
-                                  h = 48, impulse = "selic",
-                                  normalize_value = 0.5,
-                                  nboot = 300) {
-
-  # --- Componentes do VAR reduzido ---
-  N <- ncol(residuals(var_model))
-  p_var <- var_model$p
-  var_names <- colnames(var_model$y)
-  A_list <- vars::Acoef(var_model)
-  u <- residuals(var_model)
-  T_eff <- nrow(u)
-  T_total <- T_eff + p_var
-
-  # Converter nome do impulso para índice
-  mpind <- which(var_names == impulse)
-  if (length(mpind) == 0) {
-    stop("Variável '", impulse, "' não encontrada no VAR. ",
-         "Variáveis disponíveis: ", paste(var_names, collapse = ", "))
-  }
-
-  # --- Companion matrix (VARest.m) ---
-  Np <- N * p_var
-  A <- matrix(0, Np, Np)
-  for (i in seq_len(p_var)) {
-    A[1:N, ((i - 1) * N + 1):(i * N)] <- A_list[[i]]
-  }
-  if (p_var > 1) {
-    A[(N + 1):Np, 1:((p_var - 1) * N)] <- diag((p_var - 1) * N)
-  }
-
-  # --- Coeficientes MA de forma reduzida (rawimp) ---
-  Bfull <- array(0, dim = c(Np, Np, h + 1))
-  Bfull[, , 1] <- diag(Np)
-  Bfull[, , 2] <- A
-  for (i in 3:(h + 1)) Bfull[, , i] <- Bfull[, , i - 1] %*% A
-
-  rawimp <- array(0, dim = c(N, N, h + 1))
-  for (i in seq_len(h + 1)) rawimp[, , i] <- Bfull[1:N, 1:N, i]
-
-  # --- Alinhamento temporal: instrumento × resíduos do VAR ---
-  align <- sel_ext_inst_sample(data_dates, p_var, instrument)
-  rsh_sel_ind <- align$rsh_sel_ind
-  rsh_sel <- u[rsh_sel_ind, , drop = FALSE]
-  inst_sel <- align$inst_sel
-
-  if (length(inst_sel) == 0 || nrow(rsh_sel) == 0) {
-    stop("Nenhuma data comum entre instrumento e residuos do VAR")
-  }
-
-  # --- Identificação pontual via instrumento externo ---
-  point_result <- ident_ext_instr(rawimp, rsh_sel, inst_sel, h,
-                                  mpind, normalize_value)
-  irf_point <- point_result$irf_mp
-
-  # --- Wild Bootstrap (VARest_boot.m / MAIN_VARloop.m) ---
-  if (nboot > 0) {
-    X_orig <- as.matrix(var_model$y)
-
-    # Coeficientes OLS em formato MATLAB: (Np+1) × N
-    RHS_orig <- matrix(NA, T_eff, Np)
-    for (i in seq_len(p_var)) {
-      RHS_orig[, ((i - 1) * N + 1):(i * N)] <-
-        X_orig[(p_var + 1 - i):(T_total - i), ]
-    }
-    LHS_orig <- X_orig[(p_var + 1):T_total, ]
-    design_orig <- cbind(RHS_orig, 1)
-    bet <- solve(crossprod(design_orig), crossprod(design_orig, LHS_orig))
-
-    # Correção de Kilian (kiliancorr.m)
-    SIGMA <- matrix(0, Np, Np)
-    SIGMA[1:N, 1:N] <- crossprod(u) / (T_eff - p_var * N - 1)
-
-    betbiasc <- bet
-    tryCatch({
-      biascorr <- kilian_correction(A, SIGMA, T_total, N, p_var)
-      betbiasc <- rbind(t(biascorr[1:N, ]), bet[Np + 1, ])
-    }, error = function(e) {
-      warning("Kilian correction failed, using uncorrected coefficients: ",
-              e$message)
-    })
-
-    # Resíduos centrados para o bootstrap
-    res <- sweep(u, 2, colMeans(u))
-
-    irf_boot <- array(NA, dim = c(N, h + 1, nboot))
-
-    for (b in seq_len(nboot)) {
-      tryCatch({
-        # Rademacher draw: +1 ou −1 com probabilidade 0.5
-        rr <- 1 - 2 * (runif(T_eff) > 0.5)
-        resb <- res * rr
-
-        # Simular dados bootstrap recursivamente (VARest_boot.m)
-        X_boot <- matrix(0, T_total, N)
-        X_boot[1:p_var, ] <- X_orig[1:p_var, ]
-
-        for (t_idx in (p_var + 1):T_total) {
-          lvars <- as.vector(t(X_boot[(t_idx - 1):(t_idx - p_var), ,
-                                      drop = FALSE]))
-          X_boot[t_idx, ] <- lvars %*% betbiasc[1:Np, ] +
-            betbiasc[Np + 1, ] + resb[t_idx - p_var, ]
-        }
-
-        # Re-estimar VAR no bootstrap (VARest.m)
-        boot_var <- var_est_ols(X_boot, p_var, h)
-
-        # Wild bootstrap do instrumento: mesmo rr (selextinstsample.m)
-        align_b <- sel_ext_inst_sample(data_dates, p_var, instrument, rr = rr)
-
-        u_boot_sel <- boot_var$u[align_b$rsh_sel_ind, , drop = FALSE]
-        inst_boot_sel <- align_b$inst_sel
-
-        boot_result <- ident_ext_instr(boot_var$B, u_boot_sel,
-                                       inst_boot_sel, h,
-                                       mpind, normalize_value)
-        irf_boot[, , b] <- boot_result$irf_mp
-      }, error = function(e) {
-        warning("Bootstrap iteracao ", b, " falhou: ", e$message)
-        irf_boot[, , b] <<- irf_point
-      })
-    }
-
-    # Intervalos de confiança: 5%, 10%, mediana, 90%, 95%
-    irf_ci <- array(0, dim = c(N, h + 1, 5))
-    irf_ci[, , 1] <- apply(irf_boot, c(1, 2), quantile,
-                            probs = 0.05, na.rm = TRUE)
-    irf_ci[, , 2] <- apply(irf_boot, c(1, 2), quantile,
-                            probs = 0.10, na.rm = TRUE)
-    irf_ci[, , 3] <- irf_point
-    irf_ci[, , 4] <- apply(irf_boot, c(1, 2), quantile,
-                            probs = 0.90, na.rm = TRUE)
-    irf_ci[, , 5] <- apply(irf_boot, c(1, 2), quantile,
-                            probs = 0.95, na.rm = TRUE)
-  } else {
-    irf_ci <- array(0, dim = c(N, h + 1, 5))
-    for (k in 1:5) irf_ci[, , k] <- irf_point
-  }
-
-  list(irf_point = irf_point, irf_ci = irf_ci, H = point_result$H, var_names = var_names)
-}
+cat(sprintf("    panel %d x %d | %s a %s\n", nrow(PANEL), ncol(PANEL),
+            format(min(DATES)), format(max(DATES))))
+cat(sprintf("    core: %s | mpind = %d (%s), norm = %g\n",
+            paste(CORE_VARS, collapse = ", "), MPIND, MP_VAR, NORM_V))
+cat(sprintf("    %d responses, %d bootstrap draws each\n",
+            length(RESPONSES), N_BOOT))
 
 
 # ===================================================================
-# FUNÇÕES DE ALTO NÍVEL: PREPARAÇÃO, ESTIMAÇÃO E VISUALIZAÇÃO
+# 2. One 4-variable VAR per response (MAIN_VARloop.m)
 # ===================================================================
+cat("\n[2] estimating\n")
 
-
-#' Carregar dados e instrumento
-#'
-#' @param data_path Caminho para o arquivo de dados
-#' @param instrument_path Caminho para o arquivo do instrumento
-#' @param start_date Data inicial da amostra
-#' @param end_date Data final da amostra
-#'
-#' @return Lista com data e instrument
-load_var_data <- function(data_path = "data/processed/data_log_deseasonalized.csv",
-                          instrument_path = "data/processed/instrument.csv",
-                          start_date = "2013-01-01",
-                          end_date = "2024-12-31") {
-
-  data <- readr::read_csv(data_path, show_col_types = FALSE) |>
-    dplyr::filter(ref.date >= as.Date(start_date) & ref.date <= as.Date(end_date))
-
-  instrument <- readr::read_csv(instrument_path, show_col_types = FALSE)
-
-  list(data = data, instrument = instrument)
-}
-
-
-#' Preparar dados para estimação de um VAR específico
-#'
-#' @param data Data.frame com todos os dados
-#' @param core_vars Vetor nomeado de variáveis core (atividade, inflação, selic)
-#' @param asset_var Vetor nomeado de uma variável de ativo
-#'
-#' @return Lista com var_data (ts), data_dates (Date), var_names (character)
-prepare_var_data <- function(data, core_vars, asset_var) {
-
-  vars_to_select <- c("ref.date",
-                      setNames(core_vars, names(core_vars)),
-                      setNames(asset_var, names(asset_var)))
-
-  var_df <- data |>
-    dplyr::select(all_of(vars_to_select)) |>
-    tidyr::drop_na()
-
-  data_dates <- as.Date(var_df$ref.date)
-
-  var_data <- var_df |>
-    dplyr::select(-ref.date) |>
-    ts(start = c(year(min(data_dates)), month(min(data_dates))), frequency = 12)
-
-  var_names <- c(names(core_vars), names(asset_var))
-
-  list(var_data = var_data, data_dates = data_dates, var_names = var_names)
-}
-
-
-#' Estimar VAR com identificação via proxy SVAR
-#'
-#' @param var_data Objeto ts com dados do VAR
-#' @param data_dates Vetor Date com datas
-#' @param instrument Data.frame com instrumento
-#' @param p Ordem do VAR
-#' @param h Horizonte de IRFs
-#' @param impulse Nome da variável que gera o impulso
-#' @param normalize_value Normalização do choque (default 0.5)
-#' @param nboot Número de iterações de bootstrap
-#'
-#' @return Lista com var_model, irf_results, var_names
-estimate_var_proxy <- function(var_data, data_dates, instrument,
-                               p = 6, h = 48, impulse = "selic",
-                               normalize_value = 0.5, nboot = 300) {
-
-  # Estimação base do VAR reduzido para uso posterior (caso necessário)
-  X_mat <- as.matrix(var_data)
-  var_model_ols <- var_est_ols(X_mat, p, h)
-
-  # Identificação por instrumento externo (proxy SVAR)
-  irf_results <- compute_irf_var_proxy(
-    var_data        = var_data,
-    p_var           = p,
-    instrument      = instrument,
-    data_dates      = data_dates,
-    h               = h,
-    impulse         = impulse,
-    normalize_value = normalize_value,
-    nboot           = nboot
-  )
-
-  list(
-    var_model = var_model_ols,
-    irf_results = irf_results,
-    var_names = colnames(var_data)
-  )
-}
-
-
-#' Estimar múltiplos VARs (um para cada ativo)
-#'
-#' @param data Data.frame com todos os dados
-#' @param instrument Data.frame com instrumento
-#' @param core_vars Vetor nomeado de variáveis core
-#' @param asset_vars Vetor nomeado de variáveis de ativos
-#' @param p Ordem do VAR
-#' @param h Horizonte de IRFs
-#' @param impulse Nome da variável que gera o impulso
-#' @param normalize_value Normalização do choque
-#' @param nboot Número de iterações de bootstrap
-#' @param verbose Mostrar progresso
-#'
-#' @return Lista nomeada com resultados para cada ativo
-estimate_multiple_vars <- function(data, instrument, core_vars, asset_vars,
-                                   p = 6, h = 48, impulse = "selic",
-                                   normalize_value = 0.5, nboot = 300,
-                                   verbose = TRUE) {
-
-  all_results <- list()
-
-  for (asset_name in names(asset_vars)) {
-
-    if (verbose) cat("\nEstimating VAR for asset:", asset_name, "\n")
-
-    asset_var <- setNames(asset_vars[asset_name], asset_name)
-
-    # Preparar dados
-    var_prep <- prepare_var_data(data, core_vars, asset_var)
-
-    # Estimar VAR
-    var_result <- estimate_var_proxy(
-      var_data        = var_prep$var_data,
-      data_dates      = var_prep$data_dates,
-      instrument      = instrument,
-      p               = p,
-      h               = h,
-      impulse         = impulse,
-      normalize_value = normalize_value,
-      nboot           = nboot
-    )
-
-    # Adicionar metadata
-    var_result$asset_name <- asset_name
-    var_result$var_names <- var_prep$var_names
-
-    all_results[[asset_name]] <- var_result
-
-    if (verbose) cat("Finished estimation for:", asset_name, "\n")
-  }
-
-  all_results
-}
-
-
-#' Plotar IRFs de um único VAR
-#'
-#' @param irf_ci Array 3D (N x h+1 x 5) com IRFs e intervalos de confiança
-#' @param var_names Vetor de nomes das variáveis
-#' @param response Nome ou vetor de nomes das variáveis a plotar (NULL = todas)
-#' @param h Horizonte plotado
-#' @param title Título do gráfico
-#'
-#' @return Objeto ggplot
-plot_var_irfs <- function(irf_ci, var_names, response = NULL, h = 48, title = NULL) {
-
-  # Filtrar variáveis se response for especificado
-  if (!is.null(response)) {
-    response_idx <- which(var_names %in% response)
-    if (length(response_idx) == 0) {
-      warning("Nenhuma variável de 'response' encontrada. ",
-              "Variáveis disponíveis: ", paste(var_names, collapse = ", "),
-              ". Plotando todas as variáveis.")
-      # Não fazer nada, manter todas as variáveis
-    } else {
-      # Filtrar apenas as variáveis encontradas
-      irf_ci <- irf_ci[response_idx, , , drop = FALSE]
-      var_names <- var_names[response_idx]
-    }
-  }
-
-  N_var <- dim(irf_ci)[1]
-  horizons <- 0:h
-
-  plots <- list()
-
-  for (v in seq_len(N_var)) {
-
-    df_plot <- data.frame(
-      horizon = horizons,
-      irf     = irf_ci[v, , 3],
-      ci_05   = irf_ci[v, , 1],
-      ci_10   = irf_ci[v, , 2],
-      ci_90   = irf_ci[v, , 4],
-      ci_95   = irf_ci[v, , 5]
-    )
-
-    p <- ggplot2::ggplot(df_plot, ggplot2::aes(x = horizon)) +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(ymin = ci_05, ymax = ci_95),
-        fill = "grey90", alpha = 0.5
-      ) +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(ymin = ci_10, ymax = ci_90),
-        fill = "grey70", alpha = 0.5
-      ) +
-      ggplot2::geom_line(
-        ggplot2::aes(y = irf),
-        color = "black",
-        linewidth = 1
-      ) +
-      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-      ggplot2::theme_classic() +
-      ggplot2::labs(
-        title = var_names[v],
-        x     = "Meses",
-        y     = NULL
-      ) +
-      ggplot2::theme(
-        plot.title = ggplot2::element_text(size = 12, face = "bold", hjust = 0.5),
-        axis.title = ggplot2::element_text(size = 10),
-        axis.text  = ggplot2::element_text(size = 9)
-      )
-
-    plots[[v]] <- p
-  }
-
-  combined_plot <- patchwork::wrap_plots(plots, ncol = 2)
-
-  if (!is.null(title)) {
-    combined_plot <- combined_plot +
-      patchwork::plot_annotation(
-        title = title,
-        theme = ggplot2::theme(plot.title = ggplot2::element_text(size = 14, face = "bold"))
-      )
-  }
-
-  combined_plot
-}
-
-
-#' Plotar IRFs de múltiplos VARs (comparação entre ativos)
-#'
-#' @param all_results Lista com resultados de estimate_multiple_vars
-#' @param response Nome da variável a plotar (ex: "cambio", "ibrx100")
-#' @param h Horizonte plotado
-#' @param title Título do gráfico
-#'
-#' @return Objeto ggplot
-plot_multiple_var_irfs <- function(all_results, response, h = 48, title = NULL) {
-
-  df_list <- list()
-
-  for (asset_name in names(all_results)) {
-    result <- all_results[[asset_name]]
-    irf_ci <- result$irf_results$irf_ci
-    var_names <- result$irf_results$var_names
-
-    # Encontrar índice da variável response
-    var_idx <- which(var_names == response)
-    if (length(var_idx) == 0) {
-      warning("Variável '", response, "' não encontrada no VAR de '", asset_name, "'. Ignorando.")
-      next
-    }
-
-    df_list[[asset_name]] <- data.frame(
-      horizon    = 0:h,
-      asset      = asset_name,
-      irf        = irf_ci[var_idx, , 3],
-      ci_05      = irf_ci[var_idx, , 1],
-      ci_10      = irf_ci[var_idx, , 2],
-      ci_90      = irf_ci[var_idx, , 4],
-      ci_95      = irf_ci[var_idx, , 5]
-    )
-  }
-
-  if (length(df_list) == 0) {
-    stop("Nenhum resultado válido encontrado para a variável '", response, "'")
-  }
-
-  df_combined <- dplyr::bind_rows(df_list)
-
-  p <- ggplot2::ggplot(df_combined, ggplot2::aes(x = horizon, color = asset, fill = asset)) +
-    ggplot2::geom_ribbon(
-      ggplot2::aes(ymin = ci_10, ymax = ci_90),
-      alpha = 0.2, color = NA
-    ) +
-    ggplot2::geom_line(ggplot2::aes(y = irf), linewidth = 1) +
-    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
-    ggplot2::theme_classic() +
-    ggplot2::labs(
-      title = if (is.null(title)) paste("Resposta de", response, "ao choque monetário") else title,
-      x     = "Meses",
-      y     = NULL,
-      color = "Ativo",
-      fill  = "Ativo"
-    ) +
-    ggplot2::theme(
-      plot.title  = ggplot2::element_text(size = 14, face = "bold", hjust = 0.5),
-      legend.position = "bottom"
-    )
-
-  p
-}
+t0 <- Sys.time()
+fits <- lapply(seq_along(RESPONSES), function(i) {
+  v <- RESPONSES[i]
+  varsel <- c(CORE_VARS, v)
+  idx <- match(varsel, VAR_NAMES)
+  res <- compute_irf_var_proxy(
+    X_mat = PANEL[, idx, drop = FALSE], p = P_LAGS, instrument = inst_df,
+    data_dates = DATES, h = HORIZON, mpind = MPIND,
+    normalize_value = NORM_V, tcode = TCODE[idx], nboot = N_BOOT,
+    ci_levels = CI_LEVELS, seed = BOOT_SEED)
+  cat(sprintf("    %2d/%2d %-24s max|eig| %.3f  n_inst %d  falhas %d\n",
+              i, length(RESPONSES), v, res$max_eig, res$n_inst, res$n_failed))
+  list(var = v, varsel = varsel, res = res)
+})
+names(fits) <- RESPONSES
+cat(sprintf("    tempo: %.1f min\n",
+            as.numeric(difftime(Sys.time(), t0, units = "mins"))))
 
 
 # ===================================================================
-# EXECUÇÃO PRINCIPAL
+# 3. Long IRF table, both models
 # ===================================================================
+cat("\n[3] assembling the IRF table\n")
 
+j <- 0:HORIZON + 1
 
-#' Executar análise completa de VAR com proxy SVAR
-#'
-#' @param data_path Caminho para dados
-#' @param instrument_path Caminho para instrumento
-#' @param core_vars Vetor nomeado de variáveis core
-#' @param asset_vars Vetor nomeado de variáveis de ativos
-#' @param p Ordem do VAR
-#' @param h Horizonte de IRFs
-#' @param impulse Nome da variável que gera o impulso
-#' @param response Nome ou vetor de nomes das variáveis de resposta a plotar (NULL = todas)
-#' @param normalize_value Normalização do choque
-#' @param nboot Número de iterações de bootstrap
-#' @param start_date Data inicial
-#' @param end_date Data final
-#' @param plot_individual Plotar IRFs individuais
-#' @param plot_comparison Plotar comparação entre ativos (requer response único)
-#'
-#' @return Lista com loaded_data, all_results, plots
-run_var_analysis <- function(data_path = "data/processed/data_log_deseasonalized.csv",
-                             instrument_path = "data/processed/instrument.csv",
-                             core_vars = c(
-                               "producao_transformacao" = "producao_transformacao",
-                               "ipca" = "price_ipca",
-                               "selic" = "juros_selic"
-                             ),
-                             asset_vars = c(
-                               "cambio" = "cambio_usd",
-                               "ibrx100" = "asset_ibov",
-                               "spread_credito" = "spread_icc_fisica"
-                             ),
-                             p = 6,
-                             h = 48,
-                             impulse = "selic",
-                             response = NULL,
-                             normalize_value = 0.5,
-                             nboot = 300,
-                             start_date = "2013-01-01",
-                             end_date = "2024-12-31",
-                             plot_individual = TRUE,
-                             plot_comparison = TRUE) {
+var_long <- lapply(fits, function(f) {
+  k <- 4L   # the response is always the 4th column
+  data.frame(model = "VAR", var = f$var, h = 0:HORIZON,
+             point = f$res$irf_point[k, j],
+             lo68 = f$res$ci[["0.68"]]$lower[k, j],
+             hi68 = f$res$ci[["0.68"]]$upper[k, j],
+             lo90 = f$res$ci[["0.90"]]$lower[k, j],
+             hi90 = f$res$ci[["0.90"]]$upper[k, j])
+}) |> bind_rows()
 
-  cat("=== VAR Analysis with Proxy SVAR ===\n")
+dfm_long <- lapply(RESPONSES, function(v) {
+  i <- match(v, cell$var_names)
+  data.frame(model = "DFM", var = v, h = 0:HORIZON,
+             point = cell$irf$irf_point_matrix[i, j],
+             lo68 = cell$irf$ci[["0.68"]]$lower[i, j],
+             hi68 = cell$irf$ci[["0.68"]]$upper[i, j],
+             lo90 = cell$irf$ci[["0.90"]]$lower[i, j],
+             hi90 = cell$irf$ci[["0.90"]]$upper[i, j])
+}) |> bind_rows()
 
-  # 1. Carregar dados
-  cat("\n1. Loading data...\n")
-  loaded_data <- load_var_data(data_path, instrument_path, start_date, end_date)
+irf_long <- bind_rows(var_long, dfm_long) |>
+  mutate(sig68 = lo68 > 0 | hi68 < 0,
+         sig90 = lo90 > 0 | hi90 < 0,
+         grupo = rep(NA_character_, n()))
+for (g in names(VARLIST)) irf_long$grupo[irf_long$var %in% VARLIST[[g]]] <- g
 
-  # 2. Estimar VARs
-  cat("\n2. Estimating VARs...\n")
-  all_results <- estimate_multiple_vars(
-    data            = loaded_data$data,
-    instrument      = loaded_data$instrument,
-    core_vars       = core_vars,
-    asset_vars      = asset_vars,
-    p               = p,
-    h               = h,
-    impulse         = impulse,
-    normalize_value = normalize_value,
-    nboot           = nboot,
-    verbose         = TRUE
-  )
+write_csv(irf_long, file.path(OUT_DIR, "var_benchmark_irf.csv"))
+cat(sprintf("    -> %s/var_benchmark_irf.csv (%d rows)\n",
+            OUT_DIR, nrow(irf_long)))
 
-  # 3. Plotar resultados
-  plots <- list()
-
-  if (plot_individual) {
-    cat("\n3. Generating individual plots...\n")
-    for (asset_name in names(all_results)) {
-      result <- all_results[[asset_name]]
-      plots[[asset_name]] <- plot_var_irfs(
-        irf_ci    = result$irf_results$irf_ci,
-        var_names = result$var_names,
-        response  = response,
-        h         = h,
-        title     = paste("IRFs - VAR with", asset_name)
-      )
-    }
-  }
-
-  if (plot_comparison) {
-    cat("\n4. Generating comparison plot...\n")
-
-    # Para comparação, usa automaticamente o nome do asset (última variável do VAR)
-    # Cada VAR tem sua própria variável de ativo, então comparamos os assets entre si
-    if (!is.null(response) && length(response) == 1) {
-      # Se response foi especificado e é único, usar ele
-      response_comp <- response
-    } else {
-      # Caso contrário, criar plot comparando os próprios assets
-      # (cada VAR já tem sua variável de ativo específica)
-      cat("Creating comparison of asset variables across VARs...\n")
-
-      df_list <- list()
-      for (asset_name in names(all_results)) {
-        result <- all_results[[asset_name]]
-        irf_ci <- result$irf_results$irf_ci
-        var_names <- result$irf_results$var_names
-
-        # A variável de ativo é a última no VAR (4ª posição)
-        asset_idx <- length(var_names)
-
-        df_list[[asset_name]] <- data.frame(
-          horizon = 0:h,
-          asset   = asset_name,
-          irf     = irf_ci[asset_idx, , 3],
-          ci_05   = irf_ci[asset_idx, , 1],
-          ci_10   = irf_ci[asset_idx, , 2],
-          ci_90   = irf_ci[asset_idx, , 4],
-          ci_95   = irf_ci[asset_idx, , 5]
-        )
-      }
-
-      df_combined <- dplyr::bind_rows(df_list)
-
-      plots$comparison <- ggplot2::ggplot(df_combined, ggplot2::aes(x = horizon, color = asset, fill = asset)) +
-        ggplot2::geom_ribbon(
-          ggplot2::aes(ymin = ci_10, ymax = ci_90),
-          alpha = 0.2, color = NA
-        ) +
-        ggplot2::geom_line(ggplot2::aes(y = irf), linewidth = 1) +
-        ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray30") +
-        ggplot2::theme_classic() +
-        ggplot2::labs(
-          title = "Comparison: Asset Price Responses to Monetary Shock",
-          x     = "Meses",
-          y     = NULL,
-          color = "Ativo",
-          fill  = "Ativo"
-        ) +
-        ggplot2::theme(
-          plot.title  = ggplot2::element_text(size = 14, face = "bold", hjust = 0.5),
-          legend.position = "bottom"
-        )
-
-      response_comp <- NULL  # Flag para não usar plot_multiple_var_irfs
-    }
-
-    # Usar plot_multiple_var_irfs apenas se response foi especificado
-    if (!is.null(response_comp)) {
-      plots$comparison <- plot_multiple_var_irfs(
-        all_results = all_results,
-        response    = response_comp,
-        h           = h,
-        title       = NULL
-      )
-    }
-  }
-
-  cat("\n=== Analysis complete ===\n")
-
-  list(
-    loaded_data = loaded_data,
-    all_results = all_results,
-    plots       = plots
-  )
-}
+# Core responses of every VAR (IRF_var_core)
+core_long <- lapply(fits, function(f) {
+  lapply(seq_along(CORE_VARS), function(k) {
+    data.frame(var_do_var = f$var, core = CORE_VARS[k], h = 0:HORIZON,
+               point = f$res$irf_point[k, j])
+  }) |> bind_rows()
+}) |> bind_rows()
+write_csv(core_long, file.path(OUT_DIR, "var_benchmark_core.csv"))
+cat(sprintf("    -> %s/var_benchmark_core.csv (%d rows)\n",
+            OUT_DIR, nrow(core_long)))
 
 
 # ===================================================================
-# EXEMPLO DE USO
+# 4. Self-tests
 # ===================================================================
+cat("\n[4] self-tests\n")
 
-# Executar análise completa (plotar todas as variáveis)
-results <- run_var_analysis(
-  impulse = "selic",
-  response = NULL,  # NULL = plotar todas
-  nboot = 300,
-  plot_individual = TRUE,
-  plot_comparison = TRUE
-)
+# 4.1 the VAR normalizes yield_6m to exactly 0.005 on impact, in all VARs
+h0_mp <- core_long |> filter(core == MP_VAR, h == 0)
+cat(sprintf("    (1) %s h0 in every VAR: max |dev| from %g = %.3g\n",
+            MP_VAR, NORM_V, max(abs(h0_mp$point - NORM_V))))
+stopifnot(nrow(h0_mp) == length(RESPONSES),
+          max(abs(h0_mp$point - NORM_V)) < 1e-12)
 
-# Plotar apenas variáveis core (que existem em todos os VARs)
-results_core <- run_var_analysis(
-  impulse = "selic",
-  response = c("ipca"),  # Plotar apenas inflação e taxa de juros
-  nboot = 300,
-  plot_comparison = FALSE  # Desativar comparação (só faz sentido para 1 variável)
-)
+# 4.2 the DFM side read from the .rds reproduces irf_coherence_h.csv
+hcsv <- read_csv(HCSV_PATH, show_col_types = FALSE)
+scored <- intersect(RESPONSES, unique(hcsv$var))
+unscored <- setdiff(RESPONSES, scored)
+chk <- dfm_long |> filter(var %in% scored) |>
+  inner_join(hcsv |> select(var, h, point_csv = point, lo90_csv = lo90,
+                            hi90_csv = hi90),
+             by = c("var", "h"))
+d1 <- max(abs(chk$point - chk$point_csv))
+d2 <- max(abs(chk$lo90 - chk$lo90_csv), abs(chk$hi90 - chk$hi90_csv))
+cat(sprintf("    (2) DFM vs irf_coherence_h.csv on %d of %d responses, %d rows: point %.3g, band %.3g\n",
+            length(scored), length(RESPONSES), nrow(chk), d1, d2))
+if (length(unscored))
+  cat(sprintf("        fora da regua de 53 (esperado): %s\n",
+              paste(unscored, collapse = ", ")))
+stopifnot(d1 < 1e-10, d2 < 1e-10)
 
-# Comparar apenas a resposta de ipca entre os diferentes VARs
-results_ipca <- run_var_analysis(
-  impulse = "juros_selic",
-  response = "ipca",  # Uma única variável
-  nboot = 300,
-  plot_comparison = TRUE  # Compara ipca nos 3 VARs
-)
+# 4.3 var_est_ols reproduces VARest.m on a fixed small case
+set.seed(42)
+Xt <- matrix(rnorm(80 * 3), 80, 3)
+mt <- var_est_ols(Xt, 2L, 5L)
+RHSt <- cbind(Xt[2:79, ], Xt[1:78, ], 1)
+bett <- solve(crossprod(RHSt), crossprod(RHSt, Xt[3:80, ]))
+At <- rbind(t(bett[1:6, ]), cbind(diag(3), matrix(0, 3, 3)))
+cat(sprintf("    (3) var_est_ols vs a hand-built VAR(2): bet %.3g, A %.3g, B2 %.3g\n",
+            max(abs(mt$bet - bett)), max(abs(mt$A - At)),
+            max(abs(mt$B[, , 3] - (At %*% At)[1:3, 1:3]))))
+stopifnot(max(abs(mt$bet - bett)) < 1e-12, max(abs(mt$A - At)) < 1e-12,
+          max(abs(mt$B[, , 3] - (At %*% At)[1:3, 1:3])) < 1e-12)
+
+
+# ===================================================================
+# 5. Comparison table
+# ===================================================================
+cat("\n[5] comparison\n")
+
+# THE PEAK HAS TO BE SIGN-DISCIPLINED, and the first version of this
+# script got it wrong. The raw global extremum has the OPPOSITE sign to
+# the impact in 8 of 18 DFM responses — precisely the 8 equity indices,
+# whose IRF turns positive around h = 5 and peaks at +20 near h = 24
+# while the small VAR stays negative throughout. Comparing |extremum|
+# then scores a positive medium-run overshoot against a negative
+# contraction and calls the DFM "stronger". It is not the same object.
 #
-# # Acessar resultados individuais
-results_core$all_results$cambio$irf_results
-results$all_results$ibrx100$var_model
+# So three measures, and the headline is the first two:
+#   razao_impacto — |h0_DFM| / |h0_VAR|. Same object, and the sign
+#     agrees in 18 of 18, so it is unambiguous.
+#   peak_ss       — extremum over the INITIAL CONTIGUOUS RUN in which
+#     the response keeps its impact sign, i.e. how deep the
+#     contractionary response gets before it reverts. Same-signed by
+#     construction.
+#   peak          — the raw global extremum, kept with an explicit flag
+#     for whether its sign matches the impact.
 #
+# The h <= 12 restriction is also not cosmetic: script/factor_stationarity.R
+# (2026-07-31) shows the DFM's medium-run extremum IS the damped
+# oscillation of the dominant complex pair — delete the pair and the
+# trough inverts in 12 of 14 series. Scoring the DFM on a peak at
+# h = 23-48 would score it exactly where that analysis says there is no
+# independent evidence.
+
+#' Extremum over the initial run that keeps the impact sign
+peak_same_sign <- function(h, y) {
+  s0 <- sign(y[1])
+  if (s0 == 0) s0 <- sign(y[which(y != 0)[1]])
+  flip <- which(sign(y) == -s0)
+  last <- if (length(flip)) flip[1] - 1L else length(y)
+  i <- which.max(abs(y[1:last]))
+  list(h = h[i], val = y[i], n = last)
+}
+
+summ <- irf_long |> group_by(model, var, grupo) |>
+  summarise(
+    h0 = point[h == 0], h3 = point[h == 3], h6 = point[h == 6],
+    h12 = point[h == 12], h24 = point[h == 24],
+    peak_h = h[which.max(abs(point))],
+    peak_val = point[which.max(abs(point))],
+    peak_sinal_igual_h0 = sign(point[which.max(abs(point))]) == sign(point[h == 0]),
+    peak_ss_h = peak_same_sign(h, point)$h,
+    peak_ss_val = peak_same_sign(h, point)$val,
+    h_inversao = peak_same_sign(h, point)$n,
+    peak_h_cp = h[h <= 12][which.max(abs(point[h <= 12]))],
+    peak_val_cp = point[h <= 12][which.max(abs(point[h <= 12]))],
+    larg68_h0 = hi68[h == 0] - lo68[h == 0],
+    larg68_h12 = hi68[h == 12] - lo68[h == 12],
+    n_sig68 = sum(sig68), n_sig90 = sum(sig90),
+    n_sig90_cp = sum(sig90[h <= 12]),
+    .groups = "drop")
+
+cmp <- summ |>
+  select(var, grupo, model, h0, h6, h12, peak_h, peak_val,
+         peak_sinal_igual_h0, peak_ss_h, peak_ss_val, h_inversao, peak_h_cp,
+         peak_val_cp, larg68_h0, larg68_h12, n_sig68, n_sig90, n_sig90_cp) |>
+  pivot_wider(names_from = model,
+              values_from = c(h0, h6, h12, peak_h, peak_val,
+                              peak_sinal_igual_h0, peak_ss_h, peak_ss_val,
+                              h_inversao, peak_h_cp, peak_val_cp, larg68_h0,
+                              larg68_h12, n_sig68, n_sig90, n_sig90_cp)) |>
+  left_join(data.frame(var = RESPONSES,
+                       var_max_eig = vapply(fits, function(f) f$res$max_eig,
+                                            numeric(1))),
+            by = "var") |>
+  mutate(
+    razao_impacto  = abs(h0_DFM) / abs(h0_VAR),
+    razao_pico_ss  = abs(peak_ss_val_DFM) / abs(peak_ss_val_VAR),
+    razao_pico     = abs(peak_val_DFM) / abs(peak_val_VAR),
+    razao_pico_cp  = abs(peak_val_cp_DFM) / abs(peak_val_cp_VAR),
+    razao_banda_h0 = larg68_h0_DFM / larg68_h0_VAR,
+    dfm_mais_forte_h0 = abs(h0_DFM) > abs(h0_VAR),
+    dfm_mais_forte_ss = abs(peak_ss_val_DFM) > abs(peak_ss_val_VAR),
+    dfm_mais_forte = abs(peak_val_DFM) > abs(peak_val_VAR),
+    dfm_mais_forte_cp = abs(peak_val_cp_DFM) > abs(peak_val_cp_VAR),
+    dfm_mais_rapido_ss = peak_ss_h_DFM < peak_ss_h_VAR,
+    dfm_mais_rapido = peak_h_DFM < peak_h_VAR,
+    mesmo_sinal_h0 = sign(h0_DFM) == sign(h0_VAR),
+    var_explosivo = var_max_eig >= 1)
+
+print(as.data.frame(cmp |>
+        select(var, grupo, h0_DFM, h0_VAR, razao_impacto, peak_ss_h_DFM,
+               peak_ss_h_VAR, razao_pico_ss, razao_banda_h0,
+               dfm_mais_forte_ss, dfm_mais_rapido_ss)),
+      row.names = FALSE, digits = 3)
+
+acoes8 <- grep("^asset_", RESPONSES, value = TRUE)
+tally <- function(d, lab) {
+  cat(sprintf("\n    %s (n = %d):\n", lab, nrow(d)))
+  cat(sprintf("      MAIS FORTE no impacto:            %d de %d (razao mediana %.2f)\n",
+              sum(d$dfm_mais_forte_h0), nrow(d), median(d$razao_impacto)))
+  cat(sprintf("      MAIS FORTE no pico de mesmo sinal: %d de %d (razao mediana %.2f)\n",
+              sum(d$dfm_mais_forte_ss), nrow(d), median(d$razao_pico_ss)))
+  cat(sprintf("      MAIS RAPIDO (pico de mesmo sinal): %d de %d\n",
+              sum(d$dfm_mais_rapido_ss), nrow(d)))
+  cat(sprintf("      [pico bruto, contaminado: forte %d de %d, rapido %d de %d;\n",
+              sum(d$dfm_mais_forte), nrow(d), sum(d$dfm_mais_rapido), nrow(d)))
+  cat(sprintf("       pico do DFM com sinal OPOSTO ao impacto em %d de %d]\n",
+              sum(!d$peak_sinal_igual_h0_DFM), nrow(d)))
+  cat(sprintf("      banda de 68%% do DFM mais estreita no impacto: %d de %d (razao mediana %.2f)\n",
+              sum(d$razao_banda_h0 < 1), nrow(d), median(d$razao_banda_h0)))
+  cat(sprintf("      mesmo sinal no impacto: %d de %d | sig90: DFM %d, VAR %d (h<=12: %d, %d)\n",
+              sum(d$mesmo_sinal_h0), nrow(d), sum(d$n_sig90_DFM),
+              sum(d$n_sig90_VAR), sum(d$n_sig90_cp_DFM),
+              sum(d$n_sig90_cp_VAR)))
+}
+tally(cmp, "TODAS as respostas")
+tally(cmp |> filter(var %in% acoes8), "bloco de ACOES (8 indices)")
+
+expl <- cmp |> filter(var_explosivo)
+if (nrow(expl)) {
+  cat(sprintf("\n    ATENCAO — %d VAR(s) com companion EXPLOSIVA (max|eig| >= 1): %s\n",
+              nrow(expl), paste(sprintf("%s (%.3f)", expl$var,
+                                        expl$var_max_eig), collapse = ", ")))
+  cat("      4 variaveis x 6 defasagens = 25 parametros por equacao em 147 obs.\n")
+  cat("      A correcao de Kilian nao encontra delta que estabilize e avisa.\n")
+}
+
+write_csv(cmp, file.path(OUT_DIR, "var_benchmark_compare.csv"))
+cat(sprintf("\n    -> %s/var_benchmark_compare.csv (%d rows)\n",
+            OUT_DIR, nrow(cmp)))
 
 
+# ===================================================================
+# 6. Figures — VAR left, DFM right, shared y axis (linkaxes)
+# ===================================================================
+cat("\n[6] figures\n")
+
+pal <- c(VAR = "#7f7f7f", DFM = "steelblue")
+
+one_panel <- function(v, mdl, ylim) {
+  d <- irf_long |> filter(var == v, model == mdl)
+  ggplot(d, aes(h, point)) +
+    geom_ribbon(aes(ymin = lo90, ymax = hi90), fill = pal[[mdl]], alpha = 0.18) +
+    geom_ribbon(aes(ymin = lo68, ymax = hi68), fill = pal[[mdl]], alpha = 0.36) +
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "red",
+               linewidth = 0.3) +
+    geom_line(linewidth = 0.8) +
+    geom_point(data = d |> filter(sig90), size = 1.9, shape = 21,
+               fill = "#d95f02", colour = "black", stroke = 0.45) +
+    coord_cartesian(ylim = ylim) +      # the linkaxes of MAIN_plotfigs.m
+    labs(x = NULL, y = NULL, title = if (mdl == "VAR") v else NULL,
+         subtitle = NULL) +
+    theme_minimal(base_size = 8) +
+    theme(plot.title = element_text(size = 8, hjust = 0))
+}
+
+fig_group <- function(vars, file, titulo) {
+  rows <- lapply(vars, function(v) {
+    d <- irf_long |> filter(var == v)
+    yl <- range(c(d$lo90, d$hi90), na.rm = TRUE)
+    one_panel(v, "VAR", yl) | one_panel(v, "DFM", yl)
+  })
+  p <- Reduce(`/`, rows) +
+    plot_annotation(title = titulo,
+                    subtitle = "esquerda: VAR pequeno (4 variaveis)   |   direita: DFM (r=7, q=6) — mesmo eixo y por linha",
+                    theme = theme_minimal(base_size = 9))
+  ggsave(file.path(OUT_DIR, file), p, width = 7.5,
+         height = 1.5 * length(vars) + 0.8, device = cairo_pdf)
+  cat(sprintf("    -> %s/%s\n", OUT_DIR, file))
+}
+
+fig_group(VARLIST$risco, "var_benchmark_risco.pdf",
+          "Risco soberano e spreads de credito")
+fig_group(c(VARLIST$cambio, VARLIST$extensao), "var_benchmark_cambio.pdf",
+          "Cambio, curva e atividade")
+fig_group(acoes8, "var_benchmark_acoes.pdf", "Indices de acoes da B3")
+
+# Core responses across all VARs against the single DFM panel
+core_plot <- lapply(CORE_VARS, function(cv) {
+  dv <- core_long |> filter(core == cv)
+  i <- match(cv, cell$var_names)
+  dd <- data.frame(h = 0:HORIZON, point = cell$irf$irf_point_matrix[i, j],
+                   lo68 = cell$irf$ci[["0.68"]]$lower[i, j],
+                   hi68 = cell$irf$ci[["0.68"]]$upper[i, j],
+                   lo90 = cell$irf$ci[["0.90"]]$lower[i, j],
+                   hi90 = cell$irf$ci[["0.90"]]$upper[i, j])
+  yl <- range(c(dv$point, dd$lo90, dd$hi90), na.rm = TRUE)
+  pv <- ggplot(dv, aes(h, point, group = var_do_var)) +
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "red",
+               linewidth = 0.3) +
+    geom_line(alpha = 0.5, linewidth = 0.4, colour = "#7f7f7f") +
+    coord_cartesian(ylim = yl) +
+    labs(x = NULL, y = NULL, title = cv) +
+    theme_minimal(base_size = 8)
+  pd <- ggplot(dd, aes(h, point)) +
+    geom_ribbon(aes(ymin = lo90, ymax = hi90), fill = "steelblue", alpha = 0.18) +
+    geom_ribbon(aes(ymin = lo68, ymax = hi68), fill = "steelblue", alpha = 0.36) +
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "red",
+               linewidth = 0.3) +
+    geom_line(linewidth = 0.8) + coord_cartesian(ylim = yl) +
+    labs(x = NULL, y = NULL) + theme_minimal(base_size = 8)
+  pv | pd
+})
+pc <- Reduce(`/`, core_plot) +
+  plot_annotation(title = "Respostas das variaveis core",
+                  subtitle = sprintf("esquerda: as %d estimativas do VAR pequeno sobrepostas   |   direita: DFM",
+                                     length(RESPONSES)),
+                  theme = theme_minimal(base_size = 9))
+ggsave(file.path(OUT_DIR, "var_benchmark_core.pdf"), pc, width = 7.5,
+       height = 5.5, device = cairo_pdf)
+cat(sprintf("    -> %s/var_benchmark_core.pdf\n", OUT_DIR))
+
+# Stability of the core responses across the VARs
+core_disp <- core_long |> filter(h %in% c(0, 6, 12, 24)) |>
+  group_by(core, h) |>
+  summarise(min = min(point), mediana = median(point), max = max(point),
+            amplitude = max(point) - min(point), .groups = "drop")
+cat("\n    dispersion of the core responses across the VARs:\n")
+print(as.data.frame(core_disp), row.names = FALSE, digits = 3)
 
 
+# ===================================================================
+# 7. Report
+# ===================================================================
+
+md_tbl <- function(df, digits = 4) {
+  df <- as.data.frame(df)
+  num <- vapply(df, is.numeric, logical(1))
+  df[num] <- lapply(df[num], function(x) format(round(x, digits), trim = TRUE))
+  hdr <- paste0("| ", paste(names(df), collapse = " | "), " |")
+  sep <- paste0("|", paste(rep("---", ncol(df)), collapse = "|"), "|")
+  body <- apply(df, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |"))
+  c(hdr, sep, body, "")
+}
+
+tally_md <- function(d, lab) {
+  c(sprintf("**%s** (n = %d)", lab, nrow(d)), "",
+    sprintf("- *mais forte no impacto*: **%d de %d** (razão mediana **%.2f**).",
+            sum(d$dfm_mais_forte_h0), nrow(d), median(d$razao_impacto)),
+    sprintf("- *mais forte no pico de mesmo sinal*: **%d de %d** (razão mediana **%.2f**).",
+            sum(d$dfm_mais_forte_ss), nrow(d), median(d$razao_pico_ss)),
+    sprintf("- *mais rápido* (pico de mesmo sinal): **%d de %d**.",
+            sum(d$dfm_mais_rapido_ss), nrow(d)),
+    sprintf("- banda de 68%% do DFM mais **estreita** no impacto: %d de %d (razão mediana **%.2f**).",
+            sum(d$razao_banda_h0 < 1), nrow(d), median(d$razao_banda_h0)),
+    sprintf("- mesmo sinal no impacto: %d de %d. Células sig90: DFM **%d**, VAR **%d** (em h ≤ 12: %d e %d).",
+            sum(d$mesmo_sinal_h0), nrow(d), sum(d$n_sig90_DFM),
+            sum(d$n_sig90_VAR), sum(d$n_sig90_cp_DFM), sum(d$n_sig90_cp_VAR)),
+    sprintf("- *(pico bruto, a régua contaminada: forte %d de %d, rápido %d de %d — mas o pico do DFM tem sinal **oposto** ao do impacto em %d de %d)*",
+            sum(d$dfm_mais_forte), nrow(d), sum(d$dfm_mais_rapido), nrow(d),
+            sum(!d$peak_sinal_igual_h0_DFM), nrow(d)),
+    "")
+}
+
+md <- c(
+  "# Benchmark VAR pequeno contra o DFM",
+  "",
+  "> **Corpo gerado por `script/model_var.R`. Reescrito por inteiro a cada**",
+  "> **execução — não escrever prosa aqui.** A leitura interpretativa fica em",
+  "> `relatorio/working-notes/2026-07-31_benchmark_var_vs_dfm.md`.",
+  "",
+  sprintf("Tradução de `codigo_alessi-mark/MAIN_VARloop.m`. Core `{%s}`, `mp_var = %s` (a terceira core, como em `RUN_MAIN_US.m:9`), %d VARs de 4 variáveis, p = %d, h = %d, nboot = %d, seed = %d, bandas %s, instrumento `%s`, painel %d x %d (%s a %s).",
+          paste(CORE_VARS, collapse = ", "), MP_VAR, length(RESPONSES),
+          P_LAGS, HORIZON, N_BOOT, BOOT_SEED,
+          paste0(CI_LEVELS * 100, "%", collapse = "/"), INSTRUMENT,
+          nrow(PANEL), ncol(PANEL), format(min(DATES)), format(max(DATES))),
+  "",
+  "AK reporta percentis 5/10/90/95 (bandas de 90% e 80%); aqui são 68/90, para casar com `irf_coherence_cell.rds`.",
+  "",
+  "## Regra de leitura, fixada antes dos números",
+  "",
+  "- *mais forte* = |IRF_DFM(pico)| > |IRF_VAR(pico)|;",
+  "- *mais rápido* = h do pico do DFM < h do pico do VAR.",
+  "",
+  "**Correção da régua, aplicada depois de olhar a figura de ações e antes de",
+  "escrever o veredito.** O extremo global do DFM tem sinal **oposto** ao do",
+  "impacto nas 8 séries de ações: a IRF vira positiva por volta de h = 5 e chega",
+  "a +20 em h ≈ 24, enquanto o VAR pequeno segue negativo. Comparar |extremo|",
+  "põe uma alta de médio prazo contra uma queda e chama isso de \"mais forte\".",
+  "Passa a valer o **pico de mesmo sinal do impacto** — o extremo dentro do",
+  "primeiro trecho contíguo em que a resposta conserva o sinal de h = 0 — e a",
+  "**razão de impacto**, que é o mesmo objeto nos dois modelos e concorda em",
+  "sinal em 18 de 18. O pico bruto continua tabelado, com a bandeira de sinal.",
+  "",
+  "Com a identificação mantida fixa, isto testa **DFM contra VAR pequeno**, não",
+  "\"contra a literatura\", que identifica por Cholesky.",
+  "",
+  "## Placar",
+  "",
+  tally_md(cmp, "Todas as respostas"),
+  tally_md(cmp |> filter(var %in% acoes8), "Bloco de ações (8 índices)"),
+  "E há uma segunda razão para desconfiar do pico bruto: a nota de 2026-07-31",
+  "sobre o espectro da companion mostra que o extremo de médio prazo do DFM *é*",
+  "a oscilação amortecida do par complexo dominante — apagar o par inverte o",
+  "vale em 12 de 14 séries. Pontuar o DFM por um pico em h = 23-48 seria",
+  "pontuá-lo justamente onde aquela análise diz não haver evidência independente.",
+  "",
+  "## Comparação por resposta",
+  "",
+  md_tbl(cmp |> select(var, grupo, h0_DFM, h0_VAR, razao_impacto,
+                       peak_ss_h_DFM, peak_ss_val_DFM, peak_ss_h_VAR,
+                       peak_ss_val_VAR, razao_pico_ss, razao_banda_h0,
+                       n_sig90_DFM, n_sig90_VAR), 4),
+  "Pico bruto (o extremo global), com a bandeira de sinal:",
+  "",
+  md_tbl(cmp |> select(var, peak_h_DFM, peak_val_DFM, peak_sinal_igual_h0_DFM,
+                       peak_h_VAR, peak_val_VAR, peak_sinal_igual_h0_VAR,
+                       razao_pico), 4),
+  "## Estabilidade das respostas core entre os VARs",
+  "",
+  sprintf("Se o VAR pequeno fosse instável, a mesma variável core teria respostas muito diferentes conforme a quarta variável. Amplitude entre os %d VARs:",
+          length(RESPONSES)),
+  "",
+  md_tbl(core_disp, 4),
+  "## Diagnóstico da estimação",
+  "",
+  md_tbl(data.frame(
+    var = RESPONSES,
+    max_eig = vapply(fits, function(f) f$res$max_eig, numeric(1)),
+    explosivo = vapply(fits, function(f) f$res$max_eig >= 1, logical(1)),
+    n_inst = vapply(fits, function(f) f$res$n_inst, integer(1)),
+    replicas_falhas = vapply(fits, function(f) f$res$n_failed, integer(1))), 4),
+  if (nrow(expl))
+    sprintf("⚠ **%d VAR(s) com companion explosiva** (max |λ| ≥ 1): %s. São 4 variáveis × 6 defasagens = 25 parâmetros por equação em 147 observações; a correção de Kilian não encontra `delta` que estabilize e emite aviso. É o custo de dimensionalidade do VAR pequeno, medido.",
+            nrow(expl), paste(sprintf("`%s` (%.3f)", expl$var,
+                                      expl$var_max_eig), collapse = ", "))
+  else "Nenhum VAR com companion explosiva."
+)
+
+writeLines(md, file.path(OUT_DIR, "var_benchmark.md"))
+cat(sprintf("\n-> %s/var_benchmark.md\n", OUT_DIR))
+cat("\n=== done ===\n")
+
+invisible(list(fits = fits, irf_long = irf_long, cmp = cmp))
+}
+
+if (sys.nframe() == 0) run_benchmark()
