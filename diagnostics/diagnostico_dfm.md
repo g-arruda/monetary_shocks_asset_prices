@@ -456,6 +456,25 @@ o pico da oscilação amortecida exatamente em **h ≈ 30**, que é onde estão 
 picos observados (h=31-34 no bloco de juros, h=24-37 no de ativos). **A corcova
 é mecânica.**
 
+> **➜ Continuação em 2026-07-31 — esta seção foi testada, e a conclusão acima
+> sobrevive por um caminho mais forte do que o que a produziu.**
+> `script/factor_stationarity.R` → `output/factors/`; leitura em
+> `relatorio/working-notes/2026-07-31_estacionariedade_fatores.md`.
+> A coincidência de períodos registrada aqui é sugestiva e nada mais — e um
+> teste de reestimação em p ∈ {1,4,6} chega a **absolver** a especificação (o
+> vale existe até em p=1, onde a raiz dominante é real, e a mediana do horizonte
+> anda na direção *oposta* ao quarto de ciclo). O que condena é a **decomposição
+> espectral**: escrevendo `Aʰ = Σₖ λₖʰ vₖwₖ'` e apagando o par dominante de `B`
+> — sem reestimar nada, com a reconstrução completa batendo a produção a
+> **5,2e-13** — o vale **inverte de sinal em 12 de 14 séries** e resta ~37% da
+> magnitude, enquanto apagar o *segundo* par não muda nada (razão mediana
+> **1,009** contra **0,366**). **`cambio_usd` é a única exceção** (1,004).
+> Duas coisas que esta seção não tinha e que valem: o par dominante **não** é
+> artefato de `p` (o módulo máximo é *maior* em p=1, 0,982), e apagar modos muda
+> o denominador da normalização — sinal e horizonte são imunes, magnitude não.
+> Esta seção também não testou os **fatores** (o §5.4 abaixo testa as 106 séries
+> do painel), nem PP, nem cointegração; tudo isso está no artefato novo.
+
 Decaimento implicado: 0,869 em h=6; 0,754 em h=12; 0,569 em h=24; **0,324 em h=48**.
 
 ### 5.2b Largura das bandas de 90% — o prompt está parcialmente errado

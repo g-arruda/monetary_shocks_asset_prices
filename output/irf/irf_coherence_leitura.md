@@ -15,7 +15,25 @@ bandas 68/90, h = 0-48. Fonte de todo número citado abaixo:
 Este arquivo diagnostica **a régua de coerência**, não os resultados. A leitura
 econômica dos resultados é o §5 do paper, em
 [`irf_section.md`](irf_section.md) — que é o texto canônico. Quando os dois
-divergirem, o §5 vence.
+divergirem, o §5 vence. *(Desde 2026-07-29 o texto canônico migrou para
+`tex/main.tex` §4-§5; o `irf_section.md` carrega banner apontando para lá.)*
+
+> **⚠ Adendo de 2026-07-31 — a janela escorada h12-h48 da régua caiu num
+> problema que não é da régua.** `script/factor_stationarity.R` mostra que o
+> extremo de médio prazo das IRFs **é** a oscilação amortecida do par complexo
+> dominante da companion (|λ| = 0,9768, período 117,9 meses): apagando o par por
+> decomposição espectral — sem reestimar nada, reconstrução batendo a produção a
+> 5,2e-13 — o vale **inverte de sinal em 12 de 14 séries** e resta ~37% da
+> magnitude, enquanto apagar o segundo par não muda nada (1,009 contra 0,366).
+> **Consequência para a leitura abaixo:** onde um veredito `parcial` ou
+> `incoerente` depende do comportamento em h ≥ 20, ele está medindo a dinâmica
+> do modo dominante, não conteúdo econômico independente da série. Isso **não**
+> muda nenhuma contagem nem nenhum veredito — a régua é a mesma —, mas muda o
+> que se pode concluir de um acerto ou erro naquela faixa. Os vereditos que
+> vivem em h ≤ 12 (o impacto, a corcova de preços em h2-h8, o bloco de ações)
+> não são atingidos, e `cambio_usd` é a única das 14 testadas cuja reversão
+> sobrevive inteira ao corte. Detalhe em
+> `relatorio/working-notes/2026-07-31_estacionariedade_fatores.md`.
 
 Placar (após as correções B2/B3 de 2026-07-28, 53 variáveis): 22
 `coerente_forte`, 5 `coerente`, 11 `parcial`, 1 `incoerente`, 7 `ambigua`,

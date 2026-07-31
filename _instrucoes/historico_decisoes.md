@@ -359,6 +359,53 @@ residualização AR **full-sample antes** do subset. Refitar o AR dentro da jane
 faz outubro/2020 ser regredido em fevereiro/2020 sem que nada acuse o erro.
 `first_stage_F` já implementa a versão correta.
 
+### 4.1 Os `Re()` e a correção de Kilian **não** são a origem dos autovalores complexos (2026-07-31)
+
+Pergunta levantada pelo autor ao ver o par complexo dominante da companion:
+seria artefato numérico, herdado dos `Re()` acrescentados no passado para
+contornar aparecimento de números complexos? **Auditado, e não.** Registrado
+aqui porque é caro re-derivar e a resposta é definitiva.
+
+1. **Nada no caminho do ponto estimado é sequer complexo.** Medido objeto a
+   objeto, `max|Im| = 0` em `static_factors`, `static_loadings`, `Z`, `bet`, nos
+   resíduos `u` **antes** do `Re()`, na `companion`, em `K`, `M`, `A²⁴` e em
+   `Λ·B·K·M`. As duas fontes de vetores são `svd()` (`factor_estimation.R:326` e
+   `:661`), real para entrada real. Logo os `Re()` de `estimate_var_ols:526`,
+   `:574` e de `impulse_responde.R:450-452` são **no-ops**. Código defensivo
+   morto — não descartam nada e não escondem nada. **Não apagar sem necessidade,
+   mas também não tratar como sintoma.**
+2. **O único complexo legítimo é o do Kilian, e ali está certo.** A fórmula de
+   Pope (1990) soma `λₕ(I − λₕB)⁻¹` sobre os 42 autovalores; pares conjugados se
+   cancelam. Medido: `max|Im(sumeig)| = 0` **exato** e **0 de 42** termos pulados
+   pelo `tryCatch` da linha 413. O `Re()` da linha 419 é aplicado à **soma**, não
+   termo a termo — termo a termo seria erro. O `kiliancorr.m` original não tem
+   `real()` nenhum e carrega o ruído adiante; a versão em R é mais limpa que o
+   MATLAB nesse ponto, não divergente dele.
+3. **E o Kilian não entra no achado.** `companion_corrected` **não aparece** em
+   `impulse_responde.R`: o ponto usa `companion_matrix` (OLS puro, `:342`) e cada
+   réplica do bootstrap re-estima por OLS (`:572`); o corrigido só monta o DGP
+   (`:503`). Qualquer defeito lá não moveria o vale de médio prazo, que é do
+   ponto.
+4. **Autovalores confirmados fora do repo.** OLS por `qr.solve` (QR, não equações
+   normais) e `vars::VAR` batem com o projeto a **7,9e-13** nos quatro maiores
+   módulos, e os três dão período dominante de **117,90 meses**.
+
+**Raiz complexa não é defeito:** todo VAR com dinâmica oscilatória tem
+autovalores complexos, e num VAR(6) de 7 variáveis 40 das 42 serem complexas é o
+esperado. Bug seria parte imaginária não-nula descartada, termo faltando na soma
+de Pope, companion mal montada ou raiz explosiva — nenhum ocorre (|λ|máx =
+0,9768 < 1).
+
+**A preocupação legítima é estatística e aponta na direção contrária:** são ~301
+parâmetros em 147 observações efetivas, e OLS **subestima** persistência em
+amostra pequena — que é o problema que a correção de Kilian existe para tratar. A
+companion corrigida tem módulo **maior** (0,98339) e período **mais longo**
+(147,0 meses). Se há viés, a dinâmica verdadeira é ainda mais dominada por esse
+modo.
+
+Fonte: `relatorio/working-notes/2026-07-31_estacionariedade_fatores.md`, seção
+"Isso não é bug?".
+
 ---
 
 ## 5. Decisões editoriais

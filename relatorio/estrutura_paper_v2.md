@@ -349,6 +349,58 @@ T1–T8 associada saíram do roteiro — decisão de 2026-07-15 de manter o het
 fora do paper. Os artefatos permanecem em `output/{instrument,validation}/`
 como diagnóstico interno.)*
 
+### Apêndice B' — Exogeneidade do instrumento em frequência diária *(novo, 2026-07-31)*
+
+Responde ao item de topo do council review. Fontes:
+`output/instrument/jk_sovereign_confound.{csv,md}`, `jk_sovereign_days.csv`,
+`jk_sovereign_irf_overlay.pdf`; leitura em
+`relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
+A ordem do argumento não pode ser embaralhada: (i) enuncia a acusação, (ii) o
+**controle não-Copom** que dá sentido ao coeficiente, (iii) a **interação
+negativa**, (iv) a concentração em 2021-10-27. Figura: cortar o overlay de 9
+painéis para quatro (`cambio_usd`, `embi_perc`, `cds_5y`, `yield_2y`).
+
+### Apêndice D — Dinâmica dos fatores e alcance do médio prazo *(novo, 2026-07-31)*
+
+Fontes: `output/factors/factor_{companion_spectrum,unit_root,cointegration,
+lag_sensitivity_irf,irf_mode_decomposition}.csv` + `factor_stationarity.md`;
+leitura em `relatorio/working-notes/2026-07-31_estacionariedade_fatores.md`.
+Cobre o que o metodologista e o harsh-referee pediram por ângulos diferentes:
+
+- **ADF / PP / KPSS** nos 7 fatores (nível e diferença) e nas 106 séries do
+  painel. 4 de 7 fatores I(1), **nenhum I(2)**; PP concorda com ADF em 14 de 14.
+- **Cointegração de Johansen** com K ∈ {2,4,6} e a correção de Reinsel-Ahn. O
+  posto **não é identificado** (2 / 4 / 0), e sob qualquer um deles o VAR em
+  nível é consistente — Sims-Stock-Watson (1990) + BLL (2016b), **as duas chaves
+  já citadas**. Justifica não estimar VECM em uma frase.
+- **Espectro completo da companion** (42 autovalores, módulo, argumento, período
+  implicado, meia-vida), e a **decomposição espectral da IRF**: apagar o par
+  dominante inverte o vale de médio prazo em 12 de 14 séries. É o que fundamenta
+  a ressalva do §4 sobre o tier de 68% — a reversão e a persistência do VAR são o
+  mesmo objeto, não dois fatos que se corroboram.
+
+### Apêndice E — Benchmark contra o VAR de menor dimensão *(novo, 2026-07-31)*
+
+Fontes: `output/var/var_benchmark.{md,...}` (3 CSV + 4 PDF); leitura em
+`relatorio/working-notes/2026-07-31_benchmark_var_vs_dfm.md`. É a tradução de
+`codigo_alessi-mark/MAIN_VARloop.m` — 18 VARs de 4 variáveis, mesmo instrumento e
+mesma spec do DFM. **Sustenta metade da frase da introdução e refuta a outra
+metade**, então precede a reescrita de `tex/main.tex:183`:
+
+- *mais forte* 16 de 18 (razão mediana 2,32 no impacto, 1,61 no pico de mesmo
+  sinal); *mais rápido* **só nas ações** (7 de 8, contra 9 de 18 no conjunto);
+- a contrapartida em precisão: banda de 68% do DFM nunca mais estreita (razão
+  mediana 4,35) e **37 células sig90 contra 266 do VAR** (nas ações, 0 contra
+  132);
+- o argumento mais forte pró-DFM é o diagnóstico core de AK
+  (`MAIN_plotfigs.m:49-71`): as respostas core do VAR pequeno variam entre
+  especificações **mais do que a própria magnitude**, e o VAR com `ibc_br` é
+  explosivo (1,008).
+
+Figura no formato do original: VAR à esquerda, DFM à direita, **eixo y
+compartilhado por linha** (`linkaxes`) — é o eixo comum que torna a comparação
+visível em vez de afirmada.
+
 ### Apêndice C — Varredura de especificações e coerência
 - Desenho do grid de 480 células (12 instrumentos × 5 mp_vars × 4 (r,q) × 2
   janelas), taxonomia de falhas e sistema de score
