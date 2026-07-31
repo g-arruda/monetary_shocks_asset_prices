@@ -294,7 +294,11 @@ Resolvidos e verificados; ficam aqui só para não serem reabertos.
   +5000bp. **Relatórios anteriores a essa data estão 100× fora de escala em
   magnitude**; sinais e formas inalterados. O default legado `0.5` de
   `ident_ext_instr` foi mantido por compatibilidade com `model_var.R`, que
-  hard-coda `juros_selic` em escala percentual.
+  hard-codava `juros_selic` em escala percentual. **Atualização de 2026-07-31:**
+  o `model_var.R` foi reescrito e passou a normalizar em `yield_6m` via
+  `norm_value_for()`, então **esse default não tem mais consumidor** — todo
+  chamador passa o valor explicitamente. Ele espelha o `*.5` hard-coded de
+  `IdentExtInstr.m:14` e por isso não foi removido.
 - **F (factor-space) ≪ F (y6m AR)** (2026-05-08) — diagnóstico que expôs a
   fraqueza real do het. Helper `factor_space_diagnostics.R`; os três Fs passaram
   a ser reportados lado a lado.
@@ -318,6 +322,36 @@ Resolvidos e verificados; ficam aqui só para não serem reabertos.
 - **Framing T2 honesto** (2026-05-06) — a F do JK fica *no* percentil 99 das
   máscaras aleatórias de mesmo tamanho; a distância é de um percentil. Redação
   corrigida nos documentos públicos.
+
+- **Locale dos CSVs da investing.com** (2026-07-28, bug B1) — `download.R:222-243`
+  lia três arquivos com separador decimal errado (`"138,19"` virava `13819`), e
+  `cds_5y`, `msci` e `sp500_vix` entravam **100× inflados**. Corrigido: o CDS
+  responde **+29,07bp**, não +2.907bp, o que o torna comparável ao EMBI
+  (+19,95bp) em vez de 145× maior. **Nenhum resultado muda** — a padronização
+  BLL absorve escala constante —, mas **todo número de CDS anterior a 07-28 está
+  fora de escala** em documentos e notas.
+- **`yield_6m` na tabela de coerência** (2026-07-28, B2) — a variável de
+  normalização estava ausente de `coherence_var_table()`, o que tornava o +50bp
+  não auditável a partir dos artefatos publicados. Incluída. Seu `h0` é
+  **mecânico** (0,005000 exato, CI90 degenerada) porque as 800 reamostras são
+  todas normalizadas ao mesmo ponto: a linha é checagem, não resultado.
+- **`yield_ordering_ok` e `magnitude_flag`** (2026-07-28, B4) — computados,
+  gravados, nunca lidos por `classify_sweep_cells`. Decisão do autor:
+  **documentar como régua reportada, não promover a critério**. A taxonomia
+  segue classificando por ξ_mp. `yield_ordering_ok` é FALSE na célula de
+  produção e em 58 das 68 células `ok`, porque o pico da curva no impacto está
+  em 2-5 anos (+91,6 / +92,7bp) e não no vértice de política (+50,0bp).
+
+**Dois achados de método reutilizáveis** (rodada de auditoria 07-28):
+
+1. **O χ² assintótico super-rejeita 2,3× a 5,3× nesta amostra.** Comparações de
+   subamostra precisam de wild block bootstrap sob H0 — no teste conjunto da
+   Tarefa 7, 6 de 7 rejeições assintóticas viram 1 de 7 pelo bootstrap
+   (`qchisq(0.95,9)` = 16,9 contra q95 da nula bootstrap entre 38,9 e 89,1).
+2. **`sandwich::NeweyWest` sobre um `lm` de segundo estágio usa a *meat* errada
+   para IV.** `estfun.lm` monta o score com `y − X̂b`, mas o resíduo estrutural é
+   `y − Xb`. `diagnostics/07_dominancia_fiscal.R` monta o sanduíche IV analítico
+   à mão, com `stopifnot()` contra `sandwich::lrvar` na matriz de scores.
 
 **Bug de método que vale para qualquer teste de sub-período** (referee2 round 2,
 achado não-het): janelas **não-contíguas** (ex.: `drop_covid`) exigem
@@ -359,3 +393,5 @@ Cuidado ao reusar texto destas fontes — os documentos ainda circulam.
 | "Os 8 índices caem com significância (CI90 em 6 de 8)" | §5 antigo (2026-07-12) | Rodada (7,6): nenhum índice atinge CI90 no impacto |
 | "Crédito total se expande com significância em h0-h6" | §5 antigo, `working-notes/2026-07-12_irf_credito_ativos_financeiros.md` | Rodada (7,6): agregado e PF contraem monotonicamente; a expansão inicial é só setorial (transporte, agro, indústria) |
 | "O proxy foi abandonado; escolher nova identificação primária" | `working-notes/2026-07-24_auditoria_analise_gemini.md` (09h24) | Nota das 23h46 do mesmo dia + produção: o proxy-SVAR segue primário sob (7,6) |
+| "O placebo `commodity_metal` está violado; é o caveat mais concreto contra a validade do instrumento" | §5 antigo, `estrutura_paper_v2.md`, `working-notes/2026-07-24_{auditoria_analise_gemini,avaliacao_5_artigos_robustez}.md`, `2026-07-27_identificacao_nao_gaussiana_gmr.md` | `diagnostics/01_exogeneidade.R` §1.6: o IC-Br do BCB é **em R$** e herda mecanicamente o câmbio (+3,98% contra +3,27%). Num painel aumentado, os três índices em R$ violam e os três **em US$ passam limpo** (metal +0,42, CI90 [−1,44; +1,88], 0/25 sig). Se fosse fator global, o índice em dólar responderia. Reclassificado para `ambiguous` (B3, 2026-07-28) — **não estender a ortogonalização por causa dele** |
+| "A cadeia perversa câmbio↑/risco↑ não é dependente de estado" (negativo limpo da Tarefa 7) | primeira versão de `diagnostics/diagnostico_dfm.md` §7, sob baseline EMBI | O mesmo relatório, §7.4d-g: o EMBI é o **único** dos 7 indicadores que não vê nada. Sob CDS e sob ΔDBGG a **persistência** em h=6-8 é dependente de estado (t = 2,46 a 3,60, primeiro estágio forte). O negativo sobrevive **só para o impacto** h=0-4 (\|t_dif\| ≤ 1,14 nos 7). EMBI e CDS correlacionam 0,933 em MA12 e ainda assim discordam de regime em 24 de 141 meses |
