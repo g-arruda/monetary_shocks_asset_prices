@@ -1,6 +1,6 @@
 # Coerência ponto a ponto das IRFs — especificação de produção
 
-Gerado por `script/irf_coherence_check.R` em 2026-07-26.
+Gerado por `script/irf_coherence_check.R` em 2026-07-28.
 
 > **Arquivo gerado — sobrescrito por inteiro a cada rodada.** Não escreva
 > prosa aqui: ela se perde no próximo run. A leitura interpretativa vive em
@@ -23,10 +23,9 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 
 | tier | verdict | n |
 |---|---|---|
-| ambiguous | ambigua |     6 |
+| ambiguous | ambigua |     7 |
 | placebo | placebo_ok |     3 |
-| placebo | placebo_viola |     1 |
-| scored | coerente_forte |    21 |
+| scored | coerente_forte |    22 |
 | scored | parcial |    11 |
 | scored | coerente |     5 |
 | scored | incoerente |     1 |
@@ -40,9 +39,8 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 | risco_cambio_soft | cambio_usd | soft_depreciacao_fiscal_dom |     0 | TRUE | 0.1498 | -0.02064 | -0.04066 |
 | risco_cambio_soft | cambio_eur | soft_depreciacao_fiscal_dom |     0 | TRUE | 0.1446 | -0.0298 | -0.004589 |
 | risco_cambio_soft | embi_perc | soft_risco_abre_fiscal_dom |     0 | TRUE | 0.1995 | -0.04938 | -0.1703 |
-| risco_cambio_soft | cds_5y | soft_risco_abre_fiscal_dom |     0 | TRUE |  2907 | -297.5 | -1750 |
+| risco_cambio_soft | cds_5y | soft_risco_abre_fiscal_dom |     0 | TRUE | 29.07 | -2.975 | -17.5 |
 | precos | price_core_ipca_ex0 | incoerente |     0 | FALSE | 0.01831 | 0.05612 | 0.02748 |
-| placebo_externas | commodity_metal | placebo_viola |    NA | NA | 10.41 | -1.243 | 2.158 |
 
 ## Trajetórias por grupo (unidades nativas; tcode aplicado)
 
@@ -51,6 +49,7 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
 | yield_3m | 0.002792 | 0.003844 | 0.003063 | -0.000173 | -0.006592 | -0.007686 | -0.004662 |     1 | coerente_forte |
+| yield_6m | 0.005 | 0.005972 | 0.004145 | -0.0003222 | -0.006842 | -0.007436 | -0.004232 |     1 | coerente_forte |
 | yield_1y | 0.007352 | 0.008082 | 0.00511 | -0.0006192 | -0.006768 | -0.00658 | -0.003334 |     1 | coerente_forte |
 | yield_2y | 0.009164 | 0.009398 | 0.005603 | -0.0007519 | -0.00599 | -0.005029 | -0.002085 |     1 | coerente_forte |
 | yield_5y | 0.009274 | 0.008759 | 0.005127 | -0.0006037 | -0.00468 | -0.003249 | -0.000907 |     1 | coerente_forte |
@@ -83,7 +82,7 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 | cambio_usd | 0.1498 | 0.1331 | 0.0691 | -0.02064 | -0.04066 | 0.02928 | 0.04902 |     0 | soft_depreciacao_fiscal_dom |
 | cambio_eur | 0.1446 | 0.1202 | 0.05143 | -0.0298 | -0.004589 | 0.08059 | 0.08425 |     0 | soft_depreciacao_fiscal_dom |
 | embi_perc | 0.1995 | 0.1212 | 0.06773 | -0.04938 | -0.1703 | -0.1029 | -0.02318 |     0 | soft_risco_abre_fiscal_dom |
-| cds_5y |  2907 |  2240 |  1362 | -297.5 | -1750 | -985.7 | -149.6 |     0 | soft_risco_abre_fiscal_dom |
+| cds_5y | 29.07 |  22.4 | 13.62 | -2.975 | -17.5 | -9.857 | -1.496 |     0 | soft_risco_abre_fiscal_dom |
 
 ### atividade
 
@@ -144,13 +143,18 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 | price_igp_m | 0.1832 | 0.3229 | 0.2303 | -0.09664 | -0.004383 | 0.179 | 0.1932 |    NA | ambigua |
 | price_ipp | 0.5859 | 0.6141 | 0.3666 | -0.04444 | 0.2311 | 0.5187 | 0.4331 |    NA | ambigua |
 
+### commodity_domestica
+
+| var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| commodity_metal | 10.41 | 11.27 | 6.283 | -1.243 | 2.158 | 7.378 |  6.77 |    NA | ambigua |
+
 ### placebo_externas
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| sp500_vix | -65.54 | -137.6 | -85.15 | -30.24 | -37.79 | -75.55 | -60.92 |    NA | placebo_ok |
-| msci | 410.3 | 124.3 | -160.9 | -351.1 | -375.4 | -26.27 | 157.5 |    NA | placebo_ok |
-| commodity_metal | 10.41 | 11.27 | 6.283 | -1.243 | 2.158 | 7.378 |  6.77 |    NA | placebo_viola |
+| sp500_vix | -0.6554 | -1.376 | -0.8515 | -0.3024 | -0.3779 | -0.7555 | -0.6092 |    NA | placebo_ok |
+| msci | 4.103 | 1.243 | -1.609 | -3.511 | -3.754 | -0.2627 | 1.575 |    NA | placebo_ok |
 | epu_us | -32.08 | -21.45 | -2.539 | -3.485 | -20.33 | -18.67 | -11.11 |    NA | placebo_ok |
 
 
@@ -161,5 +165,5 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 | cambio_usd | 0.1498 | 0.0691 | -0.02064 | -0.04066 | depreciacao_fiscal_dom | FALSE |
 | cambio_eur | 0.1446 | 0.05143 | -0.0298 | -0.004589 | depreciacao_fiscal_dom | FALSE |
 | embi_perc | 0.1995 | 0.06773 | -0.04938 | -0.1703 | risco_abre_fiscal_dom | FALSE |
-| cds_5y |  2907 |  1362 | -297.5 | -1750 | risco_abre_fiscal_dom | FALSE |
+| cds_5y | 29.07 | 13.62 | -2.975 | -17.5 | risco_abre_fiscal_dom | FALSE |
 

@@ -21,8 +21,12 @@ coherence_var_table <- function() {
                w_lo = w_lo, w_hi = w_hi, stringsAsFactors = FALSE)
   }
   rbind(
-    row(c("yield_3m", "yield_1y", "yield_2y", "yield_5y", "yield_10y",
-          "juros_cdi"), "curva_juros", 1, "scored", 0, 6),
+    # yield_6m is the normalization variable: its h0 is MECHANICAL
+    # (= shock_bps/10000 by impulse_responde.R:124), so 1 of the 7 points in
+    # the window is free and h1..h6 are what inform the verdict. Included so
+    # the delivered +50bp is auditable in the output table (B2, 2026-07-28).
+    row(c("yield_3m", "yield_6m", "yield_1y", "yield_2y", "yield_5y",
+          "yield_10y", "juros_cdi"), "curva_juros", 1, "scored", 0, 6),
     row("juros_selic", "curva_juros", 1, "scored", 1, 12),
     row(c("asset_ibov", "asset_smll", "asset_idiv", "asset_imob",
           "asset_ifix", "asset_mlcx"), "acoes", -1, "scored", 0, 6),
@@ -50,7 +54,15 @@ coherence_var_table <- function() {
           "price_core_ipca_ex1", "price_core_ipca_dw", "price_inpc"),
         "precos", -1, "scored", 12, 48),
     row(c("price_igp_m", "price_ipp"), "precos_ambiguos", NA, "ambiguous", 12, 48),
-    row(c("sp500_vix", "msci", "commodity_metal", "epu_us"),
+    # commodity_metal is the BCB IC-Br, denominated in BRL — a DOMESTIC price
+    # that mechanically inherits the FX response, not an external placebo.
+    # Retiered from `placebo` on 2026-07-28 (B3): the augmented-panel test in
+    # diagnostics/01_exogeneidade.R sec 1.6 shows the BRL index violates
+    # (+12.07, sig90 in 4 of h0-h4) while index/cambio_usd passes 25/25
+    # horizons (+0.42, CI90 [-1.44, 1.88]). The violation was never the
+    # instrument's — it is denomination.
+    row("commodity_metal", "commodity_domestica", NA, "ambiguous", 0, 24),
+    row(c("sp500_vix", "msci", "epu_us"),
         "placebo_externas", 0, "placebo", 0, 24)
   )
 }

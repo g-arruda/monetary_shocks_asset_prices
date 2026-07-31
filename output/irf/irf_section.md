@@ -1,5 +1,28 @@
 # §5 — IRFs: the transmission of monetary policy shocks in Brazil
 
+> **⚠ This file is no longer the canonical results text. `tex/main.tex`
+> `\section{Resultados}` (§4) and `\section{Robustez}` (§5) are** (written
+> 2026-07-29, rewritten 2026-07-30). This document remains the full reading of
+> the production run.
+>
+> **The paper is now under a two-tier rule, not the 90%-only rule of
+> 2026-07-29.** A 90% band excluding zero is a statistical result and is called
+> *significativo*; a 68% band excluding zero enters as **direction and
+> magnitude**, labelled and never called significant; anything else is a
+> point-estimate trajectory. Under the intervening 90%-only rule five claims
+> made below had no home in the paper: disinflation in `price_core_ipca_ex1`
+> and `price_ipca_difusao`, the equity block (0 of 392 sig90), aggregate credit
+> (0 sig90), every reversal past h≈17, and anything at all beyond h = 12 (92 of
+> 2,597 pairs clear 90%, all at h ≤ 12).
+>
+> **The 2026-07-30 rewrite restored four of the five as labelled 68% material**:
+> the medium-run reversal of the curve and of the Selic, the contraction of all
+> seven credit cuts, the equity block at h = 0-1, and the `ex1` disinflation
+> (which reaches 68% in exactly two horizons, h = 21 and h = 22). The one that
+> stays out is `price_ipca_difusao`: it never reaches the 68% band anywhere in
+> its decline, and the paper says so. Where this file and the `.tex` disagree,
+> the `.tex` wins.
+
 **Date:** 2026-07-26 (full rewrite; supersedes the 2026-07-12 draft, archived at
 `arquivo/output/irf_section_2026-07-12.md`). The previous text ran on the
 `z_jk_purif` instrument, the (r=6, q=5) grid and the pre-refresh data vintage.
@@ -337,11 +360,13 @@ sample-driven.
    relevance, none to an unstable normalization or a genuine puzzle. See the
    ruler caveat in "Why this specification" before comparing the sweep's
    eligibility flags with ξ_mp.
-4. **Point-by-point coherence, 52 variables × 49 horizons** scored against theory
-   windows (`output/irf/irf_coherence_report.md`): **21 `coerente_forte`,
-   5 `coerente`, 11 `parcial`, 1 `incoerente`** (core ex0), 6 ambiguous,
-   4 soft-channel (FX/risk), 3 placebos passing and **1 placebo violated**
-   (§Caveats).
+4. **Point-by-point coherence, 53 variables × 49 horizons** scored against theory
+   windows (`output/irf/irf_coherence_report.md`), tally as of the B2/B3 fixes of
+   2026-07-28: **22 `coerente_forte`, 5 `coerente`, 11 `parcial`,
+   1 `incoerente`** (core ex0), 7 ambiguous, 4 soft-channel (FX/risk) and
+   **3 placebos, all passing — there is no placebo violation any more**
+   (§Caveats). `yield_6m` was added to the table as an audit row for the
+   normalization, which is what takes the count from 52 to 53.
 5. **Jaggedness (footnote-level).** Short-horizon wiggles in low-commonality
    series (equities, headline IPCA) trace to 3-4-month complex roots of the
    factor VAR(6) and lie inside the bands at every horizon; roughness correlates
@@ -397,14 +422,20 @@ sample-driven.
   `cambio_usd` in BRL/USD level (sample mean 4.11, so +0.1498 ≈ +3.6%);
   `cds_5y` on the panel's ×100 scale (+2907 = +29.1 bp); `embi_perc` in
   percentage points; credit stocks in log-points ×100 (tcode 4).
-- **Placebo violated: `commodity_metal`.** The metals index responds **+10.4%
-  at impact with CI90 through h4** to a Brazilian monetary shock, which is not
-  economically interpretable — a small open economy does not move world metal
-  prices. This is a live exogeneity caveat: metals are *not* among the
-  pre-event predictors of the Bauer-Swanson orthogonalization (Brent is), so the
-  instrument plausibly retains a global commodity/risk component. The other three
-  placebos pass (`sp500_vix`, `msci`, `epu_us`). Extending the orthogonalization
-  to a metals factor is the natural test and is an open item.
+- ~~**Placebo violated: `commodity_metal`.**~~ **Retracted 2026-07-28 (fix B3),
+  and a unit error corrected 2026-07-29.** Two things were wrong. First the
+  unit: the metals index responds **+10.41 index points**, which on a sample
+  mean of 303.3 is **+3.43%**, not "+10.4%" as this caveat originally read.
+  Second, and decisive, the response is not an exogeneity failure at all. The
+  BCB IC-Br is **denominated in BRL**, so it is a domestic price that
+  mechanically inherits the FX response. In an augmented panel (nboot = 200,
+  `diagnostics/01_exogeneidade.R` §1.6) the three BRL-denominated indices violate
+  (metals +3.98%, CI90 [+1.79%, +6.09%], sig90 in 4 of the first 5 horizons)
+  while the three USD-denominated ones pass clean (metals +0.59%,
+  CI90 [−2.03%, +2.65%], **0 of 25** horizons). A global commodity factor would
+  move the USD index, and it does not. `commodity_metal` was retiered to
+  `ambiguous`; the `placebo` tier now holds only `sp500_vix`, `msci` and
+  `epu_us`, and **all three pass**. This is no longer an exogeneity caveat.
 - **Weak-IV margin.** ξ_mp = 10.43 (full) sits just above the Stock-Yogo
   threshold; the AR set is bounded in both windows, so conventional bands are
   approximately valid and Anderson-Rubin intervals are **optional robustness**

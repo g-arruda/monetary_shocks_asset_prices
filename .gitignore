@@ -32,3 +32,5 @@ tex/*.bbl
 tex/*.blg
 tex/*.brf
 tex/main.pdf
+# Snapshot de build do tex (main.pdf + .aux/.fls/.synctex), derivado e stale
+tex.zip

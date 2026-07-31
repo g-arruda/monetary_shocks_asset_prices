@@ -178,17 +178,16 @@ colnames(sdfm_results$data)
 # verificados contra colnames(data) em 2026-05-08; trocar para nome (string)
 # se a ordem do painel mudar.
 response_vars <- list(
-  c("Cambio USD"            = "cambio_usd"),
-  c("CDS 5y"                = "cds_5y"),
-  c("yield 6m"              = "yield_6m"),
-  c("yield 5y"              = "yield_5y"),
-  c("Spread ICC juridica"   = "spread_icc_juridica"),
-  c("ibov"                  = "asset_ibov"),
-  c("imob"                  = "asset_imob"),
-  c("ifix"                  = "asset_ifix"),
-  c("pib"                   = "pib"),
-  c("ipca"                  = "price_ipca")
-
+  c("ipca"            = "price_ipca"),
+  c("ipca difusao"                = "price_ipca_difusao"),
+  c("ipca core ex0"              = "price_core_ipca_ex0"),
+  c("ipca core ex1"              = "price_core_ipca_ex1"),
+  c("ipca core dw"   = "price_core_ipca_dw"),
+  c("commodity agro"                  = "commodity_agro"),
+  c("commodity metal"                  = "commodity_metal"),
+  c("commodity energia"                  = "commodity_energia"),
+  c("EMBI+"                   = "embi_perc"),
+  c("CDS 5Y" = "cds_5y")
 )
 
 # IRF plots - escolha entre cumulative = TRUE ou FALSE

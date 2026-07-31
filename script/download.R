@@ -219,19 +219,26 @@ embi <- readr::read_csv("data/banco_central_rep_dominicana/embi_brasil.csv") |>
   dplyr::select(ref.date, embi_perc)
 
 
-cds <- readr::read_csv("data/investing/cds5y.csv") |>
+# Os tres CSVs da investing.com vem no formato pt-BR ("138,19"). Sob o locale
+# default do readr a virgula e lida como separador de MILHAR, e cada valor
+# entra 100x inflado (13819). O erro e de escala pura, entao a padronizacao
+# BLL o absorve e nenhum fator/IRF muda — mas todo numero reportado dessas
+# tres series saia 100x errado. Corrigido em 2026-07-28.
+locale_br <- readr::locale(decimal_mark = ",", grouping_mark = ".")
+
+cds <- readr::read_csv("data/investing/cds5y.csv", locale = locale_br) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, cds_5y = ultimo)
 
 
-msci <- readr::read_csv("data/investing/msci.csv") |>
+msci <- readr::read_csv("data/investing/msci.csv", locale = locale_br) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, msci = ultimo)
 
 
-sp500_vix <- readr::read_csv("data/investing/sp500_vix.csv") |>
+sp500_vix <- readr::read_csv("data/investing/sp500_vix.csv", locale = locale_br) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, sp500_vix = ultimo)

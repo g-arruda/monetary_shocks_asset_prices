@@ -17,8 +17,9 @@ econômica dos resultados é o §5 do paper, em
 [`irf_section.md`](irf_section.md) — que é o texto canônico. Quando os dois
 divergirem, o §5 vence.
 
-Placar: 21 `coerente_forte`, 5 `coerente`, 11 `parcial`, 1 `incoerente`,
-6 `ambigua`, 4 soft, 3 `placebo_ok` e **1 `placebo_viola`**.
+Placar (após as correções B2/B3 de 2026-07-28, 53 variáveis): 22
+`coerente_forte`, 5 `coerente`, 11 `parcial`, 1 `incoerente`, 7 `ambigua`,
+4 soft e **3 `placebo_ok` — não há mais `placebo_viola`**.
 
 ---
 
@@ -112,24 +113,48 @@ regenerado em 2026-07-26 é a fonte para isso.
 (apreciação e compressão de risco) e `share_correct = 0` com
 `wrong_sig90 = TRUE` — mas todos os quatro se movem na direção oposta **com
 CI90 excluindo zero no impacto**: câmbio +0,150 [0,079; 0,297], EMBI +0,200
-[0,078; 0,509], CDS +2.907bp [1.652; 6.251]. Depreciação e abertura de risco
+[0,078; 0,509], CDS **+29,07bp [16,52; 62,51]**. Depreciação e abertura de risco
 sob aperto monetário é o canal de dominância fiscal, tratado no §5.3. Estão
 marcados como `soft` justamente para não contaminarem o score: a régua não tem
 prior forte aqui, e forçar um não seria honesto.
 
-**Três placebos passam e um viola.** `sp500_vix` (contém zero em 96% dos
-horizontes), `msci` (100%) e `epu_us` (100%) passam folgado. **`commodity_metal`
-viola**, com `contain0_share = 0,80` contra o limiar de 0,90: +10,4% no impacto
-com CI90 [4,49; 17,51], e o CI90 continua excluindo zero até h4 (+9,65
-[0,66; 19,29]). É o caveat de exogeneidade mais concreto contra o instrumento —
-metais não estão entre os preditores pré-evento da ortogonalização
-Bauer-Swanson (Brent está), então o instrumento plausivelmente retém um
-componente global de commodity/risco. Item aberto em `pendencias.md`; não
-esconder atrás dos três placebos que passam.
+> **Correção de unidade (2026-07-28, bug B1).** A versão anterior deste
+> parágrafo dava o CDS como "+2.907bp [1.652; 6.251]" — valores **100×
+> inflados**, porque `download.R:222-243` lia três CSVs da investing.com com
+> locale errado (`"138,19"` virava 13819). Corrigido; o CDS responde **+29,07
+> bp**, que agora é coerente com o EMBI (+19,95 bp) em vez de 145× maior.
+> Nenhum resultado muda — a padronização BLL absorve escala constante —, só a
+> legibilidade.
 
-Os 6 `ambigua` (`asset_ifnc`, `asset_imat`, `credito_agro`,
-`credito_construcao`, `price_igp_m`, `price_ipp`) não têm prior de sinal e não
-entram em nenhum score — estão no painel para leitura, não para validação.
+**Os três placebos passam.** `sp500_vix` (contém zero em 96% dos horizontes),
+`msci` (100%) e `epu_us` (100%).
+
+> **Retratação (2026-07-28, correção B3).** A versão anterior deste parágrafo
+> dizia "três placebos passam e um viola", tratava `commodity_metal` como "o
+> caveat de exogeneidade mais concreto contra o instrumento" e concluía que ele
+> "plausivelmente retém um componente global de commodity/risco". **Isso estava
+> errado, e a inversão é completa.** O IC-Br do BCB é **denominado em R$**: é um
+> preço doméstico que herda mecanicamente a resposta cambial, não um placebo
+> externo. O teste decisivo está em `diagnostics/01_exogeneidade.R` §1.6 — num
+> painel aumentado, os três índices **em R$** violam (metal +12,07, sig90 em 4
+> de 5 horizontes h0-h4) e os três **em US$** passam limpo (metal +0,42, CI90
+> [−1,44; 1,88], **0 de 25** horizontes significativos). A resposta percentual
+> em R$ (+3,98%) é essencialmente a do câmbio (+3,27%). Se fosse fator global, o
+> índice em dólar responderia — e não responde. `commodity_metal` foi
+> reclassificado para `ambiguous` (grupo `commodity_domestica`) e **deixa de ser
+> caveat de exogeneidade no §5**.
+
+Os 7 `ambigua` (`asset_ifnc`, `asset_imat`, `credito_agro`,
+`credito_construcao`, `price_igp_m`, `price_ipp`, `commodity_metal`) não têm
+prior de sinal e não entram em nenhum score — estão no painel para leitura, não
+para validação.
+
+**`yield_6m` entrou na tabela (B2) e é uma linha de auditoria, não um
+resultado.** Seu `h0` é **0,005000 exato** com CI90 degenerada [0,005; 0,005],
+porque as 800 reamostras são todas normalizadas ao mesmo ponto. O veredito
+`coerente_forte` é livre em 1 dos 7 pontos da janela; o que informa é h1..h6
+(+41,5bp em h6). Serve para tornar o +50bp verificável na saída — antes era
+impossível conferir a normalização a partir dos artefatos publicados.
 
 ---
 

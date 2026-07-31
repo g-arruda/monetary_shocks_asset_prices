@@ -1,6 +1,6 @@
 # Varredura de especificações IRF — Etapa 1 (ponto-estimativa)
 
-Gerado por `script/irf_spec_sweep.R` em 2026-07-26.
+Gerado por `script/irf_spec_sweep.R` em 2026-07-28.
 
 Grid: 2 amostras x 4 combinações (r,q) x 8 instrumentos x 5 variáveis de política = 320 células; p = 6, h = 24, choque = 50bp.
 
@@ -17,6 +17,15 @@ A Etapa 2 (`script/irf_spec_stage2.R`) roda bootstrap completo nas células venc
   (migração de 2026-07-26): sob ela o instrumento de produção nunca era
   elegível — em (7,6) full `z_jk_bs_purif` tem f_factor 6,31 contra ξ_mp 10,43,
   e `z_jk_purif` tem o espelho, 11,08 contra 5,77.
+- **Diagnósticos reportados que NÃO classificam** (B4, 2026-07-28): as colunas
+  `yield_ordering_ok` e `magnitude_flag` são calculadas por célula e gravadas no
+  CSV, mas não entram em `classify_sweep_cells` — mesma convenção do `f_factor`
+  acima. `yield_ordering_ok` exige |6m| ≥ |2y| ≥ |5y| no impacto e é **FALSE na
+  célula de produção** e em 58 das 68 células `ok`, porque o pico da curva está em
+  2-5 anos (+91,6 / +92,7bp) e não no vértice de política (+50,0bp). Promovê-la a
+  critério classificaria a própria produção como falha; ela é evidência sobre o
+  *choque* (hipótese H3 de `diagnostics/diagnostico_dfm.md`), não critério de
+  descarte de célula.
 - **score_hard** (h=0): yield_6m +, yield_2y +, yield_5y +, asset_ibov −;
   a própria mp_var é excluída do score (impacto mecânico pela normalização).
 - **score_ext** (h=24): price_ipca −, pib −, vendas_varejo −.
