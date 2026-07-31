@@ -209,6 +209,62 @@ deixa tudo praticamente intacto — razão mediana **1,009**, contra **0,366** d
 primeiro com 12 inversões de sinal. Não é "apagar dois modos quaisquer quebra a
 IRF"; é aquele par.
 
+## "Isso não é bug?" — auditoria dos `Re()` e da correção de Kilian
+
+Pergunta do autor em 2026-07-31, e é a pergunta certa: o par complexo dominante
+pode ser artefato numérico, ou herança dos `Re()` que foram acrescentados no
+passado para contornar aparecimento de números complexos? **Auditado, e não é.**
+Registro aqui para não ser re-derivado.
+
+**1. Nada no caminho do ponto estimado é sequer complexo.** Medido objeto a
+objeto, `max|Im|` é **zero** em todos: `static_factors`, `static_loadings`, `Z`,
+os coeficientes OLS `bet`, os resíduos `u` **antes** do `Re()`, a `companion`,
+`K`, `M`, `A²⁴` e `Λ·B·K·M`. As duas fontes de vetores são `svd()`
+(`factor_estimation.R:326` e `:661`), que devolve real para entrada real. Logo os
+`Re()` de `estimate_var_ols:526`, `:574` e de `impulse_responde.R:450-452` são
+**no-ops** — código defensivo morto, que não descarta nada. Não causaram nada e
+não escondem nada.
+
+**2. O único lugar com complexo de verdade é o Kilian, e ali é legítimo.** A
+fórmula de Pope (1990) soma `λₕ·(I − λₕB)⁻¹` sobre os 42 autovalores da
+companion; os termos são complexos e os pares conjugados se cancelam. Medido:
+`max|Im(sumeig)| = 0` **exato** (LAPACK devolve conjugados exatos, e aritmética
+complexa sobre entradas exatamente conjugadas devolve saídas exatamente
+conjugadas), e **0 de 42 termos** são pulados pelo `tryCatch` da linha 413. O
+`Re(sumeig)` da linha 419 é aplicado à **soma**, não termo a termo, que é o certo.
+O `kiliancorr.m` original não tem `real()` nenhum e carrega o ruído complexo
+adiante; a versão em R é, nesse ponto, mais limpa que o MATLAB, não diferente
+dele.
+
+**3. E, decisivo: o Kilian não entra no achado.** `companion_corrected` **não
+aparece** em `impulse_responde.R`. O ponto estimado usa `companion_matrix`, OLS
+puro (`:342`, comentário no próprio código), e cada réplica do bootstrap
+re-estima por OLS (`:572`); o corrigido só monta o DGP do bootstrap (`:503`, via
+`var_coefficients_corrected`). O vale de médio prazo é do **ponto**. Mesmo que a
+correção estivesse errada, o achado não mudaria.
+
+**4. Os autovalores foram confirmados por duas implementações independentes.**
+Refazendo o VAR(6) dos fatores fora do código do projeto — OLS por `qr.solve`
+(decomposição QR, não equações normais) e `vars::VAR` — os quatro maiores módulos
+batem com o projeto a **7,9e-13**, e o período do par dominante dá **117,90
+meses** nos três. Não é artefato deste repositório.
+
+**Por que raiz complexa não é defeito.** Todo VAR com dinâmica oscilatória tem
+autovalores complexos; num VAR(6) de 7 variáveis, 40 das 42 raízes serem
+complexas é o esperado, não a exceção. O que o par dominante diz é que os fatores
+têm um ciclo lento e muito persistente. **Bug seria** parte imaginária não-nula
+sendo descartada (não há), termo faltando na soma de Pope (não há), companion mal
+montada (três implementações concordam) ou raiz explosiva (|λ| máx = 0,9768 < 1).
+
+**A preocupação legítima não é computacional, é estatística** — e aponta na
+direção contrária ao alívio: são ~301 parâmetros em 147 observações efetivas, e
+OLS **subestima** persistência em amostra pequena, que é exatamente o problema
+que a correção de Kilian existe para tratar. A companion corrigida tem módulo
+**maior** (0,98339 contra 0,97679) e período **mais longo** (147,0 contra 117,9
+meses). Se há viés, ele é no sentido de a dinâmica verdadeira ser **ainda mais**
+dominada por esse modo — o que reforça a leitura de que o médio prazo é
+redundante com o curto, em vez de enfraquecê-la.
+
 ## Veredito
 
 **O referee está certo no que importa, e a régua pré-registrada é para ser
