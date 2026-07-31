@@ -42,7 +42,7 @@ O `main.tex` está **duas gerações metodológicas atrás**:
 | Painel | 71 variáveis, 2013–2024 | **106 séries**, 2013-01 a 2025-09 (147 meses efetivos após os lags do VAR(6)) |
 | Variável de política | "variável de juros" genérica | **`yield_6m`** com normalização +50bp no impacto (`juros_selic` é controle negativo: F máx = 2.49) |
 | Resultados | 2 parágrafos + 1 figura; magnitudes antigas | **§5 reescrito em 2026-07-26** em `output/irf/irf_section.md`, sob `z_jk_bs_purif` × (7,6) e vintage novo, sem material het. Pronto para conversão ao tex |
-| Robustez | nenhuma | Varredura de especificações, coerência ponto-a-ponto (52 variáveis × 49 horizontes), grade MOSW ξ_mp por (r,q) × amostra × instrumento |
+| Robustez | nenhuma | Varredura de especificações, coerência ponto-a-ponto (53 variáveis × 49 horizontes), grade MOSW ξ_mp por (r,q) × amostra × instrumento |
 | Apêndice | só a tabela de variáveis (referenciada, não presente) | dezenas de artefatos prontos em `output/{instrument,validation,irf,benchmark}/` |
 
 **Atenção — o Resultado atual do tex tem o sinal do câmbio INVERTIDO em relação
@@ -303,7 +303,7 @@ rugosidade×comunalidade = −0.50). **Sem suavização ex-post.**
    ⚠️ **Não** afirmar "sempre que F ≥ 10 os sinais saem corretos": a
    working-note de 2026-07-15 (`sweep_instrumentos_irf`) mostra
    `cor(curve_slope, ξ_mp) = −0,04` — relevância não implica validade.
-3. **Coerência ponto-a-ponto** (52 variáveis × 49 horizontes): anomalias
+3. **Coerência ponto-a-ponto** (53 variáveis × 49 horizontes): anomalias
    localizadas todas rastreadas a medida ou amostra, nenhuma a identificação
    → **Apêndice C**. Releitura sob o novo primário pendente (6.1).
 
@@ -364,7 +364,7 @@ como diagnóstico interno.)*
 - **Tabela cross-instrument do IPCA** (h6/h24, full vs pre-COVID — a prova
   de universalidade da corcova e do seu desaparecimento pre-COVID;
   working-note price puzzle §2, `spec_sweep_irf_long.csv`).
-- Coerência ponto-a-ponto: 52 variáveis × 49 horizontes contra janelas
+- Coerência ponto-a-ponto: 53 variáveis × 49 horizontes contra janelas
   teóricas, vereditos e anomalias localizadas
   (`output/irf/irf_coherence_{h,summary}.csv`, `irf_coherence_report.md`).
 - Jaggedness: tabela rugosidade × p ∈ {3,6,12} + espectro do companion
@@ -415,7 +415,7 @@ regeneráveis apagados — ver `arquivo/README.md` e `_instrucoes/historico_deci
    | crédito | expansão significativa do agregado em h0-h6 | agregado e PF **contraem monotonicamente**; a alta inicial é só setorial (transporte +0,75 CI90, agro +1,01 CI90, indústria +0,19 CI68) |
    | preços | "corcova nunca significativa a 90%" | headline **sig90 em h5**; ex0 sig90 em h2 e h4-8 e virou `incoerente`; DW sig90 em h4-5 e h7 |
    | câmbio/risco | BRL +6%, EMBI +46bp, CDS +56bp | BRL +3,6%, EMBI +20bp, CDS +29bp — sinal, significância e timing iguais |
-   | placebo | (não reportado) | **`commodity_metal` violado**: +10,4% com CI90 até h4 |
+   | placebo | (não reportado) | **3 placebos, todos passando.** `commodity_metal` deixou de ser placebo em 2026-07-28 (B3): o IC-Br é em R$ e herda o câmbio; o índice em US$ passa 25/25 horizontes |
 
    O caveat de magnitude das ações ("−9% é borda superior vs Bernanke-Kuttner")
    **deixa de ser necessário** — as magnitudes agora batem com os event studies
@@ -424,11 +424,15 @@ regeneráveis apagados — ver `arquivo/README.md` e `_instrucoes/historico_deci
    ξ_mp ≥ 10 nas duas janelas (10,43 / 12,22), então bandas convencionais
    bastam. Manter AR como robustez, seguindo o protocolo anti-screening do
    próprio MOSW (footnote 6): reportar ξ, não filtrar pelo F.
-3. **Placebo `commodity_metal` violado** — persiste em (7,6): +10,4% no impacto
-   com CI90 até h4. Metais **não** entram nos preditores pré-evento da
-   ortogonalização BS (Brent entra), então o instrumento plausivelmente retém um
-   componente global de commodity/risco. É o caveat mais concreto contra a
-   validade do instrumento: documentar, ou testar ortogonalização estendida.
+3. ~~**Placebo `commodity_metal` violado**~~ — **RESOLVIDO em 2026-07-28, e a
+   inversão é completa.** Não é falha de exogeneidade: o IC-Br do BCB é
+   **denominado em R$**, logo é preço doméstico que herda mecanicamente a
+   resposta cambial (+3,98% contra +3,27% do câmbio). O teste decisivo está em
+   `diagnostics/01_exogeneidade.R` §1.6 — num painel aumentado, os três índices
+   **em R$** violam e os três **em US$** passam limpo (metal +0,42, CI90
+   [−1,44; +1,88], **0 de 25** horizontes sig). Se fosse fator global, o índice
+   em dólar responderia. Reclassificado para `ambiguous` (B3) e **não é mais
+   caveat de exogeneidade**. Não estender a ortogonalização por causa dele.
 4. **Spread de concessões novas** como complemento ao ICC (deve abrir já no
    curto prazo) — desejável, não-bloqueante.
 5. **Abstract, Introdução e Conclusão**: rewrite completo (sinais/magnitudes da
