@@ -34,3 +34,18 @@ tex/*.brf
 tex/main.pdf
 # Snapshot de build do tex (main.pdf + .aux/.fls/.synctex), derivado e stale
 tex.zip
+
+# LaTeX build artifacts (ANPEC draft)
+texto_anpec/*.aux
+texto_anpec/*.log
+texto_anpec/*.fdb_latexmk
+texto_anpec/*.fls
+texto_anpec/*.synctex.gz
+texto_anpec/*.bbl
+texto_anpec/*.blg
+texto_anpec/*.brf
+texto_anpec/*.out
+texto_anpec/*.spl
+texto_anpec/*.dvi
+texto_anpec/*.ps
+texto_anpec/paper_anpec.pdf
