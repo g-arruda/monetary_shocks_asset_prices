@@ -42,7 +42,15 @@ NBOOT <- if (length(args) >= 1) as.integer(args[1]) else 200L
 R_PROD <- 7L; Q_PROD <- 6L; P_LAGS <- 6; H_MAX <- 48
 MP_VAR <- "yield_6m"; SHOCK_BPS <- 50; SEED <- 123
 CI_LEVELS <- c(0.68, 0.90)
-NG_STARTS <- 60L; NG_BOOT_STARTS <- 2L
+# NG_STARTS was 60 until 2026-08-01, and 60 was not enough: the run of 2026-07-27
+# landed on logLik -1209.61 labelling column 6, while nongaussian_gate.R with 100
+# starts reached -1209.30 labelling column 1. The correlation vectors are not
+# permutations of each other, so those are different local optima, and the
+# production deficit (0.31) exceeds the gate's own best-to-second gap (0.2189)
+# with n_at_best = 1 of 60. Check the reconciliation block at the end of the run
+# before trusting any number here.
+NG_STARTS <- 200L; NG_BOOT_STARTS <- 2L
+GATE_LOGLIK <- -1209.30  # reference optimum from nongaussian_gate.R (100 starts)
 HEADLINE <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd",
               "price_ipca", "embi_perc", "commodity_metal")
 OUT_DIR <- "output/nongaussian"
@@ -117,6 +125,15 @@ h_proxy <- H_proxy / sqrt(sum(H_proxy^2))
 
 C_hat  <- ng$ng_point$C
 col_mp <- ng$ng_point$col_mp
+
+# Distance from the winning optimum to the next distinct one, same formula as
+# estim_ica_pml (nongaussian_gmr.R:350-354). The cell object carries
+# obj_by_start but not gap_2nd, so it is recomputed here rather than re-fitted.
+obj_ng   <- ng$ng_point$obj_by_start
+scale_ng <- max(1, abs(min(obj_ng, na.rm = TRUE)))
+distinct_ng <- sort(unique(round(obj_ng / scale_ng, 9)))
+gap_2nd <- if (length(distinct_ng) < 2) NA_real_ else
+  (distinct_ng[2] - distinct_ng[1]) * scale_ng
 distri <- gmr_distri_mixtures(Q_PROD)
 cv     <- gmr_asympt_cov(ng$ng_point$eps, distri, C_hat)
 
@@ -238,7 +255,23 @@ md <- c(
           fmt(ng$ng_point$label$gap, 3)),
   sprintf("- Pseudo log-verossimilhança: %s (%d/%d partidas no melhor ótimo)",
           fmt(ng$ng_point$logLik, 2), ng$ng_point$n_at_best, ng$ng_point$converged),
+  sprintf("- Partidas pedidas: %d; folga do melhor para o segundo ótimo: %s",
+          NG_STARTS, fmt(gap_2nd, 4)),
+  sprintf("- Referência do gate (100 partidas): %s — este run está **%s**",
+          fmt(GATE_LOGLIK, 2),
+          if (ng$ng_point$logLik >= GATE_LOGLIK) "no ótimo do gate ou melhor" else
+            sprintf("%s unidades ABAIXO; otimizador sub-dimensionado",
+                    fmt(GATE_LOGLIK - ng$ng_point$logLik, 4))),
   sprintf("- cond(A) = %s", formatC(cv$cond_A, format = "e", digits = 3)),
+  "",
+  # The objective has many local optima and the labelled column is not stable
+  # across them, so a run that fails to reach the gate's optimum is reporting a
+  # different structural direction, not a noisier estimate of the same one.
+  if (ng$ng_point$logLik < GATE_LOGLIK)
+    paste0("> **Ressalva de otimização.** Este run não alcançou o ótimo que o ",
+           "`nongaussian_gate.R` alcança com 100 partidas (", fmt(GATE_LOGLIK, 2),
+           "). Como a coluna rotulada muda entre ótimos locais, os números abaixo ",
+           "descrevem uma direção estrutural diferente — aumente `NG_STARTS`.") else "",
   "",
   if (!is.na(ng$ng_point$label$gap) && ng$ng_point$label$gap < 0.05)
     paste0("> **Ressalva de rotulagem.** A folga entre a coluna escolhida e a ",

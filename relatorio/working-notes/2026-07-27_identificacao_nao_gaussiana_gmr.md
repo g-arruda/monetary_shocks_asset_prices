@@ -1,7 +1,16 @@
-> **CURRENT** — escrita em 2026-07-27 sob (7,6), painel de 106 séries,
-> `z_jk_bs_purif`, branch `identificacao-nao-gaussiana`. Números gerados por
-> `script/model_nongaussian.R` e `script/nongaussian_gate.R`; artefatos em
-> `output/nongaussian/`. Leia junto com `_instrucoes/historico_decisoes.md` §0.
+> ⚠ **SUPERADA NOS NÚMEROS, VÁLIDA NO ARGUMENTO** — escrita em 2026-07-27 sob
+> (7,6), painel de 106 séries, `z_jk_bs_purif`, branch
+> `identificacao-nao-gaussiana`. **Os números vêm da corrida de `nboot = 200` com
+> `NG_STARTS = 60`, que foi substituída em 2026-08-01** por uma de `nboot = 800`
+> com 200 partidas. Duas razões pelas quais não se deve citar os valores daqui:
+> (i) aquela corrida não alcançava o ótimo que o gate acha com 100 partidas
+> (logLik −1209,61 contra −1209,30) e rotulava a **coluna 6**, não a 2; (ii) o
+> cache era anterior ao fix de locale B1 de 07-28, então `cds_5y`, `msci` e
+> `sp500_vix` saíam com unidades 100× erradas. A **tese** da nota — o estimador
+> não tem poder neste painel, serve como teste e não como estimativa — sobrevive
+> e ficou mais forte. **Números correntes e o teste de nulo que faltava:**
+> `working-notes/2026-08-01_robustez_identificacao.md` e
+> `_instrucoes/historico_decisoes.md` §0.8.
 
 # Identificação não-gaussiana (GMR 2017): o que ela diz e o que ela custa
 
