@@ -306,6 +306,27 @@ rugosidade×comunalidade = −0.50). **Sem suavização ex-post.**
 3. **Coerência ponto-a-ponto** (53 variáveis × 49 horizontes): anomalias
    localizadas todas rastreadas a medida ou amostra, nenhuma a identificação
    → **Apêndice C**. Releitura sob o novo primário pendente (6.1).
+4. **Robustez à forma de identificação (2026-08-01) — disponível, e com um
+   teto baixo que precisa ser respeitado.** Os itens 1-3 acima variam a receita
+   do instrumento, o (r,q) e a janela; **nenhum varia a identificação**. A rota
+   não-gaussiana (GMR 2017) é a única implementada que identifica sem `z` — o
+   instrumento apenas **rotula** a coluna monetária. Fonte:
+   `working-notes/2026-08-01_robustez_identificacao.md`,
+   `output/nongaussian/{corroboration,labelling}_*.csv`.
+   **Só duas afirmações são defensáveis, e nenhuma é de discriminação:**
+   (i) **não contradiz** — o ponto do proxy cai dentro do CI90 do GMR em
+   **100% das 5.194 células**; (ii) **rejeita o esquema recursivo** (Cholesky,
+   ξ = 149,3), a restrição que a literatura de menor dimensão impõe sem testar
+   — o que conversa diretamente com o argumento anti-VAR-pequeno da Introdução.
+   ⚠️ **Não** escrever "outra identificação independente dá a mesma direção"
+   sem a ressalva: sob 2.000 direções aleatórias normalizadas ao mesmo choque a
+   concordância mediana já é **0,786** e um quarto delas iguala a coluna
+   rotulada (p = 0,179) — a métrica satura e o teste não tem poder. E a
+   rotulagem **ainda depende de `z`**: as regras que não o usam selecionam uma
+   coluna que corrobora mal (0,600, um quinto da magnitude).
+   ⚠️ **Não** existe robustez de identificação por heterocedasticidade: a perna
+   que seria identificação alternativa nunca produziu uma IRF (reprovada no gate
+   em 2026-07-16); a que produziu IRFs é o **mesmo proxy-SVAR com outro `z`**.
 
 ### O que NÃO entra em Resultados
 - Os "paper-worthy findings" (`irf_section.md` §5.7) são o **roteiro da
@@ -355,6 +376,22 @@ Responde ao item de topo do council review. Fontes:
 `output/instrument/jk_sovereign_confound.{csv,md}`, `jk_sovereign_days.csv`,
 `jk_sovereign_irf_overlay.pdf`; leitura em
 `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
+
+**Veredito: a acusação não se sustenta.** ΔEMBI carrega a surpresa com coef
+**0,326** (t = 3,97, R² 0,13) nas 498 quintas não-Copom contra **0,099**
+(t = 1,74, R² 0,04) nos 62 dias retidos — a máscara **empobrece** o conteúdo de
+risco. Interações `x:1(jk_bs)` negativas nas quatro proxies da janela do evento
+(BRL −0,036, p_boot 0,066). Três vias: 31 política / 30 soberano, **nenhum sinal
+inverte**. Ortogonalizar ao risco diário mantém ξ_mp (10,72 vs 10,43) e todas as
+manchetes sig90. **A frase que carrega a subseção:** os 31 dias "política" foram
+selecionados por *apreciação* diária do BRL e ainda entregam **depreciação**
+mensal (+0,129) — a depreciação do §4 é propagação, não seleção de dias.
+**Duas ressalvas obrigatórias no corpo, não em nota:** o coeficiente nos 62 dias
+é positivo e marginal (p = 0,097), então é "menos risco que um dia comum" e não
+"zero risco"; e os 5 dias de maior alavancagem valem **28,6%** de Σ|z|, o maior
+sendo 2021-10-27. Declarar em uma frase a **lacuna do CDS diário** (não existe
+fonte gratuita 2013-2025; a proxy é o EMBI+). **Sem referência nova** —
+`jarocinski2020` e `bauer2023` bastam.
 A ordem do argumento não pode ser embaralhada: (i) enuncia a acusação, (ii) o
 **controle não-Copom** que dá sentido ao coeficiente, (iii) a **interação
 negativa**, (iv) a concentração em 2021-10-27. Figura: cortar o overlay de 9
@@ -447,6 +484,9 @@ visível em vez de afirmada.
 | `relatorio/working-notes/2026-07-14_auditoria_fidelidade_jk_bs.md` | §3.4 + Apêndice B |
 | `R/data_download/focus_fred.R` → `data/processed/focus_daily.csv`, `data/fred_dgs2.csv` | insumos do §3.4.2 (preditores pré-evento) |
 | `output/instrument/scatterplot_surpresas_copom.png` | Apêndice B |
+| `output/instrument/jk_sovereign_confound.{csv,md}`, `jk_sovereign_days.csv` | **Apêndice B'** + subseção nova do §5 (confound soberano) |
+| `output/instrument/jk_sovereign_irf_overlay.pdf` | figura do §5 — **cortar de 9 para 4 painéis** (`cambio_usd`, `embi_perc`, `cds_5y`, `yield_2y`) |
+| `relatorio/working-notes/2026-07-31_confound_soberano_jk.md` | leitura do Apêndice B' + §5 |
 | `output/irf/irf_coherence_h.csv` | fonte numérica do §5 (ponto + bandas 68/90 + flags de significância) |
 | `_instrucoes/justificativa_uso_yield-6m.md` | §3.3 |
 | `relatorio/working-notes/2026-07-1*` | leituras econômicas do §5 + Apêndice C |

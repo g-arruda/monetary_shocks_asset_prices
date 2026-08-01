@@ -136,6 +136,70 @@ identifique por momentos de ordem > 2 nas inovações **mensais** do DFM vai bat
 na mesma parede. Métodos que precisam disso devem rodar em frequência diária,
 sobre observáveis, não sobre `eta`.
 
+### 0.8 A corroboração é real como descrição e nula como teste (2026-08-01)
+
+Rodada de corroboração sobre o GMR reestimado (`nboot = 800`, `NG_STARTS = 200`).
+Scripts: `script/nongaussian_{corroboration,labelling}.R` sobre
+`R/identification/nongaussian_labelling.R`. Nota:
+`working-notes/2026-08-01_robustez_identificacao.md`.
+
+**Três coisas que não se deve re-derivar.**
+
+**(a) O número que o `results.md` publica está selecionado.** O `HEADLINE` de
+`model_nongaussian.R:46-47` são 8 séries fixas e dão 8/8 de concordância de
+sinal no impacto; no painel de 106 a mesma medida é **0,660**. A régua que
+responde "o que eu afirmo sobrevive?" é condicionar em onde o proxy é
+significativo: **0,971** nas 140 células sig90 (todas h ≤ 12), razão de
+magnitude **1,11**, e **1,000** nos blocos de curva, câmbio/risco e preços.
+Atividade é o único abaixo (0,733) e concentra as 4 discordâncias de sinal.
+
+**(b) Essa concordância não sobrevive a um nulo.** 2.000 direções unitárias
+sorteadas em ℝ⁶, cada uma normalizada a +50bp em `yield_6m`, dão concordância
+mediana **0,786** nas mesmas células — e **um quarto delas iguala ou supera a
+coluna rotulada** (p = 0,179). No bloco da curva o nulo tem mediana **exatamente
+1,000**, porque normalizar na taxa de política força a curva inteira a subir. A
+métrica **satura** (q95 do nulo no teto em 3 das 5 estatísticas): o resultado
+**não** é "o GMR não corrobora", é "**concordância de sinal não é evidência de
+que corrobora**". Sobrevivem duas afirmações, ambas de não-discriminação: o
+ponto do proxy cai dentro do CI90 do GMR em **100% das 5.194 células**, e o
+esquema recursivo é rejeitado (ξ = 149,3). Sugestivo e nunca significativo: a
+coluna rotulada é a melhor das seis em razão de magnitude (|log| 0,101 contra
+0,776 da segunda, p = 0,125) e em cosseno com a direção do proxy (0,620 contra
+mediana 0,315 do nulo, p = 0,134).
+
+**(c) A coluna monetária não é bem definida sem o instrumento.** Quatro regras
+de rotulagem, fixadas antes de medir: R0 `|cor(ε,z)|` → coluna 2; R1 impacto em
+`yield_6m` → **coluna 1**; R2 FEVD de `yield_6m` h0-12 → **coluna 1**; R3 FEVD do
+bloco da curva → coluna 2. **As duas regras ancoradas na variável de política —
+as mais naturais — escolhem a coluna 1, que concorda 0,600 e responde com um
+quinto da magnitude.** A que melhor corrobora (coluna 3: 1,000 nas sig90, 0,907
+global) nenhuma regra escolhe. Isso fecha, com resposta negativa, a pendência de
+inspecionar a vice-líder.
+
+**Armadilha de desenho, e a razão de o módulo existir.** A IRF é normalizada por
+`irf / irf[mpind, 1] * 0.005`, que divide pela própria resposta de impacto da
+coluna — **depois disso toda coluna vale 0,005 em `yield_6m` em h = 0**, e
+qualquer regra de seleção aplicada à IRF normalizada é degenerada. A seleção tem
+de ler a resposta **pré-normalização**. Há um `stopifnot` que prova isso a cada
+corrida.
+
+**Dois defeitos de processo corrigidos na mesma rodada.** (i) O cache de 07-27
+era de safra anterior ao painel (regerado em 07-28, fix de locale B1): exatamente
+`cds_5y`, `msci` e `sp500_vix` diferiam por fator estável de **100** nos 49
+horizontes. Não contaminava conclusões — a padronização BLL absorve reescala
+pura, as outras 103 séries reproduziam a 1,4e-07, e sinal/cobertura/razão são
+invariantes a escala —, mas as **unidades reportadas** dessas 3 estavam erradas,
+e 2 são placebos. (ii) `NG_STARTS = 60` não alcançava o ótimo que o gate acha com
+100 partidas (logLik −1209,61 contra −1209,30, rotulando colunas diferentes, com
+`n_at_best = 1` de 60). Subiu para **200** e o run passa a bater o gate
+(−1208,60); o `results.md` agora reporta essa reconciliação a cada corrida. O
+índice da coluna muda entre ótimos (6 → 2) mas a direção estimada quase não muda
+— o índice é rótulo de permutação, não conteúdo.
+
+**Quadruplicar os draws não estreita as bandas**, como previsto: a largura vem
+da instabilidade da direção entre reamostragens (cosseno mediano 0,703), não de
+ruído de Monte Carlo. As células sig90 próprias do GMR **caíram** de 4 para 1.
+
 ---
 
 ## 1. Identificação por heterocedasticidade — abandonada em duas frentes
@@ -239,6 +303,42 @@ predeterminada** (`z_jk_raw` 10,55, `z_jk_bs_purif` 10,43, `z_jk_raw_purif`
 como default**; a recomendação foi derrubada em menos de 24h pela auditoria de
 fidelidade, e `z_jk_bs_purif` virou o primário em 2026-07-15.
 
+### 2.1 Classificação de três vias (política / soberano / informação) — construída e **não** promovida (2026-07-31)
+
+O council review levantou que o filtro JK descarta o efeito-informação (juros ↑,
+ações ↑) mas retém a assinatura fiscal doméstica (juros ↑, ações ↓, câmbio ↑).
+A resposta natural seria uma terceira via. Ela foi construída — em memória, em
+`script/jk_sovereign_confound.R`, sem tocar `build_variants.R` — e **não deve ser
+promovida**. Registro para ninguém re-propor:
+
+- **A terceira via usa o câmbio**, com a mesma forma do JK: sob UIP um aperto
+  **aprecia** o BRL (sinais de `e_di_bs` e `e_brl_bs` diferem = política), uma
+  surpresa fiscal **deprecia** (sinais iguais = soberano). As pernas de FX e EMBI
+  são purificadas na **mesma** RHS pré-evento do BS, para a máscara continuar
+  predeterminada.
+- **Por que morreu:** os 62 dias partem em **31 política / 30 soberano / 1 n/c**
+  (regra FX) e **nenhum sinal de IRF inverte**. ξ_mp cai de 10,43 para **3,52 e
+  3,50** — queda essencialmente mecânica, já que os meses não-nulos vão de 62
+  para ~30. Custa metade da amostra e não compra conclusão nenhuma.
+- **A regra alternativa pelo EMBI é pior e assimétrica:** 24 política / 37
+  soberano, com ξ_mp **0,89** na metade política contra **7,77** na soberana. Se
+  alguém quiser reabrir isso, é aqui que a assimetria tem de ser explicada antes.
+- **Armadilha conceitual a não repetir:** condicionar a máscara num movimento
+  cambial **contemporâneo** é exatamente o tipo de seleção same-window que a
+  camada Bauer-Swanson existe para evitar. Purificar o câmbio na RHS pré-evento
+  mitiga, **não elimina** — a classe é escolhida com informação da janela do
+  evento, ao contrário da máscara JK-BS, que é predeterminada.
+- **O que sobrevive do exercício** é o diagnóstico, não o instrumento: a máscara
+  de produção foi **absolvida** da acusação de selecionar risco soberano, porque
+  os dias retidos carregam *menos* risco por unidade de surpresa que uma quinta
+  comum (coef 0,099 contra 0,326; interações negativas nas quatro proxies). Ver
+  `_instrucoes/Instrumento.md`, status de 2026-07-31, e
+  `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
+- **Também não repetir:** tentar corrigir o alinhamento do arquivo de EMBI. Ele é
+  **do mesmo dia** (cor de ΔEMBI com S&P/Ibov em t = −0,498 / −0,508 contra
+  −0,045 / −0,088 em t−1). A janela Qui→Sex é resposta defasada, não
+  desalinhamento.
+
 ---
 
 ## 3. Migrações de (r, q) — e a leitura que não vale mais
@@ -269,6 +369,41 @@ própria de um nível de preço) marcava Ibov/IDIV/IMOB/MLCX como `incoerente`.
 Corrigido para **tcode 2** (retorno → IRF acumulada = resposta de nível).
 `incoerente` caiu de 5 para 1. **Toda magnitude de ações anterior a 2026-07-24
 está fora de escala.**
+
+### 3.1 Painel de ações em log-nível — testado, venceu, e **deixado de lado por decisão do autor** (2026-07-31)
+
+`script/asset_representation.R` → `output/assets/`. Nota:
+`relatorio/working-notes/2026-07-31_acoes_representacao.md`. **Não reabrir sem
+evidência nova**: o teste foi feito, o resultado é claro, e a decisão de não
+promover é do autor, não do dado.
+
+**O que o teste mostrou.** Pôr os 8 índices da B3 em log-nível
+(`log(cumprod(1+r))`, tcode 4) leva o bloco de **0 para 39** células sig90,
+todas em h=0-5, em 7 dos 8 índices; o ponto dobra e a banda encolhe (Ibovespa
+−1,67 [−7,77; 1,76] → −3,68 [−8,70; −0,86]; proxy de |t| em h=0 de 0,676 para
+1,826). O resto do modelo quase não se mexe: 79 dos 92 pares sig90 sobrevivem.
+Ou seja, **o resultado nulo do bloco acionário é da representação, não do dado.**
+
+**Por que foi deixado de lado.** Custa força de instrumento: ξ_mp full
+**10,43 → 8,94** (abaixo dos 10 em que as bandas convencionais são
+aproximadamente válidas, que é a faixa em que o §3 justifica (7,6)), e
+**pré-COVID o painel quebra** — ξ_mp 3,91, companion **explosiva (1,0030)**,
+correção de Kilian sem convergir. Somado ao custo de reescrever todo o §4-§5,
+re-selecionar (r,q) e repassar o `clean.R`, o autor optou por **corrigir só o
+`cumsum`** e não mexer no painel.
+
+**⚠ O que a correção do `cumsum` sozinha NÃO entrega, medido em 2026-07-31:**
+o bloco continua nulo a 90% — **1 célula de 392** (só `asset_ifix` em h=1), e
+**0 de 8 em h=0**. Isso é matemática, não amostra: em h=0 o `cumsum` é no-op e o
+×100 é escalar positivo, então **a significância em h=0 é invariante ao tcode**.
+Quem entrega o resultado acionário é a representação do painel, e só ela.
+Qualquer texto futuro que atribua a recuperação do bloco à correção do `cumsum`
+está errado.
+
+**A reconstrução do nível é exata e não precisa de rede**, caso alguém retome:
+`cumprod(1+r)` reproduz o fechamento mensal do índice porque o produto
+intramensal telescopa — conferido contra `data/processed/ibov_daily.csv` com sd
+relativo da razão de **1,4e-15**.
 
 ---
 
