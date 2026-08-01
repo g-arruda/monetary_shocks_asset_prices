@@ -144,6 +144,22 @@ prior forte aqui, e forçar um não seria honesto.
 > Nenhum resultado muda — a padronização BLL absorve escala constante —, só a
 > legibilidade.
 
+> **O confound de risco soberano foi testado (2026-07-31) e a leitura acima
+> sobrevive.** O council review de 07-31 levantou a hipótese de que estes quatro
+> soft não sejam dominância fiscal, e sim **falha de identificação**: o filtro JK
+> descarta o efeito-informação (juros ↑, ações ↑) mas retém a assinatura fiscal
+> doméstica (juros ↑, ações ↓, câmbio ↑). `script/jk_sovereign_confound.R` testou
+> na frequência diária e **não confirmou**: nas 498 quintas não-Copom, ΔEMBI
+> carrega a surpresa com coef 0,326 (t = 3,97, R² 0,13); nos 62 dias retidos,
+> apenas 0,099 (R² 0,04) — a máscara **empobrece** o conteúdo de risco em vez de
+> enriquecê-lo, e as interações são negativas nas quatro proxies. Uma
+> classificação de três vias parte os 62 em 31 política / 30 soberano e **não
+> inverte nenhum sinal**; os 31 dias "política", selecionados por *apreciação*
+> diária do BRL, ainda entregam **depreciação** mensal (+0,129). **Ressalva que
+> fica:** os 5 dias de maior alavancagem valem 28,6% de Σ|z| e o maior é
+> 2021-10-27, a semana da PEC dos Precatórios. Leitura completa em
+> `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
+
 **Os três placebos passam.** `sp500_vix` (contém zero em 96% dos horizontes),
 `msci` (100%) e `epu_us` (100%).
 
@@ -184,6 +200,10 @@ impossível conferir a normalização a partir dos artefatos publicados.
   (contagens, tabelas por grupo); regerado a cada run.
 - `irf_coherence_h.csv` — ponto + bandas 68/90 + flags por horizonte, fonte de
   todos os números acima.
+- `relatorio/working-notes/2026-07-31_confound_soberano_jk.md` +
+  `output/instrument/jk_sovereign_confound.{csv,md}` — o teste diário que absolve
+  a máscara JK da acusação de selecionar risco soberano, e portanto sustenta a
+  leitura de dominância fiscal dos quatro canais soft acima.
 - `R/identification/irf_coherence.R::coherence_var_table()` — onde as janelas
   `[w_lo, w_hi]` são definidas; é o arquivo a editar se a régua for recalibrada.
 - `relatorio/working-notes/_indice.md` — leituras anteriores, escritas sob

@@ -809,6 +809,27 @@ nem estatística (0 horizontes sig90) nem de seção cruzada.
 
 ## Tarefa 7 — Dominância fiscal como hipótese testável — **PARCIAL, e depende do indicador**
 
+> **Complemento de 2026-07-31 — a pergunta a montante foi respondida.** O council
+> review levantou que toda esta tarefa pode estar mal posta: se o filtro JK
+> seleciona surpresas de **risco soberano** em vez de choques de política, a
+> "dependência de estado fiscal" seria identificação falhada, não regime.
+> `script/jk_sovereign_confound.R` testou isso na frequência **diária**, antes de
+> qualquer DFM, e **não confirmou** — nas 498 quintas não-Copom ΔEMBI carrega a
+> surpresa com coef 0,326 (t = 3,97, R² 0,13); nos 62 dias retidos, 0,099
+> (R² 0,04), com interações **negativas** nas quatro proxies da janela do evento.
+> A máscara empobrece o conteúdo de risco em vez de enriquecê-lo. Os resultados
+> desta tarefa seguem de pé como leitura de **regime**.
+>
+> Duas conexões que valem para ler a seção: (i) a síntese do council observou que
+> o achado desta tarefa — **o impacto cambial não é dependente de estado em
+> nenhum dos 7 indicadores** (|t| ≤ 1,14) — corta *contra* a leitura de
+> dominância fiscal que o texto ativo do paper assume, e as duas coisas nunca
+> tinham sido lidas juntas; (ii) o teste de 07-31 dá a mesma resposta por outro
+> caminho — os 31 dias classificados "política" (selecionados por *apreciação*
+> diária do BRL) ainda entregam **depreciação** mensal, ou seja a depreciação é
+> **propagação mensal, não seleção de dias**. Leitura completa em
+> `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
+
 > **⚠ Baseline migrado para o CDS em 2026-07-29, e a seção foi re-rodada
 > inteira.** `07_dominancia_fiscal.R` agora tem `BASELINE <- "cds_ma12"` e
 > `BASELINE_ALT <- "embi_ma12"`; os papéis da 7.4d se inverteram e todas as
