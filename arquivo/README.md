@@ -33,9 +33,26 @@ explica *por que* cada bloco foi arquivado. Este README só diz *o que* está aq
 | script | por que saiu |
 |---|---|
 | `instrument_audit.R` | Auditoria ancorada no instrumento het; as frentes GK foram absorvidas por `instrument_diagnostics.R` |
-| `irf_cross_instrument.R` | Overlay primário × robustez de 2026-05-08 (`z_jk_purif` vs `z_het_jk_3var`). Substituído por `irf_spec_stage2.R` e `irf_instrument_report.R` |
+| `irf_cross_instrument.R` | Overlay primário × robustez de 2026-05-08 (`z_jk_purif` vs `z_het_jk_3var`). Substituído por `irf_spec_stage2.R` |
 | `build_grg_benchmark.R` | Benchmark GRG lido de bundles RDS het de 2026-05-08, já apagados |
 | `instrument_grid.R` | Sweep vértice × amostra de purificação com só as 4 variantes legadas; anterior ao `z_jk_bs_purif` |
+
+### Diagnóstico de contaminação de IRF (superado em 2026-07-24, arquivado em 2026-08-01)
+
+Investigação de 2026-07-15/16 sobre por que um `ξ_mp > 0` ainda podia entregar
+uma IRF contaminada. Ficou obsoleta com o refresh de vintage de 2026-07-24
+(que resolveu o problema por uma causa não relacionada às hipóteses testadas
+aqui) e não é citada em nenhum lugar do CLAUDE.md corrente. A nota-irmã já
+estava marcada "superseded" em `relatorio/working-notes/_indice.md`; dois
+destes scripts citam `_instrucoes/irf_consistentes.md`, que não existe mais.
+
+| script | o que fazia |
+|---|---|
+| `irf_instrument_diag_sweep.R` | Grid de 6 instrumentos × 3 (r,q) × 2 amostras classificando contaminação de curva/núcleo/câmbio em cada célula contra a força MOSW |
+| `irf_instrument_report.R` | Relatório por variável da resposta a 6 instrumentos × (r,q) × amostra, com bandas 68/90 |
+| `irf_instrument_report_plots.R` | Regenerava os dois PDFs de `irf_instrument_report.R` a partir do CSV de caminhos em cache, sem re-bootstrap |
+| `irf_rq_candidates.R` | Estimava 5 pares (r,q) candidatos e pontuava 10 variáveis-chave contra a tabela de coerência; recomendou (7,6), que virou produção por um motivo não relacionado (o refresh de vintage) |
+| `irf_sample_diagnostic.R` | Testava se a contaminação vinha da janela COVID ou de rotação espectral, com 5 células fixas incl. o "benchmark exato dos autores" (r=q=8) |
 
 ## `arquivo/R/identification/` — módulos
 
