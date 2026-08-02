@@ -149,7 +149,7 @@ Identificar empiricamente esse mecanismo de transmissão, entretanto, não é um
 
 %A identificação correta desse mecanismo depende crucialmente da informação disponível para o econometrista. Modelos tradicionais, como os Vetores Autorregressivos Estruturais (SVAR), frequentemente sofrem do problema da não-fundamentalidade, pois não conseguem incorporar o vasto conjunto de dados que os agentes econômicos e o próprio banco central utilizam em suas decisões, o que pode levar a uma má especificação do choque monetário \citep[]{villaverde}. Como consequência, os SVARs tendem a subestimar a magnitude do impacto da política monetária e a gerar respostas contraintuitivas em algumas variáveis \citep[]{alessi}. Para superar essa limitação, este estudo emprega um Modelo de Fatores Dinâmicos Estruturais (SDFM), que extrai fatores comuns de um amplo conjunto de variáveis macroeconômicas e financeiras, aproximando o espaço de informação relevante e permitindo uma identificação mais robusta dos choques \citep[]{STOCK2016415, alessi}.
 
-A identificação do choque monetário é realizada por meio de um instrumento externo construído a partir das surpresas de juros observadas em dias de reunião do Copom, combinando a ortogonalização por informação predeterminada de \cite{bauer2023} e a regra de sinal de \cite{jarocinski2020}, que separa choques de política de choques de informação do banco central. A relevância do instrumento é avaliada pela estatística de  \cite{montielolea}, robusta a instrumentos fracos, em vez do critério convencional da estatística $F$ de primeiro estágio.
+A identificação do choque monetário é realizada por meio de um instrumento externo construído a partir das surpresas de juros observadas em dias de reunião do Copom, combinando a ortogonalização por informação predeterminada de \cite{bauer2023} e a regra de sinal de \cite{jarocinski2020}, que separa choques de política de choques de informação do banco central. A relevância do instrumento é avaliada pela estatística de  \cite{montielolea}, em vez do critério convencional da estatística $F$ de primeiro estágio.
 
 O modelo é estimado utilizando um painel com mais de 100 séries macroeconômicas e financeiras brasileiras, abrangendo atividade econômica, mercado de trabalho, inflação, crédito, agregados monetários e preços de ativos entre janeiro de 2013 e setembro de 2025. Esse amplo conjunto de informações permite identificar os choques monetários de forma mais robusta do que em VARs de pequena dimensão e acompanhar sua transmissão simultânea para diversas classes de ativos, câmbio, prêmio de risco soberano, curva de juros, crédito e mercado acionário, dimensão conjunta que desenhos de menor escala não permitem capturar.
 
@@ -179,21 +179,11 @@ O argumento tem uma pré-história empírica. \cite{bagliano1998} confrontam os 
 
 As diferenças entre os dois modelos são grandes. Nos dados americanos, a resposta do prêmio excedente dos títulos corporativos no impacto é o dobro no modelo de fatores. Os preços de imóveis caem cerca de 1,5\% em dois anos no modelo de fatores e sobem no VAR. A maioria das especificações do VAR produz aumento da produção industrial após um aperto. Como apenas o conjunto de informação varia, a diferença não pode ser atribuída à hipótese de identificação.
 
-Os modelos teóricos que motivam essa literatura tratam o preço dos ativos como canal de transmissão. \cite{castelnuovo} incorporam rigidez nominal de salários e heterogeneidade de investidores em um modelo DSGE, e obtêm efeito da riqueza financeira sobre o consumo. \cite{Cooley} mostram, em equilíbrio geral com firmas heterogêneas, que a estrutura financeira da firma condiciona sua resposta ao choque monetário. As previsões que o trabalho empírico procura medir são a reprecificação imediata e a resposta desigual entre classes de ativos.
+Os modelos teóricos que motivam essa literatura tratam o preço dos ativos como canal de transmissão. \cite{castelnuovo} incorporam rigidez nominal de salários e heterogeneidade de investidores em um modelo DSGE, e obtêm efeito da riqueza financeira sobre o consumo. \cite{Cooley} mostram, em equilíbrio geral com firmas heterogêneas, que a estrutura financeira da firma condiciona sua resposta ao choque monetário. \cite{BEKAERT2013771} confirmam essa previsão nos dados americanos: um afrouxamento monetário reduz tanto a aversão a risco quanto a incerteza percebida no mercado acionário, e o efeito sobre a aversão a risco é maior. O resultado se sustenta sob esquemas de identificação distintos para o choque monetário, inclusive um em alta frequência. As previsões que o trabalho empírico procura medir são a reprecificação imediata e a resposta desigual entre classes de ativos.
 
 A identificação por instrumento externo trata o segundo problema sem impor restrições de exclusão sobre a matriz de impacto. \cite{mertensravn2013} são a referência de origem do estimador. Os autores tratam as séries narrativas de mudanças tributárias não como observações do choque, mas como variáveis correlacionadas com ele. Registros históricos raramente são inequívocos. Uma série tratada como o próprio choque produz estimativas atenuadas pelo erro de medida, e o mesmo erro não compromete sua validade como instrumento.
 
-As condições que enunciam são relevância, $E[m_t \varepsilon_{1t}'] = \Phi$ não singular, e exogeneidade, $E[m_t \varepsilon_{2t}'] = 0$, sobre os demais choques estruturais. Os autores também medem a qualidade da proxy. As confiabilidades estimadas de suas duas séries narrativas são $0{,}30$ e $0{,}69$, o que corresponde a correlações de $0{,}55$ e $0{,}83$ com os choques latentes. A leitura que fazem é que o erro de medida em séries narrativas é grande na prática.
-
-\cite{stockwatson2018} separam o que cada estimador exige. O SVAR-IV projeta o instrumento sobre as inovações do VAR e propaga a resposta pela dinâmica estimada. Exige relevância, exogeneidade contemporânea e invertibilidade, esta última a hipótese de que os choques estruturais podem ser recuperados de valores correntes e passados das observáveis.
-
-O LP-IV estima uma regressão de variável instrumental por horizonte e dispensa a invertibilidade. Em troca, exige exogeneidade também em relação a choques passados e futuros. A parte restritiva é a que envolve choques passados.
-
-A saída fácil desse dilema não existe. Incluir defasagens genéricas das observáveis como controles, para salvar um instrumento correlacionado com choques passados, equivale a supor invertibilidade. Nesse caso o SVAR-IV é o estimador mais eficiente. Os mesmos autores apontam o modelo de fatores como caminho para a invertibilidade, com a ressalva de que ampliar o número de variáveis não a garante.
-
 \cite{gertler2015} levam o instrumento externo para a política monetária. A surpresa é medida sobre contratos futuros de juros, em janela de 30 minutos em torno dos anúncios do Federal Open Market Committee. Os autores separam instrumento de política, a taxa overnight, de indicador de política, uma taxa de prazo mais longo cuja inovação mensal incorpora a revisão das expectativas de juros.
-
-A escolha do indicador é empírica. Os autores adotam a taxa de 1 ano, e não a de 2 anos que preferem conceitualmente. A razão é que nenhuma combinação de surpresas alcança primeiro estágio utilizável para a taxa de 2 anos. A F de primeiro estágio da taxa de 1 ano é $21{,}5$, contra o limiar convencional de 10. O resultado substantivo é que uma alta de 20 pontos-base nessa taxa eleva as taxas de crédito corporativo em cerca de 15 pontos-base. Quase todo o aumento vem de prêmio de prazo e spread de crédito.
 
 Duas críticas posteriores mostram que a surpresa bruta não satisfaz a exogeneidade. \cite{jarocinski2020} observam que cerca de um terço dos anúncios do Federal Open Market Committee desde 1990 traz juros e ações subindo juntos. O co-movimento é incompatível com um choque de política pura. Os autores atribuem esses dias a um choque de informação do banco central. A separação usa o sinal do co-movimento e zera a surpresa nos dias de sinal positivo. Com ela, a resposta dos juros fica menos persistente e a queda do nível de preços mais pronunciada, o que atenua o \textit{price puzzle}.
 
@@ -245,7 +235,7 @@ As taxas de juros de maturidade fixa (3 meses, 6 meses, 1, 2, 5 e 10 anos) vêm 
 
 A identificação do choque de política monetária usa um instrumento externo, no arcabouço de proxy-SVAR de \cite{stockwatson2018} e \cite{gertler2015}, transposto para o DFM como em \cite{alessi}. A abordagem dispensa a ordenação recursiva entre os fatores. No lugar dela entra uma variável observada fora do modelo, correlacionada com o choque de interesse e ortogonal aos demais choques estruturais.
 
-Seja $z_t$ o instrumento e $\varepsilon_t^{p}$ o choque de política monetária da \ref{eq:6}. O instrumento é válido sob duas condições: relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, e exogeneidade, $E[z_t \varepsilon_t^{j}] = 0$ para todo choque estrutural $j \neq p$ \cite{stockwatson2018}. Sob essas condições, a projeção das inovações fatoriais $\eta_t$ sobre o instrumento identifica, a menos de escala, a coluna de $H$ associada ao choque de política monetária. Empilhando $\eta_t$ e $z_t$ na amostra alinhada, essa coluna é estimada por $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$. O alinhamento temporal entre o instrumento mensal e as inovações do modelo segue a rotina de seleção de amostra de \cite{alessi}.
+Seja $z_t$ o instrumento e $\varepsilon_t^{p}$ o choque de política monetária. O instrumento é válido sob duas condições: relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, e exogeneidade, $E[z_t \varepsilon_t^{j}] = 0$ para todo choque estrutural $j \neq p$ \cite{stockwatson2018}. Sob essas condições, a projeção das inovações fatoriais $\eta_t$ sobre o instrumento identifica, a menos de escala, a coluna de $H$ associada ao choque de política monetária. Empilhando $\eta_t$ e $z_t$ na amostra alinhada, essa coluna é estimada por $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$. O alinhamento temporal entre o instrumento mensal e as inovações do modelo segue a rotina de seleção de amostra de \cite{alessi}.
 
 O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal. A escolha do yield de 6 meses como variável de política, em vez da Selic overnight, segue a distinção de \cite{gertler2015} entre o instrumento de política, a taxa overnight, e o indicador de política, uma taxa de prazo mais longo que incorpora a revisão das expectativas de juros embutida na decisão. No caso brasileiro a distinção é mais aguda. As decisões do Copom saem após o fechamento do mercado, e a surpresa é medida na curva de DI entre a quarta e a quinta-feira, não na taxa overnight. A Selic mensal, uma média do overnight dentro do mês, quase não embute essa surpresa. Sob o diagnóstico de relevância de \cite{montielolea}, a normalização pela Selic não alcança o limiar de instrumento utilizável em nenhuma dimensão da varredura de especificações, enquanto a normalização pelo yield de 6 meses alcança, como reporta a \autoref{tab:rq_sweep}.
 
@@ -289,7 +279,7 @@ $(8, 8)$ & 12,57 & 16,03 & 2,00 &  8,99 & 19,02 & 2,38 \\
 \end{threeparttable}
 \end{table}
 
-Os fatores estáticos são extraídos por componentes principais sobre o conjunto de séries padronizado. A dinâmica segue o VAR(6) da \ref{eq:5}. A estimativa pontual das funções de impulso-resposta usa os coeficientes de mínimos quadrados ordinários, fiel à implementação de \cite{alessi}. A incerteza vem de um \textit{bootstrap wild} \cite{goncalveskilian2004}, com 800 replicações, robusto à heterocedasticidade dos resíduos. A correção de viés de pequena amostra de \cite{kilian1998small} entra apenas no processo gerador do bootstrap, não na estimativa pontual. As funções de impulso-resposta cobrem horizontes de 0 a 48 meses, com bandas de 68\% e 90\%.
+Os fatores estáticos são extraídos por componentes principais sobre o conjunto de séries padronizado e a dinâmica segue o VAR(6). A estimativa pontual das funções de impulso-resposta usa os coeficientes de mínimos quadrados ordinários, fiel à implementação de \cite{alessi}. A incerteza vem de um \textit{bootstrap wild} \cite{goncalveskilian2004}, com 800 replicações, robusto à heterocedasticidade dos resíduos. A correção de viés de pequena amostra de \cite{kilian1998small} entra apenas no processo gerador do bootstrap, não na estimativa pontual. As funções de impulso-resposta cobrem horizontes de 0 a 48 meses, com bandas de 68\% e 90\%.
 
 \subsection{Relevância do instrumento}
 
@@ -297,8 +287,7 @@ A validade da inferência no proxy-SVAR depende da força do instrumento \cite{m
 
 O diagnóstico que governa essa projeção é a estatística $\xi_{mp}$ da \autoref{tab:rq_sweep}, a Wald de \cite{montielolea} na direção da normalização. Ela projeta o primeiro estágio na combinação das inovações fatoriais que determina o impacto sobre o yield de 6 meses, com erros padrão de Eicker-White e com o instrumento residualizado nas defasagens do VAR dos fatores.
 
-Na especificação de produção, $\xi_{mp}$ vale $10{,}43$ na amostra completa e $12{,}22$ na janela pré-COVID, acima do limiar de $10$ nas duas. A forma-F da Wald conjunta sobre as $q$ inovações fatoriais permanece baixa, $2{,}33$ e $2{,}70$, o padrão esperado sob exogeneidade, com a relevância concentrada na direção do choque de política e não espalhada pelo espaço dos fatores.
-
+Na especificação de produção, $\xi_{mp}$ vale $10{,}43$ na amostra completa e $12{,}22$ na janela pré-COVID, acima do limiar de $10$ nas duas. A forma-F da Wald conjunta sobre as $q$ inovações fatoriais permanece baixa, $2{,}33$ e $2{,}70$.
 
 
 
@@ -309,16 +298,8 @@ Um aperto de 50 pontos-base no DI de 6 meses eleva a curva de juros, deprecia o 
 
 \subsection{Estrutura a termo}
 
-A curva de juros é o bloco mais forte do painel, e o repasse cresce com a maturidade até 5 anos. No impacto, o vértice de 3 meses sobe $27{,}9$ pontos-base, o de 1 ano sobe $73{,}5$, o de 2 anos sobe $91{,}6$, o de 5 anos sobe $92{,}7$ e o de 10 anos sobe $80{,}8$. Os cinco excluem zero na banda de 90\% no impacto e permanecem significativos até $h = 3$, 5, 6, 6 e 6, respectivamente. A \autoref{fig:curva} traz as trajetórias.
+A curva de juros é o bloco mais forte do painel, e o repasse cresce com a maturidade até 5 anos. No impacto, o vértice de 3 meses sobe $27{,}9$ pontos-base, o de 1 ano sobe $73{,}5$, o de 2 anos sobe $91{,}6$, o de 5 anos sobe $92{,}7$ e o de 10 anos sobe $80{,}8$. Os cinco excluem zero na banda de 90\% no impacto e permanecem significativos até $h = 3$, 5, 6, 6 e 6, respectivamente (\autoref{fig:curva}).
 
-\begin{figure}
-\begin{center}
-    \includegraphics[scale=0.7]{fig_curva.pdf}
-\caption{\textbf{Estrutura a termo}\\{Resposta a um choque contracionista de 50 pontos-base no DI de 6 meses, em pontos-base. Bandas de 68\% e 90\% por \textit{wild bootstrap} com 800 réplicas. Os pontos laranja marcam os horizontes em que a banda de 90\% exclui zero. O painel de 6 meses é a variável de normalização: sua resposta no impacto é $0{,}0050$ exato e a banda de 90\% é degenerada nesse ponto, porque as 800 réplicas são todas normalizadas ao mesmo valor, o que faz do painel uma auditoria da normalização e não um resultado estimado. Os dois últimos painéis são o controle negativo: a Selic mensal é a taxa \textit{overnight} acumulada no mês e não incorpora uma surpresa de 6 meses medida em um único pregão.}}
-%\footnotesize{Source: Own elaboration, based on data from Central Bank.}
-\label{fig:curva}
-\end{center} 
-\end{figure}
 
 %\begin{figure}[H]
 %\caption{Estrutura a termo}
@@ -334,14 +315,25 @@ No médio prazo a curva inteira reverte de sinal, na banda de 68\%. Os cinco vé
 
 A própria taxa de política acompanha essa reversão. A Selic mensal e o CDI, que divergem apenas no terceiro dígito significativo e não constituem evidências independentes, ficam negativos com banda de 68\% de $h = 25$ a $h = 44$, com fundo de $-77{,}8$ pontos-base em $h = 34$ nos dois.
 
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{fig_curva.pdf}
+\caption{\textbf{Estrutura a termo}\\{Resposta a um choque contracionista de 50 pontos-base no DI de 6 meses, em pontos-base. Bandas de 68\% e 90\% por \textit{wild bootstrap} com 800 réplicas. Os pontos laranja marcam os horizontes em que a banda de 90\% exclui zero. O painel de 6 meses é a variável de normalização: sua resposta no impacto é $0{,}0050$ exato e a banda de 90\% é degenerada nesse ponto, porque as 800 réplicas são todas normalizadas ao mesmo valor, o que faz do painel uma auditoria da normalização e não um resultado estimado. Os dois últimos painéis são o controle negativo: a Selic mensal é a taxa \textit{overnight} acumulada no mês e não incorpora uma surpresa de 6 meses medida em um único pregão.}}
+%\footnotesize{Source: Own elaboration, based on data from Central Bank.}
+\label{fig:curva}
+\end{center} 
+\end{figure}
+
+
+
 \subsection{Câmbio e risco soberano}\label{sec:cambio}
 O principal resultado do artigo é que a resposta cambial não ocorre isoladamente. Ela vem acompanhada de uma deterioração simultânea das medidas de risco soberano: no impacto, o câmbio BRL/USD deprecia $3,\!64\%$, o BRL/EUR deprecia $3,\!10\%$, o EMBI+ abre 20,0 pontos-base e o CDS de cinco anos abre 29,1 pontos-base, as quatro séries excluindo zero na banda de $90\%$. Essa resposta conjunta é a evidência central do canal de prêmio de risco: câmbio e risco soberano se movem na mesma direção, no mesmo horizonte, em resposta ao mesmo choque.
 
 %O choque contracionista deprecia o real e abre o risco soberano, e as quatro séries excluem zero a 90\% no impacto. O câmbio BRL/USD sobe $3{,}64\%$ e permanece significativo até $h = 4$, o BRL/EUR sobe $3{,}10\%$ até $h = 3$, o EMBI abre $20{,}0$ pontos-base até $h = 1$ e o CDS de 5 anos abre $29{,}1$ pontos-base até $h = 4$. A \autoref{fig:cambio} traz as trajetórias.
 
-A direção contraria a previsão de manual, segundo a qual o diferencial de juros deveria apreciar a moeda. Ela é compatível, no entanto, com um regime em que a trajetória da dívida pública é a restrição que aperta: nesse cenário, o aumento da taxa de juros piora a dinâmica de rolagem da dívida, e câmbio e spread soberano passam a precificar essa deterioração, em vez do carrego cambial. \cite{goncalves2025} testam essa hipótese para o Brasil com dados diários e a rejeitam, encontrando apreciação cambial de $3,\!4\%$ a $5,\!6\%$ por 100 pontos-base e nenhuma resposta do CDS de cinco anos. A estimativa mensal obtida aqui vai na direção oposta nas duas dimensões, câmbio e risco soberano, uma divergência que discutimos na Seção 5 e que atribuímos, ao menos em parte, à diferença de frequência e de estratégia de identificação entre os dois desenhos. \cite{BEKAERT2013771} documentam, para um conjunto amplo de países, o elo entre política monetária e precificação de risco que a resposta conjunta do EMBI$+$ e do CDS aqui corrobora.
+A direção contraria a previsão de manual, segundo a qual o diferencial de juros deveria apreciar a moeda. Ela é compatível, no entanto, com um regime em que a trajetória da dívida pública é a restrição que aperta, de modo que o aumento da taxa de juros piora a dinâmica de rolagem da dívida e câmbio e spread soberano passam a precificar essa deterioração em vez do carrego cambial. \cite{goncalves2025} testam essa hipótese para o Brasil com dados diários e a rejeitam, encontrando apreciação cambial de $3,\!4\%$ a $5,\!6\%$ por 100 pontos-base e nenhuma resposta do CDS de cinco anos. A estimativa mensal obtida aqui vai na direção oposta nas duas dimensões, câmbio e risco soberano, uma divergência que discutimos na Seção 5 e que atribuímos, ao menos em parte, à diferença de frequência e de estratégia de identificação entre os dois desenhos. \cite{BEKAERT2013771} documentam, para os Estados Unidos, o elo entre política monetária e precificação de risco que a resposta conjunta do EMBI$+$ e do CDS aqui corrobora.
 
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.7]{fig_cambio_risco.pdf}
 \caption{\textbf{Câmbio e risco soberano}\\{Câmbio em nível de BRL por unidade de moeda estrangeira, convertido para variação percentual pela média amostral, de modo que um valor positivo é depreciação do real. EMBI convertido de pontos percentuais para pontos-base. Os dois últimos painéis são índices de commodities do Banco Central denominados em reais. Pontos laranja marcam os horizontes em que a banda de 90\% exclui zero.}}
@@ -358,7 +350,7 @@ A direção contraria a previsão de manual, segundo a qual o diferencial de jur
 %\nota{Câmbio em nível de BRL por unidade de moeda estrangeira, convertido para variação percentual pela média amostral, de modo que um valor positivo é depreciação do real. EMBI convertido de pontos percentuais para pontos-base. Os dois últimos painéis são índices de commodities do Banco Central denominados em reais. Pontos laranja marcam os horizontes em que a banda de 90\% exclui zero.}
 %\end{figure}
 
-A dinâmica de médio prazo reforça a leitura de um mecanismo comum. O EMBI+ e o CDS revertem de sinal em torno de $h = 10$ e $h = 11$, respectivamente, e permanecem negativos, na banda de $68\%$, entre $h = 18$ e $h  \approx 32$, com mínimos de $-17,\!2$ pontos-base em $h = 22$ e de $-18,\!0$ pontos-base em $h = 20$,  praticamente os mesmos horizontes em que a curva de juros se torna negativa (Seção 4.1), o que sugere o mesmo prêmio revertendo de forma sincronizada em três mercados distintos. O câmbio, por sua vez, não acompanha essa reversão: sua banda de $68\%$ cobre apenas $h = 0$ a $h = 5$, e a partir de $h = 10$ a estimativa pontual reverte de sinal sem que essa reversão se torne estatisticamente significativa em nenhum horizonte. Essa assimetria temporal, risco soberano persistentemente elevado por mais tempo que o câmbio permanece significativamente depreciado, sugere que o repasse do prêmio de risco ao câmbio é mais rápido de se dissipar do que o próprio aumento da percepção de risco.
+A dinâmica de médio prazo reforça a leitura de um mecanismo comum. O EMBI+ e o CDS revertem de sinal em torno de $h = 10$ e $h = 11$, respectivamente, e permanecem negativos, na banda de $68\%$, entre $h = 18$ e $h  \approx 32$, com mínimos de $-17,\!2$ pontos-base em $h = 22$ e de $-18,\!0$ pontos-base em $h = 20$,  praticamente os mesmos horizontes em que a curva de juros se torna negativa (Seção 4.1), o que sugere o mesmo prêmio revertendo de forma sincronizada em três mercados distintos. O câmbio, por sua vez, não acompanha essa reversão, apenas cobrindo na banda de $68\%$ $h = 0$ a $h = 5$, e a partir de $h = 10$ a estimativa pontual reverte de sinal sem que essa reversão se torne estatisticamente significativa em nenhum horizonte. Essa assimetria temporal, risco soberano persistentemente elevado por mais tempo que o câmbio permanece significativamente depreciado, sugere que o repasse do prêmio de risco ao câmbio é mais rápido de se dissipar do que o próprio aumento da percepção de risco.
 
 %A direção contraria a previsão de manual, na qual o diferencial de juros aprecia a moeda. Ela é a previsão de um regime em que a trajetória da dívida é a restrição que aperta. Nesse cenário, o aumento da taxa piora a dinâmica de rolagem, e câmbio e spread precificam essa deterioração em vez do carrego. \cite{goncalves2025} enunciam essa hipótese para o Brasil e a rejeitam com dados diários, encontrando apreciação de $3{,}4\%$ a $5{,}6\%$ por 100 pontos-base e nenhuma resposta do CDS de 5 anos. A estimativa mensal aqui vai na direção oposta nas duas dimensões. \cite{BEKAERT2013771} documentam o elo entre política monetária e precificação de risco que a resposta do EMBI e do CDS validam.
 
@@ -371,9 +363,9 @@ A dinâmica de médio prazo reforça a leitura de um mecanismo comum. O EMBI+ e 
 
 A demanda cai no impacto, atinge o vale no décimo primeiro mês e chega ao mercado de trabalho dois anos depois. As três etapas aparecem em níveis de evidência decrescentes, e a seção as separa.
 
-No impacto, a indústria de transformação cai $1{,}37\%$, os bens de consumo duráveis caem $4{,}67\%$, os bens de capital caem $2{,}78\%$, as vendas no varejo caem $1{,}06\%$ e as horas trabalhadas na indústria caem $1{,}08\%$. As cinco respostas excluem zero na banda de 90\%. Na banda de 68\% entram o IBC-Br, com $-0{,}40\%$, e as vendas de serviços, com $-0{,}47\%$, o que estende a queda ao agregado mensal e aos serviços. A \autoref{fig:atividade} traz as trajetórias.
+No impacto, a indústria de transformação cai $1{,}37\%$, os bens de consumo duráveis caem $4{,}67\%$, os bens de capital caem $2{,}78\%$, as vendas no varejo caem $1{,}06\%$ e as horas trabalhadas na indústria caem $1{,}08\%$. As cinco respostas excluem zero na banda de 90\%. Na banda de 68\% entram o IBC-Br, com $-0{,}40\%$, e as vendas de serviços, com $-0{,}47\%$, o que estende a queda ao agregado mensal e aos serviços.
 
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.7]{fig_atividade.pdf}
 \caption{\textbf{Atividade e horas trabalhadas}\\{Índices de quantum e de vendas em nível, convertidos para variação percentual pela média amostral. A utilização da capacidade instalada já está em pontos percentuais. Pontos laranja marcam os horizontes em que a banda de 90\% exclui zero. As seis séries setoriais atingem o vale entre $h = 11$ e $h = 12$, dentro de faixas em que a banda de 68\% exclui zero. O IBC-Br, primeiro painel, acompanha na estimativa pontual e só separa de zero no impacto.}}
@@ -397,9 +389,9 @@ O mercado de trabalho responde dois anos depois, na banda de 68\% e em nenhum ho
 
 \subsection{Crédito}
 
-O crédito expande no impacto em três setores e contrai em todos os sete recortes no médio prazo. A expansão de impacto é o único movimento do bloco que alcança a banda de 90\%: o crédito ao setor agropecuário sobe $1{,}01\%$ e permanece significativo até $h = 3$, e o crédito ao setor de transporte sobe $0{,}75\%$ até $h = 1$. Na banda de 68\% entra a indústria, com $+0{,}19\%$, e na direção contrária a construção, com $-0{,}32\%$. A \autoref{fig:credito} traz as trajetórias.
+O crédito expande no impacto em três setores e contrai em todos os sete recortes no médio prazo. A expansão de impacto é o único movimento do bloco que alcança a banda de 90\%: o crédito ao setor agropecuário sobe $1{,}01\%$ e permanece significativo até $h = 3$, e o crédito ao setor de transporte sobe $0{,}75\%$ até $h = 1$. Na banda de 68\% entra a indústria, com $+0{,}19\%$, e na direção contrária a construção, com $-0{,}32\%$.
 
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.7]{fig_credito.pdf}
 \caption{\textbf{Crédito}\\{Saldos de crédito em log-nível, de modo que a resposta está em log-pontos multiplicados por 100, aproximadamente variação percentual. Pontos laranja marcam os horizontes em que a banda de 90\% exclui zero. Só o agropecuário e o transporte têm horizonte significativo a 90\%, e ambos no impacto. Os sete painéis mostram a contração de médio prazo, que exclui zero na banda de 68\% em todos eles.}}
@@ -416,7 +408,7 @@ O crédito expande no impacto em três setores e contrai em todos os sete recort
 %\nota{Saldos de crédito em log-nível, de modo que a resposta está em log-pontos multiplicados por 100, aproximadamente variação percentual. Pontos laranja marcam os horizontes em que a banda de 90\% exclui zero. Só o agropecuário e o transporte têm horizonte significativo a 90\%, e ambos no impacto. Os sete painéis mostram a contração de médio prazo, que exclui zero na banda de 68\% em todos eles.}
 %\end{figure}
 
-A leitura da expansão inicial é que as firmas sacam linhas de crédito já aprovadas para financiar capital de giro quando o fluxo de caixa aperta, e que o corte setorial mostra a expansão onde o ciclo de giro é mais pesado. \cite{Cooley} obtêm, em equilíbrio geral com firmas heterogêneas em patrimônio líquido e porte, que a estrutura financeira da firma condiciona sua resposta ao choque monetário. A heterogeneidade setorial documentada aqui é uma margem distinta, a segmentação entre crédito direcionado e livre (o Plano Safra no crédito agropecuário, por exemplo), separável nos dados do BCB. A construção, que contrai desde o impacto, é o setor de ciclo mais longo e mais sensível à taxa longa.
+A leitura da expansão inicial é que as firmas sacam linhas de crédito já aprovadas para financiar capital de giro quando o fluxo de caixa aperta, e que o corte setorial mostra a expansão onde o ciclo de giro é mais pesado. \cite{Cooley} obtêm, em equilíbrio geral com firmas heterogêneas em patrimônio líquido e porte, que a estrutura financeira da firma condiciona sua resposta ao choque monetário. A heterogeneidade setorial documentada aqui é uma margem distinta, a segmentação entre crédito direcionado e livre. A construção, que contrai desde o impacto, é o setor de ciclo mais longo e mais sensível à taxa longa.
 
 A contração agregada existe na banda de 68\% e é ordenada. Os sete recortes ficam negativos a partir de um ponto entre $h = 15$ e $h = 22$, e os fundos são de $-2{,}44\%$ em $h = 29$ na construção, $-2{,}19\%$ em $h = 26$ no comércio, $-1{,}97\%$ em $h = 24$ no transporte, $-1{,}63\%$ em $h = 25$ na indústria, $-1{,}47\%$ em $h = 25$ no agropecuário, $-1{,}23\%$ em $h = 29$ no saldo total e $-0{,}94\%$ em $h = 32$ na pessoa física. Os três setores que expandem no impacto são os mesmos que contraem depois, e a distância entre os dois movimentos é de cerca de dois anos. Nenhuma dessas respostas separa de zero na banda de 90\%.
 
@@ -424,17 +416,7 @@ Os dois spreads do indicador de custo do crédito comprimem no impacto e alargam
 
 \subsection{Preços}
 
-Toda resposta de preço que exclui zero a 90\% é positiva, e nenhuma medida de inflação produz resposta negativa significativa em horizonte algum. O índice de preços ao produtor é significativo de $h = 0$ a $h = 4$, com pico de $+0{,}88$ ponto percentual em $h = 1$. O IGP-M é significativo de $h = 1$ a 4, com pico de $+0{,}41$ em $h = 2$. O IPCA cheio é significativo apenas em $h = 5$, com $+0{,}18$. O núcleo por exclusão EX0 é significativo em $h = 2$ e de $h = 4$ a 8, com pico de $+0{,}13$ em $h = 5$, e o núcleo de médias aparadas em $h = 4$, 5 e 7, com pico de $+0{,}09$. A \autoref{fig:precos} traz as trajetórias.
-
-\begin{figure}[http!]
-\begin{center}
-    \includegraphics[scale=0.7]{fig_precos.pdf}
-\caption{\textbf{Preços}\\{As séries de inflação entram no painel como taxa mensal, de modo que a resposta está em pontos percentuais da taxa mensal, cuja média amostral no IPCA é de $0{,}47$. Índice de difusão em pontos percentuais da proporção de itens com alta. Pontos laranja marcam os horizontes em que a banda de 90\% exclui zero. Os três últimos painéis não têm nenhum horizonte significativo a 90\%: o mínimo da estimativa pontual é de $-0{,}06$ em $h = 21$ no núcleo EX1, de $-1{,}01$ em $h = 23$ no índice de difusão e de $-0{,}13$ em $h = 12$ no INPC.}}
-%\footnotesize{Source: Own elaboration, based on data from Central Bank.}
-\label{fig:precos}
-\end{center} 
-\end{figure}
-
+Toda resposta de preço que exclui zero a 90\% é positiva, e nenhuma medida de inflação produz resposta negativa significativa em horizonte algum. O índice de preços ao produtor é significativo de $h = 0$ a $h = 4$, com pico de $+0{,}88$ ponto percentual em $h = 1$. O IGP-M é significativo de $h = 1$ a 4, com pico de $+0{,}41$ em $h = 2$. O IPCA cheio é significativo apenas em $h = 5$, com $+0{,}18$. O núcleo por exclusão EX0 é significativo em $h = 2$ e de $h = 4$ a 8, com pico de $+0{,}13$ em $h = 5$, e o núcleo de médias aparadas em $h = 4$, 5 e 7, com pico de $+0{,}09$.
 
 
 %\begin{figure}[H]
@@ -451,20 +433,20 @@ A ordenação temporal entre as medidas é o que a figura adiciona ao diagnósti
 
 A desinflação que a teoria prevê existe no painel e é a evidência mais fraca de toda a seção. O núcleo por exclusão EX1 é negativo de $h = 9$ a $h = 45$, com mínimo de $-0{,}063$ ponto percentual em $h = 21$, e sua banda de 68\% exclui zero em exatamente dois horizontes, $h = 21$ e $h = 22$. É a única medida de preço com veredito de coerência forte na verificação de janelas teóricas. O índice de difusão acompanha na estimativa pontual, com a proporção de itens em alta caindo de $h = 9$ até o mínimo de $-1{,}01$ ponto percentual em $h = 23$.
 
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{fig_precos.pdf}
+\caption{\textbf{Preços}\\{As séries de inflação entram no painel como taxa mensal, de modo que a resposta está em pontos percentuais da taxa mensal, cuja média amostral no IPCA é de $0{,}47$. Índice de difusão em pontos percentuais da proporção de itens com alta. Pontos laranja marcam os horizontes em que a banda de 90\% exclui zero. Os três últimos painéis não têm nenhum horizonte significativo a 90\%: o mínimo da estimativa pontual é de $-0{,}06$ em $h = 21$ no núcleo EX1, de $-1{,}01$ em $h = 23$ no índice de difusão e de $-0{,}13$ em $h = 12$ no INPC.}}
+%\footnotesize{Source: Own elaboration, based on data from Central Bank.}
+\label{fig:precos}
+\end{center} 
+\end{figure}
+
 O núcleo por exclusão EX0 é o único veredito de incoerência do painel na verificação de janelas teóricas. Ele é positivo em todos os horizontes entre $h = 12$ e $h = 48$, e não retorna a território negativo no médio prazo, ao contrário do IPCA cheio, do núcleo de médias aparadas e do INPC. 
 
 \subsection{Ações}
 
 Nenhum dos oito índices da B3 separa de zero a 90\% em qualquer horizonte. O bloco não sustenta uma afirmação de significância estatística, e o que segue está todo na banda de 68\% ou na estimativa pontual.
-
-\begin{figure}[http!]
-\begin{center}
-    \includegraphics[scale=0.7]{fig_acoes.pdf}
-\caption{\textbf{Índices de ações}\\{Os índices da B3 entram no painel como retorno mensal e a resposta é acumulada para recuperar o nível de preço, em pontos percentuais. Bandas de 68\% e 90\%. A ausência de marcadores laranja é o resultado: nenhum dos oito índices exclui zero a 90\% em nenhum dos 49 horizontes estimados. A banda de 68\% positiva a partir de $h \approx 14$ no Ibovespa e no índice financeiro é deriva de acúmulo, discutida no texto.}}
-%\footnotesize{Source: Own elaboration, based on data from Central Bank.}
-\label{fig:acoes}
-\end{center} 
-\end{figure}
 
 
 %\begin{figure}[H]
@@ -477,6 +459,14 @@ Nenhum dos oito índices da B3 separa de zero a 90\% em qualquer horizonte. O bl
 
 Os oito índices caem no impacto, entre $-0{,}31\%$ e $-2{,}89\%$, e a queda se aprofunda em $h = 1$. Quatro deles separam de zero na banda de 68\% já no impacto, e em $h = 1$ são sete dos oito, todos negativos: IMOB $-5{,}49\%$, SMLL $-5{,}36\%$, IDIV $-3{,}57\%$, MLCX $-3{,}29\%$, IFNC $-3{,}27\%$, Ibovespa $-3{,}11\%$ e IFIX $-2{,}70\%$. O único ausente é o IMAT, índice de materiais básicos, cujos componentes são exportadores amortecidos pela depreciação da mesma janela. A ordenação segue a previsão de canal financeiro, com incorporadoras imobiliárias e \textit{small caps} caindo mais que o índice amplo. O IFIX é o único índice negativo em todos os 49 horizontes, com banda de 68\% de $h = 0$ a $h = 8$, e fundos de renda imobiliária de fato precificam como renda fixa longa.
 
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{fig_acoes.pdf}
+\caption{\textbf{Índices de ações}\\{Os índices da B3 entram no painel como retorno mensal e a resposta é acumulada para recuperar o nível de preço, em pontos percentuais. Bandas de 68\% e 90\%. A ausência de marcadores laranja é o resultado: nenhum dos oito índices exclui zero a 90\% em nenhum dos 49 horizontes estimados. A banda de 68\% positiva a partir de $h \approx 14$ no Ibovespa e no índice financeiro é deriva de acúmulo, discutida no texto.}}
+%\footnotesize{Source: Own elaboration, based on data from Central Bank.}
+\label{fig:acoes}
+\end{center} 
+\end{figure}
 
 O Ibovespa cai $1{,}67\%$ no impacto, e a banda de 90\% vai de $-7{,}77\%$ a $+1{,}76\%$. A magnitude está dentro da faixa que os estudos de evento em dias de Copom encontram para o Brasil, de 1\% a 2\% por 100 pontos-base.
 
@@ -507,7 +497,7 @@ Do ponto de vista de política econômica, nossos resultados indicam que, em eco
 \bibliographystyle{authordate3} % bibliography style
 \bibliography{references} % References file
 
-\section*{Appendix}
+\section*{Appendix}\label{anexo-A}
 
 \begin{ThreePartTable}
 \begin{TableNotes}
