@@ -5,6 +5,12 @@
 > 2026-07-29, rewritten 2026-07-30). This document remains the full reading of
 > the production run.
 >
+> **2026-08-02:** `tex/main.tex` was itself archived to `arquivo/tex/main.tex`
+> — `texto_anpec/paper_anpec.tex` is the canonical paper now, but it has no
+> `§5 Robustez` yet (open item in `_instrucoes/pendencias.md`). This file
+> and the archived `.tex` remain the fullest written record of §4/§5 until
+> that section is ported over.
+>
 > **The paper is now under a two-tier rule, not the 90%-only rule of
 > 2026-07-29.** A 90% band excluding zero is a statistical result and is called
 > *significativo*; a 68% band excluding zero enters as **direction and

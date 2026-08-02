@@ -21,7 +21,13 @@ vintage de 2026-07-24 (**106 séries**, não ~111) — todas as menções a (6,5
 afirmações inverteram** — ver a tabela na pendência 6.1); (iii) removida do §5.6
 a afirmação "F ≥ 10 ⇒ sinais corretos", contraditada pela working-note de
 2026-07-15; (iv) todo o material het foi arquivado em `arquivo/`.
-**Objetivo:** mapear a distância entre `tex/main.tex` (versão compilada atual) e o
+**Revisão 2026-08-02:** o `tex/` desta nota foi arquivado em `arquivo/tex/` —
+o autor trocou o documento de trabalho para `texto_anpec/paper_anpec.tex`
+(paper canônico desde então). As referências a `tex/main.tex` abaixo
+apontam para o arquivo já arquivado; ver `CLAUDE.md` e `arquivo/README.md`
+para o estado corrente.
+**Objetivo:** mapear a distância entre `tex/main.tex` (versão compilada na
+época desta nota, hoje `arquivo/tex/main.tex`) e o
 estado real do projeto, e propor a estrutura das seções **Metodologia**,
 **Resultados** e **Apêndice/Anexo** da próxima versão. Para cada subseção:
 o que deve conter e qual artefato existente em `output/` alimenta cada
@@ -242,12 +248,23 @@ rugosidade×comunalidade = −0.50). **Sem suavização ex-post.**
   decaimento monotônico e **reversão abaixo do baseline com CI68 em h≈31-37**
   (quando chega a desinflação/flexibilização) — internamente consistente com a
   curva ficando negativa nos mesmos horizontes.
-- **Benchmark GRG (2025)**: o desacordo de sinal do câmbio (GRG diário acha
-  apreciação) precisa ser re-tratado — a reconciliação anterior usava uma
-  célula het, que saiu do paper (decisão 2026-07-15). Sem ela, a discussão
-  fica em: diferença de frequência (diário vs mensal GE), de janela amostral
-  e de regime (dominância fiscal como propriedade de 2020-25, não universal).
-  Como fechar essa discussão é decisão aberta (pendência 6.6).
+- **Benchmark GRG (2025) — FECHADO em 2026-08-01.** O desacordo de sinal do
+  câmbio (GRG diário acha apreciação de 3,4-5,6% por 100bp; aqui o mensal dá
+  depreciação de ~7,3% por 100bp) é de **frequência e propagação, não de
+  identificação**, e a evidência não exigiu estimar nada novo:
+  (i) a réplica em Python do referee2 sobre os **nossos próprios dados diários**
+  dá o real **apreciando 4,53% por 100bp**, dentro do IC 95% do GRG
+  ([−6,57; −3,63]) — a identificação diária replica o GRG;
+  (ii) o teste de proporcionalidade que **não rejeita em nenhuma** das 252
+  células mensais dá **LR = 135,1, p_boot = 0,005** no painel diário;
+  (iii) `jk_sovereign_confound.R` já mostrara que os 31 dias "política" foram
+  selecionados por **apreciação** do BRL no mesmo dia e ainda assim entregam
+  **depreciação** mensal.
+  Fonte: `working-notes/2026-08-01_robustez_heterocedasticidade.md` §6.
+  ⚠️ Ao escrever, reportar também a **variável inconveniente**: o mesmo `b_1`
+  diário dá IBOV **+2,83%** por 100bp (sinal teoricamente errado), com
+  participação espectral de 0,0015 — o bloco de ações é não identificado naquele
+  sistema diário, e o GRG também não reporta ações.
 - Fontes: `irf_section.md` §5.3 (o `grg_benchmark.csv` foi apagado em 2026-07-26 — era construído a partir de bundles het);
   `spec_sweep_conclusoes.md` §3.
 
@@ -324,9 +341,25 @@ rugosidade×comunalidade = −0.50). **Sem suavização ex-post.**
    rotulada (p = 0,179) — a métrica satura e o teste não tem poder. E a
    rotulagem **ainda depende de `z`**: as regras que não o usam selecionam uma
    coluna que corrobora mal (0,600, um quinto da magnitude).
-   ⚠️ **Não** existe robustez de identificação por heterocedasticidade: a perna
-   que seria identificação alternativa nunca produziu uma IRF (reprovada no gate
-   em 2026-07-16); a que produziu IRFs é o **mesmo proxy-SVAR com outro `z`**.
+   ⚠️ **Não** existe robustez de identificação por heterocedasticidade **no
+   sentido de corroboração**, e agora isso está demonstrado em vez de assumido.
+5. **Heterocedasticidade (Rigobon 2003): por que o paper não a usa — 2026-08-01.**
+   `script/het_robustness.R` → `output/het/`, nota
+   `working-notes/2026-08-01_robustez_heterocedasticidade.md`. Testada **no objeto
+   do paper** (DFM mensal) em **252 células** de `p × q × r × janela` e **5
+   desenhos de regime**, três deles novos. **Zero identificam**, e não é
+   severidade de correção: sob Holm interno ao desenho (28 testes) continua zero.
+   Duas condições necessárias falham em separado — a de posto (o desenho de
+   calendário rejeita em **0%** das células nas duas janelas) e a distinção dos
+   autovalores generalizados (gap mediano 0,11-0,17). **Nenhuma IRF é produzida**,
+   de propósito: sem coluna separável o número não teria identificação atrás.
+   O achado que explica: `volatilidade_juros` concentra o regime C no pós-2020
+   (0,478 contra 0,051) e não rejeita proporcionalidade em nenhuma célula — o
+   surto pós-2020 é **fator de escala comum**, não mudança de composição.
+   **Uso no texto:** isto entra como *justificativa do desenho* (um DFM mensal
+   precisa de instrumento externo) e como **reconciliação com o GRG**, nunca como
+   corroboração. ⚠️ **Não** escrever "outra identificação confirma o proxy" com
+   base nisto.
 
 ### O que NÃO entra em Resultados
 - Os "paper-worthy findings" (`irf_section.md` §5.7) são o **roteiro da

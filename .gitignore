@@ -22,16 +22,16 @@ codigo_olea/
 script/model.R
 abc/
 
-# LaTeX build artifacts
-tex/*.aux
-tex/*.log
-tex/*.fdb_latexmk
-tex/*.fls
-tex/*.synctex.gz
-tex/*.bbl
-tex/*.blg
-tex/*.brf
-tex/main.pdf
+# LaTeX build artifacts (archived draft, moved to arquivo/tex/ on 2026-08-02)
+arquivo/tex/*.aux
+arquivo/tex/*.log
+arquivo/tex/*.fdb_latexmk
+arquivo/tex/*.fls
+arquivo/tex/*.synctex.gz
+arquivo/tex/*.bbl
+arquivo/tex/*.blg
+arquivo/tex/*.brf
+arquivo/tex/main.pdf
 # Snapshot de build do tex (main.pdf + .aux/.fls/.synctex), derivado e stale
 tex.zip
 

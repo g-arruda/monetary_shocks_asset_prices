@@ -58,15 +58,15 @@ destes scripts citam `_instrucoes/irf_consistentes.md`, que não existe mais.
 
 | módulo | conteúdo |
 |---|---|
-| `het_shock_extraction.R` | Bloco diário Rigobon-Sack: `extract_shock_rigobon_sack`, `validate_variance_split`, `rigobon_proportionality_test`, `rank1_lr_test`, `bootstrap_rank1_share_ci`, `classify_a2_verdict`, `build_het_instrument` |
-| `het_primary.R` | Identificação primária por regimes mensais (Rigobon 2003; SW 2016 §5.1.2.3): `build_monthly_regimes`, `fit_rank1_md`, `ident_het_regimes`, `het_strength_stats`, `fit_two_regime_system`, `fieller_ratio_ci` |
+| `het_shock_extraction.R` | Bloco diário Rigobon-Sack. **Partido em 2026-08-01**: a metade genérica de testes (`validate_variance_split`, `rigobon_proportionality_test`, `rank1_lr_test`, `bootstrap_rank1_share_ci`, `formal_rank_test_battery`, `classify_a2_verdict`) foi extraída para `R/identification/het_tests.R` e está viva; o que continua aqui é a **extração diária** (`build_daily_regimes`, `extract_di_change`, `extract_price_change`, `extract_shock_rigobon_sack`, `aggregate_shock_to_monthly`, `build_het_instrument`), fora de escopo desde a decisão do autor de 2026-08-01 de ficar no objeto mensal |
+| ~~`het_primary.R`~~ | **Desarquivado em 2026-08-01** para `R/identification/het_primary.R` — ver `script/het_robustness.R`. Os dois helpers espectrais que ele importava de `het_shock_extraction.R` (`mat_sym_sqrt`, `mat_sym_inv_sqrt`) foram inlinados nele, para que nada no caminho vivo dê `source()` em `arquivo/` |
 
-**O ramo `identification = c("proxy", "het")` continua vivo** em
-`R/modeling/impulse_responde.R::compute_irf_dfm` e em `main_sdfm`. Não foi
-removido de propósito: é o molde do próximo ramo a ser escrito
-(`identification = "nongaussian"`, LMS/GMR via `svars`), que consome `eta` e
-devolve IRFs no mesmo formato. Para revivê-lo, basta `source()` dos dois módulos
-acima antes de chamar `compute_irf_dfm(..., identification = "het")`.
+**O ramo `identification = "het"` de `compute_irf_dfm`/`main_sdfm` voltou a ter
+consumidor em 2026-08-01** (`script/het_robustness.R`), e o módulo que ele exige
+não está mais aqui: `source("R/identification/het_primary.R")`. A mensagem de
+`stop()` em `impulse_responde.R` foi atualizada. O ramo também serviu de molde
+para `identification = "nongaussian"` (GMR 2017), que consome `eta` e devolve
+IRFs no mesmo formato.
 
 ## `arquivo/relatorio/` — notas e correspondência
 
@@ -96,6 +96,22 @@ forma, já que os CSVs het de entrada foram apagados.
 | `instrument_grid_report.md`, `instrument_grid.csv` | Saídas de `instrument_grid.R` (2026-04-26), só variantes legadas |
 
 ---
+
+## `arquivo/tex/` — o paper (abntex2, arquivado 2026-08-02)
+
+O draft abntex2 (`main.tex`, "Choques monetários nos preços dos ativos") que
+foi o paper canônico até 2026-08-02, quando o autor decidiu que o rascunho
+ANPEC (`texto_anpec/paper_anpec.tex`, classe `elsarticle`) passa a ser o
+documento corrente. **Não superado por vintage ou por bug** — o conteúdo era
+o corrente: §3 (Metodologia) em (7,6) e §4/§5 (Resultados/Robustez)
+reescritas em 2026-07-30 sob a regra de leitura em duas camadas (90% =
+*significativo*, 68% = direção e magnitude). Preservado porque **`§5
+Robustez` não tem contrapartida ainda em `texto_anpec/`** — é a fonte de
+prosa a reaproveitar até essa seção ser escrita no rascunho corrente, não um
+alvo de edição ativo. `img/` guarda as 8 figuras citadas pelo texto;
+`script/fig_section5.R` ainda escreve aqui (`arquivo/tex/img/`) porque nenhum
+figure set migrou para `texto_anpec/` ainda. Ver a entrada `arquivo/tex/` em
+`CLAUDE.md` para o que cada seção chegou a cobrir.
 
 ## O que foi apagado (recuperável pelo git)
 

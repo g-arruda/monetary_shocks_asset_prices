@@ -1,6 +1,6 @@
 # Pendências
 
-**Última revisão:** 2026-08-01. Itens abertos organizados por tema (A-E);
+**Última revisão:** 2026-08-02. Itens abertos organizados por tema (A-E);
 cada tema termina num bloco `### Fechados (contexto)` com o que já foi feito,
 resumido a poucas linhas — o detalhe completo mora no working-note ou output
 apontado ali, nunca duplicado aqui. Resultados negativos e decisões
@@ -25,7 +25,7 @@ consulte antes de propor um caminho novo.
 - **Trabalho que aparece só ao fechar um item** ("isso ainda fica em aberto:
   X") vira um `- [ ]` **próprio** no tema certo — nunca uma frase solta
   dentro do item fechado. Foi esse padrão que escondeu dois itens nesta
-  reorganização (a reescrita de `tex/main.tex:183` e a ressalva de §4 sobre a
+  reorganização (a reescrita de `arquivo/tex/main.tex:183` (archived draft) e a ressalva de §4 sobre a
   reversão de médio prazo, ambos pendurados dentro de itens já `[x]`).
 - **Dependência entre itens** declara-se nos dois sentidos — o bloqueador diz
   o que destrava, o dependente diz do que depende — e aparece na tabela
@@ -95,14 +95,14 @@ de `compute_irf_dfm` já implementam.
 
 | Tema | Item | Observação |
 |---|---|---|
-| A | §5 Robustez está inteira comentada | **bloqueador** — destrava os 3 itens abaixo |
+| A | `texto_anpec/` não tem §5 Robustez — portar de `arquivo/tex/main.tex:447-500` | **bloqueador** — destrava os 3 itens abaixo |
 | A | Escrever subseção do confound soberano | depende do item acima |
-| A | Reescrever `tex/main.tex:183` (benchmark VAR) | depende do item acima |
 | A | Ressalva §4 + Limitações (reversão = quase-raiz-unitária) | depende do item acima |
-| A | ⚠ Abstract, Introdução e Conclusão | item mais visível — resolver antes de circular o PDF |
 | A | Tabela `tab:rq_sweep`: 4 células → grid completo | dado já existe |
 | A | Corrigir leitura da Wald conjunta em §3.7 | — |
 | A | Documentar a mecânica do bootstrap no texto | — |
+| A | Vertente de prêmio de risco cambial ausente do §2 | exige chave nova (regra das 25) |
+| A | Corrigir leitura do IMAT em §4.6 | independente, sem citação nova |
 | B | Bandas Anderson-Rubin | prioridade elevada, corroborado pelo council 2026-07-31 |
 | B | Bandas simultâneas (Montiel Olea-Plagborg-Møller 2021) | exige referência nova |
 | B | Validade do wild bootstrap (Jentsch-Lunsford) | mínimo aceitável: 1 parágrafo no §3 |
@@ -124,7 +124,7 @@ de `compute_irf_dfm` já implementam.
 
 ## A. Texto do paper
 
-*Inclui os achados do council review de `tex/main.tex` em 2026-07-31 —
+*Inclui os achados do council review de `arquivo/tex/main.tex` (archived draft; `texto_anpec/paper_anpec.tex` is now canonical) em 2026-07-31 —
 revisão paralela de três críticos independentes (harsh-referee e
 macro-theorist em Claude Opus, methodologist via Gemini 3.1 Pro como par
 cross-vendor). Veredito da síntese: **Major Revision**, não Reject — os dois
@@ -133,29 +133,60 @@ trabalho não feito com ferramenta já pronta no repo, não defeito estrutural:
 o benchmark VAR já foi rodado (ver "Fechados" abaixo), as bandas AR seguem em
 aberto (Tema B). Relatório completo: `relatorio/council_2026-07-31.md`.*
 
-- [ ] **§5 Robustez está inteira comentada no working tree, e duas passagens
-  ativas ficaram penduradas.** A linha 365 (ativa) afirma que o índice de
-  commodities metálicas do BCB sobe 3,43% com banda de 90% até h=4, mas a frase
-  que descarta a leitura de falha de exogeneidade — a versão em dólar não
-  responde em horizonte nenhum, já testado em `diagnostics/01_exogeneidade.R`
-  §1.6 — está comentada na mesma linha. Como compilado, isso lê como falha de
-  exogeneidade sem resposta. A nota da `fig:acoes` (linha 436) promete uma
-  discussão "no texto" que também está comentada. As referências
-  `\autoref{sec:exogeneidade}` e `\autoref{sec:estado}` **não estão quebradas**
-  — todo uso e a própria `\label` estão comentados juntos, então não há erro de
-  compilação (checado via `grep`) — mas o conteúdo de defesa que o corpo ativo
-  pressupõe existir não está visível para quem lê o PDF. Reativar a seção (o
-  conteúdo já está escrito) ou reescrever as duas passagens ativas para não
-  depender dela. **Bloqueia os três itens seguintes** (a subseção do confound
-  soberano entra como quinta subseção e não faz sentido escrevê-la numa seção
-  comentada).
+- [ ] **`texto_anpec/paper_anpec.tex` (o paper canônico desde 2026-08-02) não
+  tem `§5 Robustez` nenhuma — nem ativa nem comentada.** A seção mais
+  completa que existe está escrita, testada e **comentada** em
+  `arquivo/tex/main.tex:447-500` (o draft abntex2 arquivado nessa mesma data,
+  quatro subseções: `sec:exogeneidade`, `sec:estado`, Placebos, Limitações),
+  então o trabalho é **portar essa prosa** para `texto_anpec/`, não
+  "reativar" um comentário local. Duas dependências que a prosa antiga
+  pressupõe e que precisam ser resolvidas na portagem: a passagem sobre o
+  índice de commodities metálicas do BCB (+3,43%, banda 90% até h=4) só faz
+  sentido junto da frase que descarta a leitura de falha de exogeneidade — a
+  versão em dólar não responde em horizonte nenhum, já testado em
+  `diagnostics/01_exogeneidade.R` §1.6 —, e a nota da `fig:acoes` promete uma
+  discussão "no texto" que também precisa vir junto. **Bloqueia os três itens
+  seguintes** (a subseção do confound soberano entra como quinta subseção e
+  não faz sentido escrevê-la antes de a seção existir em `texto_anpec/`).
+- [ ] **Escrever a subseção de robustez sobre identificação por
+  heterocedasticidade.** Os números existem, estão conferidos e a leitura está
+  redigida em `working-notes/2026-08-01_robustez_heterocedasticidade.md` §7
+  ("o que pode e o que não pode ser escrito"); falta só a redação no `.tex`.
+  **Nenhum `.tex` foi tocado nesta rodada — proibição do autor em 2026-08-01.**
+  Depende do mesmo item "`texto_anpec/` não tem §5 Robustez" acima.
+  - **Onde:** logo depois de `sec:exogeneidade`, porque as duas defendem a
+    identificação. Label sugerido `sec:heterocedasticidade`.
+  - **Chaves de bibliografia já existem** — `rigobon2003` e `goncalves2025`;
+    **não** é preciso entrada nova. A condição de autovalores distintos é de
+    Lanne-Lütkepohl (2008), que **não** está no `.bib`: ou se adiciona a entrada,
+    ou se enuncia a condição sem atribuição específica (ela é parte do arcabouço
+    de Rigobon).
+  - **A ordem do argumento:** (i) todo o resto do §5 varia a receita do
+    instrumento, não a identificação — Rigobon dispensa a restrição de exclusão e
+    identifica por segundos momentos; (ii) 252 especificações × 5 definições de
+    regime, **nenhuma identifica**, e não é severidade de correção (Holm interno
+    ao desenho mantém zero nos cinco); (iii) **segunda condição necessária falha
+    em separado** — autovalores generalizados não distintos (separação relativa
+    mediana 0,11-0,17) —, e por isso **nenhuma IRF é reportada**, o que precisa
+    ser dito explicitamente para o leitor não procurar uma figura; (iv) o
+    diagnóstico: o salto de volatilidade pós-2020 é **fator de escala comum**
+    (`volatilidade_juros` põe 47,8% dos meses no regime alto contra 5,1% antes e
+    mesmo assim não rejeita proporcionalidade em nenhuma célula); (v) a
+    reconciliação com `goncalves2025`.
+  - ⚠️ **Não escrever como corroboração.** Não há IRF, logo não há concordância
+    de sinal a reportar. É *justificativa do desenho* e *reconciliação de
+    frequência*.
+  - ⚠️ **Incluir a variável inconveniente:** no mesmo sistema diário o IBOV
+    responde **+2,83%** por 100bp (sinal errado), com participação espectral de
+    0,0015 — ações não identificadas naquele desenho, e por isso a comparação de
+    ações entre os dois exercícios não é possível.
 - [ ] **Escrever a subseção de robustez sobre o confound soberano.** Os
   números existem e estão conferidos; falta só a redação. **Depende do item
-  "§5 Robustez está inteira comentada" acima**: hoje a `\section{Robustez}`
-  inteira está comentada em `tex/main.tex:447-500` com quatro subseções
-  (`sec:exogeneidade`, `sec:estado`, Placebos, Limitações), então esta entra
-  como **quinta**, e ou sobe junto quando a seção for reativada, ou fica
-  comentada com as outras.
+  "`texto_anpec/` não tem §5 Robustez" acima**: a `\section{Robustez}` só
+  existe, comentada, em `arquivo/tex/main.tex:447-500` (draft arquivado), com
+  quatro subseções (`sec:exogeneidade`, `sec:estado`, Placebos, Limitações);
+  esta entra como **quinta** e sobe junto quando a seção for portada para
+  `texto_anpec/`.
   - **Onde:** depois de `sec:exogeneidade` e antes de `sec:estado` — é
     exogeneidade do instrumento em frequência diária, e `sec:estado` já pressupõe
     que a leitura de risco soberano foi endereçada. Label sugerido
@@ -191,24 +222,31 @@ aberto (Tema B). Relatório completo: `relatorio/council_2026-07-31.md`.*
     diário porque não há CDS 5a diário disponível, e dizer que a proxy é o EMBI.
   - **Figura.** `output/instrument/jk_sovereign_irf_overlay.pdf` tem 9 painéis —
     demais para o corpo. Cortar para **quatro** (`cambio_usd`, `embi_perc`,
-    `cds_5y`, `yield_2y`) e gerar em `tex/img/` seguindo a convenção das outras:
-    ou um bloco novo em `script/fig_section5.R`, ou um `fig_confound.R` irmão.
+    `cds_5y`, `yield_2y`) e gerar em `texto_anpec/img/` (destino corrente;
+    `arquivo/tex/img/` só recebe figuras do draft arquivado) seguindo a
+    convenção das outras: ou um bloco novo em `script/fig_section5.R`
+    apontando para lá, ou um `fig_confound.R` irmão.
     Legenda ABNT — `\caption` curto em cima, `\nota` longo embaixo.
   - **Sem referência nova.** A regra de 25 chaves se mantém: bastam
     `jarocinski2020` e `bauer2023`, já citadas.
-- [ ] **Reescrever `tex/main.tex:183`.** *Extraído em 2026-08-01 de dentro do
-  item fechado do benchmark VAR — estava pendurado como "Aberto daqui" sem
-  bullet próprio.* A introdução hoje credita ao DFM ser "mais forte e mais
-  rápido" que modelos de menor dimensão como resultado da literatura, citando
-  Alessi-Kerssenfischer sem o benchmark ter sido estimado neste projeto. A
-  redação tem que refletir a medição já feita (Tema B/D... ver "Fechados"
-  abaixo): *mais forte* se sustenta amplo (16 de 18, razão mediana 2,32 no
-  impacto), *mais rápido* só no bloco de ações (7 de 8, contra 9 de 18 no
-  total) — e não pode virar "o DFM ganha da literatura", porque com
-  identificação fixa nos dois lados isto compara **DFM contra VAR pequeno**,
-  não contra a literatura de menor dimensão, que usa Cholesky. Redação
-  proposta em `relatorio/working-notes/2026-07-31_benchmark_var_vs_dfm.md`.
-  **Bloqueado pelo item "§5 Robustez está inteira comentada" acima.**
+- [x] **Reescrever a introdução que credita ao DFM ser "mais forte e mais
+  rápido" que modelos de menor dimensão como resultado da literatura — FEITO
+  por outra via, verificado em 2026-08-02.** *Extraído em 2026-08-01 de
+  dentro do item fechado do benchmark VAR.* A frase problemática só sobrevive
+  em `arquivo/tex/main.tex:183` (draft arquivado, não editado). A introdução
+  ativa de `texto_anpec/paper_anpec.tex` (o paper canônico) **nunca fez essa
+  afirmação** — abre na falha da paridade descoberta de juros e no canal de
+  prêmio de risco, sem citar o benchmark VAR. O item original nasceu de uma
+  frase específica do draft antigo, que não migrou para o texto corrente;
+  não há mais o que reescrever aqui. **A medição em si segue viva e não
+  descartada** — se o benchmark VAR entrar em `texto_anpec/` em algum ponto
+  (§5 Robustez, item acima), use a leitura correta: *mais forte* se sustenta
+  amplo (16 de 18, razão mediana 2,32 no impacto), *mais rápido* só no bloco
+  de ações (7 de 8, contra 9 de 18 no total), e nunca como "o DFM ganha da
+  literatura" — com identificação fixa nos dois lados isto compara **DFM
+  contra VAR pequeno**, não contra a literatura de menor dimensão, que usa
+  Cholesky. Redação proposta em
+  `relatorio/working-notes/2026-07-31_benchmark_var_vs_dfm.md`.
 - [ ] **Redigir a ressalva no §4 e o parágrafo em Limitações sobre a reversão
   de médio prazo.** *Extraído em 2026-08-01 de dentro do item fechado de
   estacionariedade dos fatores — mesmo padrão do item acima.* A afirmação
@@ -221,26 +259,33 @@ aberto (Tema B). Relatório completo: `relatorio/council_2026-07-31.md`.*
   frase no corpo (não em rodapé) para cada um dos dois lugares. Detalhe:
   `output/factors/factor_stationarity.md`,
   `relatorio/working-notes/2026-07-31_estacionariedade_fatores.md`.
-  **Bloqueado pelo item "§5 Robustez está inteira comentada" acima.**
-- [ ] **⚠ Abstract, Introdução e Conclusão — rewrite completo (item mais
-  visível da lista, resolver antes de qualquer circulação do PDF).** Os sinais
-  e magnitudes são da era Cholesky em três lugares que hoje contradizem o
-  texto compilado:
-  - O resumo (linha 163 do `main.tex`) diz "apreciação de 8%" e "queda
-    imediata de aproximadamente 3% no mercado acionário"; a §2 e o §5 (já
-    reescritas) reportam **depreciação** de 3,64% com banda de 90%, e
-    **nenhum** dos oito índices de ações separa de zero a 90% em horizonte
-    nenhum (Ibovespa −1,67%, IC90 [−7,77; +1,76]). Há um `% TODO` no `.tex`
-    acima do resumo registrando os dois pontos.
-  - A Conclusão promete "instrumento de alta frequência como pesquisa
-    futura", que hoje é o coração do paper.
-  - `§3.2` diz "cerca de 110 séries"; o painel tem **106** desde o refresh de
-    vintage de 2026-07-24.
-  - A discordância de sinal do câmbio com GRG (2025) deve ser lida no resumo
-    como **puzzle central do paper**, não nota de rodapé (acréscimo do
-    macro-theorist no council review de 2026-07-31).
-  Roteiro: §5.7 do `irf_section.md`. A revisão de literatura (§2) já foi
-  reescrita em 2026-07-28 e não faz parte deste item.
+  **Bloqueado pelo item "`texto_anpec/` não tem §5 Robustez" acima.**
+- [x] **⚠ Abstract, Introdução e Conclusão — rewrite completo — FEITO, verificado
+  em 2026-08-01 em `texto_anpec/paper_anpec.tex` (paper canônico desde 2026-08-02; o
+  antigo `tex/main.tex` foi arquivado em `arquivo/tex/main.tex` para fins
+  deste item).** Os quatro pontos do item original
+  conferidos linha a linha:
+  - Resumo: reporta **depreciação** de 3,64% (BRL/USD) com EMBI+/CDS em alta e
+    **nenhum** dos oito índices de ações significativo — não há mais
+    "apreciação de 8%"/"queda de 3% em ações"; o `% TODO` acima do resumo foi
+    removido.
+  - Conclusão (`Concluding remarks`): não promete mais instrumento de alta
+    frequência como pesquisa futura; trata a divergência com GRG (2025) como
+    questão em aberto para desenho que combine frequências.
+  - `§3.2`/Base de Dados dizia "cerca de 110 séries" — **não estava corrigido**,
+    ainda contradizia o painel de 106; corrigido nesta verificação
+    (2026-08-01) para "106 séries".
+  - Discordância de sinal do câmbio com GRG: está no resumo como contraste
+    central ("Esses resultados contrastam com evidências recentes... sugerindo
+    que a importância do canal... pode depender da frequência..."), não como
+    rodapé.
+  **Achado à parte, fora do escopo original deste item, não corrigido aqui:**
+  `§3.2` (linha 242) e a tabela do Anexo A ainda descrevem a curva de juros
+  como ajustada pelo modelo de Svensson sobre DI futuro em código do projeto;
+  segundo o CLAUDE.md, `script/yield_curve.R` foi **deletado em 2026-07-26** e
+  `data/yields/yields_dia.csv` é hoje um insumo externo fixo fornecido pelo
+  orientador, sem estágio de ajuste no repositório. Abrir item novo se for
+  para corrigir.
 - [ ] **Tabela `tab:rq_sweep` mostra 4 células selecionadas do grid, não o grid
   completo.** `mosw_strength_grid.csv` já tem (7,5), (7,7), (8,5) e (8,6)
   também cruzando ξ_mp ≥ 10 nas duas janelas — a produção (7,6) é um platô, não
@@ -269,6 +314,82 @@ aberto (Tema B). Relatório completo: `relatorio/council_2026-07-31.md`.*
   sobre `Idio` ficar fixo entre réplicas (subestima a variabilidade amostral de
   Λ̂). Achados verificados no código pelo harsh-referee e re-conferidos na
   síntese, não só extraídos da prosa.
+- [ ] **Vertente de prêmio de risco cambial ausente da revisão de literatura** —
+  *aberto em 2026-08-02, a partir da leitura de Dalgic & Ozhan, "Dominant
+  Currency Pricing and Currency Risk Premia", IMF WP/26/158, jul/2026 (antes
+  circulado como "Global Shocks and Local Response: Currency Risk and Monetary
+  Policy"). Fonte:
+  `/mnt/storage/Documents/pdf_to_md_out/Dalgic, ozhan - Dominant Currency Pricing and Currency Risk Premia/`.*
+  A introdução do `texto_anpec/paper_anpec.tex` abre na UIP e o resultado
+  central é uma falha dela, mas as **46 chaves de `references.bib` não têm
+  nenhuma referência de macro internacional / prêmio de risco cambial** — nem
+  Lustig-Roussanov-Verdelhan, nem Kalemli-Özcan, nem Gopinath, nem
+  Aoki-Benigno-Kiyotaki. Documenta-se uma falha da UIP sem citar a literatura
+  que estuda por que a UIP falha sistematicamente em emergentes. O escopo é
+  pequeno: **um parágrafo curto no §2 e uma ou duas frases na §4.2**, não uma
+  seção.
+  - **O fato citável, e é o único dado direto que o paper oferece:** o Brasil
+    está na amostra de 25 países (2003:02-2018:11) e a §2.4 o nomeia — junto de
+    Turquia, Chile e Peru — entre os de **correlação PIB-câmbio real mais
+    negativa e maiores retornos excedentes médios** (Figura 2, R² = 0,172). Ou
+    seja, na seção transversal o real se deprecia em recessão: ativo local é
+    mau hedge e paga prêmio. É *background* independente para a afirmação de
+    que no Brasil o câmbio é objeto macro-financeiro, não só preço relativo.
+  - **A moldura conceitual que falta à §4.2**, hoje com uma única leitura
+    (dominância fiscal, que o próprio texto diz não testar: linha 142): a §5.3
+    deles formaliza o câmbio deixando de absorver choque e virando
+    *macro-financial state variable* que precifica risco.
+  - **Uso mais forte — eles são a alternativa concorrente, não um aliado.** O
+    mecanismo deles é prêmio de risco **cambial privado** (passivo bancário em
+    dólar × rigidez de preço de exportação em dólar); a evidência do §4.2 é
+    risco de crédito **soberano** (EMBI+ e CDS 5a). As palavras *fiscal*,
+    *sovereign*, *default*, *EMBI* e *CDS* não aparecem no corpo do paper deles
+    — não há bloco fiscal no modelo. Citá-los como microfundamentação
+    **não-fiscal** do mesmo co-movimento e argumentar que a resposta conjunta
+    de EMBI+/CDS é objeto de crédito soberano que essa leitura não entrega é
+    mais defensável do que a moldura única de hoje.
+  - ⚠️ **Não escrever como corroboração do sinal cambial.** Todo o exercício
+    quantitativo deles é choque de juro **externo** ($R^*$); a regra de Taylor
+    doméstica tem um $\varepsilon_{R,t}$ (eq. 48) que **nunca é simulado** em
+    lugar nenhum do paper. Não há previsão "aperto doméstico → depreciação".
+  - ⚠️ **Não invocar o mecanismo estrutural para o Brasil.** Ele exige
+    *interação*: invoicing alto **e** dívida em dólar alta; invoicing alto
+    sozinho "generates only a modest premium" (§5.2). O Brasil tem faturação de
+    exportação em dólar altíssima mas dolarização de passivo bancário e de
+    dívida pública baixa para padrão emergente — cai na célula fraca do 2×2
+    deles. Citar o fato empírico da §2.4, não a calibração ($\bar\phi = 0{,}25$,
+    alavancagem ≈ 8). Antes de qualquer afirmação mais forte, conferir se o
+    Brasil está sequer nas regressões da Tabela 4 (14-20 observações).
+  - ⚠️ **Não usar a §5.4 no bloco de preços.** O resultado "prêmio cambial mais
+    alto → juro neutro ajustado a risco mais alto → Taylor de intercepto fixo →
+    inflação acima da meta" conversa em sinal com o §4.5 (toda resposta de
+    preço sig90 é positiva, nenhuma desinflação significativa), mas é
+    **comparação de estados estacionários estocásticos entre economias, não uma
+    IRF a choque monetário**. Não pode virar "a teoria prevê meu resultado de
+    preços".
+  - **Apoio marginal aos preditores do instrumento** (§3.4): a Tabela 3 deles
+    mostra o fator dólar carregando em retorno do S&P 500 (1,533***) e não no
+    VIX, e o fator carry em Δlog(VIX) (−0,085***) e não no S&P 500 — os dois
+    juntos varrem os fatores globais de retorno cambial, que é justamente o par
+    usado na camada Bauer-Swanson. Uma linha, se couber.
+  - **Custo:** 1-2 chaves novas no `.bib`, o que colide com a regra das 25
+    chaves — decisão do autor. É *working paper* do FMI de jul/2026, ainda não
+    publicado; citar como WP.
+- [ ] **Corrigir a leitura do IMAT em §4.6** (`texto_anpec/paper_anpec.tex:478`)
+  — *aberto em 2026-08-02, mesma leitura do item acima; é independente dele e
+  não depende de citar ninguém.* O texto explica o IMAT ser o único dos oito
+  índices sem banda de 68% em h=1 dizendo que seus componentes são
+  "exportadores **amortecidos pela depreciação** da mesma janela". Sob
+  *dominant-currency pricing* esse é exatamente o canal que **não** funciona:
+  preço de exportação rígido em dólar não baixa rápido para o comprador externo,
+  e economias de invoicing alto ajustam o preço em dólar de forma mais lenta e
+  mais fraca (Dalgic-Ozhan §5.3 e Figura 5). O amortecimento sobrevive, mas por
+  outro motivo: para exportador de commodity a receita já é em dólar e o custo
+  em real, então a depreciação eleva a receita em BRL por **translação
+  imediata**, sem nenhum *expenditure switching*. Trocar "amortecidos pela
+  depreciação" por algo como "amortecidos pela receita denominada em dólar"
+  fecha a inconsistência e **alinha a frase com a §4.2**, que já usa exatamente
+  essa leitura de denominação para o índice de commodities do BCB em reais.
 
 ### Fechados (contexto)
 
@@ -354,8 +475,9 @@ aberto (Tema B). Relatório completo: `relatorio/council_2026-07-31.md`.*
   entre specs mais que sua própria magnitude, e o VAR com `ibc_br` é
   **explosivo** (max|λ|=1,008). Saídas em `output/var/var_benchmark.{md,...}`
   (3 CSV + 4 PDF). Nota:
-  `relatorio/working-notes/2026-07-31_benchmark_var_vs_dfm.md`. Consequência:
-  reescrever `tex/main.tex:183` (item acima).
+  `relatorio/working-notes/2026-07-31_benchmark_var_vs_dfm.md`. A
+  consequência textual (reescrever a introdução) já era moot em
+  `texto_anpec/paper_anpec.tex` — ver item fechado em "Texto do paper" acima.
 - [x] **Estacionariedade dos fatores, cointegração e espectro da companion —
   FEITO em 2026-07-31.** `script/factor_stationarity.R` →
   `output/factors/factor_stationarity.md`. Fatores: **4 de 7 I(1)**, 2 I(0), 1
@@ -628,10 +750,21 @@ descreve a corrida antiga e carrega banner).
   **fora** da janela escorada h12-h48 — então o veredito `incoerente` do
   `price_core_ipca_ex0` é outra coisa (ele nunca volta a negativo no médio
   prazo), e a comparação tem que olhar h2-h8, não a janela da régua.
-- [ ] **Benchmark GRG (2025) sem a célula het** — a reconciliação do sinal do
-  câmbio usava `z_het_3var` × pre-COVID, que saiu do paper. Decidir como
-  discutir o desacordo (frequência diária × mensal GE, janela amostral, regime
-  de dominância fiscal 2020-25). Ver §5.3 do `irf_section.md`.
+- [x] **Benchmark GRG (2025) sem a célula het — FECHADO em 2026-08-01.** A
+  reconciliação não precisa de célula het nem de estimação nova: o desacordo de
+  sinal do câmbio é de **frequência e propagação**, não de identificação.
+  (i) A réplica em Python do referee2 sobre os **nossos** dados diários
+  (`arquivo/relatorio/correspondence/referee2/replication/referee2_py_b1.csv`)
+  dá o real **apreciando 4,53% por 100bp**, **dentro do IC 95% do GRG**
+  ([−6,57; −3,63] em torno de −5,10) — a identificação diária replica o GRG na
+  nossa amostra. (ii) O teste de proporcionalidade dá **LR = 135,1,
+  p_boot = 0,005** no diário contra **nenhuma rejeição** em 252 células mensais.
+  (iii) `jk_sovereign_confound.R` já mostrara que os 31 dias "política" foram
+  selecionados por apreciação do BRL no mesmo dia e entregam depreciação mensal.
+  Ao escrever, **incluir a variável inconveniente**: o mesmo `b_1` diário dá IBOV
+  +2,83% por 100bp, participação espectral 0,0015 — ações não identificadas
+  naquele sistema. Fonte:
+  `working-notes/2026-08-01_robustez_heterocedasticidade.md` §6.
 - [ ] **Spread de concessões novas** como complemento ao ICC — deve abrir já no
   curto prazo, ao contrário do ICC (taxa da carteira, reprecifica devagar).
   Desejável, não bloqueante.
@@ -727,7 +860,7 @@ descreve a corrida antiga e carrega banner).
   - **A jusante:** re-rodar `irf_coherence_check.R` e `fig_section5.R`, atualizar
     a constante `asset_ibov -1.673` fixada no smoke test do `CLAUDE.md` e em
     `script/jk_sovereign_confound.R:603`, e reescrever o bloco de ações do §4 e
-    a nota da `fig:acoes`. O comentário de `tex/main.tex:445`, que explica o pico
+    a nota da `fig:acoes`. O comentário de `arquivo/tex/main.tex:445` (archived draft), que explica o pico
     de médio prazo como erro acumulado, **fica sem objeto** e deve sair.
 - [ ] **`kilian_correction` testa singularidade por determinante de matriz enorme**
   — *aberto em 2026-07-31, encontrado ao rodar o benchmark VAR; **não corrigido
@@ -816,7 +949,8 @@ passar em qualquer commit dela.
   `identification = "nongaussian"`).
 - **Escrita vai direto na `main`**, em commits pequenos: §5 para o tex, resumo,
   introdução, conclusão, revisão de literatura. Não é experimento, não pode
-  "falhar", e só toca `tex/`.
+  "falhar", e só toca `texto_anpec/` (o antigo `tex/` está arquivado em
+  `arquivo/tex/` desde 2026-08-02 e não recebe mais escrita).
 - **Higiene e re-runs de diagnóstico vão direto na `main`**: o bloco de higiene
   de 2026-07-26 (`run_all.R`, renomear `irf_mp_raw`, taxonomia por ξ_mp,
   separar a leitura do coherence) foi feito assim. Segue valendo para o placebo

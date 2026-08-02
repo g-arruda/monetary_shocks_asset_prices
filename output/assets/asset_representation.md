@@ -114,7 +114,8 @@ mediana do grupo acima passa a misturá-los com as 16 séries de crédito/base/P
 
 ## A deriva de médio prazo do Ibovespa
 
-O bloco comentado em `tex/main.tex:445` explica o pico de +20,3% em h≈24 como
+O bloco comentado em `arquivo/tex/main.tex:445` (arquivado em 2026-08-02;
+paper canônico é `texto_anpec/paper_anpec.tex`) explica o pico de +20,3% em h≈24 como
 erro de estimação acumulado. A comparação abaixo mostra que o diagnóstico
 estava certo — e que a representação em nível remove o artefato na origem, em
 vez de explicá-lo depois.

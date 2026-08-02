@@ -26,8 +26,7 @@ diagnostics/         — a rodada de auditoria DFM-IV de 2026-07-28
 output/              — artefatos de estimação (git-tracked)
 data/                — dados brutos/processados (gitignored)
 relatorio/           — roadmap do paper, council reviews, working-notes
-tex/                 — o paper (LaTeX, abntex2)
-texto_anpec/         — rascunho separado para o (Mais atualizado)
+texto_anpec/         — o paper canônico (LaTeX, elsarticle, submissão ANPEC)
 artigos/             — literatura citada (PDF + extração)
 codigos_externos/    — código de referência de outros autores (read-only)
 arquivo/             — código/docs fora do pipeline ativo (histórico)
@@ -126,8 +125,8 @@ repositório); `curva_juros/`, `investing/`, `epu/`,
 - **`estrutura_paper_v2.md`** — roadmap seção-a-seção do paper, mapeando
   cada subseção ao artefato de `output/` que a alimenta.
 - **`council_2026-07-31.md`** — revisão de 3 críticos externos ("council")
-  sobre `tex/main.tex`, com cabeçalho de status indicando o que já foi
-  resolvido.
+  sobre o então `tex/main.tex` (hoje `arquivo/tex/main.tex`), com cabeçalho
+  de status indicando o que já foi resolvido.
 - **`2026-07-15_relatorio_auditoria_fidelidade_instrumento.md`** — a auditoria
   de fidelidade do instrumento (filtro JK / purificação BS) que motivou a
   troca para `z_jk_bs_purif`.
@@ -136,17 +135,24 @@ repositório); `curva_juros/`, `investing/`, `epu/`,
   sob a qual foi escrita. **Não catalogadas aqui uma a uma** — ver
   `relatorio/working-notes/_indice.md`, que é a lista viva.
 
-## `tex/` e `texto_anpec/`
+## `texto_anpec/`
 
-- **`tex/`** — o paper canônico (`main.tex`, classe `abntex2-alf`, título
-  "Choques monetários nos preços dos ativos"). §3-§5 são o texto corrente
-  (ver `CLAUDE.md`); abstract/introdução/conclusão ainda estão desatualizados.
-  `img/` tem as 8 figuras citadas no texto.
-- **`texto_anpec/`** — rascunho separado para submissão ao ANPEC, classe
-  `elsarticle`, título e enquadramento diferentes ("Uncovered Interest
-  Parity, Inverted..."). Compartilha 6 das 8 figuras de `tex/img/` (sem
-  `fig_estado`/`fig_placebos`). Não referenciado pelo `CLAUDE.md` — é um
-  produto textual paralelo, não uma cópia do paper principal.
+O paper canônico desde **2026-08-02** (`paper_anpec.tex`, classe
+`elsarticle`, submissão ANPEC, título "Uncovered Interest Parity,
+Inverted..."). Abstract e §4 Resultados (seis subseções: estrutura a termo,
+câmbio e risco soberano, atividade, crédito, preços, ações) estão correntes
+com a rodada de produção. **Ainda não tem `§5 Robustez`** — essa seção só
+existe no draft arquivado (ver abaixo) e precisa ser portada/reescrita aqui;
+é o item aberto que fecha a diferença entre "canônico" e "completo". Reusa 6
+das 8 figuras de `arquivo/tex/img/` (sem `fig_estado`/`fig_placebos`, que são
+só de robustez).
+
+O draft abntex2 anterior (`main.tex`, "Choques monetários nos preços dos
+ativos") foi **arquivado em `arquivo/tex/`** nessa mesma data — não por
+vintage ou bug, o conteúdo era corrente, mas porque `texto_anpec/` passou a
+ser o documento de trabalho. Preservado porque sua `§5 Robustez` é a prosa
+mais completa de robustez que existe no repositório; ver
+`arquivo/README.md`.
 
 ## `artigos/` — literatura citada
 
@@ -184,5 +190,5 @@ Ver **[`arquivo/README.md`](arquivo/README.md)** para o inventário completo.
 - **`HANDOFF.md`** (privado) — log de handoff entre sessões.
 - **`.gitignore`** — exclui `data/`, `output/logs/`, os 4 diretórios
   `codigo_*`/`codigos_externos/`, artefatos de build do LaTeX, e `tex.zip`.
-- **`tex.zip`** (gitignored) — snapshot de build de `tex/` de 2026-07-28,
-  derivado e stale.
+- **`tex.zip`** (gitignored) — snapshot de build do então `tex/` (hoje
+  `arquivo/tex/`) de 2026-07-28, derivado e stale.

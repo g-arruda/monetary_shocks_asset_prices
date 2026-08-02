@@ -3,7 +3,10 @@
 > **CURRENT.** Escrita em 2026-07-31 sob a produção corrente: `z_jk_bs_purif` ×
 > `yield_6m`, r=7, q=6, p=6, painel de 106 séries (vintage 07-24), 153 meses.
 > Corpo gerado e números em `output/var/var_benchmark.md` + três CSVs e quatro
-> PDFs, produzidos por `script/model_var.R`. **Esta nota é escrita à mão e nenhum
+> PDFs, produzidos por `script/model_var.R`. **2026-08-02: `tex/main.tex` foi
+> arquivado em `arquivo/tex/main.tex`; `texto_anpec/paper_anpec.tex` é o
+> paper canônico e já não faz a afirmação que esta nota corrige (ver
+> `_instrucoes/pendencias.md`, Tema A).** Esta nota é escrita à mão e nenhum
 > script a toca.**
 
 ## A acusação

@@ -4,6 +4,8 @@
 > Responde ao item de `_instrucoes/pendencias.md:588-595`, achado do council
 > review de 2026-07-31. Corpo gerado com os números em
 > `output/assets/asset_representation.md`; esta nota é a leitura à mão.
+> **2026-08-02:** o `tex/main.tex` citado abaixo foi arquivado em
+> `arquivo/tex/main.tex`; `texto_anpec/paper_anpec.tex` é o paper canônico.
 > **Nada de produção foi modificado.**
 
 ## A pergunta e por que ela é grande

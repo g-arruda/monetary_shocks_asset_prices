@@ -1,6 +1,6 @@
 # `script/` — o que cada arquivo faz
 
-25 scripts, organizados por tema (não por subpasta — ver a decisão em
+26 scripts, organizados por tema (não por subpasta — ver a decisão em
 `_instrucoes/pendencias.md` sobre manter isto flat: mover para subpastas
 quebraria dezenas de referências de caminho no `CLAUDE.md`, no `run_all.R` e
 em working-notes). Cinco scripts que faziam parte de uma investigação já
@@ -45,7 +45,7 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | `irf_spec_sweep.R` | Etapa 1: sweep só de ponto (rápido) sobre instrumento × mp_var × (r,q) × janela amostral, com um `estimate_dfm` em cache por (amostra,r,q); classifica cada célula por `failure_class` no ξ_mp. Escreve `output/irf/spec_sweep_{cells,irf_long}.csv`, `spec_sweep_report.md`. |
 | `irf_spec_stage2.R` | Etapa 2: bootstrap completo (nboot=800) nas células vencedoras da etapa 1, com a especificação de produção sempre incluída (force-append). Escreve `output/irf/irf_spec_<tag>.{rds,pdf}`, `irf_spec_stage2_overlay.pdf`, `spec_sweep_stage2.md`. |
 | `irf_coherence_check.R` | Roda a especificação de produção uma vez e pontua 53 variáveis do painel ponto-a-ponto em cada horizonte contra janelas de teoria (`R/identification/irf_coherence.R`). É o script que alimenta a §5 do paper. Escreve `output/irf/irf_coherence_{h,summary}.csv`, `irf_coherence_report.md` (reescrito por inteiro a cada rodada — nunca editar à mão), `irf_coherence_plots.pdf`, e o cache `irf_coherence_cell.rds` (lido por muitos scripts a jusante). |
-| `fig_section5.R` | Pós-processamento puro: lê o `irf_coherence_cell.rds` em cache + as tabelas da Tarefa 7, não reestima nada, escreve as 8 figuras `tex/img/fig_*.pdf` do paper (todas até h=36). |
+| `fig_section5.R` | Pós-processamento puro: lê o `irf_coherence_cell.rds` em cache + as tabelas da Tarefa 7, não reestima nada, escreve as 8 figuras `arquivo/tex/img/fig_*.pdf` do paper arquivado (todas até h=36; ver `arquivo/README.md` — nenhum figure set migrou para `texto_anpec/` ainda). |
 
 ## 5. Robustez estrutural do DFM (respostas ao council review de 2026-07-31)
 
@@ -63,7 +63,13 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | `nongaussian_corroboration.R` | Pós-processamento sobre `gmr_cell.rds`: o GMR corrobora o proxy nas 106 séries do painel (não só nas 8 headline), condicional em significância do proxy e contra um nulo de direção aleatória. Escreve `output/nongaussian/corroboration_*.csv` + `corroboration_overlay.pdf`. |
 | `nongaussian_labelling.R` | Rotula a coluna monetária do GMR sem usar o instrumento (4 regras fixadas antes de medir) e testa se a métrica de corroboração discrimina, contra um nulo de 2.000 direções aleatórias. Escreve `output/nongaussian/labelling_*.csv` + `labelling_overlay.pdf`. |
 
-## 7. Validações de fidelidade contra código de referência
+## 7. Identificação por heterocedasticidade (track Rigobon 2003)
+
+| script | o que faz |
+|---|---|
+| `het_robustness.R` | Roda a identificação de Rigobon (2003) sobre o **DFM mensal** — o mesmo objeto do paper — para testar se ela aponta na mesma direção do proxy. Grade de `p ∈ {5..8} × q ∈ {5..8} × r ∈ {7,8}` (com `q ≤ r`) × `{full, pre_covid}` = 56 células, com um DFM em cache por célula reusado por 5 desenhos de regime: `calendario` e `episodio_s2` (os dois reprovados em 2026-07-16, reproduzidos) mais `intensidade_z`, `volatilidade_juros` e `quebra_livre` (novos). Gate = placebo (permutação para desenhos dispersos, **rotação** para contíguos) + teste de proporcionalidade de Rigobon Prop. 1, com **Holm sobre a família inteira** e exigência de replicar na outra janela. Escreve `output/het/het_{gate_grid,verdict,distribution}.csv`, `het_robustness.md`, `het_gate_surface.pdf`. Nada em produção é modificado. |
+
+## 8. Validações de fidelidade contra código de referência
 
 | script | o que faz |
 |---|---|

@@ -16,7 +16,9 @@ Este arquivo diagnostica **a régua de coerência**, não os resultados. A leitu
 econômica dos resultados é o §5 do paper, em
 [`irf_section.md`](irf_section.md) — que é o texto canônico. Quando os dois
 divergirem, o §5 vence. *(Desde 2026-07-29 o texto canônico migrou para
-`tex/main.tex` §4-§5; o `irf_section.md` carrega banner apontando para lá.)*
+`tex/main.tex` §4-§5 (arquivado em `arquivo/tex/main.tex` em 2026-08-02; o
+paper canônico é `texto_anpec/paper_anpec.tex`); o `irf_section.md` carrega
+banner apontando para lá.)*
 
 > **⚠ Adendo de 2026-07-31 — a janela escorada h12-h48 da régua caiu num
 > problema que não é da régua.** `script/factor_stationarity.R` mostra que o

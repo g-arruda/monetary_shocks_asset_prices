@@ -420,7 +420,7 @@ print(as.data.frame(tstat |> filter(h %in% c(0, 1, 6, 12, 24, 36, 48)) |>
       row.names = FALSE, digits = 3)
 
 # --- 6e2. where the sig90 cells sit, and the medium-run drift that the
-#          commented tex/main.tex:445 explains away as accumulated noise
+#          commented arquivo/tex/main.tex:445 explains away as accumulated noise
 sig_where <- irf_long |> filter(bloco == "acoes", sig90) |>
   group_by(variante, var) |>
   summarise(n = n(), h_min = min(h), h_max = max(h),
@@ -647,7 +647,7 @@ md <- c(
   "",
   "## A deriva de médio prazo do Ibovespa",
   "",
-  "O bloco comentado em `tex/main.tex:445` explica o pico de +20,3% em h≈24 como",
+  "O bloco comentado em `arquivo/tex/main.tex:445` (arquivado; paper canônico é `texto_anpec/paper_anpec.tex`) explica o pico de +20,3% em h≈24 como",
   "erro de estimação acumulado. A comparação abaixo mostra que o diagnóstico",
   "estava certo — e que a representação em nível remove o artefato na origem, em",
   "vez de explicá-lo depois.",
