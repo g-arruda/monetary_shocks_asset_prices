@@ -4,6 +4,7 @@ source("R/data_download/exchange.R")
 source("R/data_download/anbima_breakeven.R")
 # svensson_model.R nao e mais sourceado: nenhuma funcao dele era chamada aqui.
 # A curva vem pronta de data/yields/yields_dia.csv (insumo do orientador).
+# O modulo foi arquivado em arquivo/R/modeling/svensson_model.R em 2026-08-05.
 
 # rb3 cache directory must be set before calling ANBIMA fetch helpers.
 options(rb3.cachedir = "~/rb3-cache")

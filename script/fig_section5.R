@@ -8,7 +8,10 @@
 # horizons where the 90% band excludes zero; the 68% band is read off the darker
 # ribbon. No shading.
 #
-# Output: arquivo/tex/img/fig_*.pdf (tex/ archived 2026-08-02; figures kept for historical record)
+# Output: texto_anpec/fig_*.pdf — where paper_anpec.tex reads them (bare
+# filenames, no subdirectory). Repointed 2026-08-05: this used to write into
+# arquivo/tex/img/, so regenerating the figures never reached the canonical
+# paper and the PDFs beside it were stale manual copies.
 # ===================================================================
 
 rm(list = ls())
@@ -24,7 +27,7 @@ CELL_RDS  <- "output/irf/irf_coherence_cell.rds"
 PANEL_CSV <- "data/processed/data_log_deseasonalized.csv"
 HCSV      <- "output/irf/irf_coherence_h.csv"
 T7_CSV    <- "diagnostics/output/t7_2_irf_estado.csv"
-IMG_DIR   <- "arquivo/tex/img"
+IMG_DIR   <- "texto_anpec"
 
 H_MAX <- 36L   # every IRF figure stops here
 

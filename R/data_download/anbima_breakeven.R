@@ -70,7 +70,7 @@ download_breakeven_curve <- function(from = "2010-01-01",
       dplyr::group_modify(~ {
         if (nrow(.x) < 2L) return(tibble::tibble())
         # Interpolate via cubic spline (matches Svensson protocol used
-        # for DI yields in R/modeling/svensson_model.R).
+        # for DI yields in arquivo/R/modeling/svensson_model.R).
         rates <- stats::spline(.x$biz_days, .x$rate, xout = unname(bd_targets))$y
         tibble::tibble(bd = unname(bd_targets), rate = rates,
                        label = names(bd_targets))

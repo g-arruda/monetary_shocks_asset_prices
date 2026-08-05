@@ -295,13 +295,53 @@ predeterminada** (`z_jk_raw` 10,55, `z_jk_bs_purif` 10,43, `z_jk_raw_purif`
 
 | variante | o que era | veredito |
 |---|---|---|
-| `z_jk_raw_purif_local` | re-estima a purificação só nos ~55 dias selecionados | Dominada, descartada 2026-07-14 |
-| `z_jk_purif_us` | contemporânea + UST 2y Qua→Qui | Redundante (cor 0,999 com `z_jk_purif`) |
+| `z_jk_raw_purif_local` | re-estima a purificação só nos ~55 dias selecionados | Dominada, descartada 2026-07-14; **removida do código em 2026-08-05** |
+| `z_jk_purif_us` | contemporânea + UST 2y Qua→Qui | Redundante (cor 0,999 com `z_jk_purif`); **removida do código em 2026-08-05** |
 | `z_jk_raw_purif` | máscara bruta + valores purificados | Viva como robustez; foi a candidata a default em 07-14, perdeu para `z_jk_bs_purif` em 07-15 |
 
 **Decisão revertida:** a nota de 2026-07-14 recomendava **manter `z_jk_purif`
 como default**; a recomendação foi derrubada em menos de 24h pela auditoria de
 fidelidade, e `z_jk_bs_purif` virou o primário em 2026-07-15.
+
+### 2.2 Corte de 10 para 8 variantes (2026-08-05) — e as seis que **não** saíram
+
+O pedido inicial da sessão de limpeza era manter só `z_bruto` e
+`z_jk_bs_purif`. **Não foi feito**, e a razão é o achado desta mesma seção: a
+frase "a força mora na máscara" é uma comparação entre as *três* variantes de
+máscara predeterminada (10,55 / 10,43 / 10,39) e a família de resíduo
+contemporâneo (`z_jk_purif` 5,77, `z_jk` 6,30). Cortar para duas apagaria a
+evidência do §3.4 do paper. Além disso três varreduras vivas consomem o resto:
+`xi_mp_robustness.R` e `instrument_construction_sweep.R` rodam 5 variantes
+(tiers A2/A3), `mosw_strength_grid.R` roda todas (A4), e `irf_spec_sweep.R`
+roda 8 — e a pendência D1 (comparação cross-instrumento do IPCA) cita
+"320 células, 8 instrumentos".
+
+**Saíram exatamente as duas já declaradas mortas na tabela acima** — e são
+precisamente as duas que `irf_spec_sweep.R` já excluía, de modo que o conjunto
+sobrevivente é o que aquela varredura sempre usou. Verificado por reexecução:
+as 8 colunas sobreviventes de `instrumentos_mensais.csv` saíram
+**bit-idênticas**, `instrument.csv` inalterado, e as 28 linhas de
+`z_jk_bs_purif` em `mosw_strength_grid.csv` idênticas (as 8 células de
+`tab:rq_sweep` reproduzem 5,4455 / 6,3562 / 10,4308 / 12,5662 no full e
+7,9446 / 11,0002 / 12,2234 / 8,9862 na pré-COVID).
+
+⚠ **A maquinaria diária do ramo `_us` ficou.** `e_di_us`, `e_ibov_us` e
+`jk_monetary_us` continuam em `build_variants.R` e no
+`copom_event_diagnostics.csv` porque `script/jk_sovereign_confound.R:385`
+(tier S1) usa o conjunto de dias `jk_us` como uma de suas sete máscaras de
+diagnóstico. Só a coluna **mensal** foi removida. Já `e_di_local`/`lm_di_local`
+não tinham consumidor nenhum depois do corte e saíram — é a única coluna que
+`copom_event_diagnostics.csv` perdeu.
+
+**Descoberta lateral, registrada para não ser reinvestigada:** reexecutar
+`mosw_strength_grid.R` **sem nenhuma alteração** não reproduz o CSV commitado
+bit a bit — há deriva de ~6e-11 relativa (produção (7,6) full: 10,430830000 no
+disco contra 10,430830653 ao reexecutar). O script é determinístico
+(duas execuções seguidas dão arquivos idênticos), então a deriva é entre o
+artefato commitado e o ambiente numérico atual (BLAS/versão), não entre versões
+do código. Imaterial em qualquer dígito reportado, mas quem for comparar
+artefatos precisa saber que a régua é "reexecutar antes e depois", não
+"comparar contra o disco".
 
 ### 2.1 Classificação de três vias (política / soberano / informação) — construída e **não** promovida (2026-07-31)
 

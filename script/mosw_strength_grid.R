@@ -38,8 +38,7 @@ SAMPLES <- list(
 )
 
 VARIANTS <- c("z_bruto", "z_bruto_purif", "z_jk", "z_jk_purif",
-              "z_jk_raw_purif", "z_jk_raw_purif_local",
-              "z_jk_raw", "z_bs_purif", "z_jk_bs_purif", "z_jk_purif_us")
+              "z_jk_raw_purif", "z_jk_raw", "z_bs_purif", "z_jk_bs_purif")
 
 DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
 INST_PATH <- "data/processed/instrumentos_mensais.csv"

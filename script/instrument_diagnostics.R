@@ -80,8 +80,7 @@ variants <- list(
   "z_jk_raw_purif" = "data/processed/instrument_jk_raw_purif.csv",
   "z_jk_raw"       = "data/processed/instrument_jk_raw.csv",
   "z_bs_purif"     = "data/processed/instrument_bs_purif.csv",
-  "z_jk_bs_purif"  = "data/processed/instrument_jk_bs_purif.csv",
-  "z_jk_purif_us"  = "data/processed/instrument_jk_purif_us.csv"
+  "z_jk_bs_purif"  = "data/processed/instrument_jk_bs_purif.csv"
 )
 variants <- variants[file.exists(unlist(variants))]
 

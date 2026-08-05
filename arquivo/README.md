@@ -54,6 +54,18 @@ destes scripts citam `_instrucoes/irf_consistentes.md`, que não existe mais.
 | `irf_rq_candidates.R` | Estimava 5 pares (r,q) candidatos e pontuava 10 variáveis-chave contra a tabela de coerência; recomendou (7,6), que virou produção por um motivo não relacionado (o refresh de vintage) |
 | `irf_sample_diagnostic.R` | Testava se a contaminação vinha da janela COVID ou de rotação espectral, com 5 células fixas incl. o "benchmark exato dos autores" (r=q=8) |
 
+### Régua legada `f_factor` (superada em 2026-07-26, arquivada em 2026-08-05)
+
+| script | o que fazia | por que saiu |
+|---|---|---|
+| `diagnose_factor_space_F.R` | Grid do max-F univariado sobre as q inovações de fator, `r=7,p=6` fixos, `q∈{2,3,4,6}` × 8 variantes. Escrevia `factor_space_F_grid.csv` | O `f_factor` **deixou de decidir** em 2026-07-26, quando a taxonomia migrou para ξ_mp (`classify_sweep_cells`); sob a régua antiga o instrumento de produção pontuava 6,31 e nunca alcançava uma célula "elegível", enquanto `z_jk_purif` pontuava 11,08 com ξ_mp 5,77 — exatamente a inversão que motivou a troca. A triagem de 2026-08-05 confirmou que ele não é dependência nem do `texto_anpec/` nem de nenhum item da tier list de robustez |
+
+## `arquivo/R/modeling/` — módulos
+
+| módulo | conteúdo | por que saiu |
+|---|---|---|
+| `svensson_model.R` | Ajuste de curva de Svensson (1994): `svensson_rate`, `fit_svensson`, `generate_fixed_maturity_series`, `svensson_forward_rate`, `summarize_svensson_fit`, `plot_svensson_fit`, `calculate_yield_spreads` (~600 linhas) | Órfão desde a deleção de `script/yield_curve.R` em 2026-07-26 — a curva de juros é insumo externo fixo do orientador (`data/yields/yields_dia.csv`), não há estágio de ajuste no repositório. Zero consumidores em `script/`, `R/` ou `diagnostics/`. **Arquivado, não apagado**, porque é código de modelagem reutilizável: se a curva algum dia voltar a ser ajustada in-house, comece daqui. Fecha a pendência E5, que pedia exatamente esta decisão |
+
 ## `arquivo/R/identification/` — módulos
 
 | módulo | conteúdo |
@@ -94,6 +106,7 @@ forma, já que os CSVs het de entrada foram apagados.
 | `irf_section_2026-07-12.md` | Versão anterior do §5, sob `z_jk_purif` × (6,5) e vintage antigo. É o único registro escrito daquela rodada. **Várias afirmações foram invertidas** pela rodada (7,6) — comparação em `historico_decisoes.md` §6 |
 | `instrument_audit_report.md`, `instrument_audit_grid.csv` | Saídas de `instrument_audit.R` (2026-04-26), anteriores ao fix de unit scaling |
 | `instrument_grid_report.md`, `instrument_grid.csv` | Saídas de `instrument_grid.R` (2026-04-26), só variantes legadas |
+| `factor_space_F_grid.csv` | Saída de `diagnose_factor_space_F.R`, arquivada junto com ele em 2026-08-05. 8 variantes × q ∈ {2,3,4,6}, sendo 4 delas `z_het*` — régua legada, e metade do grid mede instrumentos que já não existem |
 
 ---
 
@@ -108,10 +121,12 @@ reescritas em 2026-07-30 sob a regra de leitura em duas camadas (90% =
 *significativo*, 68% = direção e magnitude). Preservado porque **`§5
 Robustez` não tem contrapartida ainda em `texto_anpec/`** — é a fonte de
 prosa a reaproveitar até essa seção ser escrita no rascunho corrente, não um
-alvo de edição ativo. `img/` guarda as 8 figuras citadas pelo texto;
-`script/fig_section5.R` ainda escreve aqui (`arquivo/tex/img/`) porque nenhum
-figure set migrou para `texto_anpec/` ainda. Ver a entrada `arquivo/tex/` em
-`CLAUDE.md` para o que cada seção chegou a cobrir.
+alvo de edição ativo. `img/` guarda as 8 figuras citadas pelo texto, agora
+como **registro histórico congelado**: em 2026-08-05 `script/fig_section5.R`
+foi repontado para `texto_anpec/`, de modo que **nenhum código vivo escreve
+mais dentro de `arquivo/`** — a invariante que o resto deste README já exigia
+para `source()` agora vale também para escrita. Ver a entrada `arquivo/tex/`
+em `CLAUDE.md` para o que cada seção chegou a cobrir.
 
 ## O que foi apagado (recuperável pelo git)
 
@@ -129,6 +144,17 @@ recuperar.
   julho/15, `irf_model_alessi_r6q5.pdf` — ~12 MB que não reproduzem contra as
   106 séries.
 
-Os arquivos de `data/` (`instrument_z_het*.csv`, colunas `z_het*` em
-`instrumentos_mensais.csv`) **foram mantidos**: `data/` é gitignored, não polui
-o repositório, e regenerá-los exigiria rodar um script arquivado.
+- `texto_anpec/img/` (6 PDFs, 2026-08-05): duplicata byte-idêntica das figuras
+  na raiz de `texto_anpec/`. O `paper_anpec.fls` mostra que o compile sempre
+  leu da raiz; só linhas `\includegraphics` comentadas apontavam para `img/`.
+  Regenerável por `script/fig_section5.R` ⇒ apagada, não arquivada.
+
+Os arquivos `data/processed/instrument_z_het*.csv` (6) tinham sido **mantidos**
+em 2026-07-26 sob o argumento de que `data/` é gitignored e regenerá-los
+exigiria rodar um script arquivado. **Foram apagados em 2026-08-05**: eram os
+últimos vestígios vivos das variantes `z_het`, e o argumento de conveniência não
+supera o de higiene — o registro do que eram e por que morreram está em
+`historico_decisoes.md` §1.1, que é onde ele tem de estar. Na mesma passagem
+saíram `instrument_jk_raw_purif_local.csv` e `instrument_jk_purif_us.csv`, órfãos
+depois do corte de 10 → 8 variantes. As colunas `z_het*` já não existiam em
+`instrumentos_mensais.csv`.

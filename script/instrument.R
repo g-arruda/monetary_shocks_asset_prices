@@ -1,23 +1,18 @@
 # ============================================================
 # External instrument for proxy-SVAR: Copom-day DI surprises.
-# Produces ten monthly variants:
+# Produces eight monthly variants:
 #  - z_bruto, z_bruto_purif, z_jk, z_jk_purif (contemporaneous
 #    same-window purification vs. global factors; JK sign filter
 #    on residual signs);
-#  - z_jk_raw_purif / z_jk_raw_purif_local (JK mask on RAW signs
-#    first, purification after; the _local variant re-estimates
-#    the purification regression on the selected Copom days only);
+#  - z_jk_raw_purif (JK mask on RAW signs first, purification after);
 #  - z_jk_raw (2026-07-14 audit): literal JK poor-man's proxy —
 #    raw-sign mask AND raw delta_di values, no purification;
 #  - z_bs_purif / z_jk_bs_purif (2026-07-14 audit): BS-faithful
 #    purification — regression on PRE-event predictors only
 #    (13-week financial trends + 4-week Focus revisions + trend),
-#    per Bauer-Swanson (2023) eq. 7 / Table 3;
-#  - z_jk_purif_us (2026-07-14 audit): contemporaneous
-#    purification with the Wed->Thu UST 2y change added (FOMC
-#    spillover control on coincident weeks).
+#    per Bauer-Swanson (2023) eq. 7 / Table 3.
 # Requires: Rscript R/data_download/focus_fred.R (focus_daily.csv
-# and fred_dgs2.csv feed the three audit variants).
+# and fred_dgs2.csv feed the audit variants).
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -48,10 +43,16 @@ DEFAULT_VARIANT <- "z_jk_bs_purif" # legacy data/processed/instrument.csv
 # arquivo/output/instrument_grid.csv (2026-04-12), which used the legacy
 # partial-F ruler, the pre-refresh vintage, and only the four legacy
 # variants — it predates z_jk_bs_purif entirely.
-# Supported variants: the 10 GK-family instruments built by this script.
+# Supported variants: the 8 GK-family instruments built by this script.
 # The 4 heteroskedasticity-identified variants (z_het*) were archived on
 # 2026-07-26 together with script/instrument_het.R — see
 # _instrucoes/historico_decisoes.md section 1.
+#
+# 2026-08-05: z_jk_raw_purif_local (dominated) and z_jk_purif_us (redundant,
+# cor 0.999 with z_jk_purif) were dropped — both were already declared dead in
+# _instrucoes/historico_decisoes.md section 2 and neither was consumed by any
+# live sweep. The daily jk_us residuals/mask survive in build_variants.R
+# because script/jk_sovereign_confound.R uses that day set.
 #
 # 2026-07-15 update: DEFAULT_VARIANT switched from z_jk_purif to z_jk_bs_purif.
 # Reason: the fidelity audit (working-note 2026-07-14_auditoria_fidelidade_jk_bs.md)
@@ -140,25 +141,23 @@ write_variant("z_bruto",       "data/processed/instrument_bruto.csv")
 write_variant("z_bruto_purif", "data/processed/instrument_bruto_purif.csv")
 write_variant("z_jk",          "data/processed/instrument_jk.csv")
 write_variant("z_jk_purif",    "data/processed/instrument_jk_purif.csv")
-write_variant("z_jk_raw_purif",       "data/processed/instrument_jk_raw_purif.csv")
-write_variant("z_jk_raw_purif_local", "data/processed/instrument_jk_raw_purif_local.csv")
+write_variant("z_jk_raw_purif", "data/processed/instrument_jk_raw_purif.csv")
 write_variant("z_jk_raw",      "data/processed/instrument_jk_raw.csv")
 write_variant("z_bs_purif",    "data/processed/instrument_bs_purif.csv")
 write_variant("z_jk_bs_purif", "data/processed/instrument_jk_bs_purif.csv")
-write_variant("z_jk_purif_us", "data/processed/instrument_jk_purif_us.csv")
 
 # Legacy file consumed by model_alessi.R / model_var.R
 write_variant(DEFAULT_VARIANT, "data/processed/instrument.csv")
 
 # Daily diagnostics panel (for scatterplot & variance F-test)
 valid |>
-  select(date, delta_di, r_ibov, e_di, e_ibov, e_di_local,
+  select(date, delta_di, r_ibov, e_di, e_ibov,
          e_di_bs, e_ibov_bs, e_di_us, e_ibov_us,
          copom_day, fomc_coincide, jk_monetary, jk_monetary_raw,
          jk_monetary_bs, jk_monetary_us) |>
   write_csv("data/processed/copom_event_diagnostics.csv")
 
-message(sprintf("Wrote 10 variants + combined CSV. Legacy instrument.csv = '%s'.",
+message(sprintf("Wrote 8 variants + combined CSV. Legacy instrument.csv = '%s'.",
                 DEFAULT_VARIANT))
 
 # ---- Console summary ---------------------------------------
@@ -184,8 +183,7 @@ cat(sprintf("  JK mask (BS-resid):  %d monetary | JK mask (US-resid): %d monetar
             sum(copom_days$jk_monetary_bs), sum(copom_days$jk_monetary_us)))
 cat(sprintf("  Monthly obs:         %d\n", nrow(instrumentos)))
 for (v in c("z_bruto","z_bruto_purif","z_jk","z_jk_purif",
-            "z_jk_raw_purif","z_jk_raw_purif_local",
-            "z_jk_raw","z_bs_purif","z_jk_bs_purif","z_jk_purif_us")) {
+            "z_jk_raw_purif","z_jk_raw","z_bs_purif","z_jk_bs_purif")) {
   x <- instrumentos[[v]]
   cat(sprintf("  %-14s nonzero=%3d  sd=%7.3f  range=[%7.3f, %7.3f]\n",
               v, sum(x != 0), sd(x), min(x), max(x)))

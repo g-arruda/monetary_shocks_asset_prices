@@ -20,7 +20,7 @@
 
 > Auditoria contra os artigos e códigos originais (`relatorio/working-notes/2026-07-14_auditoria_fidelidade_jk_bs.md`) concluiu:
 > 1. **JK**: regra zero-out e agregação por soma mensal fiéis; mas o poor man's original classifica e agrega valores **brutos** — o default `z_jk_purif` usa resíduos em ambos. Adicionada a variante literal **`z_jk_raw`** (máscara bruta + valores brutos), completando a matriz 2×2 máscara × valores.
-> 2. **"Purificação Bauer-Swanson"**: o nome está impreciso — BS (2023, eq. 7/Table 3) regridem a surpresa em notícias **pré-anúncio** (releases macro + tendências financeiras de 13 semanas + trend), não em variações contemporâneas da janela. A regressão contemporânea SP500/VIX/Brent do projeto é uma limpeza de fator global (válida por exogeneidade de economia pequena, mas outro procedimento). Versão fiel adicionada: **`z_bs_purif`** / **`z_jk_bs_purif`** (preditores pré-evento: Δ65d de Ibov/SP500/VIX/Brent/BRL/inclinação DI + Δ20d Focus IPCA-12m e Selic + tendência; novos dados via `R/data_download/focus_fred.R`). Também testado **`z_jk_purif_us`** (contemporânea + UST 2y) — **inócuo** (cor 0.999 com o default).
+> 2. **"Purificação Bauer-Swanson"**: o nome está impreciso — BS (2023, eq. 7/Table 3) regridem a surpresa em notícias **pré-anúncio** (releases macro + tendências financeiras de 13 semanas + trend), não em variações contemporâneas da janela. A regressão contemporânea SP500/VIX/Brent do projeto é uma limpeza de fator global (válida por exogeneidade de economia pequena, mas outro procedimento). Versão fiel adicionada: **`z_bs_purif`** / **`z_jk_bs_purif`** (preditores pré-evento: Δ65d de Ibov/SP500/VIX/Brent/BRL/inclinação DI + Δ20d Focus IPCA-12m e Selic + tendência; novos dados via `R/data_download/focus_fred.R`). Também testado `z_jk_purif_us` (contemporânea + UST 2y) — **inócuo** (cor 0.999 com o default), removido em 2026-08-05.
 > 3. **Força (ξ_mp, grid 392 células)**: a força vem da **máscara**, não dos valores purificados (cor ≥ 0.986 entre variantes de mesma máscara). Máscaras predeterminadas (bruta ou BS-pré-evento) excluem `2020-03-19` e dominam o default na amostra full em 14/14 células — full (6,5): `z_jk_raw` 7.05, `z_jk_bs_purif` 6.94 vs `z_jk_purif` 5.20; ambas cruzam ξ_mp ≥ 10 em 6/14 células full (default: 0). No pre_covid (6,5) o default segue líder (13.25; `z_jk_bs_purif` 12.49). **Default inalterado**; `z_jk_bs_purif` é o candidato metodologicamente mais limpo (BS fiel + máscara predeterminada + força competitiva nas duas amostras) — decisão de troca em aberto. *(Fechada em 2026-07-15: default trocado para `z_jk_bs_purif`, ver status acima.)*
 
 ## Status (2026-07-11, pós-varredura de especificações)
@@ -59,18 +59,26 @@
 
 Construir um instrumento externo baseado em surpresas de DI futuro nos dias pós-Copom para identificação de choques monetários no proxy-SVAR do DFM. O pipeline de estimação (painel → fatores → VAR nos fatores → identificação por instrumento externo → IRFs) **já existe e não deve ser alterado**. Este documento trata exclusivamente da construção do instrumento $z_t$ que alimenta o primeiro estágio.
 
-O produto desta linha são **seis variantes** do instrumento mensal, mantidas como benchmark:
+O produto desta linha são **oito variantes** do instrumento mensal, mantidas como benchmark:
 
 1. **$z^{bruto}_t$** — surpresa de DI pós-Copom agregada mensalmente (sem filtro)
 2. **$z^{purif}_t$** — surpresa de DI purificada por SP500/VIX/Brent (Bauer-Swanson)
 3. **$z^{JK}_t$** — surpresa de DI apenas nos dias com co-movimento negativo DI×Ibovespa (filtro Jarociński-Karadi)
 4. **$z^{JK,purif}_t$** — combinação dos dois filtros (a classificação JK usa os sinais dos *resíduos* — ordem "purificação → JK")
 5. **`z_jk_raw_purif`** *(2026-07-14)* — máscara JK nos sinais **brutos** (`delta_di` × `r_ibov`), valores purificados — ordem inversa "JK → purificação"
-6. **`z_jk_raw_purif_local`** *(2026-07-14)* — idem, com a regressão de purificação re-estimada só nos dias selecionados (dominada pela 5; mantida como descritor)
-7. **`z_jk_raw`** *(2026-07-14, auditoria)* — JK **literal**: máscara bruta + valores brutos, sem purificação
-8. **`z_bs_purif`** *(2026-07-14, auditoria)* — resíduo da regressão pré-evento fiel a BS (sem filtro JK)
-9. **`z_jk_bs_purif`** *(2026-07-14, auditoria)* — máscara JK nos sinais dos resíduos pré-evento + valores pré-evento
-10. **`z_jk_purif_us`** *(2026-07-14, auditoria)* — purificação contemporânea com Δ(UST 2y) adicionado (redundante; descartável)
+6. **`z_jk_raw`** *(2026-07-14, auditoria)* — JK **literal**: máscara bruta + valores brutos, sem purificação
+7. **`z_bs_purif`** *(2026-07-14, auditoria)* — resíduo da regressão pré-evento fiel a BS (sem filtro JK)
+8. **`z_jk_bs_purif`** *(2026-07-14, auditoria)* — máscara JK nos sinais dos resíduos pré-evento + valores pré-evento — **produção**
+
+> **2026-08-05 — removidas duas variantes.** `z_jk_raw_purif_local` (purificação
+> re-estimada só nos ~55 dias selecionados; dominada por `z_jk_raw_purif` em
+> 26/28 células) e `z_jk_purif_us` (contemporânea + Δ UST 2y; cor 0,999 com
+> `z_jk_purif` e não corrige a má-classificação de 2020-03-19). Ambas já
+> constavam como descartadas em `historico_decisoes.md` §2 e nenhuma varredura
+> viva as consumia — `irf_spec_sweep.R` já rodava só as oito. A maquinaria
+> **diária** do ramo `_us` (`e_di_us`, `jk_monetary_us`) permanece em
+> `build_variants.R` porque `script/jk_sovereign_confound.R` usa o conjunto de
+> dias `jk_us` como uma de suas sete máscaras de diagnóstico.
 
 ---
 
@@ -226,14 +234,23 @@ invalidaria `NWlags = 0` no bloco Wald. **A soma fica.**
 
 ### 5.3 Output final
 
-Salvar `data/processed/instrumentos_mensais.csv` com colunas (incluindo as duas variantes por heterocedasticidade adicionadas posteriormente):
+Salvar `data/processed/instrumentos_mensais.csv` com as **oito** colunas
+produzidas por `script/instrument.R` (estado desde 2026-08-05):
 
-| month | z_bruto | z_bruto_purif | z_jk | z_jk_purif | z_het | z_het_jk |
-|---|---|---|---|---|---|---|
+| month | z_bruto | z_bruto_purif | z_jk | z_jk_purif | z_jk_raw_purif | z_jk_raw | z_bs_purif | z_jk_bs_purif |
+|---|---|---|---|---|---|---|---|---|
 
-As primeiras quatro são produzidas por `script/instrument.R`; `z_het` e `z_het_jk` por `script/instrument_het.R` (ver `_instrucoes/Heteroscedasticidade.md`). Qualquer variante pode ser plugada no proxy-SVAR existente via `DEFAULT_VARIANT` em `script/instrument.R`.
+Qualquer uma pode ser plugada no proxy-SVAR via `DEFAULT_VARIANT` em
+`script/instrument.R` (produção: `z_jk_bs_purif`).
 
-> **2026-07-14 — ordem purificação ↔ JK:** constatou-se que o pipeline acima já é "purificação → JK" (a classificação da §5.2 usa os sinais dos *resíduos*). Duas variantes com a ordem inversa (máscara JK nos **sinais brutos** `delta_di` × `r_ibov`, purificação depois) foram adicionadas a `script/instrument.R`: `z_jk_raw_purif` (valores = `e_di` da regressão de painel completo) e `z_jk_raw_purif_local` (regressão re-estimada só nos dias selecionados). No grid MOSW, `z_jk_raw_purif` domina `z_jk_purif` em ξ_mp na amostra **full** (13/14 células; único GK a cruzar 10 em células full) — a máscara bruta exclui `2020-03-19` (pânico COVID classificado como monetário pela máscara residual) — mas perde no pre_covid (6,5) (10.80 vs 13.25); default inalterado, `z_jk_raw_purif` vira robustez full-sample e a `_local` foi descartada (dominada). Detalhes: `relatorio/working-notes/2026-07-14_ordem_purificacao_jk.md`.
+Duas variantes saíram em 2026-08-05, ambas já declaradas mortas em
+`historico_decisoes.md` §2 e sem consumidor em nenhuma varredura viva:
+`z_jk_raw_purif_local` (dominada) e `z_jk_purif_us` (redundante, cor 0,999 com
+`z_jk_purif`). As quatro variantes por heterocedasticidade (`z_het*`) nunca
+foram produzidas por este script e foram arquivadas em 2026-07-26 junto com
+`script/instrument_het.R` — ver `historico_decisoes.md` §1.1.
+
+> **2026-07-14 — ordem purificação ↔ JK:** constatou-se que o pipeline acima já é "purificação → JK" (a classificação da §5.2 usa os sinais dos *resíduos*). Duas variantes com a ordem inversa (máscara JK nos **sinais brutos** `delta_di` × `r_ibov`, purificação depois) foram adicionadas a `script/instrument.R`: `z_jk_raw_purif` (valores = `e_di` da regressão de painel completo) e `z_jk_raw_purif_local` (regressão re-estimada só nos dias selecionados). No grid MOSW, `z_jk_raw_purif` domina `z_jk_purif` em ξ_mp na amostra **full** (13/14 células; único GK a cruzar 10 em células full) — a máscara bruta exclui `2020-03-19` (pânico COVID classificado como monetário pela máscara residual) — mas perde no pre_covid (6,5) (10.80 vs 13.25); default inalterado, `z_jk_raw_purif` vira robustez full-sample e a `_local` foi descartada (dominada — e removida do código em 2026-08-05). Detalhes: `relatorio/working-notes/2026-07-14_ordem_purificacao_jk.md`.
 
 ---
 
@@ -252,22 +269,34 @@ Para cada variante de $z_t$:
 
 > **2026-05-08:** três F são reportados em `script/instrument_diagnostics.R` lado-a-lado: F (DFM) (resíduo do primeiro fator, OSW), F (y6m AR) (relevância univariada Selic-equivalente) e **F (factor-sp)** (max sobre os q fatores dinâmicos — métrica que governa o viés na projeção do proxy-SVAR `H = (Z'η)/(Z'Z)`). **F (factor-sp) é o relevante** para validar uma variante como instrumento do DFM. F (y6m AR) e F (factor-sp) podem divergir em 20× (ex: `z_het_jk_3var` tem F (y6m AR) = 56 e F (factor-sp) = 2.7).
 
-**Resultados observados na amostra 2013-01–2025-12 (sessão 2026-05-08):**
+> ⚠ **Tabela histórica (sessão 2026-05-08) — não é a régua corrente.** Foi
+> medida no vintage anterior ao refresh de 2026-07-24, sob a régua legada
+> `f_factor`, que **deixou de decidir** em 2026-07-26 em favor de ξ_mp. As
+> quatro linhas `z_het` referem-se a variantes arquivadas em 2026-07-26
+> (`historico_decisoes.md` §1.1). Preservada porque documenta *por que*
+> `f_factor` foi abandonada: ela e F (y6m AR) divergem em até 20×.
 
-| Variante         | F (y6m AR) | F (factor-sp) | Veredito |
+| Variante         | F (y6m AR) | F (factor-sp) | Veredito (2026-05-08) |
 |------------------|-----------:|--------------:|----------|
 | z_bruto          |     ~5     |   4.19        | fraco em ambos |
 | z_bruto_purif    |     ~5     |   5.10        | fraco em ambos |
 | z_jk             |     ~9     |   8.41        | limite em ambos |
-| **z_jk_purif**   |  **11.4**  | **10.17** ✓   | **forte em ambos — default 2026-05-08** |
+| z_jk_purif       |    11.4    |  10.17        | era default 2026-05-08 |
 | z_het            |     ~8     |   3.07        | forte em y6m AR, fraco em factor-sp |
 | z_het_jk         |    21.3    |   6.89        | forte em y6m AR, limite em factor-sp |
 | z_het_3var       |     —      |   1.11        | severamente fraco em factor-sp |
 | z_het_jk_3var    |   55.98    |   2.74        | forte em y6m AR, **severamente fraco em factor-sp** (era default 2026-05-05) |
 
-✓ = único cruzando Stock-Yogo F (factor-sp) ≥ 10. Grid completo (q ∈ {2,3,4,6}) × (8 variantes) em `output/instrument/factor_space_F_grid.csv`. Tabela detalhada (F (DFM) + F (y6m AR) + F (factor-sp) + flag WEAK-FACT por variante) em `output/instrument/instrument_diagnostics_report.md` §1.
+**A régua corrente é ξ_mp**, em `output/instrument/mosw_strength_grid.{csv,md}`
+(8 variantes × 14 células (r,q) × 2 janelas): produção `z_jk_bs_purif` dá
+**10,43 full / 12,22 pré-COVID** em (7,6). A tabela por variante com F (DFM) +
+F (y6m AR) + F (factor-sp) segue em
+`output/instrument/instrument_diagnostics_report.md` §1, regenerada em
+2026-08-05 sobre as 8 variantes vivas.
 
-Tabela legacy (4 variantes het × 7 candidatos a alvo, contra inovação AR(6) de cada candidato) permanece em `output/instrument_audit_grid.csv`.
+O grid `factor_space_F_grid.csv` e seu produtor `diagnose_factor_space_F.R`
+foram arquivados em 2026-08-05 (`arquivo/output/`, `arquivo/script/`), pela
+mesma razão: régua legada, sem consumidor vivo.
 
 ---
 

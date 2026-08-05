@@ -110,7 +110,7 @@ make_aggregator <- function(scheme = c("sum", "gk")) {
 
 # ---- The build chain ------------------------------------------
 
-#' Build the ten monthly GK-family instrument variants.
+#' Build the eight monthly GK-family instrument variants.
 #'
 #' @param inputs Named list of daily inputs, all tibbles with a `date`
 #'   column: `di_panel`, `ibov_daily`, `ext_daily`, `brl_daily`,
@@ -125,7 +125,7 @@ make_aggregator <- function(scheme = c("sum", "gk")) {
 #'   surprise coverage differs cannot kill the whole grid; the returned
 #'   diagnostics report it instead.
 #'
-#' @return List with `monthly` (tibble: `month` + the ten `z_*` columns),
+#' @return List with `monthly` (tibble: `month` + the eight `z_*` columns),
 #'   `daily` (the valid Thursday panel with residuals and masks) and
 #'   `diag` (counts, R2 of the BS regressions, realized DI maturities).
 build_instrument_variants <- function(inputs,
@@ -293,13 +293,6 @@ build_instrument_variants <- function(inputs,
                         sign(delta_di) != sign(r_ibov)
     )
 
-  # Local purification for the literal "JK -> purify" ordering: regression
-  # re-estimated on the raw-mask-selected Copom days only (~50 obs).
-  sel_raw <- valid$jk_monetary_raw
-  lm_di_local <- lm(delta_di ~ r_sp500 + d_vix + r_brent, data = valid[sel_raw, ])
-  valid$e_di_local <- 0
-  valid$e_di_local[sel_raw] <- residuals(lm_di_local)
-
   # ---- BS-faithful pre-event purification (audit 2026-07-14) --
   # Bauer-Swanson (2023) eq. 7: regress the surprise on PREDETERMINED news only
   # (financial trends + survey revisions + trend), keep the residual. Unlike the
@@ -323,6 +316,10 @@ build_instrument_variants <- function(inputs,
   # ---- Contemporaneous purification + UST 2y control ----------
   # Same-window global cleanup with the Wed->Thu 2y Treasury change added,
   # covering Fed spillovers on the ~32 FOMC-coincident Copom weeks.
+  # The monthly variant this used to feed (z_jk_purif_us) was dropped on
+  # 2026-08-05 as redundant (cor 0.999 with z_jk_purif). The DAILY columns
+  # stay: script/jk_sovereign_confound.R uses the `jk_us` day set as one of
+  # its seven diagnostic masks.
 
   lm_di_us   <- lm(delta_di ~ r_sp500 + d_vix + r_brent + d_ust2, data = valid)
   lm_ibov_us <- lm(r_ibov   ~ r_sp500 + d_vix + r_brent + d_ust2, data = valid)
@@ -351,24 +348,20 @@ build_instrument_variants <- function(inputs,
   z_bruto_purif  <- ag("e_di",    rep(TRUE, nrow(valid)))
   z_jk           <- ag("delta_di", valid$jk_monetary)
   z_jk_purif     <- ag("e_di",    valid$jk_monetary)
-  z_jk_raw_purif       <- ag("e_di",       valid$jk_monetary_raw)
-  z_jk_raw_purif_local <- ag("e_di_local", valid$jk_monetary_raw)
+  z_jk_raw_purif <- ag("e_di",    valid$jk_monetary_raw)
   z_jk_raw       <- ag("delta_di", valid$jk_monetary_raw)
   z_bs_purif     <- ag("e_di_bs", rep(TRUE, nrow(valid)))
   z_jk_bs_purif  <- ag("e_di_bs", valid$jk_monetary_bs)
-  z_jk_purif_us  <- ag("e_di_us", valid$jk_monetary_us)
 
   instrumentos <- monthly_grid |>
     dplyr::left_join(z_bruto       |> dplyr::rename(z_bruto       = shock), by = "month") |>
     dplyr::left_join(z_bruto_purif |> dplyr::rename(z_bruto_purif = shock), by = "month") |>
     dplyr::left_join(z_jk          |> dplyr::rename(z_jk          = shock), by = "month") |>
     dplyr::left_join(z_jk_purif    |> dplyr::rename(z_jk_purif    = shock), by = "month") |>
-    dplyr::left_join(z_jk_raw_purif       |> dplyr::rename(z_jk_raw_purif       = shock), by = "month") |>
-    dplyr::left_join(z_jk_raw_purif_local |> dplyr::rename(z_jk_raw_purif_local = shock), by = "month") |>
+    dplyr::left_join(z_jk_raw_purif |> dplyr::rename(z_jk_raw_purif = shock), by = "month") |>
     dplyr::left_join(z_jk_raw      |> dplyr::rename(z_jk_raw      = shock), by = "month") |>
     dplyr::left_join(z_bs_purif    |> dplyr::rename(z_bs_purif    = shock), by = "month") |>
     dplyr::left_join(z_jk_bs_purif |> dplyr::rename(z_jk_bs_purif = shock), by = "month") |>
-    dplyr::left_join(z_jk_purif_us |> dplyr::rename(z_jk_purif_us = shock), by = "month") |>
     dplyr::mutate(dplyr::across(dplyr::starts_with("z_"), ~ tidyr::replace_na(.x, 0)))
 
   # ---- Diagnostics -------------------------------------------

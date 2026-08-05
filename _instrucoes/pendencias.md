@@ -116,9 +116,8 @@ de `compute_irf_dfm` já implementam.
 | D | Spread de concessões novas | desejável, não bloqueante |
 | E | Corrigir o `cumsum` do bloco acionário | só o transform, não o painel |
 | E | `kilian_correction`: determinante em matriz enorme | não mexer sem re-rodar smoke test |
-| E | Regenerar `instrument_diagnostics_report.md` | corpo stale desde 2026-07-15 |
+| E | Cortar a `tab:first_stage` | relatório já regenerado em 2026-08-05; falta o `.tex` |
 | E | Seleção da etapa 2 dominada pela janela pré-COVID | — |
-| E | `svensson_model.R` sem consumidor | decidir apagar/mover/manter |
 
 ---
 
@@ -882,15 +881,15 @@ descreve a corrida antiga e carrega banner).
     `solve()` dentro de `tryCatch` e só cair no `ginv` se falhar. **Mudar isso
     altera o caminho numérico da produção** — exige re-rodar o smoke test e
     conferir `irf_coherence_h.csv` ponto a ponto antes de commitar.
-- [ ] **Regenerar `instrument_diagnostics_report.md` e cortar a `tab:first_stage`** —
-  *aberto em 2026-07-27.* O corpo está stale (gerado em 2026-07-15, pré-refresh
-  de vintage, ainda com as variantes `z_het` arquivadas) sob banner. Re-rodar
-  `Rscript script/instrument_diagnostics.R` regenera em 106 séries e sem a §4.
-  O conteúdo da tabela de primeiro estágio que o §3 precisa **já existe** ali
-  (§1: β̂, SE(HC0), t, p, F, ξ₁, R²; §1.1: bloco MOSW completo com ξ_mp) — falta
-  regenerar e cortar como tabela de paper. `mosw_strength_grid.md` está corrente
-  mas é grid `(r,q) × amostra × instrumento`, não tabela de 1º estágio. **Sem**
-  os valores críticos de MOP (razão no item de robustez do ξ_mp, Tema B).
+- [ ] **Cortar a `tab:first_stage`** — *aberto em 2026-07-27; metade fechada em
+  2026-08-05.* ✅ **A regeneração foi feita**: `instrument_diagnostics_report.md`
+  foi re-rodado em 2026-08-05 sobre as 106 séries e as 8 variantes vivas — zero
+  linhas `z_het`, corpo corrente. ❌ **Falta o corte como tabela de paper.** O
+  conteúdo que o §3 precisa está ali (§1: β̂, SE(HC0), t, p, F, ξ₁, R²; §1.1:
+  bloco MOSW completo com ξ_mp) — falta transpor para o `.tex`.
+  `mosw_strength_grid.md` está corrente mas é grid `(r,q) × amostra ×
+  instrumento`, não tabela de 1º estágio. **Sem** os valores críticos de MOP
+  (razão no item de robustez do ξ_mp, Tema B).
 - [ ] **Seleção da etapa 2 é dominada pela janela pre-COVID** (aberto em
   2026-07-26). Com a taxonomia migrada, 23 células ficam `ok` em `yield_6m` e
   **todas empatam** em `score_hard_frac = 1` e `score_ext = 3`, então o
@@ -899,14 +898,15 @@ descreve a corrida antiga e carrega banner).
   pelo force-append. A comparação da etapa 2 acaba confundindo escolha de
   instrumento com escolha de janela. Considerar um teto por amostra análogo ao
   `MAX_PER_INSTRUMENT`, ou desempatar por `f_reduced`.
-- [ ] **`R/modeling/svensson_model.R` ficou sem consumidor** (aberto em
-  2026-07-26). Era o motor do `script/yield_curve.R`, apagado na mesma data — a
-  curva do painel é o insumo fixo do orientador (`data/yields/yields_dia.csv`).
-  O `source()` no `download.R` era chamada morta e foi removido; nenhuma das 7
-  funções do módulo é chamada em lugar nenhum. São ~600 linhas de código de
-  modelagem reutilizável, então **não apaguei**. Decidir: apagar, mover para
-  `arquivo/` (convenção do repo para código não executado e não citado pelo
-  paper), ou manter como utilitário. Ver `historico_decisoes.md` §4.
+- [x] **FECHADO em 2026-08-05 — `R/modeling/svensson_model.R` ficou sem
+  consumidor** (aberto em 2026-07-26). Era o motor do `script/yield_curve.R`,
+  apagado na mesma data — a curva do painel é o insumo fixo do orientador
+  (`data/yields/yields_dia.csv`). O `source()` no `download.R` era chamada morta
+  e foi removido; nenhuma das 7 funções do módulo é chamada em lugar nenhum.
+  **Decisão: movido para `arquivo/R/modeling/svensson_model.R`** — a opção da
+  convenção do repo para código não executado e não citado pelo paper. As ~600
+  linhas continuam recuperáveis se a curva voltar a ser ajustada in-house. Ver
+  `historico_decisoes.md` §4 e a entrada em `arquivo/README.md`.
 
 ### Fechados (contexto)
 

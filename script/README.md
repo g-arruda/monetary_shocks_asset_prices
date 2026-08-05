@@ -1,11 +1,17 @@
 # `script/` — o que cada arquivo faz
 
-26 scripts, organizados por tema (não por subpasta — ver a decisão em
+25 scripts, organizados por tema (não por subpasta — ver a decisão em
 `_instrucoes/pendencias.md` sobre manter isto flat: mover para subpastas
 quebraria dezenas de referências de caminho no `CLAUDE.md`, no `run_all.R` e
 em working-notes). Cinco scripts que faziam parte de uma investigação já
 superada (contaminação de IRF, 2026-07-15/16) foram arquivados em
-`arquivo/script/` em 2026-08-01 — ver `arquivo/README.md` se precisar deles.
+`arquivo/script/` em 2026-08-01, e `diagnose_factor_space_F.R` em 2026-08-05
+— ver `arquivo/README.md` se precisar deles.
+
+Todo script aqui é carga viva de uma de duas coisas: reproduzir
+`texto_anpec/paper_anpec.tex` ou sustentar um item da tier list de robustez
+(`relatorio/working-notes/2026-08-01_tier_list_robustez.md`). A triagem de
+2026-08-05 conferiu isso arquivo a arquivo.
 
 Ordem de leitura recomendada para quem chega agora: `run_all.R` primeiro (é
 o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
@@ -32,10 +38,9 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | script | o que faz |
 |---|---|
 | `instrument_diagnostics.R` | Compara as variantes de instrumento em **um único resíduo de DFM** compartilhado (r=8,q=8,p=6): F parcial vs. resíduo do DFM, F vs. inovação AR(6) de `yield_6m`, bloco Wald MOSW por variante, dispersão Copom-dia, e teste F de variância Copom vs. não-Copom. Escreve `output/instrument/instrument_diagnostics_report.md` + um PNG. |
-| `mosw_strength_grid.R` | Grid do bloco Wald MOSW (ξ_mp, Wald conjunto, ξ_k por fator, max-F legado) sobre `(r,q) ∈ {5..8}×{4..r}` × 2 janelas amostrais × 10 variantes de instrumento — a régua de força de referência do projeto. Escreve `output/instrument/mosw_strength_grid.{csv,md}`. |
+| `mosw_strength_grid.R` | Grid do bloco Wald MOSW (ξ_mp, Wald conjunto, ξ_k por fator, max-F legado) sobre `(r,q) ∈ {5..8}×{4..r}` × 2 janelas amostrais × 8 variantes de instrumento — a régua de força de referência do projeto. Escreve `output/instrument/mosw_strength_grid.{csv,md}`. |
 | `xi_mp_robustness.R` | Robustez leave-one-month-out + NW(0..6) de ξ_mp com o DFM fixo (só o momento Γ é recomputado). Escreve `output/instrument/xi_mp_robustness.{csv,md}`. |
 | `instrument_construction_sweep.R` | Varre as 2 escolhas de construção não documentadas — vértice de DI (13 valores) × esquema de agregação {soma, GK} × 5 variantes × 2 janelas — pontuado por ξ_mp na especificação de produção (7,6). Escreve `output/instrument/instrument_construction_sweep.{csv,md}` + `vertex_irf_overlay.pdf`. |
-| `diagnose_factor_space_F.R` | Diagnóstico de grid legado: max-F univariado através de q inovações de fator, `r=7,p=6` fixos, `q∈{2,3,4,6}` × 8 variantes de instrumento. Superado como régua decisória pelo ξ_mp de `mosw_strength_grid.R`, mas mantido executável. Escreve `output/instrument/factor_space_F_grid.csv`. |
 | `jk_sovereign_confound.R` | Testa se o filtro de sinal JK seleciona surpresas de risco soberano em vez de choques monetários: reconstrói o painel diário de quintas-feiras, junta proxies de EMBI+/BRL/curva DI, roda 4 testes. Auto-testes contra `copom_event_diagnostics.csv`, `mosw_strength_grid.csv`, e um smoke test de IRF h0. Escreve `output/instrument/jk_sovereign_confound.{csv,md}`, `jk_sovereign_days.csv`, `jk_sovereign_irf_overlay.pdf`. |
 
 ## 4. Sweep de especificação IRF / coerência
@@ -45,7 +50,7 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | `irf_spec_sweep.R` | Etapa 1: sweep só de ponto (rápido) sobre instrumento × mp_var × (r,q) × janela amostral, com um `estimate_dfm` em cache por (amostra,r,q); classifica cada célula por `failure_class` no ξ_mp. Escreve `output/irf/spec_sweep_{cells,irf_long}.csv`, `spec_sweep_report.md`. |
 | `irf_spec_stage2.R` | Etapa 2: bootstrap completo (nboot=800) nas células vencedoras da etapa 1, com a especificação de produção sempre incluída (force-append). Escreve `output/irf/irf_spec_<tag>.{rds,pdf}`, `irf_spec_stage2_overlay.pdf`, `spec_sweep_stage2.md`. |
 | `irf_coherence_check.R` | Roda a especificação de produção uma vez e pontua 53 variáveis do painel ponto-a-ponto em cada horizonte contra janelas de teoria (`R/identification/irf_coherence.R`). É o script que alimenta a §5 do paper. Escreve `output/irf/irf_coherence_{h,summary}.csv`, `irf_coherence_report.md` (reescrito por inteiro a cada rodada — nunca editar à mão), `irf_coherence_plots.pdf`, e o cache `irf_coherence_cell.rds` (lido por muitos scripts a jusante). |
-| `fig_section5.R` | Pós-processamento puro: lê o `irf_coherence_cell.rds` em cache + as tabelas da Tarefa 7, não reestima nada, escreve as 8 figuras `arquivo/tex/img/fig_*.pdf` do paper arquivado (todas até h=36; ver `arquivo/README.md` — nenhum figure set migrou para `texto_anpec/` ainda). |
+| `fig_section5.R` | Pós-processamento puro: lê o `irf_coherence_cell.rds` em cache + as tabelas da Tarefa 7, não reestima nada, escreve as 8 figuras `texto_anpec/fig_*.pdf` (todas até h=36), que é de onde `paper_anpec.tex` as inclui. Repontado em 2026-08-05: antes escrevia em `arquivo/tex/img/`, de modo que regenerar as figuras nunca alcançava o paper canônico. |
 
 ## 5. Robustez estrutural do DFM (respostas ao council review de 2026-07-31)
 
@@ -78,6 +83,6 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 
 ## Notas cruzadas
 
-- **`rm(list=ls())`**: presente em 20 dos 25 arquivos. Ausente em `download.R`, `instrument.R`, `instrument_diagnostics.R`, `validate_hac_kernel.R`, `validate_olea_kilian.R` — os cinco são pensados para rodar em processo `Rscript` próprio, não para ser `source()`ados numa sessão existente.
+- **`rm(list=ls())`**: presente em 20 dos 25 arquivos. Ausente em `download.R`, `instrument.R`, `instrument_diagnostics.R`, `validate_hac_kernel.R` e `validate_olea_kilian.R` — os cinco são pensados para rodar em processo `Rscript` próprio, não para ser `source()`ados numa sessão existente.
 - **Guarda `sys.nframe() == 0`**: só `model_var.R` (via `run_benchmark()`).
 - Nenhum script deste diretório é chamado por outro script deste diretório, exceto através de `run_all.R` (estágios) ou de `source()` de módulos em `R/`.

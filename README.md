@@ -60,13 +60,12 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   (medianas do Focus + UST 2y do FRED), `download_di.py` (futuros de DI).
 - **`preprocessing/`** (1 arquivo) — `seasonality.R`, o wrapper de ajuste
   sazonal X-13 usado por `script/clean.R`.
-- **`modeling/`** (4 arquivos) — os motores de estimação: `factor_estimation.R`
+- **`modeling/`** (3 arquivos) — os motores de estimação: `factor_estimation.R`
   (estimação BLL do DFM, seleção de r/q), `impulse_responde.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
-  `compute_irf_dfm`, `compute_factor_space_wald`), `var_proxy.R` (motor do
-  benchmark VAR pequeno, extraído de `script/model_var.R`), `svensson_model.R`
-  (órfão — seu único chamador, `script/yield_curve.R`, foi apagado em
-  2026-07-26).
+  `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
+  benchmark VAR pequeno, extraído de `script/model_var.R`). O órfão
+  `svensson_model.R` foi para `arquivo/R/modeling/` em 2026-08-05.
 - **`identification/`** (7 arquivos) — a máquina de identificação além do
   proxy-SVAR básico: `spec_sweep.R`, `validation_tests.R`,
   `factor_space_diagnostics.R`, `irf_coherence.R` (pontuação de coerência
@@ -74,8 +73,8 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   `nongaussian_labelling.R` — só diagnóstico, não usado no caminho de
   produção).
 - **`instrument/`** (2 arquivos) — `build_variants.R` (a cadeia de construção
-  das 10 variantes de instrumento GK/JK/BS) e `di_surprise.R` (helper de
-  surpresa de futuro de DI).
+  das 8 variantes de instrumento GK/JK/BS; eram 10 até 2026-08-05) e
+  `di_surprise.R` (helper de surpresa de futuro de DI).
 
 ## `output/` — artefatos de estimação (git-tracked, ~3 MB)
 
@@ -143,9 +142,10 @@ Inverted..."). Abstract e §4 Resultados (seis subseções: estrutura a termo,
 câmbio e risco soberano, atividade, crédito, preços, ações) estão correntes
 com a rodada de produção. **Ainda não tem `§5 Robustez`** — essa seção só
 existe no draft arquivado (ver abaixo) e precisa ser portada/reescrita aqui;
-é o item aberto que fecha a diferença entre "canônico" e "completo". Reusa 6
-das 8 figuras de `arquivo/tex/img/` (sem `fig_estado`/`fig_placebos`, que são
-só de robustez).
+é o item aberto que fecha a diferença entre "canônico" e "completo". Desde
+2026-08-05 `script/fig_section5.R` gera as **8** figuras direto aqui
+(`texto_anpec/fig_*.pdf`, nomes nus, que é como o `.tex` as inclui): o §4 usa
+6, e `fig_estado`/`fig_placebos` ficam prontas para o port do §5.
 
 O draft abntex2 anterior (`main.tex`, "Choques monetários nos preços dos
 ativos") foi **arquivado em `arquivo/tex/`** nessa mesma data — não por
