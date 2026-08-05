@@ -253,6 +253,47 @@ ramo proxy ficou byte-idêntico ao de produção.
 simplesmente não sobrevive à agregação mensal — a variância muda de nível, não
 de composição. Isso é um resultado sobre a frequência, não sobre o método.
 
+**Reavaliada e CONFIRMADA em 2026-08-01, com evidência muito mais forte.**
+`script/het_robustness.R` → `output/het/`, nota
+`working-notes/2026-08-01_robustez_heterocedasticidade.md`. O veredito acima foi
+produzido **antes** do refresh de vintage de 2026-07-24 e da migração para
+`(7,6)` — o mesmo refresh que devolveu ξ_mp 10,43 ao proxy —, então re-rodar não
+era teimosia. Grade de `p ∈ {5..8} × q ∈ {5..8} × r ∈ {7,8}` (com `q ≤ r`) ×
+`{full, pre_covid}` = **252 células**, com **5 desenhos de regime**: os dois de
+2026-07-16 mais três novos (`intensidade_z` = tercil superior de |z|;
+`volatilidade_juros` = quartil superior da volatilidade realizada do DI 6m
+diário; `quebra_livre` = quebra com data varrida). **Quatro coisas para não
+re-derivar:**
+
+- **Zero células identificam, e não é severidade de correção.** Sob Holm *dentro*
+  de cada desenho × janela (28 testes em vez de 252) o número continua zero nos
+  cinco desenhos. `calendario` rejeita proporcionalidade em **0%** das células nas
+  duas janelas — a conclusão de 07-16 não era artefato de `(r,q,p)`.
+- **Uma segunda condição necessária falha em separado:** os autovalores
+  generalizados não são distintos (gap relativo mínimo com mediana **0,11-0,17**
+  por desenho). Sem coluna separável não há direção monetária, então **o estágio
+  de IRF não roda** — qualquer IRF ali seria número sem identificação atrás.
+- **O desenho que explica tudo é novo.** `volatilidade_juros` concentra o regime
+  C no pós-2020 (`share_C` 0,478 contra 0,051 antes) e **não rejeita
+  proporcionalidade em nenhuma das 56 células**: o surto pós-2020 é **fator de
+  escala comum**. A varredura livre de `quebra_livre` *encontra* 2020-2022 em 25
+  das 28 células da janela cheia. A única heterocedasticidade do painel mensal é
+  a da COVID/ciclo de aperto, e ela é de escala.
+- **Não citar as 21 células** que passam as duas condições em nível bruto: 17
+  estão em `q = 5` (menor valor da grade), todas na janela cheia, e nenhuma
+  sobrevive à correção mais leniente. É fragilidade de especificação.
+
+**Consequência editorial:** existe agora uma resposta documentada à pergunta "por
+que não identificar por heterocedasticidade?", mas ela **não é corroboração** — a
+seção de robustez não pode escrever que uma identificação alternativa confirma o
+proxy com base nisto. Escopo travado por decisão do autor em 2026-08-01: **objeto
+mensal apenas**, perna diária permanece arquivada.
+
+**Ponta solta declarada:** heterocedasticidade *condicional* (GARCH-SVAR,
+Lanne-Saikkonen 2007 / Normandin-Phaneuf 2004) dispensa datas de regime e é a
+rota com melhor chance de produzir IRF mensal. **Não foi tentada** — é outro ramo,
+não Rigobon, e `svars` não está instalado.
+
 Decisão do autor no mesmo dia: **abandonar qualquer identificação por
 instrumento/proxy** e escolher uma nova primária. Essa decisão foi **revertida
 em 2026-07-24**: o refresh de vintage devolveu força ao proxy (ξ_mp > 10 nas

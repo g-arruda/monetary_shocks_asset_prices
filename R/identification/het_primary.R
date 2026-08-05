@@ -1,13 +1,54 @@
 # ===================================================================
 # PRIMARY IDENTIFICATION THROUGH HETEROSKEDASTICITY (Rigobon 2003)
-# Monthly Copom / non-Copom regimes on the factor-VAR innovations
-# (architecture A, Stock-Watson 2016 sec. 5.1.2.3). Companion module to
-# R/identification/het_shock_extraction.R (daily block, kept for
-# robustness) — see _instrucoes/plano_reimplementacao_het.md.
+# Monthly regimes on the factor-VAR innovations (architecture A,
+# Stock-Watson 2016 sec. 5.1.2.3). Consumed by the `identification =
+# "het"` branch of compute_irf_dfm and by script/het_robustness.R.
+#
+# UNARCHIVED 2026-08-01. This module was archived on 2026-07-26 after the
+# calendar and BPSS-episode designs were rejected on 2026-07-16
+# (historico_decisoes.md §1.2). That rejection predates the 2026-07-24
+# vintage refresh (106 series) and the migration to (r=7, q=6) — the same
+# refresh that restored the proxy's strength — so the gate is being
+# re-evaluated over a (p, q) grid rather than at a single spec.
+#
+# The daily companion (het_shock_extraction.R, Rigobon-Sack 2003 on
+# Wed->Thu pairs) stays in arquivo/: the daily object is out of scope. Its
+# only two functions this module needed — mat_sym_sqrt / mat_sym_inv_sqrt,
+# generic spectral helpers — are inlined below so nothing on the live path
+# sources from arquivo/.
 # ===================================================================
 
 library(dplyr)
 library(lubridate)
+
+
+#' Symmetric matrix square root via spectral decomposition
+#'
+#' Returns the principal square root of a symmetric PSD matrix M such that
+#' sqrt(M) %*% sqrt(M) = M. Negative eigenvalues (numerical noise) are
+#' clipped at zero to keep the result real-valued.
+#'
+#' @param M Symmetric numeric matrix.
+#'
+#' @return Numeric matrix of the same dimension as M.
+mat_sym_sqrt <- function(M) {
+  e <- eigen(M, symmetric = TRUE)
+  e$vectors %*% diag(sqrt(pmax(e$values, 0)), nrow = length(e$values)) %*% t(e$vectors)
+}
+
+#' Symmetric matrix inverse square root via spectral decomposition
+#'
+#' Returns sqrt(solve(M)). Small eigenvalues are floored at a tolerance to
+#' avoid blow-up in nearly singular matrices.
+#'
+#' @param M Symmetric numeric matrix (positive definite up to numerical noise).
+#' @param tol Floor on eigenvalues before inversion.
+#'
+#' @return Numeric matrix of the same dimension as M.
+mat_sym_inv_sqrt <- function(M, tol = 1e-12) {
+  e <- eigen(M, symmetric = TRUE)
+  e$vectors %*% diag(1 / sqrt(pmax(e$values, tol)), nrow = length(e$values)) %*% t(e$vectors)
+}
 
 
 #' Build the monthly Copom / non-Copom regime table
@@ -382,12 +423,22 @@ ident_het_regimes <- function(rawimp, eta, regime_labels, h,
 #' @param n_perm Permutations for the placebo p-value.
 #' @param ci_level Coverage of the reported CIs.
 #' @param seed Optional integer seed.
+#' @param placebo How the null labels are generated. "permute" reshuffles
+#'   the labels freely and is right for designs whose regimes are scattered
+#'   over the sample (calendar months, magnitude terciles). "rotate" applies
+#'   a random circular shift, preserving the block structure, and is the
+#'   only valid null for CONTIGUOUS designs (pre/post episode, break-date
+#'   sweep): a free permutation there would destroy the very contiguity the
+#'   design imposes and hand back an anticonservative p-value.
 #'
 #' @return List with lambda_1, lambda_1_ci, ratio_dir, ratio_dir_ci,
-#'   rank1_share, p_perm (P(lambda_1_perm >= lambda_1_obs)), n_C, n_NC.
+#'   rank1_share, p_perm (P(lambda_1_null >= lambda_1_obs)), n_C, n_NC,
+#'   placebo.
 het_strength_stats <- function(eta, regime_labels,
                                n_boot = 1000L, n_perm = 1000L,
-                               ci_level = 0.95, seed = NULL) {
+                               ci_level = 0.95, seed = NULL,
+                               placebo = c("permute", "rotate")) {
+  placebo <- match.arg(placebo)
   if (!is.null(seed)) set.seed(seed)
   eta <- as.matrix(eta)
 
@@ -396,6 +447,15 @@ het_strength_stats <- function(eta, regime_labels,
     eig   <- eigen(parts$dSigma, symmetric = TRUE, only.values = TRUE)
     eig$values[1]
   }
+
+  n_obs <- length(regime_labels)
+  draw_null_labels <- switch(placebo,
+    permute = function() sample(regime_labels),
+    rotate  = function() {
+      k <- sample.int(n_obs - 1L, 1L)
+      regime_labels[c((k + 1L):n_obs, 1L:k)]
+    }
+  )
 
   parts  <- split_by_regime(eta, regime_labels)
   eig    <- eigen(parts$dSigma, symmetric = TRUE)
@@ -427,8 +487,13 @@ het_strength_stats <- function(eta, regime_labels,
 
   perm_lambda <- numeric(n_perm)
   for (s in seq_len(n_perm)) {
-    perm_lambda[s] <- stats_one(sample(regime_labels))
+    lab_s <- draw_null_labels()
+    # A rotation can land on a shift that leaves one regime empty or nearly so;
+    # such a draw carries no information about lambda_1 and is skipped.
+    perm_lambda[s] <- if (length(unique(lab_s)) < 2L ||
+                          min(table(lab_s)) < 2L) NA_real_ else stats_one(lab_s)
   }
+  perm_lambda <- perm_lambda[!is.na(perm_lambda)]
 
   alpha <- (1 - ci_level) / 2
   list(
@@ -437,7 +502,9 @@ het_strength_stats <- function(eta, regime_labels,
     ratio_dir     = ratio_dir,
     ratio_dir_ci  = unname(stats::quantile(boot_ratio, c(alpha, 1 - alpha))),
     rank1_share   = abs(lambda_1) / sum(abs(eig$values)),
-    p_perm        = (sum(perm_lambda >= lambda_1) + 1L) / (n_perm + 1L),
+    p_perm        = (sum(perm_lambda >= lambda_1) + 1L) / (length(perm_lambda) + 1L),
+    n_perm_used   = length(perm_lambda),
+    placebo       = placebo,
     n_C           = parts$n_C,
     n_NC          = parts$n_NC
   )
@@ -519,8 +586,7 @@ rigobon_crossprod_test <- function(eta, regime_labels, direction,
 #' Lanne-Lutkepohl 2008). Columns are returned sorted by decreasing
 #' lambda; distinctness is summarized by the minimum relative gap.
 #'
-#' Requires mat_sym_sqrt / mat_sym_inv_sqrt from
-#' R/identification/het_shock_extraction.R.
+#' Requires mat_sym_sqrt / mat_sym_inv_sqrt, defined at the top of this file.
 #'
 #' @param Sigma_1 Covariance of eta in the reference regime.
 #' @param Sigma_2 Covariance of eta in the comparison regime.

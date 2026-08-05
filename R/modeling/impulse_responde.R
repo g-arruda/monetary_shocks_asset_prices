@@ -355,7 +355,7 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   switch(identification,
     "het" = {
       if (!exists("ident_het_regimes")) {
-        stop("identification = 'het' requer source('arquivo/R/identification/het_primary.R') (modulo arquivado em 2026-07-26)")
+        stop("identification = 'het' requer source('R/identification/het_primary.R')")
       }
       n_resid <- nrow(dfm_results$var_residuals)
       if (is.null(regime_labels) || length(regime_labels) != n_resid) {
