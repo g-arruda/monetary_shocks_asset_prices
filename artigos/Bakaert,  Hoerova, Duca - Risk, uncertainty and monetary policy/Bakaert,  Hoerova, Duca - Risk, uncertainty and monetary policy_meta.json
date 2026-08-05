@@ -1,0 +1,1514 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Journal of Monetary Economics",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          164.4580078125,
+          83.80517578125
+        ],
+        [
+          376.2841796875,
+          83.80517578125
+        ],
+        [
+          376.2841796875,
+          99.8182373046875
+        ],
+        [
+          164.4580078125,
+          99.8182373046875
+        ]
+      ]
+    },
+    {
+      "title": "Risk, uncertainty and monetary policy$",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          36.19140625,
+          160.401123046875
+        ],
+        [
+          295.7550964355469,
+          160.401123046875
+        ],
+        [
+          295.7550964355469,
+          177.49163818359375
+        ],
+        [
+          36.19140625,
+          177.49163818359375
+        ]
+      ]
+    },
+    {
+      "title": "article info",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          36.19140625,
+          245.36056518554688
+        ],
+        [
+          126.8226089477539,
+          245.36056518554688
+        ],
+        [
+          126.8226089477539,
+          254.68536376953125
+        ],
+        [
+          36.19140625,
+          254.68536376953125
+        ]
+      ]
+    },
+    {
+      "title": "abstract",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          196.3916015625,
+          244.88525390625
+        ],
+        [
+          261.3232421875,
+          244.88525390625
+        ],
+        [
+          261.3232421875,
+          254.68536376953125
+        ],
+        [
+          196.3916015625,
+          254.68536376953125
+        ]
+      ]
+    },
+    {
+      "title": "1. Introduction",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          35.92529296875,
+          416.84912109375
+        ],
+        [
+          98.17152404785156,
+          416.84912109375
+        ],
+        [
+          98.17152404785156,
+          427.9950866699219
+        ],
+        [
+          35.92529296875,
+          427.9950866699219
+        ]
+      ]
+    },
+    {
+      "title": "2. Measurement",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          35.126953125,
+          390.72802734375
+        ],
+        [
+          101.79637908935547,
+          390.72802734375
+        ],
+        [
+          101.79637908935547,
+          399.87548828125
+        ],
+        [
+          35.126953125,
+          399.87548828125
+        ]
+      ]
+    },
+    {
+      "title": "2.1. Measuring risk aversion and uncertainty",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          35.6591796875,
+          485.8770751953125
+        ],
+        [
+          203.80990600585938,
+          485.8770751953125
+        ],
+        [
+          203.80990600585938,
+          494.48681640625
+        ],
+        [
+          35.6591796875,
+          494.48681640625
+        ]
+      ]
+    },
+    {
+      "title": "2.1.1. Decomposing the VIX index",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          38.8525390625,
+          404.8637739656912
+        ],
+        [
+          166.65289256198346,
+          404.8637739656912
+        ],
+        [
+          166.65289256198346,
+          413.22119140625
+        ],
+        [
+          38.8525390625,
+          413.22119140625
+        ]
+      ]
+    },
+    {
+      "title": "2.1.2. Risk aversion and uncertainty estimates",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          35.6591796875,
+          617.11083984375
+        ],
+        [
+          206.7925262451172,
+          617.11083984375
+        ],
+        [
+          206.7925262451172,
+          626.373664855957
+        ],
+        [
+          35.6591796875,
+          626.373664855957
+        ]
+      ]
+    },
+    {
+      "title": "2.2. Measuring monetary policy",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          39.65087890625,
+          101.21923828125
+        ],
+        [
+          160.05746459960938,
+          101.21923828125
+        ],
+        [
+          160.05746459960938,
+          110.63861083984375
+        ],
+        [
+          39.65087890625,
+          110.63861083984375
+        ]
+      ]
+    },
+    {
+      "title": "2.3. Measuring business cycle variation",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          39.384765625,
+          576.2429962158203
+        ],
+        [
+          187.2888946533203,
+          576.2429962158203
+        ],
+        [
+          187.2888946533203,
+          584.5317840576172
+        ],
+        [
+          39.384765625,
+          584.5317840576172
+        ]
+      ]
+    },
+    {
+      "title": "3. Structural monetary VARs",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          35.126953125,
+          90.33544921875
+        ],
+        [
+          149.08200073242188,
+          90.33544921875
+        ],
+        [
+          149.08200073242188,
+          100.14013671875
+        ],
+        [
+          35.126953125,
+          100.14013671875
+        ]
+      ]
+    },
+    {
+      "title": "3.1. Structural four-variable VAR: set-up",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          36.19140625,
+          210.74615478515625
+        ],
+        [
+          186.07498168945312,
+          210.74615478515625
+        ],
+        [
+          186.07498168945312,
+          219.03497314453125
+        ],
+        [
+          36.19140625,
+          219.03497314453125
+        ]
+      ]
+    },
+    {
+      "title": "3.2. Structural four-variable VAR: results",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          35.6591796875,
+          611.30615234375
+        ],
+        [
+          187.4013671875,
+          611.30615234375
+        ],
+        [
+          187.4013671875,
+          619.6829299926758
+        ],
+        [
+          35.6591796875,
+          619.6829299926758
+        ]
+      ]
+    },
+    {
+      "title": "3.3. Robustness",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          35.92529296875,
+          588.08740234375
+        ],
+        [
+          95.59786987304688,
+          588.08740234375
+        ],
+        [
+          95.59786987304688,
+          598.7638244628906
+        ],
+        [
+          35.92529296875,
+          598.7638244628906
+        ]
+      ]
+    },
+    {
+      "title": "3.3.1. Alternative monetary policy measures",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          39.384765625,
+          89.60986328125
+        ],
+        [
+          204.18287658691406,
+          89.60986328125
+        ],
+        [
+          204.18287658691406,
+          99.0167236328125
+        ],
+        [
+          39.384765625,
+          99.0167236328125
+        ]
+      ]
+    },
+    {
+      "title": "3.3.2. Alternative business cycle measures",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          39.9169921875,
+          196.6337890625
+        ],
+        [
+          196.2314453125,
+          196.6337890625
+        ],
+        [
+          196.2314453125,
+          206.10833740234375
+        ],
+        [
+          39.9169921875,
+          206.10833740234375
+        ]
+      ]
+    },
+    {
+      "title": "3.3.3. Alternative orderings of variables",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          39.384765625,
+          293.49951171875
+        ],
+        [
+          187.3707275390625,
+          293.49951171875
+        ],
+        [
+          187.3707275390625,
+          302.76849365234375
+        ],
+        [
+          39.384765625,
+          302.76849365234375
+        ]
+      ]
+    },
+    {
+      "title": "3.3.4. Sampling error in RA and UC",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          39.9169921875,
+          399.43505859375
+        ],
+        [
+          172.4915008544922,
+          399.43505859375
+        ],
+        [
+          172.4915008544922,
+          409.86004638671875
+        ],
+        [
+          39.9169921875,
+          409.86004638671875
+        ]
+      ]
+    },
+    {
+      "title": "3.3.5. Six-variable monetary VAR",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          40.71533203125,
+          477.3120422363281
+        ],
+        [
+          163.8114776611328,
+          477.3120422363281
+        ],
+        [
+          163.8114776611328,
+          485.77978515625
+        ],
+        [
+          40.71533203125,
+          485.77978515625
+        ]
+      ]
+    },
+    {
+      "title": "3.3.6. Full sample results",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          36.850399017333984,
+          515.52880859375
+        ],
+        [
+          130.03724670410156,
+          515.52880859375
+        ],
+        [
+          130.03724670410156,
+          524.6100311279297
+        ],
+        [
+          36.850399017333984,
+          524.6100311279297
+        ]
+      ]
+    },
+    {
+      "title": "4. Alternative identification of monetary policy shocks",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          34.0625,
+          641.2597045898438
+        ],
+        [
+          250.2293701171875,
+          641.2597045898438
+        ],
+        [
+          250.2293701171875,
+          651.21337890625
+        ],
+        [
+          34.0625,
+          651.21337890625
+        ]
+      ]
+    },
+    {
+      "title": "4.1. Identification using high-frequency Fed funds futures",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          39.384765625,
+          55.50732421875
+        ],
+        [
+          252.6956329345703,
+          55.50732421875
+        ],
+        [
+          252.6956329345703,
+          65.11444091796875
+        ],
+        [
+          39.384765625,
+          65.11444091796875
+        ]
+      ]
+    },
+    {
+      "title": "4.1.1. Identification using high-frequency Fed funds futures: set-up",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          38.3203125,
+          139.67529296875
+        ],
+        [
+          286.1923522949219,
+          139.67529296875
+        ],
+        [
+          286.1923522949219,
+          149.07568359375
+        ],
+        [
+          38.3203125,
+          149.07568359375
+        ]
+      ]
+    },
+    {
+      "title": "4.1.2. Identification using high-frequency Fed funds futures: results",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          40.44921875,
+          559.06396484375
+        ],
+        [
+          287.51690673828125,
+          559.06396484375
+        ],
+        [
+          287.51690673828125,
+          567.3568267822266
+        ],
+        [
+          40.44921875,
+          567.3568267822266
+        ]
+      ]
+    },
+    {
+      "title": "4.2. Identification using monthly Fed funds futures",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          39.384765625,
+          416.84912109375
+        ],
+        [
+          228.87030029296875,
+          416.84912109375
+        ],
+        [
+          228.87030029296875,
+          425.6812438964844
+        ],
+        [
+          39.384765625,
+          425.6812438964844
+        ]
+      ]
+    },
+    {
+      "title": "5. Conclusions",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          40.18310546875,
+          588.08740234375
+        ],
+        [
+          99.26025390625,
+          588.08740234375
+        ],
+        [
+          99.26025390625,
+          596.8265991210938
+        ],
+        [
+          40.18310546875,
+          596.8265991210938
+        ]
+      ]
+    },
+    {
+      "title": "Appendix A. Supporting information",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          35.6591796875,
+          479.8927307128906
+        ],
+        [
+          181.4892578125,
+          479.8927307128906
+        ],
+        [
+          181.4892578125,
+          488.68212890625
+        ],
+        [
+          35.6591796875,
+          488.68212890625
+        ]
+      ]
+    },
+    {
+      "title": "References",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          35.126953125,
+          544.55224609375
+        ],
+        [
+          79.69664001464844,
+          544.55224609375
+        ],
+        [
+          79.69664001464844,
+          556.0181732177734
+        ],
+        [
+          35.126953125,
+          556.0181732177734
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          185
+        ],
+        [
+          "Line",
+          57
+        ],
+        [
+          "Text",
+          10
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "Footnote",
+          4
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "ListItem",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "TableCell",
+          190
+        ],
+        [
+          "Span",
+          128
+        ],
+        [
+          "Line",
+          30
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Footnote",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          207
+        ],
+        [
+          "Line",
+          57
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          52
+        ],
+        [
+          "TableCell",
+          51
+        ],
+        [
+          "Span",
+          12
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Equation",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          262
+        ],
+        [
+          "Line",
+          108
+        ],
+        [
+          "Figure",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Caption",
+          2
+        ],
+        [
+          "Text",
+          2
+        ],
+        [
+          "FigureGroup",
+          2
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Footnote",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          276
+        ],
+        [
+          "Line",
+          58
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "Equation",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          267
+        ],
+        [
+          "Line",
+          58
+        ],
+        [
+          "Text",
+          10
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "Equation",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          44
+        ],
+        [
+          "Line",
+          18
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          119
+        ],
+        [
+          "Line",
+          56
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 9,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          119
+        ],
+        [
+          "Line",
+          56
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 10,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          124
+        ],
+        [
+          "Line",
+          46
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Footnote",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 11,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          144
+        ],
+        [
+          "Line",
+          55
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 12,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          81
+        ],
+        [
+          "Line",
+          29
+        ],
+        [
+          "Text",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 13,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          308
+        ],
+        [
+          "Line",
+          59
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "Footnote",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Equation",
+          2
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 14,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          87
+        ],
+        [
+          "Line",
+          30
+        ],
+        [
+          "Text",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 15,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          125
+        ],
+        [
+          "Line",
+          36
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 16,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          198
+        ],
+        [
+          "Line",
+          57
+        ],
+        [
+          "Text",
+          13
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Footnote",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 17,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          264
+        ],
+        [
+          "Line",
+          72
+        ],
+        [
+          "Text",
+          50
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/Bakaert,  Hoerova, Duca - Risk, uncertainty and monetary policy"
+}
