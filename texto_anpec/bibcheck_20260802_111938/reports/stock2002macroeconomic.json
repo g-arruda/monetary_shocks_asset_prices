@@ -1,0 +1,15 @@
+{
+  "key": "stock2002macroeconomic",
+  "status": "corrected",
+  "one_sentence": "All bibliographic fields (title, authors, journal, volume 20, issue 2, pages 147-162, year 2002, publisher Taylor & Francis) correctly match Stock & Watson's JBES 'Macroeconomic Forecasting Using Diffusion Indexes' via Crossref (DOI 10.1198/073500102317351921), correctly distinct from their companion JASA 97(460) paper — only a missing DOI field, and the entry is not actually cited anywhere in paper_anpec.tex.",
+  "canonical_url": "https://doi.org/10.1198/073500102317351921",
+  "issues": [
+    "NOT CITED: 'stock2002macroeconomic' does not appear in texto_anpec/paper_anpec.tex (grep returned no matches) — this entry is bibliographic dead weight, not an active citation. Auditing it anyway per instructions.",
+    "Missing DOI field: entry has no doi={10.1198/073500102317351921}. Crossref confirms this DOI resolves exactly to this article (title, authors, volume 20, issue 2, pages 147-162, year 2002 all match).",
+    "Field-mixing check PASSED: this is correctly the JBES paper ('Macroeconomic forecasting using diffusion indexes', JBES 20(2):147-162), not conflated with the sister 2002 paper 'Forecasting Using Principal Components From a Large Number of Predictors' (JASA 97(460):1167-1179). No fields from the JASA paper leaked in.",
+    "Publisher 'Taylor & Francis' is verifiable/acceptable: Crossref lists the DOI-registration agent as 'Informa UK Limited' (T&F's corporate parent), and Taylor & Francis is JBES's actual publisher (on behalf of the American Statistical Association) — this is the standard BibTeX publisher string (e.g. Google Scholar export) and is not an error.",
+    "Page range hygiene: '147--162' uses the correct BibTeX double-hyphen (renders as en-dash) — no issue.",
+    "All other fields (title casing/wording, author names 'Stock, James H' / 'Watson, Mark W', volume 20, number 2, year 2002) match the canonical Crossref record exactly."
+  ],
+  "corrected_bib": "@article{stock2002macroeconomic,\n  title={Macroeconomic forecasting using diffusion indexes},\n  author={Stock, James H and Watson, Mark W},\n  journal={Journal of Business \\& Economic Statistics},\n  volume={20},\n  number={2},\n  pages={147--162},\n  year={2002},\n  publisher={Taylor \\& Francis},\n  doi={10.1198/073500102317351921}\n}"
+}

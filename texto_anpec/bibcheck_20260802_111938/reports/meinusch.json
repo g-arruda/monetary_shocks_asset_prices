@@ -1,0 +1,16 @@
+{
+  "key": "meinusch",
+  "status": "corrected",
+  "one_sentence": "Meinusch & Tillmann (2016), 'The macroeconomic impact of unconventional monetary policy shocks', Journal of Macroeconomics 47(Part A), 58-67, DOI 10.1016/j.jmacro.2015.11.002 -- all substantive fields (authors, title, year, volume, pages, ISSN) check out against the ScienceDirect/RePEc/DOI record, but the entry is raw Web-of-Science export with hygiene issues (ALL-CAPS journal name, malformed 'A, SI' issue code, stray Unique-ID/EISSN fields, missing DOI) and is not actually cited anywhere in paper_anpec.tex.",
+  "canonical_url": "https://doi.org/10.1016/j.jmacro.2015.11.002",
+  "issues": [
+    "NOT CITED: 'meinusch' does not appear in texto_anpec/paper_anpec.tex (no \\cite{meinusch} found); it exists only in the .bib files. Audited per instructions regardless.",
+    "Journal field is in ALL-CAPS ('JOURNAL OF MACROECONOMICS'), a raw Web-of-Science export artifact -- correct capitalization is 'Journal of Macroeconomics'.",
+    "Number field is the malformed WoS string 'A, SI' -- the plain issue is 'Part A' (volume 47 was split into Part A / Part B; this article is in Part A). 'SI' (special issue) is WoS's own annotation, not part of the issue designation and should be dropped or, if kept, expressed as a separate note, not concatenated into Number.",
+    "Missing DOI field entirely -- should be added: 10.1016/j.jmacro.2015.11.002.",
+    "Stray non-standard field 'Unique-ID = {WOS:000374367300007}' -- a Web-of-Science accession number, not a standard BibTeX field; should be removed or moved to a 'note'/'archiveprefix'-style field if the project wants to keep provenance.",
+    "Stray non-standard field 'EISSN = {1873-152X}' -- not a standard BibTeX field (the standard field is simply 'issn' for the print ISSN used in citation; EISSN is WoS export boilerplate). Value itself is correct (electronic ISSN of Journal of Macroeconomics is indeed 1873-152X) but the field name is non-canonical BibTeX/WoS residue.",
+    "No field-mixing detected: title, authors (Annette Meinusch, Peter Tillmann), year (2016), volume (47), pages (58-67), and ISSN (0164-0704) all correctly belong to this single paper and are cross-confirmed by ScienceDirect (S0164070415001408), IDEAS/RePEc (v47y2016ipap58-67), and the DOI resolver."
+  ],
+  "corrected_bib": "@article{meinusch,\n  author  = {Meinusch, Annette and Tillmann, Peter},\n  title   = {The macroeconomic impact of unconventional monetary policy shocks},\n  journal = {Journal of Macroeconomics},\n  year    = {2016},\n  volume  = {47},\n  number  = {Part A},\n  pages   = {58--67},\n  month   = mar,\n  issn    = {0164-0704},\n  doi     = {10.1016/j.jmacro.2015.11.002},\n}"
+}

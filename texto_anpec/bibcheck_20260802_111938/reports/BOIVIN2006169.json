@@ -1,0 +1,33 @@
+{
+  "key": "BOIVIN2006169",
+  "status": "corrected",
+  "one_sentence": "Boivin and Ng (2006, Journal of Econometrics) show that adding more series to a factor model does not always improve the estimated factors' usefulness for forecasting, especially when idiosyncratic errors are cross-correlated or a factor dominant in a small panel becomes dominated in a larger one.",
+  "canonical_url": "https://doi.org/10.1016/j.jeconom.2005.01.027",
+  "issues": [
+    {
+      "field": "title/authors/journal/volume/number/pages/year",
+      "original": "Are more data always better for factor analysis? / Jean Boivin and Serena Ng / Journal of Econometrics / 132 / 1 / 169-194 / 2006",
+      "corrected": "unchanged (verified correct)",
+      "reason": "Cross-checked against CrossRef (DOI 10.1016/j.jeconom.2005.01.027) and RePEc/IDEAS (v132y2006i1p169-194): title, both author names and their order, journal, volume, issue, page range and year all match the canonical published article. No field mixing detected — this is not a case of one paper's title paired with another's metadata."
+    },
+    {
+      "field": "doi",
+      "original": "(field absent)",
+      "corrected": "10.1016/j.jeconom.2005.01.027",
+      "reason": "The entry has no DOI field. Confirmed via an independent CrossRef bibliographic-query search (not a guessed DOI) that this DOI resolves to exactly this title/authors/volume/issue/pages. Added for a canonical, unambiguous anchor."
+    },
+    {
+      "field": "pages",
+      "original": "169-194",
+      "corrected": "169--194",
+      "reason": "BibTeX hygiene: a single hyphen in a page range renders as a hyphen, not an en dash; the convention (and what BibTeX/biblatex expects) is a double hyphen '--' so it typesets as an en dash."
+    },
+    {
+      "field": "keywords",
+      "original": "Factor models, Large  and , Principal components, Forecasting",
+      "corrected": "Factor models, Principal components, Forecasting",
+      "reason": "The keywords field contains a corruption artifact: 'Large  and ,' has a double space and a dangling 'and' with no noun, almost certainly the result of losing italicized/HTML-formatted text (e.g. a keyword like 'Large N and T panels') during a copy-paste harvest from the publisher page. I could not recover the exact original wording from any available source (ScienceDirect blocks scraping and no mirror lists the keyword list), so rather than guess I removed the corrupted fragment and kept the three keywords that are intact and plausible. This is a hygiene fix, not a factual correction, and does not affect citation identity."
+    }
+  ],
+  "corrected_bib": "@article{BOIVIN2006169,\ntitle = {Are more data always better for factor analysis?},\njournal = {Journal of Econometrics},\nvolume = {132},\nnumber = {1},\npages = {169--194},\nyear = {2006},\ndoi = {10.1016/j.jeconom.2005.01.027},\nauthor = {Jean Boivin and Serena Ng},\nkeywords = {Factor models, Principal components, Forecasting},\n}"
+}

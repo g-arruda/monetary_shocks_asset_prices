@@ -1,0 +1,44 @@
+{
+  "key": "BEKAERT2013771",
+  "status": "OK_WITH_HYGIENE_ISSUES",
+  "one_sentence": "Correctly identifies Bekaert, Hoerova & Lo Duca (2013), \"Risk, uncertainty and monetary policy\", Journal of Monetary Economics 60(7): 771-788 (DOI 10.1016/j.jmoneco.2013.06.003) — no field mixing found, but the entry is missing a doi field, uses a plain hyphen instead of a BibTeX en-dash in the page range, and has smart/curly quotes embedded in the abstract.",
+  "canonical_url": "https://doi.org/10.1016/j.jmoneco.2013.06.003",
+  "issues": [
+    {
+      "field": "doi",
+      "severity": "moderate",
+      "description": "No doi field present. Canonical DOI is 10.1016/j.jmoneco.2013.06.003 (confirmed via CrossRef API and RePEc/EconPapers). Should be added."
+    },
+    {
+      "field": "pages",
+      "severity": "minor",
+      "description": "pages = {771-788} uses a plain hyphen. BibTeX convention (and CrossRef's own '771–788') calls for an en-dash rendered as a double hyphen: 771--788, so downstream .bst styles typeset it correctly."
+    },
+    {
+      "field": "abstract",
+      "severity": "minor",
+      "description": "Abstract contains Unicode smart/curly quotes (“”) around “uncertainty”, copied verbatim from the ScienceDirect/Elsevier export. Text otherwise matches the official abstract word-for-word (verified against EconPapers/RePEc mirror). Should be normalized to LaTeX ``uncertainty'' or straight quotes \"uncertainty\" to avoid encoding issues in non-UTF8 LaTeX toolchains.",
+      "detail": "Verified exact match of remaining abstract text against econpapers.repec.org mirror; only the quote-mark glyphs differ from a plain-text-safe rendering."
+    },
+    {
+      "field": "author",
+      "severity": "none (verified correct, not a defect)",
+      "description": "Marco {Lo Duca} is correctly braced. Without the braces, BibTeX's name-parsing algorithm would treat the last space-separated capitalized token as the surname ('Duca') and misfile the entry under D instead of L, since 'Lo' is capitalized and therefore not read as a von-particle. Bracing {Lo Duca} forces it to sort correctly as 'Lo Duca'. Confirmed the author order and spelling (Geert Bekaert, Marie Hoerova, Marco Lo Duca) against CrossRef, RePEc/IDEAS and EconPapers."
+    },
+    {
+      "field": "publisher",
+      "severity": "trivial",
+      "description": "No publisher field (Elsevier BV per CrossRef). Not required by most journal-article .bst styles but could be added for completeness."
+    },
+    {
+      "field": "abstract (VIX)",
+      "severity": "trivial",
+      "description": "The unbraced 'VIX' appears in the abstract text, not in the title or keywords field, so it is not at risk from title-case-changing .bst styles (abstract is normally printed verbatim and is a non-standard field). Flagged only for completeness per the audit checklist; no action needed unless the bibliography style manipulates the abstract field's case."
+    }
+  ],
+  "field_mixing_check": {
+    "result": "no mixing detected",
+    "notes": "Title, authors, year, journal, volume, issue, and page range are internally consistent and all independently verified against CrossRef (api.crossref.org/works/10.1016/j.jmoneco.2013.06.003), RePEc/IDEAS (ideas.repec.org/a/eee/moneco/v60y2013i7p771-788.html) and EconPapers (econpapers.repec.org/RePEc:eee:moneco:v:60:y:2013:i:7:p:771-788). The abstract text matches the official one exactly (modulo the smart-quote glyphs noted above)."
+  },
+  "corrected_bib": "@article{BEKAERT2013771,\ntitle = {Risk, uncertainty and monetary policy},\njournal = {Journal of Monetary Economics},\nvolume = {60},\nnumber = {7},\npages = {771--788},\nyear = {2013},\nissn = {0304-3932},\ndoi = {10.1016/j.jmoneco.2013.06.003},\nauthor = {Geert Bekaert and Marie Hoerova and Marco {Lo Duca}},\nkeywords = {Monetary policy, Option implied volatility, Risk aversion, Uncertainty, Business cycle},\nabstract = {The VIX, the stock market option-based implied volatility, strongly co-moves with measures of the monetary policy stance. When decomposing the VIX into two components, a proxy for risk aversion and expected stock market volatility (``uncertainty''), we find that a lax monetary policy decreases both risk aversion and uncertainty, with the former effect being stronger. The result holds in a structural vector autoregressive framework, controlling for business cycle movements and using a variety of identification schemes for the vector autoregression in general and monetary policy shocks in particular. The effect of monetary policy on risk aversion is also apparent in regressions using high frequency data.}\n}"
+}

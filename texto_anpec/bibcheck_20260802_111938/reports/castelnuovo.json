@@ -1,0 +1,75 @@
+{
+  "key": "castelnuovo",
+  "status": "corrected",
+  "one_sentence": "Correctly identifies Castelnuovo & Nisticò (2010), JEDC 34(9):1700-1731 with no field mixing, but is missing the DOI, has an accented-name inconsistency across fields (Author drops the accent, ResearcherID keeps it, ORCID drops it again), an ALL-CAPS/ampersand journal name, an unprotected \"U.S.\" in the title, and six WoS-export artifact fields (Number=\"9, SI\", Note, Organization, ResearcherID-Numbers, ORCID-Numbers, Unique-ID, EISSN) that should be pruned or fixed.",
+  "canonical_url": "https://doi.org/10.1016/j.jedc.2010.06.028",
+  "issues": [
+    {
+      "field": "author",
+      "original": "Castelnuovo, Efrem and Nistico, Salvatore",
+      "corrected": "Castelnuovo, Efrem and Nisticò, Salvatore",
+      "reason": "Crossref and the publisher record the second author's surname with an accent: \"Nisticò\" (o with grave accent). The WoS export is internally inconsistent about this: the Author field strips the accent (\"Nistico\"), the ResearcherID-Numbers field keeps it (\"Nisticò, Salvatore/JBS-4745-2023\"), and the ORCID-Numbers field strips it again (\"Nistico, Salvatore/...\"). The Author field is the one that renders in the bibliography and must carry the accent, written in BibTeX as Nistic\\`{o} or Nistic{\\`o} if not saving the file as UTF-8/using biblatex."
+    },
+    {
+      "field": "number",
+      "original": "9, SI",
+      "corrected": "9",
+      "reason": "\"SI\" is Web of Science's own flag meaning \"Special Issue\", appended to the issue number, not part of the actual issue designation. Crossref and RePEc both give the plain issue number as 9 (this was the special issue on the 14th International Conference on Computing in Economics and Finance, but the issue number itself is simply 9)."
+    },
+    {
+      "field": "journal",
+      "original": "JOURNAL OF ECONOMIC DYNAMICS \\& CONTROL",
+      "corrected": "Journal of Economic Dynamics and Control",
+      "reason": "WoS exports journal names in all caps with an ampersand as a Library-of-Congress-style abbreviation convention; this is not the journal's actual title. The publisher (Elsevier/ScienceDirect) and Crossref both give the name in title case using \"and\", not \"&\": \"Journal of Economic Dynamics and Control\"."
+    },
+    {
+      "field": "title",
+      "original": "Stock market conditions and monetary policy in a DSGE model for the U.S.",
+      "corrected": "Stock market conditions and monetary policy in a DSGE model for the {U.S.}",
+      "reason": "Title text matches the published article exactly (verified against Crossref and RePEc), so there is no field-mixing. However \"U.S.\" is not wrapped in braces, so a non-sentence-case bibliography style (e.g. plain, unsrt) will lowercase it to \"u.s.\" on typeset. This is a capitalization-protection hygiene fix, not a wording change."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1016/j.jedc.2010.06.028",
+      "reason": "No doi field present in the WoS export. The DOI resolves via Crossref to this exact article (title, authors, volume 34, issue 9, pages 1700-1731, year 2010 all match) and is also listed on the ScienceDirect abstract page (pii S0165188910001582)."
+    },
+    {
+      "field": "researcherid-numbers",
+      "original": "Nisticò, Salvatore/JBS-4745-2023\\n   ",
+      "corrected": "(removed)",
+      "reason": "WoS-internal ResearcherID metadata field, not a standard BibTeX field and not needed for citation; safe to drop as export cruft. (Its accented spelling of the surname was cross-checked and used to resolve the Author-field inconsistency above.)"
+    },
+    {
+      "field": "orcid-numbers",
+      "original": "Nistico, Salvatore/0000-0001-9054-923X",
+      "corrected": "(removed)",
+      "reason": "WoS-internal ORCID metadata field, not a standard BibTeX field; author ORCID is not needed for a reference-list entry and this field duplicates/contradicts the Author field's spelling."
+    },
+    {
+      "field": "unique-id",
+      "original": "WOS:000282997600011",
+      "corrected": "(removed)",
+      "reason": "Web of Science's internal accession number, meaningless outside the WoS database; standard bibliography-hygiene cruft to strip."
+    },
+    {
+      "field": "eissn",
+      "original": "1879-1743",
+      "corrected": "(removed, verified correct)",
+      "reason": "Value itself is correct (confirmed against the ISSN portal: JEDC online ISSN is 1879-1743), but eissn is a non-standard BibTeX field for a reference-list entry; issn alone (0165-1889, also confirmed correct) suffices and is what the corrected entry keeps."
+    },
+    {
+      "field": "organization",
+      "original": "Soc Comp Econ",
+      "corrected": "(removed)",
+      "reason": "WoS conference-sponsor metadata (Society for Computational Economics, sponsor of the CEF 2008 conference referenced in Note), irrelevant to citing the journal article and not a field @article recognizes."
+    },
+    {
+      "field": "note",
+      "original": "14th International Conference on Computing in Economics and Finance (CEF 2008), Univ Sorbonne, Inst Higher Learn, Paris, FRANCE, JUN 26-28, 2008",
+      "corrected": "(removed)",
+      "reason": "Multi-line WoS conference-provenance string (this JEDC special issue collected papers presented at CEF 2008); it describes the special issue's origin, not the cited article's content, and is conventional WoS-export cruft that does not belong in a citation's Note field."
+    }
+  ],
+  "corrected_bib": "@article{castelnuovo,\n  author  = {Castelnuovo, Efrem and Nistic{\\`o}, Salvatore},\n  title   = {Stock market conditions and monetary policy in a DSGE model for the {U.S.}},\n  journal = {Journal of Economic Dynamics and Control},\n  year    = {2010},\n  volume  = {34},\n  number  = {9},\n  pages   = {1700--1731},\n  month   = {sep},\n  issn    = {0165-1889},\n  doi     = {10.1016/j.jedc.2010.06.028},\n}\n"
+}

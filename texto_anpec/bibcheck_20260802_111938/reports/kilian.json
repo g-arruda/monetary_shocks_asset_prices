@@ -1,0 +1,33 @@
+{
+  "key": "kilian",
+  "status": "corrected",
+  "one_sentence": "Kilian (2009, American Economic Review) develops a structural VAR to disentangle oil supply shocks, aggregate demand shocks, and oil-market-specific demand shocks in the crude oil market and traces their differing effects on the real price of oil and the US economy.",
+  "canonical_url": "https://doi.org/10.1257/aer.99.3.1053",
+  "issues": [
+    {
+      "field": "Year",
+      "original": "Year = {2009} (appears on line 7 and again on line 11)",
+      "corrected": "Year = {2009} (single occurrence)",
+      "reason": "Duplicated field key in the same @article block. BibTeX entries must not repeat a field name; most parsers silently keep one value (implementation-dependent) rather than erroring, which is fragile hygiene even though the duplicated value happened to be identical and non-contradictory here."
+    },
+    {
+      "field": "Month",
+      "original": "Month = {June} (appears on line 8 and again on line 10)",
+      "corrected": "Month = {June} (single occurrence)",
+      "reason": "Same duplicated-field problem as Year. Both duplicates carried the same value, so no factual error resulted, but the entry should be de-duplicated for BibTeX hygiene."
+    },
+    {
+      "field": "Pages",
+      "original": "Pages = {1053–69}",
+      "corrected": "Pages = {1053--1069}",
+      "reason": "The original uses a literal Unicode en-dash (U+2013) character inside the .bib source. BibTeX/BibLaTeX convention is to encode a page-range dash as ASCII double-hyphen (--), which .bst styles render as an en-dash at typeset time; a raw Unicode en-dash can break under non-UTF8 BibTeX toolchains or render inconsistently. Also expanded the truncated '69' to the full '1069' to avoid ambiguity, though the AEA's own abbreviated '1053–69' is not itself wrong."
+    },
+    {
+      "field": "Doi",
+      "original": "(missing)",
+      "corrected": "Doi = {10.1257/aer.99.3.1053}",
+      "reason": "No DOI field was present. Adding it is standard hygiene for a published journal article and gives a durable canonical anchor; confirmed against the AEA article landing page."
+    }
+  ],
+  "corrected_bib": "@article{kilian,\n  Author  = {Kilian, Lutz},\n  Title   = {Not All Oil Price Shocks Are Alike: Disentangling Demand and Supply Shocks in the Crude Oil Market},\n  Journal = {American Economic Review},\n  Volume  = {99},\n  Number  = {3},\n  Pages   = {1053--1069},\n  Year    = {2009},\n  Month   = {June},\n  Doi     = {10.1257/aer.99.3.1053}\n}"
+}

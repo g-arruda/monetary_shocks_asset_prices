@@ -1,0 +1,14 @@
+{
+  "key": "maddala_wu_1999",
+  "status": "corrected",
+  "one_sentence": "All content fields (title, authors, year, journal, volume, issue S1, pages) are verified correct against CrossRef/Wiley, but the entry has a duplicated `year` field and is missing the DOI; the entry is also not cited anywhere in the manuscript.",
+  "canonical_url": "https://doi.org/10.1111/1468-0084.0610s1631",
+  "issues": [
+    "BibTeX hygiene: `year` field is duplicated (appears on both line 4 and line 9, both = {1999}). Not a factual error since both copies agree, but duplicate fields are invalid/undefined behavior in strict BibTeX/biber parsers and one copy must be removed.",
+    "Missing DOI field (10.1111/1468-0084.0610s1631) — should be added for a canonical anchor.",
+    "Minor/optional hygiene: title has no protective outer braces ({{...}}), so title-case words (e.g. 'Data', 'Tests', 'Study') would be forced to lowercase under sentence-case bibliography styles (apalike, chicago-author-date, etc.). None of the affected words are proper nouns or acronyms, so this causes no factual distortion, only a stylistic risk depending on the chosen .bst/biblatex style.",
+    "NOT CITED: `maddala_wu_1999` does not appear anywhere in texto_anpec/*.tex (grep for the key returns no matches). The entry is present in the .bib but orphaned/unused in the current manuscript.",
+    "No field-mixing detected: title, authors (G. S. Maddala and Shaowen Wu), year, journal (Oxford Bulletin of Economics and Statistics), volume 61, number S1, and pages 631-652 all cross-check consistently to the single canonical Wiley/CrossRef record for this paper — no fields borrowed from a different publication."
+  ],
+  "corrected_bib": "@article{maddala_wu_1999,\n  title        = {A Comparative Study of Unit Root Tests with Panel Data and a New Simple Test},\n  author       = {Maddala, G. S. and Wu, Shaowen},\n  year         = {1999},\n  journal      = {Oxford Bulletin of Economics and Statistics},\n  volume       = {61},\n  number       = {S1},\n  pages        = {631--652},\n  doi          = {10.1111/1468-0084.0610s1631},\n  publisher    = {Wiley}\n}"
+}

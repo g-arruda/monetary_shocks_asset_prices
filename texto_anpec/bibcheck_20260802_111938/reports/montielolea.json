@@ -1,0 +1,15 @@
+{
+  "key": "montielolea",
+  "status": "clean",
+  "one_sentence": "All fields (authors, title, journal, volume 225(1), pages 74-87, year 2021) match the published Journal of Econometrics version and the DOI resolves to this exact article; no field-mixing with the 2012-2020 working-paper vintage was found.",
+  "canonical_url": "https://doi.org/10.1016/j.jeconom.2020.05.014",
+  "issues": [
+    {
+      "field": "title",
+      "original": "Inference in Structural Vector Autoregressions Identified with an External Instrument",
+      "corrected": "Inference in Structural Vector Autoregressions identified with an external instrument",
+      "reason": "Cosmetic only, not an error: the .bib gives the title in Title Case, while the publisher (ScienceDirect/Elsevier), Princeton's collaborate page, and RePEc/IDEAS all render it in sentence case ('identified'/'external' lowercase). BibTeX styles normally re-case titles automatically, so this does not need fixing, but noting it since exact-string checkers may flag it."
+    }
+  ],
+  "corrected_bib": "@article{montielolea,\n  author = {Montiel Olea, Jos\\'e Luis and Stock, James H. and Watson, Mark W.},\n  title = {Inference in Structural Vector Autoregressions Identified with an External Instrument},\n  journal = {Journal of Econometrics},\n  volume = {225},\n  number = {1},\n  pages = {74--87},\n  year = {2021},\n  doi = {10.1016/j.jeconom.2020.05.014}\n}\n"
+}

@@ -1,0 +1,39 @@
+{
+  "key": "ehrmann",
+  "status": "corrected",
+  "one_sentence": "Ehrmann and Fratzscher (2004, Journal of Money, Credit and Banking 36(4), pp. 719-737) show that individual S&P 500 stocks react heterogeneously to U.S. monetary policy shocks, with the reaction concentrated in firms with tighter financial constraints and higher Tobin's q.",
+  "canonical_url": "https://doi.org/10.1353/mcb.2004.0063",
+  "issues": [
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "doi = {10.1353/mcb.2004.0063}",
+      "reason": "No DOI field present. Confirmed via Project MUSE crossref resolution (doi.org/10.1353/mcb.2004.0063 redirects to muse.jhu.edu .../journal_of_money_credit_and_banking/v036/36.4ehrmann.pdf, i.e. vol. 36 issue 4), matching JSTOR stable/3839039. Adding it gives a durable canonical anchor; this is the article's registered DOI (Project MUSE is the DOI-registration host for pre-Wiley-digitization JMCB back issues, distinct from JSTOR)."
+    },
+    {
+      "field": "urldate",
+      "original": "urldate = {2024-12-12}",
+      "corrected": "(remove, or pair with an explicit url field)",
+      "reason": "Stray JSTOR-import artifact: urldate records when a URL was accessed, but the entry carries no url field at all, so urldate is orphaned and meaningless as written. Either drop it or add the corresponding url (e.g. the JSTOR stable link) it was presumably meant to timestamp."
+    },
+    {
+      "field": "abstract",
+      "original": "(full JSTOR-scraped abstract text present)",
+      "corrected": "(remove)",
+      "reason": "Verified against the paper's actual abstract (matches in substance: heterogeneous stock reaction to US monetary policy shocks, financial constraints, Tobin's q) so it is not mismatched/mixed content, but a full abstract is non-standard clutter in a citation .bib and is a typical unedited JSTOR-export artifact."
+    },
+    {
+      "field": "ISSN",
+      "original": "ISSN = {00222879, 15384616}",
+      "corrected": "(remove, or split into issn/eissn if the style requires it)",
+      "reason": "Values are correct (0022-2879 print / 1538-4616 online, confirmed against Wiley's JMCB journal page ID 15384616 and JSTOR's journal record), but bundling print+electronic ISSN unhyphenated into one field is a raw JSTOR-export artifact rather than a curated bibliography field; not needed for a journal-article citation and not itself a factual error."
+    },
+    {
+      "field": "publisher",
+      "original": "publisher = {[Wiley, Ohio State University Press]}",
+      "corrected": "(no change needed; optional to drop for a journal article)",
+      "reason": "Checked for correctness rather than flagged as wrong: this is JSTOR's verbatim publisher string for pre-2007 JMCB volumes, reflecting that Ohio State University Press was the journal's original publisher/copyright holder while Blackwell/Wiley served (and now serves, as Wiley) as the distributing publisher. The volume/issue/year triple confirms this is the right journal record (Vol. 36, No. 4, August 2004), so the bracketed dual-publisher format is idiosyncratic JSTOR styling, not a data error. A publisher field is unconventional for a plain journal-article @article entry generally, so removal is a stylistic option, not a correction."
+    }
+  ],
+  "corrected_bib": "@article{ehrmann,\n author = {Michael Ehrmann and Marcel Fratzscher},\n title = {Taking Stock: Monetary Policy Transmission to Equity Markets},\n journal = {Journal of Money, Credit and Banking},\n volume = {36},\n number = {4},\n pages = {719--737},\n year = {2004},\n publisher = {[Wiley, Ohio State University Press]},\n doi = {10.1353/mcb.2004.0063}\n}"
+}

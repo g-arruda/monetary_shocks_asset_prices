@@ -1,0 +1,57 @@
+{
+  "key": "Cooley",
+  "status": "corrected",
+  "one_sentence": "Cooley & Quadrini (2006), 'Monetary policy and the financial decisions of firms', Economic Theory 27(1):243-270, DOI 10.1007/s00199-004-0553-x -- year/volume/issue/pages/ISSN all verified correct against CrossRef, but the entry is a raw Web-of-Science export with initials-only authors, an ALL-CAPS journal name, a missing DOI, and stray non-BibTeX WoS fields.",
+  "canonical_url": "https://doi.org/10.1007/s00199-004-0553-x",
+  "issues": [
+    {
+      "field": "author",
+      "original": "Cooley, T and Quadrini, V",
+      "corrected": "Cooley, Thomas F. and Quadrini, Vincenzo",
+      "reason": "WoS export gives bare initials. CrossRef metadata for this DOI lists full given names 'Thomas F.' (Thomas Ferguson Cooley) and 'Vincenzo' (Quadrini)."
+    },
+    {
+      "field": "journal",
+      "original": "ECONOMIC THEORY",
+      "corrected": "Economic Theory",
+      "reason": "WoS exports journal names in ALL-CAPS; correct title-case rendering per Springer/CrossRef is 'Economic Theory'."
+    },
+    {
+      "field": "year",
+      "original": "2006",
+      "corrected": "2006",
+      "reason": "Confirmed correct, not a correction. Checked for online-first vs. issue-year mismatch: manuscript received 2003-11-20, revised 2004-08-26 (the '004' in the DOI suffix s00199-004-0553-x reflects this 2004 processing/acceptance year, not the publication year), but CrossRef's container publication date is January 2006, matching the printed volume/issue. No change needed."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1007/s00199-004-0553-x",
+      "reason": "No DOI field present in the WoS export; added the canonical Springer DOI, verified via CrossRef API (api.crossref.org/works/10.1007/s00199-004-0553-x) to resolve to this exact title/author/volume/pages combination."
+    },
+    {
+      "field": "Unique-ID",
+      "original": "WOS:000229022300011",
+      "corrected": "(removed)",
+      "reason": "Not a standard BibTeX field; it is a Web-of-Science internal accession number with no meaning outside WoS. Should be dropped or moved to a 'note'/'annote' field if provenance tracking is desired."
+    },
+    {
+      "field": "eissn",
+      "original": "EISSN = {1432-0479}",
+      "corrected": "eissn = {1432-0479} (lowercased key; kept, non-standard but harmless)",
+      "reason": "Confirmed correct value against CrossRef (electronic ISSN 1432-0479), but 'EISSN' is not a standard BibTeX field recognized by most styles (only 'issn' is). Kept as supplementary metadata; flagged for hygiene, not accuracy."
+    },
+    {
+      "field": "issn",
+      "original": "ISSN = {0938-2259}",
+      "corrected": "0938-2259",
+      "reason": "Confirmed correct (print ISSN) against CrossRef; no change, listed for completeness of the audit."
+    },
+    {
+      "field": "field_mixing_check",
+      "original": "n/a",
+      "corrected": "n/a",
+      "reason": "Verified via CrossRef that DOI 10.1007/s00199-004-0553-x resolves to exactly title='Monetary policy and the financial decisions of firms', authors Cooley & Quadrini, Economic Theory 27(1):243-270 (2006) -- not to be confused with Cooley & Quadrini's other closely related papers (e.g. 'Financial Markets and Firm Dynamics', AER 2001, 91(5):1286-1310). No mixing detected; all fields belong to the same paper."
+    }
+  ],
+  "corrected_bib": "@article{Cooley,\n  author  = {Cooley, Thomas F. and Quadrini, Vincenzo},\n  title   = {Monetary policy and the financial decisions of firms},\n  journal = {Economic Theory},\n  year    = {2006},\n  volume  = {27},\n  number  = {1},\n  pages   = {243--270},\n  month   = jan,\n  issn    = {0938-2259},\n  doi     = {10.1007/s00199-004-0553-x},\n}"
+}

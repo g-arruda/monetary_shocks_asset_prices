@@ -1,0 +1,33 @@
+{
+  "key": "bagliano1998",
+  "status": "corrected",
+  "one_sentence": "Title, authors, volume, and pages 1069-1112 are all correct for this exact article, but the entry is missing the issue number (6) and DOI, and the title has an unprotected capital VAR that BibTeX will lowercase.",
+  "canonical_url": "https://doi.org/10.1016/S0014-2921(98)00005-1",
+  "issues": [
+    {
+      "field": "number",
+      "original": "(missing)",
+      "corrected": "6",
+      "reason": "European Economic Review vol. 42 (1998) spans multiple issues; this article was published in issue 6 (June 1998), confirmed by CrossRef (DOI 10.1016/S0014-2921(98)00005-1) and RePEc (eee:eecrev:v:42:y:1998:i:6:p:1069-1112). Pages 1069-1112 belong to this exact title in that issue -- no field mixing with the companion Bagliano-Favero paper 'Information from financial markets and VAR measures of monetary policy' (EER 43(4-6), 1999, pp.825-837), which is a distinct, later article."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1016/S0014-2921(98)00005-1",
+      "reason": "DOI resolves via CrossRef to the exact title/authors/pages; ScienceDirect PII S0014292198000051 corresponds to the same DOI suffix."
+    },
+    {
+      "field": "title",
+      "original": "Measuring Monetary Policy with VAR Models: An Evaluation",
+      "corrected": "Measuring Monetary Policy with {VAR} Models: An Evaluation",
+      "reason": "BibTeX hygiene: 'VAR' is an acronym that must be brace-protected or it will be lowercased to 'var' by styles that force title-case/sentence-case (e.g. apalike, some agsm/econ styles)."
+    },
+    {
+      "field": "month",
+      "original": "(missing)",
+      "corrected": "jun",
+      "reason": "Minor completeness: RePEc/CrossRef list the issue as June 1998. Optional field, not required for correctness, included for completeness."
+    }
+  ],
+  "corrected_bib": "@article{bagliano1998,\n  author  = {Bagliano, Fabio C. and Favero, Carlo A.},\n  title   = {Measuring Monetary Policy with {VAR} Models: An Evaluation},\n  journal = {European Economic Review},\n  volume  = {42},\n  number  = {6},\n  pages   = {1069--1112},\n  year    = {1998},\n  month   = jun,\n  doi     = {10.1016/S0014-2921(98)00005-1}\n}"
+}

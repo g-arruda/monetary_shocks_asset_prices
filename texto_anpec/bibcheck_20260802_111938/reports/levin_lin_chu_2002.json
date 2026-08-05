@@ -1,0 +1,14 @@
+{
+  "key": "levin_lin_chu_2002",
+  "status": "corrected",
+  "one_sentence": "Levin, Lin & Chu (2002), 'Unit root tests in panel data: asymptotic and finite-sample properties,' Journal of Econometrics 108(1):1-24 (DOI 10.1016/S0304-4076(01)00098-7) — all substantive fields (title, three authors incl. third author's full given-name form 'Chia-Shang James', year, journal, volume, number, pages) check out against Crossref/DOI; only BibTeX hygiene issues found.",
+  "canonical_url": "https://doi.org/10.1016/S0304-4076(01)00098-7",
+  "issues": [
+    "NOT CITED: this entry does not appear to be cited anywhere in the manuscript (per task instruction) — audited anyway, but flag for possible removal from the .bib.",
+    "Duplicated `year` field: `year = {2002}` appears twice (lines 4 and 9). Both occurrences agree in value (no data corruption), but this is invalid/non-canonical BibTeX and most parsers will warn or silently drop one — should be deduplicated to a single occurrence.",
+    "Missing `doi` field — canonical DOI is 10.1016/S0304-4076(01)00098-7; not present in the entry.",
+    "Pages field `1--24` already uses the correct double-hyphen (renders as en-dash) convention — no fix needed here, checked and clean.",
+    "No field-mixing detected: title, authors (Andrew Levin; Chien-Fu Lin; Chia-Shang James Chu — third author's compound given name verified correct, not truncated to 'C.S.' or misordered), year, journal, volume, issue, and pages all cross-check consistently to the single canonical Crossref record for this DOI."
+  ],
+  "corrected_bib": "@article{levin_lin_chu_2002,\n  title = {Unit root tests in panel data: asymptotic and finite-sample properties},\n  author = {Levin, Andrew and Lin, Chien-Fu and Chu, Chia-Shang James},\n  year = {2002},\n  journal = {Journal of Econometrics},\n  volume = {108},\n  number = {1},\n  pages = {1--24},\n  doi = {10.1016/S0304-4076(01)00098-7}\n}"
+}

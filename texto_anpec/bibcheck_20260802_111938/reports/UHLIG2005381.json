@@ -1,0 +1,27 @@
+{
+  "key": "UHLIG2005381",
+  "status": "corrected",
+  "one_sentence": "All content fields (title, author, journal, volume, issue, pages, year, ISSN) correctly identify Uhlig (2005), JME 52(2):381-419; the entry only had bibliographic-hygiene defects (missing DOI, hyphen instead of en-dash in the page range, and Unicode smart quotes in the abstract).",
+  "canonical_url": "https://doi.org/10.1016/j.jmoneco.2004.05.007",
+  "issues": [
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1016/j.jmoneco.2004.05.007",
+      "reason": "No DOI field present. Confirmed via Crossref API (api.crossref.org/works/10.1016/j.jmoneco.2004.05.007), which matches all other fields (title, author, container-title, volume 52, issue 2, pages 381-419, year 2005, ISSN 0304-3932, publisher Elsevier BV) exactly."
+    },
+    {
+      "field": "pages",
+      "original": "381-419",
+      "corrected": "381--419",
+      "reason": "Page range uses a plain hyphen; BibTeX convention (and correct LaTeX en-dash rendering) requires a double hyphen for page ranges."
+    },
+    {
+      "field": "abstract",
+      "original": "I find that “contractionary” monetary policy shocks have no clear effect on real GDP...",
+      "corrected": "I find that \"contractionary\" monetary policy shocks have no clear effect on real GDP...",
+      "reason": "Abstract contains Unicode curly/smart quotes (U+201C/U+201D, verified via raw byte inspection: UTF-8 sequences E2 80 9C / E2 80 9D) around 'contractionary' instead of plain ASCII quotes. Smart quotes in a .bib source file risk encoding/compilation issues and are inconsistent with standard BibTeX hygiene; content itself (rest of abstract wording) is otherwise consistent with the paper's known abstract."
+    }
+  ],
+  "corrected_bib": "@article{UHLIG2005381,\ntitle = {What are the effects of monetary policy on output? Results from an agnostic identification procedure},\njournal = {Journal of Monetary Economics},\nvolume = {52},\nnumber = {2},\npages = {381--419},\nyear = {2005},\nissn = {0304-3932},\ndoi = {10.1016/j.jmoneco.2004.05.007},\nauthor = {Harald Uhlig},\nkeywords = {Vector autoregression, Monetary policy shocks, Identification, Monetary neutrality},\nabstract = {This paper proposes to estimate the effects of monetary policy shocks by a new agnostic method, imposing sign restrictions on the impulse responses of prices, nonborrowed reserves and the federal funds rate in response to a monetary policy shock. No restrictions are imposed on the response of real GDP to answer the key question in the title. I find that \"contractionary\" monetary policy shocks have no clear effect on real GDP, even though prices move only gradually in response to a monetary policy shock. Neutrality of monetary policy shocks is not inconsistent with the data.}\n}"
+}

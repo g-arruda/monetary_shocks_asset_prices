@@ -1,0 +1,15 @@
+{
+  "key": "forni2005generalized",
+  "status": "corrected",
+  "one_sentence": "All substantive fields (title, four authors in order, journal, volume 100/issue 471/pages 830-840, year 2005, and the Taylor & Francis publisher attribution) check out exactly against Crossref/DOI 10.1198/016214504000002050 and correctly identify the JASA one-sided estimation and forecasting paper rather than the sibling REStat (2000) or JoE (2004) papers in the same Forni-Hallin-Lippi-Reichlin GDFM family — the only issue is a missing DOI field, which is added.",
+  "canonical_url": "https://doi.org/10.1198/016214504000002050",
+  "issues": [
+    "Not cited anywhere in the manuscript (paper_anpec.tex) — verified via grep; this entry is an orphan in the .bib but the entry's own fields are accurate.",
+    "Missing doi field (Crossref DOI 10.1198/016214504000002050 resolves cleanly to the Taylor & Francis landing page for this exact article).",
+    "Field-mixing check passed: JASA 100(471):830-840 (2005) is confirmed by Crossref to be 'The Generalized Dynamic Factor Model: One-Sided Estimation and Forecasting' — distinct from Forni-Hallin-Lippi-Reichlin (2000) 'The Generalized Dynamic-Factor Model: Identification and Estimation' (Review of Economics and Statistics 82(4):540-554) and Forni-Hallin-Lippi-Reichlin (2004) 'The Generalized Dynamic Factor Model: Consistency and Rates' (Journal of Econometrics 119(2):231-255). No cross-contamination between the three sibling papers.",
+    "Publisher field verified, not an error: JASA in 2005 was published by Taylor & Francis on behalf of the American Statistical Association (Crossref registers the publisher as 'Informa UK Limited', the corporate name under which Taylor & Francis operates); 'Taylor \\& Francis' is a defensible short-form publisher value, though 'Taylor \\& Francis, for the American Statistical Association' would be more complete.",
+    "Page range uses correct BibTeX double-hyphen (830--840) for an en-dash — no hygiene issue there.",
+    "Title stored in sentence case ('The generalized dynamic factor model: One-sided estimation and forecasting') rather than the journal's own title case; not wrong (no proper-noun/acronym needs brace-protection since all interior words are already lowercase) but inconsistent with how the publisher renders it."
+  ],
+  "corrected_bib": "@article{forni2005generalized,\n  title={The generalized dynamic factor model: One-sided estimation and forecasting},\n  author={Forni, Mario and Hallin, Marc and Lippi, Marco and Reichlin, Lucrezia},\n  journal={Journal of the American Statistical Association},\n  volume={100},\n  number={471},\n  pages={830--840},\n  year={2005},\n  publisher={Taylor \\& Francis},\n  doi={10.1198/016214504000002050}\n}"
+}

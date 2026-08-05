@@ -1,0 +1,27 @@
+{
+  "key": "sax2018seasonal",
+  "status": "corrected",
+  "one_sentence": "Sax & Eddelbuettel (2018), 'Seasonal Adjustment by X-13ARIMA-SEATS in R', JSS 87(11):1-17, doi:10.18637/jss.v087.i11 -- entry's facts (authors, volume, pages, year) are correct but the title is unprotected/lowercased and the issue number and DOI are missing.",
+  "canonical_url": "https://www.jstatsoft.org/article/view/v087i11",
+  "issues": [
+    {
+      "field": "title",
+      "original": "Seasonal adjustment by x-13arima-seats in r",
+      "corrected": "Seasonal Adjustment by {X-13ARIMA-SEATS} in {R}",
+      "reason": "JSS title-cases article titles; the entry has it fully lowercased (not just unprotected). Correct rendering is 'Seasonal Adjustment by X-13ARIMA-SEATS in R'. Additionally, 'X-13ARIMA-SEATS' (the Census Bureau software) and the standalone 'R' must be brace-protected or a lowercase/sentence-case BibTeX style (e.g. apalike, chicago author-date) will mangle them to 'x-13arima-seats' and 'r'."
+    },
+    {
+      "field": "number",
+      "original": "(missing)",
+      "corrected": "11",
+      "reason": "JSS articles each occupy their own issue number within a volume; volume 87 alone is insufficient to locate the article. The JSS landing page confirms Volume 87, Issue 11, Article 11 (article number equals issue number for this journal)."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.18637/jss.v087.i11",
+      "reason": "DOI omitted; verified on the JSS article landing page and resolves via https://doi.org/10.18637/jss.v087.i11."
+    }
+  ],
+  "corrected_bib": "@article{sax2018seasonal,\n  title={Seasonal Adjustment by {X-13ARIMA-SEATS} in {R}},\n  author={Sax, Christoph and Eddelbuettel, Dirk},\n  journal={Journal of Statistical Software},\n  volume={87},\n  number={11},\n  pages={1--17},\n  year={2018},\n  doi={10.18637/jss.v087.i11}\n}"
+}

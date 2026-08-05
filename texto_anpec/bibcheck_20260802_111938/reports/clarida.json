@@ -1,0 +1,39 @@
+{
+  "key": "clarida",
+  "status": "corrected",
+  "one_sentence": "Title/authors/year/journal/volume/issue/pages all correctly identify Clarida-Galí-Gertler (2000, QJE 115(1):147-180) with no field-mixing, but the publisher is a JSTOR anachronism (Oxford University Press, which only took over QJE c. 2017-2018) and the entry lacks a DOI while carrying stray JSTOR-import fields (ISSN, abstract, urldate).",
+  "canonical_url": "https://doi.org/10.1162/003355300554692",
+  "issues": [
+    {
+      "field": "publisher",
+      "original": "Oxford University Press",
+      "corrected": "MIT Press",
+      "reason": "In 2000, The Quarterly Journal of Economics was published by MIT Press (MIT Press Journals operated the journal on behalf of copyright holder Harvard College); QJE only moved to Oxford University Press around 2017-2018 (starting near vol. 132). The 'Oxford University Press' value in this entry reflects JSTOR/Crossref's current-publisher-of-record metadata, not the publisher at the time of publication -- exactly the anachronism pattern flagged for JSTOR-sourced imports."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1162/003355300554692",
+      "reason": "No DOI was present. 10.1162/003355300554692 resolves (via Crossref redirect) to the Oxford Academic landing page for this exact article (vol. 115, issue 1, pp. 147-180, 2000), confirming it as the canonical anchor."
+    },
+    {
+      "field": "ISSN",
+      "original": "00335533, 15314650",
+      "corrected": "(removed)",
+      "reason": "Stray JSTOR-import field. ISSN values are correct (0033-5533 print / 1531-4650 online, matching JSTOR/ISSN portal records for QJE) but are non-standard clutter in a reference-list .bib entry once journal + volume + issue + DOI are present."
+    },
+    {
+      "field": "abstract",
+      "original": "(full JSTOR abstract text present)",
+      "corrected": "(removed)",
+      "reason": "Stray JSTOR-import field; abstracts are not customary in a bibliography entry for a citation list and bloat the .bib without affecting the rendered reference."
+    },
+    {
+      "field": "urldate",
+      "original": "2024-12-12",
+      "corrected": "(removed)",
+      "reason": "Stray JSTOR-import field. urldate is meaningful for undated/online-only sources; this is a stable, DOI-identified print journal article, so an access date is superfluous."
+    }
+  ],
+  "corrected_bib": "@article{clarida,\n author = {Richard Clarida and Jordi Galí and Mark Gertler},\n journal = {The Quarterly Journal of Economics},\n number = {1},\n pages = {147--180},\n publisher = {MIT Press},\n title = {Monetary Policy Rules and Macroeconomic Stability: Evidence and Some Theory},\n doi = {10.1162/003355300554692},\n volume = {115},\n year = {2000}\n}"
+}

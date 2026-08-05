@@ -1,0 +1,15 @@
+{
+  "key": "stockwatson2018",
+  "status": "clean",
+  "one_sentence": "DOI 10.1111/ecoj.12593 resolves to Stock & Watson (2018), 'Identification and Estimation of Dynamic Causal Effects in Macroeconomics Using External Instruments,' The Economic Journal 128(610): 917-948, and every field in the entry matches the canonical record exactly.",
+  "canonical_url": "https://doi.org/10.1111/ecoj.12593",
+  "issues": [
+    {
+      "field": "publisher",
+      "original": "(absent)",
+      "corrected": "Wiley-Blackwell (optional addition)",
+      "reason": "Minor BibTeX hygiene only, not a factual error: no publisher field is present. At the time of this 2018 volume, The Economic Journal was still published by Wiley-Blackwell (the Royal Economic Society's journals moved to Oxford University Press only from the 2019 volume onward, per RES's own announcement), so 'Wiley-Blackwell' would be the historically accurate value if a publisher is added; current landing page is hosted at academic.oup.com post-migration. Several sibling .bib entries in this same bibliography include a publisher field and others do not, so this is a style-consistency nicety, not a correctness issue."
+    }
+  ],
+  "corrected_bib": "@article{stockwatson2018,\n  author = {Stock, James H. and Watson, Mark W.},\n  title = {Identification and Estimation of Dynamic Causal Effects in Macroeconomics Using External Instruments},\n  journal = {The Economic Journal},\n  volume = {128},\n  number = {610},\n  pages = {917--948},\n  year = {2018},\n  doi = {10.1111/ecoj.12593}\n}"
+}

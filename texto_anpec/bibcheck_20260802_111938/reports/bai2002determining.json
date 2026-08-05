@@ -1,0 +1,16 @@
+{
+  "key": "bai2002determining",
+  "status": "corrected",
+  "one_sentence": "Bai & Ng (2002), 'Determining the Number of Factors in Approximate Factor Models,' Econometrica 70(1):191-221 (DOI 10.1111/1468-0262.00273) is correctly identified but has a lowercased title, a missing DOI, and a wrong publisher field ('Wiley Online Library' is the hosting platform, not the journal's publisher, 'Econometric Society'); it is an exact duplicate of the entry keyed bai-ng, and only bai-ng is \\cite{}'d in paper_anpec.tex, so bai2002determining should be deleted.",
+  "canonical_url": "https://doi.org/10.1111/1468-0262.00273",
+  "issues": [
+    "title is sentence-cased ('Determining the number of factors in approximate factor models') instead of title-cased/protected ('Determining the Number of Factors in Approximate Factor Models'); the sibling entry bai-ng has the correct capitalization",
+    "missing doi field entirely (should be 10.1111/1468-0262.00273)",
+    "publisher = {Wiley Online Library} is a hosting-platform artifact typical of Google Scholar exports, not Econometrica's actual publisher; the correct value is 'Econometric Society' (Econometrica is published on behalf of the Econometric Society; Wiley is merely the online distributor)",
+    "pages = {191--221} uses an en-dash (BibTeX double-hyphen), which is correct BibTeX convention -- by contrast the sibling entry bai-ng uses pages = {191-221} (single hyphen), which is the one that is technically non-standard here",
+    "duplicate entry: bai2002determining and bai-ng cite the identical paper (same title/authors/journal/volume/issue/pages/year); only bai-ng is referenced via \\cite{bai-ng} in texto_anpec/paper_anpec.tex (line 224), so bai2002determining is dead weight and should be removed from the .bib to avoid an unused/duplicate key",
+    "all other fields (authors Bai, Jushan and Ng, Serena; journal Econometrica; volume 70; number 1; pages 191-221; year 2002) match the canonical record and belong to the same paper -- no cross-contamination detected"
+  ],
+  "corrected_bib": "@article{bai-ng,\n  author = {Bai, Jushan and Ng, Serena},\n  title = {Determining the Number of Factors in Approximate Factor Models},\n  journal = {Econometrica},\n  volume = {70},\n  number = {1},\n  pages = {191--221},\n  year = {2002},\n  publisher = {Econometric Society},\n  doi = {10.1111/1468-0262.00273}\n}",
+  "duplicate_verdict": "bai2002determining and bai-ng are duplicate entries for the same paper (Bai & Ng 2002, Econometrica 70(1):191-221). Only bai-ng is cited (\\cite{bai-ng} in paper_anpec.tex:224). bai-ng should survive (it is the cited key and already has correct title capitalization); bai2002determining should be deleted. If keeping one merged entry, apply the DOI and publisher fix from bai2002determining's structure onto the surviving bai-ng entry."
+}

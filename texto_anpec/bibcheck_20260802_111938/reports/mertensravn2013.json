@@ -1,0 +1,15 @@
+{
+  "key": "mertensravn2013",
+  "status": "corrected",
+  "one_sentence": "Mertens & Ravn (2013), 'The Dynamic Effects of Personal and Corporate Income Tax Changes in the United States', American Economic Review 103(4):1212-1247, DOI 10.1257/aer.103.4.1212 -- every substantive field (authors, title, journal, volume, issue, pages, year, DOI) is verified correct against the AEA landing page with no mixing with the authors' other tax-shock papers (AEJ:Economic Policy 2012, JME 2014 reply literature), and the only defect is an unprotected proper-noun capitalization in the title.",
+  "canonical_url": "https://www.aeaweb.org/articles?id=10.1257%2Faer.103.4.1212",
+  "issues": [
+    {
+      "field": "title",
+      "original": "The Dynamic Effects of Personal and Corporate Income Tax Changes in the United States",
+      "corrected": "The Dynamic Effects of Personal and Corporate Income Tax Changes in the {United States}",
+      "reason": "Title text matches the published article exactly (verified against the AEA article landing page and Crossref), so there is no field-mixing or wording error. However 'United States' is not brace-protected, so a sentence-case/title-case-altering .bst style (e.g. plain, apalike) will lowercase it to 'united states' at typeset time. This is a capitalization-protection hygiene fix only, consistent with how this project's other reports (e.g. castelnuovo's 'U.S.', villaverde's 'VARs'/'ABCs') treat the same defect class."
+    }
+  ],
+  "corrected_bib": "@article{mertensravn2013,\n  author = {Mertens, Karel and Ravn, Morten O.},\n  title = {The Dynamic Effects of Personal and Corporate Income Tax Changes in the {United States}},\n  journal = {American Economic Review},\n  volume = {103},\n  number = {4},\n  pages = {1212--1247},\n  year = {2013},\n  doi = {10.1257/aer.103.4.1212}\n}"
+}

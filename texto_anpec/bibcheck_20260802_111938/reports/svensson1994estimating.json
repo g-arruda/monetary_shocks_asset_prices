@@ -1,0 +1,63 @@
+{
+  "key": "svensson1994estimating",
+  "status": "corrected",
+  "one_sentence": "Svensson (1994), NBER Working Paper No. 4871 (also issued as IMF Working Paper 94/114), fits an extended Nelson-Siegel forward-rate curve to Swedish data from 1992-1994 and shows how the resulting forward rates can be read as market expectations of future interest rates, inflation, and currency depreciation.",
+  "canonical_url": "https://www.nber.org/papers/w4871",
+  "issues": [
+    {
+      "field": "ENTRYTYPE",
+      "original": "@article",
+      "corrected": "@techreport",
+      "reason": "This is an NBER working paper, not a peer-reviewed journal article. NBER Working Paper 4871 was never published in a journal under this title (it has a parallel institutional working-paper release, IMF WP/94/114, but neither is a journal). BibTeX's @techreport (institution/type/number) is the correct entry type for a research-institute working paper."
+    },
+    {
+      "field": "journal",
+      "original": "journal={National Bureau of Economic Research}",
+      "corrected": "(removed; use institution={National Bureau of Economic Research} and type={NBER Working Paper} instead, under @techreport)",
+      "reason": "NBER is the issuing institution, not a journal — it does not publish a periodical called 'National Bureau of Economic Research'. Putting the institution's name in the journal field is a category error that misrepresents the work as a refereed journal article."
+    },
+    {
+      "field": "number",
+      "original": "number={w4871}",
+      "corrected": "number={4871}",
+      "reason": "Confirmed correct working paper number (the 'w' is NBER's URL/filename prefix, not part of the citable number; NBER's own citation guidance and RePEc list it as No. 4871). Kept the digits, dropped the letter prefix for citation-style consistency; either form is defensible but the digits were already right, so no substantive correction was needed here beyond formatting."
+    },
+    {
+      "field": "year",
+      "original": "year={1994}",
+      "corrected": "year={1994} (unchanged; confirmed September 1994)",
+      "reason": "Verified against the NBER landing page (nber.org/papers/w4871): publication date is September 1994. The year field was already correct."
+    },
+    {
+      "field": "title",
+      "original": "title={Estimating and interpreting forward interest rates: Sweden 1992-1994}",
+      "corrected": "title={Estimating and Interpreting Forward Interest Rates: Sweden 1992--1994}",
+      "reason": "The title text and year range (1992-1994, not 1992-1992 or 1992-1993) were already correct, verified against the NBER landing page and the paper's own PDF header. Only capitalization (title case, matching NBER's official listing) and the en-dash-as-double-hyphen convention for the year range were adjusted; this is a minor hygiene fix, not a factual correction."
+    },
+    {
+      "field": "author",
+      "original": "author={Svensson, Lars EO}",
+      "corrected": "author={Svensson, Lars E. O.}",
+      "reason": "The author's initials 'EO' are run together without periods or a space. NBER and IMF both list the author as 'Lars E. O. Svensson'. BibTeX needs 'Lars E. O.' (with spaces/periods between initials) so the name parses as three given-name tokens instead of one; 'Lars EO' risks being rendered as a single garbled initial block by some .bst styles."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "doi={10.3386/w4871}",
+      "reason": "No DOI was present. NBER assigns DOI 10.3386/w4871 to this working paper; adding it gives a durable, resolvable canonical anchor independent of URL changes."
+    },
+    {
+      "field": "url",
+      "original": "(missing)",
+      "corrected": "url={https://www.nber.org/papers/w4871}",
+      "reason": "No URL was present. The NBER landing page is the canonical anchor for this working paper and should be included per BibTeX hygiene for grey-literature/working-paper entries."
+    },
+    {
+      "field": "note (parallel version)",
+      "original": "(not recorded)",
+      "corrected": "note={Also issued as IMF Working Paper No. 94/114, September 1994}",
+      "reason": "This NBER working paper has a parallel contemporaneous release as an IMF Working Paper, same title and month/year: IMF WP/1994/114 (confirmed via IMF eLibrary at elibrary.imf.org/view/journals/001/1994/114/001.1994.issue-114-en.xml and RePEc ideas.repec.org/p/imf/imfwpa/1994-114.html). Worth recording since some downstream citations of this Svensson (1994) piece cite the IMF version instead of NBER w4871. Not required for a valid @techreport entry, but flagged as requested; the IMF version's own DOI was not independently confirmed and is intentionally omitted here."
+    }
+  ],
+  "corrected_bib": "@techreport{svensson1994estimating,\n  title       = {Estimating and Interpreting Forward Interest Rates: Sweden 1992--1994},\n  author      = {Svensson, Lars E. O.},\n  institution = {National Bureau of Economic Research},\n  type        = {NBER Working Paper},\n  number      = {4871},\n  year        = {1994},\n  month       = sep,\n  doi         = {10.3386/w4871},\n  url         = {https://www.nber.org/papers/w4871},\n  note        = {Also issued as IMF Working Paper No. 94/114, September 1994}\n}"
+}

@@ -1,0 +1,51 @@
+{
+  "key": "BERNANKE19991341",
+  "status": "corrected",
+  "one_sentence": "Bernanke, Gertler and Gilchrist (1999), Chapter 21 of the Handbook of Macroeconomics, Volume 1C (eds. Taylor and Woodford), pp. 1341-1393 — the canonical 'financial accelerator' dynamic general equilibrium framework.",
+  "canonical_url": "https://doi.org/10.1016/S1574-0048(99)10034-X",
+  "issues": [
+    {
+      "field": "title/authors/series/publisher/pages/year/issn/doi(resolution)",
+      "original": "Chapter 21 The financial accelerator in a quantitative business cycle framework / Ben S. Bernanke and Mark Gertler and Simon Gilchrist / Handbook of Macroeconomics / Elsevier / 1341-1393 / 1999 / 1574-0048",
+      "corrected": "unchanged (verified correct, net of the 'Chapter 21' prefix and hyphen fixes flagged separately)",
+      "reason": "Cross-checked against CrossRef (DOI 10.1016/S1574-0048(99)10034-X, ISBN 9780444501585) and the ScienceDirect/Elsevier shop listing: title, all three author names and order, series name, publisher, page range, year and series ISSN all match the canonical chapter. No field mixing detected."
+    },
+    {
+      "field": "title",
+      "original": "Chapter 21 The financial accelerator in a quantitative business cycle framework",
+      "corrected": "The financial accelerator in a quantitative business cycle framework",
+      "reason": "ScienceDirect prefixes chapter titles with their chapter number in the HTML/metadata harvest ('Chapter 21 The financial accelerator...'), but 'Chapter 21' is a running header, not part of the title, and belongs (if anywhere) in the BibTeX 'chapter' field, not concatenated into 'title'."
+    },
+    {
+      "field": "volume",
+      "original": "1",
+      "corrected": "1C",
+      "reason": "Handbook of Macroeconomics Volume 1 (Taylor & Woodford, eds., 1999) was published as three separately bound parts, 1A/1B/1C, each with its own ISBN. This chapter's ISBN per CrossRef (9780444501585) matches Volume 1C specifically (Elsevier catalog: 'Handbook of Macroeconomics, Volume 1C', covering pp. 1231-1745), not 1A or 1B. Plain '1' is ambiguous/incomplete for this split volume."
+    },
+    {
+      "field": "booktitle",
+      "original": "(field absent)",
+      "corrected": "Handbook of Macroeconomics",
+      "reason": "@incollection requires 'booktitle' (the title of the book containing the chapter); the entry only had 'series', which is optional and does not substitute for the required field in standard BibTeX styles."
+    },
+    {
+      "field": "editor",
+      "original": "(field absent)",
+      "corrected": "John B. Taylor and Michael Woodford",
+      "reason": "Handbook of Macroeconomics, Volume 1 (parts A/B/C) was edited by John B. Taylor and Michael Woodford (confirmed via the Elsevier shop listing and multiple independent citations of this exact chapter). An @incollection entry conventionally carries the volume editor(s); the field was missing."
+    },
+    {
+      "field": "doi",
+      "original": "https://doi.org/10.1016/S1574-0048(99)10034-X",
+      "corrected": "10.1016/S1574-0048(99)10034-X",
+      "reason": "BibTeX hygiene: the 'doi' field should hold the bare DOI string, not a full resolver URL — the URL form belongs in (and is already duplicated by) the separate 'url' field. Most BibTeX/biblatex styles that print 'doi:...' prefixes will otherwise render 'doi:https://doi.org/...'."
+    },
+    {
+      "field": "pages",
+      "original": "1341-1393",
+      "corrected": "1341--1393",
+      "reason": "BibTeX hygiene: a single hyphen renders as a hyphen, not an en dash; the convention (and what BibTeX/biblatex expects) is a double hyphen '--' to typeset as an en dash in a page range."
+    }
+  ],
+  "corrected_bib": "@incollection{BERNANKE19991341,\ntitle = {The financial accelerator in a quantitative business cycle framework},\nbooktitle = {Handbook of Macroeconomics},\nseries = {Handbook of Macroeconomics},\neditor = {John B. Taylor and Michael Woodford},\npublisher = {Elsevier},\nvolume = {1C},\npages = {1341--1393},\nyear = {1999},\nissn = {1574-0048},\ndoi = {10.1016/S1574-0048(99)10034-X},\nurl = {https://www.sciencedirect.com/science/article/pii/S157400489910034X},\nauthor = {Ben S. Bernanke and Mark Gertler and Simon Gilchrist},\nkeywords = {financial accelerator, business fluctuations, monetary policy},\n}"
+}

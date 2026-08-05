@@ -1,0 +1,19 @@
+{
+  "key": "hanisch",
+  "status": "corrected",
+  "one_sentence": "Hanisch (2017), 'The effectiveness of conventional and unconventional monetary policy: Evidence from a structural dynamic factor model for Japan,' Journal of International Money and Finance 70, 110-134 -- all substantive fields verified correct against CrossRef and RePEc, but the entry is a raw WoS export needing hygiene cleanup (ALL-CAPS journal, missing DOI, stray Unique-ID/EISSN fields) and is NOT cited anywhere in the manuscript.",
+  "canonical_url": "https://doi.org/10.1016/j.jimonfin.2016.08.002",
+  "issues": [
+    "NOT CITED: no occurrence of \\cite{hanisch} (or 'hanisch') found anywhere in texto_anpec/*.tex -- this entry is unused in the manuscript; audited anyway per instructions.",
+    "Title field is line-wrapped across two lines in the .bib source (WoS export artifact) -- reflows cleanly to one line with no wording change; content matches the published title exactly, including the colon.",
+    "Journal field is ALL-CAPS ('JOURNAL OF INTERNATIONAL MONEY AND FINANCE'), a raw WoS export convention -- should be sentence/title case: 'Journal of International Money and Finance'.",
+    "DOI is missing entirely. Confirmed via CrossRef: 10.1016/j.jimonfin.2016.08.002.",
+    "Issue is absent -- this is CORRECT, not an omission: CrossRef lists 'issue: C' and RePEc lists 'vol. 70(C)', i.e. JIMF assigns no numeric issue to this volume (continuous volume-level pagination). No issue field should be added.",
+    "Unique-ID = {WOS:000390732900006} is a Web of Science internal accession field, not a standard BibTeX/biblatex field -- stray, should be removed (or namespaced as a note/keyword) before submission.",
+    "EISSN = {1873-0639} is a non-standard BibTeX field (biblatex has no native 'eissn' key in the standard styles used here) -- likely to be silently dropped or to throw a warning depending on .bst/.bbx; either remove or fold into a 'note' field if the electronic ISSN is worth keeping.",
+    "Month = {FEB} is WoS shorthand; harmless but inconsistent with the rest of the bibliography's month formatting if other entries spell out months or omit them -- worth normalizing for consistency.",
+    "Author, Year (2017), Volume (70), Pages (110-134), ISSN (0261-5606, print) all verified correct against CrossRef and RePEc -- no field mixing detected; author, title, journal, and identifiers all belong to the same single paper.",
+    "No field-mixing found: title/author/journal/year/pages/DOI all trace to one and the same paper (Hanisch 2017, JIMF 70)."
+  ],
+  "corrected_bib": "@article{hanisch,\n  author  = {Hanisch, Max},\n  title   = {The effectiveness of conventional and unconventional monetary policy: Evidence from a structural dynamic factor model for Japan},\n  journal = {Journal of International Money and Finance},\n  year    = {2017},\n  volume  = {70},\n  pages   = {110--134},\n  issn    = {0261-5606},\n  doi     = {10.1016/j.jimonfin.2016.08.002},\n}"
+}

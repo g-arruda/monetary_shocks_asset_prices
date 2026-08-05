@@ -1,0 +1,14 @@
+{
+  "key": "choi_2001",
+  "status": "corrected",
+  "one_sentence": "Choi, In (2001), \"Unit root tests for panel data\", Journal of International Money and Finance 20(2), 249-272 (DOI 10.1016/S0261-5606(00)00048-6) — all substantive fields (title, author, journal, volume, number, pages) verified correct against the publisher record and no field mixing was found; the only problems are BibTeX hygiene (duplicated `year` field, missing DOI) and the entry is not actually cited anywhere in the manuscript.",
+  "canonical_url": "https://doi.org/10.1016/S0261-5606(00)00048-6",
+  "issues": [
+    "NOT CITED: no occurrence of 'choi_2001' (or 'Choi 2001') found in texto_anpec/*.tex — this reference is unused in the manuscript; audited anyway per instructions.",
+    "Duplicated `year` field: `year = {2001}` appears twice (lines 4 and 9 of the entry) with the same value. Not a content error (both copies agree and are correct) but invalid/redundant BibTeX that some parsers will warn or error on — the second occurrence silently overwrites the first (harmless here only because the values match).",
+    "Missing DOI field: 10.1016/S0261-5606(00)00048-6 (confirmed live via doi.org redirect to the Elsevier/ScienceDirect record) is absent from the entry.",
+    "Page range formatting is already correct BibTeX convention (`249--272`, double-hyphen renders as an en dash) — flagged for completeness per the audit checklist but this is NOT an error.",
+    "All cross-checked fields match the canonical record exactly: title 'Unit root tests for panel data', author 'Choi, In' (In Choi), journal 'Journal of International Money and Finance', year 2001, volume 20, number/issue 2, pages 249-272. No field-mixing with another paper detected."
+  ],
+  "corrected_bib": "@article{choi_2001,\n  title = {Unit root tests for panel data},\n  author = {Choi, In},\n  year = {2001},\n  journal = {Journal of International Money and Finance},\n  volume = {20},\n  number = {2},\n  pages = {249--272},\n  doi = {10.1016/S0261-5606(00)00048-6}\n}"
+}

@@ -1,0 +1,27 @@
+{
+  "key": "kilian1998small",
+  "status": "corrected",
+  "one_sentence": "Kilian (1998), 'Small-Sample Confidence Intervals for Impulse Response Functions', The Review of Economics and Statistics 80(2):218-230, MIT Press, DOI 10.1162/003465398557465 — all substantive fields (author, year, volume, issue, pages, publisher) check out against the MIT Press Direct landing page and RePEc (RePEc:tpr:restat:v:80:y:1998:i:2:p:218-230); only the journal-name capitalization is wrong and the DOI is missing.",
+  "canonical_url": "https://doi.org/10.1162/003465398557465",
+  "issues": [
+    {
+      "field": "journal",
+      "original": "Review of economics and statistics",
+      "corrected": "The Review of Economics and Statistics",
+      "reason": "Journal name is missing the leading article 'The' and is lowercased; canonical form per MIT Press Direct (direct.mit.edu/rest) is 'The Review of Economics and Statistics'."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1162/003465398557465",
+      "reason": "No DOI field present in the entry; the article has a resolvable DOI on MIT Press Direct, confirmed by RePEc (RePEc:tpr:restat:v:80:y:1998:i:2:p:218-230)."
+    }
+  ],
+  "field_mixing_check": "80(2):218-230 belongs to this exact title ('Small-Sample Confidence Intervals for Impulse Response Functions'), confirmed via MIT Press Direct (direct.mit.edu/rest/article/80/2/218/57059) and RePEc's tpr:restat series (MIT Press journals). Not confused with Kilian & co-authors' other late-1990s bootstrap/IRF papers in JBES or Journal of Applied Econometrics — those carry different volumes/pages and different journal codes.",
+  "hygiene_notes": [
+    "Page range '218--230' already uses correct BibTeX double-hyphen (renders as en-dash) — no fix needed.",
+    "Publisher 'MIT Press' is correct as given.",
+    "Title capitalization in the entry (sentence case) is standard BibTeX practice and left as-is; LaTeX style/braces would handle display capitalization if needed."
+  ],
+  "corrected_bib": "@article{kilian1998small,\n  title={Small-sample confidence intervals for impulse response functions},\n  author={Kilian, Lutz},\n  journal={The Review of Economics and Statistics},\n  volume={80},\n  number={2},\n  pages={218--230},\n  year={1998},\n  publisher={MIT Press},\n  doi={10.1162/003465398557465}\n}"
+}

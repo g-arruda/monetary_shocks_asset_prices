@@ -1,0 +1,13 @@
+{
+  "key": "brunnermeier2021",
+  "status": "clean",
+  "one_sentence": "All fields (title, four authors, year, journal, volume 111, issue 6, pages 1845-1879, DOI 10.1257/aer.20180733) match the canonical AEA record exactly; the entry is unused (not \\cite'd anywhere in texto_anpec/*.tex).",
+  "canonical_url": "https://www.aeaweb.org/articles?id=10.1257/aer.20180733",
+  "issues": [
+    "Not cited: no \\cite{brunnermeier2021} found in any .tex file under texto_anpec/ (grep across all .tex files returned zero matches); the entry is dead weight in references.bib/input.bib but not a correctness problem.",
+    "Minor hygiene, non-blocking: no 'publisher' field (optional/conventional to omit for @article entries; AEA journal articles typically do not carry one).",
+    "Minor hygiene, non-blocking: pages given in full form '1845--1879' where the AEA/RePEc canonical citation abbreviates the end page as '1845-79'; both denote the identical range (1845 through 1879), BibTeX '--' correctly renders as an en-dash, so this is a style choice, not an error.",
+    "No field-mixing detected: title, author list order (Brunnermeier, Palia, Sastry, Sims), volume/issue/pages, year, and DOI are internally consistent and all resolve to the same single AER article across DOI redirect, AEA landing page, and RePEc/EconPapers."
+  ],
+  "corrected_bib": "@article{brunnermeier2021,\n  author = {Brunnermeier, Markus and Palia, Darius and Sastry, Karthik A. and Sims, Christopher A.},\n  title = {Feedbacks: Financial Markets and Economic Activity},\n  journal = {American Economic Review},\n  volume = {111},\n  number = {6},\n  pages = {1845--1879},\n  year = {2021},\n  doi = {10.1257/aer.20180733}\n}"
+}

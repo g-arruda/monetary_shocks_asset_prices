@@ -1,0 +1,21 @@
+{
+  "key": "rigobon2003",
+  "status": "corrected",
+  "one_sentence": "Verified: Rigobon's single-authored 'Identification Through Heteroskedasticity', Review of Economics and Statistics 85(4):777-792 (2003), DOI 10.1162/003465303772815727 resolves exactly to volume/issue/pages via the MIT Press URL slug; only minor hygiene fixes needed (missing publisher, title capitalization).",
+  "canonical_url": "https://doi.org/10.1162/003465303772815727",
+  "issues": [
+    {
+      "field": "publisher",
+      "original": "(absent)",
+      "corrected": "MIT Press",
+      "reason": "Field missing from entry; journal is published by MIT Press (direct.mit.edu host). Optional but standard BibTeX hygiene for @article entries citing MIT Press journals."
+    },
+    {
+      "field": "title",
+      "original": "Identification through Heteroskedasticity",
+      "corrected": "Identification Through Heteroskedasticity",
+      "reason": "Minor capitalization mismatch: the official MIT Press landing page and standard citation databases (ResearchGate, SciSpace) render the title with 'Through' capitalized. Cosmetic only — does not affect resolution or identity of the work."
+    }
+  ],
+  "corrected_bib": "@article{rigobon2003,\n  author    = {Rigobon, Roberto},\n  title     = {Identification Through Heteroskedasticity},\n  journal   = {The Review of Economics and Statistics},\n  volume    = {85},\n  number    = {4},\n  pages     = {777--792},\n  year      = {2003},\n  publisher = {MIT Press},\n  doi       = {10.1162/003465303772815727}\n}"
+}

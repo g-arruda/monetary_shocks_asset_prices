@@ -1,0 +1,27 @@
+{
+  "key": "jarocinski2020",
+  "status": "corrected",
+  "one_sentence": "DOI 10.1257/mac.20180090 correctly resolves to Jarociński & Karadi (2020), \"Deconstructing Monetary Policy Surprises—The Role of Information Shocks\", American Economic Journal: Macroeconomics 12(2): 1-43 — no field mixing, but the title's colon should be an em dash and the author's raw UTF-8 ń should be LaTeX-escaped for BibTeX safety.",
+  "canonical_url": "https://doi.org/10.1257/mac.20180090",
+  "issues": [
+    {
+      "field": "title",
+      "original": "Deconstructing Monetary Policy Surprises: The Role of Information Shocks",
+      "corrected": "Deconstructing Monetary Policy Surprises---The Role of Information Shocks",
+      "reason": "The AEA landing page, the IDEAS/RePEc record (aea/aejmac/v12y2020i2p1-43), and the author's own posted BibTeX all give the title with an em dash separating the two clauses, not a colon. Content and identifiability are unaffected, but the punctuation does not match the canonical title."
+    },
+    {
+      "field": "author",
+      "original": "Jarociński, Marek and Karadi, Peter (raw UTF-8 bytes 0xC5 0x84 for ń)",
+      "corrected": "Jaroci{\\'n}ski, Marek and Karadi, Peter",
+      "reason": "Spelling and accent placement are correct (ń, n with acute, confirmed against the AEA page and the author's own site jarocinski.github.io) — this is not a name error. But the .bib file embeds the raw UTF-8 character directly rather than a LaTeX-safe escape; under classic (non-8-bit-clean) BibTeX or any non-UTF8 toolchain this can corrupt or crash. authordate3.bst (used by paper_anpec.tex) plus classic bibtex is exactly the fragile combination this affects. The escaped form is safe under bibtex, bibtex8, and biber alike."
+    },
+    {
+      "field": "publisher",
+      "original": "(absent)",
+      "corrected": "(no action needed)",
+      "reason": "Flagged per the audit checklist, but journal-article entries do not require a publisher field under standard .bst styles including authordate3.bst; this is not a defect."
+    }
+  ],
+  "corrected_bib": "@article{jarocinski2020,\n  author = {Jaroci{\\'n}ski, Marek and Karadi, Peter},\n  title = {Deconstructing Monetary Policy Surprises---The Role of Information Shocks},\n  journal = {American Economic Journal: Macroeconomics},\n  volume = {12},\n  number = {2},\n  pages = {1--43},\n  year = {2020},\n  doi = {10.1257/mac.20180090}\n}"
+}

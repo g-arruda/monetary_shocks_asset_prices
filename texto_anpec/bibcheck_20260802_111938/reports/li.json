@@ -1,0 +1,45 @@
+{
+  "key": "li",
+  "status": "corrected",
+  "one_sentence": "Verified: Jinfang Li, 'The asymmetric effects of investor sentiment and monetary policy on stock prices', Applied Economics 47(24):2514-2522 (2015), DOI 10.1080/00036846.2015.1008770 (confirmed via Taylor & Francis/RePEc landing pages) — all substantive fields (author, title, year, volume, number, pages, ISSN, EISSN) match exactly with no field mixing; only BibTeX hygiene issues, plus the entry is NOT cited anywhere in paper_anpec.tex.",
+  "canonical_url": "https://doi.org/10.1080/00036846.2015.1008770",
+  "issues": [
+    {
+      "field": "not cited",
+      "original": "N/A",
+      "corrected": "N/A",
+      "reason": "grep of texto_anpec/paper_anpec.tex finds no \\cite{li}, \\citep{li}, or \\citet{li} — this reference is not used anywhere in the manuscript. Flagging for the author to decide whether to cite it or drop it from the .bib; not a correctness issue with the entry itself."
+    },
+    {
+      "field": "title",
+      "original": "The asymmetric effects of investor sentiment and monetary policy on\n   stock prices",
+      "corrected": "The asymmetric effects of investor sentiment and monetary policy on stock prices",
+      "reason": "WoS export line-wraps titles at ~70 chars with leading whitespace continuation; reflowed to one line, content unchanged and matches T&F/RePEc exactly."
+    },
+    {
+      "field": "journal",
+      "original": "APPLIED ECONOMICS",
+      "corrected": "Applied Economics",
+      "reason": "WoS exports journal names in ALL CAPS. Correct title-case rendering per Taylor & Francis is 'Applied Economics'."
+    },
+    {
+      "field": "doi",
+      "original": "(absent)",
+      "corrected": "10.1080/00036846.2015.1008770",
+      "reason": "DOI field missing from the WoS export entirely. Confirmed against the Taylor & Francis landing page and RePEc/IDEAS record."
+    },
+    {
+      "field": "Unique-ID",
+      "original": "WOS:000349989800006",
+      "corrected": "(removed)",
+      "reason": "Not a standard BibTeX field — a Web of Science internal accession number left over from the WoS export. Should be dropped or moved to a note/comment field; LaTeX bibliography styles will not recognize it and some strict BibTeX parsers may warn or choke on it."
+    },
+    {
+      "field": "EISSN",
+      "original": "1466-4283",
+      "corrected": "(removed or kept as non-standard note)",
+      "reason": "Not a standard BibTeX field for @article (only 'issn' is standard in most styles); another WoS export artifact. Value itself is correct (Applied Economics' online ISSN is indeed 1466-4283, print ISSN 0003-6846) but the field name is non-standard hygiene noise."
+    }
+  ],
+  "corrected_bib": "@article{li,\n  author  = {Li, Jinfang},\n  title   = {The asymmetric effects of investor sentiment and monetary policy on stock prices},\n  journal = {Applied Economics},\n  year    = {2015},\n  volume  = {47},\n  number  = {24},\n  pages   = {2514--2522},\n  issn    = {0003-6846},\n  doi     = {10.1080/00036846.2015.1008770}\n}"
+}

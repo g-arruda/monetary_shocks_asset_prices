@@ -1,0 +1,15 @@
+{
+  "key": "Thorbecke",
+  "status": "verified_minor_hygiene_issues",
+  "one_sentence": "Correctly cites Thorbecke (1997), 'On Stock Market Returns and Monetary Policy,' Journal of Finance 52(2):635-654 (DOI 10.1111/j.1540-6261.1997.tb04816.x); all substantive fields (title, author, year, volume, issue, pages, ISSN) match the canonical record, but the entry has WoS-export hygiene problems: ALL-CAPS journal name, initial-only author, hyphenated (not en-dash) page range, missing DOI, and stray ResearcherID-Numbers/Unique-ID/EISSN fields.",
+  "canonical_url": "https://doi.org/10.1111/j.1540-6261.1997.tb04816.x",
+  "issues": [
+    "Journal field is ALL CAPS ('JOURNAL OF FINANCE') instead of mixed case ('Journal of Finance') -- a raw Web-of-Science export artifact.",
+    "Author given as initial only ('Thorbecke, W') instead of full given name ('Thorbecke, Willem').",
+    "DOI is missing entirely (should be 10.1111/j.1540-6261.1997.tb04816.x).",
+    "Pages use a hyphen ('635-654') rather than an en-dash; also note the EconPapers/RePEc record abbreviates the end page as '635-54' (elided form) while the .bib and Crossref/Wiley agree on the full '635-654' -- the .bib form is correct, just flag hyphen-vs-en-dash BibTeX hygiene.",
+    "Stray non-standard fields that no .bst style consumes: 'ResearcherID-Numbers', 'Unique-ID' (WOS:A1997XA18900008), and 'EISSN' -- all raw Web-of-Science export cruft that should be stripped for a clean submission .bib.",
+    "No field-mixing detected: title, author, year, volume, issue, and pages all consistently point to the same single paper (Thorbecke 1997, JoF) across Crossref, EconPapers/RePEc, and Wiley -- Month = {JUN} field is also correct (issue 2, June 1997) but is likewise a non-standard field for most .bst styles."
+  ],
+  "corrected_bib": "@article{Thorbecke,\n  author  = {Thorbecke, Willem},\n  title   = {On Stock Market Returns and Monetary Policy},\n  journal = {Journal of Finance},\n  year    = {1997},\n  volume  = {52},\n  number  = {2},\n  pages   = {635--654},\n  month   = jun,\n  issn    = {0022-1082},\n  doi     = {10.1111/j.1540-6261.1997.tb04816.x}\n}"
+}

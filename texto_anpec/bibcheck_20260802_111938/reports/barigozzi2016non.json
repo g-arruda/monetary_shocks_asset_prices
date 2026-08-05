@@ -1,0 +1,70 @@
+{
+  "key": "barigozzi2016non",
+  "status": "corrected",
+  "one_sentence": "The entry cites Barigozzi, Lippi & Luciani's FEDS Working Paper 2016-024 (\"Non-Stationary Dynamic Factor Models for Large Datasets\", Board of Governors of the Federal Reserve System) as if it were a journal article, but this is a working-paper series and the work was subsequently published, under a changed title, as \"Large-dimensional Dynamic Factor Models: Estimation of Impulse-Response Functions with I(1) Cointegrated Factors\" in the Journal of Econometrics, 2021, vol. 221(2), pp. 455-482, DOI 10.1016/j.jeconom.2020.05.004.",
+  "canonical_url": "https://doi.org/10.1016/j.jeconom.2020.05.004",
+  "issues": [
+    {
+      "field": "ENTRYTYPE",
+      "original": "@article",
+      "corrected": "@article (only if pointed at the published Journal of Econometrics version below) or @techreport (if the FEDS working paper is what is actually meant to be cited)",
+      "reason": "\"Finance and Economics Discussion Series\" (FEDS) is the Federal Reserve Board's working-paper series, not a peer-reviewed journal, so @article with journal={Finance and Economics Discussion Series} is a category error regardless of which version is intended. Since the work was in fact later published in a real journal, the recommended fix is to point the entry at that published article (@article, journal=Journal of Econometrics) rather than dress up the working paper as one; @techreport is the correct fallback only if the author deliberately wants to cite the pre-publication working-paper text."
+    },
+    {
+      "field": "title",
+      "original": "Non-stationary dynamic factor models for large datasets",
+      "corrected": "Large-dimensional dynamic factor models: estimation of impulse-response functions with I(1) cointegrated factors",
+      "reason": "This is the FEDS working-paper title (2016-024 / revised 2016-024r1), not the title under which the work was ultimately published. Confirmed same authorship and same underlying model/results (I(1) singular factors, ECM/VECM representation, IRF estimation, oil-price and monetary-policy-shock applications) across the FEDS PDF, the arXiv mirror (1602.02398, same authors, v1 2016-02-07 through v5 2020-06-01, which links its DOI to 10.1016/j.jeconom.2020.05.004), and the IDEAS/RePEc record for fedgfe/2016-24, which explicitly notes the paper was published in Journal of Econometrics (2021) under this new title. If the working paper itself is cited instead, the original title is correct and should be kept."
+    },
+    {
+      "field": "journal",
+      "original": "Finance and Economics Discussion Series",
+      "corrected": "Journal of Econometrics",
+      "reason": "FEDS is a working-paper series (issuing institution: Board of Governors of the Federal Reserve System), not a journal title; it cannot legitimately fill BibTeX's `journal` field. The correct journal, now that a published version exists, is Journal of Econometrics."
+    },
+    {
+      "field": "volume",
+      "original": "2016",
+      "corrected": "221",
+      "reason": "The original `volume={2016}` is actually the FEDS series year, mistakenly placed in the volume field (FEDS working papers are numbered YYYY-NNN, they have no 'volume'). The Journal of Econometrics volume for the published article is 221 (2021)."
+    },
+    {
+      "field": "number",
+      "original": "024",
+      "corrected": "2 (JoE issue number) if citing the published article; keep 2016-024 (or 2016-024r1 for the revised version) only under @techreport as the FEDS working-paper number",
+      "reason": "\"024\" is the sequence number within the FEDS 2016 series, not a journal issue number. It should not appear in a `number` field of an @article entry pointing at a journal. The published article is Journal of Econometrics 221(2)."
+    },
+    {
+      "field": "year",
+      "original": "2016",
+      "corrected": "2021 (if citing the published Journal of Econometrics article); 2016 is correct only for the FEDS working paper (first released 2016-03-03, revised 2017-08 as 2016-024r1)",
+      "reason": "2016 is the correct year for the working paper but not for the published article, which appeared in 2021. Mixing the working-paper year with journal-style fields (as the original entry does) misrepresents the publication date of a refereed piece that did not exist until 2021."
+    },
+    {
+      "field": "pages",
+      "original": "(missing)",
+      "corrected": "455--482",
+      "reason": "No page range was given. The published Journal of Econometrics article runs pp. 455-482 of vol. 221, issue 2 (confirmed via EconPapers/RePEc article record eeeeconom:v:221:y:2021:i:2:p:455-482)."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1016/j.jeconom.2020.05.004 (published article) — or 10.17016/FEDS.2016.024r1 (FEDS working paper, if that version is cited instead)",
+      "reason": "No DOI was present. Both the published article and the FEDS working paper have their own resolvable DOIs; the entry supplied neither, and specifically should not carry the FEDS DOI while claiming to be a Journal of Econometrics article."
+    },
+    {
+      "field": "publisher",
+      "original": "Board of Governors of the Federal Reserve System",
+      "corrected": "Elsevier (if citing the published article, and normally omitted from an @article entry) — keep 'Board of Governors of the Federal Reserve System' as `institution` only under @techreport",
+      "reason": "`publisher` is not a standard/expected field for a journal @article entry citing Journal of Econometrics; the Federal Reserve Board is the issuing institution of the working paper, appropriate for @techreport's `institution` field, not for a journal publisher."
+    },
+    {
+      "field": "url",
+      "original": "(missing)",
+      "corrected": "https://doi.org/10.1016/j.jeconom.2020.05.004 (published) or https://www.federalreserve.gov/econres/feds/non-stationary-dynamic-factor-models-for-large-datasets.htm (working paper)",
+      "reason": "No canonical landing-page/URL was recorded in the original entry."
+    }
+  ],
+  "corrected_bib": "@article{barigozzi2016non,\n  title={Large-dimensional dynamic factor models: estimation of impulse-response functions with {I(1)} cointegrated factors},\n  author={Barigozzi, Matteo and Lippi, Marco and Luciani, Matteo},\n  journal={Journal of Econometrics},\n  volume={221},\n  number={2},\n  pages={455--482},\n  year={2021},\n  publisher={Elsevier},\n  doi={10.1016/j.jeconom.2020.05.004}\n}\n\n% Alternative, if the pre-publication working-paper text is what is actually meant to be cited\n% (e.g. citing 2016-vintage results before the paper's I(1)/cointegration treatment was finalized):\n@techreport{barigozzi2016non_feds,\n  title={Non-Stationary Dynamic Factor Models for Large Datasets},\n  author={Barigozzi, Matteo and Lippi, Marco and Luciani, Matteo},\n  institution={Board of Governors of the Federal Reserve System},\n  type={Finance and Economics Discussion Series (FEDS) Working Paper},\n  number={2016-024r1},\n  year={2016},\n  doi={10.17016/FEDS.2016.024r1},\n  url={https://www.federalreserve.gov/econres/feds/non-stationary-dynamic-factor-models-for-large-datasets.htm}\n}",
+  "publication_status": "Working paper (FEDS 2016-024, first released 2016-03-03, revised as 2016-024r1 in 2017-08, DOI 10.17016/FEDS.2016.024r1) was subsequently published in a peer-reviewed journal. It is the SAME work under a CHANGED title: 'Large-dimensional Dynamic Factor Models: Estimation of Impulse-Response Functions with I(1) Cointegrated Factors', Journal of Econometrics, 2021, vol. 221, issue 2, pp. 455-482, DOI 10.1016/j.jeconom.2020.05.004. Identity confirmed via three independent cross-checks: (1) identical authorship (Barigozzi, Lippi, Luciani) and identical core content (large-dimensional DFM with I(1) singular factors, ECM/VECM representation, IRF estimation theory, oil-price shock and US monetary-policy-shock empirical applications) across the FEDS PDF and the published abstract; (2) the arXiv preprint 1602.02398, same title as the published article, same three authors, versions spanning 2016-02-07 to 2020-06-01, whose own metadata links to DOI 10.1016/j.jeconom.2020.05.004; (3) the IDEAS/RePEc record for the FEDS working paper (fedgfe/2016-24) explicitly annotates it as published in Journal of Econometrics (2021) under the new title. Note there is a second, DIFFERENT sibling working paper by the same three authors from the same month, FEDS 2016-018 'Dynamic Factor Models, Cointegration, and Error Correction Mechanisms' (SSRN 2402185) — a companion/earlier-draft piece, not the one being cited here and not to be confused with it."
+}

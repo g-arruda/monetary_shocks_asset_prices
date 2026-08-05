@@ -1,0 +1,51 @@
+{
+  "key": "lutz",
+  "status": "corrected",
+  "one_sentence": "All substantive fields (author, title, year, volume, pages, ISSN) check out against CrossRef/RePEc for Lutz (2015, J. Banking & Finance, vol. 61, pp. 89-105, DOI 10.1016/j.jbankfin.2015.08.019) — issues are purely BibTeX hygiene from an uncleaned WoS export.",
+  "canonical_url": "https://doi.org/10.1016/j.jbankfin.2015.08.019",
+  "issues": [
+    {
+      "field": "title",
+      "original": "The impact of conventional and unconventional monetary policy on\n   investor sentiment",
+      "corrected": "The impact of conventional and unconventional monetary policy on investor sentiment",
+      "reason": "WoS export line-wrapped the title across two physical lines with a hanging indent; content is correct, just needs reflow to a single line. Matches CrossRef title exactly (case-preserved, no other change needed)."
+    },
+    {
+      "field": "journal",
+      "original": "JOURNAL OF BANKING \\& FINANCE",
+      "corrected": "Journal of Banking \\& Finance",
+      "reason": "WoS exports journal names in ALL-CAPS; canonical title-case form per CrossRef/publisher is 'Journal of Banking & Finance'. The '\\&' escaping for BibTeX/LaTeX is correct and should be kept."
+    },
+    {
+      "field": "issue",
+      "original": "(absent)",
+      "corrected": "(absent — confirmed correct, no issue number needed)",
+      "reason": "CrossRef records this article's issue as 'C' (Elsevier's placeholder for continuous/no-issue numbering), i.e. Journal of Banking & Finance volume 61 was published without discrete issue numbers. The missing 'Number' field in the entry is therefore not an error and should NOT be added."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1016/j.jbankfin.2015.08.019",
+      "reason": "DOI absent from the WoS export; confirmed via CrossRef lookup (container-title, volume, pages, ISSN all match). Should be added as a Doi field."
+    },
+    {
+      "field": "Unique-ID",
+      "original": "WOS:000370462600007",
+      "corrected": "(remove)",
+      "reason": "Web of Science internal accession number, not a standard BibTeX field and meaningless outside WoS; stray artifact of the export. Should be dropped."
+    },
+    {
+      "field": "EISSN",
+      "original": "1872-6372",
+      "corrected": "1872-6372 (value correct, but not a standard BibTeX field)",
+      "reason": "Not a standard BibTeX field (BibTeX has no canonical EISSN key); most styles only use ISSN. The value itself is verified correct (JBF's e-ISSN per Elsevier/library records) but the field is redundant WoS-export baggage — safe to drop or fold into a note, not required for citation correctness."
+    },
+    {
+      "field": "month",
+      "original": "DEC",
+      "corrected": "dec",
+      "reason": "Minor hygiene: WoS exports the month code in caps; standard BibTeX convention uses the lowercase three-letter macro (dec), which resolves to December — matches CrossRef's 2015-12 publication date, so no factual change, just casing/style."
+    }
+  ],
+  "corrected_bib": "@article{lutz,\n  Author  = {Lutz, Chandler},\n  Title   = {The impact of conventional and unconventional monetary policy on investor sentiment},\n  Journal = {Journal of Banking \\& Finance},\n  Year    = {2015},\n  Volume  = {61},\n  Pages   = {89--105},\n  Month   = dec,\n  Issn    = {0378-4266},\n  Doi     = {10.1016/j.jbankfin.2015.08.019},\n}"
+}

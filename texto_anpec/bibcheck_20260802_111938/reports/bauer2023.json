@@ -1,0 +1,8 @@
+{
+  "key": "bauer2023",
+  "status": "clean",
+  "one_sentence": "All fields (title, authors, journal, volume 113, issue 3, pages 664-700, year 2023, DOI 10.1257/aer.20201220) match the AEA landing page for Bauer & Swanson's AER 'Fed Information Effect' paper exactly, with no mixing from their related 2023 NBER Macroeconomics Annual paper (DOI 10.1086/723574, vol. 37, pp. 87-155).",
+  "canonical_url": "https://www.aeaweb.org/articles?id=10.1257%2Faer.20201220",
+  "issues": [],
+  "corrected_bib": "@article{bauer2023,\n  author = {Bauer, Michael D. and Swanson, Eric T.},\n  title = {An Alternative Explanation for the ``Fed Information Effect''},\n  journal = {American Economic Review},\n  volume = {113},\n  number = {3},\n  pages = {664--700},\n  year = {2023},\n  doi = {10.1257/aer.20201220}\n}"
+}

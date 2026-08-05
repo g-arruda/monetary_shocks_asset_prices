@@ -1,0 +1,8 @@
+{
+  "key": "gertler2015",
+  "status": "clean",
+  "one_sentence": "Gertler & Karadi (2015), 'Monetary Policy Surprises, Credit Costs, and Economic Activity', American Economic Journal: Macroeconomics 7(1):44-76, DOI 10.1257/mac.20130329 — every field verified exact against the AEA landing page and IDEAS/RePEc, with no mixing with the authors' other closely-related papers (e.g., Gertler-Karadi 2011 JME, or the 2013 QE papers).",
+  "canonical_url": "https://www.aeaweb.org/articles?id=10.1257%2Fmac.20130329",
+  "issues": [],
+  "corrected_bib": "@article{gertler2015,\n  author = {Gertler, Mark and Karadi, Peter},\n  title = {Monetary Policy Surprises, Credit Costs, and Economic Activity},\n  journal = {American Economic Journal: Macroeconomics},\n  volume = {7},\n  number = {1},\n  pages = {44--76},\n  year = {2015},\n  doi = {10.1257/mac.20130329}\n}"
+}

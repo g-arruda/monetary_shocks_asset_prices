@@ -1,56 +1,40 @@
-# Handoff — 2026-08-02 (arquivamento do tex/ antigo; texto_anpec/ é o paper canônico)
-SESSLOG:[2026-08-02]
-<!-- written by: pop-os -->
+# Handoff — 2026-08-02 (auditoria de bibliografia; .bbl corrigido)
+SESSLOG:[2026-08-02 15:53]
+<!-- written by: pop-os at 2026-08-02T15:53:58 -->
 *Project: monetary_shocks_asset_prices*
 
 ## Session Topic
-`git mv tex/ arquivo/tex/` e atualização dos `.md` que apontavam para
-`tex/main.tex` (`CLAUDE.md`, `README.md`, `arquivo/README.md`,
-`script/README.md`, `_instrucoes/pendencias.md`). Nada foi estimado.
+`/bibcheck` em `texto_anpec/references.bib` (46 entradas, 1 agente por entrada); 17 das
+25 entradas citadas corrigidas e aplicadas em `texto_anpec/paper_anpec.bbl`.
 
 ## Active Decisions
-- **A proibição de tocar `.tex` da sessão anterior (2026-08-01) foi
-  suplantada por instrução explícita do autor nesta sessão** — o pedido foi
-  precisamente mover/arquivar `tex/` e atualizar a documentação em torno
-  dele. Não se aplica a editar prosa dentro de `texto_anpec/paper_anpec.tex`,
-  que segue não tocado.
-- **`texto_anpec/paper_anpec.tex` é o paper canônico desde 2026-08-02.** O
-  antigo draft abntex2 (`tex/main.tex`) foi arquivado em `arquivo/tex/`, não
-  por vintage ou bug — o conteúdo era corrente — mas porque o autor decidiu
-  trocar o documento de trabalho.
-- **Gap real herdado da troca:** `texto_anpec/` não tem `§5 Robustez`
-  nenhuma (nem comentada); a seção mais completa que existe (exogeneidade,
-  estado, placebos, limitações) só existe comentada em
-  `arquivo/tex/main.tex:447-500`. Isso é agora o item bloqueador no topo do
-  Tema A de `_instrucoes/pendencias.md` — a tier list de 2026-08-01
-  (`relatorio/working-notes/2026-08-01_tier_list_robustez.md`) continua
-  valendo como fonte para essa portagem.
-- `script/fig_section5.R` foi repontado para escrever em `arquivo/tex/img/`
-  (só para não quebrar); nenhum figure set migrou para `texto_anpec/img/`
-  ainda — é trabalho futuro se/quando a §5 for portada.
+- **`paper_anpec.bbl` é o arquivo de trabalho — NÃO rodar `bibtex`**, que o regenera do
+  zero e apagaria edições manuais. É **gitignored** (`.gitignore:44`), sem backup no git;
+  restauração em `bibcheck_20260802_111938/original.bbl` (7025 B, fiel ao byte).
+- **`barigozzi2016non` cita o FEDS WP 2016-024r1** (era `@article`, virou `@techreport`).
+  Troca pelo JoE 221(2):455-482 (2021) **rejeitada** — nem o Fed nem RePEc confirmam que
+  são o mesmo trabalho. Fica como `barigozzi2021large` no `corrected.bib`.
+- **`STOCK2016415` mantém `volume = {2}`** — 2A vs 2B não confirmável.
+- **`references.bib` não foi tocado**: remover `alessi2016response` (todas as coordenadas
+  erradas) e `bai2002determining` está só proposto em `corrected.bib`.
 
 ## Key Files
-- `/mnt/storage/Github/Modelo/monetary_shocks_asset_prices/arquivo/tex/main.tex` (draft arquivado, §5 comentada em 447-500, §4 com 6 blocos comentados)
-- `/mnt/storage/Github/Modelo/monetary_shocks_asset_prices/texto_anpec/paper_anpec.tex` (paper canônico, sem §5)
-- `/mnt/storage/Github/Modelo/monetary_shocks_asset_prices/_instrucoes/pendencias.md`
-- `/mnt/storage/Github/Modelo/monetary_shocks_asset_prices/CLAUDE.md`
-- `/mnt/storage/Github/Modelo/monetary_shocks_asset_prices/arquivo/README.md`
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/texto_anpec/paper_anpec.bbl
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/texto_anpec/bibcheck_20260802_111938/
 
 ## Next Steps
-- [ ] Portar `§5 Robustez` de `arquivo/tex/main.tex:447-500` para
-  `texto_anpec/paper_anpec.tex` — **bloqueia** as subseções de
-  heterocedasticidade, confound soberano e as duas ressalvas (benchmark VAR,
-  reversão de médio prazo) já detalhadas em `_instrucoes/pendencias.md`
-  Tema A.
-- [ ] Decidir sobre a lacuna **F3 — overlay de IRF full × pré-COVID** (`.rds` já existem, não registrada em `pendencias.md`).
-- [ ] Decidir sobre quebrar `sec:estado` em A6 (robustez) e B3 (resultado).
+- [ ] FEDS 2016-024 == JoE 221(2):455-482? O artigo do JoE agora está em `artigos/` (marker .md,
+      adicionado 2026-08-02 15:50) e **não** menciona FEDS nem "previously circulated as" —
+      resolver comparando conteúdo (a padronização pelo desvio-padrão da 1ª diferença), não linhagem.
+- [ ] Ver se o cap. 8 do Handbook of Macroeconomics vol. 2 está em 2A ou 2B.
+- [ ] Decidir se poda `references.bib` (2 duplicatas + 19 entradas nunca citadas).
 
 ## Working Artifacts
-- Nenhum novo nesta sessão — só reorganização de docs em torno do `git mv`.
+- texto_anpec/bibcheck_20260802_111938/bibcheck_report.md — achados e overrides
+- texto_anpec/bibcheck_20260802_111938/corrected.bib — fonte com as 3 correções finais
+- texto_anpec/bibcheck_20260802_111938/original.bbl — restauração do .bbl
 
 ## Context
-O `tex/` antigo tinha a §4/§5 mais completa do projeto, mas o autor decidiu
-que `texto_anpec/` (submissão ANPEC, framing UIP-invertida) é o documento de
-trabalho daqui para frente. A consequência prática é que a robustez mais
-bem escrita do repositório está hoje num arquivo que ninguém deve editar —
-o trabalho que falta é de portagem, não de redação do zero.
+Sem field mixing em entrada citada; os achados foram erros de categoria (working papers
+do Fed e do NBER tipados como artigos) e coordenadas erradas. O .bbl aplicado compila
+sem citação nem referência indefinida.

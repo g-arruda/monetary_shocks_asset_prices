@@ -1,0 +1,39 @@
+{
+  "key": "bernanke",
+  "status": "corrected",
+  "one_sentence": "Correctly identifies Bernanke, Boivin & Eliasz (2005) FAVAR paper in QJE 120(1):387-422 with no field mixing, but is missing the DOI and carries several BibTeX hygiene defects (trailing title asterisk, smart quotes in the abstract, single-hyphen page range, a stray paywalled eprint URL).",
+  "canonical_url": "https://doi.org/10.1162/0033553053327452",
+  "issues": [
+    {
+      "field": "title",
+      "original": "Measuring the Effects of Monetary Policy: A Factor-Augmented Vector Autoregressive (FAVAR) Approach*",
+      "corrected": "Measuring the Effects of Monetary Policy: A Factor-Augmented Vector Autoregressive (FAVAR) Approach",
+      "reason": "Trailing asterisk is Oxford Academic's footnote marker (pointing to the acknowledgments note), scraped along with the title text; not part of the actual paper title and should be stripped."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1162/0033553053327452",
+      "reason": "No doi field present. The DOI resolves (via doi.org redirect) to the Oxford Academic QJE article-lookup page for this exact article, confirming volume 120(1):387-422, 2005. Corroborated independently by SciRP and RePEc citation records."
+    },
+    {
+      "field": "pages",
+      "original": "387-422",
+      "corrected": "387--422",
+      "reason": "BibTeX/BibLaTeX convention requires a double hyphen for page ranges so it renders as an en dash; a single hyphen renders as a plain hyphen. The page numbers themselves (387-422) are correct."
+    },
+    {
+      "field": "abstract",
+      "original": "...a general economic concept such as “real activity” is often arbitrary...",
+      "corrected": "...a general economic concept such as ``real activity'' is often arbitrary...",
+      "reason": "Abstract contains Unicode curly/smart quotes (U+201C/U+201D) around \"real activity\", copied verbatim from the OUP HTML page. These bytes can break BibTeX (as opposed to BibLaTeX/Biber) when the .bib file or engine is not UTF-8, and are non-standard in a plain-BibTeX abstract field; replaced with LaTeX-style ``...'' quoting. (The abstract field itself is also non-essential for a reference list entry and could be dropped entirely, but the text otherwise matches the published abstract verbatim.)"
+    },
+    {
+      "field": "eprint",
+      "original": "https://academic.oup.com/qje/article-pdf/120/1/387/5442603/120-1-387.pdf",
+      "corrected": "(removed)",
+      "reason": "Non-standard use of the eprint field, which conventionally holds an arXiv-style identifier, not a direct link to a publisher's paywalled PDF. This URL is session/CDN-specific and prone to rotting; the doi field now provides a stable canonical link to the same content, making this field redundant and a hygiene risk."
+    }
+  ],
+  "corrected_bib": "@article{bernanke,\n    author = {Bernanke, Ben S. and Boivin, Jean and Eliasz, Piotr},\n    title = {Measuring the Effects of Monetary Policy: A Factor-Augmented Vector Autoregressive (FAVAR) Approach},\n    journal = {The Quarterly Journal of Economics},\n    volume = {120},\n    number = {1},\n    pages = {387--422},\n    year = {2005},\n    month = {02},\n    doi = {10.1162/0033553053327452},\n    issn = {0033-5533},\n    abstract = {Structural vector autoregressions (VARs) are widely used to trace out the effect of monetary policy innovations on the economy. However, the sparse information sets typically used in these empirical models lead to at least three potential problems with the results. First, to the extent that central banks and the private sector have information not reflected in the VAR, the measurement of policy innovations is likely to be contaminated. Second, the choice of a specific data series to represent a general economic concept such as ``real activity'' is often arbitrary to some degree. Third, impulse responses can be observed only for the included variables, which generally constitute only a small subset of the variables that the researcher and policy-maker care about. In this paper we investigate one potential solution to this limited information problem, which combines the standard structural VAR analysis with recent developments in factor analysis for large data sets. We find that the information that our factor-augmented VAR (FAVAR) methodology exploits is indeed important to properly identify the monetary transmission mechanism. Overall, our results provide a comprehensive and coherent picture of the effect of monetary policy on the economy.},\n}\n"
+}

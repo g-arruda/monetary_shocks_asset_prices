@@ -1,0 +1,27 @@
+{
+  "key": "STOCK2016415",
+  "status": "corrected",
+  "one_sentence": "A survey/user's-guide chapter by James H. Stock and Mark W. Watson on dynamic factor models, factor-augmented VARs, and structural VARs in macroeconomics, published as Chapter 8 of the Handbook of Macroeconomics, Vol. 2 (2016).",
+  "canonical_url": "https://doi.org/10.1016/bs.hesmac.2016.04.002",
+  "issues": [
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1016/bs.hesmac.2016.04.002",
+      "reason": "No doi field present in the entry. Confirmed via CrossRef lookup (book-chapter, Elsevier, ISBN 9780444594877, pages 415-525) that this is the canonical DOI for the chapter; adding it gives an unambiguous machine-checkable anchor."
+    },
+    {
+      "field": "author",
+      "original": "J.H. Stock and M.W. Watson",
+      "corrected": "Stock, James H. and Watson, Mark W.",
+      "reason": "Bare initials used where full given names are well established (James H. Stock, Mark W. Watson, both Harvard/Princeton economists with extensive publication records under these full names). BibTeX hygiene: prefer full given names when known."
+    },
+    {
+      "field": "pages",
+      "original": "415-525",
+      "corrected": "415--525",
+      "reason": "Page range uses a single hyphen; BibTeX convention (and correct LaTeX en-dash rendering) requires a double hyphen for page ranges."
+    }
+  ],
+  "corrected_bib": "@incollection{STOCK2016415,\ntitle = {Chapter 8 - Dynamic Factor Models, Factor-Augmented Vector Autoregressions, and Structural Vector Autoregressions in Macroeconomics},\neditor = {John B. Taylor and Harald Uhlig},\nseries = {Handbook of Macroeconomics},\npublisher = {Elsevier},\nvolume = {2},\npages = {415--525},\nyear = {2016},\nissn = {1574-0048},\ndoi = {10.1016/bs.hesmac.2016.04.002},\nauthor = {Stock, James H. and Watson, Mark W.},\nkeywords = {State-space models, Structural vector autoregressions, Factor-augmented vector autoregressions, Principal components, Large-model forecasting, Nowcasting, Structural shocks},\n}"
+}

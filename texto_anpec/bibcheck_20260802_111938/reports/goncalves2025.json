@@ -1,0 +1,27 @@
+{
+  "key": "goncalves2025",
+  "status": "corrected",
+  "one_sentence": "IMF Working Paper WP/25/48 (Feb 2025), \"Monetary Policy and Inflation Expectations: High-Frequency Evidence from Brazil\" by Carlos Gonçalves, Mauro Rodrigues and Fernando Genta, uses Rigobon-style heteroskedasticity identification on daily Brazilian data to show monetary tightening lowers inflation expectations and appreciates the exchange rate.",
+  "canonical_url": "https://www.imf.org/en/Publications/WP/Issues/2025/02/28/Monetary-Policy-and-Inflation-Expectations-High-Frequency-Evidence-from-Brazil-562685",
+  "issues": [
+    {
+      "field": "number/title/author match",
+      "original": "number = {WP/25/48}, title = {Monetary Policy and Inflation Expectations: High-Frequency Evidence from Brazil}, author = {Gonçalves, Carlos and Rodrigues, Mauro and Genta, Fernando}",
+      "corrected": "(unchanged — verified correct)",
+      "reason": "Cross-checked against the IMF eLibrary listing (journals/001/2025/048), IDEAS/RePEc (RePEc:imf:imfwpa:2025/048), EconPapers, SSRN (abstract_id=5166242), the NEP-CBA report (2025-04-28), and the title page of the official IMF PDF itself (wpiea2025048-print-pdf.pdf, fetched via proxy). All five independent sources agree: WP/25/48 (= Volume 2025, Issue 048) IS this exact title with these exact three authors, in this order. The bib entry is not a mixed-up citation; number, title and author list are all internally consistent and correct. Author spelling/accents also confirmed exactly as given: 'Carlos Gonçalves' (with the cedilla-ç and til-a) appears on the PDF title page itself, not just an ASCII-stripped RePEc rendering."
+    },
+    {
+      "field": "month",
+      "original": "month = {2}",
+      "corrected": "month = feb",
+      "reason": "Bare numeric month (as a literal string '2') is nonstandard BibTeX hygiene; the conventional form is the three-letter BibTeX month macro (jan..dec) or a spelled-out string, which most .bst styles render correctly and abbreviate as needed. Content-wise the value is right: the paper's IMF publication date is 2025-02-28 (confirmed via IMF eLibrary/IDEAS/NEP-CBA and the 'Authorized for distribution ... in February 2025' line on the PDF itself), so month should read February/feb, not merely the digit 2."
+    },
+    {
+      "field": "url",
+      "original": "(missing)",
+      "corrected": "url = {https://www.imf.org/en/Publications/WP/Issues/2025/02/28/Monetary-Policy-and-Inflation-Expectations-High-Frequency-Evidence-from-Brazil-562685}",
+      "reason": "No url or doi field was present in the entry. The IMF eLibrary does not appear to assign this working paper a DOI (none listed on the eLibrary abstract page or the PDF itself), so a doi field cannot be added in good faith. Adding the canonical IMF publications-page URL gives a durable, verifiable anchor; the direct PDF (https://www.imf.org/-/media/files/publications/wp/2025/english/wpiea2025048-print-pdf.pdf) and SSRN mirror (https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5166242) are secondary confirmations of the same document."
+    }
+  ],
+  "corrected_bib": "@techreport{goncalves2025,\n  author = {Gonçalves, Carlos and Rodrigues, Mauro and Genta, Fernando},\n  title = {Monetary Policy and Inflation Expectations: High-Frequency Evidence from Brazil},\n  institution = {International Monetary Fund},\n  type = {IMF Working Paper},\n  number = {WP/25/48},\n  address = {Washington, DC},\n  year = {2025},\n  month = feb,\n  url = {https://www.imf.org/en/Publications/WP/Issues/2025/02/28/Monetary-Policy-and-Inflation-Expectations-High-Frequency-Evidence-from-Brazil-562685}\n}"
+}

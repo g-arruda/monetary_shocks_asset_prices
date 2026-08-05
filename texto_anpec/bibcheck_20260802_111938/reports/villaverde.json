@@ -1,0 +1,27 @@
+{
+  "key": "villaverde",
+  "status": "corrected",
+  "one_sentence": "All substantive fields (authors, title, journal, volume, number, year, month, pages) correctly match Fernández-Villaverde, Rubio-Ramírez, Sargent & Watson (2007), AER 97(3):1021-1026 — no field mixing — but the entry has three BibTeX hygiene defects: a Unicode en-dash in the page range, a missing DOI, and unprotected internal capitals in the title.",
+  "canonical_url": "https://www.aeaweb.org/articles?id=10.1257%2Faer.97.3.1021",
+  "issues": [
+    {
+      "field": "Pages",
+      "original": "1021–1026",
+      "corrected": "1021--1026",
+      "reason": "The page range uses a literal Unicode en-dash character (U+2013) instead of the BibTeX convention of a double hyphen (--), which (Bib)TeX itself renders as an en-dash on typeset output. A raw Unicode dash can misrender or trip up non-UTF8 LaTeX toolchains; the page numbers themselves (1021-1026) are correct per the AEA landing page."
+    },
+    {
+      "field": "Doi",
+      "original": "(missing)",
+      "corrected": "10.1257/aer.97.3.1021",
+      "reason": "No DOI field is present. Adding the canonical DOI (confirmed on the AEA article page) improves traceability and is standard practice for a published AER article."
+    },
+    {
+      "field": "Title",
+      "original": "ABCs (and Ds) of Understanding VARs",
+      "corrected": "{ABCs} (and {Ds}) of Understanding {VARs}",
+      "reason": "The title's single outer brace pair protects the field as a whole but not selective internal capitalization. Bibliography styles that title-case or sentence-case titles will lowercase the internal capitals in the acronym-like tokens 'ABCs', 'Ds', and 'VARs' (e.g., producing 'Abcs ... Vars'). Nesting braces around each token preserves the correct capitalization regardless of style."
+    }
+  ],
+  "corrected_bib": "@article{villaverde,\nAuthor = {Fernández-Villaverde, Jesús and Rubio-Ramírez, Juan F. and Sargent, Thomas J. and Watson, Mark W.},\nTitle = {{ABCs} (and {Ds}) of Understanding {VARs}},\nJournal = {American Economic Review},\nVolume = {97},\nNumber = {3},\nYear = {2007},\nMonth = {June},\nPages = {1021--1026},\nDoi = {10.1257/aer.97.3.1021}}"
+}

@@ -1,0 +1,52 @@
+{
+  "key": "alessi2016response",
+  "status": "corrected",
+  "one_sentence": "The cited paper is Alessi & Kerssenfischer, 'The response of asset prices to monetary policy shocks: Stronger than thought', Journal of Applied Econometrics 34(5):661-672 (2019, DOI 10.1002/jae.2706) — the entry's volume 31(6), pages 930-950 and year 2016 are all wrong and do not belong to this paper (2016 is instead the year of the precursor ECB Working Paper No. 1967, which has its own numbering, not journal volume/issue/pages).",
+  "canonical_url": "https://doi.org/10.1002/jae.2706",
+  "issues": [
+    {
+      "field": "year",
+      "original": "2016",
+      "corrected": "2019",
+      "reason": "Crossref metadata for DOI 10.1002/jae.2706 and the Wiley Online Library landing page both give a publication year of 2019. 2016 is the year of the working-paper precursor, ECB Working Paper Series No. 1967 (same title/authors), which was published as a journal article three years later. The 2016 WP has no volume/issue/page structure of the kind given here (31/6/930-950), so this looks like a hallucinated or conflated citation, not a faithful transcription of the working paper's own metadata."
+    },
+    {
+      "field": "volume",
+      "original": "31",
+      "corrected": "34",
+      "reason": "Crossref record for DOI 10.1002/jae.2706 gives volume 34 (JAE's 2019 volume). Volume 31 corresponds to JAE's 2016 volume, consistent with the erroneous year but not with any actual placement of this article."
+    },
+    {
+      "field": "number",
+      "original": "6",
+      "corrected": "5",
+      "reason": "Crossref record gives issue 5 (August 2019), not 6."
+    },
+    {
+      "field": "pages",
+      "original": "930--950",
+      "corrected": "661--672",
+      "reason": "Crossref record gives pages 661-672. Pages 930-950 do not belong to this article; a page range in that vicinity in JAE vol. 31 (2016) could not be verified as any real article via Crossref/RePEc/Wiley TOC searches, so it appears to be a fabricated coordinate rather than a mislabeled real paper."
+    },
+    {
+      "field": "publisher",
+      "original": "Wiley Online Library",
+      "corrected": "John Wiley \\& Sons, Ltd.",
+      "reason": "'Wiley Online Library' is the hosting platform, not the publisher of record. Crossref lists the publisher as John Wiley \\& Sons, Ltd. (minor hygiene issue, common artifact of auto-exported BibTeX)."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1002/jae.2706",
+      "reason": "No DOI field is present. The article has a registered DOI (10.1002/jae.2706) that should be included for verifiability."
+    },
+    {
+      "field": "entrytype/key",
+      "original": "@article{alessi2016response, ...}",
+      "corrected": "duplicate of @article{alessi, ...}",
+      "reason": "The entry type (@article) is correct once the coordinates are fixed, since the work is in fact a published journal article. However, the citation key 'alessi2016response' embeds the wrong year (2016) for the journal version, and — more importantly — this entry is a straight duplicate of the already-present and already-correct 'alessi' entry in the same bibliography (see duplicate_verdict)."
+    }
+  ],
+  "corrected_bib": "@article{alessi2016response,\n  title={The response of asset prices to monetary policy shocks: Stronger than thought},\n  author={Alessi, Lucia and Kerssenfischer, Mark},\n  journal={Journal of Applied Econometrics},\n  volume={34},\n  number={5},\n  pages={661--672},\n  year={2019},\n  publisher={John Wiley \\& Sons, Ltd.},\n  doi={10.1002/jae.2706}\n}",
+  "duplicate_verdict": "Yes — 'alessi2016response' cites the exact same paper (same title, same authors) as the pre-existing 'alessi' entry in this bibliography, and the 'alessi' entry already has the correct coordinates (Journal of Applied Econometrics, vol. 34, no. 5, pp. 661-672, 2019, DOI 10.1002/jae.2706, verified against Crossref); 'alessi2016response' is the corrupted duplicate, its volume/number/pages/year (31/6/930-950/2016) being fabricated/incorrect and traceable at best to a mixup with the year of the 2016 ECB Working Paper No. 1967 precursor — recommend deleting 'alessi2016response' from the master .bib and keeping only 'alessi', re-pointing any \\cite{alessi2016response} calls in the .tex to \\cite{alessi}."
+}

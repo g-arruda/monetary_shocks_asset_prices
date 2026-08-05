@@ -1,0 +1,28 @@
+{
+  "key": "amengual2007consistent",
+  "status": "corrected",
+  "one_sentence": "All bibliographic facts (title, authors, journal, volume/issue, pages, year, publisher) check out against CrossRef, but the title's technical capitals N and T are unprotected and will be lowercased by BibTeX, and the entry has no DOI; note this entry is not cited anywhere in paper_anpec.tex.",
+  "canonical_url": "https://doi.org/10.1198/073500106000000585",
+  "issues": [
+    {
+      "field": "title",
+      "original": "Consistent estimation of the number of dynamic factors in a large N and T panel",
+      "corrected": "Consistent estimation of the number of dynamic factors in a large {N} and {T} panel",
+      "reason": "N and T are technical notation (cross-section and time-series dimensions), not ordinary words. Standard .bst styles lowercase non-initial, unbraced capitals, which would silently turn 'N and T' into 'n and t' and obscure the meaning. Verified against CrossRef title 'Consistent Estimation of the Number of Dynamic Factors in a Large N and T Panel' (title case there, but the capitalization convention in the entry's own sentence case still requires braces around N and T)."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1198/073500106000000585",
+      "reason": "No DOI field present. CrossRef confirms DOI 10.1198/073500106000000585 for this article; adding it gives a stable canonical anchor and is standard BibTeX hygiene."
+    },
+    {
+      "field": "publisher",
+      "original": "Taylor \\& Francis",
+      "corrected": "Taylor \\& Francis",
+      "reason": "Verified correct, not an error. CrossRef lists the registrant as 'Informa UK Limited', which is the corporate parent operating as Taylor & Francis (JBES's publisher; the American Statistical Association is the sponsoring society, not the publisher of record). No change needed."
+    }
+  ],
+  "corrected_bib": "@article{amengual2007consistent,\n  title={Consistent estimation of the number of dynamic factors in a large {N} and {T} panel},\n  author={Amengual, Dante and Watson, Mark W},\n  journal={Journal of Business \\& Economic Statistics},\n  volume={25},\n  number={1},\n  pages={91--96},\n  year={2007},\n  publisher={Taylor \\& Francis},\n  doi={10.1198/073500106000000585}\n}",
+  "note_not_cited": "This entry (amengual2007consistent) does not appear anywhere in texto_anpec/paper_anpec.tex -- it exists only in references.bib and is not currently cited in the manuscript. Audited per instructions regardless."
+}

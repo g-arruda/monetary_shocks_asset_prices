@@ -1,0 +1,57 @@
+{
+  "key": "miranda",
+  "status": "corrected",
+  "one_sentence": "Miranda-Agrippino and Rey (Review of Economic Studies, 2020) show that a single 'Global Financial Cycle' factor, driven substantially by U.S. monetary policy shocks, governs the comovement of risky asset prices, credit flows and leverage of global financial intermediaries worldwide.",
+  "canonical_url": "https://doi.org/10.1093/restud/rdaa019",
+  "issues": [
+    {
+      "field": "Author",
+      "original": "Miranda-Agrippino, Silvia and Rey, Helene",
+      "corrected": "Miranda-Agrippino, Silvia and Rey, H{\\'e}l{\\`e}ne",
+      "reason": "Second author's given name is 'Hélène' Rey; the Web of Science export stripped both accents (é, è). Confirmed against Crossref metadata for DOI 10.1093/restud/rdaa019 and the author's own LBS/helenerey.eu listings."
+    },
+    {
+      "field": "Title",
+      "original": "US Monetary Policy and the Global Financial Cycle",
+      "corrected": "U.S. Monetary Policy and the Global Financial Cycle",
+      "reason": "The published journal article's title uses 'U.S.' with periods (confirmed via Crossref and Oxford Academic/academic.oup.com landing page for restud/87/6/2754/5834728). The unpunctuated 'US' form matches the 2015 NBER working paper (w21722) title, not the final published version -- a working-paper/published-version title mismatch, not fabrication."
+    },
+    {
+      "field": "Journal",
+      "original": "REVIEW OF ECONOMIC STUDIES",
+      "corrected": "The Review of Economic Studies",
+      "reason": "ALL-CAPS with the definite article dropped is the Web of Science journal-abbreviation rendering, not the journal's actual name. The canonical name (Oxford University Press masthead, Crossref container-title) is 'The Review of Economic Studies'."
+    },
+    {
+      "field": "DOI",
+      "original": "(missing)",
+      "corrected": "10.1093/restud/rdaa019",
+      "reason": "No DOI field present in the WoS export. Confirmed via Crossref API (api.crossref.org/works/10.1093/restud/rdaa019) and resolves correctly to the Oxford Academic article page. This is the single most load-bearing missing field for a canonical anchor and should be added."
+    },
+    {
+      "field": "ResearcherID-Numbers",
+      "original": "Rey, Helene/E-5094-2013",
+      "corrected": "(removed)",
+      "reason": "Web of Science internal author-identifier field. Not read by any standard .bst style (plain, apalike, natbib, elsarticle-num, etc.); pure export cruft that should be dropped from a paper's working .bib."
+    },
+    {
+      "field": "ORCID-Numbers",
+      "original": "Rey, Helene/0000-0002-2214-9063",
+      "corrected": "(removed)",
+      "reason": "Same category as ResearcherID-Numbers -- a WoS export convenience field with no .bst consumer. (The ORCID number itself, 0000-0002-2214-9063, does check out as Hélène Rey's registered ORCID, so it is not wrong, just not a field any bibliography style will render.)"
+    },
+    {
+      "field": "Unique-ID",
+      "original": "WOS:000613723100010",
+      "corrected": "(removed)",
+      "reason": "Web of Science accession number, meaningful only inside the WoS database. No .bst uses it; stray export field."
+    },
+    {
+      "field": "EISSN",
+      "original": "1467-937X",
+      "corrected": "(removed, or keep only if the target .bst explicitly supports dual ISSN)",
+      "reason": "Not a standard BibTeX field consumed by common .bst styles (they read ISSN, not EISSN). The value itself is correct (1467-937X is REStud's registered e-ISSN per Crossref/ISSN Portal) but it is hygiene cruft in the same category as ResearcherID/ORCID/Unique-ID -- harmless if left (silently ignored) but not something any bibliography style will print."
+    }
+  ],
+  "corrected_bib": "@article{miranda,\n  Author  = {Miranda-Agrippino, Silvia and Rey, H{\\'e}l{\\`e}ne},\n  Title   = {U.S. Monetary Policy and the Global Financial Cycle},\n  Journal = {The Review of Economic Studies},\n  Year    = {2020},\n  Volume  = {87},\n  Number  = {6},\n  Pages   = {2754--2776},\n  Month   = nov,\n  ISSN    = {0034-6527},\n  DOI     = {10.1093/restud/rdaa019},\n}"
+}

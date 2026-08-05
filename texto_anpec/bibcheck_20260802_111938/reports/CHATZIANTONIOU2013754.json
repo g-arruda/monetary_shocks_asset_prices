@@ -1,0 +1,29 @@
+{
+  "key": "CHATZIANTONIOU2013754",
+  "status": "verified_minor_hygiene",
+  "one_sentence": "All substantive fields (title, authors, year, journal, volume, pages, ISSN, abstract) match the canonical Chatziantoniou, Duffy & Filis (2013) Economic Modelling article exactly, no field mixing found, and the missing issue number is correct since Economic Modelling vol. 30 (2013) was published as a single continuously-paginated supplement 'C' (pp. 1-954) with no numbered issues; the only real defects are a missing DOI field and a single-hyphen (rather than double-hyphen/en-dash) page range.",
+  "canonical_url": "https://doi.org/10.1016/j.econmod.2012.10.005",
+  "issues": [
+    {
+      "field": "doi",
+      "severity": "minor",
+      "description": "DOI field is absent from the entry. Canonical DOI (confirmed via Crossref API and ScienceDirect) is 10.1016/j.econmod.2012.10.005."
+    },
+    {
+      "field": "pages",
+      "severity": "minor",
+      "description": "Page range is given as '754-769' with a single hyphen. BibTeX/LaTeX convention requires a double hyphen ('754--769') so it typesets as an en-dash. Page values themselves (754-769) are correct."
+    },
+    {
+      "field": "number",
+      "severity": "none",
+      "description": "No issue/number field is present, and none should be added. Checked against Crossref (no 'issue' asserted for this DOI), EconPapers/RePEc (issue coded 'C', its placeholder for 'no number'), and ScienceDirect, which lists the entire volume as 'Economic Modelling, Vol 30, Pages 1-954 (January 2013)' under supplement 'C' — i.e. volume 30 was issued as one continuously paginated compilation with no monthly/numbered issues. Omitting 'number' is correct, not an oversight."
+    },
+    {
+      "field": "title/authors/year/journal/volume/pages/issn/abstract/keywords",
+      "severity": "none",
+      "description": "Cross-checked against Crossref, EconPapers/RePEc, ScienceDirect, and the open-access working-paper PDF (Bournemouth ePrints, eprints.bournemouth.ac.uk/20575). Title, author order and spelling (Ioannis Chatziantoniou, David Duffy, George Filis), year 2013, journal 'Economic Modelling', volume 30, pages 754-769, and ISSN 0264-9993 all match exactly. Abstract text in the entry matches the working-paper abstract near-verbatim (trivial wording variant: 'fiscal and monetary policies' vs. 'fiscal and monetary' in the last sentence of the preprint — not a factual discrepancy). No field-mixing detected: every field is internally consistent with this single paper, not spliced from another Chatziantoniou/Filis publication."
+    }
+  ],
+  "corrected_bib": "@article{CHATZIANTONIOU2013754,\ntitle = {Stock market response to monetary and fiscal policy shocks: Multi-country evidence},\njournal = {Economic Modelling},\nvolume = {30},\npages = {754--769},\nyear = {2013},\nissn = {0264-9993},\ndoi = {10.1016/j.econmod.2012.10.005},\nauthor = {Ioannis Chatziantoniou and David Duffy and George Filis},\nkeywords = {Monetary policy, Fiscal policy, Stock market, Structural VAR, Fiscal and monetary policy interaction},\nabstract = {A Structural VAR model is employed to investigate the effects of monetary and fiscal policy shocks on stock market performance in Germany, UK and the US. A significant number of past studies have concentrated their attention on the relationship between monetary policy and stock market performance, yet only few on the effects of fiscal policy on stock markets. Even more we know little, if any, on the effects of fiscal and monetary policies on stock market performance when the two policies interact. This study aims to fill this void. Our results show that both fiscal and monetary policies influence the stock market, via either direct or indirect channels. More importantly, we find evidence that the interaction between the two policies is very important in explaining stock market developments. Thus, investors and analysts in their effort to understand the relationship between macroeconomic policies and stock market performance should consider fiscal and monetary policies in tandem rather than in isolation.}\n}"
+}

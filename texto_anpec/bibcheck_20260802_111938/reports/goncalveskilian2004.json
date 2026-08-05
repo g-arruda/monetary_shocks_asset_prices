@@ -1,0 +1,27 @@
+{
+  "key": "goncalveskilian2004",
+  "status": "clean",
+  "one_sentence": "All substantive fields (authors incl. the accented 'Sílvia', title, journal, volume 123, issue 1, pages 89-120, year 2004, DOI) verified correct against ScienceDirect/RePEc/SSRN; only minor BibTeX-hygiene suggestions apply.",
+  "canonical_url": "https://doi.org/10.1016/j.jeconom.2003.10.030",
+  "issues": [
+    {
+      "field": "author",
+      "original": "Gonçalves, Sílvia and Kilian, Lutz",
+      "corrected": "Gonçalves, Sílvia and Kilian, Lutz",
+      "reason": "Verified, not a correction. RePEc/IDEAS ASCII-strips to 'Silvia Goncalves', but the SSRN abstract page (papers.ssrn.com/sol3/papers.cfm?abstract_id=358520, title 'Bootstrapping Autoregressions with Conditional Heteroskedasticity of Unknown Form by Sílvia Gonçalves, Lutz Kilian') confirms the accented form 'Sílvia Gonçalves' is the author's correct published name. The .bib entry already has this right."
+    },
+    {
+      "field": "author (encoding)",
+      "original": "raw UTF-8 characters ç, í in Gonçalves / Sílvia",
+      "corrected": "Gon{\\c{c}}alves, S{\\'i}lvia and Kilian, Lutz  (only if the project's BibTeX toolchain is not UTF-8-safe)",
+      "reason": "Hygiene flag, not an error: raw UTF-8 accented characters can break a classic (non-biber, non-utf8x) BibTeX run. Since this .bib is part of a LaTeX project, confirm inputenc{utf8}/biblatex+biber (or T1/babel) is in use; if the toolchain is plain bibtex with an 8-bit-unsafe bib style, escape to LaTeX accent commands instead. No change made to the entry itself."
+    },
+    {
+      "field": "publisher",
+      "original": "(absent)",
+      "corrected": "publisher = {Elsevier}",
+      "reason": "Hygiene suggestion only: @article entries do not require 'publisher' in standard BibTeX styles (it is a @book/@incollection field), so this is optional, not an error. Journal of Econometrics is published by Elsevier (North-Holland/Elsevier B.V.) if the project's style renders it."
+    }
+  ],
+  "corrected_bib": "@article{goncalveskilian2004,\n  author = {Gonçalves, Sílvia and Kilian, Lutz},\n  title = {Bootstrapping Autoregressions with Conditional Heteroskedasticity of Unknown Form},\n  journal = {Journal of Econometrics},\n  volume = {123},\n  number = {1},\n  pages = {89--120},\n  year = {2004},\n  doi = {10.1016/j.jeconom.2003.10.030}\n}\n"
+}

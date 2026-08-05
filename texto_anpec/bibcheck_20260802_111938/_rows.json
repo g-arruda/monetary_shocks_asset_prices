@@ -1,0 +1,1519 @@
+[
+ {
+  "key": "BOIVIN2006169",
+  "status": "corrected",
+  "n": 4,
+  "issues": [
+   {
+    "field": "title/authors/journal/volume/number/pages/year",
+    "original": "Are more data always better for factor analysis? / Jean Boivin and Serena Ng / Journal of Econometrics / 132 / 1 / 169-194 / 2006",
+    "corrected": "unchanged (verified correct)",
+    "reason": "Cross-checked against CrossRef (DOI 10.1016/j.jeconom.2005.01.027) and RePEc/IDEAS (v132y2006i1p169-194): title, both author names and their order, journal, volume, issue, page range and year all match the canonical published article. No field mixing detected — this is not a case of one paper's title paired with another's metadata."
+   },
+   {
+    "field": "doi",
+    "original": "(field absent)",
+    "corrected": "10.1016/j.jeconom.2005.01.027",
+    "reason": "The entry has no DOI field. Confirmed via an independent CrossRef bibliographic-query search (not a guessed DOI) that this DOI resolves to exactly this title/authors/volume/issue/pages. Added for a canonical, unambiguous anchor."
+   },
+   {
+    "field": "pages",
+    "original": "169-194",
+    "corrected": "169--194",
+    "reason": "BibTeX hygiene: a single hyphen in a page range renders as a hyphen, not an en dash; the convention (and what BibTeX/biblatex expects) is a double hyphen '--' so it typesets as an en dash."
+   },
+   {
+    "field": "keywords",
+    "original": "Factor models, Large  and , Principal components, Forecasting",
+    "corrected": "Factor models, Principal components, Forecasting",
+    "reason": "The keywords field contains a corruption artifact: 'Large  and ,' has a double space and a dangling 'and' with no noun, almost certainly the result of losing italicized/HTML-formatted text (e.g. a keyword like 'Large N and T panels') during a copy-paste harvest from the publisher page. I could not recover the exact original wording from any available source (ScienceDirect blocks scraping and no mirror lists the keyword list), so rather than guess I removed the corrupted fragment and kept the three keywords that are intact and plausible. This is a hygiene fix, not a factual correction, and does not affect citation identity."
+   }
+  ],
+  "one": "Boivin and Ng (2006, Journal of Econometrics) show that adding more series to a factor model does not always improve the estimated factors' usefulness for forecasting, especially when idiosyncratic errors are cross-correlated or a factor dominant in a small panel becomes dominated in a larger one.",
+  "url": "https://doi.org/10.1016/j.jeconom.2005.01.027",
+  "extra": ""
+ },
+ {
+  "key": "kilian",
+  "status": "corrected",
+  "n": 4,
+  "issues": [
+   {
+    "field": "Year",
+    "original": "Year = {2009} (appears on line 7 and again on line 11)",
+    "corrected": "Year = {2009} (single occurrence)",
+    "reason": "Duplicated field key in the same @article block. BibTeX entries must not repeat a field name; most parsers silently keep one value (implementation-dependent) rather than erroring, which is fragile hygiene even though the duplicated value happened to be identical and non-contradictory here."
+   },
+   {
+    "field": "Month",
+    "original": "Month = {June} (appears on line 8 and again on line 10)",
+    "corrected": "Month = {June} (single occurrence)",
+    "reason": "Same duplicated-field problem as Year. Both duplicates carried the same value, so no factual error resulted, but the entry should be de-duplicated for BibTeX hygiene."
+   },
+   {
+    "field": "Pages",
+    "original": "Pages = {1053–69}",
+    "corrected": "Pages = {1053--1069}",
+    "reason": "The original uses a literal Unicode en-dash (U+2013) character inside the .bib source. BibTeX/BibLaTeX convention is to encode a page-range dash as ASCII double-hyphen (--), which .bst styles render as an en-dash at typeset time; a raw Unicode en-dash can break under non-UTF8 BibTeX toolchains or render inconsistently. Also expanded the truncated '69' to the full '1069' to avoid ambiguity, though the AEA's own abbreviated '1053–69' is not itself wrong."
+   },
+   {
+    "field": "Doi",
+    "original": "(missing)",
+    "corrected": "Doi = {10.1257/aer.99.3.1053}",
+    "reason": "No DOI field was present. Adding it is standard hygiene for a published journal article and gives a durable canonical anchor; confirmed against the AEA article landing page."
+   }
+  ],
+  "one": "Kilian (2009, American Economic Review) develops a structural VAR to disentangle oil supply shocks, aggregate demand shocks, and oil-market-specific demand shocks in the crude oil market and traces their differing effects on the real price of oil and the US economy.",
+  "url": "https://doi.org/10.1257/aer.99.3.1053",
+  "extra": ""
+ },
+ {
+  "key": "STOCK2016415",
+  "status": "corrected",
+  "n": 3,
+  "issues": [
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1016/bs.hesmac.2016.04.002",
+    "reason": "No doi field present in the entry. Confirmed via CrossRef lookup (book-chapter, Elsevier, ISBN 9780444594877, pages 415-525) that this is the canonical DOI for the chapter; adding it gives an unambiguous machine-checkable anchor."
+   },
+   {
+    "field": "author",
+    "original": "J.H. Stock and M.W. Watson",
+    "corrected": "Stock, James H. and Watson, Mark W.",
+    "reason": "Bare initials used where full given names are well established (James H. Stock, Mark W. Watson, both Harvard/Princeton economists with extensive publication records under these full names). BibTeX hygiene: prefer full given names when known."
+   },
+   {
+    "field": "pages",
+    "original": "415-525",
+    "corrected": "415--525",
+    "reason": "Page range uses a single hyphen; BibTeX convention (and correct LaTeX en-dash rendering) requires a double hyphen for page ranges."
+   }
+  ],
+  "one": "A survey/user's-guide chapter by James H. Stock and Mark W. Watson on dynamic factor models, factor-augmented VARs, and structural VARs in macroeconomics, published as Chapter 8 of the Handbook of Macroeconomics, Vol. 2 (2016).",
+  "url": "https://doi.org/10.1016/bs.hesmac.2016.04.002",
+  "extra": ""
+ },
+ {
+  "key": "alessi",
+  "status": "corrected",
+  "n": 7,
+  "issues": [
+   {
+    "field": "author",
+    "original": "Alessi, Lucia and Kerssenfischer, Mark",
+    "corrected": "Alessi, Lucia and Kerssenfischer, Mark",
+    "reason": "Verified against Crossref metadata for DOI 10.1002/jae.2706: Lucia Alessi (European Commission, Joint Research Centre) and Mark Kerssenfischer (Deutsche Bundesbank). Names and spelling are correct, no change needed."
+   },
+   {
+    "field": "title",
+    "original": "The response of asset prices to monetary policy shocks: Stronger than thought",
+    "corrected": "The response of asset prices to monetary policy shocks: Stronger than thought",
+    "reason": "Matches Crossref title exactly, no change needed."
+   },
+   {
+    "field": "journal/volume/number/year",
+    "original": "Journal of Applied Econometrics / 34 / 5 / 2019",
+    "corrected": "Journal of Applied Econometrics / 34 / 5 / 2019",
+    "reason": "Matches Crossref record for DOI 10.1002/jae.2706 (published online 2019-04-29, print issue August 2019, vol. 34 no. 5). No change needed."
+   },
+   {
+    "field": "pages",
+    "original": "661-672",
+    "corrected": "661--672",
+    "reason": "Page range confirmed correct against Crossref (661-672), but written with a single hyphen; BibTeX/LaTeX convention requires a double hyphen so it compiles to an en dash rather than a plain hyphen-minus. Hygiene fix only, not a factual error."
+   },
+   {
+    "field": "doi",
+    "original": "(absent)",
+    "corrected": "10.1002/jae.2706",
+    "reason": "No doi field exists in the entry. The article has a registered, citable DOI that should be present explicitly rather than buried inside the eprint URL."
+   },
+   {
+    "field": "eprint",
+    "original": "https://onlinelibrary.wiley.com/doi/pdf/10.1002/jae.2706",
+    "corrected": "(removed)",
+    "reason": "eprint is conventionally reserved for arXiv-style identifiers, not a full URL to a paywalled PDF of a published journal article. It duplicates the DOI in a nonstandard, less citable form; superseded by the added doi field."
+   },
+   {
+    "field": "abstract",
+    "original": "[full ~90-word abstract text present, verified accurate against the published abstract]",
+    "corrected": "(removed)",
+    "reason": "Text checked and matches the actual published abstract, so it is not incorrect, but a full abstract field is unusual bloat for a citation-only .bib entry once title/DOI establish identity; flagged as hygiene, not a factual issue."
+   }
+  ],
+  "one": "This entry correctly identifies Alessi & Kerssenfischer, 'The response of asset prices to monetary policy shocks: Stronger than thought', Journal of Applied Econometrics 34(5):661-672 (2019, DOI 10.1002/jae.2706) — all scholarly fields (authors, title, journal, volume, number, pages, year) check out against Crossref/SSRN/ECB sources; only BibTeX hygiene needs fixing (no doi field, page range uses a plain hyphen instead of the en-dash convention, and a nonstandard eprint field holds a paywalled PDF URL instead of a DOI).",
+  "url": "https://doi.org/10.1002/jae.2706",
+  "extra": "The 2019 / Journal of Applied Econometrics 34(5) / pp. 661-672 coordinates (this entry, 'alessi') are the real, verified published article, confirmed via Crossref for DOI 10.1002/jae.2706, SSRN (abstract_id=2854133), and the ECB Working Paper Series No. 1967 precursor. The competing coordinates in the sibling entry 'alessi2016response' (2016 / 31(6) / 930-950) do not belong to any real article: the actual contents of JAE vol. 31 no. 6 (Sept/Oct 2016) run pages 929-1196 with no Alessi or Kerssenfischer paper anywhere in the issue (confirmed against the full table of contents at ftp.math.utah.edu's JAE bibliography) — the nearest page range, 929-960, belongs to Bailey, Kapetanios & Pesaran's 'Exponent of Cross-Sectional Dependence: Estimation and Inference', an unrelated econometric-theory paper with no author overlap. '31(6) 930-950 (2016)' is therefore a fabricated/hallucinated citation, not a mislabeled but genuine second paper; 'alessi2016response' is a corrupted duplicate of this entry and should be deleted (or all \\cite{alessi2016response} calls redirected to \\cite{alessi})."
+ },
+ {
+  "key": "villaverde",
+  "status": "corrected",
+  "n": 3,
+  "issues": [
+   {
+    "field": "Pages",
+    "original": "1021–1026",
+    "corrected": "1021--1026",
+    "reason": "The page range uses a literal Unicode en-dash character (U+2013) instead of the BibTeX convention of a double hyphen (--), which (Bib)TeX itself renders as an en-dash on typeset output. A raw Unicode dash can misrender or trip up non-UTF8 LaTeX toolchains; the page numbers themselves (1021-1026) are correct per the AEA landing page."
+   },
+   {
+    "field": "Doi",
+    "original": "(missing)",
+    "corrected": "10.1257/aer.97.3.1021",
+    "reason": "No DOI field is present. Adding the canonical DOI (confirmed on the AEA article page) improves traceability and is standard practice for a published AER article."
+   },
+   {
+    "field": "Title",
+    "original": "ABCs (and Ds) of Understanding VARs",
+    "corrected": "{ABCs} (and {Ds}) of Understanding {VARs}",
+    "reason": "The title's single outer brace pair protects the field as a whole but not selective internal capitalization. Bibliography styles that title-case or sentence-case titles will lowercase the internal capitals in the acronym-like tokens 'ABCs', 'Ds', and 'VARs' (e.g., producing 'Abcs ... Vars'). Nesting braces around each token preserves the correct capitalization regardless of style."
+   }
+  ],
+  "one": "All substantive fields (authors, title, journal, volume, number, year, month, pages) correctly match Fernández-Villaverde, Rubio-Ramírez, Sargent & Watson (2007), AER 97(3):1021-1026 — no field mixing — but the entry has three BibTeX hygiene defects: a Unicode en-dash in the page range, a missing DOI, and unprotected internal capitals in the title.",
+  "url": "https://www.aeaweb.org/articles?id=10.1257%2Faer.97.3.1021",
+  "extra": ""
+ },
+ {
+  "key": "bernanke",
+  "status": "corrected",
+  "n": 5,
+  "issues": [
+   {
+    "field": "title",
+    "original": "Measuring the Effects of Monetary Policy: A Factor-Augmented Vector Autoregressive (FAVAR) Approach*",
+    "corrected": "Measuring the Effects of Monetary Policy: A Factor-Augmented Vector Autoregressive (FAVAR) Approach",
+    "reason": "Trailing asterisk is Oxford Academic's footnote marker (pointing to the acknowledgments note), scraped along with the title text; not part of the actual paper title and should be stripped."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1162/0033553053327452",
+    "reason": "No doi field present. The DOI resolves (via doi.org redirect) to the Oxford Academic QJE article-lookup page for this exact article, confirming volume 120(1):387-422, 2005. Corroborated independently by SciRP and RePEc citation records."
+   },
+   {
+    "field": "pages",
+    "original": "387-422",
+    "corrected": "387--422",
+    "reason": "BibTeX/BibLaTeX convention requires a double hyphen for page ranges so it renders as an en dash; a single hyphen renders as a plain hyphen. The page numbers themselves (387-422) are correct."
+   },
+   {
+    "field": "abstract",
+    "original": "...a general economic concept such as “real activity” is often arbitrary...",
+    "corrected": "...a general economic concept such as ``real activity'' is often arbitrary...",
+    "reason": "Abstract contains Unicode curly/smart quotes (U+201C/U+201D) around \"real activity\", copied verbatim from the OUP HTML page. These bytes can break BibTeX (as opposed to BibLaTeX/Biber) when the .bib file or engine is not UTF-8, and are non-standard in a plain-BibTeX abstract field; replaced with LaTeX-style ``...'' quoting. (The abstract field itself is also non-essential for a reference list entry and could be dropped entirely, but the text otherwise matches the published abstract verbatim.)"
+   },
+   {
+    "field": "eprint",
+    "original": "https://academic.oup.com/qje/article-pdf/120/1/387/5442603/120-1-387.pdf",
+    "corrected": "(removed)",
+    "reason": "Non-standard use of the eprint field, which conventionally holds an arXiv-style identifier, not a direct link to a publisher's paywalled PDF. This URL is session/CDN-specific and prone to rotting; the doi field now provides a stable canonical link to the same content, making this field redundant and a hygiene risk."
+   }
+  ],
+  "one": "Correctly identifies Bernanke, Boivin & Eliasz (2005) FAVAR paper in QJE 120(1):387-422 with no field mixing, but is missing the DOI and carries several BibTeX hygiene defects (trailing title asterisk, smart quotes in the abstract, single-hyphen page range, a stray paywalled eprint URL).",
+  "url": "https://doi.org/10.1162/0033553053327452",
+  "extra": ""
+ },
+ {
+  "key": "clarida",
+  "status": "corrected",
+  "n": 5,
+  "issues": [
+   {
+    "field": "publisher",
+    "original": "Oxford University Press",
+    "corrected": "MIT Press",
+    "reason": "In 2000, The Quarterly Journal of Economics was published by MIT Press (MIT Press Journals operated the journal on behalf of copyright holder Harvard College); QJE only moved to Oxford University Press around 2017-2018 (starting near vol. 132). The 'Oxford University Press' value in this entry reflects JSTOR/Crossref's current-publisher-of-record metadata, not the publisher at the time of publication -- exactly the anachronism pattern flagged for JSTOR-sourced imports."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1162/003355300554692",
+    "reason": "No DOI was present. 10.1162/003355300554692 resolves (via Crossref redirect) to the Oxford Academic landing page for this exact article (vol. 115, issue 1, pp. 147-180, 2000), confirming it as the canonical anchor."
+   },
+   {
+    "field": "ISSN",
+    "original": "00335533, 15314650",
+    "corrected": "(removed)",
+    "reason": "Stray JSTOR-import field. ISSN values are correct (0033-5533 print / 1531-4650 online, matching JSTOR/ISSN portal records for QJE) but are non-standard clutter in a reference-list .bib entry once journal + volume + issue + DOI are present."
+   },
+   {
+    "field": "abstract",
+    "original": "(full JSTOR abstract text present)",
+    "corrected": "(removed)",
+    "reason": "Stray JSTOR-import field; abstracts are not customary in a bibliography entry for a citation list and bloat the .bib without affecting the rendered reference."
+   },
+   {
+    "field": "urldate",
+    "original": "2024-12-12",
+    "corrected": "(removed)",
+    "reason": "Stray JSTOR-import field. urldate is meaningful for undated/online-only sources; this is a stable, DOI-identified print journal article, so an access date is superfluous."
+   }
+  ],
+  "one": "Title/authors/year/journal/volume/issue/pages all correctly identify Clarida-Galí-Gertler (2000, QJE 115(1):147-180) with no field-mixing, but the publisher is a JSTOR anachronism (Oxford University Press, which only took over QJE c. 2017-2018) and the entry lacks a DOI while carrying stray JSTOR-import fields (ISSN, abstract, urldate).",
+  "url": "https://doi.org/10.1162/003355300554692",
+  "extra": ""
+ },
+ {
+  "key": "UHLIG2005381",
+  "status": "corrected",
+  "n": 3,
+  "issues": [
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1016/j.jmoneco.2004.05.007",
+    "reason": "No DOI field present. Confirmed via Crossref API (api.crossref.org/works/10.1016/j.jmoneco.2004.05.007), which matches all other fields (title, author, container-title, volume 52, issue 2, pages 381-419, year 2005, ISSN 0304-3932, publisher Elsevier BV) exactly."
+   },
+   {
+    "field": "pages",
+    "original": "381-419",
+    "corrected": "381--419",
+    "reason": "Page range uses a plain hyphen; BibTeX convention (and correct LaTeX en-dash rendering) requires a double hyphen for page ranges."
+   },
+   {
+    "field": "abstract",
+    "original": "I find that “contractionary” monetary policy shocks have no clear effect on real GDP...",
+    "corrected": "I find that \"contractionary\" monetary policy shocks have no clear effect on real GDP...",
+    "reason": "Abstract contains Unicode curly/smart quotes (U+201C/U+201D, verified via raw byte inspection: UTF-8 sequences E2 80 9C / E2 80 9D) around 'contractionary' instead of plain ASCII quotes. Smart quotes in a .bib source file risk encoding/compilation issues and are inconsistent with standard BibTeX hygiene; content itself (rest of abstract wording) is otherwise consistent with the paper's known abstract."
+   }
+  ],
+  "one": "All content fields (title, author, journal, volume, issue, pages, year, ISSN) correctly identify Uhlig (2005), JME 52(2):381-419; the entry only had bibliographic-hygiene defects (missing DOI, hyphen instead of en-dash in the page range, and Unicode smart quotes in the abstract).",
+  "url": "https://doi.org/10.1016/j.jmoneco.2004.05.007",
+  "extra": ""
+ },
+ {
+  "key": "ehrmann",
+  "status": "corrected",
+  "n": 5,
+  "issues": [
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "doi = {10.1353/mcb.2004.0063}",
+    "reason": "No DOI field present. Confirmed via Project MUSE crossref resolution (doi.org/10.1353/mcb.2004.0063 redirects to muse.jhu.edu .../journal_of_money_credit_and_banking/v036/36.4ehrmann.pdf, i.e. vol. 36 issue 4), matching JSTOR stable/3839039. Adding it gives a durable canonical anchor; this is the article's registered DOI (Project MUSE is the DOI-registration host for pre-Wiley-digitization JMCB back issues, distinct from JSTOR)."
+   },
+   {
+    "field": "urldate",
+    "original": "urldate = {2024-12-12}",
+    "corrected": "(remove, or pair with an explicit url field)",
+    "reason": "Stray JSTOR-import artifact: urldate records when a URL was accessed, but the entry carries no url field at all, so urldate is orphaned and meaningless as written. Either drop it or add the corresponding url (e.g. the JSTOR stable link) it was presumably meant to timestamp."
+   },
+   {
+    "field": "abstract",
+    "original": "(full JSTOR-scraped abstract text present)",
+    "corrected": "(remove)",
+    "reason": "Verified against the paper's actual abstract (matches in substance: heterogeneous stock reaction to US monetary policy shocks, financial constraints, Tobin's q) so it is not mismatched/mixed content, but a full abstract is non-standard clutter in a citation .bib and is a typical unedited JSTOR-export artifact."
+   },
+   {
+    "field": "ISSN",
+    "original": "ISSN = {00222879, 15384616}",
+    "corrected": "(remove, or split into issn/eissn if the style requires it)",
+    "reason": "Values are correct (0022-2879 print / 1538-4616 online, confirmed against Wiley's JMCB journal page ID 15384616 and JSTOR's journal record), but bundling print+electronic ISSN unhyphenated into one field is a raw JSTOR-export artifact rather than a curated bibliography field; not needed for a journal-article citation and not itself a factual error."
+   },
+   {
+    "field": "publisher",
+    "original": "publisher = {[Wiley, Ohio State University Press]}",
+    "corrected": "(no change needed; optional to drop for a journal article)",
+    "reason": "Checked for correctness rather than flagged as wrong: this is JSTOR's verbatim publisher string for pre-2007 JMCB volumes, reflecting that Ohio State University Press was the journal's original publisher/copyright holder while Blackwell/Wiley served (and now serves, as Wiley) as the distributing publisher. The volume/issue/year triple confirms this is the right journal record (Vol. 36, No. 4, August 2004), so the bracketed dual-publisher format is idiosyncratic JSTOR styling, not a data error. A publisher field is unconventional for a plain journal-article @article entry generally, so removal is a stylistic option, not a correction."
+   }
+  ],
+  "one": "Ehrmann and Fratzscher (2004, Journal of Money, Credit and Banking 36(4), pp. 719-737) show that individual S&P 500 stocks react heterogeneously to U.S. monetary policy shocks, with the reaction concentrated in firms with tighter financial constraints and higher Tobin's q.",
+  "url": "https://doi.org/10.1353/mcb.2004.0063",
+  "extra": ""
+ },
+ {
+  "key": "CHATZIANTONIOU2013754",
+  "status": "corrected",
+  "n": 4,
+  "issues": [
+   {
+    "field": "doi",
+    "severity": "minor",
+    "description": "DOI field is absent from the entry. Canonical DOI (confirmed via Crossref API and ScienceDirect) is 10.1016/j.econmod.2012.10.005."
+   },
+   {
+    "field": "pages",
+    "severity": "minor",
+    "description": "Page range is given as '754-769' with a single hyphen. BibTeX/LaTeX convention requires a double hyphen ('754--769') so it typesets as an en-dash. Page values themselves (754-769) are correct."
+   },
+   {
+    "field": "number",
+    "severity": "none",
+    "description": "No issue/number field is present, and none should be added. Checked against Crossref (no 'issue' asserted for this DOI), EconPapers/RePEc (issue coded 'C', its placeholder for 'no number'), and ScienceDirect, which lists the entire volume as 'Economic Modelling, Vol 30, Pages 1-954 (January 2013)' under supplement 'C' — i.e. volume 30 was issued as one continuously paginated compilation with no monthly/numbered issues. Omitting 'number' is correct, not an oversight."
+   },
+   {
+    "field": "title/authors/year/journal/volume/pages/issn/abstract/keywords",
+    "severity": "none",
+    "description": "Cross-checked against Crossref, EconPapers/RePEc, ScienceDirect, and the open-access working-paper PDF (Bournemouth ePrints, eprints.bournemouth.ac.uk/20575). Title, author order and spelling (Ioannis Chatziantoniou, David Duffy, George Filis), year 2013, journal 'Economic Modelling', volume 30, pages 754-769, and ISSN 0264-9993 all match exactly. Abstract text in the entry matches the working-paper abstract near-verbatim (trivial wording variant: 'fiscal and monetary policies' vs. 'fiscal and monetary' in the last sentence of the preprint — not a factual discrepancy). No field-mixing detected: every field is internally consistent with this single paper, not spliced from another Chatziantoniou/Filis publication."
+   }
+  ],
+  "one": "All substantive fields (title, authors, year, journal, volume, pages, ISSN, abstract) match the canonical Chatziantoniou, Duffy & Filis (2013) Economic Modelling article exactly, no field mixing found, and the missing issue number is correct since Economic Modelling vol. 30 (2013) was published as a single continuously-paginated supplement 'C' (pp. 1-954) with no numbered issues; the only real defects are a missing DOI field and a single-hyphen (rather than double-hyphen/en-dash) page range.",
+  "url": "https://doi.org/10.1016/j.econmod.2012.10.005",
+  "extra": ""
+ },
+ {
+  "key": "BEKAERT2013771",
+  "status": "corrected",
+  "n": 6,
+  "issues": [
+   {
+    "field": "doi",
+    "severity": "moderate",
+    "description": "No doi field present. Canonical DOI is 10.1016/j.jmoneco.2013.06.003 (confirmed via CrossRef API and RePEc/EconPapers). Should be added."
+   },
+   {
+    "field": "pages",
+    "severity": "minor",
+    "description": "pages = {771-788} uses a plain hyphen. BibTeX convention (and CrossRef's own '771–788') calls for an en-dash rendered as a double hyphen: 771--788, so downstream .bst styles typeset it correctly."
+   },
+   {
+    "field": "abstract",
+    "severity": "minor",
+    "description": "Abstract contains Unicode smart/curly quotes (“”) around “uncertainty”, copied verbatim from the ScienceDirect/Elsevier export. Text otherwise matches the official abstract word-for-word (verified against EconPapers/RePEc mirror). Should be normalized to LaTeX ``uncertainty'' or straight quotes \"uncertainty\" to avoid encoding issues in non-UTF8 LaTeX toolchains.",
+    "detail": "Verified exact match of remaining abstract text against econpapers.repec.org mirror; only the quote-mark glyphs differ from a plain-text-safe rendering."
+   },
+   {
+    "field": "author",
+    "severity": "none (verified correct, not a defect)",
+    "description": "Marco {Lo Duca} is correctly braced. Without the braces, BibTeX's name-parsing algorithm would treat the last space-separated capitalized token as the surname ('Duca') and misfile the entry under D instead of L, since 'Lo' is capitalized and therefore not read as a von-particle. Bracing {Lo Duca} forces it to sort correctly as 'Lo Duca'. Confirmed the author order and spelling (Geert Bekaert, Marie Hoerova, Marco Lo Duca) against CrossRef, RePEc/IDEAS and EconPapers."
+   },
+   {
+    "field": "publisher",
+    "severity": "trivial",
+    "description": "No publisher field (Elsevier BV per CrossRef). Not required by most journal-article .bst styles but could be added for completeness."
+   },
+   {
+    "field": "abstract (VIX)",
+    "severity": "trivial",
+    "description": "The unbraced 'VIX' appears in the abstract text, not in the title or keywords field, so it is not at risk from title-case-changing .bst styles (abstract is normally printed verbatim and is a non-standard field). Flagged only for completeness per the audit checklist; no action needed unless the bibliography style manipulates the abstract field's case."
+   }
+  ],
+  "one": "Correctly identifies Bekaert, Hoerova & Lo Duca (2013), \"Risk, uncertainty and monetary policy\", Journal of Monetary Economics 60(7): 771-788 (DOI 10.1016/j.jmoneco.2013.06.003) — no field mixing found, but the entry is missing a doi field, uses a plain hyphen instead of a BibTeX en-dash in the page range, and has smart/curly quotes embedded in the abstract.",
+  "url": "https://doi.org/10.1016/j.jmoneco.2013.06.003",
+  "extra": ""
+ },
+ {
+  "key": "Thorbecke",
+  "status": "corrected",
+  "n": 6,
+  "issues": [
+   "Journal field is ALL CAPS ('JOURNAL OF FINANCE') instead of mixed case ('Journal of Finance') -- a raw Web-of-Science export artifact.",
+   "Author given as initial only ('Thorbecke, W') instead of full given name ('Thorbecke, Willem').",
+   "DOI is missing entirely (should be 10.1111/j.1540-6261.1997.tb04816.x).",
+   "Pages use a hyphen ('635-654') rather than an en-dash; also note the EconPapers/RePEc record abbreviates the end page as '635-54' (elided form) while the .bib and Crossref/Wiley agree on the full '635-654' -- the .bib form is correct, just flag hyphen-vs-en-dash BibTeX hygiene.",
+   "Stray non-standard fields that no .bst style consumes: 'ResearcherID-Numbers', 'Unique-ID' (WOS:A1997XA18900008), and 'EISSN' -- all raw Web-of-Science export cruft that should be stripped for a clean submission .bib.",
+   "No field-mixing detected: title, author, year, volume, issue, and pages all consistently point to the same single paper (Thorbecke 1997, JoF) across Crossref, EconPapers/RePEc, and Wiley -- Month = {JUN} field is also correct (issue 2, June 1997) but is likewise a non-standard field for most .bst styles."
+  ],
+  "one": "Correctly cites Thorbecke (1997), 'On Stock Market Returns and Monetary Policy,' Journal of Finance 52(2):635-654 (DOI 10.1111/j.1540-6261.1997.tb04816.x); all substantive fields (title, author, year, volume, issue, pages, ISSN) match the canonical record, but the entry has WoS-export hygiene problems: ALL-CAPS journal name, initial-only author, hyphenated (not en-dash) page range, missing DOI, and stray ResearcherID-Numbers/Unique-ID/EISSN fields.",
+  "url": "https://doi.org/10.1111/j.1540-6261.1997.tb04816.x",
+  "extra": ""
+ },
+ {
+  "key": "miranda",
+  "status": "corrected",
+  "n": 8,
+  "issues": [
+   {
+    "field": "Author",
+    "original": "Miranda-Agrippino, Silvia and Rey, Helene",
+    "corrected": "Miranda-Agrippino, Silvia and Rey, H{\\'e}l{\\`e}ne",
+    "reason": "Second author's given name is 'Hélène' Rey; the Web of Science export stripped both accents (é, è). Confirmed against Crossref metadata for DOI 10.1093/restud/rdaa019 and the author's own LBS/helenerey.eu listings."
+   },
+   {
+    "field": "Title",
+    "original": "US Monetary Policy and the Global Financial Cycle",
+    "corrected": "U.S. Monetary Policy and the Global Financial Cycle",
+    "reason": "The published journal article's title uses 'U.S.' with periods (confirmed via Crossref and Oxford Academic/academic.oup.com landing page for restud/87/6/2754/5834728). The unpunctuated 'US' form matches the 2015 NBER working paper (w21722) title, not the final published version -- a working-paper/published-version title mismatch, not fabrication."
+   },
+   {
+    "field": "Journal",
+    "original": "REVIEW OF ECONOMIC STUDIES",
+    "corrected": "The Review of Economic Studies",
+    "reason": "ALL-CAPS with the definite article dropped is the Web of Science journal-abbreviation rendering, not the journal's actual name. The canonical name (Oxford University Press masthead, Crossref container-title) is 'The Review of Economic Studies'."
+   },
+   {
+    "field": "DOI",
+    "original": "(missing)",
+    "corrected": "10.1093/restud/rdaa019",
+    "reason": "No DOI field present in the WoS export. Confirmed via Crossref API (api.crossref.org/works/10.1093/restud/rdaa019) and resolves correctly to the Oxford Academic article page. This is the single most load-bearing missing field for a canonical anchor and should be added."
+   },
+   {
+    "field": "ResearcherID-Numbers",
+    "original": "Rey, Helene/E-5094-2013",
+    "corrected": "(removed)",
+    "reason": "Web of Science internal author-identifier field. Not read by any standard .bst style (plain, apalike, natbib, elsarticle-num, etc.); pure export cruft that should be dropped from a paper's working .bib."
+   },
+   {
+    "field": "ORCID-Numbers",
+    "original": "Rey, Helene/0000-0002-2214-9063",
+    "corrected": "(removed)",
+    "reason": "Same category as ResearcherID-Numbers -- a WoS export convenience field with no .bst consumer. (The ORCID number itself, 0000-0002-2214-9063, does check out as Hélène Rey's registered ORCID, so it is not wrong, just not a field any bibliography style will render.)"
+   },
+   {
+    "field": "Unique-ID",
+    "original": "WOS:000613723100010",
+    "corrected": "(removed)",
+    "reason": "Web of Science accession number, meaningful only inside the WoS database. No .bst uses it; stray export field."
+   },
+   {
+    "field": "EISSN",
+    "original": "1467-937X",
+    "corrected": "(removed, or keep only if the target .bst explicitly supports dual ISSN)",
+    "reason": "Not a standard BibTeX field consumed by common .bst styles (they read ISSN, not EISSN). The value itself is correct (1467-937X is REStud's registered e-ISSN per Crossref/ISSN Portal) but it is hygiene cruft in the same category as ResearcherID/ORCID/Unique-ID -- harmless if left (silently ignored) but not something any bibliography style will print."
+   }
+  ],
+  "one": "Miranda-Agrippino and Rey (Review of Economic Studies, 2020) show that a single 'Global Financial Cycle' factor, driven substantially by U.S. monetary policy shocks, governs the comovement of risky asset prices, credit flows and leverage of global financial intermediaries worldwide.",
+  "url": "https://doi.org/10.1093/restud/rdaa019",
+  "extra": ""
+ },
+ {
+  "key": "miranda-transmi",
+  "status": "corrected",
+  "n": 7,
+  "issues": [
+   {
+    "field": "title/authors/year/volume/number/pages/issn",
+    "original": "The Transmission of Monetary Policy Shocks / Miranda-Agrippino, Silvia and Ricco, Giovanni / 2021 / Vol 13 / No 3 / 74-107 / ISSN 1945-7707",
+    "corrected": "unchanged (verified correct)",
+    "reason": "Cross-checked against the AEA article landing page (doi.org/10.1257/mac.20180124) and RePEc/IDEAS (v13y2021i3p74-107): title, author names and order, year, volume, issue, page range and print ISSN all match the canonical published article. No field mixing detected — the volume/issue/pages belong to this exact title, not to a differently-titled Miranda-Agrippino/Ricco paper or an earlier working-paper draft."
+   },
+   {
+    "field": "journal",
+    "original": "AMERICAN ECONOMIC JOURNAL-MACROECONOMICS",
+    "corrected": "American Economic Journal: Macroeconomics",
+    "reason": "This is a Web of Science bulk-export artifact: WoS renders journal titles in ALL CAPS with a hyphen substituted for the colon in multi-part AEJ titles. The actual published journal name uses a colon, not a hyphen, and normal title case."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1257/mac.20180124",
+    "reason": "No doi field present. Confirmed via the AEA article page and independently via RePEc/IDEAS that this DOI resolves to exactly this title/authors/volume/issue/pages. Added for a durable canonical anchor."
+   },
+   {
+    "field": "Unique-ID",
+    "original": "WOS:000673929900003",
+    "corrected": "(removed)",
+    "reason": "Web of Science internal accession number, not a BibTeX standard field and meaningless outside a WoS export; stray metadata left over from a bulk citation-manager download. Should be dropped."
+   },
+   {
+    "field": "EISSN",
+    "original": "1945-7715",
+    "corrected": "(removed, or fold into issn if the style requires electronic ISSN)",
+    "reason": "EISSN is a WoS/Clarivate export field, not standard BibTeX. The value itself is correct (electronic ISSN of AEJ:Macro), but conventional .bib hygiene keeps a single issn field (print) unless the bibliography style specifically needs the electronic one."
+   },
+   {
+    "field": "pages",
+    "original": "74-107",
+    "corrected": "74--107",
+    "reason": "BibTeX/BibLaTeX convention requires a double hyphen for page ranges so it typesets as an en dash; a single hyphen renders as a plain hyphen."
+   },
+   {
+    "field": "month",
+    "original": "JUL",
+    "corrected": "7",
+    "reason": "ALL-CAPS three-letter month is another WoS export convention; ordinary BibTeX month fields use either the bare number or a lowercase three-letter macro (jul)."
+   }
+  ],
+  "one": "Miranda-Agrippino and Ricco (2021, American Economic Journal: Macroeconomics 13(3):74-107) develop a new high-frequency instrument for US monetary policy shocks that purges an information/signaling component from Fed-funds-futures surprises, and trace its contractionary effects on demand, labor and credit markets, asset prices, and expectations.",
+  "url": "https://doi.org/10.1257/mac.20180124",
+  "extra": ""
+ },
+ {
+  "key": "pascal",
+  "status": "corrected",
+  "n": 7,
+  "issues": [
+   {
+    "field": "Journal",
+    "original": "REVIEW OF ECONOMICS AND STATISTICS",
+    "corrected": "The Review of Economics and Statistics",
+    "reason": "ALL-CAPS is Web of Science's internal rendering, not the journal's actual name. Confirmed against CrossRef and the MIT Press journal landing page: the published title is 'The Review of Economics and Statistics.'"
+   },
+   {
+    "field": "Doi",
+    "original": "(missing)",
+    "corrected": "Doi = {10.1162/rest_a_00840}",
+    "reason": "No DOI field was present despite this being a published MIT Press journal article with a registered DOI. Confirmed via CrossRef lookup on the DOI, which returns matching title/author/journal/volume/issue/pages/ISSN/EISSN."
+   },
+   {
+    "field": "ORCID-Numbers",
+    "original": "ORCID-Numbers = {Paul, Pascal/0000-0002-0456-671X}",
+    "corrected": "(removed)",
+    "reason": "Not a standard BibTeX field; this is a Web of Science export artifact. Harmless to a .bst style that ignores unknown fields, but should be stripped for a clean bibliography -- ORCID belongs in author metadata, not the reference list."
+   },
+   {
+    "field": "Unique-ID",
+    "original": "Unique-ID = {WOS:000579430800005}",
+    "corrected": "(removed)",
+    "reason": "A Web of Science accession number, not a BibTeX field recognized by any standard style. Pure WoS export residue."
+   },
+   {
+    "field": "EISSN",
+    "original": "EISSN = {1530-9142}",
+    "corrected": "(removed)",
+    "reason": "Non-standard BibTeX field (another WoS export artifact); standard styles use ISSN only. Value itself is correct (confirmed via CrossRef as the journal's electronic ISSN) but the field has no consumer in typical .bst/biblatex styles and clutters the entry alongside ORCID-Numbers/Unique-ID."
+   },
+   {
+    "field": "key (entry label)",
+    "original": "pascal",
+    "corrected": "pascal (unchanged -- flagged only)",
+    "reason": "The BibTeX key is the author's GIVEN name ('Pascal'), not the surname ('Paul'), which is the opposite of standard convention (typically 'paul2020' or 'paul2020timevarying'). This is a smell worth flagging since it suggests the entry was auto-generated from a WoS record without normalization, but it is not changed here because renaming the key would break every \\cite{pascal} reference elsewhere in the paper; a rename should be a coordinated find-and-replace, not a silent fix in this report."
+   },
+   {
+    "field": "Month",
+    "original": "Month = {OCT}",
+    "corrected": "Month = {October}",
+    "reason": "Minor cosmetic: WoS three-letter abbreviation normalized to a full month name/standard BibTeX month macro convention. Not a factual error (the article's cover-date month is October 2020, per MIT Press)."
+   }
+  ],
+  "one": "All substantive fields (author, title, year, volume, number, pages, ISSN) correctly match Pascal Paul (2020), \"The Time-Varying Effect of Monetary Policy on Asset Prices,\" The Review of Economics and Statistics 102(4):690-704 -- no field mixing -- but the entry is a raw Web of Science export with stray non-BibTeX fields, an ALL-CAPS journal name, a missing DOI, and a citation key drawn from the author's given name rather than surname.",
+  "url": "https://doi.org/10.1162/rest_a_00840",
+  "extra": ""
+ },
+ {
+  "key": "castelnuovo",
+  "status": "corrected",
+  "n": 11,
+  "issues": [
+   {
+    "field": "author",
+    "original": "Castelnuovo, Efrem and Nistico, Salvatore",
+    "corrected": "Castelnuovo, Efrem and Nisticò, Salvatore",
+    "reason": "Crossref and the publisher record the second author's surname with an accent: \"Nisticò\" (o with grave accent). The WoS export is internally inconsistent about this: the Author field strips the accent (\"Nistico\"), the ResearcherID-Numbers field keeps it (\"Nisticò, Salvatore/JBS-4745-2023\"), and the ORCID-Numbers field strips it again (\"Nistico, Salvatore/...\"). The Author field is the one that renders in the bibliography and must carry the accent, written in BibTeX as Nistic\\`{o} or Nistic{\\`o} if not saving the file as UTF-8/using biblatex."
+   },
+   {
+    "field": "number",
+    "original": "9, SI",
+    "corrected": "9",
+    "reason": "\"SI\" is Web of Science's own flag meaning \"Special Issue\", appended to the issue number, not part of the actual issue designation. Crossref and RePEc both give the plain issue number as 9 (this was the special issue on the 14th International Conference on Computing in Economics and Finance, but the issue number itself is simply 9)."
+   },
+   {
+    "field": "journal",
+    "original": "JOURNAL OF ECONOMIC DYNAMICS \\& CONTROL",
+    "corrected": "Journal of Economic Dynamics and Control",
+    "reason": "WoS exports journal names in all caps with an ampersand as a Library-of-Congress-style abbreviation convention; this is not the journal's actual title. The publisher (Elsevier/ScienceDirect) and Crossref both give the name in title case using \"and\", not \"&\": \"Journal of Economic Dynamics and Control\"."
+   },
+   {
+    "field": "title",
+    "original": "Stock market conditions and monetary policy in a DSGE model for the U.S.",
+    "corrected": "Stock market conditions and monetary policy in a DSGE model for the {U.S.}",
+    "reason": "Title text matches the published article exactly (verified against Crossref and RePEc), so there is no field-mixing. However \"U.S.\" is not wrapped in braces, so a non-sentence-case bibliography style (e.g. plain, unsrt) will lowercase it to \"u.s.\" on typeset. This is a capitalization-protection hygiene fix, not a wording change."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1016/j.jedc.2010.06.028",
+    "reason": "No doi field present in the WoS export. The DOI resolves via Crossref to this exact article (title, authors, volume 34, issue 9, pages 1700-1731, year 2010 all match) and is also listed on the ScienceDirect abstract page (pii S0165188910001582)."
+   },
+   {
+    "field": "researcherid-numbers",
+    "original": "Nisticò, Salvatore/JBS-4745-2023\\n   ",
+    "corrected": "(removed)",
+    "reason": "WoS-internal ResearcherID metadata field, not a standard BibTeX field and not needed for citation; safe to drop as export cruft. (Its accented spelling of the surname was cross-checked and used to resolve the Author-field inconsistency above.)"
+   },
+   {
+    "field": "orcid-numbers",
+    "original": "Nistico, Salvatore/0000-0001-9054-923X",
+    "corrected": "(removed)",
+    "reason": "WoS-internal ORCID metadata field, not a standard BibTeX field; author ORCID is not needed for a reference-list entry and this field duplicates/contradicts the Author field's spelling."
+   },
+   {
+    "field": "unique-id",
+    "original": "WOS:000282997600011",
+    "corrected": "(removed)",
+    "reason": "Web of Science's internal accession number, meaningless outside the WoS database; standard bibliography-hygiene cruft to strip."
+   },
+   {
+    "field": "eissn",
+    "original": "1879-1743",
+    "corrected": "(removed, verified correct)",
+    "reason": "Value itself is correct (confirmed against the ISSN portal: JEDC online ISSN is 1879-1743), but eissn is a non-standard BibTeX field for a reference-list entry; issn alone (0165-1889, also confirmed correct) suffices and is what the corrected entry keeps."
+   },
+   {
+    "field": "organization",
+    "original": "Soc Comp Econ",
+    "corrected": "(removed)",
+    "reason": "WoS conference-sponsor metadata (Society for Computational Economics, sponsor of the CEF 2008 conference referenced in Note), irrelevant to citing the journal article and not a field @article recognizes."
+   },
+   {
+    "field": "note",
+    "original": "14th International Conference on Computing in Economics and Finance (CEF 2008), Univ Sorbonne, Inst Higher Learn, Paris, FRANCE, JUN 26-28, 2008",
+    "corrected": "(removed)",
+    "reason": "Multi-line WoS conference-provenance string (this JEDC special issue collected papers presented at CEF 2008); it describes the special issue's origin, not the cited article's content, and is conventional WoS-export cruft that does not belong in a citation's Note field."
+   }
+  ],
+  "one": "Correctly identifies Castelnuovo & Nisticò (2010), JEDC 34(9):1700-1731 with no field mixing, but is missing the DOI, has an accented-name inconsistency across fields (Author drops the accent, ResearcherID keeps it, ORCID drops it again), an ALL-CAPS/ampersand journal name, an unprotected \"U.S.\" in the title, and six WoS-export artifact fields (Number=\"9, SI\", Note, Organization, ResearcherID-Numbers, ORCID-Numbers, Unique-ID, EISSN) that should be pruned or fixed.",
+  "url": "https://doi.org/10.1016/j.jedc.2010.06.028",
+  "extra": ""
+ },
+ {
+  "key": "bai-ng",
+  "status": "corrected",
+  "n": 6,
+  "issues": [
+   {
+    "field": "title/author/journal/volume/number/pages/year",
+    "original": "title={Determining the Number of Factors in Approximate Factor Models}, author={Bai, Jushan and Ng, Serena}, journal={Econometrica}, volume={70}, number={1}, pages={191-221}, year={2002}",
+    "corrected": "unchanged",
+    "reason": "All cross-checked against the RePEc/IDEAS canonical record (handle RePEc:ecm:emetrp:v:70:y:2002:i:1:p:191-221) and the Wiley DOI landing page for 10.1111/1468-0262.00273. Every substantive field is correct as-is: same paper, same authors, same volume/issue/pages/year."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "doi = {10.1111/1468-0262.00273}",
+    "reason": "No DOI field was present, only a raw Wiley PDF URL stuffed into `eprint`. Adding the proper `doi` field gives a durable canonical anchor independent of the eprint hack."
+   },
+   {
+    "field": "eprint",
+    "original": "eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/1468-0262.00273}",
+    "corrected": "(removed)",
+    "reason": "Stray field, almost certainly a Google Scholar BibTeX-export artifact. `eprint` is conventionally an arXiv/SSRN identifier, not a full URL to a paywalled PDF; the DOI already encodes this information canonically and a hard-coded PDF URL can rot or requires institutional access to resolve."
+   },
+   {
+    "field": "abstract",
+    "original": "abstract = {In this paper we develop some econometric theory for factor models of large dimensions...}",
+    "corrected": "(removed)",
+    "reason": "Stray field, also a Google Scholar export artifact. Abstracts do not belong in a citation-manager .bib entry used for a manuscript bibliography; it bloats the file and is never rendered by any standard .bst style."
+   },
+   {
+    "field": "pages",
+    "original": "pages = {191-221}",
+    "corrected": "pages = {191--221}",
+    "reason": "Single ASCII hyphen instead of the BibTeX-conventional double hyphen for page ranges. Not a factual error (no literal en-dash/Unicode character was found — confirmed via `cat -A` on the raw field, which showed a plain ASCII '-'), but `--` is standard practice so .bst styles render it as an en-dash at typeset time; a single `-` typesets literally in many styles."
+   },
+   {
+    "field": "keywords",
+    "original": "keywords = {factor analysis, asset pricing, principal components, model selection}",
+    "corrected": "unchanged",
+    "reason": "Harmless, another Google Scholar export artifact but not incorrect and not worth flagging as an error; left as-is since it does not affect any rendered citation."
+   }
+  ],
+  "one": "Bai and Ng (2002, Econometrica 70(1), pp. 191-221) develop panel information criteria to consistently estimate the number of factors (r) in large approximate factor models with N and T both large.",
+  "url": "https://doi.org/10.1111/1468-0262.00273",
+  "extra": "bai-ng and bai2002determining are genuine duplicates of the exact same paper (identical title, authors, journal, volume 70, issue 1, pages 191-221, year 2002). bai2002determining additionally carries publisher={Wiley Online Library} — Wiley Online Library is the hosting platform, not the publisher of record; Econometrica in 2002 was published by Blackwell Publishing on behalf of the Econometric Society (pre-2009 Wiley/Blackwell merger), so that field is itself a mislabeled Google Scholar import artifact, not a corrected fact worth preserving. Only bai-ng is actually \\cite{}'d in paper_anpec.tex (line 224: '\\cite{bai-ng}'); bai2002determining is unused. Verdict: keep bai-ng (used, cleaner after the eprint/abstract strip above), delete bai2002determining as an orphaned duplicate with a spurious publisher field."
+ },
+ {
+  "key": "lutz",
+  "status": "corrected",
+  "n": 7,
+  "issues": [
+   {
+    "field": "title",
+    "original": "The impact of conventional and unconventional monetary policy on\n   investor sentiment",
+    "corrected": "The impact of conventional and unconventional monetary policy on investor sentiment",
+    "reason": "WoS export line-wrapped the title across two physical lines with a hanging indent; content is correct, just needs reflow to a single line. Matches CrossRef title exactly (case-preserved, no other change needed)."
+   },
+   {
+    "field": "journal",
+    "original": "JOURNAL OF BANKING \\& FINANCE",
+    "corrected": "Journal of Banking \\& Finance",
+    "reason": "WoS exports journal names in ALL-CAPS; canonical title-case form per CrossRef/publisher is 'Journal of Banking & Finance'. The '\\&' escaping for BibTeX/LaTeX is correct and should be kept."
+   },
+   {
+    "field": "issue",
+    "original": "(absent)",
+    "corrected": "(absent — confirmed correct, no issue number needed)",
+    "reason": "CrossRef records this article's issue as 'C' (Elsevier's placeholder for continuous/no-issue numbering), i.e. Journal of Banking & Finance volume 61 was published without discrete issue numbers. The missing 'Number' field in the entry is therefore not an error and should NOT be added."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1016/j.jbankfin.2015.08.019",
+    "reason": "DOI absent from the WoS export; confirmed via CrossRef lookup (container-title, volume, pages, ISSN all match). Should be added as a Doi field."
+   },
+   {
+    "field": "Unique-ID",
+    "original": "WOS:000370462600007",
+    "corrected": "(remove)",
+    "reason": "Web of Science internal accession number, not a standard BibTeX field and meaningless outside WoS; stray artifact of the export. Should be dropped."
+   },
+   {
+    "field": "EISSN",
+    "original": "1872-6372",
+    "corrected": "1872-6372 (value correct, but not a standard BibTeX field)",
+    "reason": "Not a standard BibTeX field (BibTeX has no canonical EISSN key); most styles only use ISSN. The value itself is verified correct (JBF's e-ISSN per Elsevier/library records) but the field is redundant WoS-export baggage — safe to drop or fold into a note, not required for citation correctness."
+   },
+   {
+    "field": "month",
+    "original": "DEC",
+    "corrected": "dec",
+    "reason": "Minor hygiene: WoS exports the month code in caps; standard BibTeX convention uses the lowercase three-letter macro (dec), which resolves to December — matches CrossRef's 2015-12 publication date, so no factual change, just casing/style."
+   }
+  ],
+  "one": "All substantive fields (author, title, year, volume, pages, ISSN) check out against CrossRef/RePEc for Lutz (2015, J. Banking & Finance, vol. 61, pp. 89-105, DOI 10.1016/j.jbankfin.2015.08.019) — issues are purely BibTeX hygiene from an uncleaned WoS export.",
+  "url": "https://doi.org/10.1016/j.jbankfin.2015.08.019",
+  "extra": ""
+ },
+ {
+  "key": "meinusch",
+  "status": "corrected",
+  "n": 7,
+  "issues": [
+   "NOT CITED: 'meinusch' does not appear in texto_anpec/paper_anpec.tex (no \\cite{meinusch} found); it exists only in the .bib files. Audited per instructions regardless.",
+   "Journal field is in ALL-CAPS ('JOURNAL OF MACROECONOMICS'), a raw Web-of-Science export artifact -- correct capitalization is 'Journal of Macroeconomics'.",
+   "Number field is the malformed WoS string 'A, SI' -- the plain issue is 'Part A' (volume 47 was split into Part A / Part B; this article is in Part A). 'SI' (special issue) is WoS's own annotation, not part of the issue designation and should be dropped or, if kept, expressed as a separate note, not concatenated into Number.",
+   "Missing DOI field entirely -- should be added: 10.1016/j.jmacro.2015.11.002.",
+   "Stray non-standard field 'Unique-ID = {WOS:000374367300007}' -- a Web-of-Science accession number, not a standard BibTeX field; should be removed or moved to a 'note'/'archiveprefix'-style field if the project wants to keep provenance.",
+   "Stray non-standard field 'EISSN = {1873-152X}' -- not a standard BibTeX field (the standard field is simply 'issn' for the print ISSN used in citation; EISSN is WoS export boilerplate). Value itself is correct (electronic ISSN of Journal of Macroeconomics is indeed 1873-152X) but the field name is non-canonical BibTeX/WoS residue.",
+   "No field-mixing detected: title, authors (Annette Meinusch, Peter Tillmann), year (2016), volume (47), pages (58-67), and ISSN (0164-0704) all correctly belong to this single paper and are cross-confirmed by ScienceDirect (S0164070415001408), IDEAS/RePEc (v47y2016ipap58-67), and the DOI resolver."
+  ],
+  "one": "Meinusch & Tillmann (2016), 'The macroeconomic impact of unconventional monetary policy shocks', Journal of Macroeconomics 47(Part A), 58-67, DOI 10.1016/j.jmacro.2015.11.002 -- all substantive fields (authors, title, year, volume, pages, ISSN) check out against the ScienceDirect/RePEc/DOI record, but the entry is raw Web-of-Science export with hygiene issues (ALL-CAPS journal name, malformed 'A, SI' issue code, stray Unique-ID/EISSN fields, missing DOI) and is not actually cited anywhere in paper_anpec.tex.",
+  "url": "https://doi.org/10.1016/j.jmacro.2015.11.002",
+  "extra": ""
+ },
+ {
+  "key": "li",
+  "status": "corrected",
+  "n": 6,
+  "issues": [
+   {
+    "field": "not cited",
+    "original": "N/A",
+    "corrected": "N/A",
+    "reason": "grep of texto_anpec/paper_anpec.tex finds no \\cite{li}, \\citep{li}, or \\citet{li} — this reference is not used anywhere in the manuscript. Flagging for the author to decide whether to cite it or drop it from the .bib; not a correctness issue with the entry itself."
+   },
+   {
+    "field": "title",
+    "original": "The asymmetric effects of investor sentiment and monetary policy on\n   stock prices",
+    "corrected": "The asymmetric effects of investor sentiment and monetary policy on stock prices",
+    "reason": "WoS export line-wraps titles at ~70 chars with leading whitespace continuation; reflowed to one line, content unchanged and matches T&F/RePEc exactly."
+   },
+   {
+    "field": "journal",
+    "original": "APPLIED ECONOMICS",
+    "corrected": "Applied Economics",
+    "reason": "WoS exports journal names in ALL CAPS. Correct title-case rendering per Taylor & Francis is 'Applied Economics'."
+   },
+   {
+    "field": "doi",
+    "original": "(absent)",
+    "corrected": "10.1080/00036846.2015.1008770",
+    "reason": "DOI field missing from the WoS export entirely. Confirmed against the Taylor & Francis landing page and RePEc/IDEAS record."
+   },
+   {
+    "field": "Unique-ID",
+    "original": "WOS:000349989800006",
+    "corrected": "(removed)",
+    "reason": "Not a standard BibTeX field — a Web of Science internal accession number left over from the WoS export. Should be dropped or moved to a note/comment field; LaTeX bibliography styles will not recognize it and some strict BibTeX parsers may warn or choke on it."
+   },
+   {
+    "field": "EISSN",
+    "original": "1466-4283",
+    "corrected": "(removed or kept as non-standard note)",
+    "reason": "Not a standard BibTeX field for @article (only 'issn' is standard in most styles); another WoS export artifact. Value itself is correct (Applied Economics' online ISSN is indeed 1466-4283, print ISSN 0003-6846) but the field name is non-standard hygiene noise."
+   }
+  ],
+  "one": "Verified: Jinfang Li, 'The asymmetric effects of investor sentiment and monetary policy on stock prices', Applied Economics 47(24):2514-2522 (2015), DOI 10.1080/00036846.2015.1008770 (confirmed via Taylor & Francis/RePEc landing pages) — all substantive fields (author, title, year, volume, number, pages, ISSN, EISSN) match exactly with no field mixing; only BibTeX hygiene issues, plus the entry is NOT cited anywhere in paper_anpec.tex.",
+  "url": "https://doi.org/10.1080/00036846.2015.1008770",
+  "extra": ""
+ },
+ {
+  "key": "Cooley",
+  "status": "corrected",
+  "n": 8,
+  "issues": [
+   {
+    "field": "author",
+    "original": "Cooley, T and Quadrini, V",
+    "corrected": "Cooley, Thomas F. and Quadrini, Vincenzo",
+    "reason": "WoS export gives bare initials. CrossRef metadata for this DOI lists full given names 'Thomas F.' (Thomas Ferguson Cooley) and 'Vincenzo' (Quadrini)."
+   },
+   {
+    "field": "journal",
+    "original": "ECONOMIC THEORY",
+    "corrected": "Economic Theory",
+    "reason": "WoS exports journal names in ALL-CAPS; correct title-case rendering per Springer/CrossRef is 'Economic Theory'."
+   },
+   {
+    "field": "year",
+    "original": "2006",
+    "corrected": "2006",
+    "reason": "Confirmed correct, not a correction. Checked for online-first vs. issue-year mismatch: manuscript received 2003-11-20, revised 2004-08-26 (the '004' in the DOI suffix s00199-004-0553-x reflects this 2004 processing/acceptance year, not the publication year), but CrossRef's container publication date is January 2006, matching the printed volume/issue. No change needed."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1007/s00199-004-0553-x",
+    "reason": "No DOI field present in the WoS export; added the canonical Springer DOI, verified via CrossRef API (api.crossref.org/works/10.1007/s00199-004-0553-x) to resolve to this exact title/author/volume/pages combination."
+   },
+   {
+    "field": "Unique-ID",
+    "original": "WOS:000229022300011",
+    "corrected": "(removed)",
+    "reason": "Not a standard BibTeX field; it is a Web-of-Science internal accession number with no meaning outside WoS. Should be dropped or moved to a 'note'/'annote' field if provenance tracking is desired."
+   },
+   {
+    "field": "eissn",
+    "original": "EISSN = {1432-0479}",
+    "corrected": "eissn = {1432-0479} (lowercased key; kept, non-standard but harmless)",
+    "reason": "Confirmed correct value against CrossRef (electronic ISSN 1432-0479), but 'EISSN' is not a standard BibTeX field recognized by most styles (only 'issn' is). Kept as supplementary metadata; flagged for hygiene, not accuracy."
+   },
+   {
+    "field": "issn",
+    "original": "ISSN = {0938-2259}",
+    "corrected": "0938-2259",
+    "reason": "Confirmed correct (print ISSN) against CrossRef; no change, listed for completeness of the audit."
+   },
+   {
+    "field": "field_mixing_check",
+    "original": "n/a",
+    "corrected": "n/a",
+    "reason": "Verified via CrossRef that DOI 10.1007/s00199-004-0553-x resolves to exactly title='Monetary policy and the financial decisions of firms', authors Cooley & Quadrini, Economic Theory 27(1):243-270 (2006) -- not to be confused with Cooley & Quadrini's other closely related papers (e.g. 'Financial Markets and Firm Dynamics', AER 2001, 91(5):1286-1310). No mixing detected; all fields belong to the same paper."
+   }
+  ],
+  "one": "Cooley & Quadrini (2006), 'Monetary policy and the financial decisions of firms', Economic Theory 27(1):243-270, DOI 10.1007/s00199-004-0553-x -- year/volume/issue/pages/ISSN all verified correct against CrossRef, but the entry is a raw Web-of-Science export with initials-only authors, an ALL-CAPS journal name, a missing DOI, and stray non-BibTeX WoS fields.",
+  "url": "https://doi.org/10.1007/s00199-004-0553-x",
+  "extra": ""
+ },
+ {
+  "key": "hanisch",
+  "status": "corrected",
+  "n": 10,
+  "issues": [
+   "NOT CITED: no occurrence of \\cite{hanisch} (or 'hanisch') found anywhere in texto_anpec/*.tex -- this entry is unused in the manuscript; audited anyway per instructions.",
+   "Title field is line-wrapped across two lines in the .bib source (WoS export artifact) -- reflows cleanly to one line with no wording change; content matches the published title exactly, including the colon.",
+   "Journal field is ALL-CAPS ('JOURNAL OF INTERNATIONAL MONEY AND FINANCE'), a raw WoS export convention -- should be sentence/title case: 'Journal of International Money and Finance'.",
+   "DOI is missing entirely. Confirmed via CrossRef: 10.1016/j.jimonfin.2016.08.002.",
+   "Issue is absent -- this is CORRECT, not an omission: CrossRef lists 'issue: C' and RePEc lists 'vol. 70(C)', i.e. JIMF assigns no numeric issue to this volume (continuous volume-level pagination). No issue field should be added.",
+   "Unique-ID = {WOS:000390732900006} is a Web of Science internal accession field, not a standard BibTeX/biblatex field -- stray, should be removed (or namespaced as a note/keyword) before submission.",
+   "EISSN = {1873-0639} is a non-standard BibTeX field (biblatex has no native 'eissn' key in the standard styles used here) -- likely to be silently dropped or to throw a warning depending on .bst/.bbx; either remove or fold into a 'note' field if the electronic ISSN is worth keeping.",
+   "Month = {FEB} is WoS shorthand; harmless but inconsistent with the rest of the bibliography's month formatting if other entries spell out months or omit them -- worth normalizing for consistency.",
+   "Author, Year (2017), Volume (70), Pages (110-134), ISSN (0261-5606, print) all verified correct against CrossRef and RePEc -- no field mixing detected; author, title, journal, and identifiers all belong to the same single paper.",
+   "No field-mixing found: title/author/journal/year/pages/DOI all trace to one and the same paper (Hanisch 2017, JIMF 70)."
+  ],
+  "one": "Hanisch (2017), 'The effectiveness of conventional and unconventional monetary policy: Evidence from a structural dynamic factor model for Japan,' Journal of International Money and Finance 70, 110-134 -- all substantive fields verified correct against CrossRef and RePEc, but the entry is a raw WoS export needing hygiene cleanup (ALL-CAPS journal, missing DOI, stray Unique-ID/EISSN fields) and is NOT cited anywhere in the manuscript.",
+  "url": "https://doi.org/10.1016/j.jimonfin.2016.08.002",
+  "extra": ""
+ },
+ {
+  "key": "maddala_wu_1999",
+  "status": "corrected",
+  "n": 5,
+  "issues": [
+   "BibTeX hygiene: `year` field is duplicated (appears on both line 4 and line 9, both = {1999}). Not a factual error since both copies agree, but duplicate fields are invalid/undefined behavior in strict BibTeX/biber parsers and one copy must be removed.",
+   "Missing DOI field (10.1111/1468-0084.0610s1631) — should be added for a canonical anchor.",
+   "Minor/optional hygiene: title has no protective outer braces ({{...}}), so title-case words (e.g. 'Data', 'Tests', 'Study') would be forced to lowercase under sentence-case bibliography styles (apalike, chicago-author-date, etc.). None of the affected words are proper nouns or acronyms, so this causes no factual distortion, only a stylistic risk depending on the chosen .bst/biblatex style.",
+   "NOT CITED: `maddala_wu_1999` does not appear anywhere in texto_anpec/*.tex (grep for the key returns no matches). The entry is present in the .bib but orphaned/unused in the current manuscript.",
+   "No field-mixing detected: title, authors (G. S. Maddala and Shaowen Wu), year, journal (Oxford Bulletin of Economics and Statistics), volume 61, number S1, and pages 631-652 all cross-check consistently to the single canonical Wiley/CrossRef record for this paper — no fields borrowed from a different publication."
+  ],
+  "one": "All content fields (title, authors, year, journal, volume, issue S1, pages) are verified correct against CrossRef/Wiley, but the entry has a duplicated `year` field and is missing the DOI; the entry is also not cited anywhere in the manuscript.",
+  "url": "https://doi.org/10.1111/1468-0084.0610s1631",
+  "extra": ""
+ },
+ {
+  "key": "choi_2001",
+  "status": "corrected",
+  "n": 5,
+  "issues": [
+   "NOT CITED: no occurrence of 'choi_2001' (or 'Choi 2001') found in texto_anpec/*.tex — this reference is unused in the manuscript; audited anyway per instructions.",
+   "Duplicated `year` field: `year = {2001}` appears twice (lines 4 and 9 of the entry) with the same value. Not a content error (both copies agree and are correct) but invalid/redundant BibTeX that some parsers will warn or error on — the second occurrence silently overwrites the first (harmless here only because the values match).",
+   "Missing DOI field: 10.1016/S0261-5606(00)00048-6 (confirmed live via doi.org redirect to the Elsevier/ScienceDirect record) is absent from the entry.",
+   "Page range formatting is already correct BibTeX convention (`249--272`, double-hyphen renders as an en dash) — flagged for completeness per the audit checklist but this is NOT an error.",
+   "All cross-checked fields match the canonical record exactly: title 'Unit root tests for panel data', author 'Choi, In' (In Choi), journal 'Journal of International Money and Finance', year 2001, volume 20, number/issue 2, pages 249-272. No field-mixing with another paper detected."
+  ],
+  "one": "Choi, In (2001), \"Unit root tests for panel data\", Journal of International Money and Finance 20(2), 249-272 (DOI 10.1016/S0261-5606(00)00048-6) — all substantive fields (title, author, journal, volume, number, pages) verified correct against the publisher record and no field mixing was found; the only problems are BibTeX hygiene (duplicated `year` field, missing DOI) and the entry is not actually cited anywhere in the manuscript.",
+  "url": "https://doi.org/10.1016/S0261-5606(00)00048-6",
+  "extra": ""
+ },
+ {
+  "key": "levin_lin_chu_2002",
+  "status": "corrected",
+  "n": 5,
+  "issues": [
+   "NOT CITED: this entry does not appear to be cited anywhere in the manuscript (per task instruction) — audited anyway, but flag for possible removal from the .bib.",
+   "Duplicated `year` field: `year = {2002}` appears twice (lines 4 and 9). Both occurrences agree in value (no data corruption), but this is invalid/non-canonical BibTeX and most parsers will warn or silently drop one — should be deduplicated to a single occurrence.",
+   "Missing `doi` field — canonical DOI is 10.1016/S0304-4076(01)00098-7; not present in the entry.",
+   "Pages field `1--24` already uses the correct double-hyphen (renders as en-dash) convention — no fix needed here, checked and clean.",
+   "No field-mixing detected: title, authors (Andrew Levin; Chien-Fu Lin; Chia-Shang James Chu — third author's compound given name verified correct, not truncated to 'C.S.' or misordered), year, journal, volume, issue, and pages all cross-check consistently to the single canonical Crossref record for this DOI."
+  ],
+  "one": "Levin, Lin & Chu (2002), 'Unit root tests in panel data: asymptotic and finite-sample properties,' Journal of Econometrics 108(1):1-24 (DOI 10.1016/S0304-4076(01)00098-7) — all substantive fields (title, three authors incl. third author's full given-name form 'Chia-Shang James', year, journal, volume, number, pages) check out against Crossref/DOI; only BibTeX hygiene issues found.",
+  "url": "https://doi.org/10.1016/S0304-4076(01)00098-7",
+  "extra": ""
+ },
+ {
+  "key": "stock2002macroeconomic",
+  "status": "corrected",
+  "n": 6,
+  "issues": [
+   "NOT CITED: 'stock2002macroeconomic' does not appear in texto_anpec/paper_anpec.tex (grep returned no matches) — this entry is bibliographic dead weight, not an active citation. Auditing it anyway per instructions.",
+   "Missing DOI field: entry has no doi={10.1198/073500102317351921}. Crossref confirms this DOI resolves exactly to this article (title, authors, volume 20, issue 2, pages 147-162, year 2002 all match).",
+   "Field-mixing check PASSED: this is correctly the JBES paper ('Macroeconomic forecasting using diffusion indexes', JBES 20(2):147-162), not conflated with the sister 2002 paper 'Forecasting Using Principal Components From a Large Number of Predictors' (JASA 97(460):1167-1179). No fields from the JASA paper leaked in.",
+   "Publisher 'Taylor & Francis' is verifiable/acceptable: Crossref lists the DOI-registration agent as 'Informa UK Limited' (T&F's corporate parent), and Taylor & Francis is JBES's actual publisher (on behalf of the American Statistical Association) — this is the standard BibTeX publisher string (e.g. Google Scholar export) and is not an error.",
+   "Page range hygiene: '147--162' uses the correct BibTeX double-hyphen (renders as en-dash) — no issue.",
+   "All other fields (title casing/wording, author names 'Stock, James H' / 'Watson, Mark W', volume 20, number 2, year 2002) match the canonical Crossref record exactly."
+  ],
+  "one": "All bibliographic fields (title, authors, journal, volume 20, issue 2, pages 147-162, year 2002, publisher Taylor & Francis) correctly match Stock & Watson's JBES 'Macroeconomic Forecasting Using Diffusion Indexes' via Crossref (DOI 10.1198/073500102317351921), correctly distinct from their companion JASA 97(460) paper — only a missing DOI field, and the entry is not actually cited anywhere in paper_anpec.tex.",
+  "url": "https://doi.org/10.1198/073500102317351921",
+  "extra": ""
+ },
+ {
+  "key": "forni2005generalized",
+  "status": "corrected",
+  "n": 6,
+  "issues": [
+   "Not cited anywhere in the manuscript (paper_anpec.tex) — verified via grep; this entry is an orphan in the .bib but the entry's own fields are accurate.",
+   "Missing doi field (Crossref DOI 10.1198/016214504000002050 resolves cleanly to the Taylor & Francis landing page for this exact article).",
+   "Field-mixing check passed: JASA 100(471):830-840 (2005) is confirmed by Crossref to be 'The Generalized Dynamic Factor Model: One-Sided Estimation and Forecasting' — distinct from Forni-Hallin-Lippi-Reichlin (2000) 'The Generalized Dynamic-Factor Model: Identification and Estimation' (Review of Economics and Statistics 82(4):540-554) and Forni-Hallin-Lippi-Reichlin (2004) 'The Generalized Dynamic Factor Model: Consistency and Rates' (Journal of Econometrics 119(2):231-255). No cross-contamination between the three sibling papers.",
+   "Publisher field verified, not an error: JASA in 2005 was published by Taylor & Francis on behalf of the American Statistical Association (Crossref registers the publisher as 'Informa UK Limited', the corporate name under which Taylor & Francis operates); 'Taylor \\& Francis' is a defensible short-form publisher value, though 'Taylor \\& Francis, for the American Statistical Association' would be more complete.",
+   "Page range uses correct BibTeX double-hyphen (830--840) for an en-dash — no hygiene issue there.",
+   "Title stored in sentence case ('The generalized dynamic factor model: One-sided estimation and forecasting') rather than the journal's own title case; not wrong (no proper-noun/acronym needs brace-protection since all interior words are already lowercase) but inconsistent with how the publisher renders it."
+  ],
+  "one": "All substantive fields (title, four authors in order, journal, volume 100/issue 471/pages 830-840, year 2005, and the Taylor & Francis publisher attribution) check out exactly against Crossref/DOI 10.1198/016214504000002050 and correctly identify the JASA one-sided estimation and forecasting paper rather than the sibling REStat (2000) or JoE (2004) papers in the same Forni-Hallin-Lippi-Reichlin GDFM family — the only issue is a missing DOI field, which is added.",
+  "url": "https://doi.org/10.1198/016214504000002050",
+  "extra": ""
+ },
+ {
+  "key": "alessi2016response",
+  "status": "corrected",
+  "n": 7,
+  "issues": [
+   {
+    "field": "year",
+    "original": "2016",
+    "corrected": "2019",
+    "reason": "Crossref metadata for DOI 10.1002/jae.2706 and the Wiley Online Library landing page both give a publication year of 2019. 2016 is the year of the working-paper precursor, ECB Working Paper Series No. 1967 (same title/authors), which was published as a journal article three years later. The 2016 WP has no volume/issue/page structure of the kind given here (31/6/930-950), so this looks like a hallucinated or conflated citation, not a faithful transcription of the working paper's own metadata."
+   },
+   {
+    "field": "volume",
+    "original": "31",
+    "corrected": "34",
+    "reason": "Crossref record for DOI 10.1002/jae.2706 gives volume 34 (JAE's 2019 volume). Volume 31 corresponds to JAE's 2016 volume, consistent with the erroneous year but not with any actual placement of this article."
+   },
+   {
+    "field": "number",
+    "original": "6",
+    "corrected": "5",
+    "reason": "Crossref record gives issue 5 (August 2019), not 6."
+   },
+   {
+    "field": "pages",
+    "original": "930--950",
+    "corrected": "661--672",
+    "reason": "Crossref record gives pages 661-672. Pages 930-950 do not belong to this article; a page range in that vicinity in JAE vol. 31 (2016) could not be verified as any real article via Crossref/RePEc/Wiley TOC searches, so it appears to be a fabricated coordinate rather than a mislabeled real paper."
+   },
+   {
+    "field": "publisher",
+    "original": "Wiley Online Library",
+    "corrected": "John Wiley \\& Sons, Ltd.",
+    "reason": "'Wiley Online Library' is the hosting platform, not the publisher of record. Crossref lists the publisher as John Wiley \\& Sons, Ltd. (minor hygiene issue, common artifact of auto-exported BibTeX)."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1002/jae.2706",
+    "reason": "No DOI field is present. The article has a registered DOI (10.1002/jae.2706) that should be included for verifiability."
+   },
+   {
+    "field": "entrytype/key",
+    "original": "@article{alessi2016response, ...}",
+    "corrected": "duplicate of @article{alessi, ...}",
+    "reason": "The entry type (@article) is correct once the coordinates are fixed, since the work is in fact a published journal article. However, the citation key 'alessi2016response' embeds the wrong year (2016) for the journal version, and — more importantly — this entry is a straight duplicate of the already-present and already-correct 'alessi' entry in the same bibliography (see duplicate_verdict)."
+   }
+  ],
+  "one": "The cited paper is Alessi & Kerssenfischer, 'The response of asset prices to monetary policy shocks: Stronger than thought', Journal of Applied Econometrics 34(5):661-672 (2019, DOI 10.1002/jae.2706) — the entry's volume 31(6), pages 930-950 and year 2016 are all wrong and do not belong to this paper (2016 is instead the year of the precursor ECB Working Paper No. 1967, which has its own numbering, not journal volume/issue/pages).",
+  "url": "https://doi.org/10.1002/jae.2706",
+  "extra": "Yes — 'alessi2016response' cites the exact same paper (same title, same authors) as the pre-existing 'alessi' entry in this bibliography, and the 'alessi' entry already has the correct coordinates (Journal of Applied Econometrics, vol. 34, no. 5, pp. 661-672, 2019, DOI 10.1002/jae.2706, verified against Crossref); 'alessi2016response' is the corrupted duplicate, its volume/number/pages/year (31/6/930-950/2016) being fabricated/incorrect and traceable at best to a mixup with the year of the 2016 ECB Working Paper No. 1967 precursor — recommend deleting 'alessi2016response' from the master .bib and keeping only 'alessi', re-pointing any \\cite{alessi2016response} calls in the .tex to \\cite{alessi}."
+ },
+ {
+  "key": "bai2002determining",
+  "status": "corrected",
+  "n": 6,
+  "issues": [
+   "title is sentence-cased ('Determining the number of factors in approximate factor models') instead of title-cased/protected ('Determining the Number of Factors in Approximate Factor Models'); the sibling entry bai-ng has the correct capitalization",
+   "missing doi field entirely (should be 10.1111/1468-0262.00273)",
+   "publisher = {Wiley Online Library} is a hosting-platform artifact typical of Google Scholar exports, not Econometrica's actual publisher; the correct value is 'Econometric Society' (Econometrica is published on behalf of the Econometric Society; Wiley is merely the online distributor)",
+   "pages = {191--221} uses an en-dash (BibTeX double-hyphen), which is correct BibTeX convention -- by contrast the sibling entry bai-ng uses pages = {191-221} (single hyphen), which is the one that is technically non-standard here",
+   "duplicate entry: bai2002determining and bai-ng cite the identical paper (same title/authors/journal/volume/issue/pages/year); only bai-ng is referenced via \\cite{bai-ng} in texto_anpec/paper_anpec.tex (line 224), so bai2002determining is dead weight and should be removed from the .bib to avoid an unused/duplicate key",
+   "all other fields (authors Bai, Jushan and Ng, Serena; journal Econometrica; volume 70; number 1; pages 191-221; year 2002) match the canonical record and belong to the same paper -- no cross-contamination detected"
+  ],
+  "one": "Bai & Ng (2002), 'Determining the Number of Factors in Approximate Factor Models,' Econometrica 70(1):191-221 (DOI 10.1111/1468-0262.00273) is correctly identified but has a lowercased title, a missing DOI, and a wrong publisher field ('Wiley Online Library' is the hosting platform, not the journal's publisher, 'Econometric Society'); it is an exact duplicate of the entry keyed bai-ng, and only bai-ng is \\cite{}'d in paper_anpec.tex, so bai2002determining should be deleted.",
+  "url": "https://doi.org/10.1111/1468-0262.00273",
+  "extra": "bai2002determining and bai-ng are duplicate entries for the same paper (Bai & Ng 2002, Econometrica 70(1):191-221). Only bai-ng is cited (\\cite{bai-ng} in paper_anpec.tex:224). bai-ng should survive (it is the cited key and already has correct title capitalization); bai2002determining should be deleted. If keeping one merged entry, apply the DOI and publisher fix from bai2002determining's structure onto the surviving bai-ng entry."
+ },
+ {
+  "key": "barigozzi2016non",
+  "status": "corrected",
+  "n": 10,
+  "issues": [
+   {
+    "field": "ENTRYTYPE",
+    "original": "@article",
+    "corrected": "@article (only if pointed at the published Journal of Econometrics version below) or @techreport (if the FEDS working paper is what is actually meant to be cited)",
+    "reason": "\"Finance and Economics Discussion Series\" (FEDS) is the Federal Reserve Board's working-paper series, not a peer-reviewed journal, so @article with journal={Finance and Economics Discussion Series} is a category error regardless of which version is intended. Since the work was in fact later published in a real journal, the recommended fix is to point the entry at that published article (@article, journal=Journal of Econometrics) rather than dress up the working paper as one; @techreport is the correct fallback only if the author deliberately wants to cite the pre-publication working-paper text."
+   },
+   {
+    "field": "title",
+    "original": "Non-stationary dynamic factor models for large datasets",
+    "corrected": "Large-dimensional dynamic factor models: estimation of impulse-response functions with I(1) cointegrated factors",
+    "reason": "This is the FEDS working-paper title (2016-024 / revised 2016-024r1), not the title under which the work was ultimately published. Confirmed same authorship and same underlying model/results (I(1) singular factors, ECM/VECM representation, IRF estimation, oil-price and monetary-policy-shock applications) across the FEDS PDF, the arXiv mirror (1602.02398, same authors, v1 2016-02-07 through v5 2020-06-01, which links its DOI to 10.1016/j.jeconom.2020.05.004), and the IDEAS/RePEc record for fedgfe/2016-24, which explicitly notes the paper was published in Journal of Econometrics (2021) under this new title. If the working paper itself is cited instead, the original title is correct and should be kept."
+   },
+   {
+    "field": "journal",
+    "original": "Finance and Economics Discussion Series",
+    "corrected": "Journal of Econometrics",
+    "reason": "FEDS is a working-paper series (issuing institution: Board of Governors of the Federal Reserve System), not a journal title; it cannot legitimately fill BibTeX's `journal` field. The correct journal, now that a published version exists, is Journal of Econometrics."
+   },
+   {
+    "field": "volume",
+    "original": "2016",
+    "corrected": "221",
+    "reason": "The original `volume={2016}` is actually the FEDS series year, mistakenly placed in the volume field (FEDS working papers are numbered YYYY-NNN, they have no 'volume'). The Journal of Econometrics volume for the published article is 221 (2021)."
+   },
+   {
+    "field": "number",
+    "original": "024",
+    "corrected": "2 (JoE issue number) if citing the published article; keep 2016-024 (or 2016-024r1 for the revised version) only under @techreport as the FEDS working-paper number",
+    "reason": "\"024\" is the sequence number within the FEDS 2016 series, not a journal issue number. It should not appear in a `number` field of an @article entry pointing at a journal. The published article is Journal of Econometrics 221(2)."
+   },
+   {
+    "field": "year",
+    "original": "2016",
+    "corrected": "2021 (if citing the published Journal of Econometrics article); 2016 is correct only for the FEDS working paper (first released 2016-03-03, revised 2017-08 as 2016-024r1)",
+    "reason": "2016 is the correct year for the working paper but not for the published article, which appeared in 2021. Mixing the working-paper year with journal-style fields (as the original entry does) misrepresents the publication date of a refereed piece that did not exist until 2021."
+   },
+   {
+    "field": "pages",
+    "original": "(missing)",
+    "corrected": "455--482",
+    "reason": "No page range was given. The published Journal of Econometrics article runs pp. 455-482 of vol. 221, issue 2 (confirmed via EconPapers/RePEc article record eeeeconom:v:221:y:2021:i:2:p:455-482)."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1016/j.jeconom.2020.05.004 (published article) — or 10.17016/FEDS.2016.024r1 (FEDS working paper, if that version is cited instead)",
+    "reason": "No DOI was present. Both the published article and the FEDS working paper have their own resolvable DOIs; the entry supplied neither, and specifically should not carry the FEDS DOI while claiming to be a Journal of Econometrics article."
+   },
+   {
+    "field": "publisher",
+    "original": "Board of Governors of the Federal Reserve System",
+    "corrected": "Elsevier (if citing the published article, and normally omitted from an @article entry) — keep 'Board of Governors of the Federal Reserve System' as `institution` only under @techreport",
+    "reason": "`publisher` is not a standard/expected field for a journal @article entry citing Journal of Econometrics; the Federal Reserve Board is the issuing institution of the working paper, appropriate for @techreport's `institution` field, not for a journal publisher."
+   },
+   {
+    "field": "url",
+    "original": "(missing)",
+    "corrected": "https://doi.org/10.1016/j.jeconom.2020.05.004 (published) or https://www.federalreserve.gov/econres/feds/non-stationary-dynamic-factor-models-for-large-datasets.htm (working paper)",
+    "reason": "No canonical landing-page/URL was recorded in the original entry."
+   }
+  ],
+  "one": "The entry cites Barigozzi, Lippi & Luciani's FEDS Working Paper 2016-024 (\"Non-Stationary Dynamic Factor Models for Large Datasets\", Board of Governors of the Federal Reserve System) as if it were a journal article, but this is a working-paper series and the work was subsequently published, under a changed title, as \"Large-dimensional Dynamic Factor Models: Estimation of Impulse-Response Functions with I(1) Cointegrated Factors\" in the Journal of Econometrics, 2021, vol. 221(2), pp. 455-482, DOI 10.1016/j.jeconom.2020.05.004.",
+  "url": "https://doi.org/10.1016/j.jeconom.2020.05.004",
+  "extra": "Working paper (FEDS 2016-024, first released 2016-03-03, revised as 2016-024r1 in 2017-08, DOI 10.17016/FEDS.2016.024r1) was subsequently published in a peer-reviewed journal. It is the SAME work under a CHANGED title: 'Large-dimensional Dynamic Factor Models: Estimation of Impulse-Response Functions with I(1) Cointegrated Factors', Journal of Econometrics, 2021, vol. 221, issue 2, pp. 455-482, DOI 10.1016/j.jeconom.2020.05.004. Identity confirmed via three independent cross-checks: (1) identical authorship (Barigozzi, Lippi, Luciani) and identical core content (large-dimensional DFM with I(1) singular factors, ECM/VECM representation, IRF estimation theory, oil-price shock and US monetary-policy-shock empirical applications) across the FEDS PDF and the published abstract; (2) the arXiv preprint 1602.02398, same title as the published article, same three authors, versions spanning 2016-02-07 to 2020-06-01, whose own metadata links to DOI 10.1016/j.jeconom.2020.05.004; (3) the IDEAS/RePEc record for the FEDS working paper (fedgfe/2016-24) explicitly annotates it as published in Journal of Econometrics (2021) under the new title. Note there is a second, DIFFERENT sibling working paper by the same three authors from the same month, FEDS 2016-018 'Dynamic Factor Models, Cointegration, and Error Correction Mechanisms' (SSRN 2402185) — a companion/earlier-draft piece, not the one being cited here and not to be confused with it."
+ },
+ {
+  "key": "amengual2007consistent",
+  "status": "corrected",
+  "n": 3,
+  "issues": [
+   {
+    "field": "title",
+    "original": "Consistent estimation of the number of dynamic factors in a large N and T panel",
+    "corrected": "Consistent estimation of the number of dynamic factors in a large {N} and {T} panel",
+    "reason": "N and T are technical notation (cross-section and time-series dimensions), not ordinary words. Standard .bst styles lowercase non-initial, unbraced capitals, which would silently turn 'N and T' into 'n and t' and obscure the meaning. Verified against CrossRef title 'Consistent Estimation of the Number of Dynamic Factors in a Large N and T Panel' (title case there, but the capitalization convention in the entry's own sentence case still requires braces around N and T)."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1198/073500106000000585",
+    "reason": "No DOI field present. CrossRef confirms DOI 10.1198/073500106000000585 for this article; adding it gives a stable canonical anchor and is standard BibTeX hygiene."
+   },
+   {
+    "field": "publisher",
+    "original": "Taylor \\& Francis",
+    "corrected": "Taylor \\& Francis",
+    "reason": "Verified correct, not an error. CrossRef lists the registrant as 'Informa UK Limited', which is the corporate parent operating as Taylor & Francis (JBES's publisher; the American Statistical Association is the sponsoring society, not the publisher of record). No change needed."
+   }
+  ],
+  "one": "All bibliographic facts (title, authors, journal, volume/issue, pages, year, publisher) check out against CrossRef, but the title's technical capitals N and T are unprotected and will be lowercased by BibTeX, and the entry has no DOI; note this entry is not cited anywhere in paper_anpec.tex.",
+  "url": "https://doi.org/10.1198/073500106000000585",
+  "extra": ""
+ },
+ {
+  "key": "kilian1998small",
+  "status": "corrected",
+  "n": 2,
+  "issues": [
+   {
+    "field": "journal",
+    "original": "Review of economics and statistics",
+    "corrected": "The Review of Economics and Statistics",
+    "reason": "Journal name is missing the leading article 'The' and is lowercased; canonical form per MIT Press Direct (direct.mit.edu/rest) is 'The Review of Economics and Statistics'."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1162/003465398557465",
+    "reason": "No DOI field present in the entry; the article has a resolvable DOI on MIT Press Direct, confirmed by RePEc (RePEc:tpr:restat:v:80:y:1998:i:2:p:218-230)."
+   }
+  ],
+  "one": "Kilian (1998), 'Small-Sample Confidence Intervals for Impulse Response Functions', The Review of Economics and Statistics 80(2):218-230, MIT Press, DOI 10.1162/003465398557465 — all substantive fields (author, year, volume, issue, pages, publisher) check out against the MIT Press Direct landing page and RePEc (RePEc:tpr:restat:v:80:y:1998:i:2:p:218-230); only the journal-name capitalization is wrong and the DOI is missing.",
+  "url": "https://doi.org/10.1162/003465398557465",
+  "extra": ""
+ },
+ {
+  "key": "svensson1994estimating",
+  "status": "corrected",
+  "n": 9,
+  "issues": [
+   {
+    "field": "ENTRYTYPE",
+    "original": "@article",
+    "corrected": "@techreport",
+    "reason": "This is an NBER working paper, not a peer-reviewed journal article. NBER Working Paper 4871 was never published in a journal under this title (it has a parallel institutional working-paper release, IMF WP/94/114, but neither is a journal). BibTeX's @techreport (institution/type/number) is the correct entry type for a research-institute working paper."
+   },
+   {
+    "field": "journal",
+    "original": "journal={National Bureau of Economic Research}",
+    "corrected": "(removed; use institution={National Bureau of Economic Research} and type={NBER Working Paper} instead, under @techreport)",
+    "reason": "NBER is the issuing institution, not a journal — it does not publish a periodical called 'National Bureau of Economic Research'. Putting the institution's name in the journal field is a category error that misrepresents the work as a refereed journal article."
+   },
+   {
+    "field": "number",
+    "original": "number={w4871}",
+    "corrected": "number={4871}",
+    "reason": "Confirmed correct working paper number (the 'w' is NBER's URL/filename prefix, not part of the citable number; NBER's own citation guidance and RePEc list it as No. 4871). Kept the digits, dropped the letter prefix for citation-style consistency; either form is defensible but the digits were already right, so no substantive correction was needed here beyond formatting."
+   },
+   {
+    "field": "year",
+    "original": "year={1994}",
+    "corrected": "year={1994} (unchanged; confirmed September 1994)",
+    "reason": "Verified against the NBER landing page (nber.org/papers/w4871): publication date is September 1994. The year field was already correct."
+   },
+   {
+    "field": "title",
+    "original": "title={Estimating and interpreting forward interest rates: Sweden 1992-1994}",
+    "corrected": "title={Estimating and Interpreting Forward Interest Rates: Sweden 1992--1994}",
+    "reason": "The title text and year range (1992-1994, not 1992-1992 or 1992-1993) were already correct, verified against the NBER landing page and the paper's own PDF header. Only capitalization (title case, matching NBER's official listing) and the en-dash-as-double-hyphen convention for the year range were adjusted; this is a minor hygiene fix, not a factual correction."
+   },
+   {
+    "field": "author",
+    "original": "author={Svensson, Lars EO}",
+    "corrected": "author={Svensson, Lars E. O.}",
+    "reason": "The author's initials 'EO' are run together without periods or a space. NBER and IMF both list the author as 'Lars E. O. Svensson'. BibTeX needs 'Lars E. O.' (with spaces/periods between initials) so the name parses as three given-name tokens instead of one; 'Lars EO' risks being rendered as a single garbled initial block by some .bst styles."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "doi={10.3386/w4871}",
+    "reason": "No DOI was present. NBER assigns DOI 10.3386/w4871 to this working paper; adding it gives a durable, resolvable canonical anchor independent of URL changes."
+   },
+   {
+    "field": "url",
+    "original": "(missing)",
+    "corrected": "url={https://www.nber.org/papers/w4871}",
+    "reason": "No URL was present. The NBER landing page is the canonical anchor for this working paper and should be included per BibTeX hygiene for grey-literature/working-paper entries."
+   },
+   {
+    "field": "note (parallel version)",
+    "original": "(not recorded)",
+    "corrected": "note={Also issued as IMF Working Paper No. 94/114, September 1994}",
+    "reason": "This NBER working paper has a parallel contemporaneous release as an IMF Working Paper, same title and month/year: IMF WP/1994/114 (confirmed via IMF eLibrary at elibrary.imf.org/view/journals/001/1994/114/001.1994.issue-114-en.xml and RePEc ideas.repec.org/p/imf/imfwpa/1994-114.html). Worth recording since some downstream citations of this Svensson (1994) piece cite the IMF version instead of NBER w4871. Not required for a valid @techreport entry, but flagged as requested; the IMF version's own DOI was not independently confirmed and is intentionally omitted here."
+   }
+  ],
+  "one": "Svensson (1994), NBER Working Paper No. 4871 (also issued as IMF Working Paper 94/114), fits an extended Nelson-Siegel forward-rate curve to Swedish data from 1992-1994 and shows how the resulting forward rates can be read as market expectations of future interest rates, inflation, and currency depreciation.",
+  "url": "https://www.nber.org/papers/w4871",
+  "extra": ""
+ },
+ {
+  "key": "sax2018seasonal",
+  "status": "corrected",
+  "n": 3,
+  "issues": [
+   {
+    "field": "title",
+    "original": "Seasonal adjustment by x-13arima-seats in r",
+    "corrected": "Seasonal Adjustment by {X-13ARIMA-SEATS} in {R}",
+    "reason": "JSS title-cases article titles; the entry has it fully lowercased (not just unprotected). Correct rendering is 'Seasonal Adjustment by X-13ARIMA-SEATS in R'. Additionally, 'X-13ARIMA-SEATS' (the Census Bureau software) and the standalone 'R' must be brace-protected or a lowercase/sentence-case BibTeX style (e.g. apalike, chicago author-date) will mangle them to 'x-13arima-seats' and 'r'."
+   },
+   {
+    "field": "number",
+    "original": "(missing)",
+    "corrected": "11",
+    "reason": "JSS articles each occupy their own issue number within a volume; volume 87 alone is insufficient to locate the article. The JSS landing page confirms Volume 87, Issue 11, Article 11 (article number equals issue number for this journal)."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.18637/jss.v087.i11",
+    "reason": "DOI omitted; verified on the JSS article landing page and resolves via https://doi.org/10.18637/jss.v087.i11."
+   }
+  ],
+  "one": "Sax & Eddelbuettel (2018), 'Seasonal Adjustment by X-13ARIMA-SEATS in R', JSS 87(11):1-17, doi:10.18637/jss.v087.i11 -- entry's facts (authors, volume, pages, year) are correct but the title is unprotected/lowercased and the issue number and DOI are missing.",
+  "url": "https://www.jstatsoft.org/article/view/v087i11",
+  "extra": ""
+ },
+ {
+  "key": "gertler2015",
+  "status": "clean",
+  "n": 0,
+  "issues": [],
+  "one": "Gertler & Karadi (2015), 'Monetary Policy Surprises, Credit Costs, and Economic Activity', American Economic Journal: Macroeconomics 7(1):44-76, DOI 10.1257/mac.20130329 — every field verified exact against the AEA landing page and IDEAS/RePEc, with no mixing with the authors' other closely-related papers (e.g., Gertler-Karadi 2011 JME, or the 2013 QE papers).",
+  "url": "https://www.aeaweb.org/articles?id=10.1257%2Fmac.20130329",
+  "extra": ""
+ },
+ {
+  "key": "jarocinski2020",
+  "status": "corrected",
+  "n": 3,
+  "issues": [
+   {
+    "field": "title",
+    "original": "Deconstructing Monetary Policy Surprises: The Role of Information Shocks",
+    "corrected": "Deconstructing Monetary Policy Surprises---The Role of Information Shocks",
+    "reason": "The AEA landing page, the IDEAS/RePEc record (aea/aejmac/v12y2020i2p1-43), and the author's own posted BibTeX all give the title with an em dash separating the two clauses, not a colon. Content and identifiability are unaffected, but the punctuation does not match the canonical title."
+   },
+   {
+    "field": "author",
+    "original": "Jarociński, Marek and Karadi, Peter (raw UTF-8 bytes 0xC5 0x84 for ń)",
+    "corrected": "Jaroci{\\'n}ski, Marek and Karadi, Peter",
+    "reason": "Spelling and accent placement are correct (ń, n with acute, confirmed against the AEA page and the author's own site jarocinski.github.io) — this is not a name error. But the .bib file embeds the raw UTF-8 character directly rather than a LaTeX-safe escape; under classic (non-8-bit-clean) BibTeX or any non-UTF8 toolchain this can corrupt or crash. authordate3.bst (used by paper_anpec.tex) plus classic bibtex is exactly the fragile combination this affects. The escaped form is safe under bibtex, bibtex8, and biber alike."
+   },
+   {
+    "field": "publisher",
+    "original": "(absent)",
+    "corrected": "(no action needed)",
+    "reason": "Flagged per the audit checklist, but journal-article entries do not require a publisher field under standard .bst styles including authordate3.bst; this is not a defect."
+   }
+  ],
+  "one": "DOI 10.1257/mac.20180090 correctly resolves to Jarociński & Karadi (2020), \"Deconstructing Monetary Policy Surprises—The Role of Information Shocks\", American Economic Journal: Macroeconomics 12(2): 1-43 — no field mixing, but the title's colon should be an em dash and the author's raw UTF-8 ń should be LaTeX-escaped for BibTeX safety.",
+  "url": "https://doi.org/10.1257/mac.20180090",
+  "extra": ""
+ },
+ {
+  "key": "bauer2023",
+  "status": "clean",
+  "n": 0,
+  "issues": [],
+  "one": "All fields (title, authors, journal, volume 113, issue 3, pages 664-700, year 2023, DOI 10.1257/aer.20201220) match the AEA landing page for Bauer & Swanson's AER 'Fed Information Effect' paper exactly, with no mixing from their related 2023 NBER Macroeconomics Annual paper (DOI 10.1086/723574, vol. 37, pp. 87-155).",
+  "url": "https://www.aeaweb.org/articles?id=10.1257%2Faer.20201220",
+  "extra": ""
+ },
+ {
+  "key": "stockwatson2018",
+  "status": "clean",
+  "n": 1,
+  "issues": [
+   {
+    "field": "publisher",
+    "original": "(absent)",
+    "corrected": "Wiley-Blackwell (optional addition)",
+    "reason": "Minor BibTeX hygiene only, not a factual error: no publisher field is present. At the time of this 2018 volume, The Economic Journal was still published by Wiley-Blackwell (the Royal Economic Society's journals moved to Oxford University Press only from the 2019 volume onward, per RES's own announcement), so 'Wiley-Blackwell' would be the historically accurate value if a publisher is added; current landing page is hosted at academic.oup.com post-migration. Several sibling .bib entries in this same bibliography include a publisher field and others do not, so this is a style-consistency nicety, not a correctness issue."
+   }
+  ],
+  "one": "DOI 10.1111/ecoj.12593 resolves to Stock & Watson (2018), 'Identification and Estimation of Dynamic Causal Effects in Macroeconomics Using External Instruments,' The Economic Journal 128(610): 917-948, and every field in the entry matches the canonical record exactly.",
+  "url": "https://doi.org/10.1111/ecoj.12593",
+  "extra": ""
+ },
+ {
+  "key": "mertensravn2013",
+  "status": "corrected",
+  "n": 1,
+  "issues": [
+   {
+    "field": "title",
+    "original": "The Dynamic Effects of Personal and Corporate Income Tax Changes in the United States",
+    "corrected": "The Dynamic Effects of Personal and Corporate Income Tax Changes in the {United States}",
+    "reason": "Title text matches the published article exactly (verified against the AEA article landing page and Crossref), so there is no field-mixing or wording error. However 'United States' is not brace-protected, so a sentence-case/title-case-altering .bst style (e.g. plain, apalike) will lowercase it to 'united states' at typeset time. This is a capitalization-protection hygiene fix only, consistent with how this project's other reports (e.g. castelnuovo's 'U.S.', villaverde's 'VARs'/'ABCs') treat the same defect class."
+   }
+  ],
+  "one": "Mertens & Ravn (2013), 'The Dynamic Effects of Personal and Corporate Income Tax Changes in the United States', American Economic Review 103(4):1212-1247, DOI 10.1257/aer.103.4.1212 -- every substantive field (authors, title, journal, volume, issue, pages, year, DOI) is verified correct against the AEA landing page with no mixing with the authors' other tax-shock papers (AEJ:Economic Policy 2012, JME 2014 reply literature), and the only defect is an unprotected proper-noun capitalization in the title.",
+  "url": "https://www.aeaweb.org/articles?id=10.1257%2Faer.103.4.1212",
+  "extra": ""
+ },
+ {
+  "key": "montielolea",
+  "status": "clean",
+  "n": 1,
+  "issues": [
+   {
+    "field": "title",
+    "original": "Inference in Structural Vector Autoregressions Identified with an External Instrument",
+    "corrected": "Inference in Structural Vector Autoregressions identified with an external instrument",
+    "reason": "Cosmetic only, not an error: the .bib gives the title in Title Case, while the publisher (ScienceDirect/Elsevier), Princeton's collaborate page, and RePEc/IDEAS all render it in sentence case ('identified'/'external' lowercase). BibTeX styles normally re-case titles automatically, so this does not need fixing, but noting it since exact-string checkers may flag it."
+   }
+  ],
+  "one": "All fields (authors, title, journal, volume 225(1), pages 74-87, year 2021) match the published Journal of Econometrics version and the DOI resolves to this exact article; no field-mixing with the 2012-2020 working-paper vintage was found.",
+  "url": "https://doi.org/10.1016/j.jeconom.2020.05.014",
+  "extra": ""
+ },
+ {
+  "key": "bagliano1998",
+  "status": "corrected",
+  "n": 4,
+  "issues": [
+   {
+    "field": "number",
+    "original": "(missing)",
+    "corrected": "6",
+    "reason": "European Economic Review vol. 42 (1998) spans multiple issues; this article was published in issue 6 (June 1998), confirmed by CrossRef (DOI 10.1016/S0014-2921(98)00005-1) and RePEc (eee:eecrev:v:42:y:1998:i:6:p:1069-1112). Pages 1069-1112 belong to this exact title in that issue -- no field mixing with the companion Bagliano-Favero paper 'Information from financial markets and VAR measures of monetary policy' (EER 43(4-6), 1999, pp.825-837), which is a distinct, later article."
+   },
+   {
+    "field": "doi",
+    "original": "(missing)",
+    "corrected": "10.1016/S0014-2921(98)00005-1",
+    "reason": "DOI resolves via CrossRef to the exact title/authors/pages; ScienceDirect PII S0014292198000051 corresponds to the same DOI suffix."
+   },
+   {
+    "field": "title",
+    "original": "Measuring Monetary Policy with VAR Models: An Evaluation",
+    "corrected": "Measuring Monetary Policy with {VAR} Models: An Evaluation",
+    "reason": "BibTeX hygiene: 'VAR' is an acronym that must be brace-protected or it will be lowercased to 'var' by styles that force title-case/sentence-case (e.g. apalike, some agsm/econ styles)."
+   },
+   {
+    "field": "month",
+    "original": "(missing)",
+    "corrected": "jun",
+    "reason": "Minor completeness: RePEc/CrossRef list the issue as June 1998. Optional field, not required for correctness, included for completeness."
+   }
+  ],
+  "one": "Title, authors, volume, and pages 1069-1112 are all correct for this exact article, but the entry is missing the issue number (6) and DOI, and the title has an unprotected capital VAR that BibTeX will lowercase.",
+  "url": "https://doi.org/10.1016/S0014-2921(98)00005-1",
+  "extra": ""
+ },
+ {
+  "key": "goncalves2025",
+  "status": "corrected",
+  "n": 3,
+  "issues": [
+   {
+    "field": "number/title/author match",
+    "original": "number = {WP/25/48}, title = {Monetary Policy and Inflation Expectations: High-Frequency Evidence from Brazil}, author = {Gonçalves, Carlos and Rodrigues, Mauro and Genta, Fernando}",
+    "corrected": "(unchanged — verified correct)",
+    "reason": "Cross-checked against the IMF eLibrary listing (journals/001/2025/048), IDEAS/RePEc (RePEc:imf:imfwpa:2025/048), EconPapers, SSRN (abstract_id=5166242), the NEP-CBA report (2025-04-28), and the title page of the official IMF PDF itself (wpiea2025048-print-pdf.pdf, fetched via proxy). All five independent sources agree: WP/25/48 (= Volume 2025, Issue 048) IS this exact title with these exact three authors, in this order. The bib entry is not a mixed-up citation; number, title and author list are all internally consistent and correct. Author spelling/accents also confirmed exactly as given: 'Carlos Gonçalves' (with the cedilla-ç and til-a) appears on the PDF title page itself, not just an ASCII-stripped RePEc rendering."
+   },
+   {
+    "field": "month",
+    "original": "month = {2}",
+    "corrected": "month = feb",
+    "reason": "Bare numeric month (as a literal string '2') is nonstandard BibTeX hygiene; the conventional form is the three-letter BibTeX month macro (jan..dec) or a spelled-out string, which most .bst styles render correctly and abbreviate as needed. Content-wise the value is right: the paper's IMF publication date is 2025-02-28 (confirmed via IMF eLibrary/IDEAS/NEP-CBA and the 'Authorized for distribution ... in February 2025' line on the PDF itself), so month should read February/feb, not merely the digit 2."
+   },
+   {
+    "field": "url",
+    "original": "(missing)",
+    "corrected": "url = {https://www.imf.org/en/Publications/WP/Issues/2025/02/28/Monetary-Policy-and-Inflation-Expectations-High-Frequency-Evidence-from-Brazil-562685}",
+    "reason": "No url or doi field was present in the entry. The IMF eLibrary does not appear to assign this working paper a DOI (none listed on the eLibrary abstract page or the PDF itself), so a doi field cannot be added in good faith. Adding the canonical IMF publications-page URL gives a durable, verifiable anchor; the direct PDF (https://www.imf.org/-/media/files/publications/wp/2025/english/wpiea2025048-print-pdf.pdf) and SSRN mirror (https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5166242) are secondary confirmations of the same document."
+   }
+  ],
+  "one": "IMF Working Paper WP/25/48 (Feb 2025), \"Monetary Policy and Inflation Expectations: High-Frequency Evidence from Brazil\" by Carlos Gonçalves, Mauro Rodrigues and Fernando Genta, uses Rigobon-style heteroskedasticity identification on daily Brazilian data to show monetary tightening lowers inflation expectations and appreciates the exchange rate.",
+  "url": "https://www.imf.org/en/Publications/WP/Issues/2025/02/28/Monetary-Policy-and-Inflation-Expectations-High-Frequency-Evidence-from-Brazil-562685",
+  "extra": ""
+ },
+ {
+  "key": "goncalveskilian2004",
+  "status": "clean",
+  "n": 3,
+  "issues": [
+   {
+    "field": "author",
+    "original": "Gonçalves, Sílvia and Kilian, Lutz",
+    "corrected": "Gonçalves, Sílvia and Kilian, Lutz",
+    "reason": "Verified, not a correction. RePEc/IDEAS ASCII-strips to 'Silvia Goncalves', but the SSRN abstract page (papers.ssrn.com/sol3/papers.cfm?abstract_id=358520, title 'Bootstrapping Autoregressions with Conditional Heteroskedasticity of Unknown Form by Sílvia Gonçalves, Lutz Kilian') confirms the accented form 'Sílvia Gonçalves' is the author's correct published name. The .bib entry already has this right."
+   },
+   {
+    "field": "author (encoding)",
+    "original": "raw UTF-8 characters ç, í in Gonçalves / Sílvia",
+    "corrected": "Gon{\\c{c}}alves, S{\\'i}lvia and Kilian, Lutz  (only if the project's BibTeX toolchain is not UTF-8-safe)",
+    "reason": "Hygiene flag, not an error: raw UTF-8 accented characters can break a classic (non-biber, non-utf8x) BibTeX run. Since this .bib is part of a LaTeX project, confirm inputenc{utf8}/biblatex+biber (or T1/babel) is in use; if the toolchain is plain bibtex with an 8-bit-unsafe bib style, escape to LaTeX accent commands instead. No change made to the entry itself."
+   },
+   {
+    "field": "publisher",
+    "original": "(absent)",
+    "corrected": "publisher = {Elsevier}",
+    "reason": "Hygiene suggestion only: @article entries do not require 'publisher' in standard BibTeX styles (it is a @book/@incollection field), so this is optional, not an error. Journal of Econometrics is published by Elsevier (North-Holland/Elsevier B.V.) if the project's style renders it."
+   }
+  ],
+  "one": "All substantive fields (authors incl. the accented 'Sílvia', title, journal, volume 123, issue 1, pages 89-120, year 2004, DOI) verified correct against ScienceDirect/RePEc/SSRN; only minor BibTeX-hygiene suggestions apply.",
+  "url": "https://doi.org/10.1016/j.jeconom.2003.10.030",
+  "extra": ""
+ },
+ {
+  "key": "rigobon2003",
+  "status": "corrected",
+  "n": 2,
+  "issues": [
+   {
+    "field": "publisher",
+    "original": "(absent)",
+    "corrected": "MIT Press",
+    "reason": "Field missing from entry; journal is published by MIT Press (direct.mit.edu host). Optional but standard BibTeX hygiene for @article entries citing MIT Press journals."
+   },
+   {
+    "field": "title",
+    "original": "Identification through Heteroskedasticity",
+    "corrected": "Identification Through Heteroskedasticity",
+    "reason": "Minor capitalization mismatch: the official MIT Press landing page and standard citation databases (ResearchGate, SciSpace) render the title with 'Through' capitalized. Cosmetic only — does not affect resolution or identity of the work."
+   }
+  ],
+  "one": "Verified: Rigobon's single-authored 'Identification Through Heteroskedasticity', Review of Economics and Statistics 85(4):777-792 (2003), DOI 10.1162/003465303772815727 resolves exactly to volume/issue/pages via the MIT Press URL slug; only minor hygiene fixes needed (missing publisher, title capitalization).",
+  "url": "https://doi.org/10.1162/003465303772815727",
+  "extra": ""
+ },
+ {
+  "key": "brunnermeier2021",
+  "status": "clean",
+  "n": 4,
+  "issues": [
+   "Not cited: no \\cite{brunnermeier2021} found in any .tex file under texto_anpec/ (grep across all .tex files returned zero matches); the entry is dead weight in references.bib/input.bib but not a correctness problem.",
+   "Minor hygiene, non-blocking: no 'publisher' field (optional/conventional to omit for @article entries; AEA journal articles typically do not carry one).",
+   "Minor hygiene, non-blocking: pages given in full form '1845--1879' where the AEA/RePEc canonical citation abbreviates the end page as '1845-79'; both denote the identical range (1845 through 1879), BibTeX '--' correctly renders as an en-dash, so this is a style choice, not an error.",
+   "No field-mixing detected: title, author list order (Brunnermeier, Palia, Sastry, Sims), volume/issue/pages, year, and DOI are internally consistent and all resolve to the same single AER article across DOI redirect, AEA landing page, and RePEc/EconPapers."
+  ],
+  "one": "All fields (title, four authors, year, journal, volume 111, issue 6, pages 1845-1879, DOI 10.1257/aer.20180733) match the canonical AEA record exactly; the entry is unused (not \\cite'd anywhere in texto_anpec/*.tex).",
+  "url": "https://www.aeaweb.org/articles?id=10.1257/aer.20180733",
+  "extra": ""
+ },
+ {
+  "key": "BERNANKE19991341",
+  "status": "corrected",
+  "n": 7,
+  "issues": [
+   {
+    "field": "title/authors/series/publisher/pages/year/issn/doi(resolution)",
+    "original": "Chapter 21 The financial accelerator in a quantitative business cycle framework / Ben S. Bernanke and Mark Gertler and Simon Gilchrist / Handbook of Macroeconomics / Elsevier / 1341-1393 / 1999 / 1574-0048",
+    "corrected": "unchanged (verified correct, net of the 'Chapter 21' prefix and hyphen fixes flagged separately)",
+    "reason": "Cross-checked against CrossRef (DOI 10.1016/S1574-0048(99)10034-X, ISBN 9780444501585) and the ScienceDirect/Elsevier shop listing: title, all three author names and order, series name, publisher, page range, year and series ISSN all match the canonical chapter. No field mixing detected."
+   },
+   {
+    "field": "title",
+    "original": "Chapter 21 The financial accelerator in a quantitative business cycle framework",
+    "corrected": "The financial accelerator in a quantitative business cycle framework",
+    "reason": "ScienceDirect prefixes chapter titles with their chapter number in the HTML/metadata harvest ('Chapter 21 The financial accelerator...'), but 'Chapter 21' is a running header, not part of the title, and belongs (if anywhere) in the BibTeX 'chapter' field, not concatenated into 'title'."
+   },
+   {
+    "field": "volume",
+    "original": "1",
+    "corrected": "1C",
+    "reason": "Handbook of Macroeconomics Volume 1 (Taylor & Woodford, eds., 1999) was published as three separately bound parts, 1A/1B/1C, each with its own ISBN. This chapter's ISBN per CrossRef (9780444501585) matches Volume 1C specifically (Elsevier catalog: 'Handbook of Macroeconomics, Volume 1C', covering pp. 1231-1745), not 1A or 1B. Plain '1' is ambiguous/incomplete for this split volume."
+   },
+   {
+    "field": "booktitle",
+    "original": "(field absent)",
+    "corrected": "Handbook of Macroeconomics",
+    "reason": "@incollection requires 'booktitle' (the title of the book containing the chapter); the entry only had 'series', which is optional and does not substitute for the required field in standard BibTeX styles."
+   },
+   {
+    "field": "editor",
+    "original": "(field absent)",
+    "corrected": "John B. Taylor and Michael Woodford",
+    "reason": "Handbook of Macroeconomics, Volume 1 (parts A/B/C) was edited by John B. Taylor and Michael Woodford (confirmed via the Elsevier shop listing and multiple independent citations of this exact chapter). An @incollection entry conventionally carries the volume editor(s); the field was missing."
+   },
+   {
+    "field": "doi",
+    "original": "https://doi.org/10.1016/S1574-0048(99)10034-X",
+    "corrected": "10.1016/S1574-0048(99)10034-X",
+    "reason": "BibTeX hygiene: the 'doi' field should hold the bare DOI string, not a full resolver URL — the URL form belongs in (and is already duplicated by) the separate 'url' field. Most BibTeX/biblatex styles that print 'doi:...' prefixes will otherwise render 'doi:https://doi.org/...'."
+   },
+   {
+    "field": "pages",
+    "original": "1341-1393",
+    "corrected": "1341--1393",
+    "reason": "BibTeX hygiene: a single hyphen renders as a hyphen, not an en dash; the convention (and what BibTeX/biblatex expects) is a double hyphen '--' to typeset as an en dash in a page range."
+   }
+  ],
+  "one": "Bernanke, Gertler and Gilchrist (1999), Chapter 21 of the Handbook of Macroeconomics, Volume 1C (eds. Taylor and Woodford), pp. 1341-1393 — the canonical 'financial accelerator' dynamic general equilibrium framework.",
+  "url": "https://doi.org/10.1016/S1574-0048(99)10034-X",
+  "extra": ""
+ }
+]

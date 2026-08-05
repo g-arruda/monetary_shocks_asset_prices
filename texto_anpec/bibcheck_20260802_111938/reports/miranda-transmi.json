@@ -1,0 +1,51 @@
+{
+  "key": "miranda-transmi",
+  "status": "corrected",
+  "one_sentence": "Miranda-Agrippino and Ricco (2021, American Economic Journal: Macroeconomics 13(3):74-107) develop a new high-frequency instrument for US monetary policy shocks that purges an information/signaling component from Fed-funds-futures surprises, and trace its contractionary effects on demand, labor and credit markets, asset prices, and expectations.",
+  "canonical_url": "https://doi.org/10.1257/mac.20180124",
+  "issues": [
+    {
+      "field": "title/authors/year/volume/number/pages/issn",
+      "original": "The Transmission of Monetary Policy Shocks / Miranda-Agrippino, Silvia and Ricco, Giovanni / 2021 / Vol 13 / No 3 / 74-107 / ISSN 1945-7707",
+      "corrected": "unchanged (verified correct)",
+      "reason": "Cross-checked against the AEA article landing page (doi.org/10.1257/mac.20180124) and RePEc/IDEAS (v13y2021i3p74-107): title, author names and order, year, volume, issue, page range and print ISSN all match the canonical published article. No field mixing detected — the volume/issue/pages belong to this exact title, not to a differently-titled Miranda-Agrippino/Ricco paper or an earlier working-paper draft."
+    },
+    {
+      "field": "journal",
+      "original": "AMERICAN ECONOMIC JOURNAL-MACROECONOMICS",
+      "corrected": "American Economic Journal: Macroeconomics",
+      "reason": "This is a Web of Science bulk-export artifact: WoS renders journal titles in ALL CAPS with a hyphen substituted for the colon in multi-part AEJ titles. The actual published journal name uses a colon, not a hyphen, and normal title case."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "10.1257/mac.20180124",
+      "reason": "No doi field present. Confirmed via the AEA article page and independently via RePEc/IDEAS that this DOI resolves to exactly this title/authors/volume/issue/pages. Added for a durable canonical anchor."
+    },
+    {
+      "field": "Unique-ID",
+      "original": "WOS:000673929900003",
+      "corrected": "(removed)",
+      "reason": "Web of Science internal accession number, not a BibTeX standard field and meaningless outside a WoS export; stray metadata left over from a bulk citation-manager download. Should be dropped."
+    },
+    {
+      "field": "EISSN",
+      "original": "1945-7715",
+      "corrected": "(removed, or fold into issn if the style requires electronic ISSN)",
+      "reason": "EISSN is a WoS/Clarivate export field, not standard BibTeX. The value itself is correct (electronic ISSN of AEJ:Macro), but conventional .bib hygiene keeps a single issn field (print) unless the bibliography style specifically needs the electronic one."
+    },
+    {
+      "field": "pages",
+      "original": "74-107",
+      "corrected": "74--107",
+      "reason": "BibTeX/BibLaTeX convention requires a double hyphen for page ranges so it typesets as an en dash; a single hyphen renders as a plain hyphen."
+    },
+    {
+      "field": "month",
+      "original": "JUL",
+      "corrected": "7",
+      "reason": "ALL-CAPS three-letter month is another WoS export convention; ordinary BibTeX month fields use either the bare number or a lowercase three-letter macro (jul)."
+    }
+  ],
+  "corrected_bib": "@article{miranda-transmi,\n  author  = {Miranda-Agrippino, Silvia and Ricco, Giovanni},\n  title   = {The Transmission of Monetary Policy Shocks},\n  journal = {American Economic Journal: Macroeconomics},\n  year    = {2021},\n  volume  = {13},\n  number  = {3},\n  pages   = {74--107},\n  month   = {7},\n  issn    = {1945-7707},\n  doi     = {10.1257/mac.20180124},\n}"
+}

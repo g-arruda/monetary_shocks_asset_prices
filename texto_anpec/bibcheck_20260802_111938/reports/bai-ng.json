@@ -1,0 +1,46 @@
+{
+  "key": "bai-ng",
+  "status": "corrected",
+  "one_sentence": "Bai and Ng (2002, Econometrica 70(1), pp. 191-221) develop panel information criteria to consistently estimate the number of factors (r) in large approximate factor models with N and T both large.",
+  "canonical_url": "https://doi.org/10.1111/1468-0262.00273",
+  "issues": [
+    {
+      "field": "title/author/journal/volume/number/pages/year",
+      "original": "title={Determining the Number of Factors in Approximate Factor Models}, author={Bai, Jushan and Ng, Serena}, journal={Econometrica}, volume={70}, number={1}, pages={191-221}, year={2002}",
+      "corrected": "unchanged",
+      "reason": "All cross-checked against the RePEc/IDEAS canonical record (handle RePEc:ecm:emetrp:v:70:y:2002:i:1:p:191-221) and the Wiley DOI landing page for 10.1111/1468-0262.00273. Every substantive field is correct as-is: same paper, same authors, same volume/issue/pages/year."
+    },
+    {
+      "field": "doi",
+      "original": "(missing)",
+      "corrected": "doi = {10.1111/1468-0262.00273}",
+      "reason": "No DOI field was present, only a raw Wiley PDF URL stuffed into `eprint`. Adding the proper `doi` field gives a durable canonical anchor independent of the eprint hack."
+    },
+    {
+      "field": "eprint",
+      "original": "eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/1468-0262.00273}",
+      "corrected": "(removed)",
+      "reason": "Stray field, almost certainly a Google Scholar BibTeX-export artifact. `eprint` is conventionally an arXiv/SSRN identifier, not a full URL to a paywalled PDF; the DOI already encodes this information canonically and a hard-coded PDF URL can rot or requires institutional access to resolve."
+    },
+    {
+      "field": "abstract",
+      "original": "abstract = {In this paper we develop some econometric theory for factor models of large dimensions...}",
+      "corrected": "(removed)",
+      "reason": "Stray field, also a Google Scholar export artifact. Abstracts do not belong in a citation-manager .bib entry used for a manuscript bibliography; it bloats the file and is never rendered by any standard .bst style."
+    },
+    {
+      "field": "pages",
+      "original": "pages = {191-221}",
+      "corrected": "pages = {191--221}",
+      "reason": "Single ASCII hyphen instead of the BibTeX-conventional double hyphen for page ranges. Not a factual error (no literal en-dash/Unicode character was found — confirmed via `cat -A` on the raw field, which showed a plain ASCII '-'), but `--` is standard practice so .bst styles render it as an en-dash at typeset time; a single `-` typesets literally in many styles."
+    },
+    {
+      "field": "keywords",
+      "original": "keywords = {factor analysis, asset pricing, principal components, model selection}",
+      "corrected": "unchanged",
+      "reason": "Harmless, another Google Scholar export artifact but not incorrect and not worth flagging as an error; left as-is since it does not affect any rendered citation."
+    }
+  ],
+  "corrected_bib": "@article{bai-ng,\n  author  = {Bai, Jushan and Ng, Serena},\n  title   = {Determining the Number of Factors in Approximate Factor Models},\n  journal = {Econometrica},\n  volume  = {70},\n  number  = {1},\n  pages   = {191--221},\n  year    = {2002},\n  doi     = {10.1111/1468-0262.00273}\n}",
+  "duplicate_verdict": "bai-ng and bai2002determining are genuine duplicates of the exact same paper (identical title, authors, journal, volume 70, issue 1, pages 191-221, year 2002). bai2002determining additionally carries publisher={Wiley Online Library} — Wiley Online Library is the hosting platform, not the publisher of record; Econometrica in 2002 was published by Blackwell Publishing on behalf of the Econometric Society (pre-2009 Wiley/Blackwell merger), so that field is itself a mislabeled Google Scholar import artifact, not a corrected fact worth preserving. Only bai-ng is actually \\cite{}'d in paper_anpec.tex (line 224: '\\cite{bai-ng}'); bai2002determining is unused. Verdict: keep bai-ng (used, cleaner after the eprint/abstract strip above), delete bai2002determining as an orphaned duplicate with a spurious publisher field."
+}

@@ -1,0 +1,51 @@
+{
+  "key": "pascal",
+  "status": "corrected",
+  "one_sentence": "All substantive fields (author, title, year, volume, number, pages, ISSN) correctly match Pascal Paul (2020), \"The Time-Varying Effect of Monetary Policy on Asset Prices,\" The Review of Economics and Statistics 102(4):690-704 -- no field mixing -- but the entry is a raw Web of Science export with stray non-BibTeX fields, an ALL-CAPS journal name, a missing DOI, and a citation key drawn from the author's given name rather than surname.",
+  "canonical_url": "https://doi.org/10.1162/rest_a_00840",
+  "issues": [
+    {
+      "field": "Journal",
+      "original": "REVIEW OF ECONOMICS AND STATISTICS",
+      "corrected": "The Review of Economics and Statistics",
+      "reason": "ALL-CAPS is Web of Science's internal rendering, not the journal's actual name. Confirmed against CrossRef and the MIT Press journal landing page: the published title is 'The Review of Economics and Statistics.'"
+    },
+    {
+      "field": "Doi",
+      "original": "(missing)",
+      "corrected": "Doi = {10.1162/rest_a_00840}",
+      "reason": "No DOI field was present despite this being a published MIT Press journal article with a registered DOI. Confirmed via CrossRef lookup on the DOI, which returns matching title/author/journal/volume/issue/pages/ISSN/EISSN."
+    },
+    {
+      "field": "ORCID-Numbers",
+      "original": "ORCID-Numbers = {Paul, Pascal/0000-0002-0456-671X}",
+      "corrected": "(removed)",
+      "reason": "Not a standard BibTeX field; this is a Web of Science export artifact. Harmless to a .bst style that ignores unknown fields, but should be stripped for a clean bibliography -- ORCID belongs in author metadata, not the reference list."
+    },
+    {
+      "field": "Unique-ID",
+      "original": "Unique-ID = {WOS:000579430800005}",
+      "corrected": "(removed)",
+      "reason": "A Web of Science accession number, not a BibTeX field recognized by any standard style. Pure WoS export residue."
+    },
+    {
+      "field": "EISSN",
+      "original": "EISSN = {1530-9142}",
+      "corrected": "(removed)",
+      "reason": "Non-standard BibTeX field (another WoS export artifact); standard styles use ISSN only. Value itself is correct (confirmed via CrossRef as the journal's electronic ISSN) but the field has no consumer in typical .bst/biblatex styles and clutters the entry alongside ORCID-Numbers/Unique-ID."
+    },
+    {
+      "field": "key (entry label)",
+      "original": "pascal",
+      "corrected": "pascal (unchanged -- flagged only)",
+      "reason": "The BibTeX key is the author's GIVEN name ('Pascal'), not the surname ('Paul'), which is the opposite of standard convention (typically 'paul2020' or 'paul2020timevarying'). This is a smell worth flagging since it suggests the entry was auto-generated from a WoS record without normalization, but it is not changed here because renaming the key would break every \\cite{pascal} reference elsewhere in the paper; a rename should be a coordinated find-and-replace, not a silent fix in this report."
+    },
+    {
+      "field": "Month",
+      "original": "Month = {OCT}",
+      "corrected": "Month = {October}",
+      "reason": "Minor cosmetic: WoS three-letter abbreviation normalized to a full month name/standard BibTeX month macro convention. Not a factual error (the article's cover-date month is October 2020, per MIT Press)."
+    }
+  ],
+  "corrected_bib": "@article{pascal,\nAuthor = {Paul, Pascal},\nTitle = {The Time-Varying Effect of Monetary Policy on Asset Prices},\nJournal = {The Review of Economics and Statistics},\nYear = {2020},\nVolume = {102},\nNumber = {4},\nPages = {690--704},\nMonth = {October},\nISSN = {0034-6535},\nDoi = {10.1162/rest_a_00840}\n}"
+}

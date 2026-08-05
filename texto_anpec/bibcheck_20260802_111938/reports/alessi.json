@@ -1,0 +1,52 @@
+{
+  "key": "alessi",
+  "status": "corrected",
+  "one_sentence": "This entry correctly identifies Alessi & Kerssenfischer, 'The response of asset prices to monetary policy shocks: Stronger than thought', Journal of Applied Econometrics 34(5):661-672 (2019, DOI 10.1002/jae.2706) — all scholarly fields (authors, title, journal, volume, number, pages, year) check out against Crossref/SSRN/ECB sources; only BibTeX hygiene needs fixing (no doi field, page range uses a plain hyphen instead of the en-dash convention, and a nonstandard eprint field holds a paywalled PDF URL instead of a DOI).",
+  "canonical_url": "https://doi.org/10.1002/jae.2706",
+  "issues": [
+    {
+      "field": "author",
+      "original": "Alessi, Lucia and Kerssenfischer, Mark",
+      "corrected": "Alessi, Lucia and Kerssenfischer, Mark",
+      "reason": "Verified against Crossref metadata for DOI 10.1002/jae.2706: Lucia Alessi (European Commission, Joint Research Centre) and Mark Kerssenfischer (Deutsche Bundesbank). Names and spelling are correct, no change needed."
+    },
+    {
+      "field": "title",
+      "original": "The response of asset prices to monetary policy shocks: Stronger than thought",
+      "corrected": "The response of asset prices to monetary policy shocks: Stronger than thought",
+      "reason": "Matches Crossref title exactly, no change needed."
+    },
+    {
+      "field": "journal/volume/number/year",
+      "original": "Journal of Applied Econometrics / 34 / 5 / 2019",
+      "corrected": "Journal of Applied Econometrics / 34 / 5 / 2019",
+      "reason": "Matches Crossref record for DOI 10.1002/jae.2706 (published online 2019-04-29, print issue August 2019, vol. 34 no. 5). No change needed."
+    },
+    {
+      "field": "pages",
+      "original": "661-672",
+      "corrected": "661--672",
+      "reason": "Page range confirmed correct against Crossref (661-672), but written with a single hyphen; BibTeX/LaTeX convention requires a double hyphen so it compiles to an en dash rather than a plain hyphen-minus. Hygiene fix only, not a factual error."
+    },
+    {
+      "field": "doi",
+      "original": "(absent)",
+      "corrected": "10.1002/jae.2706",
+      "reason": "No doi field exists in the entry. The article has a registered, citable DOI that should be present explicitly rather than buried inside the eprint URL."
+    },
+    {
+      "field": "eprint",
+      "original": "https://onlinelibrary.wiley.com/doi/pdf/10.1002/jae.2706",
+      "corrected": "(removed)",
+      "reason": "eprint is conventionally reserved for arXiv-style identifiers, not a full URL to a paywalled PDF of a published journal article. It duplicates the DOI in a nonstandard, less citable form; superseded by the added doi field."
+    },
+    {
+      "field": "abstract",
+      "original": "[full ~90-word abstract text present, verified accurate against the published abstract]",
+      "corrected": "(removed)",
+      "reason": "Text checked and matches the actual published abstract, so it is not incorrect, but a full abstract field is unusual bloat for a citation-only .bib entry once title/DOI establish identity; flagged as hygiene, not a factual issue."
+    }
+  ],
+  "corrected_bib": "@article{alessi,\n  author  = {Alessi, Lucia and Kerssenfischer, Mark},\n  title   = {The response of asset prices to monetary policy shocks: Stronger than thought},\n  journal = {Journal of Applied Econometrics},\n  volume  = {34},\n  number  = {5},\n  pages   = {661--672},\n  year    = {2019},\n  doi     = {10.1002/jae.2706}\n}",
+  "duplicate_verdict": "The 2019 / Journal of Applied Econometrics 34(5) / pp. 661-672 coordinates (this entry, 'alessi') are the real, verified published article, confirmed via Crossref for DOI 10.1002/jae.2706, SSRN (abstract_id=2854133), and the ECB Working Paper Series No. 1967 precursor. The competing coordinates in the sibling entry 'alessi2016response' (2016 / 31(6) / 930-950) do not belong to any real article: the actual contents of JAE vol. 31 no. 6 (Sept/Oct 2016) run pages 929-1196 with no Alessi or Kerssenfischer paper anywhere in the issue (confirmed against the full table of contents at ftp.math.utah.edu's JAE bibliography) — the nearest page range, 929-960, belongs to Bailey, Kapetanios & Pesaran's 'Exponent of Cross-Sectional Dependence: Estimation and Inference', an unrelated econometric-theory paper with no author overlap. '31(6) 930-950 (2016)' is therefore a fabricated/hallucinated citation, not a mislabeled but genuine second paper; 'alessi2016response' is a corrupted duplicate of this entry and should be deleted (or all \\cite{alessi2016response} calls redirected to \\cite{alessi})."
+}
