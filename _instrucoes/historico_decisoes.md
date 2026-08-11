@@ -368,9 +368,9 @@ as 8 colunas sobreviventes de `instrumentos_mensais.csv` saíram
 
 ⚠ **A maquinaria diária do ramo `_us` ficou.** `e_di_us`, `e_ibov_us` e
 `jk_monetary_us` continuam em `build_variants.R` e no
-`copom_event_diagnostics.csv` porque `script/jk_sovereign_confound.R:385`
-(tier S1) usa o conjunto de dias `jk_us` como uma de suas sete máscaras de
-diagnóstico. Só a coluna **mensal** foi removida. Já `e_di_local`/`lm_di_local`
+`copom_event_diagnostics.csv` porque `script/jk_sovereign_confound.R`
+(tier S1, `DAY_SETS`) usa o conjunto de dias `jk_us` como uma de suas sete
+máscaras de diagnóstico. Só a coluna **mensal** foi removida. Já `e_di_local`/`lm_di_local`
 não tinham consumidor nenhum depois do corte e saíram — é a única coluna que
 `copom_event_diagnostics.csv` perdeu.
 
@@ -397,13 +397,15 @@ promovida**. Registro para ninguém re-propor:
   surpresa fiscal **deprecia** (sinais iguais = soberano). As pernas de FX e EMBI
   são purificadas na **mesma** RHS pré-evento do BS, para a máscara continuar
   predeterminada.
-- **Por que morreu:** os 62 dias partem em **31 política / 30 soberano / 1 n/c**
-  (regra FX) e **nenhum sinal de IRF inverte**. ξ_mp cai de 10,43 para **3,52 e
-  3,50** — queda essencialmente mecânica, já que os meses não-nulos vão de 62
-  para ~30. Custa metade da amostra e não compra conclusão nenhuma.
-- **A regra alternativa pelo EMBI é pior e assimétrica:** 24 política / 37
-  soberano, com ξ_mp **0,89** na metade política contra **7,77** na soberana. Se
-  alguém quiser reabrir isso, é aqui que a assimetria tem de ser explicada antes.
+- **Por que morreu:** a partição custa metade da amostra e não compra conclusão
+  nenhuma. Nenhum sinal de IRF inverte, e ξ_mp desaba nas duas metades por razão
+  essencialmente mecânica, já que os meses não-nulos caem pela metade.
+- **As três regras de classificação (FX, EMBI, CDS) discordam entre si** numa
+  fração grande dos 62 dias, e a metade "política" de **todas** as três fica
+  **abaixo de 3,84**, o limiar em que o conjunto AR deixa de ser limitado. A
+  assimetria não é de uma regra, é da própria partição: toda metade "política" é
+  pequena demais para ter primeiro estágio, de modo que promover qualquer uma
+  delas tem impedimento aritmético e não só de tamanho de amostra.
 - **Armadilha conceitual a não repetir:** condicionar a máscara num movimento
   cambial **contemporâneo** é exatamente o tipo de seleção same-window que a
   camada Bauer-Swanson existe para evitar. Purificar o câmbio na RHS pré-evento
@@ -412,13 +414,54 @@ promovida**. Registro para ninguém re-propor:
 - **O que sobrevive do exercício** é o diagnóstico, não o instrumento: a máscara
   de produção foi **absolvida** da acusação de selecionar risco soberano, porque
   os dias retidos carregam *menos* risco por unidade de surpresa que uma quinta
-  comum (coef 0,099 contra 0,326; interações negativas nas quatro proxies). Ver
-  `_instrucoes/Instrumento.md`, status de 2026-07-31, e
-  `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
-- **Também não repetir:** tentar corrigir o alinhamento do arquivo de EMBI. Ele é
-  **do mesmo dia** (cor de ΔEMBI com S&P/Ibov em t = −0,498 / −0,508 contra
-  −0,045 / −0,088 em t−1). A janela Qui→Sex é resposta defasada, não
+  comum (EMBI 0,099 contra 0,326; CDS 0,140 contra 0,436; interações negativas
+  nas cinco proxies). ⚠ **Absolvida não é "sem risco":** no CDS o coeficiente dos
+  62 dias é **significativo** (p_boot 0,003), o que o EMBI não conseguia medir
+  por arredondamento. Ver `_instrucoes/Instrumento.md`, status de 2026-07-31, e
+  as notas `2026-07-31_confound_soberano_jk.md` +
+  `2026-08-09_confound_soberano_cds.md`.
+- **Também não repetir:** tentar corrigir o alinhamento dos arquivos de risco.
+  Os dois são **do mesmo dia** (ΔEMBI com S&P/Ibov em t = −0,498 / −0,508 contra
+  −0,045 / −0,088 em t−1; ΔCDS −0,541 / −0,580 contra −0,040 / −0,089). A janela
+  Qui→Sex é resposta defasada, não
   desalinhamento.
+
+### 2.4 As duas baterias de confound foram enxugadas — 2026-08-10
+
+Três testes saíram do código no mesmo dia, e os números que os mataram estão
+todos acima ou na entrada do FOMC em `pendencias.md`. **O corte foi verificado
+como não-perturbativo**: rodando os dois scripts antes e depois, toda linha que
+sobreviveu bate com `max |dif| = 0`, `p_boot` inclusive, porque
+`wild_coef_test()` semeia cada célula pela própria identidade (`key =`). O
+veredito do FOMC também não mudou.
+
+- **Teste B (três vias) e Teste D (tabela datada) saíram de
+  `script/jk_sovereign_confound.R`.** B pela aritmética do parágrafo anterior, a
+  metade "política" de todas as três regras ficando abaixo de 3,84. D porque seu
+  único consumidor era a ressalva de concentração de `paper_anpec.tex`, retirada
+  do paper na mesma data por decisão do autor;
+  `output/instrument/jk_sovereign_days.csv` foi apagado do repositório.
+- **Teste 4 (divisão FOMC / sem-FOMC) saiu de `script/fomc_coincidence.R`,** e
+  com ele a terceira perna da regra de veredito pré-registrada. **A perna havia
+  passado** na rodada de 2026-08-10, sem acionar a cláusula de poder, enquanto a
+  metade *com* FOMC saía com conjunto AR ilimitado e portanto incitável em
+  qualquer direção. Retirar uma perna satisfeita torna a regra estritamente mais
+  permissiva, de modo que o veredito não pode ter mudado por causa do corte.
+- **Os números dos três testes não são reproduzíveis e não devem ser citados.**
+  As seções correspondentes das notas de 07-31, 08-09 e 08-10 foram removidas
+  junto, e o registro fica no histórico do git, que é onde ele pertence.
+- **O que entrou no lugar, e por que não é adição gratuita:** com B fora, o
+  Teste C passa a carregar a subseção sozinho, e a objeção viva contra ele era
+  justamente que ele limpava os **valores** da surpresa sem tocar na **seleção**
+  dos 62 dias (council de 2026-08-10, `pendencias.md`). A perna de ações passou
+  a ser ortogonalizada na mesma RHS de risco e a regra de sinal do JK
+  re-derivada nos resíduos duplos, gerando `z_jk_bs_norisk_mask`. **O resultado
+  é assimétrico e tem de ser lido assim:** ortogonalizar os valores *aumenta*
+  ξ_mp (10,43 → 10,72 → 12,68), re-derivar a máscara *derruba* para **5,57** na
+  amostra cheia, porque o bloco de risco explica 15,4% de `e_di_bs` mas **40,4%**
+  de `e_ibov_bs`. O conjunto AR continua limitado e todo sinal de manchete se
+  preserva, então a variante sustenta direção, não intervalo. Na janela
+  pré-COVID a ordem se inverte (10,94 contra 12,22 da produção).
 
 ---
 

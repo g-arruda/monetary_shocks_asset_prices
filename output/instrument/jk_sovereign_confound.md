@@ -1,6 +1,6 @@
 # Confound soberano no filtro JK — teste diario
 
-*Gerado por `script/jk_sovereign_confound.R` em 2026-08-05. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.*
+*Gerado por `script/jk_sovereign_confound.R` em 2026-08-10. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `relatorio/working-notes/2026-08-09_confound_soberano_cds.md` (rodada das duas proxies) e `2026-07-31_confound_soberano_jk.md` (rodada original, so EMBI).*
 
 ## A pergunta
 
@@ -9,79 +9,108 @@ O filtro Jarocinski-Karadi descarta o confound benigno (efeito-informacao: juros
 ## Regra de leitura, fixada antes de os numeros existirem
 
 - Interacao `x:1(jk_bs)` positiva com `p_boot < 0,10` -> **contaminacao confirmada**.
-- Interacao nula, mas efeito nos 62 dias significativo enquanto o controle nao-Copom e nulo -> **sinal fraco**; B e C decidem.
+- Interacao nula, mas efeito nos 62 dias significativo enquanto o controle nao-Copom e nulo -> **sinal fraco**; C decide.
 - Ambos nulos -> **confound nao detectado na frequencia diaria**.
 
-**Veredito do teste A: CONFOUND NAO DETECTADO NA FREQUENCIA DIARIA.**
+**Veredito em EMBI+ (pre-registrado): CONFOUND NAO DETECTADO NA FREQUENCIA DIARIA.**
+**Veredito em CDS 5a (mesma regra, proxy principal): CONFOUND NAO DETECTADO NA FREQUENCIA DIARIA.**
 
-## Lacuna de dado declarada
+Os dois vereditos coincidem.
 
-**Nao ha CDS 5a diario** neste repositorio nem fonte programatica gratuita com historico 2013-2025 (Ipeadata encerrou o EMBI+ em 07/2024 e nunca teve CDS; WorldGovernmentBonds nao tem CSV/API; MacroMicro publica semanal; cbonds e pago). A unica fonte diaria e a pagina historica da Investing.com, via export de navegador. O **EMBI+ Brasil diario** e a proxy principal e cobre 95/95 quintas Copom e 94/95 quartas anteriores (o buraco e 2024-06-19, feriado americano).
+## As duas proxies, e a ordem de olhar
+
+Ate 2026-08-09 este teste rodava so em **EMBI+** porque nao havia CDS 5a diario no repositorio. `data/CDS 5y.xlsx` (Bloomberg, `BRAZIL CDS USD SR 5Y D14 Corp`, diario 2001-10 a 2026-08) fechou a lacuna, e e o melhor instrumento de medida: cobre **95/95** pares Qua->Qui de Copom contra 94/95 do EMBI (o buraco e 2024-06-19, feriado americano), e **0.5%** das suas variacoes no painel de eventos sao exatamente zero contra **8.3%** do EMBI.
+
+Esse ultimo numero e o que importa. O EMBI+ e publicado com duas casas em pontos percentuais, entao a menor variacao nao-nula que ele consegue exprimir e **1.000 bp**, contra **0.005 bp** do CDS: noticia de risco menor que isso e arredondada a nada. Isso **atenua o coeficiente do teste A em direcao a zero** e tornaria um nulo ali descartavel como erro de medida. O nulo do CDS nao e descartavel assim — e a tabela de alinhamento abaixo mostra o mesmo por outro lado, com o CDS correlacionando mais forte com o mercado no mesmo dia em todas as quatro series.
+
+**A ordem de olhar, declarada:** o EMBI foi olhado primeiro e a regra de leitura acima foi fixada antes dos numeros dele. O CDS chegou depois e e julgado pela **mesma funcao** (`verdict_for()`), sem regra nova. O veredito do EMBI acima e exatamente o de 2026-07-31, inalterado.
 
 ## Qualidade das proxies diarias
 
-| proxy | rotulo | n_copom | n_valid | sd |
+| proxy | rotulo | n_copom | n_valid | sd | pct_zero |
+|---|---|---|---|---|---|
+| d_cds_bp | CDS 5a (bp, Qua->Qui) |    95 |   598 | 7.319 | 0.5017 |
+| d_embi_bp | EMBI+ (bp, Qua->Qui) |    94 |   592 | 7.026 | 8.277 |
+| d_cds_bp_lag1 | CDS 5a (bp, Qui->Sex, janela do dia SEGUINTE) |    95 |   598 | 5.795 |     0 |
+| d_embi_bp_lag1 | EMBI+ (bp, Qui->Sex, janela do dia SEGUINTE) |    95 |   597 | 6.666 | 11.22 |
+| d_lbrl | BRL/USD (log x100, + = depreciacao) |    94 |   596 | 1.026 | 0.1678 |
+| d_slope_bp | Slope DI 504-63bd (bp) |    95 |   598 | 14.31 | 1.338 |
+| d_di10y_bp | DI ~10a (bp) |    95 |   598 | 18.17 | 3.679 |
+
+### Alinhamento (pre-requisito de todo o teste A)
+
+Correlacao da variacao diaria de cada proxy com o movimento de mercado em `t`, `t-1` e `t+1`. Se um arquivo fosse publicado com um dia de defasagem, a coluna `t-1` dominaria — e a janela Qua->Qui deixaria de medir o que se pretende.
+
+| proxy | serie | cor_t | cor_tm1 | cor_tp1 |
 |---|---|---|---|---|
-| d_embi_bp | EMBI+ (bp, Qua->Qui) |    94 |   592 | 7.026 |
-| d_embi_bp_lag1 | EMBI+ (bp, Qui->Sex, janela do dia SEGUINTE) |    95 |   597 | 6.666 |
-| d_lbrl | BRL/USD (log x100, + = depreciacao) |    94 |   596 | 1.026 |
-| d_slope_bp | Slope DI 504-63bd (bp) |    95 |   598 | 14.31 |
-| d_di10y_bp | DI ~10a (bp) |    95 |   598 | 18.17 |
+| CDS 5a | r_brl | 0.3025 | 0.06631 | 0.2576 |
+| CDS 5a | r_sp500 | -0.5412 | -0.03995 | 0.06586 |
+| CDS 5a | d_vix | 0.443 | -0.007147 | -0.11 |
+| CDS 5a | r_ibov | -0.5797 | -0.08863 | 0.03404 |
+| EMBI+ | r_brl | 0.2254 | 0.08223 | 0.2103 |
+| EMBI+ | r_sp500 | -0.4977 | -0.04511 | 0.05986 |
+| EMBI+ | d_vix | 0.4132 | -0.007203 | -0.1093 |
+| EMBI+ | r_ibov | -0.5081 | -0.08816 | 0.01623 |
 
-### Alinhamento do EMBI (pre-requisito de todo o teste A)
-
-Correlacao da variacao diaria do EMBI com o movimento de mercado em `t`, `t-1` e `t+1`. Se o arquivo fosse publicado com um dia de defasagem, a coluna `t-1` dominaria.
-
-| serie | cor_t | cor_tm1 | cor_tp1 |
-|---|---|---|---|
-| r_brl | 0.2254 | 0.08223 | 0.2103 |
-| r_sp500 | -0.4977 | -0.04511 | 0.05986 |
-| d_vix | 0.4132 | -0.007203 | -0.1093 |
-| r_ibov | -0.5081 | -0.08816 | 0.01623 |
-
-**Arquivo alinhado no mesmo dia: TRUE.** Logo a janela Qua->Qui e a medida correta, e a janela Qui->Sex **nao** e uma correcao de alinhamento: e uma janela do dia seguinte, ou seja a resposta *defasada* do risco a surpresa, e nao noticia de risco dentro da janela do evento.
+**Alinhados no mesmo dia: CDS TRUE, EMBI TRUE.** Logo a janela Qua->Qui e a medida correta, e a janela Qui->Sex **nao** e uma correcao de alinhamento: e uma janela do dia seguinte, ou seja a resposta *defasada* do risco a surpresa, e nao noticia de risco dentro da janela do evento.
 
 ## A — regressao diaria por conjunto de dias
 
 `y ~ x`, HC1, `p_boot` por wild bootstrap sob a nula restrita. O conjunto **nao-Copom** e o controle: mede a comovimentacao diaria normal entre surpresa de juros e spread, que nao tem nada a ver com politica.
 
+**Reprodutibilidade dos `p_boot`.** Desde 2026-08-09 cada celula e semeada pela propria identidade (`wild_coef_test(key = )`), entao acrescentar ou reordenar proxies nao move o `p_boot` de nenhuma outra. Antes disso todas compartilhavam um unico fluxo de RNG, e por isso os `p_boot` da nota de 07-31 diferem destes por ruido de Monte Carlo (erro-padrao ~0,007 com 2.000 sorteios). As estatisticas **deterministicas** — coeficiente, erro-padrao HC1, `t`, R² — reproduzem exatas, e sao elas que carregam o argumento: o que decide o veredito e o **sinal** da interacao.
+
 | proxy | conjunto | n | coef | se_hc1 | t | p_asym | p_boot | r2 |
 |---|---|---|---|---|---|---|---|---|
-| d_embi_bp | jk_bs (producao) |    61 | 0.09851 | 0.0565 | 1.744 | 0.08644 | 0.0965 | 0.03882 |
-| d_embi_bp | copom (todos) |    94 | 0.06619 | 0.05002 | 1.323 | 0.189 | 0.1995 | 0.01651 |
-| d_embi_bp | copom rejeitados |    33 | 0.01858 | 0.104 | 0.1787 | 0.8593 | 0.9075 | 0.001213 |
-| d_embi_bp | nao-copom (controle) |   498 | 0.3264 | 0.08225 | 3.968 | 8.318e-05 | 0.0045 |  0.13 |
-| d_embi_bp | jk (contemporaneo) |    64 | 0.07342 | 0.06343 | 1.158 | 0.2515 | 0.2645 | 0.01984 |
-| d_embi_bp | jk_raw |    54 | 0.08676 | 0.05106 | 1.699 | 0.09528 | 0.1075 | 0.04138 |
-| d_embi_bp | jk_us |    62 | 0.07936 | 0.06525 | 1.216 | 0.2287 | 0.2485 | 0.02458 |
-| d_embi_bp_lag1 | jk_bs (producao) |    62 | 0.2192 | 0.07998 | 2.741 | 0.008056 | 0.0115 | 0.1425 |
-| d_embi_bp_lag1 | copom (todos) |    95 | 0.1507 | 0.06328 | 2.381 | 0.0193 | 0.0275 | 0.07344 |
-| d_embi_bp_lag1 | copom rejeitados |    33 | 0.01958 | 0.09135 | 0.2143 | 0.8317 | 0.819 | 0.001493 |
-| d_embi_bp_lag1 | nao-copom (controle) |   502 | -0.0374 | 0.05739 | -0.6517 | 0.5149 | 0.6925 | 0.001972 |
-| d_embi_bp_lag1 | jk (contemporaneo) |    65 | 0.1151 | 0.06275 | 1.834 | 0.07134 | 0.112 | 0.05232 |
-| d_embi_bp_lag1 | jk_raw |    55 | 0.2095 | 0.0766 | 2.735 | 0.008456 | 0.014 | 0.1881 |
-| d_embi_bp_lag1 | jk_us |    63 | 0.1108 | 0.06319 | 1.753 | 0.0846 | 0.121 | 0.05232 |
-| d_lbrl | jk_bs (producao) |    61 | 0.004439 | 0.01111 | 0.3996 | 0.6909 | 0.7225 | 0.003051 |
-| d_lbrl | copom (todos) |    94 | -0.004175 | 0.009441 | -0.4422 | 0.6594 | 0.6505 | 0.002608 |
-| d_lbrl | copom rejeitados |    33 | -0.0189 | 0.01539 | -1.228 | 0.2285 | 0.2385 | 0.05119 |
-| d_lbrl | nao-copom (controle) |   502 | 0.0506 | 0.01091 | 4.638 | 4.491e-06 | 0.005 | 0.1519 |
-| d_lbrl | jk (contemporaneo) |    64 | 0.006255 | 0.01045 | 0.5984 | 0.5517 | 0.5875 | 0.006367 |
-| d_lbrl | jk_raw |    55 | 0.002444 | 0.01074 | 0.2276 | 0.8208 | 0.8255 | 0.001149 |
-| d_lbrl | jk_us |    62 | 0.006185 | 0.01042 | 0.5936 | 0.555 | 0.5685 | 0.006495 |
-| d_slope_bp | jk_bs (producao) |    62 | 0.8015 | 0.2882 | 2.781 | 0.007226 | 0.001 | 0.3002 |
+| d_cds_bp | jk_bs (producao) |    62 | 0.1403 | 0.04898 | 2.864 | 0.005757 | 0.0025 | 0.1037 |
+| d_cds_bp | copom (todos) |    95 | -0.004141 | 0.06505 | -0.06366 | 0.9494 | 0.963 | 5.439e-05 |
+| d_cds_bp | copom rejeitados |    33 | -0.2846 | 0.1628 | -1.748 | 0.09043 | 0.0095 | 0.1511 |
+| d_cds_bp | nao-copom (controle) |   503 | 0.4358 | 0.1001 | 4.353 | 1.629e-05 |     0 | 0.2176 |
+| d_cds_bp | jk (contemporaneo) |    65 | 0.002681 | 0.09038 | 0.02966 | 0.9764 | 0.986 | 1.824e-05 |
+| d_cds_bp | jk_raw |    55 | 0.1303 | 0.0443 |  2.94 | 0.004856 | 0.0005 | 0.1056 |
+| d_cds_bp | jk_us |    63 | -0.002374 | 0.09454 | -0.02511 |  0.98 | 0.994 | 1.437e-05 |
+| d_embi_bp | jk_bs (producao) |    61 | 0.09851 | 0.0565 | 1.744 | 0.08644 | 0.1085 | 0.03882 |
+| d_embi_bp | copom (todos) |    94 | 0.06619 | 0.05002 | 1.323 | 0.189 | 0.1775 | 0.01651 |
+| d_embi_bp | copom rejeitados |    33 | 0.01858 | 0.104 | 0.1787 | 0.8593 | 0.8985 | 0.001213 |
+| d_embi_bp | nao-copom (controle) |   498 | 0.3264 | 0.08225 | 3.968 | 8.318e-05 | 0.003 |  0.13 |
+| d_embi_bp | jk (contemporaneo) |    64 | 0.07342 | 0.06343 | 1.158 | 0.2515 | 0.2415 | 0.01984 |
+| d_embi_bp | jk_raw |    54 | 0.08676 | 0.05106 | 1.699 | 0.09528 | 0.1195 | 0.04138 |
+| d_embi_bp | jk_us |    62 | 0.07936 | 0.06525 | 1.216 | 0.2287 | 0.233 | 0.02458 |
+| d_cds_bp_lag1 | jk_bs (producao) |    62 | 0.131 | 0.06074 | 2.157 | 0.03499 | 0.061 | 0.08416 |
+| d_cds_bp_lag1 | copom (todos) |    95 | 0.07652 | 0.04681 | 1.635 | 0.1055 | 0.135 | 0.03198 |
+| d_cds_bp_lag1 | copom rejeitados |    33 | -0.02983 | 0.07265 | -0.4106 | 0.6842 | 0.6925 | 0.006248 |
+| d_cds_bp_lag1 | nao-copom (controle) |   503 | -0.06448 | 0.06064 | -1.063 | 0.2882 | 0.4505 | 0.007505 |
+| d_cds_bp_lag1 | jk (contemporaneo) |    65 | 0.07894 | 0.05184 | 1.523 | 0.1328 | 0.1875 | 0.03663 |
+| d_cds_bp_lag1 | jk_raw |    55 | 0.1219 | 0.05787 | 2.107 | 0.03984 | 0.077 | 0.09407 |
+| d_cds_bp_lag1 | jk_us |    63 | 0.07795 | 0.05213 | 1.495 |  0.14 | 0.1705 | 0.0356 |
+| d_embi_bp_lag1 | jk_bs (producao) |    62 | 0.2192 | 0.07998 | 2.741 | 0.008056 | 0.019 | 0.1425 |
+| d_embi_bp_lag1 | copom (todos) |    95 | 0.1507 | 0.06328 | 2.381 | 0.0193 | 0.026 | 0.07344 |
+| d_embi_bp_lag1 | copom rejeitados |    33 | 0.01958 | 0.09135 | 0.2143 | 0.8317 | 0.8425 | 0.001493 |
+| d_embi_bp_lag1 | nao-copom (controle) |   502 | -0.0374 | 0.05739 | -0.6517 | 0.5149 | 0.679 | 0.001972 |
+| d_embi_bp_lag1 | jk (contemporaneo) |    65 | 0.1151 | 0.06275 | 1.834 | 0.07134 | 0.1125 | 0.05232 |
+| d_embi_bp_lag1 | jk_raw |    55 | 0.2095 | 0.0766 | 2.735 | 0.008456 | 0.012 | 0.1881 |
+| d_embi_bp_lag1 | jk_us |    63 | 0.1108 | 0.06319 | 1.753 | 0.0846 | 0.115 | 0.05232 |
+| d_lbrl | jk_bs (producao) |    61 | 0.004439 | 0.01111 | 0.3996 | 0.6909 | 0.722 | 0.003051 |
+| d_lbrl | copom (todos) |    94 | -0.004175 | 0.009441 | -0.4422 | 0.6594 |  0.68 | 0.002608 |
+| d_lbrl | copom rejeitados |    33 | -0.0189 | 0.01539 | -1.228 | 0.2285 | 0.2355 | 0.05119 |
+| d_lbrl | nao-copom (controle) |   502 | 0.0506 | 0.01091 | 4.638 | 4.491e-06 | 0.0055 | 0.1519 |
+| d_lbrl | jk (contemporaneo) |    64 | 0.006255 | 0.01045 | 0.5984 | 0.5517 | 0.5905 | 0.006367 |
+| d_lbrl | jk_raw |    55 | 0.002444 | 0.01074 | 0.2276 | 0.8208 | 0.8435 | 0.001149 |
+| d_lbrl | jk_us |    62 | 0.006185 | 0.01042 | 0.5936 | 0.555 | 0.5765 | 0.006495 |
+| d_slope_bp | jk_bs (producao) |    62 | 0.8015 | 0.2882 | 2.781 | 0.007226 | 0.0025 | 0.3002 |
 | d_slope_bp | copom (todos) |    95 | 0.6634 | 0.2249 |  2.95 | 0.004026 | 0.001 | 0.2383 |
-| d_slope_bp | copom rejeitados |    33 | 0.3975 | 0.292 | 1.361 | 0.1832 | 0.186 | 0.122 |
+| d_slope_bp | copom rejeitados |    33 | 0.3975 | 0.292 | 1.361 | 0.1832 | 0.198 | 0.122 |
 | d_slope_bp | nao-copom (controle) |   503 | 1.138 | 0.09166 | 12.42 | 4.629e-31 |     0 | 0.4319 |
-| d_slope_bp | jk (contemporaneo) |    65 | 0.8441 | 0.2685 | 3.143 | 0.002547 | 0.0005 | 0.3481 |
-| d_slope_bp | jk_raw |    55 | 0.7601 | 0.2783 | 2.731 | 0.008556 | 0.0015 | 0.3132 |
-| d_slope_bp | jk_us |    63 | 0.8454 | 0.2684 |  3.15 | 0.002529 | 0.0005 | 0.3542 |
-| d_di10y_bp | jk_bs (producao) |    62 | 0.5728 | 0.2273 |  2.52 | 0.01443 | 0.019 | 0.1766 |
-| d_di10y_bp | copom (todos) |    95 | 0.3179 | 0.1917 | 1.658 | 0.1006 | 0.1395 | 0.0617 |
-| d_di10y_bp | copom rejeitados |    33 | -0.1573 | 0.2244 | -0.7009 | 0.4886 | 0.545 | 0.01992 |
+| d_slope_bp | jk (contemporaneo) |    65 | 0.8441 | 0.2685 | 3.143 | 0.002547 |     0 | 0.3481 |
+| d_slope_bp | jk_raw |    55 | 0.7601 | 0.2783 | 2.731 | 0.008556 | 0.0005 | 0.3132 |
+| d_slope_bp | jk_us |    63 | 0.8454 | 0.2684 |  3.15 | 0.002529 |     0 | 0.3542 |
+| d_di10y_bp | jk_bs (producao) |    62 | 0.5728 | 0.2273 |  2.52 | 0.01443 | 0.0195 | 0.1766 |
+| d_di10y_bp | copom (todos) |    95 | 0.3179 | 0.1917 | 1.658 | 0.1006 | 0.1405 | 0.0617 |
+| d_di10y_bp | copom rejeitados |    33 | -0.1573 | 0.2244 | -0.7009 | 0.4886 | 0.541 | 0.01992 |
 | d_di10y_bp | nao-copom (controle) |   503 | 1.422 | 0.2168 | 6.558 | 1.359e-10 |     0 | 0.3687 |
-| d_di10y_bp | jk (contemporaneo) |    65 | 0.5676 | 0.2099 | 2.704 | 0.008806 | 0.0165 | 0.192 |
-| d_di10y_bp | jk_raw |    55 | 0.519 | 0.2189 | 2.371 | 0.02139 | 0.0325 | 0.1761 |
-| d_di10y_bp | jk_us |    63 | 0.5669 | 0.2093 | 2.709 | 0.00875 | 0.015 | 0.1947 |
+| d_di10y_bp | jk (contemporaneo) |    65 | 0.5676 | 0.2099 | 2.704 | 0.008806 | 0.0105 | 0.192 |
+| d_di10y_bp | jk_raw |    55 | 0.519 | 0.2189 | 2.371 | 0.02139 | 0.0315 | 0.1761 |
+| d_di10y_bp | jk_us |    63 | 0.5669 | 0.2093 | 2.709 | 0.00875 | 0.0095 | 0.1947 |
 
 ## A — interacao (a estatistica que decide)
 
@@ -89,53 +118,55 @@ Correlacao da variacao diaria do EMBI com o movimento de mercado em `t`, `t-1` e
 
 | proxy | n | coef | se_hc1 | t | p_asym | p_boot |
 |---|---|---|---|---|---|---|
-| d_embi_bp |   592 | -0.182 | 0.09377 | -1.941 | 0.05274 | 0.108 |
-| d_embi_bp_lag1 |   597 | 0.2476 | 0.09489 | 2.609 | 0.009316 | 0.0245 |
-| d_lbrl |   596 | -0.03591 | 0.01653 | -2.173 | 0.03017 | 0.066 |
-| d_slope_bp |   598 | -0.2277 | 0.3018 | -0.7544 | 0.4509 |  0.52 |
-| d_di10y_bp |   598 | -0.6157 | 0.3268 | -1.884 | 0.06002 | 0.1125 |
-
-## B — classificacao de tres vias
-
-Politica: aperto **aprecia** o BRL (UIP) -> sinais de `e_di_bs` e `e_brl_bs` diferem. Soberano: surpresa fiscal **deprecia** -> sinais iguais. As pernas de FX e EMBI sao purificadas na **mesma** RHS pre-evento do Bauer-Swanson, para a mascara continuar predeterminada.
-
-- regra FX: **31 politica**, 30 soberano, 1 nao classificado (de 62 retidos)
-- regra EMBI: **24 politica**, 37 soberano, 1 nao classificado
-
-Concordancia entre as duas regras (linhas = FX, colunas = EMBI):
-
-| fx | soberano | n/c | politica |
-|---|---|---|---|
-| n/c |     1 |     0 |     0 |
-| politica |    15 |     1 |    15 |
-| soberano |    21 |     0 |     9 |
-
-**Ressalvas.** (i) Condicionar a mascara num movimento cambial *contemporaneo* e o tipo de selecao same-window que a camada BS existe para evitar; `e_brl_bs` mitiga, nao elimina. (ii) A classe politica e menor, entao xi_mp cai por razao mecanica de tamanho de amostra e **tem que ser lido junto com o numero de meses nao-nulos**.
+| d_cds_bp |   598 | -0.1912 | 0.1144 | -1.672 | 0.09508 |  0.17 |
+| d_embi_bp |   592 | -0.182 | 0.09377 | -1.941 | 0.05274 | 0.092 |
+| d_cds_bp_lag1 |   598 | 0.1904 | 0.08073 | 2.359 | 0.01864 | 0.0475 |
+| d_embi_bp_lag1 |   597 | 0.2476 | 0.09489 | 2.609 | 0.009316 | 0.025 |
+| d_lbrl |   596 | -0.03591 | 0.01653 | -2.173 | 0.03017 | 0.0675 |
+| d_slope_bp |   598 | -0.2277 | 0.3018 | -0.7544 | 0.4509 | 0.492 |
+| d_di10y_bp |   598 | -0.6157 | 0.3268 | -1.884 | 0.06002 | 0.119 |
 
 ## C — instrumento ortogonalizado ao risco
 
-`e_di_bs` residualizado no risco contemporaneo (d_embi_bp + d_lbrl): R2 = 0.1267.
+`e_di_bs` residualizado no risco contemporaneo, em tres degraus de severidade. `z_jk_bs_norisk` usa d_embi_bp + d_lbrl (R2 = 0.1267) e esta congelada como estava em 2026-07-31 para servir de self-test. `z_jk_bs_norisk_cds` acrescenta o CDS (d_embi_bp + d_lbrl + d_cds_bp, R2 = 0.1537) e e o limite inferior mais forte sobre os **valores**. `z_jk_bs_norisk_mask` re-deriva tambem a **mascara**.
 
 **E um limite inferior.** Politica legitimamente move spread soberano, entao ortogonalizar contra o risco contemporaneo super-remove. Sobreviver e descarte forte do confound; nao sobreviver e ambiguo.
 
+### Valores contra selecao
+
+Ortogonalizar so os **valores** deixa a **selecao** dos 62 dias intacta, contra a propria auditoria de fidelidade do projeto ("a forca vive na mascara"). Por isso a perna de acoes tambem e ortogonalizada na mesma RHS e a regra de sinal do JK e re-derivada nos residuos duplos: o bloco de risco explica **0.1537** de `e_di_bs` e **0.4040** de `e_ibov_bs`, e a mascara re-derivada retem **63 dias**, dos quais **50 dos 62** de producao sobrevivem e **13** entram.
+
+| conjunto | n | r2_risco |
+|---|---|---|
+| producao (jk_bs) |    62 |    NA |
+| re-derivada no risco (jk_bs_norisk) |    63 | 0.1537 |
+| intersecao |    50 | 0.404 |
+| dias Copom sem proxy de risco |     2 |    NA |
+
 ## Forca: xi_mp por variante
 
-| amostra | instrumento | meses_nao_nulos | xi_mp | wald_conjunta | f_factor |
-|---|---|---|---|---|---|
-| full | z_jk_bs_purif |    62 | 10.43 | 13.99 | 6.313 |
-| full | z_jk3_policy |    31 | 3.515 | 4.864 | 1.797 |
-| full | z_jk3_sov |    30 | 3.499 | 6.639 | 4.954 |
-| full | z_jk3_policy_em |    24 | 0.8928 |  5.91 |  2.13 |
-| full | z_jk3_sov_em |    37 |  7.77 | 11.34 | 6.949 |
-| full | z_jk_bs_norisk |    60 | 10.72 | 14.59 | 6.476 |
-| pre_covid | z_jk_bs_purif |    31 | 12.22 | 16.22 | 3.093 |
-| pre_covid | z_jk3_policy |    11 | 2.821 | 6.548 | 3.477 |
-| pre_covid | z_jk3_sov |    19 | 7.142 | 12.68 | 4.946 |
-| pre_covid | z_jk3_policy_em |     7 | 2.765 | 7.828 |   1.1 |
-| pre_covid | z_jk3_sov_em |    24 | 11.54 | 15.98 |  2.62 |
-| pre_covid | z_jk_bs_norisk |    30 | 8.177 |  11.2 | 2.224 |
+| amostra | instrumento | meses_nao_nulos | xi_mp | wald_conjunta | f_factor | impacto_mp_pre | denom_vs_prod | ar_limitada | bandas_validas |
+|---|---|---|---|---|---|---|---|---|---|
+| full | z_jk_bs_purif |    62 | 10.43 | 13.99 | 6.313 | 8.636e-05 |     1 | TRUE | TRUE |
+| full | z_jk_bs_norisk |    60 | 10.72 | 14.59 | 6.476 | 8.509e-05 | 0.9853 | TRUE | TRUE |
+| full | z_jk_bs_norisk_cds |    60 | 12.68 | 15.81 | 7.486 | 9.501e-05 |   1.1 | TRUE | TRUE |
+| full | z_jk_bs_norisk_mask |    63 |  5.57 | 12.56 | 14.21 | 6.267e-05 | 0.7257 | TRUE | FALSE |
+| pre_covid | z_jk_bs_purif |    31 | 12.22 | 16.22 | 3.093 | 5.221e-05 |     1 | TRUE | TRUE |
+| pre_covid | z_jk_bs_norisk |    30 | 8.177 |  11.2 | 2.224 | 4.725e-05 | 0.9051 | TRUE | FALSE |
+| pre_covid | z_jk_bs_norisk_cds |    30 | 9.932 | 13.03 | 2.893 | 5.162e-05 | 0.9888 | TRUE | FALSE |
+| pre_covid | z_jk_bs_norisk_mask |    30 | 10.94 | 16.15 | 5.637 | 6.209e-05 | 1.189 | TRUE | TRUE |
+
+`ar_limitada` e ξ_mp > 3,84 (conjunto AR de 95% limitado); `bandas_validas` e ξ_mp ≥ 10.
+
+**Os dois canais andam em direcoes opostas, e e o resultado central do teste C.** Ortogonalizar os **valores** ao risco contemporaneo *aumenta* ξ_mp, de 10,43 na producao para 10,72 com EMBI e cambio e 12,68 com o CDS. Re-derivar a **mascara** sobre os mesmos residuos derruba para 5,57 na amostra cheia, uma queda de 4,86, porque o bloco de risco explica 15.4% de `e_di_bs` mas 40.4% de `e_ibov_bs` e a perna de acoes e metade da regra de sinal. O conjunto AR continua limitado, mas abaixo de 10 as bandas convencionais deixam de valer, entao a variante de mascara sustenta sinal e direcao, nao intervalo.
+
+Na janela pre-COVID o ordenamento se inverte, com a variante de mascara em 10,94 contra 12,22 da producao, o que diz que a queda na amostra cheia vem do periodo em que juros e risco soberano se moveram juntos e nao de um defeito da re-derivacao.
+
+⚠ **Por que uma variante ortogonalizada pode imprimir respostas MAIORES, e por que isso nao e evidencia a favor.** `impacto_mp_pre` e a resposta de `yield_6m` no impacto **antes** da normalizacao, isto e o denominador pelo qual cada IRF da celula e dividida, e `denom_vs_prod` o poe em razao da producao. Onde ele encolhe, toda a IRF da celula cresce por aritmetica, sem que nada de economico tenha mudado. E o mesmo mecanismo que a classe `unstable_normalization` da taxonomia do sweep monitora (`R/identification/spec_sweep.R`), e por isso a leitura de magnitude entre variantes so vale com essa coluna ao lado.
 
 ## IRFs no impacto (h = 0)
+
+Celulas sig90 por variante: z_jk_bs_norisk_mask 53, z_jk_bs_purif 36, z_jk_bs_norisk_cds 35.
 
 | instrumento | variavel | ponto | lo68 | hi68 | lo90 | hi90 | sig90 |
 |---|---|---|---|---|---|---|---|
@@ -148,37 +179,24 @@ Concordancia entre as duas regras (linhas = FX, colunas = EMBI):
 | z_jk_bs_purif | asset_ibov | -1.673 | -5.429 | 0.3111 | -7.771 | 1.759 | FALSE |
 | z_jk_bs_purif | price_ipca | -0.07025 | -0.2237 | 0.06013 | -0.3708 | 0.1428 | FALSE |
 | z_jk_bs_purif | price_ipp | 0.5859 | 0.3746 | 0.9366 | 0.2099 | 1.172 | TRUE |
-| z_jk3_policy | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk3_policy | yield_2y | 0.008519 | 0.006863 | 0.01098 | 0.005805 | 0.01315 | TRUE |
-| z_jk3_policy | yield_5y | 0.007935 | 0.005821 | 0.01171 | 0.0042 | 0.01503 | TRUE |
-| z_jk3_policy | cambio_usd | 0.1289 | 0.04758 | 0.2403 | -0.009624 | 0.4033 | FALSE |
-| z_jk3_policy | embi_perc | 0.1028 | -0.007987 | 0.328 | -0.1602 | 0.5111 | FALSE |
-| z_jk3_policy | cds_5y | 18.94 | 6.645 | 42.34 | -6.527 | 61.21 | FALSE |
-| z_jk3_policy | asset_ibov | 1.524 | -4.462 |  5.63 | -8.747 |  11.8 | FALSE |
-| z_jk3_policy | price_ipca | -0.1126 | -0.446 | 0.09922 | -0.9939 | 0.2563 | FALSE |
-| z_jk3_policy | price_ipp | 0.3817 | -0.0433 | 0.8572 | -0.4368 |  1.29 | FALSE |
-| z_jk3_sov | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk3_sov | yield_2y | 0.009635 | 0.008218 | 0.01241 | 0.007355 | 0.01549 | TRUE |
-| z_jk3_sov | yield_5y | 0.01025 | 0.008615 | 0.01434 | 0.007438 | 0.01898 | TRUE |
-| z_jk3_sov | cambio_usd | 0.1649 | 0.1153 | 0.2738 | 0.08084 | 0.3923 | TRUE |
-| z_jk3_sov | embi_perc | 0.2701 | 0.1947 | 0.5167 | 0.1179 | 0.7287 | TRUE |
-| z_jk3_sov | cds_5y | 36.45 | 28.37 | 63.07 | 21.33 |  85.5 | TRUE |
-| z_jk3_sov | asset_ibov | -4.004 | -8.397 | -1.889 | -12.6 | 0.04504 | FALSE |
-| z_jk3_sov | price_ipca | -0.03937 | -0.2194 | 0.1281 | -0.3777 | 0.237 | FALSE |
-| z_jk3_sov | price_ipp | 0.7348 | 0.505 | 1.195 | 0.3126 | 1.664 | TRUE |
-| z_jk_bs_norisk | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk_bs_norisk | yield_2y | 0.008906 | 0.007584 | 0.01126 | 0.006899 | 0.01258 | TRUE |
-| z_jk_bs_norisk | yield_5y | 0.008786 | 0.007308 | 0.01213 | 0.006462 | 0.01431 | TRUE |
-| z_jk_bs_norisk | cambio_usd | 0.1453 | 0.1022 | 0.2244 | 0.07555 | 0.2936 | TRUE |
-| z_jk_bs_norisk | embi_perc | 0.1624 | 0.1066 | 0.3431 | 0.0489 | 0.4575 | TRUE |
-| z_jk_bs_norisk | cds_5y | 25.56 | 19.27 | 44.37 | 13.49 | 57.84 | TRUE |
-| z_jk_bs_norisk | asset_ibov | -0.3634 | -4.143 | 1.643 | -6.119 | 3.642 | FALSE |
-| z_jk_bs_norisk | price_ipca | -0.07776 | -0.2246 | 0.05953 | -0.3944 | 0.1441 | FALSE |
-| z_jk_bs_norisk | price_ipp | 0.5436 | 0.3246 | 0.8981 | 0.1617 | 1.143 | TRUE |
+| z_jk_bs_norisk_cds | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
+| z_jk_bs_norisk_cds | yield_2y | 0.008975 | 0.007632 | 0.01141 | 0.006952 | 0.01266 | TRUE |
+| z_jk_bs_norisk_cds | yield_5y | 0.008907 | 0.007448 | 0.0121 | 0.006546 | 0.01406 | TRUE |
+| z_jk_bs_norisk_cds | cambio_usd | 0.1392 | 0.09984 | 0.2136 | 0.07191 | 0.2754 | TRUE |
+| z_jk_bs_norisk_cds | embi_perc | 0.1749 | 0.1207 | 0.3473 | 0.06733 | 0.4546 | TRUE |
+| z_jk_bs_norisk_cds | cds_5y | 26.34 | 20.25 | 44.14 | 14.64 |  56.3 | TRUE |
+| z_jk_bs_norisk_cds | asset_ibov | -0.9627 | -4.545 | 0.7064 | -6.364 |  2.59 | FALSE |
+| z_jk_bs_norisk_cds | price_ipca | -0.05913 | -0.1966 | 0.06622 | -0.3382 | 0.1478 | FALSE |
+| z_jk_bs_norisk_cds | price_ipp | 0.5301 | 0.3333 | 0.8717 | 0.1723 |  1.09 | TRUE |
+| z_jk_bs_norisk_mask | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
+| z_jk_bs_norisk_mask | yield_2y | 0.01147 | 0.009689 | 0.01559 | 0.008535 | 0.01962 | TRUE |
+| z_jk_bs_norisk_mask | yield_5y | 0.01375 | 0.01122 | 0.02005 | 0.0098 | 0.02609 | TRUE |
+| z_jk_bs_norisk_mask | cambio_usd | 0.2479 | 0.1823 | 0.3959 |  0.14 | 0.5363 | TRUE |
+| z_jk_bs_norisk_mask | embi_perc | 0.5464 | 0.4148 | 0.9342 | 0.327 | 1.299 | TRUE |
+| z_jk_bs_norisk_mask | cds_5y | 63.86 | 49.55 | 102.9 | 40.41 | 143.9 | TRUE |
+| z_jk_bs_norisk_mask | asset_ibov | -11.78 | -20.57 | -9.129 | -28.92 | -7.192 | TRUE |
+| z_jk_bs_norisk_mask | price_ipca | 0.0823 | -0.06918 | 0.2541 | -0.2084 | 0.4108 | FALSE |
+| z_jk_bs_norisk_mask | price_ipp | 1.221 | 0.877 | 1.894 | 0.6755 | 2.597 | TRUE |
 
 Trajetorias completas em `jk_sovereign_irf_overlay.pdf`; celulas em `jk_sovereign_confound.csv`.
-
-## D — auditoria narrativa
-
-`jk_sovereign_days.csv`: 95 dias Copom com surpresa, residuos, variacao de risco Qua->Qui, classe de tres vias e peso no |z| do mes e da amostra, ordenados por alavancagem. A coluna `nota_evento` esta vazia para anotacao.
 

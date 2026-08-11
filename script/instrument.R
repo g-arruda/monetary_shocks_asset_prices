@@ -91,13 +91,7 @@ dgs2_daily <- read_csv("data/fred_dgs2.csv", show_col_types = FALSE) |>
 
 copom_wed <- load_copom_wednesdays(from = LOAD_START, to = SAMPLE_END)
 
-fomc_path <- "data/fomc_dates.csv"
-fomc_dates <- if (file.exists(fomc_path)) {
-  read_csv(fomc_path, show_col_types = FALSE) |>
-    transmute(date = as.Date(date)) |> pull(date)
-} else {
-  as.Date(character(0))
-}
+fomc_dates <- load_fomc_dates(from = LOAD_START, to = SAMPLE_END)
 
 # ---- Build ------------------------------------------------
 # The chain lives in R/instrument/build_variants.R so the vertex and the

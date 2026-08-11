@@ -11,7 +11,7 @@
 # comparison would be most visible, has zero sig90 cells in 392. The
 # canonical paper, texto_anpec/paper_anpec.tex, never made this claim.
 #
-# This is the R translation of codigo_alessi-mark/MAIN_VARloop.m, which
+# This is the R translation of codigos_externos/codigo_alessi-mark/MAIN_VARloop.m, which
 # is what produces Figures 1-4 of the replicated paper. What the
 # original code fixes, and this driver follows:
 #
@@ -533,7 +533,7 @@ md <- c(
   "> **execução — não escrever prosa aqui.** A leitura interpretativa fica em",
   "> `relatorio/working-notes/2026-07-31_benchmark_var_vs_dfm.md`.",
   "",
-  sprintf("Tradução de `codigo_alessi-mark/MAIN_VARloop.m`. Core `{%s}`, `mp_var = %s` (a terceira core, como em `RUN_MAIN_US.m:9`), %d VARs de 4 variáveis, p = %d, h = %d, nboot = %d, seed = %d, bandas %s, instrumento `%s`, painel %d x %d (%s a %s).",
+  sprintf("Tradução de `codigos_externos/codigo_alessi-mark/MAIN_VARloop.m`. Core `{%s}`, `mp_var = %s` (a terceira core, como em `RUN_MAIN_US.m:9`), %d VARs de 4 variáveis, p = %d, h = %d, nboot = %d, seed = %d, bandas %s, instrumento `%s`, painel %d x %d (%s a %s).",
           paste(CORE_VARS, collapse = ", "), MP_VAR, length(RESPONSES),
           P_LAGS, HORIZON, N_BOOT, BOOT_SEED,
           paste0(CI_LEVELS * 100, "%", collapse = "/"), INSTRUMENT,

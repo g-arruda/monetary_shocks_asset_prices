@@ -188,8 +188,11 @@ magnitude que estimam.
 
 ## Aberto daqui
 
-- **Redigir isso no `tex`**, e reescrever `tex/main.tex:183`. Bloqueado pelo item
-  "§5 Robustez está inteira comentada".
+- **Redigir isso no `tex`**, e reescrever `tex/main.tex:183`. *(2026-08-09: o
+  bloqueio caiu — `texto_anpec/paper_anpec.tex` tem `§5 Robustez` desde essa
+  data, e o benchmark entra na subseção de especificação do modelo, a 5ª da
+  composição de `2026-08-01_tier_list_robustez.md` §7. A frase do `:183` só
+  sobrevive no draft arquivado.)*
 - **Variante Cholesky**, se o autor quiser sustentar a comparação "com a
   literatura" e não só "com um VAR pequeno". Custo marginal baixo — é a mesma
   estimação com outro `B0`.

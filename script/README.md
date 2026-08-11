@@ -1,12 +1,13 @@
 # `script/` — o que cada arquivo faz
 
-25 scripts, organizados por tema (não por subpasta — ver a decisão em
+28 scripts, organizados por tema (não por subpasta — ver a decisão em
 `_instrucoes/pendencias.md` sobre manter isto flat: mover para subpastas
 quebraria dezenas de referências de caminho no `CLAUDE.md`, no `run_all.R` e
 em working-notes). Cinco scripts que faziam parte de uma investigação já
 superada (contaminação de IRF, 2026-07-15/16) foram arquivados em
 `arquivo/script/` em 2026-08-01, e `diagnose_factor_space_F.R` em 2026-08-05
-— ver `arquivo/README.md` se precisar deles.
+— ver `arquivo/README.md` se precisar deles. `fomc_coincidence.R` entrou em
+2026-08-10.
 
 Todo script aqui é carga viva de uma de duas coisas: reproduzir
 `texto_anpec/paper_anpec.tex` ou sustentar um item da tier list de robustez
@@ -20,7 +21,7 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 
 | script | o que faz |
 |---|---|
-| `run_all.R` | Orquestrador fim-a-fim: roda 8 estágios nomeados (`di`, `external_factors`, `focus_fred`, `ibov`, `download`, `clean`, `instrument`, `model`), cada um como subprocesso `Rscript` via `system2`, com `--list/--dry-run/--from/--to/--only/--skip/--skip-existing/--continue-on-error`. Faz checagem de pré-condição (`requires`/`produces`) por estágio. O estágio `model` só chama `model_alessi.R` — não roda `model_var.R` nem scripts de diagnóstico/sweep. |
+| `run_all.R` | Orquestrador fim-a-fim: roda 9 estágios nomeados (`di`, `external_factors`, `focus_fred`, `fomc`, `ibov`, `download`, `clean`, `instrument`, `model`), cada um como subprocesso `Rscript` via `system2`, com `--list/--dry-run/--from/--to/--only/--skip/--skip-existing/--continue-on-error`. Faz checagem de pré-condição (`requires`/`produces`) por estágio. O estágio `model` só chama `model_alessi.R` — não roda `model_var.R` nem scripts de diagnóstico/sweep. |
 | `download.R` | Puxa séries do BCB (juros, crédito, consumo, atividade, indústria, emprego, inflação, commodities), câmbio, breakeven (ANBIMA via `rb3`), os 8 índices B3 (retorno mensal composto), risco (EMBI/CDS/MSCI/SP500-VIX de CSVs do investing.com), EPU, e lê a curva de juros fornecida pelo orientador (`data/yields/yields_dia.csv`, sem etapa de ajuste). Escreve `data/raw_data.csv`. |
 | `clean.R` | Filtra o painel para 2013-01–2025-09, descarta colunas 100% NA, aplica log nas variáveis nominais, e ajuste sazonal X-13 (3 níveis de fallback) via `R/preprocessing/seasonality.R`. Escreve `data/processed/data_log_deseasonalized.csv`. |
 | `instrument.R` | Constrói as 10 variantes mensais de instrumento (família GK/JK/BS) a partir das surpresas de DI em dia de Copom, via `R/instrument/{di_surprise,build_variants}.R` (`TARGET_BD=126`, variante padrão `z_jk_bs_purif`). Escreve `data/processed/instrumentos_mensais.csv`, os 10 CSVs por variante, e o legado `data/processed/instrument.csv`. |
@@ -40,8 +41,10 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | `instrument_diagnostics.R` | Compara as variantes de instrumento em **um único resíduo de DFM** compartilhado (r=8,q=8,p=6): F parcial vs. resíduo do DFM, F vs. inovação AR(6) de `yield_6m`, bloco Wald MOSW por variante, dispersão Copom-dia, e teste F de variância Copom vs. não-Copom. Escreve `output/instrument/instrument_diagnostics_report.md` + um PNG. |
 | `mosw_strength_grid.R` | Grid do bloco Wald MOSW (ξ_mp, Wald conjunto, ξ_k por fator, max-F legado) sobre `(r,q) ∈ {5..8}×{4..r}` × 2 janelas amostrais × 8 variantes de instrumento — a régua de força de referência do projeto. Escreve `output/instrument/mosw_strength_grid.{csv,md}`. |
 | `xi_mp_robustness.R` | Robustez leave-one-month-out + NW(0..6) de ξ_mp com o DFM fixo (só o momento Γ é recomputado). Escreve `output/instrument/xi_mp_robustness.{csv,md}`. |
+| `ar_bands.R` | Inverte o teste de Anderson-Rubin de Montiel Olea-Stock-Watson sobre o DFM-IV, via `R/identification/weak_iv_ar.R`: conjunto AR + limites de delta-method para as 106 séries × 49 horizontes × {68, 90, 95}% × {full, pre_covid}, comparados às bandas de bootstrap da produção. Reestima o DFM (barato, sem bootstrap) porque `irf_coherence_cell.rds` guarda a IRF, não o DFM. Seis `stopifnot` gateiam a rodada — entre eles o ponto reproduzindo `irf_coherence_h.csv` e ξ_mp reproduzindo `mosw_strength_grid.csv`. Escreve `output/irf/ar_bands.{csv,md}`, `ar_bands_summary.csv`, `ar_bands_overlay.pdf`. |
 | `instrument_construction_sweep.R` | Varre as 2 escolhas de construção não documentadas — vértice de DI (13 valores) × esquema de agregação {soma, GK} × 5 variantes × 2 janelas — pontuado por ξ_mp na especificação de produção (7,6). Escreve `output/instrument/instrument_construction_sweep.{csv,md}` + `vertex_irf_overlay.pdf`. |
-| `jk_sovereign_confound.R` | Testa se o filtro de sinal JK seleciona surpresas de risco soberano em vez de choques monetários: reconstrói o painel diário de quintas-feiras, junta proxies de EMBI+/BRL/curva DI, roda 4 testes. Auto-testes contra `copom_event_diagnostics.csv`, `mosw_strength_grid.csv`, e um smoke test de IRF h0. Escreve `output/instrument/jk_sovereign_confound.{csv,md}`, `jk_sovereign_days.csv`, `jk_sovereign_irf_overlay.pdf`. |
+| `jk_sovereign_confound.R` | Testa se o filtro de sinal JK seleciona surpresas de risco soberano em vez de choques monetários: reconstrói o painel diário de quintas-feiras, junta proxies de **CDS 5a** (`data/CDS 5y.xlsx`, Bloomberg) / EMBI+ / BRL / curva DI, roda 2 testes nas duas proxies de risco. **A** é a regressão diária por conjunto de dias mais a interação `x:1(jk_bs)`, que é a estatística que decide; **C** ortogonaliza a surpresa ao risco contemporâneo em três degraus, o último re-derivando também a **máscara** nos resíduos das duas pernas (`z_jk_bs_norisk_mask`, 2026-08-10). O veredito do EMBI é o pré-registrado e vem primeiro; o do CDS usa a **mesma** `verdict_for()`. Os testes B (três vias) e D (tabela datada) foram removidos em 2026-08-10 — ver `_instrucoes/historico_decisoes.md` §2.4. Cinco auto-testes: `copom_event_diagnostics.csv`, `mosw_strength_grid.csv`, smoke test de IRF h0, CDS diário × `cds_5y` mensal do painel, e `z_jk_bs_norisk` reproduzindo ξ_mp 10,72 (por isso sua RHS é congelada sem o CDS). Escreve `output/instrument/jk_sovereign_confound.{csv,md}` e `jk_sovereign_irf_overlay.pdf`. |
+| `fomc_coincidence.R` | Testa a ameaça irmã da anterior: o filtro seleciona **spillover do FOMC** em vez de choque do Copom? Exige `data/fomc_dates.csv` (`R/data_download/fomc_dates.R`), sem o qual a flag `fomc_coincide` era sempre FALSE. Quatro seções: timing (a notícia do Fed cai antes ou dentro da janela Qua→Qui?), contabilidade da exposição, regressão de `e_di_bs` no bloco americano contemporâneo sobre 6 conjuntos de dias + 2 interações, e máscara **re-derivada** nos resíduos duplos, que separa o canal de valores do de seleção — com IRFs de bootstrap completo nas 2 variantes que o veredito lê. Regra de leitura fixada no cabeçalho antes dos números; a divisão em metades com/sem FOMC e a terceira perna da regra que ela alimentava saíram em 2026-08-10, com o registro do corte no cabeçalho. Quatro auto-testes, entre eles `copom_event_diagnostics.csv` e ξ_mp 10,43/12,22. Escreve `output/instrument/fomc_coincidence.{csv,md}`, `fomc_coincidence_days.csv`, `fomc_coincidence_irf_overlay.pdf`. |
 
 ## 4. Sweep de especificação IRF / coerência
 
@@ -79,10 +82,11 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | script | o que faz |
 |---|---|
 | `validate_hac_kernel.R` | Valida a opção Newey-West de `compute_factor_space_wald` de duas formas: (A) transcrição literal de `NW_hac_STATA.m` vs. o kernel embutido nos lags 0-8 em dado sintético; (B) fim-a-fim contra o fixture oficial `TaxSVARIV.m` (NWlags=8). Só console, com `stopifnot`; degrada com "SKIPPED" se o fixture faltar. |
-| `validate_olea_kilian.R` | Reproduz os números publicados de Montiel Olea-Stock-Watson (2021) no caso Kilian-oil (ξ₁=4.4, F robusto=9.4) a partir de `codigo_olea/Data/Oil/`. Só console, com `stopifnot`. |
+| `validate_olea_kilian.R` | Reproduz os números publicados de Montiel Olea-Stock-Watson (2021) no caso Kilian-oil (ξ₁=4.4, F robusto=9.4) a partir do fixture `output/validation/olea_oil_fixture.rds`. Confere de quebra que o VAR reestimado aqui bate com o `RForm` dos autores. Apontava para `codigo_olea/Data/Oil/` e estava **quebrado** desde a migração do código de referência para `codigos_externos/` (repontado em 2026-08-10). Só console, com `stopifnot`. |
+| `validate_mosw_ar.R` | Valida `R/identification/weak_iv_ar.R` contra a aplicação do petróleo dos próprios autores: com `Load = Inner = I` as três funções recaem no MOSW original, então compara `WHat`, os coeficientes da quadrática, `MSWlbound/ubound`, os limites de delta-method e `casedummy` nos ramos cumulativo e não-cumulativo, a 68% e 95%. Fixture `output/validation/olea_oil_fixture.rds`; degrada com "SKIPPED" se faltar. |
 
 ## Notas cruzadas
 
-- **`rm(list=ls())`**: presente em 20 dos 25 arquivos. Ausente em `download.R`, `instrument.R`, `instrument_diagnostics.R`, `validate_hac_kernel.R` e `validate_olea_kilian.R` — os cinco são pensados para rodar em processo `Rscript` próprio, não para ser `source()`ados numa sessão existente.
+- **`rm(list=ls())`**: presente em 22 dos 28 arquivos. Ausente em `download.R`, `instrument.R`, `instrument_diagnostics.R`, `validate_hac_kernel.R`, `validate_olea_kilian.R` e `validate_mosw_ar.R` — os seis são pensados para rodar em processo `Rscript` próprio, não para ser `source()`ados numa sessão existente.
 - **Guarda `sys.nframe() == 0`**: só `model_var.R` (via `run_benchmark()`).
 - Nenhum script deste diretório é chamado por outro script deste diretório, exceto através de `run_all.R` (estágios) ou de `source()` de módulos em `R/`.

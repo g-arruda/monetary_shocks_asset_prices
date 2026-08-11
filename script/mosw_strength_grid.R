@@ -167,7 +167,7 @@ sections <- c(
           P_LAGS, MP_VAR),
   "",
   "Estatísticas definidas em `output/instrument/olea_alignment_audit.md` e",
-  "validadas contra o código oficial (`codigo_olea/`) e os números publicados",
+  "validadas contra o código oficial (`codigos_externos/codigo_olea/`) e os números publicados",
   "(Kilian oil: ξ₁ = 4.4, F robusta = 9.4 — `script/validate_olea_kilian.R`).",
   "Régua de leitura:",
   "",

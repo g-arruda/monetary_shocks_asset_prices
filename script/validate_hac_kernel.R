@@ -1,6 +1,6 @@
 # ============================================================
 # Validation of the Newey-West option of compute_factor_space_wald
-# against the authors' own MATLAB suite (codigo_olea/,
+# against the authors' own MATLAB suite (codigos_externos/codigo_olea/,
 # github.com/jm4474/SVARIV). Two independent checks:
 #
 #   A. Kernel.  A literal line-by-line transcription of
@@ -23,7 +23,7 @@
 #      and B is the measurement. It is sharp: only lags = 8 matches.
 #
 # Fixture: output/validation/olea_tax_{eta,z,X,WHat_gamma}.csv,
-# extracted once from Tax_RForm.mat (codigo_olea/ is gitignored, so
+# extracted once from Tax_RForm.mat (codigos_externos/codigo_olea/ is gitignored, so
 # the .mat is not assumed present). Provenance in the working note
 # relatorio/working-notes/2026-07-27_robustez_xi_mp_e_construcao.md.
 # ============================================================

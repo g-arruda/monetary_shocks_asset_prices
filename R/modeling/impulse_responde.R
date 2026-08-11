@@ -185,9 +185,9 @@ compute_factor_space_F <- function(eta, Z) {
 #'   (lags of the factors; a constant is added internally).
 #' @param nw_lags Newey-West truncation lag for W. The default 0 is the
 #'   Eicker-White estimator and reproduces `NWlags = 0` of the oil application
-#'   (`codigo_olea/OilSVARIV.m:50`), which is what every existing caller and
+#'   (`codigos_externos/codigo_olea/OilSVARIV.m:50`), which is what every existing caller and
 #'   every published number in this project assume. Values > 0 apply the
-#'   Bartlett kernel of `codigo_olea/functions/RForm/NW_hac_STATA.m`. Only
+#'   Bartlett kernel of `codigos_externos/codigo_olea/functions/RForm/NW_hac_STATA.m`. Only
 #'   needed when the moment z_t eta_t is serially correlated — e.g. under a
 #'   Gertler-Karadi position-weighted monthly aggregation, which splits each
 #'   event surprise across t and t+1 and so induces an MA(1). The official

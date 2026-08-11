@@ -1,0 +1,50 @@
+# Repository Guidelines
+
+## Project and authoritative context
+
+This project adapts Alessi and Kerssenfischer's large-dimensional DFM identification strategy to Brazilian monetary shocks and asset prices. Before proposing methodology or interpreting results, read `README.md`, `_instrucoes/Instrumento.md`, `_instrucoes/pendencias.md`, and `_instrucoes/historico_decisoes.md`. The decision history is mandatory: do not revive rejected specifications or re-derive closed questions without new evidence. Use the dated working notes and generated reports as provenance, and heed banners marking an analysis as superseded.
+
+The current paper is `texto_anpec/paper_anpec.tex`. `arquivo/tex/` is an archived prose source, not an active manuscript. The written results source is `output/irf/irf_section.md`; confirm numerical claims against the underlying CSV/RDS artifacts.
+
+## Pipeline
+
+Run from the repository root. The main order is:
+
+1. `script/download.R` writes `data/raw_data.csv`.
+2. `script/clean.R` writes `data/processed/data_log_deseasonalized.csv`.
+3. `script/instrument.R` builds the eight monthly instrument variants through `R/instrument/build_variants.R`.
+4. `script/model_alessi.R` estimates the DFM; `script/model_var.R` is the small-VAR benchmark.
+5. `script/run_all.R` orchestrates declared stages and prerequisites.
+
+Read `script/README.md` before selecting diagnostics or validation scripts. Run only the relevant stage for local changes; expensive production/bootstrap runs require deliberate scope. There is no conventional unit-test suite, linter, or package build. Validation scripts and their committed fixtures are the executable checks. Preserve their fail-loud behavior and inspect `git diff --check` plus explicit `git status --short` paths before committing.
+
+## Identification and model invariants
+
+- The production instrument is `z_jk_bs_purif`, selected by `DEFAULT_VARIANT`. The eight surviving variants and their exact construction are defined in the current instrument documentation and builder; do not reconstruct them from prose or archived code.
+- `data/fomc_dates.csv` is a hard input to the instrument stage and is produced by `R/data_download/fomc_dates.R`. Missing event-date data must abort, never become an empty silent fallback.
+- `data/yields/yields_dia.csv` and `data/CDS 5y.xlsx` are fixed external inputs with no repository producer. Treat them as read-only. Do not claim the yield curve is reproducible from this repository.
+- The monthly sample is 2013-01 through 2025-09 with 106 series. The policy normalization variable is `yield_6m`, with a +50 bp impact shock.
+- Use `res$irfs`, not `res$irf`, and recover variable names from the estimation data. Preserve the documented factor-space dimensions and normalization when comparing IRFs.
+- Factor selection uses the BLL-standardized Bai–Ng/Amengual–Watson variants. Plain Bai–Ng (2002) is inappropriate because the panel is non-stationary by design.
+- Weak-IV conclusions are governed by the factor-space MOSW statistics and, where relevant, the implemented Anderson–Rubin inversion—not by legacy first-stage rulers alone. Do not change confidence-band interpretation or attribution without checking the current reports and pending-items file.
+
+For changes to the estimation core, reproduce the current impact smoke test documented in the source guidance or current validation scripts before accepting results. Compare at least `yield_6m`, `yield_2y`, `yield_5y`, `asset_ibov`, and `cambio_usd`; do not update expected values merely to make a changed implementation pass.
+
+## Repository boundaries
+
+- `R/` contains reusable modules; nothing there should source a file from `script/`.
+- `script/` contains entry points and diagnostics. Keep orchestration out of reusable modules.
+- `diagnostics/` audits the production artifacts and must not mutate estimation code or production outputs.
+- `codigos_externos/` is gitignored, read-only reference code. Production and validation paths must use project-owned implementations or committed fixtures.
+- `arquivo/` is preserved historical material. No live path may source from it or write into it.
+- `data/` is gitignored. `output/` contains tracked estimation artifacts; regenerate only those owned by the stage you ran and record the producing script.
+
+## Coding, figures, and prose
+
+Use English for code, identifiers, and code comments; Portuguese is appropriate in `_instrucoes/`, reports, and the paper. Keep comments limited to non-obvious methodological choices. Use `ggplot2` for paper figures and preserve the established shaded 80% and 90% band style. Fail clearly on missing inputs, dimension mismatches, and invalid numerical states. Never fabricate fallback data or silently substitute a different estimator.
+
+When results change, distinguish a specification change from an implementation bug, update the relevant authoritative note/report, and keep generated prose synchronized with source tables. Do not describe 68% bands as statistical significance where the project's two-tier reading rule reserves “significativo” for the 90% band.
+
+## Git hygiene
+
+The worktree often contains active research changes and regenerated artifacts. Preserve unrelated modifications, stage explicit paths only, and never use broad staging. Commit messages should describe the research, identification, code, or result change. Do not add AI attribution.

@@ -310,8 +310,10 @@ impreciso, é **dinamicamente redundante** em relação ao curto prazo.
 
 ## Aberto daqui
 
-- **Redigir a ressalva no §4** e o parágrafo em Limitações. Bloqueado pelo item
-  "§5 Robustez está inteira comentada".
+- **Redigir a ressalva no §4** e o parágrafo em Limitações. *(2026-08-09: a §5 de
+  `texto_anpec/paper_anpec.tex` existe, mas com duas subseções apenas, e
+  **Limitações não é uma delas** — o parágrafo continua sem lugar. A ressalva do
+  §4 é independente e pode ser escrita já.)*
 - **Bandas de banda simultânea** (Montiel Olea-Plagborg-Møller 2021), pedida pelo
   metodologista no mesmo review: com a reversão dominada por um único modo, as
   bandas pontuais horizonte a horizonte são especialmente enganosas ao longo do

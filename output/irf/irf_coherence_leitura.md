@@ -154,13 +154,21 @@ prior forte aqui, e forçar um não seria honesto.
 > na frequência diária e **não confirmou**: nas 498 quintas não-Copom, ΔEMBI
 > carrega a surpresa com coef 0,326 (t = 3,97, R² 0,13); nos 62 dias retidos,
 > apenas 0,099 (R² 0,04) — a máscara **empobrece** o conteúdo de risco em vez de
-> enriquecê-lo, e as interações são negativas nas quatro proxies. Uma
-> classificação de três vias parte os 62 em 31 política / 30 soberano e **não
-> inverte nenhum sinal**; os 31 dias "política", selecionados por *apreciação*
-> diária do BRL, ainda entregam **depreciação** mensal (+0,129). **Ressalva que
-> fica:** os 5 dias de maior alavancagem valem 28,6% de Σ|z| e o maior é
-> 2021-10-27, a semana da PEC dos Precatórios. Leitura completa em
-> `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
+> enriquecê-lo, e as interações são negativas nas quatro proxies. Leitura
+> completa em `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
+>
+> **Confirmado em CDS 5a diário (2026-08-09), com uma ressalva a mais.** O mesmo
+> teste rodou na proxy que faltava (`data/CDS 5y.xlsx`): veredito idêntico,
+> mesma razão de ~3× (0,436 no controle contra 0,140 nos retidos), interação
+> −0,191. Como o CDS mede sem o arredondamento do EMBI — 0,5% de variações
+> exatamente zero contra 8,3% —, o nulo deixa de ser descartável como atenuação.
+> ⚠ **Mas o coeficiente dos 62 dias retidos é significativo no CDS** (p_boot
+> 0,003), então esta leitura sustenta "os dias retidos carregam **menos** risco
+> soberano que um dia comum", e **não** "não carregam". ⚠ A classificação de três
+> vias foi removida do script em 2026-08-10 por não ter primeiro estágio em
+> nenhuma das metades, e nada do que ela produziu é citável. Ver
+> `relatorio/working-notes/2026-08-09_confound_soberano_cds.md` e
+> `_instrucoes/historico_decisoes.md` §2.4.
 
 **Os três placebos passam.** `sp500_vix` (contém zero em 96% dos horizontes),
 `msci` (100%) e `epu_us` (100%).
@@ -202,7 +210,8 @@ impossível conferir a normalização a partir dos artefatos publicados.
   (contagens, tabelas por grupo); regerado a cada run.
 - `irf_coherence_h.csv` — ponto + bandas 68/90 + flags por horizonte, fonte de
   todos os números acima.
-- `relatorio/working-notes/2026-07-31_confound_soberano_jk.md` +
+- `relatorio/working-notes/2026-08-09_confound_soberano_cds.md` (corrente, duas
+  proxies) + `2026-07-31_confound_soberano_jk.md` (original) +
   `output/instrument/jk_sovereign_confound.{csv,md}` — o teste diário que absolve
   a máscara JK da acusação de selecionar risco soberano, e portanto sustenta a
   leitura de dominância fiscal dos quatro canais soft acima.

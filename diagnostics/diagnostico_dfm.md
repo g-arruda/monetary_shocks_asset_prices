@@ -6,8 +6,10 @@ Tarefas **6 e 7 foram acrescentadas na segunda rodada do mesmo dia**, junto
 com as correções B2, B3 e B4.
 
 Fora de escopo, declarado: a **Tarefa 8** (sensibilidade a r,q) não foi pedida,
-e a **inversão Anderson-Rubin** (item 4.3-4.4 do prompt) segue adiada — é o
-item #1 de `_instrucoes/pendencias.md`. Dentro da Tarefa 6, o item **6.3
+e a **inversão Anderson-Rubin** (item 4.3-4.4 do prompt) ficou adiada — era o
+item #1 de `_instrucoes/pendencias.md`. **Foi feita em 2026-08-10** e o
+resultado está no fim deste documento; o corpo da Tarefa 4 abaixo **não foi
+reescrito**, e continua sendo o registro do que se sabia em 07-28. Dentro da Tarefa 6, o item **6.3
 (juro real / NTN-B) é NÃO EXECUTÁVEL** por dependência de dado ausente, e isso
 está documentado em vez de contornado.
 
@@ -820,6 +822,17 @@ nem estatística (0 horizontes sig90) nem de seção cruzada.
 > A máscara empobrece o conteúdo de risco em vez de enriquecê-lo. Os resultados
 > desta tarefa seguem de pé como leitura de **regime**.
 >
+> **Reforçado em 2026-08-09 na proxy que esta seção usa como baseline.** O teste
+> passou a rodar também em **CDS 5a diário** (`data/CDS 5y.xlsx`), com o mesmo
+> veredito e a mesma razão de ~3× (0,436 no controle contra 0,140 nos retidos).
+> Isso importa aqui em particular porque a 7.4d migrou o baseline de EMBI para
+> **CDS** em 07-29: a proxy que decide a leitura de regime é agora a mesma que
+> absolve a máscara em frequência diária. ⚠ **Com uma ressalva que esta seção
+> tem de herdar:** no CDS o coeficiente dos 62 dias retidos é
+> **significativo** (p_boot 0,003) e não marginal como no EMBI — os dias retidos
+> carregam menos risco soberano que um dia comum, **não** zero. Ver
+> `relatorio/working-notes/2026-08-09_confound_soberano_cds.md`.
+>
 > Duas conexões que valem para ler a seção: (i) a síntese do council observou que
 > o achado desta tarefa — **o impacto cambial não é dependente de estado em
 > nenhum dos 7 indicadores** (|t| ≤ 1,14) — corta *contra* a leitura de
@@ -1532,13 +1545,24 @@ legíveis os números das três séries — `cds_5y` no impacto era "+2907" e é
 
 Riscados os itens que esta segunda rodada fechou.
 
-1. **Inversão Anderson-Rubin** (Tarefa 4.4, adiada). Segue sendo o item #1: é a
-   única forma de responder se a cadeia câmbio → risco → preços sobrevive a
-   inferência robusta a instrumento fraco. Alvo de tradução já no repo
-   (`codigo_olea/MSWfunction.m`). **A Tarefa 7.0 tornou isso mais urgente, não
-   menos:** o LP-IV independente confirma a cadeia com t entre 1,75 e 2,80, o que
-   diz que ela não é artefato do `Λ` — mas não diz nada sobre validade de banda
-   sob ξ_mp = 10,43.
+1. ~~**Inversão Anderson-Rubin** (Tarefa 4.4, adiada)~~ — **FEITA em
+   2026-08-10.** Era o item #1 porque é a única forma de responder se a cadeia
+   câmbio → risco → preços sobrevive a inferência robusta a instrumento fraco.
+   `R/identification/weak_iv_ar.R` (tradução da metade que faltava de
+   `codigos_externos/codigo_olea/MSWfunction.m`, validada contra a aplicação do
+   petróleo dos autores) + `script/ar_bands.R` →
+   `output/irf/ar_bands.{csv,md}`. **A resposta é sim, para essa cadeia:** o
+   conjunto AR é limitado em 31.164 de 31.164 células e **curva, câmbio e risco
+   soberano não perdem nenhuma célula sig90** — das 91, sobrevivem 87.
+   ⚠ **As 4 perdas são outro bloco:** 3 são o impacto de atividade em h=0
+   (`ind_bens_duraveis`, `ind_bens_capital`, `ind_transformacao`) mais
+   `cambio_eur` h3. ⚠ E a banda AR sai **mais estreita** que a de bootstrap
+   (0,646) porque condiciona em `Λ̂`, então não pode ser lida como confirmação
+   — a comparação limpa é contra o delta-method, e aí a correção de IV fraco
+   vale **+16,4%** de largura a 90%. Isto **não desfaz** a Tarefa 7.0: o LP-IV
+   independente continua dizendo que a cadeia não é artefato do `Λ`, e agora a
+   validade de banda sob ξ_mp = 10,43 também está medida. Detalhe:
+   `relatorio/working-notes/2026-08-10_bandas_anderson_rubin.md`.
 2. **Decomposição nível/inclinação/curvatura** da resposta da curva — testa H3,
    a única das três hipóteses de causa raiz ainda sem teste. Barato.
 3. **Completar o teste de H1** para `asset_ifix` e `price_core_ipca_ex0` por

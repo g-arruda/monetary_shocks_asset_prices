@@ -7,6 +7,14 @@
 # "o conjunto AR cobre zero em h=0-4?" nao tem resposta, e o script diz isso
 # explicitamente em vez de improvisar substituto.
 #
+# ATUALIZACAO 2026-08-10: a rodada separada aconteceu. A lacuna registrada em
+# t4_4_lacuna_AR.csv esta FECHADA — `R/identification/weak_iv_ar.R` +
+# `script/ar_bands.R` produzem o conjunto AR, e a adaptacao prevista abaixo
+# ("identifica nas q inovacoes e propaga por Lambda") e exatamente a que foi
+# feita. Nada aqui foi reestimado; o CSV fica como registro do que se sabia
+# em 07-28. Resultado em output/irf/ar_bands.md e na working-note
+# 2026-08-10_bandas_anderson_rubin.md.
+#
 # Saida: diagnostics/output/t4_*.csv
 # ===================================================================
 
@@ -142,9 +150,9 @@ t44 <- data.frame(
                           "abaixo de 10. As bandas percentil do wild bootstrap nao sao",
                           "validas nessa margem, e toda a cadeia cambio->risco->precos",
                           "depende de 4-6 horizontes significativos a 90%."),
-  alvo_de_traducao = paste("codigo_olea/functions/StructuralIRF/ARTestStatistic.m;",
-                           "codigo_olea/functions/Inference/GasydistbootsAR.m;",
-                           "codigo_olea/functions/Inference/MSWfunction.m"),
+  alvo_de_traducao = paste("codigos_externos/codigo_olea/functions/StructuralIRF/ARTestStatistic.m;",
+                           "codigos_externos/codigo_olea/functions/Inference/GasydistbootsAR.m;",
+                           "codigos_externos/codigo_olea/functions/Inference/MSWfunction.m"),
   adaptacao_necessaria = paste("a IRF aqui e Lambda*B*K*M*H, razao da mesma forma",
                                "(linear em Gamma sobre c'Gamma), entao a logica de",
                                "Fieller carrega — mas exige a adaptacao 'identifica nas",

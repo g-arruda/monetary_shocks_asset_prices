@@ -1,40 +1,35 @@
-# Handoff — 2026-08-02 (auditoria de bibliografia; .bbl corrigido)
-SESSLOG:[2026-08-02 15:53]
-<!-- written by: pop-os at 2026-08-02T15:53:58 -->
+# Handoff — 2026-08-10 (Baterias de confound enxugadas; máscara re-derivada fecha o "por completo")
+SESSLOG:[2026-08-10 20:30]
+<!-- written by: pop-os at 2026-08-10T20:30:30-03:00 -->
 *Project: monetary_shocks_asset_prices*
 
 ## Session Topic
-`/bibcheck` em `texto_anpec/references.bib` (46 entradas, 1 agente por entrada); 17 das
-25 entradas citadas corrigidas e aplicadas em `texto_anpec/paper_anpec.bbl`.
+Cortados três testes das duas baterias de confound (B e D do soberano, 4 do FOMC), fechada a
+objeção do council contra o Teste C com a máscara re-derivada, §5.2 reescrita, e removido todo
+vestígio dos números dos testes retirados de docs vivos e notas datadas.
 
 ## Active Decisions
-- **`paper_anpec.bbl` é o arquivo de trabalho — NÃO rodar `bibtex`**, que o regenera do
-  zero e apagaria edições manuais. É **gitignored** (`.gitignore:44`), sem backup no git;
-  restauração em `bibcheck_20260802_111938/original.bbl` (7025 B, fiel ao byte).
-- **`barigozzi2016non` cita o FEDS WP 2016-024r1** (era `@article`, virou `@techreport`).
-  Troca pelo JoE 221(2):455-482 (2021) **rejeitada** — nem o Fed nem RePEc confirmam que
-  são o mesmo trabalho. Fica como `barigozzi2021large` no `corrected.bib`.
-- **`STOCK2016415` mantém `volume = {2}`** — 2A vs 2B não confirmável.
-- **`references.bib` não foi tocado**: remover `alessi2016response` (todas as coordenadas
-  erradas) e `bai2002determining` está só proposto em `corrected.bib`.
+- Os números dos testes B, D e 4 **não são reproduzíveis e não devem ser citados**. Git é o único registro. Razão em `_instrucoes/historico_decisoes.md` §2.4.
+- `z_jk_bs_norisk_mask` (máscara re-derivada) tem ξ_mp 5,57 full: conjunto AR limitado mas abaixo de 10, então sustenta **direção, não intervalo**. `denom_vs_prod` 0,726 — parte das magnitudes maiores é aritmética.
+- O ganho de `asset_ibov` (sig90 negativo naquela variante) **não pode** ser usado para consertar o bloco nulo de §4.6.
+- Nada em produção foi modificado; `instrumentos_mensais.csv` e `DEFAULT_VARIANT` intocados.
 
 ## Key Files
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/texto_anpec/paper_anpec.bbl
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/texto_anpec/bibcheck_20260802_111938/
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/script/jk_sovereign_confound.R
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/script/fomc_coincidence.R
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/texto_anpec/paper_anpec.tex (§5.2, `sec:confound`)
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/_instrucoes/historico_decisoes.md (§2.4)
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/instrument/jk_sovereign_confound.md
 
 ## Next Steps
-- [ ] FEDS 2016-024 == JoE 221(2):455-482? O artigo do JoE agora está em `artigos/` (marker .md,
-      adicionado 2026-08-02 15:50) e **não** menciona FEDS nem "previously circulated as" —
-      resolver comparando conteúdo (a padronização pelo desvio-padrão da 1ª diferença), não linhagem.
-- [ ] Ver se o cap. 8 do Handbook of Macroeconomics vol. 2 está em 2A ou 2B.
-- [ ] Decidir se poda `references.bib` (2 duplicatas + 19 entradas nunca citadas).
+- [ ] Escrever §5.3 do FOMC sobre os testes 0-3, com a ressalva de horário obrigatória (vale para a perna de taxa, não para a de ações).
+- [ ] Decidir se os números removidos saem também de `relatorio/council_2026-07-31.md` e `council_2026-08-10.md` (não editados: são pareceres recebidos).
+- [ ] Decidir a forma final do degrau da máscara em §5.2 para a v1 (com magnitudes, sem magnitudes, ou fora).
+- [ ] Corrigir a descrição do placebo `sp500_vix` em `:501`/`:509` do paper — é só o VIX.
 
 ## Working Artifacts
-- texto_anpec/bibcheck_20260802_111938/bibcheck_report.md — achados e overrides
-- texto_anpec/bibcheck_20260802_111938/corrected.bib — fonte com as 3 correções finais
-- texto_anpec/bibcheck_20260802_111938/original.bbl — restauração do .bbl
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/progress_logs/2026-08-10_mascara-re-derivada-decisao-v1.md — o achado inconveniente, por que só apareceu agora, e a recomendação para a v1
 
 ## Context
-Sem field mixing em entrada citada; os achados foram erros de categoria (working papers
-do Fed e do NBER tipados como artigos) e coordenadas erradas. O .bbl aplicado compila
-sem citação nem referência indefinida.
+Os cortes foram verificados como não-perturbativos (`max |dif| = 0` em toda linha sobrevivente,
+`p_boot` inclusive) e o veredito do FOMC segue "não detectado". O paper compila em 27 páginas.

@@ -6,6 +6,10 @@
 # VS Code
 .vscode/
 
+# Claude Code — .claude/rules/ é versionado; o resto é local da máquina
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
 # Data files
 data/
 

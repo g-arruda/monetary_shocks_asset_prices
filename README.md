@@ -54,10 +54,12 @@ script e por tarefa, e `diagnostics/diagnostico_dfm.md` para o veredito.
 Nunca importado por `script/` na direção contrária (nada em `R/` faz
 `source()` de `script/`).
 
-- **`data_download/`** (7 arquivos) — os downloaders: `bcb.R` (séries SGS do
+- **`data_download/`** (8 arquivos) — os downloaders: `bcb.R` (séries SGS do
   Banco Central), `exchange.R` (câmbio), `external_factors.R` (SP500/VIX/Brent
   + BRL/USD diário), `ibov_daily.R`, `anbima_breakeven.R`, `focus_fred.R`
-  (medianas do Focus + UST 2y do FRED), `download_di.py` (futuros de DI).
+  (medianas do Focus + UST 2y do FRED), `fomc_dates.R` (datas de decisão do
+  FOMC, raspadas das páginas de calendário do Fed — 2026-08-10),
+  `download_di.py` (futuros de DI).
 - **`preprocessing/`** (1 arquivo) — `seasonality.R`, o wrapper de ajuste
   sazonal X-13 usado por `script/clean.R`.
 - **`modeling/`** (3 arquivos) — os motores de estimação: `factor_estimation.R`
@@ -66,15 +68,20 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
   benchmark VAR pequeno, extraído de `script/model_var.R`). O órfão
   `svensson_model.R` foi para `arquivo/R/modeling/` em 2026-08-05.
-- **`identification/`** (7 arquivos) — a máquina de identificação além do
+- **`identification/`** (8 arquivos) — a máquina de identificação além do
   proxy-SVAR básico: `spec_sweep.R`, `validation_tests.R`,
   `factor_space_diagnostics.R`, `irf_coherence.R` (pontuação de coerência
-  teórica), e o ramo não-gaussiano (`nongaussian_gmr.R`, `nongaussian_branch.R`,
-  `nongaussian_labelling.R` — só diagnóstico, não usado no caminho de
-  produção).
-- **`instrument/`** (2 arquivos) — `build_variants.R` (a cadeia de construção
-  das 8 variantes de instrumento GK/JK/BS; eram 10 até 2026-08-05) e
-  `di_surprise.R` (helper de surpresa de futuro de DI).
+  teórica), `weak_iv_ar.R` (inversão do teste Anderson-Rubin de Montiel
+  Olea-Stock-Watson, generalizada do VAR em observáveis para o VAR nos fatores
+  com equação de medida acoplada) e o ramo não-gaussiano (`nongaussian_gmr.R`,
+  `nongaussian_branch.R`, `nongaussian_labelling.R` — só diagnóstico, não usado
+  no caminho de produção).
+- **`instrument/`** (3 arquivos) — `build_variants.R` (a cadeia de construção
+  das 8 variantes de instrumento GK/JK/BS; eram 10 até 2026-08-05),
+  `di_surprise.R` (helper de surpresa de futuro de DI, mais os carregadores de
+  datas de Copom e de FOMC) e `event_tests.R` (inferência das regressões
+  diárias de janela de evento: `wild_coef_test` e `wild_wald_test`, ambos com
+  wild bootstrap sob a nula restrita e semente por célula).
 
 ## `output/` — artefatos de estimação (git-tracked, ~3 MB)
 
@@ -82,11 +89,12 @@ Tudo aqui é da rodada de produção de 2026-07-24 em diante. Ver "Data layout"
 no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 
 - **`irf/`** — a rodada de coerência (`irf_coherence_*`, fonte de todo número
-  em `irf_section.md`/§5 do paper) e os artefatos do sweep de especificação
-  (`spec_sweep_*`, `irf_spec_*`).
+  em `irf_section.md`/§5 do paper), os artefatos do sweep de especificação
+  (`spec_sweep_*`, `irf_spec_*`) e as bandas Anderson-Rubin (`ar_bands*`,
+  2026-08-10).
 - **`instrument/`** — réguas de força do instrumento (`mosw_strength_grid`,
   `instrument_diagnostics_report`, `instrument_construction_sweep`,
-  `jk_sovereign_confound`).
+  `jk_sovereign_confound`, `fomc_coincidence`).
 - **`factors/`** — rodada de estacionariedade/cointegração/espectro da
   companion matrix dos fatores (2026-07-31).
 - **`var/`** — o benchmark de VAR pequeno (2026-07-31).
@@ -94,14 +102,20 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 - **`nongaussian/`** — a identificação GMR (2017): gate, rodada de produção,
   corroboração contra o proxy, rotulagem da coluna monetária.
 - **`validation/`** — artefatos de replicação Olea-Stock-Watson (Kilian-oil,
-  aplicação de imposto), usados para validar o código do Wald ξ_mp.
+  aplicação de imposto), usados para validar o Wald ξ_mp e a inversão AR. O
+  `.rds` do petróleo existe porque `codigos_externos/` é gitignorado: sem ele os
+  três `validate_*.R` não rodariam num clone limpo.
 - **`logs/`** (gitignored) — logs de execução por estágio do `run_all.R`.
 
 ## `data/` (gitignored)
 
 Dados brutos/processados, não versionados. Um nível: `raw_data.csv`,
 `raw_data_30.csv`, `di.csv` (DI futuro diário, 32 MB), `copom_historico.csv`,
-`fred_dgs2.csv` na raiz; `processed/` (séries limpas/derivadas, incl. as
+`fred_dgs2.csv`, `CDS 5y.xlsx` (CDS soberano 5a diário, export Bloomberg —
+entrada externa fixa, como a curva; lido por `jk_sovereign_confound.R`),
+`fomc_dates.csv` (datas de decisão do FOMC; **produzido** por
+`R/data_download/fomc_dates.R`, e requisito duro do estágio `instrument`
+desde 2026-08-10) na raiz; `processed/` (séries limpas/derivadas, incl. as
 variantes de instrumento); `yields/` (curva de juros fornecida pelo
 orientador, `yields_dia.csv` — entrada externa fixa, sem produtor no
 repositório); `curva_juros/`, `investing/`, `epu/`,
@@ -140,19 +154,25 @@ O paper canônico desde **2026-08-02** (`paper_anpec.tex`, classe
 `elsarticle`, submissão ANPEC, título "Uncovered Interest Parity,
 Inverted..."). Abstract e §4 Resultados (seis subseções: estrutura a termo,
 câmbio e risco soberano, atividade, crédito, preços, ações) estão correntes
-com a rodada de produção. **Ainda não tem `§5 Robustez`** — essa seção só
-existe no draft arquivado (ver abaixo) e precisa ser portada/reescrita aqui;
-é o item aberto que fecha a diferença entre "canônico" e "completo". Desde
-2026-08-05 `script/fig_section5.R` gera as **8** figuras direto aqui
+com a rodada de produção. A **`§5 Robustez` existe desde 2026-08-09 com duas
+subseções** — `sec:exogeneidade` (previsibilidade do instrumento mensal,
+Ljung-Box, `commodity_metal` em R$ contra US$, placebos nas duas barras) e
+`sec:confound` (o filtro de sinal seleciona risco soberano?, nas duas proxies
+diárias, com as três ressalvas no corpo). Faltam as quatro subseções restantes
+da composição recomendada em
+`relatorio/working-notes/2026-08-01_tier_list_robustez.md` §7, entre elas
+Limitações; a conclusão passou a ser a §6. Desde 2026-08-05
+`script/fig_section5.R` gera as **8** figuras direto aqui
 (`texto_anpec/fig_*.pdf`, nomes nus, que é como o `.tex` as inclui): o §4 usa
-6, e `fig_estado`/`fig_placebos` ficam prontas para o port do §5.
+6, a §5 usa `fig_placebos`, e `fig_estado` segue sem consumidor.
 
 O draft abntex2 anterior (`main.tex`, "Choques monetários nos preços dos
 ativos") foi **arquivado em `arquivo/tex/`** nessa mesma data — não por
 vintage ou bug, o conteúdo era corrente, mas porque `texto_anpec/` passou a
-ser o documento de trabalho. Preservado porque sua `§5 Robustez` é a prosa
-mais completa de robustez que existe no repositório; ver
-`arquivo/README.md`.
+ser o documento de trabalho. Preservado porque sua `§5 Robustez` ainda é a
+fonte de prosa para as subseções que `texto_anpec/` não tem — Limitações e
+dependência de estado; exogeneidade e placebos já subiram, reescritos, em
+2026-08-09. Ver `arquivo/README.md`.
 
 ## `artigos/` — literatura citada
 

@@ -14,6 +14,13 @@
 > a prosa "escrita, comentada" descrita nesta nota vive lá agora, e o
 > destino é portá-la para `texto_anpec/paper_anpec.tex` (o paper canônico,
 > que ainda não tem `§5 Robustez`), não descomentar o arquivo antigo.
+>
+> **2026-08-09:** a `§5 Robustez` passou a existir em
+> `texto_anpec/paper_anpec.tex` com **as duas primeiras subseções do §7 abaixo**,
+> escritas do zero contra os CSVs de origem em vez de portadas. Entraram S3a,
+> S3b e S4 em `sec:exogeneidade` e S1 inteiro em `sec:confound`, com as três
+> ressalvas no corpo. A conclusão virou §6. Os rótulos "rodado, não escrito"
+> desses quatro itens estão atualizados abaixo; os demais seguem como estavam.
 
 ## 0. Enquadramento
 
@@ -45,28 +52,38 @@ levantaria? (ii) o resultado é limpo ou de mão dupla? (iii) o custo de escreve
 
 `output/instrument/jk_sovereign_confound.{md,csv}` · nota
 [`2026-07-31_confound_soberano_jk`](2026-07-31_confound_soberano_jk.md) ·
-**rodado, não escrito**
+**escrito em 2026-08-09** como §5.2 de `texto_anpec/paper_anpec.tex`
+(`sec:confound`, "O filtro de sinal seleciona risco soberano?"), sem figura
 
 Responde à objeção mais letal contra este desenho: o filtro JK descarta o
 efeito-informação (juros↑, ações↑) mas **retém exatamente a assinatura fiscal
 doméstica** (juros↑, ações↓, câmbio↑), e os placebos não a descartam porque um
 choque fiscal brasileiro também não move o S&P 500.
 
+*(Atualizado 2026-08-09: roda também em **CDS 5a diário** — ver
+[`2026-08-09_confound_soberano_cds`](2026-08-09_confound_soberano_cds.md). O
+veredito não muda; duas ressalvas endureceram.)*
+
 - ΔEMBI carrega a surpresa a **0,326** (t = 3,97, R² 0,13) nas 498 quintas
-  não-Copom contra **0,099** (t = 1,74, R² 0,04) nos 62 dias retidos.
-- Interações `x:1(jk_bs)` **negativas** nas quatro proxies da janela do evento
-  (BRL −0,036, p_boot 0,066).
+  não-Copom contra **0,099** (t = 1,74, R² 0,04) nos 62 dias retidos. Em ΔCDS,
+  **0,436** (R² 0,22) contra **0,140** — a mesma razão de ~3×, medida melhor.
+- Interações `x:1(jk_bs)` **negativas** nas cinco proxies da janela do evento
+  (CDS −0,191; BRL −0,036, p_boot 0,068).
 - Ortogonalizar ao risco diário **melhora** ξ_mp (10,72 vs 10,43) e mantém todas
-  as manchetes sig90.
+  as manchetes sig90 — e **incluindo o CDS chega a 12,68**, o instrumento mais
+  forte da rodada. O limite inferior mais severo é o que mais fortalece.
 - A frase que carrega a subseção: os **31** dias classificados como "política"
   foram selecionados por **apreciação do BRL no dia do evento**, e a IRF mensal
   deles ainda dá **depreciação**. Falsificável por construção, e não inverteu.
 
-⚠ Ressalvas obrigatórias **no corpo**, não em rodapé: o coeficiente nos 62 dias é
-positivo e marginal (p = 0,097), então a afirmação é "menos risco que um dia
-comum", **não** "zero risco"; e os 5 dias de maior alavancagem valem **28,6% de
-Σ|z|**, o maior (6,6%) sendo 2021-10-27, a semana da PEC dos Precatórios.
-Declarar em uma frase que o teste roda em EMBI+ porque não há CDS 5a diário.
+⚠ Ressalvas obrigatórias **no corpo**, não em rodapé, e **duas delas ficaram mais
+duras com o CDS**: (i) nos 62 dias retidos o coeficiente não é marginal, é
+**significativo** (CDS 0,140, p_boot **0,003**; o EMBI dava 0,099/p 0,109), então
+a afirmação é "menos risco que um dia comum", **não** "zero risco" — isso agora é
+fato medido e o corpo não pode sugerir o contrário; (ii) o teste de três vias
+foi removido em 2026-08-10 por não ter primeiro estágio em nenhuma das metades,
+e nada do que ele produziu é citável (`historico_decisoes.md` §2.4). Declarar
+em uma frase que o teste roda nas duas proxies e que a principal é o CDS.
 
 ### S2. Reconciliação com Gonçalves-Rodrigues-Genta por frequência
 
@@ -91,8 +108,8 @@ exercícios **não é possível**.
 
 ### S3. Exogeneidade do instrumento — dois blocos
 
-`diagnostics/diagnostico_dfm.md` Tarefa 1 · **(a) rodado e não escrito; (b)
-escrito e comentado**
+`diagnostics/diagnostico_dfm.md` Tarefa 1 · **os dois escritos em 2026-08-09**
+em `sec:exogeneidade`, §5.1 de `texto_anpec/paper_anpec.tex`
 
 **(a) Previsibilidade.** Cinco especificações (fatores L1/L3/L6, retornos globais
 L3/L6), Wald HC1 com p por wild bootstrap sob H0 (o instrumento é
@@ -108,13 +125,14 @@ Bauer-Swanson.
 **(b) `commodity_metal` não é violação de placebo.** O IC-Br do BCB é denominado
 em R$ e herda mecanicamente a resposta cambial: os três índices em R$ violam, os
 três em US$ passam limpo — o de metais **0 de 25 horizontes** significativos.
-Já redigido em `tex/main.tex:453-455`, **comentado enquanto a linha 365 ativa
-afirma o +3,43%**: como compilado hoje, o PDF lê como falha de exogeneidade sem
-resposta.
+O bloqueio descrito aqui deixou de existir em 2026-08-09, porque a versão
+escrita em `texto_anpec/` traz o +3,43% e a frase que o desarma no mesmo lugar,
+com a queda de ξ_mp para 7,87 no painel aumentado declarada junto.
 
 ### S4. Placebos
 
-`tex/main.tex:480-490` · **escrito, comentado**
+`arquivo/tex/main.tex:480-490` · **escrito em 2026-08-09** em `sec:exogeneidade`,
+com a `fig_placebos` que estava pronta e sem consumidor
 
 Padrão, barato, passa — e passa nas **duas** barras: 90% → 1/49, 0/49, 0/49;
 68% → 3, 0, 2 = 5 de 147 contra os ~47 que um nível nominal de 32% daria.
@@ -383,12 +401,23 @@ em T = 150, n = 6. Reportar só a rejeição do recursivo e declarar o resto.
 
 ## 7. Composição recomendada da §5
 
-Seis subseções, nesta ordem, em prosa com IC:
+Seis subseções, nesta ordem, em prosa com IC. As duas primeiras estão escritas
+desde 2026-08-09.
 
 1. **Exogeneidade** — S3a + S3b + S4 (previsibilidade, autocorrelação,
-   `commodity_metal` R$/US$, placebos nas duas barras).
-2. **O filtro de sinal seleciona risco soberano?** — S1, com as duas ressalvas no
-   corpo.
+   `commodity_metal` R$/US$, placebos nas duas barras). **Escrita** como
+   `sec:exogeneidade`, sete parágrafos mais a `fig_placebos`. Duas coisas que a
+   redação decidiu e que a revisão não precisa re-litigar: o p_boot de 0,064 do
+   câmbio defasado entra com a explicação de que a camada Bauer-Swanson remove a
+   variação acumulada em 65 pregões e **não** a estrutura de defasagens mensais
+   que o teste examina, e o contraste R$/US$ vem com a ressalva de que ξ_mp cai
+   para 7,87 no painel aumentado, o que o torna válido como contraste entre
+   denominações e não como estimativa de magnitude.
+2. **O filtro de sinal seleciona risco soberano?** — S1, com as ressalvas no
+   corpo. **Escrita** como `sec:confound`, sem figura. O CDS entra como proxy
+   principal com a ordem de olhar declarada. Reescrita em 2026-08-10 sobre os
+   testes A e C, com a escada de ortogonalização até a máscara re-derivada
+   fechando a subseção junto com o que ela autoriza concluir.
 3. **Identificação alternativa e a divergência com a literatura brasileira** —
    B2 + S2: Rigobon não identifica em 252 células mensais, rejeita com folga no
    diário, e é isso que reconcilia com GRG. Com o IBOV +2,83% declarado.
@@ -399,9 +428,9 @@ Seis subseções, nesta ordem, em prosa com IC:
 Sai da §5: B3 (persistência dependente de estado → §4 encurtada ou fora) e todo o
 tier D.
 
-**Bloqueio operacional.** Os itens 1, 2 e o próprio §4 ativo dependem de
-descomentar `tex/main.tex:447-500`. Enquanto a seção estiver comentada, a linha
-365 afirma o +3,43% do `commodity_metal` sem a frase que o desarma, e a nota da
-`fig:acoes` promete uma discussão "no texto" que não existe no PDF. É isso que um
-parecerista lê hoje. Mesmo bloqueio já registrado como item em
-`pendencias.md` Tema A.
+**Bloqueio operacional, resolvido em parte.** Os itens 1 e 2 foram escritos
+direto em `texto_anpec/paper_anpec.tex`, e o bloqueio descrito aqui (a §5
+comentada em `tex/main.tex:447-500`) não vale mais para eles nem para o
+`commodity_metal`, que agora aparece com a frase que o desarma. Os itens 3 a 6
+seguem por escrever, e a nota da `fig:acoes` continua prometendo uma discussão
+"no texto" que não existe no PDF. Estado atualizado em `pendencias.md` Tema A.

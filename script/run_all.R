@@ -69,6 +69,15 @@ STAGES <- list(
     produces = c("data/processed/focus_daily.csv", "data/fred_dgs2.csv")
   ),
   list(
+    name     = "fomc",
+    desc     = "FOMC decision dates from the Fed's own calendar pages",
+    interp   = "Rscript",
+    file     = "R/data_download/fomc_dates.R",
+    network  = TRUE,
+    requires = character(),
+    produces = "data/fomc_dates.csv"
+  ),
+  list(
     name     = "ibov",
     desc     = "IBOV daily index from B3 (rb3 cache)",
     interp   = "Rscript",
@@ -107,6 +116,7 @@ STAGES <- list(
     file     = "script/instrument.R",
     network  = FALSE,
     requires = c("data/di.csv", "data/copom_historico.csv",
+                 "data/fomc_dates.csv",
                  "data/processed/ibov_daily.csv",
                  "data/investing/external_factors_daily.csv",
                  "data/processed/brl_usd_daily.csv",

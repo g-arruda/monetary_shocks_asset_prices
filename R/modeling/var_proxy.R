@@ -2,9 +2,9 @@
 # Small-scale proxy-SVAR: the DFM's benchmark.
 #
 # Translation of the Alessi-Kerssenfischer VAR path:
-#   codigo_alessi-mark/VARest.m       -> var_est_ols
-#   codigo_alessi-mark/VARest_boot.m  -> the bootstrap block below
-#   codigo_alessi-mark/MAIN_VARloop.m -> script/model_var.R (the driver)
+#   codigos_externos/codigo_alessi-mark/VARest.m       -> var_est_ols
+#   codigos_externos/codigo_alessi-mark/VARest_boot.m  -> the bootstrap block below
+#   codigos_externos/codigo_alessi-mark/MAIN_VARloop.m -> script/model_var.R (the driver)
 #
 # The identification is SHARED with the DFM, not re-implemented:
 # `sel_ext_inst_sample` and `ident_ext_instr` from impulse_responde.R are

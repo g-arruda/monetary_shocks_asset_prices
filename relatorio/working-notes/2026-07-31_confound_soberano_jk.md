@@ -1,12 +1,32 @@
 # O filtro JK seleciona risco soberano? — teste diário
 
-> **CURRENT.** Escrita em 2026-07-31 sob a produção corrente: `z_jk_bs_purif` ×
+> ⚠ **Os testes B e D foram removidos em 2026-08-10** de
+> `script/jk_sovereign_confound.R`, e as seções correspondentes desta nota saíram
+> junto. Nada do que eles produziram é reproduzível ou citável; quem precisar do
+> registro recorre ao histórico do git. Os testes A e C seguem CURRENT e
+> reproduzem com `max |dif| = 0`, `p_boot` inclusive, e o C ganhou na mesma data
+> um terceiro degrau, a máscara re-derivada nos resíduos ortogonalizados das duas
+> pernas. Razão do corte em
+> [`historico_decisoes.md` §2.4](../../_instrucoes/historico_decisoes.md).
+>
+> **CURRENT quanto ao desenho e ao veredito; a lacuna de dado declarada abaixo
+> foi fechada.** Escrita em 2026-07-31 sob a produção corrente: `z_jk_bs_purif` ×
 > `yield_6m`, r=7, q=6, p=6, painel de 106 séries (vintage 07-24), ξ_mp 10,43
 > full / 12,22 pré-COVID. Corpo gerado e números em
-> `output/instrument/jk_sovereign_confound.{csv,md}`, `jk_sovereign_days.csv` e
+> `output/instrument/jk_sovereign_confound.{csv,md}` e
 > `jk_sovereign_irf_overlay.pdf`, produzidos por
 > `script/jk_sovereign_confound.R`. **Esta nota é escrita à mão e nenhum script a
 > toca.**
+>
+> **Duas coisas mudaram em 2026-08-09** — ver
+> [`2026-08-09_confound_soberano_cds`](2026-08-09_confound_soberano_cds.md).
+> (i) O CDS 5a diário **existe** (`data/CDS 5y.xlsx`, Bloomberg), então a
+> "lacuna declarada" da seção homônima abaixo está morta e o teste roda nas duas
+> proxies; o veredito não mudou. (ii) O wild bootstrap passou a ser semeado por
+> célula, então os **`p_boot`** citados aqui diferem dos correntes por ruído de
+> Monte Carlo (~0,007 de erro-padrão). Coeficientes, `t`, R² e todas as IRFs
+> desta nota seguem **exatos** — inclusive `z_jk_bs_norisk`, congelado de
+> propósito para servir de auto-teste.
 
 ## A acusação
 
@@ -27,9 +47,9 @@ leituras. O projeto nunca havia tentado separá-las.
 
 ## O que foi feito
 
-`script/jk_sovereign_confound.R`. Quatro testes, três deles antes de qualquer
-DFM. **Nada de produção foi modificado**: as variantes de três vias são
-construídas em memória, e `build_variants.R` / `instrument.R` estão intocados.
+`script/jk_sovereign_confound.R`. **Nada de produção foi modificado**: as
+variantes deste teste são construídas em memória, e `build_variants.R` /
+`instrument.R` estão intocados.
 
 Três auto-testes passam exatos e garantem que a máquina é a de produção: o
 painel diário reconstruído bate `copom_event_diagnostics.csv` (máx |dif| =
@@ -38,15 +58,22 @@ de referência reproduz o smoke test do `CLAUDE.md` em h=0 (`yield_6m` 0,005,
 `yield_2y` 0,009164, `yield_5y` 0,009274, `asset_ibov` −1,673, `cambio_usd`
 0,1498).
 
-**Lacuna declarada:** não existe CDS 5a **diário** neste repositório nem fonte
-programática gratuita com histórico 2013-2025 — o Ipeadata encerrou o EMBI+ em
-07/2024 e nunca teve CDS, WorldGovernmentBonds não tem CSV/API, MacroMicro
-publica semanal, cbonds é pago. A única fonte diária é a página histórica da
-Investing.com, a mesma de onde saiu o arquivo **mensal** do repo, e exige export
-por navegador (tentado, extensão não conectada). O **EMBI+ Brasil diário** é a
-proxy principal: 94 dos 95 pares Qua→Qui (o buraco é 2024-06-19, feriado
-americano). O script detecta `data/investing/cds5y_daily.csv` automaticamente se
-o arquivo aparecer.
+**Lacuna declarada — ⚠ FECHADA EM 2026-08-09**, ver
+[`2026-08-09_confound_soberano_cds`](2026-08-09_confound_soberano_cds.md). O
+parágrafo abaixo fica só por procedência: `data/CDS 5y.xlsx` existe, o script o
+lê como entrada **obrigatória** (não há mais detecção automática de
+`data/investing/cds5y_daily.csv`, que nunca chegou a existir), e o veredito é o
+mesmo nas duas proxies.
+
+> **[texto original]** não existe CDS 5a **diário** neste repositório nem fonte
+> programática gratuita com histórico 2013-2025 — o Ipeadata encerrou o EMBI+ em
+> 07/2024 e nunca teve CDS, WorldGovernmentBonds não tem CSV/API, MacroMicro
+> publica semanal, cbonds é pago. A única fonte diária é a página histórica da
+> Investing.com, a mesma de onde saiu o arquivo **mensal** do repo, e exige export
+> por navegador (tentado, extensão não conectada). O **EMBI+ Brasil diário** é a
+> proxy principal: 94 dos 95 pares Qua→Qui (o buraco é 2024-06-19, feriado
+> americano). O script detecta `data/investing/cds5y_daily.csv` automaticamente se
+> o arquivo aparecer.
 
 ## Pré-requisito que quase virou armadilha: o alinhamento do EMBI
 
@@ -113,48 +140,22 @@ Duas ressalvas honestas: (i) o coeficiente nos 62 dias é positivo e marginal
 comum"; (ii) a interação do EMBI a 0,108 não cruza 10%, então o que se afirma é
 ausência de enriquecimento, não sua refutação formal.
 
+> ⚠ **A ressalva (i) endureceu em 2026-08-09.** No CDS 5a, que mede sem o
+> arredondamento do EMBI, o coeficiente dos 62 dias é **0,140 com p_boot 0,003**
+> — não marginal, **significativo**. A razão contra o controle é a mesma (~3×,
+> 0,140 contra 0,436), mas "menos risco que um dia comum, **não** zero risco"
+> passa de cautela a fato medido. Ver
+> [`2026-08-09_confound_soberano_cds`](2026-08-09_confound_soberano_cds.md).
+
 O resultado de Qui→Sex (+0,248, p = 0,025) é, dado o alinhamento estabelecido, a
 **resposta defasada** do prêmio de risco à surpresa de política — e é
 exatamente o que a IRF mensal do §4 já reporta (EMBI +0,20, sig90). É resultado,
 não contaminação.
 
-## B — classificação de três vias
-
-Terceira via pelo câmbio, com a mesma forma do JK: aperto **aprecia** o BRL
-(UIP) → sinais de `e_di_bs` e `e_brl_bs` diferem = política; surpresa fiscal
-**deprecia** → sinais iguais = soberano. As pernas de FX e EMBI são purificadas
-na **mesma** RHS pré-evento do Bauer-Swanson, para a máscara continuar
-predeterminada.
-
-Os 62 dias se partem quase ao meio: **31 política / 30 soberano / 1 não
-classificado** (regra FX); 24/37/1 pela regra do EMBI. ξ_mp cai a 3,52 e 3,50 nas
-duas metades, contra 10,43 do total — queda esperada e essencialmente mecânica,
-já que os meses não-nulos caem de 62 para 31 e 30.
-
-| h=0 | produção | política (31) | soberano (30) | orto. risco |
-|---|---|---|---|---|
-| `cambio_usd` | 0,150 ✓ | **0,129** | 0,165 ✓ | 0,145 ✓ |
-| `embi_perc` | 0,200 ✓ | 0,103 | 0,270 ✓ | 0,162 ✓ |
-| `cds_5y` | 29,1 ✓ | 18,9 | 36,5 ✓ | 25,6 ✓ |
-| `yield_2y` | 0,00916 ✓ | 0,00852 ✓ | 0,00963 ✓ | 0,00891 ✓ |
-| `price_ipp` | 0,586 ✓ | 0,382 | 0,735 ✓ | 0,544 ✓ |
-
-(✓ = banda de 90% exclui zero.)
-
-**Nenhum sinal inverte.** A metade soberana tem respostas sistematicamente
-maiores de risco e câmbio, a metade política menores — o que é a leitura
-esperada e mostra que a classificação separa algo real. Mas a metade política
-perde a significância a 90% em EMBI e CDS com n pela metade e ξ_mp de 3,5, então
-a perda de banda é indistinguível de perda de potência.
-
-**O achado mais forte está no câmbio.** Os 31 dias "política" foram selecionados
-por terem, **no dia do evento, apreciação do BRL** consistente com UIP. Ainda
-assim a IRF mensal desses mesmos dias dá **depreciação** (+0,129, mesmo sinal e
-86% da magnitude da produção). A depreciação mensal do §4 **não é herdada da
-janela do evento** — ela é produzida pela propagação mensal, não pela seleção de
-quais dias entram. É a evidência mais direta contra a leitura de artefato de
-seleção, e vale porque o desenho do teste a tornava falsificável: se a
-depreciação viesse dos dias, esta célula teria invertido.
+*(Seção removida em 2026-08-10 junto com o teste que a produzia. Os números
+não são mais reproduzíveis e não devem ser citados; o registro fica no
+histórico do git e a razão do corte em `_instrucoes/historico_decisoes.md`
+§2.4.)*
 
 ## C — instrumento ortogonalizado ao risco diário
 
@@ -168,62 +169,40 @@ Isto é um **limite inferior**: política legitimamente move spread soberano, en
 ortogonalizar contra o risco *contemporâneo* super-remove. Sobreviver é descarte
 forte; não sobreviver seria ambíguo. Sobreviveu.
 
-## D — auditoria narrativa, e a ressalva que sobra
-
-A concentração é alta: os 5 dias de maior alavancagem valem **28,6%** de Σ|z|.
-
-| # | reunião | `e_di_bs` | ΔEMBI | Δlog BRL | classe | peso |
-|---|---|---|---|---|---|---|
-| 1 | 2021-10-27 | +37,0 | +1 | +1,97 | soberano | **6,6%** |
-| 2 | 2013-04-17 | −35,5 | +4 | −0,77 | soberano | 6,3% |
-| 3 | 2021-03-17 | +34,9 | −5 | −0,72 | política | 6,2% |
-| 4 | 2017-01-11 | −28,0 | −6 | +0,06 | soberano | 5,0% |
-| 5 | 2024-12-11 | +25,2 | −3 | −1,54 | política | 4,5% |
-
-**O dia de maior alavancagem do instrumento inteiro é 2021-10-27** — a semana da
-PEC dos Precatórios, com o BRL depreciando 1,97% no dia *apesar* de uma alta de
-150 pb, e classificado "soberano" pela regra de FX. Ou seja: o teste agregado
-não detecta enriquecimento sistemático de risco, mas **o dia individualmente
-mais influente é exatamente o tipo de dia que o parecerista temia**. Os outros
-quatro do topo são reuniões cuja leitura de política é direta (2021-03-17: alta
-de 75 pb acima do esperado, BRL aprecia; 2024-12-11: alta de 100 pb com
-*guidance*, BRL aprecia 1,54%).
-
-Anotei só o que consigo afirmar com confiança; `jk_sovereign_days.csv` traz os 95
-dias com a coluna `nota_evento` vazia para o autor completar.
+*(Seção removida em 2026-08-10 junto com o teste que a produzia. Os números
+não são mais reproduzíveis e não devem ser citados; o registro fica no
+histórico do git e a razão do corte em `_instrucoes/historico_decisoes.md`
+§2.4.)*
 
 ## Veredito
 
 **A acusação específica do council não se sustenta.** O filtro empobrece o
-conteúdo diário de risco em vez de enriquecê-lo; a classificação de três vias
-não inverte nenhum sinal; o instrumento ortogonalizado ao risco preserva ξ_mp e
-todas as manchetes; e a depreciação mensal sobrevive nos dias selecionados por
-apreciação diária. **Não há motivo para reenquadrar o paper**, e nada muda na
-produção.
+conteúdo diário de risco em vez de enriquecê-lo, e o instrumento ortogonalizado
+ao risco preserva ξ_mp e todas as manchetes. **Não há motivo para reenquadrar o
+paper**, e nada muda na produção.
 
 O que **não** foi mostrado, e não deve ser afirmado: que o instrumento é livre de
-risco soberano. Ele não é — o coeficiente nos 62 dias é positivo e marginal, a
-metade "soberana" tem respostas de risco sistematicamente maiores, e o dia de
-maior peso é fiscal. A afirmação defensável é mais estreita e é a que responde ao
-parecer: **o filtro JK não seleciona risco soberano para dentro; ele seleciona
-menos risco do que um dia comum.**
+risco soberano. Ele não é, porque o coeficiente nos 62 dias é positivo e
+marginal. A afirmação defensável é mais estreita e é a que responde ao parecer:
+**o filtro JK não seleciona risco soberano para dentro; ele seleciona menos risco
+do que um dia comum.**
 
 ## Para o paper
 
 Cabe uma subseção curta no §5 Robustez, com a tabela de interação (5 linhas), a
-comparação h=0 das quatro variantes, e as duas ressalvas declaradas. O overlay
+comparação h=0 das variantes e as ressalvas declaradas. O overlay
 `jk_sovereign_irf_overlay.pdf` já serve de figura. O parágrafo tem de dizer as
-três coisas na ordem: o controle não-Copom, a interação negativa, e a
-concentração em 2021-10-27.
+duas coisas na ordem: o controle não-Copom e a interação negativa.
+
+*(2026-08-09: escrita como §5.2 de `texto_anpec/paper_anpec.tex`, `sec:confound`,
+seguindo essa ordem e sem figura, em prosa com os números como o resto do paper.
+Os números publicados são os da rodada de duas proxies — ver
+[`2026-08-09_confound_soberano_cds`](2026-08-09_confound_soberano_cds.md).
+Reescrita em 2026-08-10 sobre os testes A e C.)*
 
 ## Aberto
 
 - **CDS 5a diário** — se o export da Investing.com for feito, o script incorpora
   sozinho e o teste ganha a proxy que o parecerista nomeou.
-- **Regra do EMBI vs regra do FX** discordam bastante (concordância na tabela 2×2
-  do corpo gerado); a do EMBI concentra a força na metade soberana (ξ_mp 7,77
-  contra 0,89 da metade política), o que merece um olhar antes de qualquer
-  promoção a produção.
-- **Nada disso vai à produção nesta rodada.** Promover a classificação de três
-  vias é decisão separada, e os números acima não a recomendam: ela custa metade
-  da amostra e não muda sinal nenhum.
+- **Nada disso vai à produção nesta rodada.** As variantes deste teste são
+  construídas em memória e promover qualquer uma é decisão separada.

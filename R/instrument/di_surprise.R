@@ -71,6 +71,32 @@ load_copom_wednesdays <- function(path = "data/copom_historico.csv",
     dplyr::pull(meeting_date)
 }
 
+#' Load FOMC decision dates from data/fomc_dates.csv
+#'
+#' Aborts when the file is missing instead of returning an empty vector. That
+#' silent fallback (script/instrument.R, until 2026-08-10) kept `fomc_coincide`
+#' identically FALSE from the day the flag was written until the council review
+#' found it — see relatorio/council_2026-08-10.md.
+#'
+#' @param path CSV path with a `date` column. Default `"data/fomc_dates.csv"`.
+#' @param from Earliest decision date kept (default 2012-06-01).
+#' @param to   Latest decision date kept (default 2025-12-31).
+#'
+#' @return Date vector of FOMC decision dates, sorted and unique.
+load_fomc_dates <- function(path = "data/fomc_dates.csv",
+                            from = as.Date("2012-06-01"),
+                            to   = as.Date("2025-12-31")) {
+  if (!file.exists(path)) {
+    stop(path, " not found. Run: Rscript R/data_download/fomc_dates.R")
+  }
+  readr::read_csv(path, show_col_types = FALSE) |>
+    dplyr::transmute(date = as.Date(date)) |>
+    dplyr::filter(!is.na(date), date >= from, date <= to) |>
+    dplyr::distinct(date) |>
+    dplyr::arrange(date) |>
+    dplyr::pull(date)
+}
+
 build_thursday_surprises <- function(di_panel, thursdays, target_bd = 63, min_bd = 10) {
   stopifnot(inherits(thursdays, "Date"))
   wed <- thursdays - 1L

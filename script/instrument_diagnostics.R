@@ -379,7 +379,7 @@ report <- paste(
   "### 1.1 Bloco Wald MOSW (leitura conservadora)",
   "",
   "Estatísticas de Wald de Montiel Olea-Stock-Watson (2021, §4.2), validadas",
-  "contra o código oficial dos autores (`codigo_olea/`, MSWfunction.m e",
+  "contra o código oficial dos autores (`codigos_externos/codigo_olea/`, MSWfunction.m e",
   "CovAhat_Sigmahat_Gamma.m). Todas usam Eicker-White (Newey-West 0 lags) e",
   "residualizam Z nos regressores do VAR de fatores (correção Shat), exceto a",
   "coluna legada ξ₁:",
