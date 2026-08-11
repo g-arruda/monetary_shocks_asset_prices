@@ -1,8 +1,14 @@
 # Relatório — Auditoria de fidelidade do instrumento: filtro Jarociński-Karadi e purificação Bauer-Swanson
 
+> **Nota de leitura (2026-08-11).** Este documento é mantido **verbatim**. Os caminhos citados
+> abaixo são os da árvore anterior à adoção do esqueleto `/newproject`. Mapa:
+> `_instrucoes/` = `registro/` (e `Instrumento.md` = `metodo.md`),
+> `relatorio/working-notes/` = `notas/`, `relatorio/council_*` = `pareceres/`,
+> `texto_anpec/` = `paper/`, `data/<x>` = `data/raw/<x>` (exceto `data/processed/`).
+
 **Data:** 2026-07-15 (trabalho iniciado 2026-07-14)
 **Escopo:** `script/instrument.R` e artefatos derivados
-**Nota técnica resumida:** `notas/2026-07-14_auditoria_fidelidade_jk_bs.md`
+**Nota técnica resumida:** `relatorio/working-notes/2026-07-14_auditoria_fidelidade_jk_bs.md`
 
 ---
 
@@ -120,7 +126,7 @@ A pergunta original era se a regressão deveria ter outras variáveis além das 
 
 Para cada quinta-feira do painel, medidos **até a quarta-feira** (portanto predeterminados no anúncio):
 
-- **Bloco financeiro, Δ acumulada em 65 pregões (= 13 semanas, a janela exata de BS):** Ibov, SP500, VIX, Brent, BRL e inclinação da curva DI (vértice 2y − vértice 3m, construída de `data/raw/di.csv`);
+- **Bloco financeiro, Δ acumulada em 65 pregões (= 13 semanas, a janela exata de BS):** Ibov, SP500, VIX, Brent, BRL e inclinação da curva DI (vértice 2y − vértice 3m, construída de `data/di.csv`);
 - **Bloco macro, Δ em 20 dias de survey (~4 semanas, a cadência mensal do Blue Chip):** revisões das medianas Focus (IPCA-12m e Selic ano seguinte);
 - **Tendência temporal** (BS incluem trend).
 
@@ -221,9 +227,9 @@ Três fatos do grid fecham o diagnóstico:
 
 **Criados**
 - `R/data_download/focus_fred.R` — downloader Focus (olinda) + FRED DGS2
-- `data/processed/focus_daily.csv`, `data/raw/fred_dgs2.csv` — novos insumos diários
+- `data/processed/focus_daily.csv`, `data/fred_dgs2.csv` — novos insumos diários
 - `data/processed/instrument_{jk_raw,bs_purif,jk_bs_purif,jk_purif_us}.csv` — CSVs individuais das 4 variantes
-- `notas/2026-07-14_auditoria_fidelidade_jk_bs.md` — nota técnica
+- `relatorio/working-notes/2026-07-14_auditoria_fidelidade_jk_bs.md` — nota técnica
 - este relatório
 
 **Modificados**
@@ -234,7 +240,7 @@ Três fatos do grid fecham o diagnóstico:
 - `data/processed/copom_event_diagnostics.csv` — colunas `e_di_bs`, `e_ibov_bs`, `e_di_us`, `e_ibov_us`, `jk_monetary_bs`, `jk_monetary_us`
 - `output/instrument/mosw_strength_grid.{csv,md}` — regenerados (392 células)
 - `output/instrument/instrument_diagnostics_report.md` — regenerado (13 variantes)
-- `registro/metodo.md` — bloco de status 2026-07-14, lista de variantes 6 → 10, nota na Etapa 3
+- `_instrucoes/Instrumento.md` — bloco de status 2026-07-14, lista de variantes 6 → 10, nota na Etapa 3
 - `CLAUDE.md` — descrição do estágio 4, comandos, data layout, correção da atribuição GK→JK da agregação
 
 ## 8. Como reproduzir
