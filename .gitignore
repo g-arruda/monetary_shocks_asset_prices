@@ -17,10 +17,7 @@ data/
 output/logs/
 
 # Reference code — read-only translation sources, not project code (see CLAUDE.md)
-codigo_alessi-mark/
-codigo_Jarocinski_e_Karadi/
-codigo_bauer_swanson/
-codigo_olea/
+codigos_externos/
 
 # Code files to exclude
 script/model.R
@@ -39,17 +36,26 @@ arquivo/tex/main.pdf
 # Snapshot de build do tex (main.pdf + .aux/.fls/.synctex), derivado e stale
 tex.zip
 
-# LaTeX build artifacts (ANPEC draft)
-texto_anpec/*.aux
-texto_anpec/*.log
-texto_anpec/*.fdb_latexmk
-texto_anpec/*.fls
-texto_anpec/*.synctex.gz
-texto_anpec/*.bbl
-texto_anpec/*.blg
-texto_anpec/*.brf
-texto_anpec/*.out
-texto_anpec/*.spl
-texto_anpec/*.dvi
-texto_anpec/*.ps
-texto_anpec/paper_anpec.pdf
+# LaTeX build artifacts (paper e slides)
+paper/*.aux
+paper/*.log
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.synctex.gz
+paper/*.bbl
+paper/*.blg
+paper/*.brf
+paper/*.out
+paper/*.spl
+paper/*.dvi
+paper/*.ps
+paper/paper_anpec.pdf
+slides/*.aux
+slides/*.log
+slides/*.out
+slides/*.nav
+slides/*.snm
+slides/*.toc
+slides/*.fdb_latexmk
+slides/*.fls
+slides/*.synctex.gz

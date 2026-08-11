@@ -3,13 +3,13 @@
 # policy shocks?
 #
 # Top item of the council review of 2026-08-10
-# (relatorio/council_2026-08-10.md, Objection 1) and the only finding
+# (pareceres/council_2026-08-10.md, Objection 1) and the only finding
 # of that round prompted by no repository artifact: it was found by
 # noticing that R/instrument/build_variants.R:244 computes a
-# `fomc_coincide` flag whose input file, data/fomc_dates.csv, had
+# `fomc_coincide` flag whose input file, data/raw/fomc_dates.csv, had
 # never existed. script/instrument.R fell back to an empty vector, so
 # the flag was identically FALSE from the day it was written until
-# 2026-08-10. _instrucoes/Instrumento.md Etapa 1.4 had specified that
+# 2026-08-10. registro/metodo.md Etapa 1.4 had specified that
 # collection since the project was conceived.
 #
 # The threat, in one line: a hawkish Fed surprise inside the Wed->Thu
@@ -21,7 +21,7 @@
 # untouched.
 #
 # Four tests, in the order the roadmap fixed
-# (relatorio/working-notes/2026-08-10_roadmap_pos_council.md, item 10):
+# (notas/2026-08-10_roadmap_pos_council.md, item 10):
 #
 #  0. TIMING. Where in the week does the Fed news land? The statement
 #     is released at 14:00 ET, before the B3 DI close (18:00 BRT) and
@@ -79,7 +79,7 @@
 # and re-running confirmed max |diff| = 0 on every surviving row. The
 # half-sample numbers are in the git history and are NOT reproducible
 # from this script. Do not cite them.
-# See _instrucoes/historico_decisoes.md.
+# See registro/historico_decisoes.md.
 #
 # Outputs: output/instrument/fomc_coincidence.csv
 #          output/instrument/fomc_coincidence.md
@@ -163,13 +163,13 @@ cat("=== Coincidencia FOMC ===\n\n")
 
 cat("[1] painel diario de quintas-feiras\n")
 
-di_panel <- load_di_panel("data/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
+di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
 ibov_daily <- read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
   filter(!is.na(ibov))
 
-ext_daily <- read_csv("data/investing/external_factors_daily.csv", show_col_types = FALSE) |>
+ext_daily <- read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), sp500 = as.numeric(sp500),
             vix = as.numeric(vix), brent = as.numeric(brent))
 
@@ -182,7 +182,7 @@ focus_daily <- read_csv("data/processed/focus_daily.csv", show_col_types = FALSE
             focus_ipca12m  = as.numeric(focus_ipca12m),
             focus_selic_ny = as.numeric(focus_selic_ny))
 
-dgs2_daily <- read_csv("data/fred_dgs2.csv", show_col_types = FALSE) |>
+dgs2_daily <- read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), ust2y = as.numeric(ust2y))
 
 copom_wed  <- load_copom_wednesdays(from = LOAD_START, to = SAMPLE_END)
@@ -652,14 +652,14 @@ fmt <- function(x, d = 2) formatC(x, format = "f", digits = d)
 md <- c(
   "# Coincidencia FOMC no instrumento Copom — teste diario e reestimacao",
   "",
-  sprintf("*Gerado por `script/fomc_coincidence.R` em %s. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `relatorio/working-notes/2026-08-10_coincidencia_fomc.md`.*",
+  sprintf("*Gerado por `script/fomc_coincidence.R` em %s. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-10_coincidencia_fomc.md`.*",
           format(Sys.Date())),
   "",
   "## A pergunta",
   "",
   "A surpresa de producao `e_di_bs` e residualizada so em regressores **predeterminados**, entao um choque realizado *dentro* da janela Qua->Qui e ortogonal a essa RHS por construcao e passa direto. Uma surpresa hawkish do Fed sobe o DI, derruba o Ibovespa — e o filtro JK **retem** o dia como \"politica\" — deprecia o BRL e abre EMBI/CDS. E o resultado central inteiro, sem canal domestico.",
   "",
-  sprintf("Ate 2026-08-10 o repositorio nao tinha como responder: `R/instrument/build_variants.R:244` computa `fomc_coincide`, mas `data/fomc_dates.csv` nunca existiu e `script/instrument.R` caia num vetor vazio, entao a flag era **sempre FALSE**. As datas agora vem de `R/data_download/fomc_dates.R` (paginas de calendario do proprio Fed): **%d dos %d dias Copom** da amostra coincidem com decisao do FOMC.",
+  sprintf("Ate 2026-08-10 o repositorio nao tinha como responder: `R/instrument/build_variants.R:244` computa `fomc_coincide`, mas `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caia num vetor vazio, entao a flag era **sempre FALSE**. As datas agora vem de `R/data_download/fomc_dates.R` (paginas de calendario do proprio Fed): **%d dos %d dias Copom** da amostra coincidem com decisao do FOMC.",
           sum(days$fomc_coincide), nrow(days)),
   "",
   "## Regra de leitura, fixada antes de os numeros existirem",
@@ -668,7 +668,7 @@ md <- c(
   "- Ambos nulos, mas a mascara re-derivada derruba ξ_mp abaixo de 3,84 ou inverte um sinal em h=0 -> **sinal fraco**.",
   "- Ambos nulos no restante -> **confound nao detectado**.",
   "",
-  "A regra tinha uma terceira perna, retirada em 2026-08-10 junto com o teste que a alimentava. A divisao dos 62 dias retidos em metades com e sem FOMC exigia que a metade sem-FOMC preservasse os sinais das manchetes com o ponto de producao dentro do CI90 dela, e na rodada daquele dia essa perna **passou** sem acionar a clausula de poder, enquanto a metade *com* FOMC saiu com conjunto AR ilimitado e portanto inutilizavel para citacao em qualquer direcao. Retirar uma perna satisfeita torna a regra estritamente mais permissiva, de modo que o veredito nao pode ter mudado por causa do corte. Os numeros das duas metades estao no historico do git e **nao sao reproduziveis por este script**. Registro em `_instrucoes/historico_decisoes.md`.",
+  "A regra tinha uma terceira perna, retirada em 2026-08-10 junto com o teste que a alimentava. A divisao dos 62 dias retidos em metades com e sem FOMC exigia que a metade sem-FOMC preservasse os sinais das manchetes com o ponto de producao dentro do CI90 dela, e na rodada daquele dia essa perna **passou** sem acionar a clausula de poder, enquanto a metade *com* FOMC saiu com conjunto AR ilimitado e portanto inutilizavel para citacao em qualquer direcao. Retirar uma perna satisfeita torna a regra estritamente mais permissiva, de modo que o veredito nao pode ter mudado por causa do corte. Os numeros das duas metades estao no historico do git e **nao sao reproduziveis por este script**. Registro em `registro/historico_decisoes.md`.",
   "",
   sprintf("**Veredito: %s.**", verdict),
   "",

@@ -2,7 +2,7 @@
 # Are the 7 static factors I(1)? Are they cointegrated? And is the
 # medium-run reversal in the IRFs economics or arithmetic?
 #
-# Council review of 2026-07-31 (relatorio/council_2026-07-31.md:74).
+# Council review of 2026-07-31 (pareceres/council_2026-07-31.md:74).
 # The harsh referee's charge, in one line: the reversal of the curve,
 # the Selic, CDS, EMBI and all seven credit cuts at h ~ 20-35 is
 # exactly what a dominant complex eigenvalue pair with a ~60-month
@@ -728,7 +728,7 @@ md <- c(
   "",
   "> **Corpo gerado por `script/factor_stationarity.R`. Reescrito por inteiro a**",
   "> **cada execução — não escrever prosa aqui.** A leitura interpretativa fica em",
-  "> `relatorio/working-notes/2026-07-31_estacionariedade_fatores.md`.",
+  "> `notas/2026-07-31_estacionariedade_fatores.md`.",
   "",
   sprintf("Spec: r = %d, q = %d, p = %d, instrumento `%s`, painel %d x %d (%s a %s).",
           R_FACTORS, Q_DYNAMIC, P_LAGS, INSTRUMENT, nrow(PANEL), ncol(PANEL),

@@ -2,15 +2,15 @@
 
 ## Project and authoritative context
 
-This project adapts Alessi and Kerssenfischer's large-dimensional DFM identification strategy to Brazilian monetary shocks and asset prices. Before proposing methodology or interpreting results, read `README.md`, `_instrucoes/Instrumento.md`, `_instrucoes/pendencias.md`, and `_instrucoes/historico_decisoes.md`. The decision history is mandatory: do not revive rejected specifications or re-derive closed questions without new evidence. Use the dated working notes and generated reports as provenance, and heed banners marking an analysis as superseded.
+This project adapts Alessi and Kerssenfischer's large-dimensional DFM identification strategy to Brazilian monetary shocks and asset prices. Before proposing methodology or interpreting results, read `README.md`, `registro/metodo.md`, `registro/pendencias.md`, and `registro/historico_decisoes.md`. The decision history is mandatory: do not revive rejected specifications or re-derive closed questions without new evidence. Use the dated working notes and generated reports as provenance, and heed banners marking an analysis as superseded.
 
-The current paper is `texto_anpec/paper_anpec.tex`. `arquivo/tex/` is an archived prose source, not an active manuscript. The written results source is `output/irf/irf_section.md`; confirm numerical claims against the underlying CSV/RDS artifacts.
+The current paper is `paper/paper_anpec.tex`. `arquivo/tex/` is an archived prose source, not an active manuscript. The written results source is `output/irf/irf_section.md`; confirm numerical claims against the underlying CSV/RDS artifacts.
 
 ## Pipeline
 
 Run from the repository root. The main order is:
 
-1. `script/download.R` writes `data/raw_data.csv`.
+1. `script/download.R` writes `data/raw/raw_data.csv`.
 2. `script/clean.R` writes `data/processed/data_log_deseasonalized.csv`.
 3. `script/instrument.R` builds the eight monthly instrument variants through `R/instrument/build_variants.R`.
 4. `script/model_alessi.R` estimates the DFM; `script/model_var.R` is the small-VAR benchmark.
@@ -21,8 +21,8 @@ Read `script/README.md` before selecting diagnostics or validation scripts. Run 
 ## Identification and model invariants
 
 - The production instrument is `z_jk_bs_purif`, selected by `DEFAULT_VARIANT`. The eight surviving variants and their exact construction are defined in the current instrument documentation and builder; do not reconstruct them from prose or archived code.
-- `data/fomc_dates.csv` is a hard input to the instrument stage and is produced by `R/data_download/fomc_dates.R`. Missing event-date data must abort, never become an empty silent fallback.
-- `data/yields/yields_dia.csv` and `data/CDS 5y.xlsx` are fixed external inputs with no repository producer. Treat them as read-only. Do not claim the yield curve is reproducible from this repository.
+- `data/raw/fomc_dates.csv` is a hard input to the instrument stage and is produced by `R/data_download/fomc_dates.R`. Missing event-date data must abort, never become an empty silent fallback.
+- `data/raw/yields/yields_dia.csv` and `data/raw/CDS 5y.xlsx` are fixed external inputs with no repository producer. Treat them as read-only. Do not claim the yield curve is reproducible from this repository.
 - The monthly sample is 2013-01 through 2025-09 with 106 series. The policy normalization variable is `yield_6m`, with a +50 bp impact shock.
 - Use `res$irfs`, not `res$irf`, and recover variable names from the estimation data. Preserve the documented factor-space dimensions and normalization when comparing IRFs.
 - Factor selection uses the BLL-standardized Bai–Ng/Amengual–Watson variants. Plain Bai–Ng (2002) is inappropriate because the panel is non-stationary by design.
@@ -37,11 +37,12 @@ For changes to the estimation core, reproduce the current impact smoke test docu
 - `diagnostics/` audits the production artifacts and must not mutate estimation code or production outputs.
 - `codigos_externos/` is gitignored, read-only reference code. Production and validation paths must use project-owned implementations or committed fixtures.
 - `arquivo/` is preserved historical material. No live path may source from it or write into it.
-- `data/` is gitignored. `output/` contains tracked estimation artifacts; regenerate only those owned by the stage you ran and record the producing script.
+- `data/` is gitignored, in two levels: `data/raw/` is untreated download output and is never hand-edited; `data/processed/` is what goes into estimation. `output/` contains tracked estimation artifacts (except `output/logs/`); regenerate only those owned by the stage you ran and record the producing script.
+- The record splits three ways and the three never mix. `registro/` is the living memory, edited in place: `metodo.md` (the design), `pendencias.md` (what is open), `historico_decisoes.md` (what died and why). `notas/` is the evidentiary record: one dated, append-only note per round, carrying a vintage banner — this is what the paper pulls numbers from. `pareceres/` is what outside reviewers sent in, kept verbatim. `progress_logs/` is session continuity and is disposable. Never write a session log into `notas/`, and never leave a durable result in `progress_logs/`.
 
 ## Coding, figures, and prose
 
-Use English for code, identifiers, and code comments; Portuguese is appropriate in `_instrucoes/`, reports, and the paper. Keep comments limited to non-obvious methodological choices. Use `ggplot2` for paper figures and preserve the established shaded 80% and 90% band style. Fail clearly on missing inputs, dimension mismatches, and invalid numerical states. Never fabricate fallback data or silently substitute a different estimator.
+Use English for code, identifiers, and code comments; Portuguese is appropriate in `registro/`, `notas/`, `pareceres/`, reports, and the paper. Keep comments limited to non-obvious methodological choices. Use `ggplot2` for paper figures and preserve the established shaded 80% and 90% band style. Fail clearly on missing inputs, dimension mismatches, and invalid numerical states. Never fabricate fallback data or silently substitute a different estimator.
 
 When results change, distinguish a specification change from an implementation bug, update the relevant authoritative note/report, and keep generated prose synchronized with source tables. Do not describe 68% bands as statistical significance where the project's two-tier reading rule reserves “significativo” for the 90% band.
 

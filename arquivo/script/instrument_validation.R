@@ -51,7 +51,7 @@ K_KEEP_GRID  <- c(20L, 42L, 60L, 80L)
 
 # ---- Reextract daily shock and JK mask --------------------
 
-di_panel <- load_di_panel("data/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
+di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 ibov_d   <- read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), ibov = as.numeric(ibov)) |> filter(!is.na(ibov))
 brl_d    <- read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
@@ -88,7 +88,7 @@ message(sprintf("JK filter: %d / %d Copom days kept (%.1f%%)",
 
 # ---- Load monthly target and instrument -------------------
 
-raw <- read_csv("data/raw_data.csv", show_col_types = FALSE) |>
+raw <- read_csv("data/raw/raw_data.csv", show_col_types = FALSE) |>
   mutate(ref.date = as.Date(ref.date)) |>
   filter(ref.date >= SAMPLE_START, ref.date <= SAMPLE_END) |>
   arrange(ref.date)

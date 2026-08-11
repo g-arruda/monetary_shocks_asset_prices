@@ -9,11 +9,12 @@ Area-specific detail lives in `.claude/rules/` and loads when you touch that are
 Independent paper replicating Alessi & Kerssenfischer (2019) for Brazil: large-scale non-stationary
 Dynamic Factor Model, monetary shocks identified by an external instrument (Copom-day DI futures
 surprises), IRFs of Brazilian asset prices. Inference: wild bootstrap (Gonçalves & Kilian 2004) with
-Kilian (1998) bias correction. Canonical paper: `texto_anpec/paper_anpec.tex`.
+Kilian (1998) bias correction. Canonical paper: `paper/paper_anpec.tex`.
 
-The record, in `_instrucoes/`: `Instrumento.md` (instrument design), `pendencias.md` (what is open),
-`historico_decisoes.md` (what died and why — **read before proposing a methodological direction**);
-plus `relatorio/working-notes/`, dated and carrying vintage banners.
+The record, in `registro/`: `metodo.md` (the live design — instrument construction and the
+identification chain), `pendencias.md` (what is open), `historico_decisoes.md` (what died and why —
+**read before proposing a methodological direction**); plus `notas/`, dated and carrying vintage
+banners, and `pareceres/`, what outside reviewers sent in.
 
 ## Production spec — the invariant that costs most to get wrong
 
@@ -28,11 +29,11 @@ first-stage F rulers still print but stopped deciding on 2026-07-26.
 
 Three ordered stages plus estimation, one `Rscript` process each, orchestrated by `script/run_all.R`:
 
-1. **`script/download.R`** → `data/raw_data.csv` (BCB, FX, yield curve, rb3 indices, EMBI/CDS/MSCI,
+1. **`script/download.R`** → `data/raw/raw_data.csv` (BCB, FX, yield curve, rb3 indices, EMBI/CDS/MSCI,
    EPU, inflation). Auxiliary downloaders in `R/data_download/`.
 2. **`script/clean.R`** → `data/processed/data_log_deseasonalized.csv` (log + X-13).
 3. **`script/instrument.R`** → 8 monthly variants via `R/instrument/build_variants.R`. Requires
-   `data/fomc_dates.csv` (hard).
+   `data/raw/fomc_dates.csv` (hard).
 4. **Estimation** — `script/model_alessi.R` (main DFM) and `script/model_var.R` (small-VAR
    **benchmark**; it does not use the factors).
 
@@ -43,7 +44,7 @@ re-estimating. Catalog of all 28 scripts in `script/README.md`; repo map in `REA
 
 ## Completed rounds
 
-Cite the note, never this table. Notes are under `relatorio/working-notes/`.
+Cite the note, never this table. Notes are under `notas/`.
 
 | round | script | note | verdict |
 |---|---|---|---|
@@ -142,7 +143,7 @@ Rscript script/fomc_coincidence.R            # FOMC spillover: US block + re-der
 Rscript script/irf_spec_sweep.R              # stage 1: point estimates (~seconds)
 Rscript script/irf_spec_stage2.R             # stage 2: bootstrap on winning cells (~2 min)
 Rscript script/irf_coherence_check.R         # 53 vars scored point-by-point (feeds §5)
-Rscript script/fig_section5.R                # texto_anpec/fig_*.pdf from the cached .rds
+Rscript script/fig_section5.R                # paper/fig_*.pdf from the cached .rds
 
 Rscript script/model_alessi.R                # main DFM (long; bootstrap dominated)
 Rscript script/model_var.R                   # small-VAR benchmark (~15 min)
@@ -175,10 +176,18 @@ Expected h0 (matches `output/irf/irf_coherence_h.csv`): `yield_6m` 0.005, `yield
 
 ## Conventions
 
-- **Language:** English for code, identifiers and this file; Portuguese for prose in `_instrucoes/`,
-  `relatorio/` and `output/*.md`.
+- **Language:** English for code, identifiers and this file; Portuguese for prose in `registro/`,
+  `notas/`, `pareceres/` and `output/*.md`.
 - **Plots:** `ggplot2`, paper style — shaded 80% and 90% bands.
 - **Comments:** minimal, only at non-trivial technical steps.
+- **Record vs. session:** `notas/` is permanent and citable — a dated note per round, carrying a
+  vintage banner, and it is what the paper pulls numbers from. `pareceres/` is what was *received*
+  (`/council`, `/referee2`, `/auditor-externo`) and is kept verbatim. `progress_logs/` is session
+  continuity and is disposable. Nothing durable goes into `progress_logs/`, and no session log goes
+  into `notas/`.
+- **Fail loud:** a missing input aborts with a pointer to the script that produces it. Never a
+  silent fallback that makes "the collection was never run" indistinguishable from "the collection
+  came back empty".
 - **Boundaries:** `R/` holds reusable modules and **never sources anything in `script/`**; function
   files carry no run logic. **No live path sources from `arquivo/`, and no live code writes into
   it.** `diagnostics/` audits and **never modifies estimation code**.

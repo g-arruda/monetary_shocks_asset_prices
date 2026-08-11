@@ -194,7 +194,7 @@ No deductions.
 
 The instrument design (`z_het_jk` extracted from heteroskedasticity-ID
 daily SVAR + JK sign filter) is justified and documented in
-`_instrucoes/Heteroscedasticidade.md`. The validation suite addresses the
+`arquivo/_instrucoes/Heteroscedasticidade.md`. The validation suite addresses the
 exact concerns flagged by Bauer-Swanson (2023) and Jarociński-Karadi (2020)
 for monetary policy instruments:
 

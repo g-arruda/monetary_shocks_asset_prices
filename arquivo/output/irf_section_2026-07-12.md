@@ -52,7 +52,7 @@ cycle) and turns mildly negative with CI68 on the long end at h≈35-38.
 `juros_cdi`/`juros_selic` respond only +2 bp (never significant): the
 month-average overnight rate does not embed the 6m surprise within the
 shock month — the known maturity-mismatch attenuation
-(`_instrucoes/justificativa_uso_yield-6m.md`), which is why `yield_6m` is
+(`registro/justificativa_uso_yield-6m.md`), which is why `yield_6m` is
 the policy variable.
 
 ## 5.2 Equities
@@ -164,7 +164,7 @@ Unemployment rises from h≥6; industrial hours fall (both significant).
 **Prices: report honestly, with the sample decomposition.** The headline
 IPCA shows a positive hump at h0-h12 that is **never significant at 90%**
 (CI68 only at h4-h8, peak +0.21) and crosses zero at h≈21. Three facts
-close the diagnosis (`relatorio/working-notes/2026-07-12_price_puzzle_ipca.md`):
+close the diagnosis (`notas/2026-07-12_price_puzzle_ipca.md`):
 (i) the hump appears with **all 8 instruments** at (6,5) full-sample —
 including the heteroskedasticity-identified ones that share nothing with
 Copom-day timing — and the JK sign filter does not shrink it, ruling out
@@ -206,7 +206,7 @@ reported with that reading.
    commonality series (equities, headline IPCA) trace to 3-4-month complex
    roots of the factor VAR(6) (modulus 0.82) and are inside the bands at
    every h; roughness correlates −0.50 (Spearman) with commonality
-   (`relatorio/working-notes/2026-07-12_irf_dentadas.md`). No ex-post
+   (`notas/2026-07-12_irf_dentadas.md`). No ex-post
    smoothing.
 
 ## 5.7 Paper-worthy findings (summary)
@@ -241,7 +241,7 @@ reported with that reading.
   `irf_spec_stage2_overlay.pdf`.
 - Working notes (2026-07-12): `price_puzzle_ipca`,
   `irf_credito_ativos_financeiros`, `irf_dentadas` under
-  `relatorio/working-notes/`.
+  `notas/`.
 
 ## Caveats
 

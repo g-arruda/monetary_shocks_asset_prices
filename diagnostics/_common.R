@@ -32,7 +32,7 @@ SPEC <- list(
 )
 
 # ---- Painel -------------------------------------------------------
-PANEL_RAW <- read_csv("data/raw_data.csv", show_col_types = FALSE)
+PANEL_RAW <- read_csv("data/raw/raw_data.csv", show_col_types = FALSE)
 panel_df  <- read_csv("data/processed/data_log_deseasonalized.csv",
                       show_col_types = FALSE) |> drop_na()
 DATES     <- as.Date(panel_df$ref.date)

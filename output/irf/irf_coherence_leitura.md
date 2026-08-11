@@ -17,7 +17,7 @@ econômica dos resultados é o §5 do paper, em
 [`irf_section.md`](irf_section.md) — que é o texto canônico. Quando os dois
 divergirem, o §5 vence. *(Desde 2026-07-29 o texto canônico migrou para
 `tex/main.tex` §4-§5 (arquivado em `arquivo/tex/main.tex` em 2026-08-02; o
-paper canônico é `texto_anpec/paper_anpec.tex`); o `irf_section.md` carrega
+paper canônico é `paper/paper_anpec.tex`); o `irf_section.md` carrega
 banner apontando para lá.)*
 
 > **⚠ Adendo de 2026-07-31 — a janela escorada h12-h48 da régua caiu num
@@ -35,7 +35,7 @@ banner apontando para lá.)*
 > vivem em h ≤ 12 (o impacto, a corcova de preços em h2-h8, o bloco de ações)
 > não são atingidos, e `cambio_usd` é a única das 14 testadas cuja reversão
 > sobrevive inteira ao corte. Detalhe em
-> `relatorio/working-notes/2026-07-31_estacionariedade_fatores.md`.
+> `notas/2026-07-31_estacionariedade_fatores.md`.
 
 Placar (após as correções B2/B3 de 2026-07-28, 53 variáveis): 22
 `coerente_forte`, 5 `coerente`, 11 `parcial`, 1 `incoerente`, 7 `ambigua`,
@@ -155,10 +155,10 @@ prior forte aqui, e forçar um não seria honesto.
 > carrega a surpresa com coef 0,326 (t = 3,97, R² 0,13); nos 62 dias retidos,
 > apenas 0,099 (R² 0,04) — a máscara **empobrece** o conteúdo de risco em vez de
 > enriquecê-lo, e as interações são negativas nas quatro proxies. Leitura
-> completa em `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
+> completa em `notas/2026-07-31_confound_soberano_jk.md`.
 >
 > **Confirmado em CDS 5a diário (2026-08-09), com uma ressalva a mais.** O mesmo
-> teste rodou na proxy que faltava (`data/CDS 5y.xlsx`): veredito idêntico,
+> teste rodou na proxy que faltava (`data/raw/CDS 5y.xlsx`): veredito idêntico,
 > mesma razão de ~3× (0,436 no controle contra 0,140 nos retidos), interação
 > −0,191. Como o CDS mede sem o arredondamento do EMBI — 0,5% de variações
 > exatamente zero contra 8,3% —, o nulo deixa de ser descartável como atenuação.
@@ -167,8 +167,8 @@ prior forte aqui, e forçar um não seria honesto.
 > soberano que um dia comum", e **não** "não carregam". ⚠ A classificação de três
 > vias foi removida do script em 2026-08-10 por não ter primeiro estágio em
 > nenhuma das metades, e nada do que ela produziu é citável. Ver
-> `relatorio/working-notes/2026-08-09_confound_soberano_cds.md` e
-> `_instrucoes/historico_decisoes.md` §2.4.
+> `notas/2026-08-09_confound_soberano_cds.md` e
+> `registro/historico_decisoes.md` §2.4.
 
 **Os três placebos passam.** `sp500_vix` (contém zero em 96% dos horizontes),
 `msci` (100%) e `epu_us` (100%).
@@ -210,13 +210,13 @@ impossível conferir a normalização a partir dos artefatos publicados.
   (contagens, tabelas por grupo); regerado a cada run.
 - `irf_coherence_h.csv` — ponto + bandas 68/90 + flags por horizonte, fonte de
   todos os números acima.
-- `relatorio/working-notes/2026-08-09_confound_soberano_cds.md` (corrente, duas
+- `notas/2026-08-09_confound_soberano_cds.md` (corrente, duas
   proxies) + `2026-07-31_confound_soberano_jk.md` (original) +
   `output/instrument/jk_sovereign_confound.{csv,md}` — o teste diário que absolve
   a máscara JK da acusação de selecionar risco soberano, e portanto sustenta a
   leitura de dominância fiscal dos quatro canais soft acima.
 - `R/identification/irf_coherence.R::coherence_var_table()` — onde as janelas
   `[w_lo, w_hi]` são definidas; é o arquivo a editar se a régua for recalibrada.
-- `relatorio/working-notes/_indice.md` — leituras anteriores, escritas sob
+- `notas/_indice.md` — leituras anteriores, escritas sob
   (6,5) e `z_jk_purif`; todas com banner de vintage. Não reaproveitar números
   de lá.

@@ -7,7 +7,7 @@ com as correções B2, B3 e B4.
 
 Fora de escopo, declarado: a **Tarefa 8** (sensibilidade a r,q) não foi pedida,
 e a **inversão Anderson-Rubin** (item 4.3-4.4 do prompt) ficou adiada — era o
-item #1 de `_instrucoes/pendencias.md`. **Foi feita em 2026-08-10** e o
+item #1 de `registro/pendencias.md`. **Foi feita em 2026-08-10** e o
 resultado está no fim deste documento; o corpo da Tarefa 4 abaixo **não foi
 reescrito**, e continua sendo o registro do que se sabia em 07-28. Dentro da Tarefa 6, o item **6.3
 (juro real / NTN-B) é NÃO EXECUTÁVEL** por dependência de dado ausente, e isso
@@ -461,7 +461,7 @@ picos observados (h=31-34 no bloco de juros, h=24-37 no de ativos). **A corcova
 > **➜ Continuação em 2026-07-31 — esta seção foi testada, e a conclusão acima
 > sobrevive por um caminho mais forte do que o que a produziu.**
 > `script/factor_stationarity.R` → `output/factors/`; leitura em
-> `relatorio/working-notes/2026-07-31_estacionariedade_fatores.md`.
+> `notas/2026-07-31_estacionariedade_fatores.md`.
 > A coincidência de períodos registrada aqui é sugestiva e nada mais — e um
 > teste de reestimação em p ∈ {1,4,6} chega a **absolver** a especificação (o
 > vale existe até em p=1, onde a raiz dominante é real, e a mediana do horizonte
@@ -742,7 +742,7 @@ reamostras são todas normalizadas a 0,005. É confirmação mecânica de que o
 O item pede acrescentar juro real / NTN-B ao painel para testar a hipótese de
 duration do IFIX. O dado não existe:
 
-- `data/raw_data.csv` **tem** as colunas `breakeven_{1y,2y,5y}`, mas as 193
+- `data/raw/raw_data.csv` **tem** as colunas `breakeven_{1y,2y,5y}`, mas as 193
   linhas são a string `"NA"`. `script/clean.R:12` descarta colunas 100% NA —
   é por isso que o painel tem 106 séries.
 - `R/data_download/anbima_breakeven.R:41-56` chama `rb3::yc_brl_get()` e
@@ -823,7 +823,7 @@ nem estatística (0 horizontes sig90) nem de seção cruzada.
 > desta tarefa seguem de pé como leitura de **regime**.
 >
 > **Reforçado em 2026-08-09 na proxy que esta seção usa como baseline.** O teste
-> passou a rodar também em **CDS 5a diário** (`data/CDS 5y.xlsx`), com o mesmo
+> passou a rodar também em **CDS 5a diário** (`data/raw/CDS 5y.xlsx`), com o mesmo
 > veredito e a mesma razão de ~3× (0,436 no controle contra 0,140 nos retidos).
 > Isso importa aqui em particular porque a 7.4d migrou o baseline de EMBI para
 > **CDS** em 07-29: a proxy que decide a leitura de regime é agora a mesma que
@@ -831,7 +831,7 @@ nem estatística (0 horizontes sig90) nem de seção cruzada.
 > tem de herdar:** no CDS o coeficiente dos 62 dias retidos é
 > **significativo** (p_boot 0,003) e não marginal como no EMBI — os dias retidos
 > carregam menos risco soberano que um dia comum, **não** zero. Ver
-> `relatorio/working-notes/2026-08-09_confound_soberano_cds.md`.
+> `notas/2026-08-09_confound_soberano_cds.md`.
 >
 > Duas conexões que valem para ler a seção: (i) a síntese do council observou que
 > o achado desta tarefa — **o impacto cambial não é dependente de estado em
@@ -841,7 +841,7 @@ nem estatística (0 horizontes sig90) nem de seção cruzada.
 > caminho — os 31 dias classificados "política" (selecionados por *apreciação*
 > diária do BRL) ainda entregam **depreciação** mensal, ou seja a depreciação é
 > **propagação mensal, não seleção de dias**. Leitura completa em
-> `relatorio/working-notes/2026-07-31_confound_soberano_jk.md`.
+> `notas/2026-07-31_confound_soberano_jk.md`.
 
 > **⚠ Baseline migrado para o CDS em 2026-07-29, e a seção foi re-rodada
 > inteira.** `07_dominancia_fiscal.R` agora tem `BASELINE <- "cds_ma12"` e
@@ -1491,7 +1491,7 @@ legíveis os números das três séries — `cds_5y` no impacto era "+2907" e é
 | E1 | `commodity_metal/agro/energia` são preços em R$, não placebos | **APLICADO** via B3 — foi para `ambiguous`. `pendencias.md` atualizado: não é caveat de exogeneidade |
 | E2 | Horizonte de interpretação | **PROMOVIDO DE RECOMENDAÇÃO A CONCLUSÃO** pela Tarefa 6. Declarar **h ≤ 12** como janela reportável. No bloco de ativos, a evidência é decisiva: 8/8 negativos em h=0 contra 1/8 em h=12, amplitude de seção cruzada ×30,4 até h=48, correlação com a sensibilidade a juros invertendo de +0,90 para −0,67, e **zero** horizontes sig90 em qualquer h |
 | E3 | Comunalidade baixa em 3 séries usadas no §5 | `price_core_ipca_ex0` (R²_dif 0,315) e `asset_ifix` (0,453) têm razão sinal-ruído pior que o resto do painel. Testar por local projection antes de sustentar afirmação neles. **Não é caso de mexer no painel** — o R²_chi negativo em 31 séries é aritmética da padronização BLL, não defeito. *Parcialmente atendido pela Tarefa 7.0*: o LP-IV agregado, que não passa por `Λ`, reproduz sinal e ordem de grandeza do DFM em `cambio_usd`, `embi_perc`, `cds_5y` e `price_ipp` no impacto (razão 0,61-0,72). Falta rodar o mesmo para `asset_ifix` |
-| E8 | O **impacto** não é dependente de estado, a **persistência** é | *Tarefa 7, revisado em 2026-07-29 sob baseline CDS.* Não apresentar a cadeia de h=0-4 como fenômeno de regime de alto risco: ela está nos dois regimes (\|t_dif\| ≤ 1,13 nos 7 indicadores) e é característica média da amostra. A persistência em h=6-8, ao contrário, **é** dependente de estado sob CDS e sob ΔDBGG, e virou subseção própria do §5 com as três especificações lado a lado e o desacordo do EMBI declarado. **Atendido** em `tex/main.tex` (arquivado em 2026-08-02 como `arquivo/tex/main.tex`; ainda não portado para `texto_anpec/paper_anpec.tex`), `\ref{sec:estado}` |
+| E8 | O **impacto** não é dependente de estado, a **persistência** é | *Tarefa 7, revisado em 2026-07-29 sob baseline CDS.* Não apresentar a cadeia de h=0-4 como fenômeno de regime de alto risco: ela está nos dois regimes (\|t_dif\| ≤ 1,13 nos 7 indicadores) e é característica média da amostra. A persistência em h=6-8, ao contrário, **é** dependente de estado sob CDS e sob ΔDBGG, e virou subseção própria do §5 com as três especificações lado a lado e o desacordo do EMBI declarado. **Atendido** em `tex/main.tex` (arquivado em 2026-08-02 como `arquivo/tex/main.tex`; ainda não portado para `paper/paper_anpec.tex`), `\ref{sec:estado}` |
 | E9 | Teste de igualdade entre regimes exige bootstrap | *Novo, Tarefa 7.4.* O χ² assintótico tem q95 de 2,3× a 5,3× o valor tabelado nesta amostra. Se algum exercício futuro comparar subamostras, o p assintótico **não** serve — usar wild block bootstrap sob H0, como já é a convenção da Tarefa 1 |
 | E4 | `p = 6` hard-coded | AIC diz 4, BIC e HQ dizem 1. Declarar `p = 6` como escolha (segue Alessi-Kerssenfischer) e reportar a sensibilidade, ou adotar um critério |
 | E5 | Unidades mistas na saída | Publicar as IRFs de juros **em pontos-base**, não em unidade nativa. Sem isso, a tabela sugere que a Selic responde 26× o DI 6m quando responde ~1/10 |
@@ -1562,7 +1562,7 @@ Riscados os itens que esta segunda rodada fechou.
    vale **+16,4%** de largura a 90%. Isto **não desfaz** a Tarefa 7.0: o LP-IV
    independente continua dizendo que a cadeia não é artefato do `Λ`, e agora a
    validade de banda sob ξ_mp = 10,43 também está medida. Detalhe:
-   `relatorio/working-notes/2026-08-10_bandas_anderson_rubin.md`.
+   `notas/2026-08-10_bandas_anderson_rubin.md`.
 2. **Decomposição nível/inclinação/curvatura** da resposta da curva — testa H3,
    a única das três hipóteses de causa raiz ainda sem teste. Barato.
 3. **Completar o teste de H1** para `asset_ifix` e `price_core_ipca_ex0` por

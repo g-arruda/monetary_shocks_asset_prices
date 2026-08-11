@@ -8,7 +8,7 @@
 # direction relative to the Gaussian and non-Gaussian spans — because what the
 # paper needs identified is the monetary column, not all of C.
 #
-# `_instrucoes/pendencias.md` suggested reusing `output/irf/irf_coherence_cell.rds`
+# `registro/pendencias.md` suggested reusing `output/irf/irf_coherence_cell.rds`
 # to avoid re-estimating. That file does not carry the DFM object (only irf,
 # var_names, tcode, mpind, ...), so the gate re-estimates; it is cheap because
 # nothing here needs the bootstrap.

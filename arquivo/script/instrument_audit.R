@@ -37,7 +37,7 @@ MAX_GAP_DAYS <- 3L
 
 # ---- F1: rebuild the daily shock series --------------------
 
-di_panel  <- load_di_panel("data/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
+di_panel  <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 ibov_d    <- read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), ibov = as.numeric(ibov)) |> filter(!is.na(ibov))
 brl_d     <- read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
@@ -112,7 +112,7 @@ jk_mask <- sign(shocks_C) != 0 & sign(ibov_C) != 0 & sign(shocks_C) != sign(ibov
 
 # ---- F2: monthly policy candidates -------------------------
 
-raw <- read_csv("data/raw_data.csv", show_col_types = FALSE) |>
+raw <- read_csv("data/raw/raw_data.csv", show_col_types = FALSE) |>
   mutate(ref.date = as.Date(ref.date)) |>
   filter(ref.date >= SAMPLE_START, ref.date <= SAMPLE_END) |>
   arrange(ref.date)

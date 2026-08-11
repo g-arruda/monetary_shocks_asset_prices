@@ -52,7 +52,7 @@ so the instrument **labels** rather than identifies, and the proxy restriction b
 - **Do not call `IdSS::estim.SVAR.ICA`** — Renne's ICA path is broken for n ≥ 4 (`make.M`/`make.C`
   mis-order the skew-symmetric fill; the gradient uses `(I+A)` where Cayley requires `(I+C)`). q = 6
   here. `make.Omega` / `make.A.matrix` / `make.Asympt.Cov.delta` *are* correct and are the
-  cross-validation targets. `_instrucoes/historico_decisoes.md` §0.1.
+  cross-validation targets. `registro/historico_decisoes.md` §0.1.
 - **The wild bootstrap is invalid on this branch** — Rademacher multipliers zero all third moments
   and destroy the asymmetry Assumption A.5 needs. It resamples i.i.d. with replacement (as GMR's
   appendix §E does); proxy and het keep Rademacher.

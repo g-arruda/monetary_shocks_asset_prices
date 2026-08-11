@@ -318,12 +318,12 @@ Pontos a destacar (não enterrar) no paper:
 3. **Heterogeneidade pre/post-COVID** (β +37%, SE +151%, R² estável) como achado sobre regime de comunicação BCB pós-2020, não nota de rodapé.
 4. **Cross-language replication discipline** (R + Python a 6 decimais) em methods footnote.
 
-Detalhe completo em `working-notes/2026-04-26_blindspot_validation.md`.
+Detalhe completo em `arquivo/relatorio/2026-04-26_blindspot_validation.md`.
 
 ### Atualização 2026-07-11 — varredura de especificações: a fraqueza factor-space é COVID-driven
 
 A varredura de 320 células (`script/irf_spec_sweep.R`; ver
-`relatorio/working-notes/2026-07-11_varredura_irf.md`) qualifica o rebaixamento
+`notas/2026-07-11_varredura_irf.md`) qualifica o rebaixamento
 de 2026-05-08. O F (factor-space) das variantes het depende fortemente da
 janela e do grid (r, q):
 

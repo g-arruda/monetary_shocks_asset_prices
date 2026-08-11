@@ -2,7 +2,7 @@
 
 > **Corpo gerado por `script/factor_stationarity.R`. Reescrito por inteiro a**
 > **cada execução — não escrever prosa aqui.** A leitura interpretativa fica em
-> `relatorio/working-notes/2026-07-31_estacionariedade_fatores.md`.
+> `notas/2026-07-31_estacionariedade_fatores.md`.
 
 Spec: r = 7, q = 6, p = 6, instrumento `z_jk_bs_purif`, painel 153 x 106 (2013-01-01 a 2025-09-01).
 

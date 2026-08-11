@@ -11,7 +11,7 @@
 # both sample windows. One estimate_dfm per window; the instruments
 # enter only the cheap projection step.
 #
-# This answers Etapa 8.1 of _instrucoes/Instrumento.md ("substituir DI
+# This answers Etapa 8.1 of registro/metodo.md ("substituir DI
 # 3m por DI 6m e DI 12m") and re-documents a specification choice whose
 # only surviving justification was a code comment. The predecessor grid,
 # arquivo/output/instrument_grid.csv (2026-04-12), is stale on three
@@ -88,13 +88,13 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 cat("Loading daily inputs ...\n")
 
-di_panel <- load_di_panel("data/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
+di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
 inputs <- list(
   di_panel   = di_panel,
   ibov_daily = read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
     transmute(date = as.Date(date), ibov = as.numeric(ibov)) |> filter(!is.na(ibov)),
-  ext_daily  = read_csv("data/investing/external_factors_daily.csv", show_col_types = FALSE) |>
+  ext_daily  = read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
     transmute(date = as.Date(date), sp500 = as.numeric(sp500),
               vix = as.numeric(vix), brent = as.numeric(brent)),
   brl_daily  = read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
@@ -102,7 +102,7 @@ inputs <- list(
   focus_daily = read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
     transmute(date = as.Date(date), focus_ipca12m = as.numeric(focus_ipca12m),
               focus_selic_ny = as.numeric(focus_selic_ny)),
-  dgs2_daily = read_csv("data/fred_dgs2.csv", show_col_types = FALSE) |>
+  dgs2_daily = read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
     transmute(date = as.Date(date), ust2y = as.numeric(ust2y)),
   copom_wed  = load_copom_wednesdays(from = LOAD_START, to = SAMPLE_END),
   fomc_dates = as.Date(character(0))
@@ -374,7 +374,7 @@ sections <- c(
   "",
   if (rule_fires)
     paste0("**A regra DISPARA.** A construção de produção deve ser revista — ",
-           "ver o item de checkpoint em `_instrucoes/pendencias.md`.")
+           "ver o item de checkpoint em `registro/pendencias.md`.")
   else
     paste0("**A regra NÃO dispara.** O incumbente (", PROD_BD, " du + soma JK) ",
            "permanece. Nenhuma célula vence por margem que sobreviva ao ruído ",

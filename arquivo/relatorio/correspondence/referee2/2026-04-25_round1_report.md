@@ -129,7 +129,7 @@ are valid under their respective sample definitions; neither is wrong.
   `instrument_het.R:97` does pass `seed = 42L`). Consider documenting that
   the variance CIs are deterministic only with this seed.
 - `R/data_download/external_factors.R` does not download dependencies into
-  a documented `data/raw/` subtree; outputs land in `data/investing/` and
+  a documented `data/raw/` subtree; outputs land in `data/raw/investing/` and
   `data/processed/`. Consistent with project history but a public
   replication package would prefer `data/raw/` for downloads.
 
@@ -202,7 +202,7 @@ The strategy is **credible** for Brazil given:
    `script/instrument_diagnostics.R` reports OSW F = 1.54 for `z_het`,
    versus F = 4.91 for `z_bruto_purif`. Below the Stock-Yogo 10 threshold
    *and* below the manual ξ_1 = 3.84 threshold. This is acknowledged in
-   `_instrucoes/Heteroscedasticidade.md` ("Limitação conhecida"). For
+   `arquivo/_instrucoes/Heteroscedasticidade.md` ("Limitação conhecida"). For
    inference, Anderson-Rubin robust intervals are required; the standard
    percentile bootstrap CIs reported by the existing pipeline could be
    misleading. **Recommendation:** either flag z_het as a robustness
@@ -299,7 +299,7 @@ re-architecting the pipeline.
 1. **Decide z_het's role:** primary instrument (then implement Anderson-
    Rubin or nested bootstrap) vs. robustness check (then label it as such
    in the paper and diagnostics).
-2. **Disclose the rank-2 finding** in `_instrucoes/Heteroscedasticidade.md`
+2. **Disclose the rank-2 finding** in `arquivo/_instrucoes/Heteroscedasticidade.md`
    and the published methodology section.
 3. **Align NA handling** between `validate_variance_split` and the
    identification step, or document the asymmetry.

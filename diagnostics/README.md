@@ -12,7 +12,7 @@ que este arquivo cobre.
 
 | script | tarefa | o que faz |
 |---|---|---|
-| `_common.R` | infraestrutura | Carregado por todo `0X_*.R`: importa 5 módulos de produção de `R/`, lê `data/raw_data.csv` e o painel deseasonalizado em `PANEL`, lê `data/processed/instrumentos_mensais.csv`, e carrega o cache `output/irf/irf_coherence_cell.rds` em `CELL` (se existir). Define `SPEC` (a especificação de produção) e os helpers `diag_write()`/`md_tbl()` usados por todos os scripts abaixo. |
+| `_common.R` | infraestrutura | Carregado por todo `0X_*.R`: importa 5 módulos de produção de `R/`, lê `data/raw/raw_data.csv` e o painel deseasonalizado em `PANEL`, lê `data/processed/instrumentos_mensais.csv`, e carrega o cache `output/irf/irf_coherence_cell.rds` em `CELL` (se existir). Define `SPEC` (a especificação de produção) e os helpers `diag_write()`/`md_tbl()` usados por todos os scripts abaixo. |
 | `01_exogeneidade.R` | 1 | Testa exogeneidade do instrumento: regressões de previsibilidade global/por-fator, autocorrelação, correlações cruzadas com placebos, e o teste decisivo de que `commodity_metal` é artefato de denominação (BRL), não falha de exogeneidade. |
 | `02_unidades_sinal.R` | 2 | Checa unidades/normalização/sinal: reconstrói a tabela de IRF completa (106 variáveis, contra as 52 da tabela de produção que omite `yield_6m`), compara IRF em h0 (pontos-base) com correlações contemporâneas cruas no bloco de juros. |
 | `03_composicao_painel.R` | 3 | Audita a composição do painel: `juros_selic` vs. `juros_cdi`, pares quase-duplicados (\|cor\|>0,98), tamanho de bloco/colinearidade interna, e reestima o DFM sem os duplicados para checar sensibilidade de IRF/força do instrumento. |

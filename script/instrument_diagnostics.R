@@ -87,7 +87,7 @@ variants <- variants[file.exists(unlist(variants))]
 # yield_6m AR(6) innovation: shared across variants. residualize_target keeps
 # residual length equal to input via na.exclude, so positional alignment with
 # the instrument (joined on month) is valid.
-y6m_raw <- read_csv("data/raw_data.csv", show_col_types = FALSE) |>
+y6m_raw <- read_csv("data/raw/raw_data.csv", show_col_types = FALSE) |>
   mutate(ref.date = as.Date(ref.date)) |>
   filter(ref.date >= YIELD6M_SAMPLE_MIN, ref.date <= YIELD6M_SAMPLE_MAX) |>
   arrange(ref.date)
@@ -369,7 +369,7 @@ report <- paste(
   "  IRFs become noise-dominated regardless of how strong Z is against any",
   "  single reduced-form variable. **FS-Flag = WEAK-FACT when F (factor-sp) < 10.**",
   "  Disagreement between F (factor-sp) and F (y6m AR) was the root cause",
-  "  of the 2026-05-08 IRF investigation (see _instrucoes/historico_decisoes.md).",
+  "  of the 2026-05-08 IRF investigation (see registro/historico_decisoes.md).",
   "",
   "The three answers can disagree by an order of magnitude. ξ₁ uses the",
   "Olea-Stock-Watson convention; threshold = 3.84.",

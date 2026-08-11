@@ -1,7 +1,7 @@
 # ============================================================
 # Feasibility gates for the het-primary identification
 # (architecture A: monthly Copom/non-Copom regimes on the
-# factor-VAR innovations — _instrucoes/plano_reimplementacao_het.md).
+# factor-VAR innovations — arquivo/_instrucoes/plano_reimplementacao_het.md).
 # Grid: (r,q) x {full, pre_covid} x p in {6, 3}. Per cell:
 #   G1  monthly A1 (variance shift in the policy direction; placebo
 #       by permutation of month labels)

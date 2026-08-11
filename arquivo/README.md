@@ -5,7 +5,7 @@ citado pelo paper. O conteúdo foi preservado — em vez de apagado — porque
 documenta **resultados negativos** e decisões revertidas que custaram trabalho e
 que não estão registrados em nenhum outro lugar do repositório.
 
-**Leia antes:** [`_instrucoes/historico_decisoes.md`](../_instrucoes/historico_decisoes.md)
+**Leia antes:** [`registro/historico_decisoes.md`](../registro/historico_decisoes.md)
 explica *por que* cada bloco foi arquivado. Este README só diz *o que* está aqui.
 
 > ⚠️ Nada aqui reproduz contra o painel atual. Todo este material é anterior ao
@@ -43,8 +43,8 @@ Investigação de 2026-07-15/16 sobre por que um `ξ_mp > 0` ainda podia entrega
 uma IRF contaminada. Ficou obsoleta com o refresh de vintage de 2026-07-24
 (que resolveu o problema por uma causa não relacionada às hipóteses testadas
 aqui) e não é citada em nenhum lugar do CLAUDE.md corrente. A nota-irmã já
-estava marcada "superseded" em `relatorio/working-notes/_indice.md`; dois
-destes scripts citam `_instrucoes/irf_consistentes.md`, que não existe mais.
+estava marcada "superseded" em `notas/_indice.md`; dois
+destes scripts citam `arquivo/_instrucoes/irf_consistentes.md`, que não existe mais.
 
 | script | o que fazia |
 |---|---|
@@ -58,13 +58,13 @@ destes scripts citam `_instrucoes/irf_consistentes.md`, que não existe mais.
 
 | script | o que fazia | por que saiu |
 |---|---|---|
-| `diagnose_factor_space_F.R` | Grid do max-F univariado sobre as q inovações de fator, `r=7,p=6` fixos, `q∈{2,3,4,6}` × 8 variantes. Escrevia `factor_space_F_grid.csv` | O `f_factor` **deixou de decidir** em 2026-07-26, quando a taxonomia migrou para ξ_mp (`classify_sweep_cells`); sob a régua antiga o instrumento de produção pontuava 6,31 e nunca alcançava uma célula "elegível", enquanto `z_jk_purif` pontuava 11,08 com ξ_mp 5,77 — exatamente a inversão que motivou a troca. A triagem de 2026-08-05 confirmou que ele não é dependência nem do `texto_anpec/` nem de nenhum item da tier list de robustez |
+| `diagnose_factor_space_F.R` | Grid do max-F univariado sobre as q inovações de fator, `r=7,p=6` fixos, `q∈{2,3,4,6}` × 8 variantes. Escrevia `factor_space_F_grid.csv` | O `f_factor` **deixou de decidir** em 2026-07-26, quando a taxonomia migrou para ξ_mp (`classify_sweep_cells`); sob a régua antiga o instrumento de produção pontuava 6,31 e nunca alcançava uma célula "elegível", enquanto `z_jk_purif` pontuava 11,08 com ξ_mp 5,77 — exatamente a inversão que motivou a troca. A triagem de 2026-08-05 confirmou que ele não é dependência nem do `paper/` nem de nenhum item da tier list de robustez |
 
 ## `arquivo/R/modeling/` — módulos
 
 | módulo | conteúdo | por que saiu |
 |---|---|---|
-| `svensson_model.R` | Ajuste de curva de Svensson (1994): `svensson_rate`, `fit_svensson`, `generate_fixed_maturity_series`, `svensson_forward_rate`, `summarize_svensson_fit`, `plot_svensson_fit`, `calculate_yield_spreads` (~600 linhas) | Órfão desde a deleção de `script/yield_curve.R` em 2026-07-26 — a curva de juros é insumo externo fixo do orientador (`data/yields/yields_dia.csv`), não há estágio de ajuste no repositório. Zero consumidores em `script/`, `R/` ou `diagnostics/`. **Arquivado, não apagado**, porque é código de modelagem reutilizável: se a curva algum dia voltar a ser ajustada in-house, comece daqui. Fecha a pendência E5, que pedia exatamente esta decisão |
+| `svensson_model.R` | Ajuste de curva de Svensson (1994): `svensson_rate`, `fit_svensson`, `generate_fixed_maturity_series`, `svensson_forward_rate`, `summarize_svensson_fit`, `plot_svensson_fit`, `calculate_yield_spreads` (~600 linhas) | Órfão desde a deleção de `script/yield_curve.R` em 2026-07-26 — a curva de juros é insumo externo fixo do orientador (`data/raw/yields/yields_dia.csv`), não há estágio de ajuste no repositório. Zero consumidores em `script/`, `R/` ou `diagnostics/`. **Arquivado, não apagado**, porque é código de modelagem reutilizável: se a curva algum dia voltar a ser ajustada in-house, comece daqui. Fecha a pendência E5, que pedia exatamente esta decisão |
 
 ## `arquivo/R/identification/` — módulos
 
@@ -86,7 +86,7 @@ IRFs no mesmo formato.
 |---|---|
 | `2026-04-25_blindspot_het_instrument.md` | Ruling condicional sobre `z_het_jk`; chegou a propor reposicionar o paper em torno de identificação por variância |
 | `2026-04-26_blindspot_validation.md` | Auditoria da suíte T1-T4; apontou que a F do JK fica *no* percentil 99 das máscaras aleatórias, não acima |
-| `council_2026-05-05.md` | Painel de três críticos sobre o corpus `_instrucoes/` da época (*Major Revision*). Todo o veredito é sobre `z_het_jk`: falha de A2 em DI_2y, rank-1 imposto por asserção, e o F=21,3 medido contra a inovação AR(6) e não contra o primeiro estágio estrutural. As três exigências foram superadas pelos eventos — a het saiu do paper e a régua virou ξ_mp |
+| `council_2026-05-05.md` | Painel de três críticos sobre o corpus `registro/` da época (*Major Revision*). Todo o veredito é sobre `z_het_jk`: falha de A2 em DI_2y, rank-1 imposto por asserção, e o F=21,3 medido contra a inovação AR(6) e não contra o primeiro estágio estrutural. As três exigências foram superadas pelos eventos — a het saiu do paper e a régua virou ξ_mp |
 | `correspondence/referee2/` | Dois rounds de referee interno sobre o bloco het (round 1 *Minor Revisions*, round 2 *Accept*) + `replication/`, a réplica NumPy que batia em 6+ casas decimais |
 
 O único achado **não-het** desse material já foi extraído para
@@ -114,16 +114,16 @@ forma, já que os CSVs het de entrada foram apagados.
 
 O draft abntex2 (`main.tex`, "Choques monetários nos preços dos ativos") que
 foi o paper canônico até 2026-08-02, quando o autor decidiu que o rascunho
-ANPEC (`texto_anpec/paper_anpec.tex`, classe `elsarticle`) passa a ser o
+ANPEC (`paper/paper_anpec.tex`, classe `elsarticle`) passa a ser o
 documento corrente. **Não superado por vintage ou por bug** — o conteúdo era
 o corrente: §3 (Metodologia) em (7,6) e §4/§5 (Resultados/Robustez)
 reescritas em 2026-07-30 sob a regra de leitura em duas camadas (90% =
 *significativo*, 68% = direção e magnitude). Preservado porque **`§5
-Robustez` não tem contrapartida ainda em `texto_anpec/`** — é a fonte de
+Robustez` não tem contrapartida ainda em `paper/`** — é a fonte de
 prosa a reaproveitar até essa seção ser escrita no rascunho corrente, não um
 alvo de edição ativo. `img/` guarda as 8 figuras citadas pelo texto, agora
 como **registro histórico congelado**: em 2026-08-05 `script/fig_section5.R`
-foi repontado para `texto_anpec/`, de modo que **nenhum código vivo escreve
+foi repontado para `paper/`, de modo que **nenhum código vivo escreve
 mais dentro de `arquivo/`** — a invariante que o resto deste README já exigia
 para `source()` agora vale também para escrita. Ver a entrada `arquivo/tex/`
 em `CLAUDE.md` para o que cada seção chegou a cobrir.
@@ -144,8 +144,8 @@ recuperar.
   julho/15, `irf_model_alessi_r6q5.pdf` — ~12 MB que não reproduzem contra as
   106 séries.
 
-- `texto_anpec/img/` (6 PDFs, 2026-08-05): duplicata byte-idêntica das figuras
-  na raiz de `texto_anpec/`. O `paper_anpec.fls` mostra que o compile sempre
+- `paper/img/` (6 PDFs, 2026-08-05): duplicata byte-idêntica das figuras
+  na raiz de `paper/`. O `paper_anpec.fls` mostra que o compile sempre
   leu da raiz; só linhas `\includegraphics` comentadas apontavam para `img/`.
   Regenerável por `script/fig_section5.R` ⇒ apagada, não arquivada.
 

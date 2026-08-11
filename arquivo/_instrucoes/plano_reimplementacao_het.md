@@ -78,7 +78,7 @@ Cadeia em cinco camadas (`script/instrument_het.R` + `R/identification/het_shock
 2. ΔΣ = Σ_C − Σ_NC; autopar líder ⇒ `b_1` (`extract_shock_rigobon_sack`) — **este passo é Rigobon**.
 3. Recuperação da série diária de choque por projeção GLS Mertens-Ravn (2013) sobre `b_1` em dias C.
 4. Filtro de sinal JK diário (zera dias "informacionais") — hipótese **extra**, não-Rigobon.
-5. Soma mensal ⇒ `z_het*` ⇒ proxy-SVAR no DFM via `H = (Z'η)/(Z'Z)` (`ident_ext_instr`) — **identificação operante = exclusion restriction mensal** (Stock-Watson 2018 §4.7), a mesma dos proxies GK. O rótulo honesto do próprio repo: "instrumento híbrido het+timing" (`_instrucoes/Heteroscedasticidade.md`).
+5. Soma mensal ⇒ `z_het*` ⇒ proxy-SVAR no DFM via `H = (Z'η)/(Z'Z)` (`ident_ext_instr`) — **identificação operante = exclusion restriction mensal** (Stock-Watson 2018 §4.7), a mesma dos proxies GK. O rótulo honesto do próprio repo: "instrumento híbrido het+timing" (`arquivo/_instrucoes/Heteroscedasticidade.md`).
 
 Consequência: o que o paper alegava como "identificação por heterocedasticidade" era, no nível onde as IRFs são calculadas, um proxy-SVAR com proxy het-fabricada. A régua de força correta era a de IV fraco (ξ_mp/MOSW), e as camadas 3-5 introduzem hipóteses (exclusion mensal, filtro JK) que Rigobon não pede.
 
@@ -122,7 +122,7 @@ Justificativa ancorada na leitura:
 **Novo (fase de código, seção 6):**
 
 - `ident_het_regimes()` em `R/modeling/impulse_responde.R` (ou módulo novo `R/identification/het_primary.R`): recebe `rawimp`, η, tabela de regimes; calcula ΔΣ_η, autopar líder, `b` normalizado; substitui `H = (Z'η)/(Z'Z)`. No loop de bootstrap: recomputa Σ_C/Σ_NC sobre `eta_boot` com os **mesmos labels**, sem instrumento (`inst_boot` desaparece no primário).
-- Tabela de regimes mensal (`build_monthly_regimes()`): meses com/sem Copom a partir de `data/copom_historico.csv`.
+- Tabela de regimes mensal (`build_monthly_regimes()`): meses com/sem Copom a partir de `data/raw/copom_historico.csv`.
 - Régua de força het substituindo ξ_mp como headline: CI bootstrap de λ₁(ΔΣ_η), razão de variâncias na direção de política, e inferência robusta a weak-ID (SW §4.5.3 — Magnusson-Mavroeidis / Nakamura-Steinsson) para as bandas quando a força for marginal.
 - Alinhamento temporal simples η↔regimes (substitui `sel_ext_inst_sample` no primário).
 - Purga Rigobon-sancionada de fator comum (se G6 acusar K>0): controles globais em VAR/regressão de primeira etapa **antes** das covariâncias por regime — substitui conceitualmente a "purificação" da proxy GK, agora no lugar onde Rigobon a coloca.
@@ -140,7 +140,7 @@ Justificativa ancorada na leitura:
 
 Reportar **inclusive resultados inconvenientes** — F fraco / curva desordenada é diagnóstico, não rodapé (memória do projeto).
 
-- **G1 (A1 mensal, decide A vs B empiricamente):** `validate_variance_split` sobre η_t do factor-VAR de produção, regimes = meses com/sem Copom (104 vs 52 em 2013-2025, conferido em `data/copom_historico.csv`). Se a razão var_C/var_NC na direção de política não excluir 1 (CI 99%), a arquitetura A é inviável e B assume.
+- **G1 (A1 mensal, decide A vs B empiricamente):** `validate_variance_split` sobre η_t do factor-VAR de produção, regimes = meses com/sem Copom (104 vs 52 em 2013-2025, conferido em `data/raw/copom_historico.csv`). Se a razão var_C/var_NC na direção de política não excluir 1 (CI 99%), a arquitetura A é inviável e B assume.
 - **G2 (rank):** `formal_rank_test_battery` sobre (Σ_C, Σ_NC) de η mensal (A) ou do bloco diário (B); **adicionar a estatística de produto cruzado de Rigobon (2003, eq. 7)** — recomendada no Appendix sobre o determinante por small-sample properties — ao lado da LR de proporcionalidade já implementada.
 - **G3 (A2 por variável):** `classify_a2_verdict`; violações ⇒ bloco reduzido (análogo ao 3-var atual).
 - **G4 (A3):** estabilidade de `b` pre/post-COVID (wrapper `run_het_window` generalizado). Complemento novo: **J-test de sobreidentificação via S ≥ 3 regimes** (sub-dividir NC, e.g. por sub-período ou tercil de volatilidade) — as restrições de sobreidentificação testam exatamente a estabilidade dos parâmetros (Rigobon 2003, seção multi-regime), destravando o teste hoje indisponível com R=2. Disciplina: só sub-dividir onde houver shift real de variância — regimes espúrios quebram a rank condition e produzem inconsistência/CIs infinitos (aviso inverso de Rigobon).
@@ -149,7 +149,7 @@ Reportar **inclusive resultados inconvenientes** — F fraco / curva desordenada
 
 ### 4.6 Propagação
 
-`script/model_alessi.R` (troca da chamada de identificação), `script/irf_spec_sweep.R`/`irf_spec_stage2.R` (novo grid), `script/irf_coherence_check.R` (re-run sob o novo primário; re-apensar leituras manuais), `script/instrument_validation.R` (re-mapear T1-T8: T1 vira permutação de labels de regime, T2/T5/T6 caem com o filtro JK, T8 QLR mantém-se), `CLAUDE.md`, `_instrucoes/` (Instrumento.md e Heteroscedasticidade.md ganham nota de status), `tex/main.tex` + `tex/references.bib` (§ metodologia — fase posterior à validação empírica).
+`script/model_alessi.R` (troca da chamada de identificação), `script/irf_spec_sweep.R`/`irf_spec_stage2.R` (novo grid), `script/irf_coherence_check.R` (re-run sob o novo primário; re-apensar leituras manuais), `script/instrument_validation.R` (re-mapear T1-T8: T1 vira permutação de labels de regime, T2/T5/T6 caem com o filtro JK, T8 QLR mantém-se), `CLAUDE.md`, `registro/` (Instrumento.md e Heteroscedasticidade.md ganham nota de status), `tex/main.tex` + `tex/references.bib` (§ metodologia — fase posterior à validação empírica).
 
 ## 5. Confronto svars (produto d)
 
@@ -166,7 +166,7 @@ Reportar **inclusive resultados inconvenientes** — F fraco / curva desordenada
 3. Harness de validação vs `svars::id.cv` em DGP simulado de quebra única (e vs a forma fechada eq. 45 em N=2).
 4. Adaptar `model_alessi.R`; re-rodar produção (nboot = 800) e coherence check; re-apensar leituras manuais do relatório de coerência. Bandas weak-ID-robustas se G5 marginal.
 5. Re-escopar spec sweep (regime × bloco × (r,q) × amostra) e validação (T1 permutação de labels; J-test S≥3; QLR; A3).
-6. Atualizar documentação (`CLAUDE.md`, `_instrucoes/`) e, por último, `tex/`.
+6. Atualizar documentação (`CLAUDE.md`, `registro/`) e, por último, `tex/`.
 
 ## 7. Riscos e falhas previsíveis
 

@@ -129,7 +129,7 @@ depende da mp_var, então uma tabela por amostra basta.
 
 ## Controle negativo (juros_selic)
 
-`juros_selic` (Selic overnight acumulada, escala percent) é mantido como controle negativo documentado — espera-se F reduzido baixo (mismatch de maturidade, ver `_instrucoes/justificativa_uso_yield-6m.md`).
+`juros_selic` (Selic overnight acumulada, escala percent) é mantido como controle negativo documentado — espera-se F reduzido baixo (mismatch de maturidade, ver `registro/justificativa_uso_yield-6m.md`).
 
 | n | f_reduced_max | f_reduced_median |
 |---|---|---|

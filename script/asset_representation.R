@@ -2,7 +2,7 @@
 # Does the RETURN representation of the B3 indices mechanically cause
 # the null result in the equity block?
 #
-# Council-review item of 2026-07-31 (_instrucoes/pendencias.md:588-595):
+# Council-review item of 2026-07-31 (registro/pendencias.md:588-595):
 # the 8 `asset_*` series enter the panel as monthly compounded simple
 # returns while the other 98 enter in level (or log-level), which is
 # inconsistent with BLL's own "do not difference" point and with
@@ -584,7 +584,7 @@ fmtn <- function(x, d = 3) formatC(x, format = "f", digits = d)
 md <- c(
   "# Ações em log-nível: a representação causa o resultado nulo?",
   "",
-  sprintf("*Gerado por `script/asset_representation.R` em %s. **Corpo gerado: não escreva prosa aqui.** A leitura interpretativa vive em `relatorio/working-notes/2026-07-31_acoes_representacao.md`.*",
+  sprintf("*Gerado por `script/asset_representation.R` em %s. **Corpo gerado: não escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-07-31_acoes_representacao.md`.*",
           format(Sys.Date())),
   "",
   "## A pergunta",
@@ -647,7 +647,7 @@ md <- c(
   "",
   "## A deriva de médio prazo do Ibovespa",
   "",
-  "O bloco comentado em `arquivo/tex/main.tex:445` (arquivado; paper canônico é `texto_anpec/paper_anpec.tex`) explica o pico de +20,3% em h≈24 como",
+  "O bloco comentado em `arquivo/tex/main.tex:445` (arquivado; paper canônico é `paper/paper_anpec.tex`) explica o pico de +20,3% em h≈24 como",
   "erro de estimação acumulado. A comparação abaixo mostra que o diagnóstico",
   "estava certo — e que a representação em nível remove o artefato na origem, em",
   "vez de explicá-lo depois.",

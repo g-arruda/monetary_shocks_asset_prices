@@ -2,7 +2,7 @@
 
 > Corpo **gerado** por `script/ar_bands.R`; reescrito por inteiro a cada
 > execução. Nunca escreva prosa aqui — a leitura interpretativa mora em
-> `relatorio/working-notes/2026-08-10_bandas_anderson_rubin.md`.
+> `notas/2026-08-10_bandas_anderson_rubin.md`.
 
 Spec: `z_jk_bs_purif` × `yield_6m`, r = 7, q = 6, p = 6, h = 0-48, choque +50 pb, NW(0).
 

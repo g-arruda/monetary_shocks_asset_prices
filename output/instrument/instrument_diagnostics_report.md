@@ -28,7 +28,7 @@ Three first-stage statistics are reported side by side:
   IRFs become noise-dominated regardless of how strong Z is against any
   single reduced-form variable. **FS-Flag = WEAK-FACT when F (factor-sp) < 10.**
   Disagreement between F (factor-sp) and F (y6m AR) was the root cause
-  of the 2026-05-08 IRF investigation (see _instrucoes/historico_decisoes.md).
+  of the 2026-05-08 IRF investigation (see registro/historico_decisoes.md).
 
 The three answers can disagree by an order of magnitude. ξ₁ uses the
 Olea-Stock-Watson convention; threshold = 3.84.

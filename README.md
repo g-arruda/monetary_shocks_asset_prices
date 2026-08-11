@@ -17,20 +17,34 @@ futuro em dia de Copom), e IRFs de preços de ativos brasileiros. Ver
 ## Árvore de 1º nível
 
 ```
-CLAUDE.md, HANDOFF.md, .gitignore, tex.zip     — arquivos soltos na raiz
-README.md                                       — este arquivo
-_instrucoes/        — docs vivos do projeto (o que está aberto, decisões)
+CLAUDE.md            — invariantes, entry points, proibições (fonte operacional)
+HANDOFF.md           — estado corrente ao fim da última sessão
+README.md            — este arquivo
+registro/            — a memória do projeto: o decidido, o aberto, o morto
+notas/               — registro probatório: nota datada por rodada, com vintage
+progress_logs/       — continuidade de sessão (efêmero, descartável)
+pareceres/           — o que foi recebido: /council, /referee2, /auditor-externo
 R/                   — módulos reutilizáveis, source()ados por script/
 script/              — pipeline ordenado + scripts de diagnóstico/robustez
 diagnostics/         — a rodada de auditoria DFM-IV de 2026-07-28
-output/              — artefatos de estimação (git-tracked)
-data/                — dados brutos/processados (gitignored)
-relatorio/           — roadmap do paper, council reviews, working-notes
-texto_anpec/         — o paper canônico (LaTeX, elsarticle, submissão ANPEC)
-artigos/             — literatura citada (PDF + extração)
-codigos_externos/    — código de referência de outros autores (read-only)
-arquivo/             — código/docs fora do pipeline ativo (histórico)
+data/                — raw/ e processed/ (gitignored)
+output/              — artefatos de estimação, por domínio (git-tracked; logs/ não)
+artigos/             — literatura citada (PDF + extração do /split-pdf-md)
+paper/  slides/      — LaTeX (elsarticle, submissão ANPEC) e Beamer
+codigos_externos/    — código de referência de outros autores (gitignored, read-only)
+arquivo/             — código/docs fora do pipeline ativo; nada vivo lê ou escreve aqui
 ```
+
+## Onde procurar o quê
+
+| procuro... | está em |
+|---|---|
+| por que a especificação é essa | `registro/metodo.md` |
+| o que falta fazer | `registro/pendencias.md` |
+| se um caminho já foi tentado | `registro/historico_decisoes.md` |
+| o número que sustenta uma frase do paper | `notas/_indice.md` → a nota datada |
+| o que um revisor externo apontou | `pareceres/` |
+| o que cada script faz | `script/README.md` |
 
 ## `script/`
 
@@ -109,22 +123,27 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 
 ## `data/` (gitignored)
 
-Dados brutos/processados, não versionados. Um nível: `raw_data.csv`,
-`raw_data_30.csv`, `di.csv` (DI futuro diário, 32 MB), `copom_historico.csv`,
-`fred_dgs2.csv`, `CDS 5y.xlsx` (CDS soberano 5a diário, export Bloomberg —
-entrada externa fixa, como a curva; lido por `jk_sovereign_confound.R`),
-`fomc_dates.csv` (datas de decisão do FOMC; **produzido** por
-`R/data_download/fomc_dates.R`, e requisito duro do estágio `instrument`
-desde 2026-08-10) na raiz; `processed/` (séries limpas/derivadas, incl. as
-variantes de instrumento); `yields/` (curva de juros fornecida pelo
+Não versionados, dois níveis: **`raw/`** é o que sai do download, sem
+tratamento e nunca editado à mão; **`processed/`** é o que entra na estimação
+(séries limpas/derivadas, incl. as variantes de instrumento).
+
+Em `raw/`: `raw_data.csv`, `raw_data_30.csv`, `di.csv` (DI futuro diário,
+32 MB), `copom_historico.csv`, `fred_dgs2.csv`, `CDS 5y.xlsx` (CDS soberano
+5a diário, export Bloomberg — entrada externa fixa, como a curva; lido por
+`jk_sovereign_confound.R`), `fomc_dates.csv` (datas de decisão do FOMC;
+**produzido** por `R/data_download/fomc_dates.R`, e requisito duro do estágio
+`instrument` desde 2026-08-10); mais `yields/` (curva de juros fornecida pelo
 orientador, `yields_dia.csv` — entrada externa fixa, sem produtor no
-repositório); `curva_juros/`, `investing/`, `epu/`,
+repositório) e `curva_juros/`, `investing/`, `epu/`,
 `banco_central_rep_dominicana/` (downloads brutos por fonte).
 
-## `_instrucoes/` — docs vivos do projeto
+## `registro/` — a memória do projeto
 
-- **`Instrumento.md`** — design corrente da construção do instrumento
-  externo (variante, vértice, esquema de agregação).
+Editado in place: quando a especificação muda, o corpo muda. O que morreu não
+fica riscado aqui, vai para `historico_decisoes.md`.
+
+- **`metodo.md`** — o desenho vivo: construção do instrumento externo
+  (variante, vértice, esquema de agregação) e a cadeia de identificação.
 - **`pendencias.md`** — só o que está aberto, organizado por tema A-E, cada
   um com um apêndice comprimido dos itens fechados.
 - **`historico_decisoes.md`** — resultados negativos e decisões revertidas
@@ -132,23 +151,33 @@ repositório); `curva_juros/`, `investing/`, `epu/`,
   GMR não-gaussiano) — ler antes de propor uma nova direção metodológica.
 - **`justificativa_uso_yield-6m.md`** — nota curta justificando normalizar o
   choque no yield de 6 meses em vez da Selic.
-
-## `relatorio/`
-
 - **`estrutura_paper_v2.md`** — roadmap seção-a-seção do paper, mapeando
   cada subseção ao artefato de `output/` que a alimenta.
-- **`council_2026-07-31.md`** — revisão de 3 críticos externos ("council")
-  sobre o então `tex/main.tex` (hoje `arquivo/tex/main.tex`), com cabeçalho
-  de status indicando o que já foi resolvido.
-- **`2026-07-15_relatorio_auditoria_fidelidade_instrumento.md`** — a auditoria
+
+## `notas/` — o registro probatório
+
+~25 notas de pesquisa datadas, append-only: uma rodada por nota, com um
+banner de veredito (CURRENT / superseded / contradicted) e a
+especificação/vintage sob a qual foi escrita. É delas que o paper puxa
+número — **confira o vintage antes de citar**. **Não catalogadas aqui uma a
+uma** — ver `notas/_indice.md`, que é a lista viva.
+
+`progress_logs/` é a outra metade da distinção: continuidade de sessão,
+efêmero, descartável. Nada durável entra ali, e nenhum log de sessão entra em
+`notas/`.
+
+## `pareceres/` — o que foi recebido
+
+Documentos de fora, mantidos como chegaram:
+
+- **`council_2026-07-31.md`** e **`council_2026-08-10.md`** — revisões de
+  críticos externos ("council"), com cabeçalho de status indicando o que já
+  foi resolvido.
+- **`2026-07-15_auditoria_fidelidade_instrumento.md`** — a auditoria
   de fidelidade do instrumento (filtro JK / purificação BS) que motivou a
   troca para `z_jk_bs_purif`.
-- **`working-notes/`** — ~20 notas de pesquisa datadas; cada uma carrega um
-  veredito (CURRENT / superseded / contradicted) e a especificação/vintage
-  sob a qual foi escrita. **Não catalogadas aqui uma a uma** — ver
-  `relatorio/working-notes/_indice.md`, que é a lista viva.
 
-## `texto_anpec/`
+## `paper/`
 
 O paper canônico desde **2026-08-02** (`paper_anpec.tex`, classe
 `elsarticle`, submissão ANPEC, título "Uncovered Interest Parity,
@@ -160,17 +189,17 @@ Ljung-Box, `commodity_metal` em R$ contra US$, placebos nas duas barras) e
 `sec:confound` (o filtro de sinal seleciona risco soberano?, nas duas proxies
 diárias, com as três ressalvas no corpo). Faltam as quatro subseções restantes
 da composição recomendada em
-`relatorio/working-notes/2026-08-01_tier_list_robustez.md` §7, entre elas
+`notas/2026-08-01_tier_list_robustez.md` §7, entre elas
 Limitações; a conclusão passou a ser a §6. Desde 2026-08-05
 `script/fig_section5.R` gera as **8** figuras direto aqui
-(`texto_anpec/fig_*.pdf`, nomes nus, que é como o `.tex` as inclui): o §4 usa
+(`paper/fig_*.pdf`, nomes nus, que é como o `.tex` as inclui): o §4 usa
 6, a §5 usa `fig_placebos`, e `fig_estado` segue sem consumidor.
 
 O draft abntex2 anterior (`main.tex`, "Choques monetários nos preços dos
 ativos") foi **arquivado em `arquivo/tex/`** nessa mesma data — não por
-vintage ou bug, o conteúdo era corrente, mas porque `texto_anpec/` passou a
+vintage ou bug, o conteúdo era corrente, mas porque `paper/` passou a
 ser o documento de trabalho. Preservado porque sua `§5 Robustez` ainda é a
-fonte de prosa para as subseções que `texto_anpec/` não tem — Limitações e
+fonte de prosa para as subseções que `paper/` não tem — Limitações e
 dependência de estado; exogeneidade e placebos já subiram, reescritos, em
 2026-08-09. Ver `arquivo/README.md`.
 

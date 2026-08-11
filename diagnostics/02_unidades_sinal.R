@@ -86,7 +86,7 @@ cat(sprintf("  h24 : yield_6m %+.1fbp  vs  juros_selic %+.1fbp\n",
 # ===================================================================
 # 2.3 — Correlacao contemporanea nos DADOS BRUTOS
 # ===================================================================
-cat("\n[2.3] correlacao contemporanea nos dados brutos (data/raw_data.csv)\n")
+cat("\n[2.3] correlacao contemporanea nos dados brutos (data/raw/raw_data.csv)\n")
 
 raw_w <- PANEL_RAW |>
   filter(ref.date >= min(DATES), ref.date <= max(DATES)) |>

@@ -36,7 +36,7 @@ TO   <- as.Date("2026-12-31")
 BASE      <- "https://www.federalreserve.gov/monetarypolicy"
 INDEX_URL <- file.path(BASE, "fomc_historical_year.htm")
 CAL_URL   <- file.path(BASE, "fomccalendars.htm")
-OUT_PATH  <- "data/fomc_dates.csv"
+OUT_PATH  <- "data/raw/fomc_dates.csv"
 
 #' Read a page into a single string.
 fetch_page <- function(url) {

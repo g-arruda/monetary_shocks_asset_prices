@@ -27,16 +27,16 @@ PURIF_SAMPLES <- c("all_thu", "non_copom")
 
 # ---- Load raw data once ------------------------------------
 
-di_panel <- load_di_panel("data/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
+di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
 ibov_daily <- read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), ibov = as.numeric(ibov)) |> filter(!is.na(ibov))
 
-ext_daily <- read_csv("data/investing/external_factors_daily.csv", show_col_types = FALSE) |>
+ext_daily <- read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), sp500 = as.numeric(sp500),
             vix = as.numeric(vix), brent = as.numeric(brent))
 
-copom <- read_csv("data/copom_historico.csv", show_col_types = FALSE)[-1] |>
+copom <- read_csv("data/raw/copom_historico.csv", show_col_types = FALSE)[-1] |>
   transmute(meeting_date = dmy(data_reuniao)) |>
   filter(!is.na(meeting_date), meeting_date >= LOAD_START, meeting_date <= SAMPLE_END) |>
   distinct(meeting_date)

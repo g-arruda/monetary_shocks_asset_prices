@@ -3,7 +3,7 @@
 # surprises instead of monetary policy shocks?
 #
 # Top item of the council review of 2026-07-31
-# (relatorio/council_2026-07-31.md). The logic, in one line: the JK
+# (pareceres/council_2026-07-31.md). The logic, in one line: the JK
 # rule discards the BENIGN confound (central-bank information effect:
 # rates up, stocks up) but a domestic fiscal/sovereign surprise has
 # rates up, stocks DOWN, FX up — exactly the pattern the filter
@@ -27,7 +27,7 @@
 #     sovereign spreads, so this over-strips.
 #
 # CUT ON 2026-08-10, and recorded here so neither is re-proposed
-# (_instrucoes/historico_decisoes.md):
+# (registro/historico_decisoes.md):
 #
 #  - Test B, the three-way policy/sovereign split on the purified FX
 #    sign, was suggestive and never conclusive. Every "policy" half it
@@ -54,7 +54,7 @@
 #
 # TWO SOVEREIGN-RISK PROXIES, AND THE ORDER OF LOOKING. Until 2026-08-09
 # this ran on EMBI+ alone, because no daily 5y CDS existed in the repo.
-# `data/CDS 5y.xlsx` (Bloomberg, BRAZIL CDS USD SR 5Y D14 Corp, daily
+# `data/raw/CDS 5y.xlsx` (Bloomberg, BRAZIL CDS USD SR 5Y D14 Corp, daily
 # 2001-10 to 2026-08) closed that gap, and it is the better instrument
 # of measurement: 95/95 Copom Wed->Thu pairs against the EMBI's 94/95,
 # and 0.2% of its daily changes are exactly zero against the EMBI's
@@ -131,9 +131,9 @@ NBOOT_P <- 2000L   # wild-bootstrap draws for the daily regression p-values
 
 DATA_PATH  <- "data/processed/data_log_deseasonalized.csv"
 INST_PATH  <- "data/processed/instrumentos_mensais.csv"
-EMBI_PATH  <- "data/banco_central_rep_dominicana/embi_brasil.csv"
-CDS_PATH   <- "data/CDS 5y.xlsx"          # Bloomberg export, see header
-RAW_PATH   <- "data/raw_data.csv"         # monthly cds_5y, cross-check only
+EMBI_PATH  <- "data/raw/banco_central_rep_dominicana/embi_brasil.csv"
+CDS_PATH   <- "data/raw/CDS 5y.xlsx"          # Bloomberg export, see header
+RAW_PATH   <- "data/raw/raw_data.csv"         # monthly cds_5y, cross-check only
 EVENT_PATH <- "data/processed/copom_event_diagnostics.csv"
 OUT_DIR    <- "output/instrument"
 
@@ -151,13 +151,13 @@ cat("=== JK sovereign-risk confound ===\n\n")
 
 cat("[1] rebuilding the daily event panel\n")
 
-di_panel <- load_di_panel("data/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
+di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
 ibov_daily <- read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
   filter(!is.na(ibov))
 
-ext_daily <- read_csv("data/investing/external_factors_daily.csv", show_col_types = FALSE) |>
+ext_daily <- read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), sp500 = as.numeric(sp500),
             vix = as.numeric(vix), brent = as.numeric(brent))
 
@@ -170,7 +170,7 @@ focus_daily <- read_csv("data/processed/focus_daily.csv", show_col_types = FALSE
             focus_ipca12m  = as.numeric(focus_ipca12m),
             focus_selic_ny = as.numeric(focus_selic_ny))
 
-dgs2_daily <- read_csv("data/fred_dgs2.csv", show_col_types = FALSE) |>
+dgs2_daily <- read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), ust2y = as.numeric(ust2y))
 
 copom_wed <- load_copom_wednesdays(from = LOAD_START, to = SAMPLE_END)
@@ -738,7 +738,7 @@ xf    <- function(x) formatC(x, format = "f", digits = 2, decimal.mark = ",")
 md <- c(
   "# Confound soberano no filtro JK — teste diario",
   "",
-  sprintf("*Gerado por `script/jk_sovereign_confound.R` em %s. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `relatorio/working-notes/2026-08-09_confound_soberano_cds.md` (rodada das duas proxies) e `2026-07-31_confound_soberano_jk.md` (rodada original, so EMBI).*",
+  sprintf("*Gerado por `script/jk_sovereign_confound.R` em %s. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-09_confound_soberano_cds.md` (rodada das duas proxies) e `2026-07-31_confound_soberano_jk.md` (rodada original, so EMBI).*",
           format(Sys.Date())),
   "",
   "## A pergunta",
@@ -760,7 +760,7 @@ md <- c(
   "",
   "## As duas proxies, e a ordem de olhar",
   "",
-  sprintf("Ate 2026-08-09 este teste rodava so em **EMBI+** porque nao havia CDS 5a diario no repositorio. `data/CDS 5y.xlsx` (Bloomberg, `BRAZIL CDS USD SR 5Y D14 Corp`, diario 2001-10 a 2026-08) fechou a lacuna, e e o melhor instrumento de medida: cobre **%d/%d** pares Qua->Qui de Copom contra %d/%d do EMBI (o buraco e 2024-06-19, feriado americano), e **%.1f%%** das suas variacoes no painel de eventos sao exatamente zero contra **%.1f%%** do EMBI.",
+  sprintf("Ate 2026-08-09 este teste rodava so em **EMBI+** porque nao havia CDS 5a diario no repositorio. `data/raw/CDS 5y.xlsx` (Bloomberg, `BRAZIL CDS USD SR 5Y D14 Corp`, diario 2001-10 a 2026-08) fechou a lacuna, e e o melhor instrumento de medida: cobre **%d/%d** pares Qua->Qui de Copom contra %d/%d do EMBI (o buraco e 2024-06-19, feriado americano), e **%.1f%%** das suas variacoes no painel de eventos sao exatamente zero contra **%.1f%%** do EMBI.",
           n_cds_cop, sum(cop), n_embi_cop, sum(cop),
           unname(zero_share(valid$d_cds_bp)["pct_zero"]),
           unname(zero_share(valid$d_embi_bp)["pct_zero"])),

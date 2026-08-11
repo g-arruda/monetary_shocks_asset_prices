@@ -1,6 +1,6 @@
 # Confound soberano no filtro JK — teste diario
 
-*Gerado por `script/jk_sovereign_confound.R` em 2026-08-10. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `relatorio/working-notes/2026-08-09_confound_soberano_cds.md` (rodada das duas proxies) e `2026-07-31_confound_soberano_jk.md` (rodada original, so EMBI).*
+*Gerado por `script/jk_sovereign_confound.R` em 2026-08-10. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-09_confound_soberano_cds.md` (rodada das duas proxies) e `2026-07-31_confound_soberano_jk.md` (rodada original, so EMBI).*
 
 ## A pergunta
 
@@ -19,7 +19,7 @@ Os dois vereditos coincidem.
 
 ## As duas proxies, e a ordem de olhar
 
-Ate 2026-08-09 este teste rodava so em **EMBI+** porque nao havia CDS 5a diario no repositorio. `data/CDS 5y.xlsx` (Bloomberg, `BRAZIL CDS USD SR 5Y D14 Corp`, diario 2001-10 a 2026-08) fechou a lacuna, e e o melhor instrumento de medida: cobre **95/95** pares Qua->Qui de Copom contra 94/95 do EMBI (o buraco e 2024-06-19, feriado americano), e **0.5%** das suas variacoes no painel de eventos sao exatamente zero contra **8.3%** do EMBI.
+Ate 2026-08-09 este teste rodava so em **EMBI+** porque nao havia CDS 5a diario no repositorio. `data/raw/CDS 5y.xlsx` (Bloomberg, `BRAZIL CDS USD SR 5Y D14 Corp`, diario 2001-10 a 2026-08) fechou a lacuna, e e o melhor instrumento de medida: cobre **95/95** pares Qua->Qui de Copom contra 94/95 do EMBI (o buraco e 2024-06-19, feriado americano), e **0.5%** das suas variacoes no painel de eventos sao exatamente zero contra **8.3%** do EMBI.
 
 Esse ultimo numero e o que importa. O EMBI+ e publicado com duas casas em pontos percentuais, entao a menor variacao nao-nula que ele consegue exprimir e **1.000 bp**, contra **0.005 bp** do CDS: noticia de risco menor que isso e arredondada a nada. Isso **atenua o coeficiente do teste A em direcao a zero** e tornaria um nulo ali descartavel como erro de medida. O nulo do CDS nao e descartavel assim — e a tabela de alinhamento abaixo mostra o mesmo por outro lado, com o CDS correlacionando mais forte com o mercado no mesmo dia em todas as quatro series.
 

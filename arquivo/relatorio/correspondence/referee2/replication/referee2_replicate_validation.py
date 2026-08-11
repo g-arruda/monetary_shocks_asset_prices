@@ -24,7 +24,7 @@ import pandas as pd
 import statsmodels.api as sm
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
-RAW_PATH    = PROJECT_ROOT / "data/raw_data.csv"
+RAW_PATH    = PROJECT_ROOT / "data/raw/raw_data.csv"
 INSTR_PATH  = PROJECT_ROOT / "data/processed/instrumentos_mensais.csv"
 OUT_DIR     = Path(__file__).resolve().parent
 

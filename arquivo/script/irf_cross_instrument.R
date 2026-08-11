@@ -105,7 +105,7 @@ run_spec <- function(label, path) {
 
   # yield_6m is stored as decimal proportion (0.05 = 5%); a +50bp shock
   # corresponds to +0.005 in proportion (= +50bp = +0.5pp), not +0.5.
-  # See `_instrucoes/justificativa_uso_yield-6m.md`.
+  # See `registro/justificativa_uso_yield-6m.md`.
   norm_val <- SHOCK_BPS / 10000
 
   irf <- compute_irf_dfm(

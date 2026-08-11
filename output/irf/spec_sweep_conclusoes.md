@@ -5,7 +5,7 @@
 > `spec_sweep_report.md`, `spec_sweep_stage2.md`) foram **regenerados em 2026-07-24** sob 106 séries
 > e (7,6) — os números aqui não batem com eles. Duas afirmações caíram: "pre-COVID (6,5) é o pico do
 > grid" e "sempre que F ≥ 10 os sinais saem coerentes". Leituras correntes em
-> `output/irf/irf_section.md`; histórico em `_instrucoes/historico_decisoes.md` §3 e §6.
+> `output/irf/irf_section.md`; histórico em `registro/historico_decisoes.md` §3 e §6.
 >
 > **Adendo 2026-07-26 — a régua mudou.** O `spec_sweep_report.md` companheiro agora
 > classifica `failure_class` por **ξ_mp** (limiares MOSW 3,84 e 10), não pela max-F
@@ -35,7 +35,7 @@ causa aparece no grid.
   Normalização incorreta e fator mal identificado estão descartados como causas.
 - `juros_selic` como mp_var: F reduzido máximo = 2.49 (mediana 0.44) em todas as
   64 células — confirma o mismatch de maturidade documentado em
-  `_instrucoes/justificativa_uso_yield-6m.md`. Não é um problema do modelo, é a
+  `registro/justificativa_uso_yield-6m.md`. Não é um problema do modelo, é a
   variável de política errada.
 - A divergência conhecida do `z_het_jk_3var` reaparece tal e qual: F (y6m AR)
   ≈ 55 com F (factor-space) 2.4–4.1 no full sample. **Novo:** em pre_covid com
@@ -166,7 +166,7 @@ JK decidida nos sinais **brutos** (`delta_di` × `r_ibov`) em vez dos sinais dos
 resíduos (ordem "JK → purificação", inversa à do `z_jk_purif`; a `_local`
 re-estima a purificação só nos ~55 dias selecionados). Construção em
 `script/instrument.R`; análise completa em
-`relatorio/working-notes/2026-07-14_ordem_purificacao_jk.md`. Revisões aos
+`notas/2026-07-14_ordem_purificacao_jk.md`. Revisões aos
 pontos do adendo anterior:
 
 1. **O ponto 3 acima ("z_het_jk é o mais forte do full sample") fica

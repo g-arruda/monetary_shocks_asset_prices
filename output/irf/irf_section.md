@@ -6,11 +6,11 @@
 > the production run.
 >
 > **2026-08-02:** `tex/main.tex` was itself archived to `arquivo/tex/main.tex`
-> — `texto_anpec/paper_anpec.tex` is the canonical paper now. Since
+> — `paper/paper_anpec.tex` is the canonical paper now. Since
 > **2026-08-09** it carries a `§5 Robustez` with two subsections,
 > `sec:exogeneidade` and `sec:confound`, so this file and the archived `.tex`
 > remain the fullest written record only of what those two do not cover, above
-> all Limitações (open item in `_instrucoes/pendencias.md`).
+> all Limitações (open item in `registro/pendencias.md`).
 >
 > **The paper is now under a two-tier rule, not the 90%-only rule of
 > 2026-07-29.** A 90% band excluding zero is a statistical result and is called
@@ -131,7 +131,7 @@ over the same horizons.
 significant at 90%**, turning negative with CI68 only from h25. The
 month-average overnight rate does not embed a 6-month surprise within the shock
 month — the maturity-mismatch attenuation documented in
-`_instrucoes/justificativa_uso_yield-6m.md`, and the reason `yield_6m` is the
+`registro/justificativa_uso_yield-6m.md`, and the reason `yield_6m` is the
 policy variable.
 
 ## 5.2 Equities
@@ -333,7 +333,7 @@ What survives, and should carry the section:
 
 The previous draft closed this diagnosis by showing the hump was universal
 across instruments and vanished pre-COVID under the same identification
-(`relatorio/working-notes/2026-07-12_price_puzzle_ipca.md`). That evidence was
+(`notas/2026-07-12_price_puzzle_ipca.md`). That evidence was
 built on the old vintage and the old instrument; **the note's conclusion is
 plausible but its numbers no longer reproduce**, and re-running the
 cross-instrument IPCA comparison under (7,6) is an open item before this framing
@@ -378,7 +378,7 @@ sample-driven.
    series (equities, headline IPCA) trace to 3-4-month complex roots of the
    factor VAR(6) and lie inside the bands at every horizon; roughness correlates
    −0.50 (Spearman) with commonality
-   (`relatorio/working-notes/2026-07-12_irf_dentadas.md` — mechanism is
+   (`notas/2026-07-12_irf_dentadas.md` — mechanism is
    instrument- and dimension-independent, so the diagnosis carries over even
    though its magnitudes are from the old vintage). **No ex-post smoothing.**
 

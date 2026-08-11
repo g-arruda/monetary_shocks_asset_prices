@@ -3,7 +3,7 @@ source("R/data_download/bcb.R")
 source("R/data_download/exchange.R")
 source("R/data_download/anbima_breakeven.R")
 # svensson_model.R nao e mais sourceado: nenhuma funcao dele era chamada aqui.
-# A curva vem pronta de data/yields/yields_dia.csv (insumo do orientador).
+# A curva vem pronta de data/raw/yields/yields_dia.csv (insumo do orientador).
 # O modulo foi arquivado em arquivo/R/modeling/svensson_model.R em 2026-08-05.
 
 # rb3 cache directory must be set before calling ANBIMA fetch helpers.
@@ -32,7 +32,7 @@ juros <- download_bcb_data(vec_juros, parallel = TRUE) |>
 
 
 # curva de juros ----
-yield_curve <- readr::read_csv("data/yields/yields_dia.csv") |>
+yield_curve <- readr::read_csv("data/raw/yields/yields_dia.csv") |>
   janitor::clean_names() |>
   dplyr::mutate(
     data = lubridate::dmy(data)
@@ -212,7 +212,7 @@ emprego <- download_bcb_data(vec_emprego, start_date = "2012-01-01", parallel = 
 
 ## Dados risco ----
 
-embi <- readr::read_csv("data/banco_central_rep_dominicana/embi_brasil.csv") |>
+embi <- readr::read_csv("data/raw/banco_central_rep_dominicana/embi_brasil.csv") |>
   dplyr::mutate(data = lubridate::dmy(date)) |>
   dplyr::group_by(ref.date = lubridate::floor_date(data, "month")) |>
   dplyr::slice_tail(n = 1) |>
@@ -227,19 +227,19 @@ embi <- readr::read_csv("data/banco_central_rep_dominicana/embi_brasil.csv") |>
 # tres series saia 100x errado. Corrigido em 2026-07-28.
 locale_br <- readr::locale(decimal_mark = ",", grouping_mark = ".")
 
-cds <- readr::read_csv("data/investing/cds5y.csv", locale = locale_br) |>
+cds <- readr::read_csv("data/raw/investing/cds5y.csv", locale = locale_br) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, cds_5y = ultimo)
 
 
-msci <- readr::read_csv("data/investing/msci.csv", locale = locale_br) |>
+msci <- readr::read_csv("data/raw/investing/msci.csv", locale = locale_br) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, msci = ultimo)
 
 
-sp500_vix <- readr::read_csv("data/investing/sp500_vix.csv", locale = locale_br) |>
+sp500_vix <- readr::read_csv("data/raw/investing/sp500_vix.csv", locale = locale_br) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, sp500_vix = ultimo)
@@ -256,7 +256,7 @@ risco <- embi |>
 
 ## economic_policy_uncertainty ----
 
-epu <- readr::read_csv("data/epu/economic_policy_uncertainty.csv") |>
+epu <- readr::read_csv("data/raw/epu/economic_policy_uncertainty.csv") |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(date)) |>
   dplyr::select(-date) |>
@@ -468,7 +468,7 @@ merged_df <- all_dfs |>
 
 
 # Persistir o painel bruto ----
-readr::write_csv(merged_df, "data/raw_data.csv")
+readr::write_csv(merged_df, "data/raw/raw_data.csv")
 
 
 

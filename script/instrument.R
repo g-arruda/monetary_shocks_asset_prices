@@ -46,11 +46,11 @@ DEFAULT_VARIANT <- "z_jk_bs_purif" # legacy data/processed/instrument.csv
 # Supported variants: the 8 GK-family instruments built by this script.
 # The 4 heteroskedasticity-identified variants (z_het*) were archived on
 # 2026-07-26 together with script/instrument_het.R — see
-# _instrucoes/historico_decisoes.md section 1.
+# registro/historico_decisoes.md section 1.
 #
 # 2026-08-05: z_jk_raw_purif_local (dominated) and z_jk_purif_us (redundant,
 # cor 0.999 with z_jk_purif) were dropped — both were already declared dead in
-# _instrucoes/historico_decisoes.md section 2 and neither was consumed by any
+# registro/historico_decisoes.md section 2 and neither was consumed by any
 # live sweep. The daily jk_us residuals/mask survive in build_variants.R
 # because script/jk_sovereign_confound.R uses that day set.
 #
@@ -65,13 +65,13 @@ DEFAULT_VARIANT <- "z_jk_bs_purif" # legacy data/processed/instrument.csv
 
 # ---- Load data ---------------------------------------------
 
-di_panel <- load_di_panel("data/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
+di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
 ibov_daily <- read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
   filter(!is.na(ibov))
 
-ext_daily <- read_csv("data/investing/external_factors_daily.csv", show_col_types = FALSE) |>
+ext_daily <- read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date),
             sp500 = as.numeric(sp500),
             vix   = as.numeric(vix),
@@ -86,7 +86,7 @@ focus_daily <- read_csv("data/processed/focus_daily.csv", show_col_types = FALSE
             focus_ipca12m  = as.numeric(focus_ipca12m),
             focus_selic_ny = as.numeric(focus_selic_ny))
 
-dgs2_daily <- read_csv("data/fred_dgs2.csv", show_col_types = FALSE) |>
+dgs2_daily <- read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
   transmute(date = as.Date(date), ust2y = as.numeric(ust2y))
 
 copom_wed <- load_copom_wednesdays(from = LOAD_START, to = SAMPLE_END)

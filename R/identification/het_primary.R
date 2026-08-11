@@ -65,7 +65,7 @@ mat_sym_inv_sqrt <- function(M, tol = 1e-12) {
 #'
 #' @return Tibble with columns month (first day of month, Date) and
 #'   regime ("C" or "NC").
-build_monthly_regimes <- function(copom_csv = "data/copom_historico.csv",
+build_monthly_regimes <- function(copom_csv = "data/raw/copom_historico.csv",
                                   month_range) {
   copom <- suppressWarnings(
     readr::read_csv(copom_csv, show_col_types = FALSE)

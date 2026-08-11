@@ -39,7 +39,7 @@
 # conhecidas, isto é, a banda condiciona no espaço de fatores estimado.
 # O bootstrap do projeto reestima o DFM por réplica e portanto mede outra
 # coisa; a discussão está em
-# relatorio/working-notes/2026-08-10_bandas_anderson_rubin.md.
+# notas/2026-08-10_bandas_anderson_rubin.md.
 # ===================================================================
 
 

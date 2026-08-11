@@ -1,7 +1,7 @@
 # ===================================================================
 # Diagnóstico do choque contaminado: amostra (janela) × config (rotação)
 # — path 3 + teste numérico do path 1 de
-#   `_instrucoes/irf_consistentes.md` (frente de diagnóstico de identificação).
+#   `arquivo/_instrucoes/irf_consistentes.md` (frente de diagnóstico de identificação).
 #
 # Hipóteses testadas:
 #   (path 3) a contaminação (curva invertida no h0, núcleo em price puzzle,

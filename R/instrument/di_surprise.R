@@ -5,7 +5,7 @@ library(lubridate)
 # CloseRate is a decimal annual rate (e.g. 0.1375 = 13.75% a.a.).
 # ΔDI is returned in basis points: (r_thu - r_wed) * 10000.
 
-load_di_panel <- function(path = "data/di.csv",
+load_di_panel <- function(path = "data/raw/di.csv",
                           from = as.Date("2012-06-01"),
                           to   = as.Date("2026-02-01")) {
   readr::read_csv(path, show_col_types = FALSE) |>
@@ -45,19 +45,19 @@ surprise_wed_to_thu <- function(di_panel, wed_date, thu_date,
 # Build table of (date = Thursday, delta_di_bps) for a given target maturity.
 # thursdays must be a Date vector. The paired Wednesday is assumed to be thu - 1 day;
 # callers passing a non-business-day Wednesday should filter beforehand if needed.
-#' Load Copom announcement Wednesdays from data/copom_historico.csv
+#' Load Copom announcement Wednesdays from data/raw/copom_historico.csv
 #'
 #' Drops the leading numero_reuniao column (matches existing project pattern),
 #' parses dd/mm/yyyy dates, restricts to the requested window, and keeps only
 #' Wednesdays — the day on which the Copom decision is announced after market
 #' close in Brazil.
 #'
-#' @param path CSV path. Default `"data/copom_historico.csv"`.
+#' @param path CSV path. Default `"data/raw/copom_historico.csv"`.
 #' @param from Earliest meeting date kept (default 2012-06-01).
 #' @param to   Latest meeting date kept (default 2025-12-31).
 #'
 #' @return Date vector of Copom Wednesdays, sorted and unique.
-load_copom_wednesdays <- function(path = "data/copom_historico.csv",
+load_copom_wednesdays <- function(path = "data/raw/copom_historico.csv",
                                   from = as.Date("2012-06-01"),
                                   to   = as.Date("2025-12-31")) {
   readr::read_csv(path, show_col_types = FALSE)[-1] |>
@@ -71,19 +71,19 @@ load_copom_wednesdays <- function(path = "data/copom_historico.csv",
     dplyr::pull(meeting_date)
 }
 
-#' Load FOMC decision dates from data/fomc_dates.csv
+#' Load FOMC decision dates from data/raw/fomc_dates.csv
 #'
 #' Aborts when the file is missing instead of returning an empty vector. That
 #' silent fallback (script/instrument.R, until 2026-08-10) kept `fomc_coincide`
 #' identically FALSE from the day the flag was written until the council review
-#' found it — see relatorio/council_2026-08-10.md.
+#' found it — see pareceres/council_2026-08-10.md.
 #'
-#' @param path CSV path with a `date` column. Default `"data/fomc_dates.csv"`.
+#' @param path CSV path with a `date` column. Default `"data/raw/fomc_dates.csv"`.
 #' @param from Earliest decision date kept (default 2012-06-01).
 #' @param to   Latest decision date kept (default 2025-12-31).
 #'
 #' @return Date vector of FOMC decision dates, sorted and unique.
-load_fomc_dates <- function(path = "data/fomc_dates.csv",
+load_fomc_dates <- function(path = "data/raw/fomc_dates.csv",
                             from = as.Date("2012-06-01"),
                             to   = as.Date("2025-12-31")) {
   if (!file.exists(path)) {

@@ -9,7 +9,7 @@ objeção do council contra o Teste C com a máscara re-derivada, §5.2 reescrit
 vestígio dos números dos testes retirados de docs vivos e notas datadas.
 
 ## Active Decisions
-- Os números dos testes B, D e 4 **não são reproduzíveis e não devem ser citados**. Git é o único registro. Razão em `_instrucoes/historico_decisoes.md` §2.4.
+- Os números dos testes B, D e 4 **não são reproduzíveis e não devem ser citados**. Git é o único registro. Razão em `registro/historico_decisoes.md` §2.4.
 - `z_jk_bs_norisk_mask` (máscara re-derivada) tem ξ_mp 5,57 full: conjunto AR limitado mas abaixo de 10, então sustenta **direção, não intervalo**. `denom_vs_prod` 0,726 — parte das magnitudes maiores é aritmética.
 - O ganho de `asset_ibov` (sig90 negativo naquela variante) **não pode** ser usado para consertar o bloco nulo de §4.6.
 - Nada em produção foi modificado; `instrumentos_mensais.csv` e `DEFAULT_VARIANT` intocados.
@@ -17,13 +17,13 @@ vestígio dos números dos testes retirados de docs vivos e notas datadas.
 ## Key Files
 - /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/script/jk_sovereign_confound.R
 - /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/script/fomc_coincidence.R
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/texto_anpec/paper_anpec.tex (§5.2, `sec:confound`)
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/_instrucoes/historico_decisoes.md (§2.4)
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/paper/paper_anpec.tex (§5.2, `sec:confound`)
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/registro/historico_decisoes.md (§2.4)
 - /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/instrument/jk_sovereign_confound.md
 
 ## Next Steps
 - [ ] Escrever §5.3 do FOMC sobre os testes 0-3, com a ressalva de horário obrigatória (vale para a perna de taxa, não para a de ações).
-- [ ] Decidir se os números removidos saem também de `relatorio/council_2026-07-31.md` e `council_2026-08-10.md` (não editados: são pareceres recebidos).
+- [ ] Decidir se os números removidos saem também de `pareceres/council_2026-07-31.md` e `council_2026-08-10.md` (não editados: são pareceres recebidos).
 - [ ] Decidir a forma final do degrau da máscara em §5.2 para a v1 (com magnitudes, sem magnitudes, ou fora).
 - [ ] Corrigir a descrição do placebo `sp500_vix` em `:501`/`:509` do paper — é só o VIX.
 

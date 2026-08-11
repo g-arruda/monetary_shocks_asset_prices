@@ -1,7 +1,7 @@
 # ===================================================================
 # The small-scale VAR benchmark: is the DFM stronger and faster?
 #
-# Council review of 2026-07-31 (relatorio/council_2026-07-31.md:23,73),
+# Council review of 2026-07-31 (pareceres/council_2026-07-31.md:23,73),
 # raised independently by the harsh referee and the macro theorist. The
 # introduction of the archived paper draft (arquivo/tex/main.tex:183,
 # tex/ before its 2026-08-02 archival) claims the asset-price responses
@@ -9,7 +9,7 @@
 # menor dimensao tipicamente encontra". That is Alessi-Kerssenfischer's
 # result, not one estimated here — and the equity block, where the
 # comparison would be most visible, has zero sig90 cells in 392. The
-# canonical paper, texto_anpec/paper_anpec.tex, never made this claim.
+# canonical paper, paper/paper_anpec.tex, never made this claim.
 #
 # This is the R translation of codigos_externos/codigo_alessi-mark/MAIN_VARloop.m, which
 # is what produces Figures 1-4 of the replicated paper. What the
@@ -531,7 +531,7 @@ md <- c(
   "",
   "> **Corpo gerado por `script/model_var.R`. Reescrito por inteiro a cada**",
   "> **execução — não escrever prosa aqui.** A leitura interpretativa fica em",
-  "> `relatorio/working-notes/2026-07-31_benchmark_var_vs_dfm.md`.",
+  "> `notas/2026-07-31_benchmark_var_vs_dfm.md`.",
   "",
   sprintf("Tradução de `codigos_externos/codigo_alessi-mark/MAIN_VARloop.m`. Core `{%s}`, `mp_var = %s` (a terceira core, como em `RUN_MAIN_US.m:9`), %d VARs de 4 variáveis, p = %d, h = %d, nboot = %d, seed = %d, bandas %s, instrumento `%s`, painel %d x %d (%s a %s).",
           paste(CORE_VARS, collapse = ", "), MP_VAR, length(RESPONSES),

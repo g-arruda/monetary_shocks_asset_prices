@@ -2,7 +2,7 @@
 
 > **Corpo gerado por `script/model_var.R`. Reescrito por inteiro a cada**
 > **execução — não escrever prosa aqui.** A leitura interpretativa fica em
-> `relatorio/working-notes/2026-07-31_benchmark_var_vs_dfm.md`.
+> `notas/2026-07-31_benchmark_var_vs_dfm.md`.
 
 Tradução de `codigo_alessi-mark/MAIN_VARloop.m`. Core `{ind_transformacao, price_ipca, yield_6m}`, `mp_var = yield_6m` (a terceira core, como em `RUN_MAIN_US.m:9`), 18 VARs de 4 variáveis, p = 6, h = 48, nboot = 800, seed = 123, bandas 68%/90%, instrumento `z_jk_bs_purif`, painel 153 x 106 (2013-01-01 a 2025-09-01).
 

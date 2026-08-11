@@ -46,7 +46,7 @@ rulers (`f_factor`, F (y6m AR)) are still computed and reported but **stopped de
 - **Fail loud on missing inputs.** `build_variants.R` computed a `fomc_coincide` flag that was
   identically FALSE for months because `instrument.R` fell back silently to an empty date vector.
   **The defect was the `else`**: a silent fallback makes "never collected" indistinguishable from
-  "returned nothing". `load_fomc_dates()` now aborts, and `run_all.R` declares `data/fomc_dates.csv`
+  "returned nothing". `load_fomc_dates()` now aborts, and `run_all.R` declares `data/raw/fomc_dates.csv`
   a hard requirement of the `instrument` stage.
 - **Masks built from `sign(residuals(lm))` carry a `names` attribute** that a CSV round-trip drops.
   When checking a rebuilt daily panel against `copom_event_diagnostics.csv`, compare **values**, not

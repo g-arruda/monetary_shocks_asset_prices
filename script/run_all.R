@@ -20,13 +20,13 @@
 #   Rscript script/run_all.R --continue-on-error
 #
 # NOTE on the yield curve — there is no fitting stage, on purpose.
-# `data/yields/yields_dia.csv` is a FIXED EXTERNAL INPUT supplied by the
+# `data/raw/yields/yields_dia.csv` is a FIXED EXTERNAL INPUT supplied by the
 # advisor: it is the curve the panel is built on, `script/download.R`
 # consumes it as given, and nothing here can regenerate it. The `download`
 # stage declares it as a hard requirement so preflight aborts with a pointer
 # if it ever goes missing. (`script/yield_curve.R`, an in-house Svensson fit
 # on the DI contracts, was deleted on 2026-07-26 — it never produced good
-# results and its output fed no stage; see `_instrucoes/historico_decisoes.md`
+# results and its output fed no stage; see `registro/historico_decisoes.md`
 # section 4.)
 # ===================================================================
 
@@ -47,7 +47,7 @@ STAGES <- list(
     file     = "R/data_download/download_di.py",
     network  = TRUE,
     requires = character(),
-    produces = "data/di.csv"
+    produces = "data/raw/di.csv"
   ),
   list(
     name     = "external_factors",
@@ -56,7 +56,7 @@ STAGES <- list(
     file     = "R/data_download/external_factors.R",
     network  = TRUE,
     requires = character(),
-    produces = c("data/investing/external_factors_daily.csv",
+    produces = c("data/raw/investing/external_factors_daily.csv",
                  "data/processed/brl_usd_daily.csv")
   ),
   list(
@@ -66,7 +66,7 @@ STAGES <- list(
     file     = "R/data_download/focus_fred.R",
     network  = TRUE,
     requires = character(),
-    produces = c("data/processed/focus_daily.csv", "data/fred_dgs2.csv")
+    produces = c("data/processed/focus_daily.csv", "data/raw/fred_dgs2.csv")
   ),
   list(
     name     = "fomc",
@@ -75,7 +75,7 @@ STAGES <- list(
     file     = "R/data_download/fomc_dates.R",
     network  = TRUE,
     requires = character(),
-    produces = "data/fomc_dates.csv"
+    produces = "data/raw/fomc_dates.csv"
   ),
   list(
     name     = "ibov",
@@ -92,13 +92,13 @@ STAGES <- list(
     interp   = "Rscript",
     file     = "script/download.R",
     network  = TRUE,
-    requires = c("data/yields/yields_dia.csv",
-                 "data/banco_central_rep_dominicana/embi_brasil.csv",
-                 "data/investing/cds5y.csv",
-                 "data/investing/msci.csv",
-                 "data/investing/sp500_vix.csv",
-                 "data/epu/economic_policy_uncertainty.csv"),
-    produces = "data/raw_data.csv"
+    requires = c("data/raw/yields/yields_dia.csv",
+                 "data/raw/banco_central_rep_dominicana/embi_brasil.csv",
+                 "data/raw/investing/cds5y.csv",
+                 "data/raw/investing/msci.csv",
+                 "data/raw/investing/sp500_vix.csv",
+                 "data/raw/epu/economic_policy_uncertainty.csv"),
+    produces = "data/raw/raw_data.csv"
   ),
   list(
     name     = "clean",
@@ -106,7 +106,7 @@ STAGES <- list(
     interp   = "Rscript",
     file     = "script/clean.R",
     network  = FALSE,
-    requires = "data/raw_data.csv",
+    requires = "data/raw/raw_data.csv",
     produces = "data/processed/data_log_deseasonalized.csv"
   ),
   list(
@@ -115,13 +115,13 @@ STAGES <- list(
     interp   = "Rscript",
     file     = "script/instrument.R",
     network  = FALSE,
-    requires = c("data/di.csv", "data/copom_historico.csv",
-                 "data/fomc_dates.csv",
+    requires = c("data/raw/di.csv", "data/raw/copom_historico.csv",
+                 "data/raw/fomc_dates.csv",
                  "data/processed/ibov_daily.csv",
-                 "data/investing/external_factors_daily.csv",
+                 "data/raw/investing/external_factors_daily.csv",
                  "data/processed/brl_usd_daily.csv",
                  "data/processed/focus_daily.csv",
-                 "data/fred_dgs2.csv"),
+                 "data/raw/fred_dgs2.csv"),
     produces = c("data/processed/instrument.csv",
                  "data/processed/instrumentos_mensais.csv")
   ),
@@ -272,7 +272,7 @@ if (length(missing) > 0) {
     if (!is.na(m$producer)) {
       cat(sprintf("      produzido pelo estagio '%s' (inclua-o na selecao)\n",
                   m$producer))
-    } else if (identical(m$file, "data/yields/yields_dia.csv")) {
+    } else if (identical(m$file, "data/raw/yields/yields_dia.csv")) {
       cat("      INSUMO EXTERNO FIXO, fornecido pelo orientador. Nenhum script\n")
       cat("      deste repositorio escreve esse arquivo e nenhum deveria — e a\n")
       cat("      curva sobre a qual o painel e construido, e nao e reproduzivel\n")

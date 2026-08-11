@@ -25,7 +25,7 @@
 # Fixture: output/validation/olea_tax_{eta,z,X,WHat_gamma}.csv,
 # extracted once from Tax_RForm.mat (codigos_externos/codigo_olea/ is gitignored, so
 # the .mat is not assumed present). Provenance in the working note
-# relatorio/working-notes/2026-07-27_robustez_xi_mp_e_construcao.md.
+# notas/2026-07-27_robustez_xi_mp_e_construcao.md.
 # ============================================================
 
 source("R/modeling/impulse_responde.R")

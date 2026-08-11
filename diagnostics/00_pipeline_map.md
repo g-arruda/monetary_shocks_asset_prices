@@ -8,7 +8,7 @@ tudo abaixo é leitura de código, com âncora `arquivo:linha`.
 ## 1. A cadeia em cinco estágios
 
 ```
-download.R ──► data/raw_data.csv
+download.R ──► data/raw/raw_data.csv
      │            (painel mensal bruto, unidades NATIVAS de cada fonte)
      ▼
 clean.R ─────► data/processed/data_log_deseasonalized.csv
@@ -99,7 +99,7 @@ não por suposição:
 
 **O bloco não é homogêneo: fator 100 entre a curva DI e o par Selic/CDI.** A
 origem é dupla e está em `download.R`: a curva vem pronta de
-`data/yields/yields_dia.csv` (:34-46, arquivo externo em decimal) e o par
+`data/raw/yields/yields_dia.csv` (:34-46, arquivo externo em decimal) e o par
 Selic/CDI vem da API do BCB (:23-30), que publica em % a.a. Nada no pipeline
 harmoniza os dois.
 

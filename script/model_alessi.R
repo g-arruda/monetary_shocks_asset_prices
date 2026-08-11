@@ -51,7 +51,7 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
   # de permutacao nao distingue os labels do calendario (p_perm
   # 0.26-0.86) e a proporcionalidade Sigma_C ~ Sigma_NC nunca e
   # rejeitada, e o mesmo para regimes de episodio (BPSS 2021). Codigo e
-  # artefatos arquivados em 2026-07-26; ver _instrucoes/historico_decisoes.md
+  # artefatos arquivados em 2026-07-26; ver registro/historico_decisoes.md
   # secao 1.2. Producao segue "proxy" (z_jk_bs_purif).
   identification <- match.arg(identification)
 
@@ -88,7 +88,7 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
   # `yield_6m` is stored in decimal proportion (0.0975 = 9.75%); a +50bp
   # shock in proportion is therefore 0.005, not 0.5. The earlier convention
   # (`/ 100`) implicitly normalized to +5000bp and was corrected on
-  # 2026-05-07. See `_instrucoes/justificativa_uso_yield-6m.md`.
+  # 2026-05-07. See `registro/justificativa_uso_yield-6m.md`.
   normalize_value <- shock_size_bps / 10000
 
   # Instrumento so no ramo proxy; no ramo het o painel fica integral

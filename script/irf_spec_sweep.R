@@ -295,7 +295,7 @@ report <- c(
   "",
   paste0("`juros_selic` (Selic overnight acumulada, escala percent) é mantido como ",
          "controle negativo documentado — espera-se F reduzido baixo (mismatch de ",
-         "maturidade, ver `_instrucoes/justificativa_uso_yield-6m.md`)."),
+         "maturidade, ver `registro/justificativa_uso_yield-6m.md`)."),
   "",
   md_table(neg_control),
   "",

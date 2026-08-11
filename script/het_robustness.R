@@ -171,7 +171,7 @@ cat(sprintf("  [ok] T4 FX unit: %.4f BRL / mean = %.3f%% depreciation\n",
 # "treated". (The docstring of build_monthly_regimes quotes 104/52, which is
 # a range running through 2025-12; this panel ends 2025-09, giving 102/51.)
 t5 <- build_monthly_regimes(month_range = range(dates_all))
-t5_copom <- read_csv("data/copom_historico.csv", show_col_types = FALSE)$data_reuniao_parsed |>
+t5_copom <- read_csv("data/raw/copom_historico.csv", show_col_types = FALSE)$data_reuniao_parsed |>
   as.Date() |> na.omit() |> floor_date("month") |> unique()
 t5_nC <- sum(t5$regime == "C"); t5_nNC <- sum(t5$regime == "NC")
 stopifnot(
@@ -210,7 +210,7 @@ inst_monthly <- read_csv("data/processed/instrumentos_mensais.csv",
 
 # Daily 6m yield, for the realized-volatility design. Advisor-supplied file,
 # dd/mm/yyyy, columns are maturities in months.
-yields_daily <- read_csv("data/yields/yields_dia.csv", show_col_types = FALSE) |>
+yields_daily <- read_csv("data/raw/yields/yields_dia.csv", show_col_types = FALSE) |>
   mutate(date = as.Date(Data, format = "%d/%m/%Y")) |>
   select(date, y6m = `6`) |>
   filter(!is.na(date), !is.na(y6m)) |>

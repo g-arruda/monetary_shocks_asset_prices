@@ -19,7 +19,7 @@
 # (RForm + InferenceMSW + Plugin), porque codigo_olea/ é gitignorado e o
 # .mat não pode ser assumido presente. Mesmo padrão de
 # script/validate_hac_kernel.R. Procedência em
-# relatorio/working-notes/2026-08-10_bandas_anderson_rubin.md.
+# notas/2026-08-10_bandas_anderson_rubin.md.
 # ============================================================
 
 source("R/identification/weak_iv_ar.R")

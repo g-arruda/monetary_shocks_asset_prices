@@ -41,7 +41,7 @@ sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
 #' `juros_selic` in `script/model_var.R`) implicitly normalises to +5000bp
 #' on a decimal-proportion variable. Callers should set
 #' `normalize_value = shock_bps / 10000` when the policy variable is in
-#' decimal proportion. See `_instrucoes/justificativa_uso_yield-6m.md`.
+#' decimal proportion. See `registro/justificativa_uso_yield-6m.md`.
 #'
 #' @param rawimp Reduced-form IRF array (n_vars x q x h+1).
 #' @param rsh_sel Reduced-form factor innovations aligned with the instrument.

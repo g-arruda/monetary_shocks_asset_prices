@@ -398,7 +398,7 @@ md <- c(
   "",
   "> Corpo **gerado** por `script/ar_bands.R`; reescrito por inteiro a cada",
   "> execução. Nunca escreva prosa aqui — a leitura interpretativa mora em",
-  "> `relatorio/working-notes/2026-08-10_bandas_anderson_rubin.md`.",
+  "> `notas/2026-08-10_bandas_anderson_rubin.md`.",
   "",
   sprintf("Spec: `%s` × `%s`, r = %d, q = %d, p = %d, h = 0-%d, choque +%g pb, NW(%d).",
           INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, P_LAGS, HORIZON, SHOCK_BPS, NW_LAGS),

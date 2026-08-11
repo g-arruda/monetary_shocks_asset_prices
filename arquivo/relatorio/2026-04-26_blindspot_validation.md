@@ -56,7 +56,7 @@ Quatro pontos undersold.
 
 ## Action checklist (antes do paper writeup)
 
-1. **Reescrever T2 narrative** em `output/het_validation_report.md` e `_instrucoes/Heteroscedasticidade.md`: "JK F sits at q99 of random masks (p ≈ 0.01), informative but the gap is one percentile."
+1. **Reescrever T2 narrative** em `output/het_validation_report.md` e `arquivo/_instrucoes/Heteroscedasticidade.md`: "JK F sits at q99 of random masks (p ≈ 0.01), informative but the gap is one percentile."
 2. **Rodar AR(p) sensibility** para p ∈ {3, 12}.
 3. **Rodar anti-JK mask** (zerar puros monetários).
 4. **Rodar curva F(k_keep)** para k ∈ {20, 42, 60, 80}.

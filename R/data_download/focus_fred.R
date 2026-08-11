@@ -6,7 +6,7 @@
 #        next-year avoids the mechanical resolution of the current-year
 #        median in December)
 #  - FRED DGS2: 2-year US Treasury constant-maturity yield (daily)
-# Outputs: data/processed/focus_daily.csv, data/fred_dgs2.csv
+# Outputs: data/processed/focus_daily.csv, data/raw/fred_dgs2.csv
 # Run: Rscript R/data_download/focus_fred.R
 # ============================================================
 
@@ -95,6 +95,6 @@ dgs2 <- read_csv(fred_url, show_col_types = FALSE, na = c(".", "")) |>
   transmute(date = as.Date(observation_date), ust2y = as.numeric(DGS2)) |>
   filter(!is.na(ust2y))
 
-write_csv(dgs2, "data/fred_dgs2.csv")
+write_csv(dgs2, "data/raw/fred_dgs2.csv")
 message(sprintf("FRED DGS2: %d rows (%s to %s)",
                 nrow(dgs2), min(dgs2$date), max(dgs2$date)))

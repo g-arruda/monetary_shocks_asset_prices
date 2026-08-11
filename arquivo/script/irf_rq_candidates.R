@@ -1,6 +1,6 @@
 # ===================================================================
 # IRFs consistentes por (r,q) candidato — Etapa 2 de
-# _instrucoes/irf_consistentes.md.
+# arquivo/_instrucoes/irf_consistentes.md.
 #
 # Estima a especificacao de producao (z_jk_bs_purif x yield_6m, full
 # sample, wild bootstrap nboot=800, seed 123, bandas 68/90, h=48) para
