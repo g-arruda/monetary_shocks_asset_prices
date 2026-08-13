@@ -20,8 +20,9 @@ banners, and `pareceres/`, what outside reviewers sent in.
 
 **`z_jk_bs_purif` × `yield_6m` × (r=7, q=6, p=6), +50bp**, via `mp_var = "yield_6m"` in
 `script/model_alessi.R` (explicit `r = 7L, q = 6L` override; auto-IC gives (5,4) and is
-borderline-weak). Chosen as the only swept cell with **ξ_mp > 10 in both windows** (10.43 full /
-12.22 pre-COVID); r=7 is a plateau, not a knife-edge. **ξ_mp is the strength ruler of record** — the
+borderline-weak). The frozen production cell has **ξ_mp = 7.65 full / 11.53
+pre-COVID** after the 2026-08-12 month-end correction; r=7 remains a plateau,
+not a knife-edge. **ξ_mp is the strength ruler of record** — the
 AR set is bounded iff ξ_mp > 3.84, conventional bands approximately valid at ξ_mp ≥ 10. Legacy
 first-stage F rulers still print but stopped deciding on 2026-07-26.
 
@@ -40,7 +41,7 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
 `script/irf_coherence_check.R` runs the production spec once and writes
 `output/irf/irf_coherence_h.csv` — point + 68/90 bands + flags, **the source of §5** — plus
 `irf_coherence_cell.rds`, the cached estimation object follow-up analyses reuse instead of
-re-estimating. Catalog of all 28 scripts in `script/README.md`; repo map in `README.md`.
+re-estimating. Catalog of all 26 scripts in `script/README.md`; repo map in `README.md`.
 
 ## Completed rounds
 
@@ -48,10 +49,9 @@ Cite the note, never this table. Notes are under `notas/`.
 
 | round | script | note | verdict |
 |---|---|---|---|
-| Anderson-Rubin bands | `ar_bands.R` | `2026-08-10_bandas_anderson_rubin` | 87 of 91 sig90 survive |
 | Sovereign confound | `jk_sovereign_confound.R` | `2026-08-09_confound_soberano_cds` | not confirmed, both proxies |
 | FOMC coincidence | `fomc_coincidence.R` | `2026-08-10_coincidencia_fomc` | confound not detected |
-| ξ_mp robustness | `xi_mp_robustness.R` | `2026-07-27_robustez_xi_mp_e_construcao` | AR set stays bounded |
+| ξ_mp robustness | `xi_mp_robustness.R` | `2026-07-27_robustez_xi_mp_e_construcao` | 24 of 147 LOO cells fall below 10 |
 | Construction sweep | `instrument_construction_sweep.R` | idem | vertex not identified; all give same IRF |
 | Factor stationarity | `factor_stationarity.R` | `2026-07-31_estacionariedade_fatores` | 4/7 I(1), Johansen rank not identified |
 | VAR benchmark | `model_var.R` | `2026-07-31_benchmark_var_vs_dfm` | stronger yes, faster equity-only |
@@ -68,9 +68,10 @@ These govern what may be **said**, so they apply even when no file is open.
 
 - **68% bands are never "significant".** Two-tier rule: 90% band excluding zero → *significativo*;
   68% only → **direction and magnitude**, labelled as such.
-- **AR bands do not "confirm" or "tighten" the bootstrap** — they are narrower only because they
-  condition on `Λ̂, K̂, M̂, ŝy` while the bootstrap re-estimates the DFM per replication. The clean
-  comparison is **AR against delta-method**. **Bootstrap remains the ruler of record in §4/§5.**
+- **The 68%/90% wild bootstrap is the sole operational inference for the DFM.** The withdrawn
+  Anderson–Rubin plug-in conditioned on estimated factors and loadings and lacked a theory covering
+  those generated objects. Do not cite its numerical bands; any future implementation must first
+  incorporate factor estimation or establish the required asymptotic justification.
 - **The medium-run reversal may not be cited as evidence separate from the dynamics that produce
   it** — it and the near-unit persistence of the factor VAR are the same object. `cambio_usd` is the
   one exception, so §4's exchange-rate persistence claim is untouched.
@@ -130,8 +131,6 @@ Rscript script/instrument.R                  # 8 GK-family variants
 Rscript script/instrument_diagnostics.R      # first-stage F + MOSW Wald block
 Rscript script/mosw_strength_grid.R          # ξ_mp over (r,q) × sample × instrument
 Rscript script/xi_mp_robustness.R            # leave-one-month-out + NW(0..6) on ξ_mp
-Rscript script/ar_bands.R                    # Anderson-Rubin inversion (~1 min, no bootstrap)
-Rscript script/validate_mosw_ar.R            # AR bounds vs the official MSWfunction.m
 Rscript script/instrument_construction_sweep.R  # DI vertex × aggregation scheme
 Rscript script/validate_hac_kernel.R         # NW kernel vs the official MATLAB
 
@@ -171,8 +170,9 @@ P <- res$irfs$irf_point_matrix; vn <- colnames(res$data)
 P[match(c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd"), vn), 1]
 ```
 
-Expected h0 (matches `output/irf/irf_coherence_h.csv`): `yield_6m` 0.005, `yield_2y` 0.009164,
-`yield_5y` 0.009274, `asset_ibov` −1.673, `cambio_usd` 0.1498.
+Expected h0 (matches `output/irf/irf_coherence_h.csv`): `yield_6m` 0.005,
+`yield_2y` 0.01080227, `yield_5y` 0.01170172, `asset_ibov` −2.407125,
+`cambio_usd` 0.228100.
 
 ## Conventions
 

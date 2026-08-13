@@ -26,7 +26,7 @@ Read `script/README.md` before selecting diagnostics or validation scripts. Run 
 - The monthly sample is 2013-01 through 2025-09 with 106 series. The policy normalization variable is `yield_6m`, with a +50 bp impact shock.
 - Use `res$irfs`, not `res$irf`, and recover variable names from the estimation data. Preserve the documented factor-space dimensions and normalization when comparing IRFs.
 - Factor selection uses the BLL-standardized Bai–Ng/Amengual–Watson variants. Plain Bai–Ng (2002) is inappropriate because the panel is non-stationary by design.
-- Weak-IV conclusions are governed by the factor-space MOSW statistics and, where relevant, the implemented Anderson–Rubin inversion—not by legacy first-stage rulers alone. Do not change confidence-band interpretation or attribution without checking the current reports and pending-items file.
+- Weak-IV conclusions are governed by the factor-space MOSW statistics, not by legacy first-stage rulers alone. The operational DFM inference uses the 68%/90% wild-bootstrap bands; Anderson–Rubin inference is deferred until it has a theoretical basis or a procedure that incorporates factor estimation. Do not change confidence-band interpretation or attribution without checking the current reports and pending-items file.
 
 For changes to the estimation core, reproduce the current impact smoke test documented in the source guidance or current validation scripts before accepting results. Compare at least `yield_6m`, `yield_2y`, `yield_5y`, `asset_ibov`, and `cambio_usd`; do not update expected values merely to make a changed implementation pass.
 
