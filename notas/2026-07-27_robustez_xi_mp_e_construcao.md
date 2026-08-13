@@ -1,5 +1,9 @@
 # Robustez do ξ_mp e da construção do instrumento
 
+> **NÚMEROS SUPERADOS EM 2026-08-12.** A conclusão qualitativa permanece, mas
+> as magnitudes e estatísticas do DFM pertencem ao vintage defeituoso da curva.
+> Use `2026-08-12_correcao_fim_mes_curva.md` e os artefatos correntes.
+
 > **Veredito: CURRENT.** Escrita sob a especificação de produção corrente —
 > `z_jk_bs_purif` × `yield_6m`, (r, q) = (7, 6), p = 6, vintage de 106 séries
 > de 2026-07-24. Nenhuma decisão de produção mudou: o exercício **confirmou** a

@@ -1,6 +1,6 @@
 # ===================================================================
 # Robustness of xi_mp itself — the statistic that carries the whole
-# defence of conventional inference in section 5 (10.43 full sample,
+# assessment of conventional inference in section 5 (7.65 full sample,
 # i.e. just over the threshold where conventional bands are only
 # "approximately valid" per Montiel Olea, Stock & Watson 2021).
 #

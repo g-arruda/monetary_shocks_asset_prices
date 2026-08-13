@@ -6,7 +6,8 @@
 # hard-sign score, extended score and xi_mp (MOSW), capped at 2 cells
 # per instrument, TOP_N total; the production baseline (full, r=7, q=6,
 # z_jk_bs_purif, yield_6m) is force-appended if not selected. Since the
-# stage-1 taxonomy migrated from f_factor to xi_mp (2026-07-26) the baseline
+# stage-1 taxonomy is governed by xi_mp; the matching robust first-stage F is
+# reported but does not condition cell selection. The baseline
 # qualifies on its own, so the force-append is a safety net, not a workaround.
 # Outputs: output/irf/irf_spec_<tag>.rds/.pdf, irf_spec_stage2_overlay.pdf,
 #          spec_sweep_stage2.md

@@ -46,13 +46,19 @@ yield_curve <- readr::read_csv("data/raw/yields/yields_dia.csv") |>
     yield_10y = x120
   )
 
+if (anyNA(yield_curve$data)) {
+  stop("data/raw/yields/yields_dia.csv contains invalid dates.")
+}
 
 monthly_yield_curve <- yield_curve |>
   dplyr::group_by(ref.date = lubridate::floor_date(data, "month")) |>
-  dplyr::slice_tail(n = 1) |>
+  dplyr::slice_max(order_by = data, n = 1, with_ties = FALSE) |>
   dplyr::ungroup() |>
   dplyr::select(-data)
 
+if (anyDuplicated(monthly_yield_curve$ref.date)) {
+  stop("Monthly yield curve contains more than one observation per month.")
+}
 
 juros <- juros |>
   dplyr::left_join(monthly_yield_curve, by = "ref.date")
@@ -63,7 +69,7 @@ juros <- juros |>
 # dependent is break-even, not realized IPCA. To populate the rb3 cache
 # the first time, run `fetch_anbima_reference_rates(from, to)` once;
 # `download_breakeven_curve` returns an empty tibble (with warning) when
-# the cache is missing, so the rest of the pipeline still completes.
+# the cache is missing, so the canonical panel composition remains unchanged.
 breakeven <- download_breakeven_curve(from = "2010-01-01", to = "2026-12-31")
 
 
@@ -212,13 +218,22 @@ emprego <- download_bcb_data(vec_emprego, start_date = "2012-01-01", parallel = 
 
 ## Dados risco ----
 
-embi <- readr::read_csv("data/raw/banco_central_rep_dominicana/embi_brasil.csv") |>
-  dplyr::mutate(data = lubridate::dmy(date)) |>
+embi_daily <- readr::read_csv("data/raw/banco_central_rep_dominicana/embi_brasil.csv") |>
+  dplyr::mutate(data = lubridate::dmy(date))
+
+if (anyNA(embi_daily$data)) {
+  stop("data/raw/banco_central_rep_dominicana/embi_brasil.csv contains invalid dates.")
+}
+
+embi <- embi_daily |>
   dplyr::group_by(ref.date = lubridate::floor_date(data, "month")) |>
-  dplyr::slice_tail(n = 1) |>
+  dplyr::slice_max(order_by = data, n = 1, with_ties = FALSE) |>
   dplyr::ungroup() |>
   dplyr::select(ref.date, embi_perc)
 
+if (anyDuplicated(embi$ref.date)) {
+  stop("Monthly EMBI+ series contains more than one observation per month.")
+}
 
 # Os tres CSVs da investing.com vem no formato pt-BR ("138,19"). Sob o locale
 # default do readr a virgula e lida como separador de MILHAR, e cada valor
@@ -469,9 +484,6 @@ merged_df <- all_dfs |>
 
 # Persistir o painel bruto ----
 readr::write_csv(merged_df, "data/raw/raw_data.csv")
-
-
-
 
 
 

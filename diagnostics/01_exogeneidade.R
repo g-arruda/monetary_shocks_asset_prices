@@ -287,7 +287,7 @@ fs_cmp <- lapply(list(producao = PANEL, aumentado = aug), function(M) {
   fs <- diagnose_instrument_in_factor_space(d, z_df, DATES, SPEC$p,
                                             match(SPEC$mp_var, colnames(M)))
   data.frame(n_series = ncol(M), max_eig = d$diagnostics$max_eigenvalue,
-             xi_mp = fs$wald_mp, wald_joint = fs$wald_joint)
+             xi_mp = fs$wald_mp, f_robust_mp = fs$f_robust_mp)
 }) |> bind_rows(.id = "painel")
 cat("\n-- espaco de fatores: producao vs aumentado --\n")
 print(as.data.frame(fs_cmp), row.names = FALSE, digits = 5)

@@ -1,5 +1,9 @@
 # Coincidência FOMC: o filtro JK seleciona spillover do Fed?
 
+> **NÚMEROS DO DFM SUPERADOS EM 2026-08-12.** Os testes diários e o veredito
+> permanecem, mas força e IRFs foram regeneradas. Use
+> `output/instrument/fomc_coincidence.md` e a nota de 2026-08-12.
+
 > ⚠ **O teste 4 (a divisão em metades com e sem FOMC) foi removido em
 > 2026-08-10**, e com ele saiu a terceira perna da regra de veredito, que era a
 > única que o consumia. A perna **havia passado** e a cláusula de poder não foi

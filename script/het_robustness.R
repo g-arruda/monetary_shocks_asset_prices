@@ -14,7 +14,7 @@
 # rejected) and BPSS episode regimes (variance moving as a common scale
 # factor). That verdict predates the 2026-07-24 vintage refresh (106
 # series) and the migration to (r=7, q=6) -- the same refresh that lifted
-# the proxy's xi_mp to 10.43. So the gate is re-evaluated over a (p,q)
+# the proxy's xi_mp. So the gate is re-evaluated over a (p,q)
 # GRID, and three regime designs that were never tried are added.
 #
 # THE DIAGNOSED CAUSE the new designs attack: with 8 meetings a year the
@@ -149,11 +149,11 @@ coh <- read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE) |>
 h0 <- setNames(coh$point, coh$var)
 stopifnot(
   abs(h0[["yield_6m"]]   - 0.005)      < 1e-12,
-  abs(h0[["yield_2y"]]   - 0.009164)   < 1e-5,
-  abs(h0[["asset_ibov"]] - (-1.673))   < 1e-2,
-  abs(h0[["cambio_usd"]] - 0.14976)    < 1e-4,
-  abs(h0[["embi_perc"]]  - 0.19954)    < 1e-4,
-  abs(h0[["cds_5y"]]     - 29.067)     < 1e-2
+  abs(h0[["yield_2y"]]   - 0.01080227) < 1e-5,
+  abs(h0[["asset_ibov"]] - (-2.407125)) < 1e-2,
+  abs(h0[["cambio_usd"]] - 0.228100)   < 1e-4,
+  abs(h0[["embi_perc"]]  - 0.320446)   < 1e-4,
+  abs(h0[["cds_5y"]]     - 43.4375)    < 1e-2
 )
 cat("  [ok] T3 panel is 106 series; proxy h0 matches irf_coherence_h.csv\n")
 

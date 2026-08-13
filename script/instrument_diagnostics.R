@@ -21,21 +21,11 @@ suppressPackageStartupMessages({
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
-source("R/identification/validation_tests.R")
 source("R/identification/factor_space_diagnostics.R")
 
 dir.create("output/instrument", showWarnings = FALSE, recursive = TRUE)
 
-# yield_6m AR(6) innovation: alternative first-stage target. The DFM-factor F
-# (used by run_variant) is the Olea-Stock-Watson partial F that governs weak-
-# instrument bias inside the proxy-SVAR; the yield_6m AR-innovation F measures
-# relevance for the Selic-equivalent interpretation of the shock (audit
-# 2026-04-25). Reporting both, side by side, addresses pendencias.md Crit. 3.
-
-YIELD6M_TARGET     <- "yield_6m"
-YIELD6M_AR_LAGS    <- 6L
-YIELD6M_SAMPLE_MIN <- as.Date("2013-01-01")
-YIELD6M_SAMPLE_MAX <- as.Date("2025-12-31")
+YIELD6M_TARGET <- "yield_6m"
 
 # ---- 1. DFM estimation (instrument-agnostic) ---------------
 
@@ -60,16 +50,6 @@ residual_dates  <- dfm$dates[(p_lag + 1):length(dfm$dates)]
 # to read the impact response per variant in policy-variable native units.
 mp_idx_diag <- match(YIELD6M_TARGET, colnames(X))
 
-F_mat <- dfm$static_factors
-T_f   <- nrow(F_mat)
-r_fac <- ncol(F_mat)
-RHS_lags <- matrix(NA, T_f - p_lag, r_fac * p_lag)
-for (i in seq_len(p_lag)) {
-  cols <- ((i - 1) * r_fac + 1):(i * r_fac)
-  RHS_lags[, cols] <- F_mat[(p_lag + 1 - i):(T_f - i), ]
-}
-colnames(RHS_lags) <- paste0("ctrl", seq_len(ncol(RHS_lags)))
-
 # ---- 2. Diagnostics per variant ----------------------------
 
 variants <- list(
@@ -84,17 +64,6 @@ variants <- list(
 )
 variants <- variants[file.exists(unlist(variants))]
 
-# yield_6m AR(6) innovation: shared across variants. residualize_target keeps
-# residual length equal to input via na.exclude, so positional alignment with
-# the instrument (joined on month) is valid.
-y6m_raw <- read_csv("data/raw/raw_data.csv", show_col_types = FALSE) |>
-  mutate(ref.date = as.Date(ref.date)) |>
-  filter(ref.date >= YIELD6M_SAMPLE_MIN, ref.date <= YIELD6M_SAMPLE_MAX) |>
-  arrange(ref.date)
-y6m_dates <- y6m_raw$ref.date
-y6m_innov <- residualize_target(y6m_raw[[YIELD6M_TARGET]],
-                                n_lags = YIELD6M_AR_LAGS)
-
 fmt_p <- function(p) if (is.na(p)) "NA" else if (p < 0.001) "< 0.001" else sprintf("%.3f", p)
 
 run_variant <- function(name, path) {
@@ -102,31 +71,7 @@ run_variant <- function(name, path) {
   align   <- sel_ext_inst_sample(dfm$dates, p_lag, inst_df)
   Z_t     <- align$inst_sel
   res_al  <- policy_residual[align$rsh_sel_ind]
-  ctrl_al <- RHS_lags[align$rsh_sel_ind, , drop = FALSE]
-
-  fs <- lm(res ~ ., data = data.frame(res = res_al, Z = Z_t, ctrl_al))
-  ct <- coeftest(fs, vcov = vcovHC(fs, type = "HC0"))
-  beta   <- ct["Z", "Estimate"]
-  se     <- ct["Z", "Std. Error"]
-  tval   <- ct["Z", "t value"]
-  pval   <- ct["Z", "Pr(>|t|)"]
-  f_part <- tval^2
-  r2     <- summary(fs)$r.squared
-
   T_eff   <- length(Z_t)
-  gamma   <- mean(Z_t * res_al)
-  W11     <- mean((Z_t * res_al - gamma)^2)
-  xi1     <- T_eff * gamma^2 / W11
-
-  # xi1 with the MOSW Shat correction (CovAhat_Sigmahat_Gamma.m): the
-  # asymptotic variance of Gamma-hat propagates the VAR estimation error,
-  # which algebraically amounts to residualizing Z on the VAR regressors
-  # (factor lags + constant) before forming the moment products. Gamma-hat
-  # itself is unchanged in-sample (residuals are orthogonal to regressors).
-  Z_resid  <- as.numeric(residuals(lm(Z_t ~ ctrl_al)))
-  gamma_m  <- mean(Z_resid * res_al)
-  W11_m    <- mean((Z_resid * res_al - gamma_m)^2)
-  xi1_mosw <- T_eff * gamma_m^2 / W11_m
 
   n_lags <- 6
   ex_df <- tibble(Z = Z_t)
@@ -138,17 +83,6 @@ run_variant <- function(name, path) {
   exog_f  <- ex_wf$F[2]
   exog_pv <- ex_wf$`Pr(>F)`[2]
 
-  # F against AR(p) innovation of yield_6m (Selic-equivalent relevance).
-  # Instrument df has columns (month, shock); align by month-start.
-  z_y6m <- align_z_to_target(inst_df$shock, inst_df$month, y6m_dates)
-  fs_y6m <- first_stage_F(z_y6m, y6m_innov)
-
-  # F (factor-space) — max univariate F across the q dynamic factor innovations
-  # eta = u K M^{-1}. This is the relevant weak-instrument metric for the proxy-
-  # SVAR projection H = (Z' eta) / (Z'Z): if low, IRFs become noise-dominated
-  # regardless of how strong the instrument is against any single reduced-form
-  # variable. Distinct from f_partial (controls-residualized F on the policy-
-  # equation residual) and f_y6m (F vs AR(p) innovation of yield_6m).
   diag_fs <- diagnose_instrument_in_factor_space(dfm, inst_df, dates, p_lag,
                                                  mp_idx_diag)
 
@@ -156,26 +90,13 @@ run_variant <- function(name, path) {
     variant      = name,
     n            = T_eff,
     nonzero      = sum(Z_t != 0),
-    beta         = beta,
-    se_hc0       = se,
-    t_stat       = tval,
-    p_value      = pval,
-    f_partial    = f_part,
-    xi1          = xi1,
-    xi1_mosw     = xi1_mosw,
-    r2_fs        = r2,
+    xi_mp        = diag_fs$wald_mp,
+    f_robust_mp  = diag_fs$f_robust_mp,
+    beta_mp      = diag_fs$first_stage_beta,
+    se_mp        = diag_fs$first_stage_se,
+    p_mp         = diag_fs$first_stage_p,
     exog_f       = exog_f,
     exog_p       = exog_pv,
-    f_y6m        = fs_y6m$F_partial,
-    r2_y6m       = fs_y6m$r2,
-    n_y6m        = fs_y6m$n,
-    f_factor_sp  = diag_fs$f_factor,
-    wald_min     = diag_fs$wald_min,
-    wald_max     = diag_fs$wald_max,
-    wald_joint   = diag_fs$wald_joint,
-    f_joint      = diag_fs$F_joint,
-    p_joint      = diag_fs$p_joint,
-    wald_mp      = diag_fs$wald_mp,
     impact_y6m   = diag_fs$impact_mp,
     sign_y6m     = diag_fs$sign_mp
   )
@@ -262,66 +183,25 @@ if (exists("diag")) {
 
 # ---- 5. Report ---------------------------------------------
 
-fmt_num_or_na <- function(x, d = 3) {
-  ifelse(is.na(x), "NA", sprintf(paste0("%.", d, "f"), x))
-}
-
 res_tbl <- results |>
-  mutate(across(c(beta, se_hc0, t_stat, f_partial, xi1, r2_fs, exog_f,
-                  f_factor_sp),
+  mutate(across(c(xi_mp, f_robust_mp, exog_f),
                 ~ sprintf("%.3f", .x)),
-         f_y6m       = fmt_num_or_na(f_y6m,  3),
-         r2_y6m      = fmt_num_or_na(r2_y6m, 3),
+         beta_mp     = sprintf("%+.2e", beta_mp),
+         se_mp       = sprintf("%.2e", se_mp),
          impact_y6m  = sprintf("%+.2e", impact_y6m),
          sign_y6m    = ifelse(sign_y6m > 0, "+",
                               ifelse(sign_y6m < 0, "-", "0")),
-         p_value     = map_chr(p_value, fmt_p),
-         exog_p      = map_chr(exog_p,  fmt_p),
-         weak_flag   = ifelse(as.numeric(xi1) < 3.84, "WEAK", "OK"),
-         fs_flag     = ifelse(as.numeric(f_factor_sp) < 10,
-                              "WEAK-FACT", "OK"))
+         p_mp        = map_chr(p_mp, fmt_p),
+         exog_p      = map_chr(exog_p, fmt_p))
 
-hdr <- "| Variant | n (DFM) | nonzero | β̂ | SE(HC0) | t | p | F (DFM) | ξ₁ | R² | n (y6m) | F (y6m AR) | R² y6m | F (factor-sp) | impact y6m | sign | Exog F | Exog p | Flag | FS-Flag |"
-sep <- "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"
+hdr <- "| Variant | n | nonzero | ξ_mp | F robusto_mp | β̂_mp | SE(HC1) | p_mp | impacto y6m | sinal | Exog F | Exog p |"
+sep <- "|---|---|---|---|---|---|---|---|---|---|---|---|"
 rows <- apply(res_tbl, 1, function(r)
-  sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |",
-          r["variant"], r["n"], r["nonzero"], r["beta"], r["se_hc0"],
-          r["t_stat"], r["p_value"], r["f_partial"], r["xi1"], r["r2_fs"],
-          r["n_y6m"],
-          r["f_y6m"], r["r2_y6m"],
-          r["f_factor_sp"], r["impact_y6m"], r["sign_y6m"],
-          r["exog_f"], r["exog_p"], r["weak_flag"], r["fs_flag"]))
+  sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |",
+          r["variant"], r["n"], r["nonzero"], r["xi_mp"],
+          r["f_robust_mp"], r["beta_mp"], r["se_mp"], r["p_mp"],
+          r["impact_y6m"], r["sign_y6m"], r["exog_f"], r["exog_p"]))
 tbl_md <- paste(c(hdr, sep, rows), collapse = "\n")
-
-# MOSW Wald block (sec. 4.2 of the paper + MSWfunction.m). Kept as a
-# separate table so the legacy table above stays byte-comparable across runs.
-mosw_tbl <- results |>
-  transmute(
-    variant,
-    ar_bounded = ifelse(wald_mp > qchisq(0.95, df = 1), "yes",
-                        "NO (unbounded)"),
-    mosw_flag  = case_when(
-      f_joint >= 10                        ~ "OK",
-      wald_mp > qchisq(0.95, df = 1)       ~ "WEAK (AR bounded)",
-      TRUE                                 ~ "WEAK (AR may be unbounded)"
-    ),
-    xi1        = sprintf("%.3f", xi1),
-    xi1_mosw   = sprintf("%.3f", xi1_mosw),
-    wald_min   = sprintf("%.3f", wald_min),
-    wald_max   = sprintf("%.3f", wald_max),
-    wald_joint = sprintf("%.3f", wald_joint),
-    f_joint    = sprintf("%.3f", f_joint),
-    p_joint    = map_chr(p_joint, fmt_p),
-    wald_mp    = sprintf("%.3f", wald_mp)
-  )
-mosw_hdr <- "| Variant | ξ₁ (legado) | ξ₁ (Shat) | min ξ_k | max ξ_k | Wald conj. | F conj. (ξ/q) | p (χ²_q) | ξ_mp | AR limitado? | MOSW-Flag |"
-mosw_sep <- "|---|---|---|---|---|---|---|---|---|---|---|"
-mosw_rows <- apply(mosw_tbl, 1, function(r)
-  sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |",
-          r["variant"], r["xi1"], r["xi1_mosw"], r["wald_min"], r["wald_max"],
-          r["wald_joint"], r["f_joint"], r["p_joint"], r["wald_mp"],
-          r["ar_bounded"], r["mosw_flag"]))
-mosw_tbl_md <- paste(c(mosw_hdr, mosw_sep, mosw_rows), collapse = "\n")
 
 var_md <- if (!is.null(var_tests)) {
   v <- var_tests |>
@@ -341,66 +221,24 @@ var_md <- if (!is.null(var_tests)) {
 report <- paste(
   "# Instrument Validity Diagnostics Report",
   "",
-  sprintf("**Date generated:** %s  ", Sys.Date()),
+  sprintf("**Date generated:** %s", Sys.Date()),
   sprintf("**DFM sample:** %s to %s  ", min(dfm$dates), max(dfm$dates)),
-  "**Identification:** proxy-SVAR with external instrument (Olea, Stock & Watson 2020).",
+  "**Identification:** proxy-SVAR with external instrument (Montiel Olea, Stock & Watson 2021).",
   "**Instrument variants:** raw Copom-day ΔDI (3m), purified by global factors (SP500, VIX, Brent),",
   "Jarociński-Karadi sign filter, and JK + purified.",
   "",
   "---",
   "",
-  "## 1. First-stage comparison across variants",
+  "## 1. Força do instrumento por variante",
   "",
-  "Three first-stage statistics are reported side by side:",
-  "",
-  "- **F (DFM)** — partial F (= t²) of the instrument in the regression of the",
-  "  first-factor VAR residual on Z plus lagged factors, HC0 SE. This is the",
-  "  Olea-Stock-Watson statistic that governs weak-instrument bias inside the",
-  "  Alessi-Kerssenfischer proxy-SVAR; the relevant target is the DFM residual,",
-  "  not the policy rate.",
-  "- **F (y6m AR)** — partial F of the instrument against the AR(6) innovation",
-  "  of monthly `yield_6m` (univariate, HC0 SE). This is the audit statistic",
-  "  (`output/instrument/instrument_audit_report.md`, 2026-04-25): it measures relevance",
-  "  for the Selic-equivalent interpretation of the shock and feeds the",
-  "  normalization in `model_alessi.R` (`mp_var = yield_6m`).",
-  "- **F (factor-sp)** — max univariate F across the q dynamic factor",
-  "  innovations η = u K M⁻¹. This is the relevant weak-instrument metric",
-  "  for the proxy-SVAR projection H = (Z'η)/(Z'Z): if it is small, the",
-  "  IRFs become noise-dominated regardless of how strong Z is against any",
-  "  single reduced-form variable. **FS-Flag = WEAK-FACT when F (factor-sp) < 10.**",
-  "  Disagreement between F (factor-sp) and F (y6m AR) was the root cause",
-  "  of the 2026-05-08 IRF investigation (see registro/historico_decisoes.md).",
-  "",
-  "The three answers can disagree by an order of magnitude. ξ₁ uses the",
-  "Olea-Stock-Watson convention; threshold = 3.84.",
+  "As duas estatísticas seguem a §4.2 de Montiel Olea-Stock-Watson (2021).",
+  "**ξ_mp** é a Wald na direção c'Γ̂ com c = linha de `yield_6m` na matriz de",
+  "  impacto Λ·K·M: é o análogo exato do `Waldstat` oficial (Γ̂ da variável",
+  "normalizadora). **F robusto_mp** é o t² HC1 do instrumento na regressão",
+  "de c_mp'η_t sobre o instrumento e as defasagens dos fatores. Ambos usam a",
+  "mesma direção; o código reproduz ξ₁=4,4 e F=9,4 da aplicação dos autores.",
   "",
   tbl_md,
-  "",
-  "### 1.1 Bloco Wald MOSW (leitura conservadora)",
-  "",
-  "Estatísticas de Wald de Montiel Olea-Stock-Watson (2021, §4.2), validadas",
-  "contra o código oficial dos autores (`codigos_externos/codigo_olea/`, MSWfunction.m e",
-  "CovAhat_Sigmahat_Gamma.m). Todas usam Eicker-White (Newey-West 0 lags) e",
-  "residualizam Z nos regressores do VAR de fatores (correção Shat), exceto a",
-  "coluna legada ξ₁:",
-  "",
-  "- **ξ₁ (legado)** — T·Γ̂₁²/Ŵ₁₁ contra o resíduo do 1º fator, sem correção",
-  "  Shat (coluna mantida por comparabilidade).",
-  "- **ξ₁ (Shat)** — mesma estatística com Z residualizado em lags + constante,",
-  "  exatamente como `CovAhat_Sigmahat_Gamma.m` propaga o erro de estimação do VAR.",
-  "- **min/max ξ_k** — Wald robusta por inovação de fator, k = 1..q. O mínimo",
-  "  é a leitura conservadora por equação; o máximo compara com a coluna",
-  "  legada F (factor-sp), que é homocedástica e não robusta.",
-  "- **Wald conjunta** — ξ = T·Γ̂'Ŵ⁻¹Γ̂ ~ χ²_q sob irrelevância (o `WaldstatFull`",
-  "  dos autores, MSWfunction.m:389). Não faz cherry-pick da equação mais forte.",
-  "  **F conjunta = ξ/q** é a forma-F para leitura na régua Stock-Yogo.",
-  "- **ξ_mp** — Wald na direção c'Γ̂ com c = linha de `yield_6m` na matriz de",
-  "  impacto Λ·K·M: é o análogo exato do `Waldstat` oficial (Γ̂ da variável",
-  "  normalizadora) na nossa parametrização, e governa o denominador da",
-  "  normalização. **O conjunto AR 95% é intervalo limitado sse ξ_mp > 3.84**",
-  "  (Fieller/Anderson-Rubin, footnote 13 do paper).",
-  "",
-  mosw_tbl_md,
   "",
   "---",
   "",
@@ -425,14 +263,11 @@ report <- paste(
   "",
   "## 4. Interpretation",
   "",
-  "- **F > 10 / ξ₁ > 10**: inference standard OK.  ",
-  "- **F ∈ [5, 10]**: use Anderson-Rubin robust intervals.  ",
-  "- **ξ₁ < 3.84**: instrument flagged as weak; AR CIs possibly unbounded.  ",
-  "- **Leitura conservadora (§1.1)**: a decisão de força do instrumento deve",
-  "  usar a **F conjunta (ξ/q)** e a **ξ_mp**, não o máximo por equação. A regra",
-  "  F > 10 aplicada ao máximo de q regressões é anti-conservadora (viés de",
-  "  seleção da equação mais forte); a coluna F (factor-sp) permanece apenas",
-  "  por comparabilidade com o spec sweep de 2026-07-11. MOSW (§4.2, footnote 6)",
+  "- O valor 10 é uma referência convencional, não um valor crítico fornecido por MOSW.",
+  "- Se ξ_mp e F robusto_mp divergirem, a evidência de força é mista.",
+  "- Abaixo de 10, qualificar o bootstrap; a inferência AR do DFM está adiada.",
+  "- **ξ_mp abaixo de 3,84**: um futuro conjunto AR de 95% pode ser ilimitado.",
+  "- MOSW (§4.2, footnote 6)",
   "  advertem ainda contra *screening* no F: reportar F/ξ e usar rotineiramente",
   "  os conjuntos AR robustos, não condicionar a inferência no pré-teste.  ",
   "- Compare z_bruto vs. z_JK to assess whether the JK filter changes identification, and vs. their `_purif` counterparts for the role of global-factor contamination.",

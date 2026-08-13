@@ -121,9 +121,10 @@ WIN_FULL   <- as.Date(c("2013-01-01", "2025-12-31"))
 WIN_PRE    <- as.Date(c("2013-01-01", "2019-12-31"))
 
 # reference values this run must reproduce
-XI_MP_REF  <- c(full = 10.430830000494813, pre_covid = 12.223433475303535)
-SMOKE_REF  <- c(yield_6m = 0.005, yield_2y = 0.009164, yield_5y = 0.009274,
-                asset_ibov = -1.673, cambio_usd = 0.1498)
+XI_MP_REF <- c(full = 7.647789722807889, pre_covid = 11.534896821694217)
+SMOKE_REF <- c(yield_6m = 0.005, yield_2y = 0.01080227,
+               yield_5y = 0.01170172, asset_ibov = -2.407125,
+               cambio_usd = 0.228100)
 
 hcol <- function(h) h + 1L
 
@@ -253,7 +254,7 @@ xi_of <- function(M, window) {
     dfm, INST_PANEL |> select(month, shock = all_of(INSTRUMENT)) |>
       filter(!is.na(shock)),
     DATES[keep], P_LAGS, match(MP_VAR, VAR_NAMES))
-  list(wald_mp = d$wald_mp, wald_joint = d$wald_joint, f_factor = d$f_factor,
+  list(wald_mp = d$wald_mp, f_robust_mp = d$f_robust_mp,
        n_obs = d$n_obs, max_eig = dfm$diagnostics$max_eigenvalue)
 }
 xi_prod_full <- xi_of(PANEL, WIN_FULL)
@@ -285,8 +286,8 @@ STRENGTH$prod_nocum <- STRENGTH$prod
 strength_tbl <- imap_dfr(STRENGTH, function(s, tag) {
   imap_dfr(s, function(x, win) {
     tibble(variante = tag, amostra = win, n_obs = x$n_obs,
-           xi_mp = x$wald_mp, wald_joint = x$wald_joint,
-           f_factor = x$f_factor, max_eig = x$max_eig,
+           xi_mp = x$wald_mp, f_robust_mp = x$f_robust_mp,
+           max_eig = x$max_eig,
            ar_bounded = x$wald_mp > 3.84, bandas_convencionais = x$wald_mp >= 10)
   })
 })
@@ -612,12 +613,12 @@ md <- c(
   "## As quatro representações",
   "",
   md_table(cells_tbl |> filter(amostra == "full") |>
-             select(variante, painel, tcode_asset, xi_mp, wald_joint, max_eig,
+             select(variante, painel, tcode_asset, xi_mp, f_robust_mp, max_eig,
                     n_sig90, n_sig90_h12, n_sig68)),
   "",
   "Força do instrumento nas duas janelas:",
   "",
-  md_table(strength_tbl |> select(variante, amostra, n_obs, xi_mp, f_factor,
+  md_table(strength_tbl |> select(variante, amostra, n_obs, xi_mp, f_robust_mp,
                                   ar_bounded, bandas_convencionais)),
   "",
   "## h = 0 — o teste limpo da representação",

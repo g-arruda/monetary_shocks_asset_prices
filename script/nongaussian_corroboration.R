@@ -60,8 +60,9 @@ sg68 <- sig_flags(cell$ng$ci, "0.68"); sp68 <- sig_flags(cell$px$ci, "0.68")
 # Vintage: the proxy side of the cell must be the production point estimate.
 # These are the CLAUDE.md smoke-test values; a re-estimation on a different
 # panel would otherwise be compared silently against the wrong baseline.
-prod_h0 <- c(yield_6m = 0.005, yield_2y = 0.009164, yield_5y = 0.009274,
-             asset_ibov = -1.673, cambio_usd = 0.1498)
+prod_h0 <- c(yield_6m = 0.005, yield_2y = 0.01080227,
+             yield_5y = 0.01170172, asset_ibov = -2.407125,
+             cambio_usd = 0.228100)
 got_h0  <- Pp[match(names(prod_h0), vn), 1]
 stopifnot(all(abs(got_h0 - prod_h0) < 5e-4))
 

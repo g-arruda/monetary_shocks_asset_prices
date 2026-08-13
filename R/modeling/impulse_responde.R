@@ -53,7 +53,7 @@ sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
 #'   in native units of the policy variable.
 #' @param tcode Vector of transformation codes for `cumimp_transform`.
 #' @param diagnose If TRUE, print diagnostic information about `H`, the
-#'   pre-normalization impact response, and the factor-space first-stage F.
+#'   pre-normalization impact response, and the MOSW relevance statistics.
 #'   Use only on the point estimate; never inside bootstrap loops.
 #' @param var_names Optional column names for printing the impact vector when
 #'   `diagnose` is TRUE.
@@ -82,8 +82,10 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
 
   if (isTRUE(diagnose) && !is.null(mpind)) {
     impact_pre <- irf_mp[mpind, 1]
-    f_factor   <- compute_factor_space_F(rsh_mean0, Z_mat)
-    wald_fs    <- compute_factor_space_wald(rsh_mean0, Z_mat)
+    c_mp       <- as.numeric(rawimp[mpind, , 1])
+    eta_mp     <- as.numeric(rsh_mean0 %*% c_mp)
+    xi_mp      <- compute_factor_space_wald(eta_mp, Z_mat)$wald_joint
+    f_robust_mp <- compute_robust_first_stage_F(eta_mp, Z_mat)$f_statistic
 
     cat("\n========== ident_ext_instr DIAGNOSTIC ==========\n")
     cat(sprintf("H (factor-space loadings, length %d):\n", length(H)))
@@ -91,20 +93,13 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
     cat(sprintf("irf_mp[mpind=%d, 1] (pre-norm) = %.4e   sign = %s\n",
                 mpind, impact_pre,
                 if (impact_pre > 0) "POSITIVE" else if (impact_pre < 0) "NEGATIVE" else "ZERO"))
-    cat(sprintf("F (factor-space, max across q factors, homosk. legacy) = %.3f\n",
-                f_factor))
-    cat(sprintf("MOSW Wald per factor xi_k: min = %.3f  max = %.3f\n",
-                wald_fs$wald_min, wald_fs$wald_max))
-    cat(sprintf("MOSW joint Wald = %.3f  (F_joint = %.3f, chi2_%d p = %.4f)\n",
-                wald_fs$wald_joint, wald_fs$F_joint, wald_fs$q, wald_fs$p_joint))
+    cat(sprintf("MOSW xi_mp in the normalization direction = %.3f\n", xi_mp))
+    cat(sprintf("MOSW robust first-stage F_mp (HC1) = %.3f\n", f_robust_mp))
     cat("      [no lag controls here — instrument_diagnostics.R reports the\n")
     cat("      Shat-corrected version with factor-VAR lags residualized out]\n")
-    if (f_factor < 10 || wald_fs$F_joint < 10) {
-      cat("[!!!] WARNING: factor-space relevance < 10 — instrument is WEAK in the\n")
-      cat("      space where the proxy-SVAR projects. F (y6m AR) reported in\n")
-      cat("      instrument_diagnostics.R measures relevance against a single\n")
-      cat("      reduced-form variable, not the factor space. Wide IRF bands\n")
-      cat("      and unstable signs are mechanical consequences of weak F here.\n")
+    if (xi_mp < 10 || f_robust_mp < 10) {
+      cat("[!!!] WARNING: relevance in the normalization direction is below 10.\n")
+      cat("      Conventional IRF bands require weak-instrument caution.\n")
     }
     cat("Impact (raw, pre-norm) per variable:\n")
     impact_vec <- irf_mp[, 1]
@@ -130,28 +125,73 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
 }
 
 
-#' Factor-space first-stage F statistic
+#' Robust first-stage F in the policy-variable normalization direction
 #'
-#' Reports the maximum F-statistic across q univariate regressions of each
-#' factor innovation on the instrument. A small max-F (<10) indicates the
-#' instrument is weak in factor space — even if it is strong against a
-#' reduced-form variable like `yield_6m`. This is the relevant weak-instrument
-#' diagnostic for the proxy-SVAR projection through factors.
+#' Regresses the factor-implied innovation of the policy variable on the
+#' external instrument and the factor-VAR controls. The statistic is the
+#' squared robust t-statistic on the instrument. HC1 reproduces the finite-
+#' sample convention behind the first-stage F reported by Montiel Olea, Stock
+#' and Watson; positive `nw_lags` use a Bartlett Newey-West covariance.
 #'
-#' @param eta Matrix of factor innovations (T x q), already demeaned.
-#' @param Z Instrument vector or column matrix (T x 1).
+#' @param target_innovation Numeric vector `c_mp' eta_t` aligned with `Z`.
+#' @param Z Instrument vector or one-column matrix.
+#' @param controls Optional matrix/data.frame of factor-VAR regressors. A
+#'   constant is added by the regression.
+#' @param nw_lags Newey-West truncation lag. Zero uses HC1.
 #'
-#' @return Scalar: max F-stat across the q factor regressions.
-compute_factor_space_F <- function(eta, Z) {
-  Z <- as.numeric(Z)
-  q <- ncol(eta)
-  fs <- numeric(q)
-  for (k in seq_len(q)) {
-    fit <- lm(eta[, k] ~ Z)
-    s <- summary(fit)
-    fs[k] <- if (is.null(s$fstatistic)) NA_real_ else s$fstatistic[["value"]]
+#' @return List with `f_statistic`, `beta`, `se`, `p_value`, `n_obs`, and
+#'   `nw_lags`.
+compute_robust_first_stage_F <- function(target_innovation, Z,
+                                         controls = NULL, nw_lags = 0L) {
+  if (!requireNamespace("sandwich", quietly = TRUE)) {
+    stop("Package 'sandwich' is required for the robust first-stage F")
   }
-  max(fs, na.rm = TRUE)
+
+  y <- as.numeric(target_innovation)
+  z <- as.numeric(Z)
+  if (length(y) != length(z)) {
+    stop("target_innovation and Z must have the same length")
+  }
+  if (any(!is.finite(y)) || any(!is.finite(z))) {
+    stop("target_innovation and Z must contain only finite values")
+  }
+  if (sd(z) == 0) stop("Z must vary in the effective sample")
+
+  nw_lags <- as.integer(nw_lags)
+  if (is.na(nw_lags) || nw_lags < 0L || nw_lags >= length(z)) {
+    stop("nw_lags must be a non-negative integer smaller than the sample size")
+  }
+
+  regression_data <- data.frame(y = y, z = z)
+  if (!is.null(controls)) {
+    controls <- as.matrix(controls)
+    if (nrow(controls) != length(z) || any(!is.finite(controls))) {
+      stop("controls must be finite and aligned with target_innovation and Z")
+    }
+    colnames(controls) <- paste0("control_", seq_len(ncol(controls)))
+    regression_data <- cbind(regression_data, controls)
+  }
+
+  fit <- lm(y ~ ., data = regression_data)
+  covariance <- if (nw_lags == 0L) {
+    sandwich::vcovHC(fit, type = "HC1")
+  } else {
+    sandwich::NeweyWest(fit, lag = nw_lags, prewhite = FALSE, adjust = TRUE)
+  }
+
+  beta <- unname(coef(fit)["z"])
+  se   <- sqrt(covariance["z", "z"])
+  f_statistic <- (beta / se)^2
+
+  list(
+    f_statistic = f_statistic,
+    beta        = beta,
+    se          = se,
+    p_value     = pf(f_statistic, df1 = 1, df2 = df.residual(fit),
+                     lower.tail = FALSE),
+    n_obs       = nobs(fit),
+    nw_lags     = nw_lags
+  )
 }
 
 
@@ -160,9 +200,8 @@ compute_factor_space_F <- function(eta, Z) {
 #' Implements the relevance diagnostics of Montiel Olea, Stock & Watson
 #' (2021, J. Econometrics, sec. 4.2) against the q factor innovations:
 #'
-#' - per-factor Wald  xi_k = T * Gamma_k^2 / W_kk        (paper's xi_1, eq. in sec. 4.2)
-#' - joint Wald       xi_joint = T * Gamma' W^{-1} Gamma (the authors' `WaldstatFull`,
-#'   MSWfunction.m:389, chi^2_q under the null of irrelevance)
+#' The scalar case supplies `xi_mp`, the Wald statistic in the policy-variable
+#' normalization direction used by Montiel Olea, Stock and Watson.
 #'
 #' with Gamma = (1/T) sum_t z_t eta_t and W the Eicker-White covariance of the
 #' moment z_t eta_t (Newey-West with 0 lags, matching NWlags = 0 in the
@@ -174,10 +213,9 @@ compute_factor_space_F <- function(eta, Z) {
 #' unchanged either way because the VAR residuals are orthogonal to the
 #' regressors in-sample).
 #'
-#' The per-factor xi_k is heteroskedasticity-robust by construction. The
-#' joint statistic is the conservative headline: it does not cherry-pick the
-#' strongest factor equation (unlike `compute_factor_space_F`, kept as the
-#' legacy metric for comparability with the 2026-07-11 spec sweep).
+#' The vector-valued output remains available for internal validation and
+#' HAC calculations, but the project's reported relevance diagnostics are
+#' the scalar `xi_mp` and its matching robust first-stage F.
 #'
 #' @param eta Matrix of factor innovations (T x q).
 #' @param Z Instrument vector or column matrix (T x 1), aligned to eta.
@@ -193,9 +231,9 @@ compute_factor_space_F <- function(eta, Z) {
 #'   event surprise across t and t+1 and so induces an MA(1). The official
 #'   suite uses `NWlags = 8` in the tax application (`TaxSVARIV.m:52`).
 #'
-#' @return List: `wald_k` (length-q vector), `wald_min`, `wald_max`,
-#'   `wald_joint`, `F_joint` (= wald_joint / q), `p_joint` (chi^2_q),
-#'   `q`, `T_eff`, `nw_lags`.
+#' @return List with `wald_k` (length-q vector), `wald_joint`, `q`, `T_eff`,
+#'   and `nw_lags`. Vector-valued fields are internal inputs to scalar
+#'   projections and validation checks, not reported strength diagnostics.
 compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L) {
   eta <- as.matrix(eta)
   Z   <- as.numeric(Z)
@@ -237,11 +275,7 @@ compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L) {
 
   list(
     wald_k     = wald_k,
-    wald_min   = min(wald_k),
-    wald_max   = max(wald_k),
     wald_joint = wald_joint,
-    F_joint    = wald_joint / q,
-    p_joint    = pchisq(wald_joint, df = q, lower.tail = FALSE),
     q          = q,
     T_eff      = T_eff,
     nw_lags    = nw_lags

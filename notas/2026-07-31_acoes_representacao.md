@@ -1,5 +1,9 @@
 # Ações em log-nível: o resultado nulo do bloco acionário é mecânico
 
+> **NÚMEROS SUPERADOS EM 2026-08-12.** A conclusão qualitativa permanece, mas
+> as magnitudes e estatísticas do DFM pertencem ao vintage defeituoso da curva.
+> Use `2026-08-12_correcao_fim_mes_curva.md` e os artefatos correntes.
+
 > **CURRENT.** Escrita sob (7,6), `z_jk_bs_purif`, vintage de 106 séries.
 > Responde ao item de `registro/pendencias.md:588-595`, achado do council
 > review de 2026-07-31. Corpo gerado com os números em

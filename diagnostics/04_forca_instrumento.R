@@ -7,14 +7,6 @@
 # "o conjunto AR cobre zero em h=0-4?" nao tem resposta, e o script diz isso
 # explicitamente em vez de improvisar substituto.
 #
-# ATUALIZACAO 2026-08-10: a rodada separada aconteceu. A lacuna registrada em
-# t4_4_lacuna_AR.csv esta FECHADA — `R/identification/weak_iv_ar.R` +
-# `script/ar_bands.R` produzem o conjunto AR, e a adaptacao prevista abaixo
-# ("identifica nas q inovacoes e propaga por Lambda") e exatamente a que foi
-# feita. Nada aqui foi reestimado; o CSV fica como registro do que se sabia
-# em 07-28. Resultado em output/irf/ar_bands.md e na working-note
-# 2026-08-10_bandas_anderson_rubin.md.
-#
 # Saida: diagnostics/output/t4_*.csv
 # ===================================================================
 
@@ -29,23 +21,14 @@ cat("\n=== TAREFA 4 — forca do instrumento ===\n")
 cat("\n[4.1] identificacao da estatistica\n")
 
 t41 <- data.frame(
-  regua = c("xi_mp", "wald_joint", "xi_k (min/max)", "f_factor", "f_reduced"),
+  regua = c("xi_mp", "f_robust_mp"),
   formula = c("T * (c'Gamma)^2 / (c'Wc), c = direcao de impacto de yield_6m",
-              "T * Gamma' W^-1 Gamma  ~  chi2_q",
-              "T * Gamma_k^2 / W_kk, por fator",
-              "max_k F da regressao univariada eta_k ~ z (homocedastica)",
-              "F parcial de z contra a inovacao AR(6) de yield_6m"),
+              "t_HC1^2 de z na regressao c'eta ~ z + defasagens dos fatores"),
   fonte = c("Montiel Olea-Stock-Watson (2021), sec. 4.2 — analogo exato do `Waldstat` oficial",
-            "MSWfunction.m:389 (`WaldstatFull`)",
-            "MOSW (2021), sec. 4.2",
-            "regua LEGADA do projeto, nao e MOSW",
-            "regua LEGADA de forma reduzida, nao e MOSW"),
-  onde_no_codigo = c("impulse_responde.R:199-249 via diagnose_instrument_in_factor_space",
-                     "impulse_responde.R:233-235",
-                     "impulse_responde.R:232",
-                     "impulse_responde.R:145-155",
-                     "spec_sweep.R:142-145"),
-  e_um_F_de_1o_estagio = c("NAO", "NAO", "NAO", "sim (mas homocedastico)", "sim"),
+            "Montiel Olea-Stock-Watson (2021), sec. 4.2 — F robusto do primeiro estagio"),
+  onde_no_codigo = c("compute_factor_space_wald via diagnose_instrument_in_factor_space",
+                     "compute_robust_first_stage_F via diagnose_instrument_in_factor_space"),
+  e_um_F_de_1o_estagio = c("NAO", "SIM"),
   stringsAsFactors = FALSE
 )
 print(as.data.frame(t41 |> select(regua, e_um_F_de_1o_estagio, onde_no_codigo)),
@@ -77,22 +60,25 @@ t42 <- lapply(names(windows), function(w) {
   fs  <- diagnose_instrument_in_factor_space(d, z_df, DATES[k], SPEC$p,
                                              match(SPEC$mp_var, VAR_NAMES))
   data.frame(janela = w, n_obs = fs$n_obs, xi_mp = fs$wald_mp,
-             wald_joint = fs$wald_joint, F_joint = fs$wald_joint / SPEC$q,
-             xi_min = fs$wald_min, f_factor_legado = fs$f_factor,
+             f_robust_mp = fs$f_robust_mp,
              AR_limitado = fs$wald_mp > 3.84,
-             bandas_convencionais = fs$wald_mp >= 10)
+             xi_mp_ge10 = fs$wald_mp >= 10,
+             f_robust_mp_ge10 = fs$f_robust_mp >= 10)
 }) |> bind_rows()
 print(as.data.frame(t42), row.names = FALSE, digits = 4)
 diag_write(t42, "t4_2_valores.csv")
 
 t42b <- data.frame(
-  limiar = c("xi_mp > 3.84", "xi_mp >= 10"),
+  limiar = c("xi_mp > 3.84", "xi_mp >= 10", "f_robust_mp >= 10"),
   origem = c("qchisq(0.95, 1) — MOSW: o conjunto AR de 95% e um INTERVALO LIMITADO",
-             "convencao Staiger-Stock / Stock-Yogo herdada, NAO tabelada por MOSW"),
+             "referencia convencional, NAO tabelada por MOSW",
+             "referencia convencional, NAO tabelada por MOSW"),
   producao_full = c(t42$xi_mp[t42$janela == "full"] > 3.84,
-                    t42$xi_mp[t42$janela == "full"] >= 10),
+                    t42$xi_mp[t42$janela == "full"] >= 10,
+                    t42$f_robust_mp[t42$janela == "full"] >= 10),
   producao_pre = c(t42$xi_mp[t42$janela == "pre_covid"] > 3.84,
-                   t42$xi_mp[t42$janela == "pre_covid"] >= 10),
+                   t42$xi_mp[t42$janela == "pre_covid"] >= 10,
+                   t42$f_robust_mp[t42$janela == "pre_covid"] >= 10),
   stringsAsFactors = FALSE
 )
 print(as.data.frame(t42b), row.names = FALSE)
@@ -101,24 +87,37 @@ diag_write(t42b, "t4_2b_limiares.csv")
 cat("\n  IMPORTANTE — o item 4.2 do prompt pede 'os valores criticos apropriados de\n")
 cat("  MOSW para distorcao de cobertura de 10%, 15% e 20%'. Essa tabela NAO EXISTE:\n")
 cat("  o objeto tabelado nesses termos e o F efetivo de Montiel Olea-Pflueger, que e\n")
-cat("  outro estimador. MOSW (2021) fornecem DOIS limiares, os da tabela acima. O\n")
-cat("  item foi respondido com o que existe e a lacuna esta declarada.\n")
+cat("  outro estimador. A tabela separa o resultado formal sobre xi_mp da referencia\n")
+cat("  convencional de 10, que nao e um valor critico fornecido por MOSW.\n")
 
 
 # ===================================================================
 # 4.3 — Robustez ja medida (leave-one-month-out + HAC)
 # ===================================================================
-cat("\n[4.3] robustez do proprio xi_mp (rodado em 2026-07-27)\n")
+cat("\n[4.3] robustez do proprio xi_mp\n")
 
 rob_path <- "output/instrument/xi_mp_robustness.csv"
 if (file.exists(rob_path)) {
   rob <- read_csv(rob_path, show_col_types = FALSE)
   cat("  colunas:", paste(names(rob), collapse = ", "), "\n")
-  loo <- rob |> filter(if ("tipo" %in% names(rob)) tipo == "loo" else TRUE)
+  loo <- rob |>
+    filter(exercise == "loo", instrument == SPEC$instrument)
+  hac <- rob |>
+    filter(exercise == "hac", instrument == SPEC$instrument)
   print(utils::head(as.data.frame(rob), 8), row.names = FALSE, digits = 4)
 } else {
-  cat("  ARQUIVO AUSENTE — nao reproduzido nesta rodada.\n")
+  stop("Missing required robustness artifact: ", rob_path)
 }
+
+loo_full <- loo |> filter(sample == "full")
+loo_pre <- loo |> filter(sample == "pre_covid")
+hac_full_nw6 <- hac |>
+  filter(sample == "full", key == "6") |>
+  pull(wald_mp)
+
+stopifnot(nrow(loo_full) == t42$n_obs[t42$janela == "full"],
+          nrow(loo_pre) == t42$n_obs[t42$janela == "pre_covid"],
+          length(hac_full_nw6) == 1L)
 
 t43 <- data.frame(
   fato = c("leave-one-month-out, full: min xi_mp",
@@ -126,12 +125,18 @@ t43 <- data.frame(
            "leave-one-month-out, full: meses que derrubam abaixo de 10",
            "leave-one-month-out, pre-COVID: meses abaixo de 10",
            "HAC: xi_mp em NW(6), full"),
-  valor = c("8.43", "0 de 147", "24 de 147", "4 de 78", "15.64 (crescente em NW)"),
+  valor = c(
+    sprintf("%.2f", min(loo_full$wald_mp)),
+    sprintf("%d de %d", sum(loo_full$wald_mp < 3.84), nrow(loo_full)),
+    sprintf("%d de %d", sum(loo_full$wald_mp < 10), nrow(loo_full)),
+    sprintf("%d de %d", sum(loo_pre$wald_mp < 10), nrow(loo_pre)),
+    sprintf("%.2f", hac_full_nw6)
+  ),
   consequencia = c("conjunto AR limitado em toda a vizinhanca amostral",
                    "a afirmacao 'AR e limitado' e ROBUSTA",
-                   "a afirmacao 'bandas convencionais valem' e MARGINAL",
+                   "o limiar convencional nao vale na amostra cheia",
                    "pre-COVID e materialmente mais forte",
-                   "NW(0) e a escolha conservadora, nao a conveniente"),
+                   "a correcao HAC eleva xi_mp, mas nao o leva a 10"),
   stringsAsFactors = FALSE
 )
 print(as.data.frame(t43), row.names = FALSE)
@@ -146,10 +151,15 @@ cat("\n[4.4] lacuna declarada\n")
 t44 <- data.frame(
   pergunta = "O conjunto AR cobre zero em h=0-4 para cambio_usd, embi_perc, cds_5y, price_ipp, ...?",
   status = "NAO RESPONDIDA — exige inverter o teste AR, nunca implementado neste repo",
-  por_que_importa = paste("xi_mp = 10.43 raspa o limiar; 24 de 147 meses o derrubam",
-                          "abaixo de 10. As bandas percentil do wild bootstrap nao sao",
-                          "validas nessa margem, e toda a cadeia cambio->risco->precos",
-                          "depende de 4-6 horizontes significativos a 90%."),
+  por_que_importa = sprintf(
+    paste("xi_mp = %.2f fica abaixo de 10 na amostra cheia; %d de %d exclusoes",
+          "leave-one-month-out permanecem abaixo de 10. As bandas percentil do wild",
+          "bootstrap sao a inferencia operacional, mas a fragilidade de relevancia",
+          "precisa ser declarada na leitura dos resultados."),
+    t42$xi_mp[t42$janela == "full"],
+    sum(loo_full$wald_mp < 10),
+    nrow(loo_full)
+  ),
   alvo_de_traducao = paste("codigos_externos/codigo_olea/functions/StructuralIRF/ARTestStatistic.m;",
                            "codigos_externos/codigo_olea/functions/Inference/GasydistbootsAR.m;",
                            "codigos_externos/codigo_olea/functions/Inference/MSWfunction.m"),

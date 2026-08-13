@@ -1,5 +1,9 @@
 # O filtro JK seleciona risco soberano? — teste diário
 
+> **NÚMEROS DO DFM SUPERADOS EM 2026-08-12.** Os testes diários e o veredito
+> permanecem, mas força e IRFs foram regeneradas. Use
+> `output/instrument/jk_sovereign_confound.md` e a nota de 2026-08-12.
+
 > ⚠ **Os testes B e D foram removidos em 2026-08-10** de
 > `script/jk_sovereign_confound.R`, e as seções correspondentes desta nota saíram
 > junto. Nada do que eles produziram é reproduzível ou citável; quem precisar do

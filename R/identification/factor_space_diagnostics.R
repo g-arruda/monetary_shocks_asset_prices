@@ -1,6 +1,6 @@
 # ===================================================================
 # Factor-space diagnostics for proxy-SVAR identification
-# Reports F (factor-space) and impact response of the policy variable
+# Reports MOSW relevance and impact response of the policy variable
 # for arbitrary (DFM, instrument) pairs without running the bootstrap.
 # ===================================================================
 
@@ -9,8 +9,9 @@
 #'
 #' Runs the proxy-SVAR identification step (`H = (Z' eta)/(Z'Z)`) on a
 #' pre-estimated DFM, computes the impact response of the policy variable,
-#' and reports the factor-space first-stage F. Used to score candidate
-#' instruments before deciding which to feed into the full IRF pipeline.
+#' and reports the relevance statistics in the normalization direction. Used to
+#' score candidate instruments before deciding which to feed into the full IRF
+#' pipeline.
 #'
 #' @param dfm_results Output of `estimate_dfm` containing `var_residuals`,
 #'   `dynamic_loadings`, `dynamic_scaling`, `static_loadings`, `data_sd`.
@@ -27,14 +28,11 @@
 #'   without re-estimating the DFM (leave-one-month-out). Off by default
 #'   because these are large and grid callers keep hundreds of cells in memory.
 #'
-#' @return List with `f_factor` (legacy homoskedastic max-F), `impact_mp`
+#' @return List with `f_robust_mp`, `wald_mp`, `impact_mp`
 #'   (pre-normalization impact response of the policy variable), `sign_mp`,
-#'   `n_obs`, `H` (factor-space loadings), and the Montiel Olea-Stock-Watson
-#'   Wald block computed with the factor-VAR lags residualized out of Z
-#'   (Shat correction): `wald_k`, `wald_min`, `wald_max`, `wald_joint`,
-#'   `F_joint`, `p_joint`, plus `wald_mp` — the Wald on c'Gamma with c the
-#'   mp-variable row of the impact matrix, i.e. the statistic that governs
-#'   the normalization denominator (AR set bounded iff wald_mp > 3.84).
+#'   `n_obs`, `H` (factor-space loadings), and the aligned moment inputs when
+#'   requested. `f_robust_mp` and
+#'   `wald_mp` use the same factor-implied innovation of the policy variable.
 diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
                                                 dates, p, mp_var_idx,
                                                 nw_lags = 0L,
@@ -71,8 +69,6 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
   impact_full <- as.numeric(rawimp_0 %*% H)
   impact_mp   <- impact_full[mp_var_idx]
 
-  f_factor <- compute_factor_space_F(rsh_mean0, Z_mat)
-
   # MOSW Wald block: residualize Z on the factor-VAR regressors (lags of the
   # static factors + constant) — the Shat correction of
   # CovAhat_Sigmahat_Gamma.m applied in the factor space.
@@ -86,15 +82,19 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
   }
   ctrl_sel <- ctrl[sel_ind, , drop = FALSE]
 
-  wald_fs <- compute_factor_space_wald(eta_sel, Z_mat, controls = ctrl_sel,
-                                       nw_lags = nw_lags)
-
-  # Wald in the direction of the mp-variable impact: c'Gamma with
-  # c = mp row of the impact matrix. Scale-invariant; q = 1.
-  c_mp    <- as.numeric(rawimp_0[mp_var_idx, ])
-  wald_mp <- compute_factor_space_wald(eta_sel %*% c_mp, Z_mat,
+  # Both MOSW diagnostics use the factor-implied innovation of the variable
+  # that normalizes the structural shock.
+  c_mp   <- as.numeric(rawimp_0[mp_var_idx, ])
+  eta_mp <- as.numeric(eta_sel %*% c_mp)
+  wald_mp <- compute_factor_space_wald(eta_mp, Z_mat,
                                        controls = ctrl_sel,
                                        nw_lags = nw_lags)$wald_joint
+  first_stage <- compute_robust_first_stage_F(
+    eta_mp,
+    Z_mat,
+    controls = ctrl_sel,
+    nw_lags = nw_lags
+  )
 
   moment_inputs <- if (isTRUE(return_moment_inputs)) {
     list(eta_sel  = eta_sel,
@@ -105,17 +105,14 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
   } else NULL
 
   list(
-    f_factor   = f_factor,
+    f_robust_mp = first_stage$f_statistic,
+    first_stage_beta = first_stage$beta,
+    first_stage_se = first_stage$se,
+    first_stage_p = first_stage$p_value,
     impact_mp  = impact_mp,
     sign_mp    = sign(impact_mp),
     n_obs      = sum(sel_ind),
     H          = H,
-    wald_k     = wald_fs$wald_k,
-    wald_min   = wald_fs$wald_min,
-    wald_max   = wald_fs$wald_max,
-    wald_joint = wald_fs$wald_joint,
-    F_joint    = wald_fs$F_joint,
-    p_joint    = wald_fs$p_joint,
     wald_mp    = wald_mp,
     nw_lags    = nw_lags,
     moment_inputs = moment_inputs

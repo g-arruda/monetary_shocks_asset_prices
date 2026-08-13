@@ -606,10 +606,9 @@ if (!is.null(rev_tbl)) {
   #' identity only when every mode is kept: sum_k v_k w_k' = I. Drop two
   #' and the h=0 response moves, so `ident_ext_instr` divides by a
   #' different denominator and the whole counterfactual path is rescaled.
-  #' The sign of the trough is immune (the denominator keeps its sign),
-  #' and so is the horizon of the extremum, but the MAGNITUDE ratio is
-  #' not — it has to be deflated by the denominator ratio before it can
-  #' be read as "the trough shrank to x% of itself".
+  #' The horizon of the extremum is invariant to this rescaling. Magnitude
+  #' and sign comparisons must use the common-scale path, obtained by
+  #' multiplying the normalized counterfactual by its denominator ratio.
   irf_from_modes <- function(drop_k = integer(0)) {
     keep <- setdiff(seq_len(rp), drop_k)
     rawimp <- array(0, dim = c(nrow(Lm), ncol(Kd), H_MAX + 1))
@@ -637,11 +636,11 @@ if (!is.null(rev_tbl)) {
               MP_VAR, m_all$den))
   cat(sprintf("      sem par 1: %.3g (razao %.3f) | sem par 2: %.3g (razao %.3f)\n",
               m_nod$den, k_nod, m_no34$den, k_no34))
-  cat("      sinal preservado nos dois, entao a INVERSAO do vale nao e artefato,\n")
-  cat("      e o HORIZONTE do extremo e invariante a escala. A MAGNITUDE tem duas\n")
-  cat("      leituras: renormalizada a +50pb, ou em escala comum (= decomposicao).\n")
-  stopifnot(sign(m_nod$den) == sign(m_all$den),
-            sign(m_no34$den) == sign(m_all$den))
+  cat(sprintf("      sinal do denominador preservado: par 1 %s | par 2 %s\n",
+              sign(m_nod$den) == sign(m_all$den),
+              sign(m_no34$den) == sign(m_all$den)))
+  cat("      HORIZONTE e invariante a escala; MAGNITUDE e SINAL sao comparados\n")
+  cat("      na escala comum da decomposicao, antes da renormalizacao por caminho.\n")
 
   # Self-test: the full reconstruction must equal the production IRF
   d_prod <- max(abs(m_all$irf[match(rev_tbl$var, VAR_NAMES), 1:49] -
@@ -680,7 +679,8 @@ if (!is.null(rev_tbl)) {
            #    k = d_cf/d_full undoes it.
            razao_sem_par1_defl = razao_sem_par1 * k_nod,
            razao_sem_par2_defl = razao_sem_par2 * k_no34,
-           inverte_sinal_sem_par1 = sign(val_mp_sem_par1) != sign(val_mp_completo),
+           inverte_sinal_sem_par1 = sign(val_mp_sem_par1 * k_nod) !=
+             sign(val_mp_completo),
            vale_sobrevive_sem_par1 = abs(razao_sem_par1_defl) > 0.5 &
              !inverte_sinal_sem_par1)
 
@@ -815,7 +815,7 @@ if (!is.null(spec_rows7)) {
   md <- c(md,
     "## 7. Decomposição espectral — apagar o par dominante de `B`",
     "",
-    sprintf("⚠ **Apagar modos muda o denominador da normalização.** `B₀` só é a identidade com todos os modos (`Σₖ vₖwₖ' = I`); sem o par dominante o impacto pré-normalização de `%s` cai a **%.3f** do original (sem o par 2, %.3f). O **sinal se preserva nos dois**, então a inversão do vale não é artefato, e o **horizonte** do extremo é invariante a escala. A **magnitude** admite duas leituras: renormalizar cada caminho a +50 pb responde *\"se este modo não existisse, o que faria um choque de 50 pb?\"*; pôr os dois na **escala comum** (multiplicando pela razão de denominadores) é a leitura de **decomposição**, porque a IRF é linear em `Bₕ` e os modos só somam antes da renormalização. A tabela traz a escala comum.",
+    sprintf("⚠ **Apagar modos muda o denominador da normalização.** `B₀` só é a identidade com todos os modos (`Σₖ vₖwₖ' = I`); sem o par dominante o impacto pré-normalização de `%s` passa a **%.3f** do original (sem o par 2, %.3f). Como o denominador pode trocar de sinal, magnitude e sinal são comparados na **escala comum** (multiplicando pela razão de denominadores), antes da renormalização específica de cada caminho. O **horizonte** do extremo é invariante a essa escala. Renormalizar cada caminho a +50 pb responde a outra pergunta — *\"se este modo não existisse, o que faria um choque de 50 pb?\"* — e não é uma decomposição aditiva. A tabela traz a escala comum.",
             MP_VAR, k_nod, k_no34),
     "",
     md_tbl(spec_rows7 |> select(var, h_mp_completo, val_mp_completo,

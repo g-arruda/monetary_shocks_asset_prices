@@ -1,6 +1,14 @@
 # Bandas Anderson-Rubin: inversão do teste de Montiel Olea-Stock-Watson no DFM-IV
 
-> **CURRENT.** Escrita em 2026-08-10 sob a produção corrente: `z_jk_bs_purif` ×
+> **SUPERSEDED em 2026-08-12 — evidência histórica, não operacional.** A
+> implementação foi retirada porque a adaptação plug-in não tinha validação
+> teórica para fatores e loadings estimados e porque a inversão classificava
+> incorretamente casos degenerados. Os artefatos e o código foram removidos;
+> reabrir apenas com fundamentação teórica ou procedimento que incorpore a
+> estimação fatorial. O corpo abaixo é preservado sem reescrita como registro da
+> rodada de 2026-08-10. Decisão: `registro/historico_decisoes.md` §7.
+>
+> Escrita em 2026-08-10 sob a produção corrente: `z_jk_bs_purif` ×
 > `yield_6m`, r=7, q=6, p=6, painel de 106 séries (vintage 07-24), ξ_mp 10,43
 > full / 12,22 pré-COVID. Corpo gerado em `output/irf/ar_bands.{csv,md}`,
 > `ar_bands_summary.csv` e `ar_bands_overlay.pdf`. Código:

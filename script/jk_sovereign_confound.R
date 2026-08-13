@@ -613,7 +613,7 @@ for (sn in names(SAMPLES)) {
     rowsX[[length(rowsX) + 1]] <- tibble(
       teste = "xi_mp", amostra = sn, instrumento = v,
       meses_nao_nulos = n_nz, xi_mp = dg$wald_mp,
-      wald_conjunta = dg$wald_joint, f_factor = dg$f_factor,
+      f_robust_mp = dg$f_robust_mp,
       # Pre-normalization impact of the policy variable: the denominator every
       # IRF of the cell is divided by. It is what makes a weaker variant print
       # LARGER responses, so it has to be reported next to xi_mp rather than
@@ -634,16 +634,24 @@ xi_tbl <- bind_rows(rowsX) |>
 
 # Cross-check against the strength ruler of record.
 xi_prod <- xi_tbl |> filter(instrumento == "z_jk_bs_purif")
-cat(sprintf("    check: producao full %.2f (registro 10.43) | pre_covid %.2f (registro 12.22)\n",
-            xi_prod$xi_mp[xi_prod$amostra == "full"],
-            xi_prod$xi_mp[xi_prod$amostra == "pre_covid"]))
+strength_grid <- read_csv("output/instrument/mosw_strength_grid.csv", show_col_types = FALSE) |>
+  filter(r == R_FACTORS, q == Q_DYNAMIC, instrument == "z_jk_bs_purif")
+grid_full <- strength_grid$wald_mp[strength_grid$sample == "full"]
+grid_pre <- strength_grid$wald_mp[strength_grid$sample == "pre_covid"]
+xi_prod_full <- xi_prod$xi_mp[xi_prod$amostra == "full"]
+xi_prod_pre <- xi_prod$xi_mp[xi_prod$amostra == "pre_covid"]
+cat(sprintf("    check: producao full %.2f (grid %.2f) | pre_covid %.2f (grid %.2f)\n",
+            xi_prod_full, grid_full, xi_prod_pre, grid_pre))
+stopifnot(length(grid_full) == 1L, length(grid_pre) == 1L,
+          abs(xi_prod_full - grid_full) < 1e-8,
+          abs(xi_prod_pre - grid_pre) < 1e-8)
 
-# Self-test: the EMBI-only orthogonalized variant predates the CDS and
-# must be bit-for-bit what it was, otherwise the CDS leg leaked into it.
+# The EMBI-only orthogonalized variant predates the CDS. Its xi_mp changes
+# with the panel vintage, so report it without comparing to a stale constant.
 xi_norisk_full <- xi_tbl$xi_mp[xi_tbl$instrumento == "z_jk_bs_norisk" &
                                xi_tbl$amostra == "full"]
-cat(sprintf("    check: z_jk_bs_norisk full %.2f (registro 10.72)\n", xi_norisk_full))
-stopifnot(abs(xi_norisk_full - 10.72) < 0.01)
+cat(sprintf("    z_jk_bs_norisk full %.2f\n", xi_norisk_full))
+stopifnot(length(xi_norisk_full) == 1L, is.finite(xi_norisk_full))
 
 
 # ===================================================================
@@ -677,12 +685,13 @@ for (v in IRF_VARIANTS) {
 # smoke-test values, which proves the alternative-instrument machinery is
 # wired exactly like production.
 Pref <- cells[["z_jk_bs_purif"]]$irf$irf_point_matrix
-smoke <- c(yield_6m = 0.005, yield_2y = 0.009164, yield_5y = 0.009274,
-           asset_ibov = -1.673, cambio_usd = 0.1498)
+smoke <- c(yield_6m = 0.005, yield_2y = 0.01080227,
+           yield_5y = 0.01170172, asset_ibov = -2.407125,
+           cambio_usd = 0.228100)
 got <- Pref[match(names(smoke), var_names), 1]
 cat("    smoke test h0: ")
 cat(paste(sprintf("%s %.6g", names(smoke), got), collapse = " | "), "\n")
-if (max(abs(got - smoke)) > 5e-3) warning("smoke test divergiu do registro do CLAUDE.md")
+stopifnot(max(abs(got - smoke)) < 5e-6)
 
 irf_rows <- imap_dfr(cells, function(cell, tag) {
   p <- cell$irf$irf_point_matrix
@@ -817,18 +826,18 @@ md <- c(
   "## Forca: xi_mp por variante",
   "",
   md_table(xi_tbl |> select(amostra, instrumento, meses_nao_nulos, xi_mp,
-                            wald_conjunta, f_factor, impacto_mp_pre,
+                            f_robust_mp, impacto_mp_pre,
                             denom_vs_prod, ar_limitada, bandas_validas)),
   "",
   "`ar_limitada` e ξ_mp > 3,84 (conjunto AR de 95% limitado); `bandas_validas` e ξ_mp ≥ 10.",
   "",
-  sprintf("**Os dois canais andam em direcoes opostas, e e o resultado central do teste C.** Ortogonalizar os **valores** ao risco contemporaneo *aumenta* ξ_mp, de %s na producao para %s com EMBI e cambio e %s com o CDS. Re-derivar a **mascara** sobre os mesmos residuos derruba para %s na amostra cheia, uma queda de %s, porque o bloco de risco explica %.1f%% de `e_di_bs` mas %.1f%% de `e_ibov_bs` e a perna de acoes e metade da regra de sinal. O conjunto AR continua limitado, mas abaixo de 10 as bandas convencionais deixam de valer, entao a variante de mascara sustenta sinal e direcao, nao intervalo.",
+  sprintf("**Valores e selecao afetam a forca por canais distintos.** Ortogonalizar os **valores** ao risco contemporaneo leva ξ_mp de %s na producao para %s com EMBI e cambio e %s com o CDS. Re-derivar a **mascara** sobre os mesmos residuos leva a estatistica para %s na amostra cheia, uma queda de %s contra a producao, porque o bloco de risco explica %.1f%% de `e_di_bs` e %.1f%% de `e_ibov_bs`, que e a outra perna da regra de sinal. O conjunto AR continua limitado, mas abaixo de 10 as bandas convencionais deixam de valer, entao a variante de mascara sustenta sinal e direcao, nao intervalo.",
           xf(xi_at("z_jk_bs_purif")), xf(xi_at("z_jk_bs_norisk")),
           xf(xi_at("z_jk_bs_norisk_cds")), xf(xi_at("z_jk_bs_norisk_mask")),
           xf(xi_at("z_jk_bs_purif") - xi_at("z_jk_bs_norisk_mask")),
           100 * r2_di_nr, 100 * r2_ibov_nr),
   "",
-  sprintf("Na janela pre-COVID o ordenamento se inverte, com a variante de mascara em %s contra %s da producao, o que diz que a queda na amostra cheia vem do periodo em que juros e risco soberano se moveram juntos e nao de um defeito da re-derivacao.",
+  sprintf("Na janela pre-COVID a variante de mascara fica em %s contra %s da producao. As duas superam 10, ao contrario do que ocorre na amostra cheia.",
           xf(xi_at("z_jk_bs_norisk_mask", "pre_covid")),
           xf(xi_at("z_jk_bs_purif", "pre_covid"))),
   "",

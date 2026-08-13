@@ -1,5 +1,33 @@
 # Método — construção do instrumento externo para o proxy-SVAR/DFM
 
+## Status (2026-08-13, diagnóstico de relevância alinhado a MOSW)
+
+> Os arquivos ativos agora reportam somente as duas estatísticas de relevância
+> na direção que normaliza o choque: ξ_mp e o primeiro estágio robusto
+> F_rob,mp (HC1). As regressões usam a inovação de `yield_6m` implícita nos
+> fatores e os mesmos lags do VAR como controles. A implementação reproduz a
+> aplicação de Kilian de Montiel Olea, Stock e Watson: ξ_1 = 4,399 e
+> F_rob = 9,438, contra 4,4 e 9,4 publicados. Na célula de produção (r=7,
+> q=6), `z_jk_bs_purif` entrega ξ_mp/F_rob,mp = **7,65/7,95** na amostra
+> completa e **11,53/6,26** no pré-COVID. A leitura pré-COVID é, portanto,
+> mista e não autoriza selecionar a especificação por pré-teste.
+
+## Status (2026-08-12, fechamento mensal corrigido e rodada canônica reconstruída)
+
+> A curva de juros, o EMBI+ e a curva ANBIMA agora selecionam explicitamente a
+> maior data disponível de cada mês com `slice_max(..., with_ties = FALSE)`.
+> Datas inválidas e meses duplicados abortam a execução. O insumo externo
+> `data/raw/yields/yields_dia.csv` permaneceu intocado. A auditoria encontrou 25
+> meses afetados no arquivo completo e 23 entre 2013-01 e 2025-09.
+>
+> O painel canônico mantém 106 séries e 153 observações entre 2013-01 e
+> 2025-09, que geram 147 inovações fatoriais após o VAR(6). A especificação
+> continua em r = 7, q = 6, com `z_jk_bs_purif` e normalização de 50 pontos-base
+> em `yield_6m`. O ξ_mp corrente é 7,65 na amostra completa e 11,53 pré-COVID.
+> Os números de status anteriores abaixo são históricos e não devem ser usados
+> como vintage corrente. Nota de proveniência:
+> `notas/2026-08-12_correcao_fim_mes_curva.md`.
+
 ## Status (2026-08-10, coincidência FOMC testada — Etapa 1.4 finalmente executada, máscara absolvida)
 
 > **A Etapa 1.4 abaixo foi executada, treze anos de calendário depois de ter sido especificada, e o teste que ela viabiliza não encontra contaminação.** Achado mais grave do segundo council review sobre `paper/paper_anpec.tex` (4 críticos; relatório em `pareceres/council_2026-08-10.md`), **aberto e fechado no mesmo dia**. Código: `R/data_download/fomc_dates.R`, `R/instrument/event_tests.R`, `script/fomc_coincidence.R` → `output/instrument/fomc_coincidence.{csv,md}` + `fomc_coincidence_days.csv` + overlay; leitura em `notas/2026-08-10_coincidencia_fomc.md`. **Nada aqui mudou** — `DEFAULT_VARIANT`, vértice, esquema de agregação e a cadeia de `build_variants.R` seguem intocados, e as 8 colunas `z_*` saíram **bit-idênticas** depois de repopular a flag.
@@ -42,7 +70,7 @@
 
 ## Status (2026-05-08, pós-investigação F factor-space)
 
-> **Default revertido para `z_jk_purif` (GK timing-ID + Bauer-Swanson + JK).** A auditoria de 2026-04-25 (`output/instrument_audit_report.md`) recomendou `z_het_jk_3var` por F (y6m AR) = 55.98. A sessão 2026-05-08 reabriu a decisão: após o fix de unit scaling em `yield_6m` (LEVE 2026-05-07) expor as IRFs reais, ficou claro que F (y6m AR) **não** é a métrica relevante para proxy-SVAR sobre o DFM. A métrica relevante é F (factor-space) — max univariada sobre os q fatores dinâmicos `η = u K M⁻¹`, onde a projeção `H = (Z'η)/(Z'Z)` ocorre. Grid em `script/diagnose_factor_space_F.R` (q ∈ {2,3,4,6}) × (8 variantes) mostra: **`z_jk_purif` é o único variante que cruza Stock-Yogo F (factor-sp) ≥ 10 (= 10.17)**; `z_het_jk_3var` tem F (factor-sp) ≈ 2.7 — severamente fraco. **Default 2026-05-08:** `z_jk_purif` (em `script/instrument.R:25`) com `yield_6m` para normalização. `z_het_jk_3var` permanece como secondary spec em `script/irf_cross_instrument.R`. Documentação completa: `arquivo/_instrucoes/Heteroscedasticidade.md` (rebaixamento para robustez), `registro/pendencias.md` (CRÍTICO 2026-05-08).
+> **Default revertido para `z_jk_purif` (GK timing-ID + Bauer-Swanson + JK).** A auditoria de 2026-04-25 havia recomendado `z_het_jk_3var` por um diagnóstico univariado legado. A sessão 2026-05-08 reabriu a decisão: após o fix de unit scaling em `yield_6m` (LEVE 2026-05-07) expor as IRFs reais, ficou claro que aquela régua não media a direção que normaliza o proxy-SVAR/DFM. O grid então usado levou à volta de `z_jk_purif` como default. Essa justificativa foi posteriormente superada pela estatística ξ_mp e, em 2026-08-13, pelo par ξ_mp/F_rob,mp. Documentação histórica completa: `arquivo/_instrucoes/Heteroscedasticidade.md` e `registro/historico_decisoes.md`.
 >
 > **Validação completa (T1-T8, 2026-05-06):** `script/instrument_validation.R` executa oito robustezes:
 > - **T1 placebo** (n=2000): F=21.3 não é data-snooping (p=0.0005);
@@ -237,13 +265,13 @@ diário → média mensal → primeira diferença, o que pondera por posição n
 O GK enuncia a própria motivação **de forma condicional**: a ponderação existe
 porque o indicador de política deles é uma **média mensal** ("*as we use monthly
 average rates (not end of the month rates) for our monetary policy
-indicators…*"). Aqui `yield_6m` é observação de **fim de mês**
-(`script/download.R:49-53`, `slice_tail(n = 1)`), caso em que uma surpresa em
+indicators…*”). Aqui `yield_6m` é observação de **fim de mês**
+(`script/download.R`, seleção pela maior data mensal), caso em que uma surpresa em
 qualquer dia de `t` já está integralmente refletida no valor de `t` — que é
 exatamente o que a soma assume.
 
-Medido em 2026-07-27 (`script/instrument_construction_sweep.R`): sob GK o ξ_mp
-cai de **10,43 para 0,30** no vértice de produção e não cruza 3,84 em nenhum
+Reestimado em 2026-08-12 (`script/instrument_construction_sweep.R`): sob GK o ξ_mp
+cai de **7,65 para 0,11** no vértice de produção e não cruza 3,84 em nenhum
 vértice na amostra completa. Além disso, sob GK os meses sem reunião **deixam de
 ser zero** (a propriedade que JK e BS assumem) e o esquema induz **MA(1)**, o que
 invalidaria `NWlags = 0` no bloco Wald. **A soma fica.**
@@ -275,58 +303,38 @@ foram produzidas por este script e foram arquivadas em 2026-07-26 junto com
 Para cada variante de $z_t$:
 
 - Plugar no proxy-SVAR/DFM existente como instrumento externo
-- Computar estatística F efetiva de Montiel Olea, Stock & Watson (2021)
-- Implementação: `script/instrument_diagnostics.R` (regride contra `dfm$var_residuals[, 1]`) e `script/instrument_audit.R` (regride contra a inovação AR(6) de cada candidato a variável de política mensal — útil quando o alvo de normalização não é o primeiro fator).
+- construir a inovação de `yield_6m` implícita nos fatores, na mesma direção
+  usada para normalizar o choque;
+- reportar ξ_mp e o primeiro estágio robusto F_rob,mp (HC1), ambos com os lags
+  do VAR de fatores como controles;
+- implementação: `diagnose_instrument_in_factor_space()` e
+  `compute_robust_first_stage_F()`; validação externa em
+  `script/validate_olea_kilian.R`.
 
-**Critérios:**
-- **F > 10:** inferência padrão válida
-- **F ∈ [5, 10]:** usar intervalos Anderson-Rubin (robustos a instrumento fraco)
-- **F < 5:** instrumento fraco
+O valor 10 é uma referência convencional de força, não um valor crítico
+fornecido por MOSW. Não se condiciona a apresentação das IRFs à aprovação de
+uma das estatísticas: o artigo reporta ambas e qualifica a inferência quando
+elas divergem ou ficam abaixo da referência.
 
-> **2026-08-10 — os intervalos Anderson-Rubin que este critério prescreve agora
-> existem.** A régua de decisão corrente é ξ_mp, não o F acima, e o primário
-> está em 10,43 full / 12,22 pre-COVID — mas o leave-one-month-out põe 24 de 147
-> meses abaixo de 10, o que é a faixa em que a linha do meio manda usar AR. A
-> inversão foi implementada em `R/identification/weak_iv_ar.R` (tradução da
-> metade de `MSWfunction.m` que faltava; a do Wald pontual já era
-> `compute_factor_space_wald`) e rodada por `script/ar_bands.R`. **O conjunto AR
-> é intervalo limitado em todos os horizontes nas duas janelas** — e isso é
-> propriedade, não sorte: o coeficiente de λ0² da quadrática de inversão **é**
-> ξ_mp, então limitado ⟺ ξ_mp > κ. Corrigir por IV fraco custa ~16% de largura a
-> 90%, quase igual em todas as séries, porque a fraqueza mora no denominador
-> comum da normalização e não no numerador de cada série. Detalhe e apêndice
-> metodológico: `notas/2026-08-10_bandas_anderson_rubin.md`.
+> **2026-08-12 — a implementação Anderson-Rubin de 2026-08-10 foi retirada.**
+> A régua de força corrente continua sendo ξ_mp, não o F acima, mas as bandas de
+> 68% e 90% do wild bootstrap voltam a ser a única inferência operacional do
+> DFM. A adaptação plug-in condicionava em fatores e loadings estimados sem uma
+> teoria de cobertura para esses objetos gerados e classificava incorretamente
+> casos degenerados. O tema fica adiado sem prazo e sem prioridade ativa, até
+> existir uma fundamentação teórica ou um procedimento que incorpore a estimação
+> fatorial. A rodada retirada permanece documentada como evidência histórica
+> superada em `notas/2026-08-10_bandas_anderson_rubin.md`; decisão em
+> `historico_decisoes.md` §7.
 
-> **2026-05-08:** três F são reportados em `script/instrument_diagnostics.R` lado-a-lado: F (DFM) (resíduo do primeiro fator, OSW), F (y6m AR) (relevância univariada Selic-equivalente) e **F (factor-sp)** (max sobre os q fatores dinâmicos — métrica que governa o viés na projeção do proxy-SVAR `H = (Z'η)/(Z'Z)`). **F (factor-sp) é o relevante** para validar uma variante como instrumento do DFM. F (y6m AR) e F (factor-sp) podem divergir em 20× (ex: `z_het_jk_3var` tem F (y6m AR) = 56 e F (factor-sp) = 2.7).
+**Resultados correntes:** em `output/instrument/mosw_strength_grid.{csv,md}`
+(8 variantes × 14 células (r,q) × 2 janelas), a produção
+`z_jk_bs_purif` dá ξ_mp/F_rob,mp = **7,65/7,95 full** e
+**11,53/6,26 pré-COVID** em (7,6). A tabela por variante em uma especificação
+DFM comum está em `output/instrument/instrument_diagnostics_report.md` §1.
 
-> ⚠ **Tabela histórica (sessão 2026-05-08) — não é a régua corrente.** Foi
-> medida no vintage anterior ao refresh de 2026-07-24, sob a régua legada
-> `f_factor`, que **deixou de decidir** em 2026-07-26 em favor de ξ_mp. As
-> quatro linhas `z_het` referem-se a variantes arquivadas em 2026-07-26
-> (`historico_decisoes.md` §1.1). Preservada porque documenta *por que*
-> `f_factor` foi abandonada: ela e F (y6m AR) divergem em até 20×.
-
-| Variante         | F (y6m AR) | F (factor-sp) | Veredito (2026-05-08) |
-|------------------|-----------:|--------------:|----------|
-| z_bruto          |     ~5     |   4.19        | fraco em ambos |
-| z_bruto_purif    |     ~5     |   5.10        | fraco em ambos |
-| z_jk             |     ~9     |   8.41        | limite em ambos |
-| z_jk_purif       |    11.4    |  10.17        | era default 2026-05-08 |
-| z_het            |     ~8     |   3.07        | forte em y6m AR, fraco em factor-sp |
-| z_het_jk         |    21.3    |   6.89        | forte em y6m AR, limite em factor-sp |
-| z_het_3var       |     —      |   1.11        | severamente fraco em factor-sp |
-| z_het_jk_3var    |   55.98    |   2.74        | forte em y6m AR, **severamente fraco em factor-sp** (era default 2026-05-05) |
-
-**A régua corrente é ξ_mp**, em `output/instrument/mosw_strength_grid.{csv,md}`
-(8 variantes × 14 células (r,q) × 2 janelas): produção `z_jk_bs_purif` dá
-**10,43 full / 12,22 pré-COVID** em (7,6). A tabela por variante com F (DFM) +
-F (y6m AR) + F (factor-sp) segue em
-`output/instrument/instrument_diagnostics_report.md` §1, regenerada em
-2026-08-05 sobre as 8 variantes vivas.
-
-O grid `factor_space_F_grid.csv` e seu produtor `diagnose_factor_space_F.R`
-foram arquivados em 2026-08-05 (`arquivo/output/`, `arquivo/script/`), pela
-mesma razão: régua legada, sem consumidor vivo.
+O grid e o produtor das antigas réguas foram arquivados em 2026-08-05
+(`arquivo/output/`, `arquivo/script/`), sem consumidor vivo.
 
 ---
 
@@ -389,4 +397,3 @@ Horizonte: 0 a 24 meses. Bandas: 68% e 90%.
 - o trabalho de JK ja tem o script original dos autores, mas em matlab em: `codigo_Jarocinski_e_Karadi`
 - Os testes do artigo de Montiel Olea, Stock & Watson, ja foram implementados em: `script/instrument_diagnostics.R`
 - Código original dos autores Bauer & Swanson em: `codigo_bauer_swanson/`
-

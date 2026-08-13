@@ -82,12 +82,10 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
   benchmark VAR pequeno, extraído de `script/model_var.R`). O órfão
   `svensson_model.R` foi para `arquivo/R/modeling/` em 2026-08-05.
-- **`identification/`** (8 arquivos) — a máquina de identificação além do
+- **`identification/`** — a máquina de identificação além do
   proxy-SVAR básico: `spec_sweep.R`, `validation_tests.R`,
   `factor_space_diagnostics.R`, `irf_coherence.R` (pontuação de coerência
-  teórica), `weak_iv_ar.R` (inversão do teste Anderson-Rubin de Montiel
-  Olea-Stock-Watson, generalizada do VAR em observáveis para o VAR nos fatores
-  com equação de medida acoplada) e o ramo não-gaussiano (`nongaussian_gmr.R`,
+  teórica) e o ramo não-gaussiano (`nongaussian_gmr.R`,
   `nongaussian_branch.R`, `nongaussian_labelling.R` — só diagnóstico, não usado
   no caminho de produção).
 - **`instrument/`** (3 arquivos) — `build_variants.R` (a cadeia de construção
@@ -103,9 +101,8 @@ Tudo aqui é da rodada de produção de 2026-07-24 em diante. Ver "Data layout"
 no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 
 - **`irf/`** — a rodada de coerência (`irf_coherence_*`, fonte de todo número
-  em `irf_section.md`/§5 do paper), os artefatos do sweep de especificação
-  (`spec_sweep_*`, `irf_spec_*`) e as bandas Anderson-Rubin (`ar_bands*`,
-  2026-08-10).
+  em `irf_section.md`/§5 do paper) e os artefatos do sweep de especificação
+  (`spec_sweep_*`, `irf_spec_*`).
 - **`instrument/`** — réguas de força do instrumento (`mosw_strength_grid`,
   `instrument_diagnostics_report`, `instrument_construction_sweep`,
   `jk_sovereign_confound`, `fomc_coincidence`).
@@ -116,9 +113,9 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 - **`nongaussian/`** — a identificação GMR (2017): gate, rodada de produção,
   corroboração contra o proxy, rotulagem da coluna monetária.
 - **`validation/`** — artefatos de replicação Olea-Stock-Watson (Kilian-oil,
-  aplicação de imposto), usados para validar o Wald ξ_mp e a inversão AR. O
-  `.rds` do petróleo existe porque `codigos_externos/` é gitignorado: sem ele os
-  três `validate_*.R` não rodariam num clone limpo.
+  aplicação de imposto), usados para validar o Wald ξ_mp e o kernel HAC. O
+  `.rds` do petróleo existe porque `codigos_externos/` é gitignorado: sem ele
+  `validate_olea_kilian.R` não rodaria num clone limpo.
 - **`logs/`** (gitignored) — logs de execução por estágio do `run_all.R`.
 
 ## `data/` (gitignored)
@@ -183,12 +180,13 @@ O paper canônico desde **2026-08-02** (`paper_anpec.tex`, classe
 `elsarticle`, submissão ANPEC, título "Uncovered Interest Parity,
 Inverted..."). Abstract e §4 Resultados (seis subseções: estrutura a termo,
 câmbio e risco soberano, atividade, crédito, preços, ações) estão correntes
-com a rodada de produção. A **`§5 Robustez` existe desde 2026-08-09 com duas
+com a rodada de produção. A **`§5 Robustez` existe desde 2026-08-09 com três
 subseções** — `sec:exogeneidade` (previsibilidade do instrumento mensal,
 Ljung-Box, `commodity_metal` em R$ contra US$, placebos nas duas barras) e
 `sec:confound` (o filtro de sinal seleciona risco soberano?, nas duas proxies
-diárias, com as três ressalvas no corpo). Faltam as quatro subseções restantes
-da composição recomendada em
+diárias, com as três ressalvas no corpo), além de `sec:fomc` (coincidência com
+decisões do FOMC e decomposição entre valores e máscara). Faltam as quatro
+subseções da composição recomendada em
 `notas/2026-08-01_tier_list_robustez.md` §7, entre elas
 Limitações; a conclusão passou a ser a §6. Desde 2026-08-05
 `script/fig_section5.R` gera as **8** figuras direto aqui

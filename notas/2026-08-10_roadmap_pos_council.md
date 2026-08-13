@@ -1,6 +1,10 @@
 # Roadmap pós-council (2026-08-10)
 
 **Nota de planejamento — nenhuma estimação nova, nenhum `.tex` tocado.**
+**Atualização de 2026-08-12:** o item 11 e todas as suas conclusões numéricas
+foram superados pela retirada da implementação Anderson-Rubin. O item está
+adiado sem prazo e sem prioridade ativa; o restante deste roadmap preserva seu
+status. Ver `registro/historico_decisoes.md` §7.
 **Atualização do mesmo dia:** os **dois** itens da Fase 2 foram executados
 depois que esta nota foi escrita — item 11 (bandas Anderson-Rubin) e item 10
 (coincidência FOMC). Ambos estão riscados abaixo, e os resultados moram em

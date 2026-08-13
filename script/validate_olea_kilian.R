@@ -13,7 +13,7 @@
 # directly, as this script used to, made it unrunnable in a clean
 # clone (and it had been silently broken since the reference code
 # moved into codigos_externos/). Same fixture and same rationale as
-# script/validate_hac_kernel.R and script/validate_mosw_ar.R.
+# script/validate_hac_kernel.R.
 #
 # The VAR is re-estimated here from the authors' Y rather than taken
 # from the fixture, so the check still covers the estimation step:
@@ -54,21 +54,16 @@ dev_al  <- max(abs(t(B[-1, , drop = FALSE]) - fx$AL))
 # xi_1 via our implementation (Shat correction = residualize z on X)
 wald <- compute_factor_space_wald(eta, z, controls = X_lags)
 
-# Robust first-stage F: Y_1t on z_t with VAR lags as controls. The published
-# 9.4 matches HC1 (the Stata-default degrees-of-freedom correction), not HC0.
-fs     <- lm(Y[, 1] ~ z + X_lags)
-F_hc0  <- unname(coeftest(fs, vcov = vcovHC(fs, type = "HC0"))["z", "t value"])^2
-F_hc1  <- unname(coeftest(fs, vcov = vcovHC(fs, type = "HC1"))["z", "t value"])^2
+# Robust first-stage F in the normalization direction. Regressing the VAR
+# innovation on z and the VAR controls is numerically equivalent to the
+# authors' regression of Y_1t on the same right-hand side.
+first_stage <- compute_robust_first_stage_F(eta[, 1], z, controls = X_lags)
+F_hc1 <- first_stage$f_statistic
 
 cat(sprintf("T (effective)                 : %d   (paper: 356)\n", T_eff))
 cat(sprintf("VAR re-estimated vs RForm     : eta %.2e, AL %.2e\n", dev_eta, dev_al))
 cat(sprintf("xi_1 (ours, Shat-corrected)   : %.3f (paper: 4.4)\n", wald$wald_k[1]))
 cat(sprintf("Robust first-stage F, HC1     : %.3f (paper: 9.4)\n", F_hc1))
-cat(sprintf("Robust first-stage F, HC0     : %.3f (anti-conservative vs HC1)\n", F_hc0))
-cat(sprintf("Joint Wald T G'W^-1 G (chi2_%d): %.3f (p = %.4f)  [WaldstatFull]\n",
-            wald$q, wald$wald_joint, wald$p_joint))
-cat(sprintf("xi_k per equation             : %s\n",
-            paste(sprintf("%.3f", wald$wald_k), collapse = "  ")))
 
 stopifnot(dev_eta < 1e-10, dev_al < 1e-10,
           abs(wald$wald_k[1] - 4.4) < 0.15, abs(F_hc1 - 9.4) < 0.15)

@@ -1,15 +1,20 @@
 # Diagnóstico do DFM-IV — Tarefas 0 a 7
 
+> **VINTAGE NUMÉRICO SUPERADO.** Este relatório preserva a leitura da rodada de
+> 2026-07-28. O painel e os caches foram reconstruídos em 2026-08-12 após a
+> correção da seleção de fim de mês da curva. Para os números correntes, use
+> `diagnostics/output/`, `output/irf/irf_section.md` e
+> `notas/2026-08-12_correcao_fim_mes_curva.md`.
+
 Rodada de 2026-07-28, respondendo a `prompt_auditoria_dfm_iv.md`.
 Escopo: **Tarefas 0 a 7**. As Tarefas 0-5 saíram na primeira rodada; as
 Tarefas **6 e 7 foram acrescentadas na segunda rodada do mesmo dia**, junto
 com as correções B2, B3 e B4.
 
 Fora de escopo, declarado: a **Tarefa 8** (sensibilidade a r,q) não foi pedida,
-e a **inversão Anderson-Rubin** (item 4.3-4.4 do prompt) ficou adiada — era o
-item #1 de `registro/pendencias.md`. **Foi feita em 2026-08-10** e o
-resultado está no fim deste documento; o corpo da Tarefa 4 abaixo **não foi
-reescrito**, e continua sendo o registro do que se sabia em 07-28. Dentro da Tarefa 6, o item **6.3
+e a **inversão Anderson-Rubin** (item 4.3-4.4 do prompt) segue adiada, sem prazo
+ou prioridade ativa; depende de fundamentação teórica ou de um procedimento que
+incorpore a estimação dos fatores. Dentro da Tarefa 6, o item **6.3
 (juro real / NTN-B) é NÃO EXECUTÁVEL** por dependência de dado ausente, e isso
 está documentado em vez de contornado.
 
@@ -358,83 +363,32 @@ ponto que cruza zero, não instabilidade real.
 
 ---
 
-## Tarefa 4 — Inferência robusta a IV fraco — **INCONCLUSIVO**
+## Tarefa 4 — Diagnóstico de relevância — **ATUALIZADO EM 2026-08-13**
 
-### 4.1 Que estatística é o "Wald = 12"
+Os arquivos ativos reportam somente duas estatísticas, ambas na direção da
+inovação de `yield_6m` que normaliza o choque:
 
-É o **ξ_mp de Montiel Olea-Stock-Watson (2021, sec. 4.2)**, não um F de primeiro
-estágio convencional. Fórmula, em `impulse_responde.R:199-249`:
-
-```
-Γ̂ = (1/T) Σ z̃_t η_t          z̃ = z residualizado nos regressores do VAR (correção Shat)
-W  = Eicker-White de z̃_t η_t   (nw_lags = 0 por default)
-ξ_mp = T · (c'Γ̂)² / (c'Wc)     c = direção de impacto de yield_6m
-ξ_joint = T · Γ̂' W⁻¹ Γ̂  ~  χ²_q
-```
-
-Réguas coexistentes no repositório, e o que **não** são:
-
-| régua | é F de 1º estágio? | fonte |
+| estatística | definição | leitura |
 |---|---|---|
-| `xi_mp` | **NÃO** | MOSW (2021) — análogo exato do `Waldstat` oficial |
-| `wald_joint` | **NÃO** | `MSWfunction.m:389` (`WaldstatFull`) |
-| `f_factor` | sim, mas homocedástico | régua **legada** do projeto |
-| `f_reduced` | sim | régua **legada** de forma reduzida |
+| ξ_mp | Wald robusta MOSW do momento projetado na direção de `yield_6m` | diagnóstico do denominador da normalização |
+| F_rob,mp | primeiro estágio com os lags do VAR como controles e HC1 | quadrado do t robusto de `z_t` |
 
-O bloco foi validado ponta a ponta contra os números publicados do petróleo de
-Kilian (`script/validate_olea_kilian.R`) e o kernel HAC contra
-`NW_hac_STATA.m` (`script/validate_hac_kernel.R`).
+Na célula de produção corrente (r=7, q=6, p=6):
 
-### 4.2 Onde o valor cai
+| janela | n | ξ_mp | F_rob,mp | leitura |
+|---|---:|---:|---:|---|
+| completa | 147 | **7,65** | **7,95** | ambas abaixo de 10 |
+| pré-COVID | 78 | **11,53** | **6,26** | evidência mista |
 
-| janela | n | ξ_mp | Wald conj. | F conj. | ξ_min | f_factor legado | AR limitado | bandas conv. |
-|---|---|---|---|---|---|---|---|---|
-| full | 147 | **10,43** | 13,99 | 2,331 | 0,0043 | 6,31 | SIM | no limite |
-| pre-COVID | 78 | **12,22** | 16,22 | 2,703 | 0,3006 | 3,09 | SIM | SIM |
+O valor 10 é uma referência convencional, não um valor crítico tabelado por
+MOSW. As estatísticas não são usadas para selecionar as IRFs por pré-teste. A
+diferença pré-COVID é ampliada pela correção HC1 em amostra curta, com 78
+observações efetivas e 42 controles de lags dos fatores.
 
-> **O item 4.2 do prompt não é respondível como formulado.** Ele pede "os
-> valores críticos apropriados de MOSW para distorção de cobertura de 10%, 15% e
-> 20%". **Essa tabela não existe em MOSW (2021).** O objeto tabelado nesses
-> termos é o F efetivo de **Montiel Olea-Pflueger (2013)**, que é outro
-> estimador para outro desenho. MOSW fornecem **dois** limiares:
->
-> | limiar | origem | produção full | produção pré |
-> |---|---|---|---|
-> | ξ_mp > 3,84 | `qchisq(0.95,1)` — o conjunto AR de 95% é um **intervalo limitado** | SIM | SIM |
-> | ξ_mp ≥ 10 | convenção Staiger-Stock/Stock-Yogo **herdada**, não tabelada por MOSW | SIM (10,43) | SIM (12,22) |
-
-Nota adicional: **ξ_min = 0,0043** na amostra full. Um instrumento único só pode
-identificar uma direção do espaço de fatores; que a direção mais fraca seja
-essencialmente zero é esperado, mas confirma que não há folga para identificar
-qualquer outro choque com este `z`.
-
-### 4.3 Robustez já medida (2026-07-27)
-
-| fato | valor | consequência |
-|---|---|---|
-| LOO full: min ξ_mp | 8,43 | conjunto AR limitado em toda a vizinhança amostral |
-| LOO full: meses que derrubam abaixo de 3,84 | **0 de 147** | "AR é limitado" é **robusta** |
-| LOO full: meses que derrubam abaixo de 10 | **24 de 147** | "bandas convencionais valem" é **marginal** |
-| LOO pré-COVID: abaixo de 10 | 4 de 78 | pré-COVID é materialmente mais forte |
-| HAC: ξ_mp em NW(6), full | 15,64 (crescente) | NW(0) é conservador, não conveniente |
-
-A isso esta rodada acrescenta um terceiro eixo de fragilidade: **acrescentar 3
-séries a um painel de 106 derrubou ξ_mp de 10,43 para 7,87** (Tarefa 1.6), e
-remover 2 duplicatas o elevou para 10,57 (Tarefa 3.4). ξ_mp é sensível à
-composição do painel na mesma ordem de grandeza em que é sensível à amostra.
-
-### 4.4 O que não foi respondido
-
-> **"O conjunto AR cobre zero em h=0-4?" — NÃO RESPONDIDA.**
-
-Exige inverter o teste AR, nunca implementado neste repositório. Sem isso, a
-pergunta que o prompt define como central — se a cadeia câmbio → risco → preços
-sobrevive a inferência robusta — permanece aberta. Alvos de tradução:
-`codigo_olea/functions/StructuralIRF/ARTestStatistic.m`,
-`functions/Inference/GasydistbootsAR.m`, `functions/Inference/MSWfunction.m`.
-A IRF aqui é `Λ·B·K·M·H`, razão da mesma forma (linear em Γ sobre `c'Γ`), então
-a lógica de Fieller carrega, mas exige a adaptação "identifica nas q inovações e
-propaga por Λ".
+`script/validate_olea_kilian.R` reproduz ξ_1 = 4,399 e F robusto = 9,438 na
+aplicação de Kilian, contra 4,4 e 9,4 publicados. A inferência Anderson--Rubin
+para o DFM permanece adiada até existir procedimento que incorpore a estimação
+dos fatores; as bandas operacionais continuam sendo as do wild bootstrap.
 
 ---
 
@@ -1432,8 +1386,8 @@ na tabela, e adicioná-las mudaria a contagem em duas direções ao mesmo tempo.
 
 Sobre **B4**: `classify_sweep_cells` **não foi tocada**. `yield_ordering_ok` e
 `magnitude_flag` (que tem o mesmo defeito, uma linha abaixo) foram declarados na
-legenda de critérios do relatório como diagnóstico reportado que não classifica
-— mesma convenção já usada para o `f_factor`. Promovê-los a critério
+legenda de critérios do relatório como diagnósticos reportados que não
+classificam. Promovê-los a critério
 classificaria a **própria produção** como falha: `yield_ordering_ok` é FALSE em
 (7,6) full e em **58 das 68** células `ok`, porque o pico da curva está em 2-5
 anos e não no vértice de política. Verificado após a correção:
@@ -1496,7 +1450,7 @@ legíveis os números das três séries — `cds_5y` no impacto era "+2907" e é
 | E4 | `p = 6` hard-coded | AIC diz 4, BIC e HQ dizem 1. Declarar `p = 6` como escolha (segue Alessi-Kerssenfischer) e reportar a sensibilidade, ou adotar um critério |
 | E5 | Unidades mistas na saída | Publicar as IRFs de juros **em pontos-base**, não em unidade nativa. Sem isso, a tabela sugere que a Selic responde 26× o DI 6m quando responde ~1/10 |
 | E6 | Interpretação de `price_*` | Dizer no texto que é resposta da **taxa mensal** em p.p. (≈ ×12 ao ano), não de nível de preço |
-| E7 | ξ_mp sensível à composição do painel | +3 séries → 7,87; −2 séries → 10,57. Somado ao LOO (24/147 abaixo de 10), reforça a prioridade da inversão AR |
+| E7 | ξ_mp sensível à composição do painel | +3 séries → 7,87; −2 séries → 10,57. Somado ao LOO (24/147 abaixo de 10), documenta por que uma futura inferência weak-IV validada seria informativa |
 
 ---
 
@@ -1537,7 +1491,7 @@ legíveis os números das três séries — `cds_5y` no impacto era "+2907" e é
 | `pib` e `ibc_br` | n90 = 0 em todos os horizontes. **Não é falta de comunalidade** (R² 0,792 e 0,754) — é largura de banda |
 | `juros_selic` e `juros_cdi` | n90 = 0; e o impacto é **−4,7bp**, negativo, com sensibilidade de 40% à remoção de uma duplicata |
 | Os 8 índices de ações | n90 = 0 em todos os horizontes |
-| Que "as bandas convencionais são válidas" | ξ_mp = 10,43 raspa o limiar; 24/147 meses o derrubam abaixo de 10; +3 séries no painel o derrubam para 7,87. **Só a inversão AR resolve** |
+| Que "as bandas convencionais são válidas" | ξ_mp = 10,43 raspa o limiar; 24/147 meses o derrubam abaixo de 10; +3 séries no painel o derrubam para 7,87. Uma resposta robusta exige um procedimento weak-IV que incorpore a estimação fatorial; hoje não há resposta operacional além do bootstrap qualificado |
 
 ---
 
@@ -1545,24 +1499,14 @@ legíveis os números das três séries — `cds_5y` no impacto era "+2907" e é
 
 Riscados os itens que esta segunda rodada fechou.
 
-1. ~~**Inversão Anderson-Rubin** (Tarefa 4.4, adiada)~~ — **FEITA em
-   2026-08-10.** Era o item #1 porque é a única forma de responder se a cadeia
-   câmbio → risco → preços sobrevive a inferência robusta a instrumento fraco.
-   `R/identification/weak_iv_ar.R` (tradução da metade que faltava de
-   `codigos_externos/codigo_olea/MSWfunction.m`, validada contra a aplicação do
-   petróleo dos autores) + `script/ar_bands.R` →
-   `output/irf/ar_bands.{csv,md}`. **A resposta é sim, para essa cadeia:** o
-   conjunto AR é limitado em 31.164 de 31.164 células e **curva, câmbio e risco
-   soberano não perdem nenhuma célula sig90** — das 91, sobrevivem 87.
-   ⚠ **As 4 perdas são outro bloco:** 3 são o impacto de atividade em h=0
-   (`ind_bens_duraveis`, `ind_bens_capital`, `ind_transformacao`) mais
-   `cambio_eur` h3. ⚠ E a banda AR sai **mais estreita** que a de bootstrap
-   (0,646) porque condiciona em `Λ̂`, então não pode ser lida como confirmação
-   — a comparação limpa é contra o delta-method, e aí a correção de IV fraco
-   vale **+16,4%** de largura a 90%. Isto **não desfaz** a Tarefa 7.0: o LP-IV
-   independente continua dizendo que a cadeia não é artefato do `Λ`, e agora a
-   validade de banda sob ξ_mp = 10,43 também está medida. Detalhe:
-   `notas/2026-08-10_bandas_anderson_rubin.md`.
+1. **Inversão Anderson-Rubin** (Tarefa 4.4) — **adiada sem prazo e sem
+   prioridade ativa**. A implementação plug-in de 2026-08-10 foi retirada em
+   2026-08-12: condicionava em fatores e loadings estimados sem fundamentar a
+   cobertura para esses objetos gerados e tinha classificação incorreta nos
+   casos degenerados. Reabrir apenas com uma derivação que incorpore a estimação
+   fatorial ou com um procedimento que a reproduza. Até lá, as bandas de 68% e
+   90% do wild bootstrap são a única inferência operacional do DFM. Histórico:
+   `registro/historico_decisoes.md` §7.
 2. **Decomposição nível/inclinação/curvatura** da resposta da curva — testa H3,
    a única das três hipóteses de causa raiz ainda sem teste. Barato.
 3. **Completar o teste de H1** para `asset_ifix` e `price_core_ipca_ex0` por

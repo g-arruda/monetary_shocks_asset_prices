@@ -496,7 +496,7 @@ for (sn in names(SAMPLES)) {
     rowsX[[length(rowsX) + 1]] <- tibble(
       teste = "xi_mp", amostra = sn, instrumento = v,
       meses_nao_nulos = n_nz, xi_mp = dg$wald_mp,
-      wald_conjunta = dg$wald_joint, f_factor = dg$f_factor,
+      f_robust_mp = dg$f_robust_mp,
       # Pre-normalization impact of the policy variable: the denominator every
       # IRF of the cell is divided by. It is what makes a weaker variant print
       # LARGER responses, so it has to be reported next to xi_mp rather than
@@ -516,9 +516,15 @@ xi_tbl <- bind_rows(rowsX) |>
 xi_prod <- xi_tbl |> filter(instrumento == "z_jk_bs_purif")
 xi_prod_full <- xi_prod$xi_mp[xi_prod$amostra == "full"]
 xi_prod_pre  <- xi_prod$xi_mp[xi_prod$amostra == "pre_covid"]
-cat(sprintf("    check: producao full %.2f (registro 10.43) | pre_covid %.2f (registro 12.22)\n",
-            xi_prod_full, xi_prod_pre))
-stopifnot(abs(xi_prod_full - 10.43) < 0.01, abs(xi_prod_pre - 12.22) < 0.01)
+strength_grid <- read_csv("output/instrument/mosw_strength_grid.csv", show_col_types = FALSE) |>
+  filter(r == R_FACTORS, q == Q_DYNAMIC, instrument == "z_jk_bs_purif")
+grid_full <- strength_grid$wald_mp[strength_grid$sample == "full"]
+grid_pre <- strength_grid$wald_mp[strength_grid$sample == "pre_covid"]
+cat(sprintf("    check: producao full %.2f (grid %.2f) | pre_covid %.2f (grid %.2f)\n",
+            xi_prod_full, grid_full, xi_prod_pre, grid_pre))
+stopifnot(length(grid_full) == 1L, length(grid_pre) == 1L,
+          abs(xi_prod_full - grid_full) < 1e-8,
+          abs(xi_prod_pre - grid_pre) < 1e-8)
 
 xi_of <- function(v, sn = "full") {
   xi_tbl$xi_mp[xi_tbl$instrumento == v & xi_tbl$amostra == sn]
@@ -555,12 +561,13 @@ for (v in IRF_VARIANTS) {
 
 # End-to-end self-test against the CLAUDE.md smoke test.
 Pref <- cells[["z_jk_bs_purif"]]$irf$irf_point_matrix
-smoke <- c(yield_6m = 0.005, yield_2y = 0.009164, yield_5y = 0.009274,
-           asset_ibov = -1.673, cambio_usd = 0.1498)
+smoke <- c(yield_6m = 0.005, yield_2y = 0.01080227,
+           yield_5y = 0.01170172, asset_ibov = -2.407125,
+           cambio_usd = 0.228100)
 got <- Pref[match(names(smoke), var_names), 1]
 cat("    smoke test h0: ")
 cat(paste(sprintf("%s %.6g", names(smoke), got), collapse = " | "), "\n")
-stopifnot(max(abs(got - smoke)) < 5e-3)
+stopifnot(max(abs(got - smoke)) < 5e-6)
 
 irf_rows <- imap_dfr(cells, function(cell, tag) {
   p <- cell$irf$irf_point_matrix
@@ -726,7 +733,7 @@ md <- c(
   "## 4 — Forca: xi_mp por variante",
   "",
   md_table(xi_tbl |> select(amostra, instrumento, meses_nao_nulos, xi_mp,
-                            wald_conjunta, f_factor, impacto_mp_pre,
+                            f_robust_mp, impacto_mp_pre,
                             denom_vs_prod, ar_limitada, bandas_validas)),
   "",
   "`ar_limitada` e ξ_mp > 3,84 (conjunto AR de 95% limitado); `bandas_validas` e ξ_mp ≥ 10. A distancia entre `z_jk_bs_noglob` e `z_jk_bs_glob` e a medida do canal de selecao: as duas ortogonalizam os mesmos valores no mesmo bloco e diferem so em re-derivar ou nao a mascara.",

@@ -143,7 +143,7 @@ run_and_extract <- function(M, tc, lab) {
     }) |> bind_rows(),
     forca = data.frame(painel = lab, n_series = ncol(M),
                        max_eig = d$diagnostics$max_eigenvalue,
-                       xi_mp = fs$wald_mp, wald_joint = fs$wald_joint)
+                       xi_mp = fs$wald_mp, f_robust_mp = fs$f_robust_mp)
   )
 }
 

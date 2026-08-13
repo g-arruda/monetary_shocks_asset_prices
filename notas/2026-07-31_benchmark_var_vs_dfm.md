@@ -1,5 +1,9 @@
 # O DFM é mesmo "mais forte e mais rápido" que um VAR pequeno?
 
+> **NÚMEROS SUPERADOS EM 2026-08-12.** A conclusão qualitativa permanece, mas
+> as magnitudes e estatísticas do DFM pertencem ao vintage defeituoso da curva.
+> Use `2026-08-12_correcao_fim_mes_curva.md` e os artefatos correntes.
+
 > **CURRENT.** Escrita em 2026-07-31 sob a produção corrente: `z_jk_bs_purif` ×
 > `yield_6m`, r=7, q=6, p=6, painel de 106 séries (vintage 07-24), 153 meses.
 > Corpo gerado e números em `output/var/var_benchmark.md` + três CSVs e quatro

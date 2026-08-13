@@ -1,5 +1,10 @@
 # Nova estrutura do artigo — Metodologia, Resultados e Apêndices
 
+> **ROTEIRO HISTÓRICO; NÚMEROS SUPERADOS.** O manuscrito corrente é
+> `paper/paper_anpec.tex`. As magnitudes e estatísticas abaixo antecedem a
+> reconstrução canônica de 2026-08-12 e não devem ser transportadas ao paper.
+> A vintage corrente está em `notas/2026-08-12_correcao_fim_mes_curva.md`.
+
 **Data:** 2026-07-13 · **Revisão 2026-07-14:** números de relevância atualizados
 para a régua MOSW (ξ_mp, Wald conjunta — `output/instrument/olea_alignment_audit.md`
 e `mosw_strength_grid.md`); a max-F legada permanece citada onde é histórico do
@@ -50,7 +55,7 @@ O `main.tex` está **duas gerações metodológicas atrás**:
 |---|---|---|
 | Identificação | Cholesky recursivo no VAR dos fatores ("3º fator = choque MP") | **Instrumento externo** `z_jk_bs_purif` (proxy-SVAR, Stock-Watson 2018), projeção `H = (Z'η)/(Z'Z)` |
 | Instrumento | inexistente — citado como "pesquisa futura" na Conclusão | 10 variantes GK-style construídas e auditadas (surpresas DI em dias de Copom; primário = ortogonalização Bauer-Swanson pré-evento + filtro de sinal Jarociński-Karadi). As 4 variantes het-ID existem no pipeline mas ficam fora do paper (decisão 2026-07-15) |
-| (r, q) | r=7, q=4 | **r=7, q=6** (única das 4 dimensões da varredura com ξ_mp > 10 nas **duas** janelas: 10,43 full / 12,22 pre-COVID; auto-IC (5,4) é borderline-weak) |
+| (r, q) | r=7, q=4 | **r=7, q=6**, fixado na comparação inicial de quatro candidatos antes da grade completa, na qual cinco células formam um platô com ξ_mp > 10 nas duas janelas: (7,5), (7,6), (7,7), (8,5) e (8,6) |
 | VAR dos fatores | VAR(1) | VAR(**p=6**) |
 | Painel | 71 variáveis, 2013–2024 | **106 séries**, 2013-01 a 2025-09 (147 meses efetivos após os lags do VAR(6)) |
 | Variável de política | "variável de juros" genérica | **`yield_6m`** com normalização +50bp no impacto (`juros_selic` é controle negativo: F máx = 2.49) |
@@ -157,63 +162,49 @@ sinalizado no §6 abaixo).
 
 ### 3.5 Seleção de (r, q) e Estimação
 - Bai-Ng IC2 / Amengual-Watson nas variantes BLL-standardized como *referência*
-  (indicam (5,4)); decisão final **(r=7, q=6)**. Justificativa pela régua MOSW
-  (ξ_mp) do primário `z_jk_bs_purif`: **é a única das quatro dimensões da
-  varredura acima de 10 nas duas janelas — 10,43 full e 12,22 pre-COVID**
-  ((5,4) 5,45/7,94; (6,5) 6,36/11,00; (8,8) 12,57/8,99). Na grade completa de 14
-  células, (7,5) 10,45/12,76, (7,7) 12,90/12,27, (8,5) 10,01/10,33 e (8,6)
-  10,03/10,76 também cruzam: **r=7 é um platô, não uma escolha de canivete** —
-  esse é o argumento a levar ao texto. O conjunto AR 95% é limitado
+  (indicam (5,4)); decisão de produção **(r=7, q=6)**, fixada na comparação
+  inicial de quatro candidatos antes da extensão da grade. A grade completa de
+  14 células é uma auditoria posterior, na qual (7,5) 10,45/12,76, (7,6)
+  10,43/12,22, (7,7) 12,90/12,27, (8,5) 10,01/10,33 e (8,6) 10,03/10,76
+  formam um platô acima de 10 nas duas janelas. Embora (7,7) tenha o maior
+  ξ_mp na amostra completa, escolhê-lo depois de observar a grade seria uma
+  reotimização *ex post*, de modo que a produção permanece em (7,6). O conjunto AR 95% é limitado
   (ξ_mp > 3,84) em todas as 28 células do primário. Registrar que a força em
   (7,6) veio do **refresh de vintage de 2026-07-24**. Tabela ξ_mp por (r,q) ×
   janela no corpo. Fonte: `output/instrument/mosw_strength_grid.{md,csv}`.
 - **Ressalva a declarar** (senão um referee cruza as tabelas e acha contradição):
-  a varredura ainda classifica `failure_class` pela max-F legada (`f_factor`),
-  sob a qual `z_jk_bs_purif` marca 6,31 em (7,6) e **não aparece em nenhuma
-  célula "elegível"** do `spec_sweep_report.md`, enquanto `z_jk_purif` marca
-  11,08 lá mas tem ξ_mp 5,77. A régua de decisão do paper é ξ_mp. Ver
+  a varredura não deve selecionar células pelo valor realizado de uma
+  estatística de força. O paper mantém (7,6), definido antes da extensão da
+  grade, e apresenta lado a lado ξ_mp e F_rob,mp. Ver
   `output/irf/irf_section.md`, seção "Why this specification".
 - Estimação: PCA sobre painel BLL-padronizado; VAR(6) nos fatores; ponto por
   OLS puro (fiel a `DFMest_BLL.m`); correção de Kilian (1998) apenas no DGP do
   **wild bootstrap** (Gonçalves-Kilian 2004), nboot=800, bandas 68/90, h=0–48.
 
 ### 3.6 Relevância do instrumento *(nova)*
-- Exposição didática dos **três Fs de primeiro estágio** (working-note
-  `2026-07-11_varredura_irf.md` §2): F (y6m AR) mede relevância univariada;
-  F (DFM) contra o resíduo do primeiro fator; **F (factor-space)** — máximo
-  sobre as q regressões das inovações fatoriais — governa o viés
-  weak-IV na projeção `H = Z'η/(Z'Z)`. Os três podem discordar por uma ordem
-  de grandeza (para o primário: F (y6m AR) = 25.18 e F (DFM) = 2.80), porque
-  a variação relevante carrega em fatores além do primeiro.
-- **Estatística de decisão: o bloco Wald MOSW** (auditoria 2026-07-14 contra o
-  paper §4.2 e o código oficial `codigo_olea/`): **ξ_mp** — Wald robusta
-  (Eicker-White + correção Shat, z residualizado nos lags do VAR de fatores)
-  na direção do impacto de `yield_6m`, análogo exato do `Waldstat` oficial;
-  o conjunto Anderson-Rubin 95% é intervalo limitado sse ξ_mp > 3.84 — e
-  desde 2026-08-10 isso deixou de ser só uma condição citada: a inversão foi
-  feita (`R/identification/weak_iv_ar.R`, `script/ar_bands.R`) e o intervalo
-  existe para as 106 séries × 49 horizontes. A
-  **Wald conjunta** T·Γ̂'Ŵ⁻¹Γ̂ ~ χ²_q (F conjunta = ξ/q) entra como sanity
-  check de relevância global — baixa em todo o grid, consistente com
-  relevância unidirecional (Γ = α·Θ₀,₁) sob exogeneidade. Implementação
-  validada end-to-end contra os números publicados (Kilian oil: ξ₁ = 4.399 vs
-  4.4; F robusta = 9.438 vs 9.4, convenção HC1 — `script/validate_olea_kilian.R`).
-- Números do primário `z_jk_bs_purif` (7,6): **ξ_mp = 10,43 (full) / 12,22
-  (pre-COVID)** — bandas convencionais aproximadamente válidas nas duas janelas,
-  conjunto AR limitado. No full, 7 de 14 células (r,q) cruzam ξ_mp ≥ 10
+- Apresentar as duas estatísticas de relevância na direção de `yield_6m`:
+  **ξ_mp**, a Wald robusta MOSW que governa o denominador da normalização, e
+  **F_rob,mp**, o primeiro estágio HC1 da inovação implícita da variável de
+  política no instrumento, controlando pelos lags do VAR de fatores.
+- A implementação foi validada de ponta a ponta contra a aplicação de Kilian:
+  ξ_1 = 4,399 e F_rob = 9,438, contra 4,4 e 9,4 publicados
+  (`script/validate_olea_kilian.R`). O valor 10 entra apenas como referência
+  convencional; não se seleciona a especificação por pré-teste.
+- Números do primário `z_jk_bs_purif` (7,6): ξ_mp/F_rob,mp =
+  **7,65/7,95 (full)** e **11,53/6,26 (pre-COVID)**. A evidência pré-COVID é
+  mista e as bandas bootstrap precisam ser interpretadas com cautela nas duas
+  janelas.
+  No full, 7 de 14 células (r,q) cruzam ξ_mp ≥ 10
   (mediana 9,72); em pre-COVID, 9 de 14 (mediana 10,55). Tabela compacta no corpo;
   tabela completa variantes GK × {3 Fs legados + bloco MOSW} → **Apêndice B**
   (fontes: `output/instrument/instrument_diagnostics_report.md` §1-1.1,
   `factor_space_F_grid.csv`, `mosw_strength_grid.csv`,
   `olea_alignment_audit.md`).
-- **Bandas AR, a reportar aqui em uma frase e desenvolver na §5** *(novo,
-  2026-08-10)*: o conjunto AR é intervalo limitado em **todos** os horizontes
-  e nas duas janelas, e isso **não é coincidência numérica** — o coeficiente
-  de λ0² da quadrática de inversão **é** ξ_mp. Corrigir por IV fraco alarga as
-  bandas de 90% em **~16%**, praticamente o mesmo em todas as séries, porque a
-  fraqueza mora no denominador comum da normalização. Fonte:
-  `output/irf/ar_bands.{csv,md}` (apêndice metodológico na working-note de
-  2026-08-10; a tradução para LaTeX é item aberto do Tema A).
+- **Bandas AR** *(adiadas sem prazo em 2026-08-12)*: não entram na §3.6 nem na
+  §5 enquanto não houver fundamentação teórica ou procedimento que incorpore a
+  estimação dos fatores e loadings. A implementação plug-in de 2026-08-10 foi
+  retirada; sua nota permanece apenas como registro histórico superado. Até
+  nova decisão, o paper reporta somente as bandas wild-bootstrap de 68% e 90%.
 - A identificação segue mais forte na janela pre-COVID do que na completa
   (12,22 vs 10,43), mas **as duas cruzam o limiar** — a leitura antiga de que as
   observações pós-2020 só adicionavam ruído era em parte artefato do bloco
@@ -580,22 +571,13 @@ regeneráveis apagados — ver `arquivo/README.md` e `registro/historico_decisoe
    O caveat de magnitude das ações ("−9% é borda superior vs Bernanke-Kuttner")
    **deixa de ser necessário** — as magnitudes agora batem com os event studies
    brasileiros. Falta converter o §5 para o tex.
-2. ~~**Bandas Anderson-Rubin: prioridade ALTA, não opcional**~~ — **RODADAS em
-   2026-08-10; o que resta é redação.** A motivação continua válida e vai ao
-   texto: em (7,6) o primário tem ξ_mp ≥ 10 nas duas janelas (10,43 / 12,22),
-   mas o leave-one-month-out mostra **24 de 147** meses, removidos um a um,
-   derrubando ξ_mp abaixo de 10 — a validade das bandas convencionais não
-   sobrevive à remoção de um único mês, ainda que o conjunto AR permaneça
-   limitado (nenhum descarte cruza abaixo de 3,84). **Resultado:** conjunto
-   limitado em **31.164 de 31.164** células, **87 das 91** afirmações sig90
-   sobrevivem, e o prêmio de IV fraco é um **fator de escala comum de 1,164**
-   a 90%. ⚠ As 4 perdas são **3 impactos do bloco de atividade** (§4.3) mais
-   `cambio_eur` h3; ⚠ e a banda AR sai **mais estreita** que a de bootstrap
-   (0,646) por condicionar em `Λ̂` — a comparação limpa é contra o
-   delta-method, não contra o bootstrap. Reportar ξ, não filtrar pelo F
-   (protocolo anti-screening da nota 6 de MOSW). Fontes:
-   `output/irf/ar_bands.{csv,md}`, apêndice metodológico em
-   `notas/2026-08-10_bandas_anderson_rubin.md`.
+2. **Bandas Anderson-Rubin — adiadas sem prazo e sem prioridade ativa em
+   2026-08-12.** A tentativa plug-in de 2026-08-10 foi retirada por não
+   incorporar a incerteza da estimação fatorial e por falhar em casos
+   degenerados. Reabrir apenas com fundamentação teórica ou procedimento que
+   incorpore fatores e loadings estimados. O bootstrap de 68%/90% permanece a
+   única inferência operacional; a nota de 2026-08-10 é registro histórico
+   marcado como superado.
 3. ~~**Placebo `commodity_metal` violado**~~ — **RESOLVIDO em 2026-07-28, e a
    inversão é completa.** Não é falha de exogeneidade: o IC-Br do BCB é
    **denominado em R$**, logo é preço doméstico que herda mecanicamente a

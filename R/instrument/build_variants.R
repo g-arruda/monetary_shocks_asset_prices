@@ -32,7 +32,7 @@
 #    have a smaller influence on the monthly average rate than a
 #    surprise coming at the beginning of the month". The policy
 #    indicator of this project, yield_6m, is an END-OF-MONTH
-#    observation (script/download.R:49-53 takes slice_tail(n = 1)),
+#    observation (script/download.R selects the maximum date in each month),
 #    for which a surprise anywhere in month t is already fully
 #    reflected — which is what "sum" assumes. So "gk" is offered as
 #    robustness, not as a candidate default.

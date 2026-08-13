@@ -1,11 +1,10 @@
 # ===================================================================
 # Stage 1 of the IRF specification sweep: point-estimate IRFs (no
 # bootstrap) over instrument x mp_var x (r,q) x sample window.
-# For each cell records the MOSW Wald block (xi_mp, joint), the legacy
-# F (factor-space), F (reduced-form AR6), impact sign/magnitude and shape
-# of the key responses, scores them against theory-consistent signs, and
-# classifies failures. The taxonomy classifies on xi_mp (MOSW); f_factor is
-# reported but no longer decides — migrated 2026-07-26.
+# For each cell records xi_mp and the matching robust first-stage F in the
+# policy-variable normalization direction, impact sign/magnitude and shape of
+# the key responses, scores them against theory-consistent signs, and
+# classifies failures. The taxonomy classifies on xi_mp (MOSW).
 # DFMs are cached: one estimate_dfm per (sample, r, q) — instrument and
 # mp_var only enter the cheap projection step.
 # Outputs: output/irf/spec_sweep_cells.csv, spec_sweep_irf_long.csv,
@@ -21,7 +20,6 @@ library(tidyr)
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
 source("R/identification/factor_space_diagnostics.R")
-source("R/identification/validation_tests.R")
 source("R/identification/spec_sweep.R")
 
 
@@ -175,7 +173,7 @@ eligible <- cells |>
 
 top10 <- eligible |>
   slice_head(n = 10) |>
-  select(sample, r, q, instrument, mp_var, wald_mp, f_factor, f_reduced,
+  select(sample, r, q, instrument, mp_var, wald_mp, f_robust_mp,
          score_hard, n_hard_avail, score_ext, fx_channel, risk_channel,
          yield_ordering_ok, h0_ibov, h0_cambio)
 
@@ -187,8 +185,8 @@ heat_of <- function(s, metric) {
     pivot_wider(names_from = rq, values_from = dplyr::all_of(metric))
 }
 
-heat_tables    <- lapply(names(SAMPLES), heat_of, metric = "wald_mp")
-heat_tables_f  <- lapply(names(SAMPLES), heat_of, metric = "f_factor")
+heat_tables   <- lapply(names(SAMPLES), heat_of, metric = "wald_mp")
+heat_tables_f <- lapply(names(SAMPLES), heat_of, metric = "f_robust_mp")
 names(heat_tables)   <- names(SAMPLES)
 names(heat_tables_f) <- names(SAMPLES)
 
@@ -199,15 +197,15 @@ taxonomy <- cells |>
 neg_control <- cells |>
   filter(mp_var == "juros_selic") |>
   summarise(n = n(),
-            f_reduced_max = max(f_reduced, na.rm = TRUE),
-            f_reduced_median = median(f_reduced, na.rm = TRUE))
+            f_robust_mp_max = max(f_robust_mp, na.rm = TRUE),
+            f_robust_mp_median = median(f_robust_mp, na.rm = TRUE))
 
 channels <- eligible |>
   count(fx_channel, risk_channel)
 
 baseline_cmp <- cells |>
   filter(instrument == "z_jk_bs_purif", mp_var == "yield_6m") |>
-  select(sample, r, q, wald_mp, f_factor, f_reduced, impact_mp_pre, denom_ratio,
+  select(sample, r, q, wald_mp, f_robust_mp, impact_mp_pre, denom_ratio,
          score_hard, n_hard_avail, score_ext, fx_channel, failure_class) |>
   arrange(sample, r, q)
 
@@ -229,17 +227,18 @@ report <- c(
   "- **Régua de força: ξ_mp** (Montiel Olea-Stock-Watson), o Wald na direção do",
   "  impacto da mp_var, com correção Shat. Conjunto AR limitado sse ξ_mp > 3,84;",
   "  bandas convencionais aproximadamente válidas a partir de ξ_mp ≥ 10.",
-  "  A max-F homocedástica legada (`f_factor`) continua reportada para",
-  "  continuidade com a varredura de 2026-07-11, mas **não classifica mais**",
-  "  (migração de 2026-07-26): sob ela o instrumento de produção nunca era",
-  "  elegível — em (7,6) full `z_jk_bs_purif` tem f_factor 6,31 contra ξ_mp 10,43,",
-  "  e `z_jk_purif` tem o espelho, 11,08 contra 5,77.",
+  "  O `f_robust_mp` é o primeiro estágio HC1 na mesma direção e é reportado",
+  "  como diagnóstico complementar, sem condicionar a inferência a pré-teste.",
+  "  Na rodada corrente, a célula de produção",
+  "  (7,6) full tem ξ_mp = 7,65 e, portanto, fica abaixo da referência",
+  "  convencional de 10. Ela permanece fixada por decisão anterior ao resultado,",
+  "  sem otimização ex post do par (r,q).",
   "- **Diagnósticos reportados que NÃO classificam** (B4, 2026-07-28): as colunas",
   "  `yield_ordering_ok` e `magnitude_flag` são calculadas por célula e gravadas no",
-  "  CSV, mas não entram em `classify_sweep_cells` — mesma convenção do `f_factor`",
-  "  acima. `yield_ordering_ok` exige |6m| ≥ |2y| ≥ |5y| no impacto e é **FALSE na",
+  "  CSV, mas não entram em `classify_sweep_cells`. `yield_ordering_ok` exige",
+  "  |6m| ≥ |2y| ≥ |5y| no impacto e é **FALSE na",
   "  célula de produção** e em 58 das 68 células `ok`, porque o pico da curva está em",
-  "  2-5 anos (+91,6 / +92,7bp) e não no vértice de política (+50,0bp). Promovê-la a",
+  "  2-5 anos (+108,0 / +117,0bp) e não no vértice de política (+50,0bp). Promovê-la a",
   "  critério classificaria a própria produção como falha; ela é evidência sobre o",
   "  *choque* (hipótese H3 de `diagnostics/diagnostico_dfm.md`), não critério de",
   "  descarte de célula.",
@@ -273,11 +272,11 @@ report <- c(
   "",
   md_table(heat_tables$pre_covid),
   "",
-  "## F (factor-space) por instrumento x (r,q) — régua legada",
+  "## F robusto por instrumento x (r,q)",
   "",
-  "Max-F homocedástica entre as q regressões fatoriais. Mantida só para",
-  "comparabilidade com a varredura de 2026-07-11; **não classifica**. F não",
-  "depende da mp_var, então uma tabela por amostra basta.",
+  "Primeiro estágio HC1 de c_mp'η_t sobre o instrumento e as defasagens dos",
+  "fatores. Usa a mesma direção de normalização de ξ_mp e depende da mp_var.",
+  "As tabelas abaixo fixam mp_var = yield_6m.",
   "",
   "### Amostra full",
   "",
@@ -294,7 +293,7 @@ report <- c(
   "## Controle negativo (juros_selic)",
   "",
   paste0("`juros_selic` (Selic overnight acumulada, escala percent) é mantido como ",
-         "controle negativo documentado — espera-se F reduzido baixo (mismatch de ",
+         "controle negativo documentado — espera-se F robusto baixo (mismatch de ",
          "maturidade, ver `registro/justificativa_uso_yield-6m.md`)."),
   "",
   md_table(neg_control),
@@ -306,8 +305,8 @@ report <- c(
   "## Instrumento de produção (z_jk_bs_purif x yield_6m) através do grid",
   "",
   paste0("`z_jk_bs_purif` é o `DEFAULT_VARIANT` desde 2026-07-15 e a produção é ",
-         "(r=7, q=6) desde 2026-07-24. As duas colunas de força mostram por que a ",
-         "régua importa: as células são elegíveis por ξ_mp, não por f_factor."),
+         "(r=7, q=6) desde 2026-07-24. ξ_mp e F robusto usam a mesma direção ",
+         "de normalização; a taxonomia permanece governada por ξ_mp."),
   "",
   md_table(baseline_cmp),
   ""

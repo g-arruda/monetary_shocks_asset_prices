@@ -1,5 +1,9 @@
 # Os fatores são I(1)? São cointegrados? E o vale de médio prazo é economia?
 
+> **NÚMEROS SUPERADOS EM 2026-08-12.** A rodada corrente está em
+> `output/factors/factor_stationarity.md`. Use
+> `2026-08-12_correcao_fim_mes_curva.md` para as magnitudes do DFM.
+
 > **CURRENT.** Escrita em 2026-07-31 sob a produção corrente: `z_jk_bs_purif` ×
 > `yield_6m`, r=7, q=6, p=6, painel de 106 séries (vintage 07-24), 153 meses
 > (2013-01 a 2025-09). Corpo gerado e números em

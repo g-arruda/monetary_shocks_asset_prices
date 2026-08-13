@@ -2,7 +2,7 @@
 # Helpers for the IRF specification sweep
 # (instrument x mp_var x (r,q) x sample window)
 # Scores point-estimate IRFs against theory-consistent signs and
-# classifies failures (weak factor-space F, unstable normalization,
+# classifies failures (weak normalization direction, unstable normalization,
 # sign puzzles). Consumed by script/irf_spec_sweep.R.
 # ===================================================================
 
@@ -100,8 +100,8 @@ summarize_irf_responses <- function(irf_matrix, var_names, theory_tbl, mp_var) {
 
 #' Evaluate one sweep cell (DFM x instrument x mp_var) without bootstrap
 #'
-#' Runs the factor-space diagnostic, the point-estimate IRF, and the
-#' reduced-form first-stage F for the chosen policy variable. Scoring and
+#' Runs the factor-space diagnostic and the point-estimate IRF for the chosen
+#' policy variable. Scoring and
 #' failure classification happen downstream, on the bound results.
 #'
 #' @param dfm Output of `estimate_dfm` on the window (no instrument passed).
@@ -139,12 +139,6 @@ evaluate_sweep_cell <- function(dfm, data_sub, dates_sub, inst_df,
   responses <- summarize_irf_responses(irf$irf_point_matrix, var_names,
                                        theory_tbl, mp_var)
 
-  # Reduced-form relevance: AR(6) innovation of the policy variable vs
-  # the instrument, on this window (Montiel Olea-Stock-Watson partial F)
-  innov <- residualize_target(data_sub[, mpind], 6L)
-  z_al  <- inst_df$shock[match(dates_sub, inst_df$month)]
-  fs    <- first_stage_F(z_al, innov)
-
   hard <- responses[responses$tier == "hard" & !responses$mechanical, ]
   ext  <- responses[responses$tier == "ext", ]
 
@@ -181,12 +175,10 @@ evaluate_sweep_cell <- function(dfm, data_sub, dates_sub, inst_df,
     mp_var          = mp_var,
     n_obs_align     = diag_fs$n_obs,
     wald_mp         = diag_fs$wald_mp,      # xi_mp — MOSW decision ruler
-    wald_joint      = diag_fs$wald_joint,   # T * Gamma' W^-1 Gamma ~ chi2_q
-    wald_min        = diag_fs$wald_min,     # weakest per-factor xi_k
-    f_factor        = diag_fs$f_factor,     # legacy max-F, kept for continuity
-    f_reduced       = fs$F_partial,
-    fs_beta         = fs$beta,
-    fs_n            = fs$n,
+    f_robust_mp     = diag_fs$f_robust_mp,
+    fs_beta         = diag_fs$first_stage_beta,
+    fs_se           = diag_fs$first_stage_se,
+    fs_p            = diag_fs$first_stage_p,
     impact_mp_pre   = diag_fs$impact_mp,
     sign_mp         = diag_fs$sign_mp,
     score_hard      = sum(hard$consistent),
@@ -216,10 +208,8 @@ evaluate_sweep_cell <- function(dfm, data_sub, dates_sub, inst_df,
 #' `diagnose_instrument_in_factor_space`. Thresholds are MOSW's, not
 #' Stock-Yogo's: the 95% Anderson-Rubin set is a bounded interval iff
 #' xi_mp > 3.84 = `qchisq(0.95, 1)`, and conventional bands are approximately
-#' valid from xi_mp >= 10. The legacy homoskedastic max-F (`f_factor`) is still
-#' reported per cell but no longer classifies — under it the production
-#' instrument `z_jk_bs_purif` never reached `ok` (6.31 at (7,6) full against
-#' xi_mp 10.43), while `z_jk_purif` had the mirror image (11.08 / 5.77).
+#' valid from xi_mp >= 10. The matching `f_robust_mp` is reported alongside
+#' xi_mp but does not enter the classification, avoiding a pre-test rule.
 #'
 #' Mutually exclusive classes, first match wins:
 #' `estimation_failed` / `no_variation_in_window` (set upstream) →

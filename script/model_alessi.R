@@ -154,7 +154,7 @@ set.seed(123)
 # Execute main analysis
 # Especificação de produção r=7, q=6, p=6 (movida de (6,5) em 2026-07-24 após o
 # refresh de vintage). Sob a régua MOSW, (7,6) é a única dimensão da varredura com
-# ξ_mp > 10 nas duas janelas (10.43 full / 12.22 pre_covid), enquanto (6,5) caiu
+# A célula congelada tem ξ_mp 7.65 full / 11.53 pre_covid após a correção
 # para a zona AR no full (6.36) — ver output/instrument/mosw_strength_grid.md.
 # Instrumento: data/processed/instrument.csv = z_jk_bs_purif (default desde
 # 2026-07-15; máscara JK em resíduos pré-evento BS). Bootstrap wild nboot=800

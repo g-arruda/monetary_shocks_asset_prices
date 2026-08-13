@@ -1,6 +1,6 @@
 # Varredura de especificações IRF — Etapa 2 (bootstrap nos vencedores)
 
-Gerado por `script/irf_spec_stage2.R` em 2026-07-26.
+Gerado por `script/irf_spec_stage2.R` em 2026-08-12.
 
 Wild bootstrap (Gonçalves-Kilian) com nboot = 800, seed = 123, bandas 68/90.
 mp_var fixada em `yield_6m` (+50bp no impacto) para comparabilidade entre células.
@@ -21,14 +21,14 @@ mp_var fixada em `yield_6m` (+50bp no impacto) para comparabilidade entre célul
 | resposta | h0 | lo90 | hi90 | ci90_exclui_zero |
 |---|---|---|---|---|
 | yield_6m | 0.005 | 0.005 | 0.005 | TRUE |
-| yield_2y | 0.003975 | -0.005867 | 0.01038 | FALSE |
-| yield_5y | 0.002051 | -0.01304 | 0.01185 | FALSE |
-| cambio_usd | -0.01853 | -0.3945 | 0.2352 | FALSE |
-| asset_ibov | -2.055 | -19.46 | 11.44 | FALSE |
-| cds_5y |  1122 | -6360 |  6681 | FALSE |
-| embi_perc | 0.1816 | -0.4122 | 0.694 | FALSE |
-| price_ipca | -0.01397 | -0.6276 | 0.7114 | FALSE |
-| spread_icc_juridica | -0.01059 | -0.1222 | 0.1077 | FALSE |
+| yield_2y | 0.00425 | -0.005352 | 0.01129 | FALSE |
+| yield_5y | 0.002457 | -0.01222 | 0.01358 | FALSE |
+| cambio_usd | -0.01615 | -0.3577 | 0.2655 | FALSE |
+| asset_ibov | -2.489 | -18.87 | 10.61 | FALSE |
+| cds_5y | 12.75 | -59.4 | 69.67 | FALSE |
+| embi_perc | 0.199 | -0.4222 | 0.6875 | FALSE |
+| price_ipca | -0.01459 | -0.6116 | 0.5969 | FALSE |
+| spread_icc_juridica | -0.01256 | -0.1176 | 0.1154 | FALSE |
 
 Variáveis hard-tier com CI90 excluindo zero no impacto: 0 de 3 (yield_2y, yield_5y, asset_ibov; yield_6m é mecânica pela normalização).
 
@@ -37,14 +37,14 @@ Variáveis hard-tier com CI90 excluindo zero no impacto: 0 de 3 (yield_2y, yield
 | resposta | h0 | lo90 | hi90 | ci90_exclui_zero |
 |---|---|---|---|---|
 | yield_6m | 0.005 | 0.005 | 0.005 | TRUE |
-| yield_2y | 0.003957 | -0.007683 | 0.01007 | FALSE |
-| yield_5y | 0.002006 | -0.01529 | 0.01143 | FALSE |
-| cambio_usd | -0.01991 | -0.541 | 0.2189 | FALSE |
-| asset_ibov | -2.068 | -20.3 | 12.65 | FALSE |
-| cds_5y |  1095 | -8136 |  6271 | FALSE |
-| embi_perc | 0.1803 | -0.5089 | 0.6382 | FALSE |
-| price_ipca | -0.01254 | -0.655 | 0.6864 | FALSE |
-| spread_icc_juridica | -0.0122 | -0.1232 | 0.1185 | FALSE |
+| yield_2y | 0.004228 | -0.005929 | 0.01075 | FALSE |
+| yield_5y | 0.002407 | -0.01406 | 0.01307 | FALSE |
+| cambio_usd | -0.01767 | -0.3955 | 0.2572 | FALSE |
+| asset_ibov | -2.514 | -19.37 | 12.21 | FALSE |
+| cds_5y | 12.44 | -67.9 | 70.01 | FALSE |
+| embi_perc | 0.1976 | -0.4302 | 0.6759 | FALSE |
+| price_ipca | -0.01315 | -0.63 | 0.5791 | FALSE |
+| spread_icc_juridica | -0.01428 | -0.1238 | 0.117 | FALSE |
 
 Variáveis hard-tier com CI90 excluindo zero no impacto: 0 de 3 (yield_2y, yield_5y, asset_ibov; yield_6m é mecânica pela normalização).
 
@@ -53,14 +53,14 @@ Variáveis hard-tier com CI90 excluindo zero no impacto: 0 de 3 (yield_2y, yield
 | resposta | h0 | lo90 | hi90 | ci90_exclui_zero |
 |---|---|---|---|---|
 | yield_6m | 0.005 | 0.005 | 0.005 | TRUE |
-| yield_2y | 0.003795 | -0.008606 | 0.01076 | FALSE |
-| yield_5y | 0.001753 | -0.01694 | 0.01238 | FALSE |
-| cambio_usd | -0.02861 | -0.4682 | 0.2528 | FALSE |
-| asset_ibov | -2.284 | -20.38 | 13.78 | FALSE |
-| cds_5y | 986.8 | -7892 |  6666 | FALSE |
-| embi_perc | 0.1749 | -0.5521 | 0.6816 | FALSE |
-| price_ipca | 0.001788 | -0.7015 | 0.8128 | FALSE |
-| spread_icc_juridica | -0.01104 | -0.1286 | 0.1433 | FALSE |
+| yield_2y | 0.004097 | -0.007822 | 0.01087 | FALSE |
+| yield_5y | 0.002202 | -0.01727 | 0.01293 | FALSE |
+| cambio_usd | -0.02564 | -0.4598 | 0.265 | FALSE |
+| asset_ibov | -2.769 | -20.89 | 13.09 | FALSE |
+| cds_5y |  11.6 | -82.54 | 68.61 | FALSE |
+| embi_perc | 0.1941 | -0.5529 | 0.6713 | FALSE |
+| price_ipca | 0.002367 | -0.6244 | 0.665 | FALSE |
+| spread_icc_juridica | -0.01316 | -0.1204 | 0.137 | FALSE |
 
 Variáveis hard-tier com CI90 excluindo zero no impacto: 0 de 3 (yield_2y, yield_5y, asset_ibov; yield_6m é mecânica pela normalização).
 
@@ -69,46 +69,46 @@ Variáveis hard-tier com CI90 excluindo zero no impacto: 0 de 3 (yield_2y, yield
 | resposta | h0 | lo90 | hi90 | ci90_exclui_zero |
 |---|---|---|---|---|
 | yield_6m | 0.005 | 0.005 | 0.005 | TRUE |
-| yield_2y | 0.005945 | -0.001028 | 0.01251 | FALSE |
-| yield_5y | 0.005701 | -0.005199 | 0.01619 | FALSE |
-| cambio_usd | 0.06576 | -0.212 | 0.3109 | FALSE |
-| asset_ibov | -9.133 | -36.17 | -0.0691 | TRUE |
-| cds_5y |  3030 | -2398 |  7876 | FALSE |
-| embi_perc | 0.3743 | -0.114 | 0.8951 | FALSE |
-| price_ipca | 0.0828 | -0.3565 | 0.7708 | FALSE |
-| spread_icc_juridica | -0.0164 | -0.1641 | 0.06839 | FALSE |
+| yield_2y | 0.006374 | 0.0003268 | 0.01327 | TRUE |
+| yield_5y | 0.006307 | -0.003591 | 0.0177 | FALSE |
+| cambio_usd | 0.07278 | -0.1969 | 0.3394 | FALSE |
+| asset_ibov | -9.602 | -36.04 | -0.4633 | TRUE |
+| cds_5y | 32.89 | -18.53 |    86 | FALSE |
+| embi_perc | 0.401 | -0.009989 | 0.907 | FALSE |
+| price_ipca | 0.08929 | -0.3722 | 0.7393 | FALSE |
+| spread_icc_juridica | -0.0182 | -0.155 | 0.06782 | FALSE |
 
-Variáveis hard-tier com CI90 excluindo zero no impacto: 1 de 3 (yield_2y, yield_5y, asset_ibov; yield_6m é mecânica pela normalização).
+Variáveis hard-tier com CI90 excluindo zero no impacto: 2 de 3 (yield_2y, yield_5y, asset_ibov; yield_6m é mecânica pela normalização).
 
 ## pre_covid_r7q6_z_jk
 
 | resposta | h0 | lo90 | hi90 | ci90_exclui_zero |
 |---|---|---|---|---|
 | yield_6m | 0.005 | 0.005 | 0.005 | TRUE |
-| yield_2y | 0.005939 | -0.0009677 | 0.01264 | FALSE |
-| yield_5y | 0.005684 | -0.004096 | 0.01678 | FALSE |
-| cambio_usd | 0.0678 | -0.2116 | 0.3047 | FALSE |
-| asset_ibov | -9.214 | -36.89 | -0.325 | TRUE |
-| cds_5y |  3024 | -2450 |  8222 | FALSE |
-| embi_perc | 0.3763 | -0.0877 | 0.9692 | FALSE |
-| price_ipca | 0.07263 | -0.3874 | 0.7189 | FALSE |
-| spread_icc_juridica | -0.01682 | -0.1612 | 0.06863 | FALSE |
+| yield_2y | 0.006366 | 0.0001838 | 0.01345 | TRUE |
+| yield_5y | 0.006286 | -0.003044 | 0.01826 | FALSE |
+| cambio_usd | 0.07458 | -0.2068 | 0.3428 | FALSE |
+| asset_ibov | -9.694 | -37.12 | -0.5135 | TRUE |
+| cds_5y | 32.77 | -20.49 | 84.65 | FALSE |
+| embi_perc | 0.4032 | -0.02793 | 0.9181 | FALSE |
+| price_ipca | 0.07913 | -0.408 | 0.6871 | FALSE |
+| spread_icc_juridica | -0.0188 | -0.141 | 0.06889 | FALSE |
 
-Variáveis hard-tier com CI90 excluindo zero no impacto: 1 de 3 (yield_2y, yield_5y, asset_ibov; yield_6m é mecânica pela normalização).
+Variáveis hard-tier com CI90 excluindo zero no impacto: 2 de 3 (yield_2y, yield_5y, asset_ibov; yield_6m é mecânica pela normalização).
 
 ## full_r7q6_z_jk_bs_purif (baseline atual)
 
 | resposta | h0 | lo90 | hi90 | ci90_exclui_zero |
 |---|---|---|---|---|
 | yield_6m | 0.005 | 0.005 | 0.005 | TRUE |
-| yield_2y | 0.009164 | 0.00713 | 0.01312 | TRUE |
-| yield_5y | 0.009274 | 0.006864 | 0.01499 | TRUE |
-| cambio_usd | 0.1498 | 0.07881 | 0.2971 | TRUE |
-| asset_ibov | -1.673 | -7.771 | 1.759 | FALSE |
-| cds_5y |  2907 |  1652 |  6251 | TRUE |
-| embi_perc | 0.1995 | 0.07767 | 0.5089 | TRUE |
-| price_ipca | -0.07025 | -0.3708 | 0.1428 | FALSE |
-| spread_icc_juridica | -0.01618 | -0.04707 | 0.01648 | FALSE |
+| yield_2y | 0.0108 | 0.008739 | 0.01563 | TRUE |
+| yield_5y | 0.0117 | 0.008587 | 0.01973 | TRUE |
+| cambio_usd | 0.2281 | 0.116 | 0.535 | TRUE |
+| asset_ibov | -2.407 | -13.08 |  4.78 | FALSE |
+| cds_5y | 43.44 |  22.5 | 101.3 | TRUE |
+| embi_perc | 0.3204 | 0.1205 | 0.8341 | TRUE |
+| price_ipca | -0.1678 | -0.8106 | 0.2217 | FALSE |
+| spread_icc_juridica | -0.01987 | -0.07526 | 0.03662 | FALSE |
 
 Variáveis hard-tier com CI90 excluindo zero no impacto: 2 de 3 (yield_2y, yield_5y, asset_ibov; yield_6m é mecânica pela normalização).
 

@@ -701,3 +701,37 @@ Cuidado ao reusar texto destas fontes — os documentos ainda circulam.
 | "O proxy foi abandonado; escolher nova identificação primária" | `notas/2026-07-24_auditoria_analise_gemini.md` (09h24) | Nota das 23h46 do mesmo dia + produção: o proxy-SVAR segue primário sob (7,6) |
 | "O placebo `commodity_metal` está violado; é o caveat mais concreto contra a validade do instrumento" | §5 antigo, `estrutura_paper_v2.md`, `notas/2026-07-24_{auditoria_analise_gemini,avaliacao_5_artigos_robustez}.md`, `2026-07-27_identificacao_nao_gaussiana_gmr.md` | `diagnostics/01_exogeneidade.R` §1.6: o IC-Br do BCB é **em R$** e herda mecanicamente o câmbio (+3,98% contra +3,27%). Num painel aumentado, os três índices em R$ violam e os três **em US$ passam limpo** (metal +0,42, CI90 [−1,44; +1,88], 0/25 sig). Se fosse fator global, o índice em dólar responderia. Reclassificado para `ambiguous` (B3, 2026-07-28) — **não estender a ortogonalização por causa dele** |
 | "A cadeia perversa câmbio↑/risco↑ não é dependente de estado" (negativo limpo da Tarefa 7) | primeira versão de `diagnostics/diagnostico_dfm.md` §7, sob baseline EMBI | O mesmo relatório, §7.4d-g: o EMBI é o **único** dos 7 indicadores que não vê nada. Sob CDS e sob ΔDBGG a **persistência** em h=6-8 é dependente de estado (t = 2,46 a 3,60, primeiro estágio forte). O negativo sobrevive **só para o impacto** h=0-4 (\|t_dif\| ≤ 1,14 nos 7). EMBI e CDS correlacionam 0,933 em MA12 e ainda assim discordam de regime em 24 de 141 meses |
+
+---
+
+## 7. Inferência Anderson-Rubin no DFM — implementação retirada
+
+**Decisão de 2026-08-12.** A adaptação Anderson-Rubin introduzida em
+`cd9f6b1` foi retirada do caminho vivo. Ela reproduzia o código oficial de
+Montiel Olea, Stock e Watson no VAR em observáveis, mas essa fidelidade não
+validava a cobertura das respostas observáveis do DFM depois de estimar fatores,
+loadings, escalas e o espaço dinâmico. A covariância plug-in condicionava nesses
+objetos gerados, e não foi localizada fundamentação teórica que tornasse essa
+omissão válida sob proxy localmente fraca. A auditoria externa preservada em
+`pareceres/2026-08-12_auditoria_anderson_rubin_dfm.md` documenta essa lacuna e
+permanece **não operacional**.
+
+Há também um defeito lógico independente: a rotina de inversão tratava casos
+lineares, constantes, discriminante zero e quase-degenerações como toda a reta
+ou como intervalos numericamente instáveis. O defeito não movia as células
+regulares publicadas na rodada de 2026-08-10, mas invalidava a API como
+implementação geral e impedia aceitar o módulo sem correção e validação novas.
+
+Foram removidos `R/identification/weak_iv_ar.R`, `script/ar_bands.R`,
+`script/validate_mosw_ar.R` e os quatro artefatos `output/irf/ar_bands*`. O
+fixture `output/validation/olea_oil_fixture.rds`, a estatística MOSW
+`compute_factor_space_wald()`, as validações de força/HAC e todo o pipeline de
+produção foram preservados. O paper voltou a usar apenas as bandas de 68% e 90%
+do wild bootstrap como inferência operacional; Anderson-Rubin permanece apenas
+como alternativa genérica futura.
+
+**Condição para reabrir:** uma derivação que incorpore a estimação fatorial ou
+um procedimento de reamostragem/duas etapas que a reproduza e demonstre
+cobertura sob instrumentos fracos, acompanhado de um solucionador completo e
+tolerante à escala para todos os casos degenerados. A tarefa está adiada sem
+prazo e sem prioridade ativa.

@@ -23,8 +23,7 @@ suppressPackageStartupMessages({
 #' responsible for setting that option and for calling
 #' `rb3::fetch_marketdata("b3-reference-rates", ...)` for each refdate
 #' before this function runs. Without a populated cache, the function
-#' returns an empty tibble (no error) so the rest of the pipeline can
-#' proceed without break-even.
+#' returns an empty tibble with a warning.
 #'
 #' @param from Start date (YYYY-MM-DD) for the daily fetch.
 #' @param to End date (YYYY-MM-DD) for the daily fetch.
@@ -43,10 +42,13 @@ download_breakeven_curve <- function(from = "2010-01-01",
                       error = function(e) tibble::tibble())
 
   if (nrow(yc_pre) == 0L || nrow(yc_real) == 0L) {
-    warning("ANBIMA yield curves empty -- run rb3::fetch_marketdata('b3-reference-rates', ...) ",
-            "for the desired refdates first. Returning empty break-even tibble.")
+    warning(
+      "ANBIMA yield curves are empty -- run ",
+      "rb3::fetch_marketdata('b3-reference-rates', ...) for the desired dates. ",
+      "Returning an empty break-even tibble."
+    )
     return(tibble::tibble(
-      ref.date     = as.Date(character(0)),
+      ref.date = as.Date(character(0)),
       breakeven_1y = numeric(0),
       breakeven_2y = numeric(0),
       breakeven_5y = numeric(0)
@@ -54,9 +56,15 @@ download_breakeven_curve <- function(from = "2010-01-01",
   }
 
   filter_window <- function(df) {
+    dates <- as.Date(df$refdate)
+    if (anyNA(dates)) {
+      stop("ANBIMA reference-rate cache contains invalid dates.")
+    }
+
     df |>
-      dplyr::filter(refdate >= as.Date(from), refdate <= as.Date(to)) |>
-      dplyr::transmute(date = as.Date(refdate),
+      dplyr::mutate(date = dates) |>
+      dplyr::filter(date >= as.Date(from), date <= as.Date(to)) |>
+      dplyr::transmute(date,
                        biz_days = as.integer(biz_days),
                        rate = as.numeric(r_252))
   }
@@ -89,10 +97,26 @@ download_breakeven_curve <- function(from = "2010-01-01",
 
   daily <- dplyr::inner_join(pre_interp, real_interp, by = "date")
 
-  daily |>
+  if (nrow(daily) == 0L) {
+    stop("ANBIMA nominal and real curves have no overlapping dates in the requested window.")
+  }
+  if (anyNA(daily$date)) {
+    stop("Interpolated ANBIMA curves contain invalid dates.")
+  }
+  if (anyDuplicated(daily$date)) {
+    stop("Interpolated ANBIMA curves contain duplicate daily dates.")
+  }
+
+  monthly <- daily |>
     dplyr::group_by(month = lubridate::floor_date(date, "month")) |>
-    dplyr::slice_tail(n = 1L) |>
-    dplyr::ungroup() |>
+    dplyr::slice_max(order_by = date, n = 1, with_ties = FALSE) |>
+    dplyr::ungroup()
+
+  if (anyDuplicated(monthly$month)) {
+    stop("Monthly ANBIMA curve contains more than one observation per month.")
+  }
+
+  monthly |>
     dplyr::transmute(
       ref.date     = month,
       breakeven_1y = pre_1y - real_1y,

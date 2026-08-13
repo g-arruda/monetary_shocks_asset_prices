@@ -219,9 +219,8 @@ for (sample_name in names(SAMPLES)) {
         n_nonzero  = sum(inst_df$shock != 0),
         wald_mp    = d$wald_mp,
         wald_mp_nw0 = if (is.null(d0)) NA_real_ else d0$wald_mp,
-        wald_joint = d$wald_joint,
-        f_joint    = d$F_joint,
-        f_factor   = d$f_factor,
+        f_robust_mp = d$f_robust_mp,
+        f_robust_mp_nw0 = if (is.null(d0)) NA_real_ else d0$f_robust_mp,
         impact_mp  = d$impact_mp,
         ar_bounded = d$wald_mp > CHI2_1_95,
         stringsAsFactors = FALSE)

@@ -6,12 +6,12 @@ cambio_inr,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 cambio_usd,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 juros_selic,juros,1,FALSE,0.06568555618484093,FALSE,ambiguo
 juros_cdi,juros,1,FALSE,0.06732499575954179,FALSE,ambiguo
-yield_3m,juros,1,FALSE,0.057644959065722666,FALSE,ambiguo
-yield_6m,juros,1,FALSE,0.057503309648203785,FALSE,ambiguo
-yield_1y,juros,1,FALSE,0.05245457565156161,FALSE,ambiguo
-yield_2y,juros,1,FALSE,0.04332733084328403,TRUE,I(1) — os dois concordam
-yield_5y,juros,1,FALSE,0.04352073564444119,TRUE,I(1) — os dois concordam
-yield_10y,juros,1,FALSE,0.054690455010936674,FALSE,ambiguo
+yield_3m,juros,1,FALSE,0.05838428258796441,FALSE,ambiguo
+yield_6m,juros,1,FALSE,0.05498452521790492,FALSE,ambiguo
+yield_1y,juros,1,FALSE,0.049839967416840644,TRUE,I(1) — os dois concordam
+yield_2y,juros,1,FALSE,0.04610893642860642,TRUE,I(1) — os dois concordam
+yield_5y,juros,1,FALSE,0.048254499272507856,TRUE,I(1) — os dois concordam
+yield_10y,juros,1,FALSE,0.06194500544782031,FALSE,ambiguo
 base_monetary_base,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
 base_money_supply,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
 base_demand_deposit,base,4,FALSE,0.01,TRUE,I(1) — os dois concordam
@@ -39,9 +39,9 @@ capacidade_instalada_industria,industria,1,FALSE,0.04178494813439813,TRUE,I(1) �
 vendas_varejo,consumo,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 vendas_servicos,consumo,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 ind_automoveis,industria,1,FALSE,0.01,TRUE,I(1) — os dois concordam
-ind_leves,industria,1,FALSE,0.032010668395333314,TRUE,I(1) — os dois concordam
-ind_caminhoes,industria,1,FALSE,0.037150403142959254,TRUE,I(1) — os dois concordam
-ind_onibus,industria,1,FALSE,0.0748810114156198,FALSE,ambiguo
+ind_leves,industria,1,FALSE,0.03201542551468883,TRUE,I(1) — os dois concordam
+ind_caminhoes,industria,1,FALSE,0.03720973564313135,TRUE,I(1) — os dois concordam
+ind_onibus,industria,1,FALSE,0.07488210635089687,FALSE,ambiguo
 ind_bens_consumo,industria,1,TRUE,0.01,TRUE,ambiguo
 ind_bens_duraveis,industria,1,TRUE,0.01,TRUE,ambiguo
 ind_bens_nao_duraveis,industria,1,TRUE,0.01,TRUE,ambiguo

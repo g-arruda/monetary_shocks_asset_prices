@@ -168,7 +168,7 @@ md <- c(
     "Na janela **pré-COVID** a situação é qualitativamente pior (", ng_pre,
     " de ", Q_PROD, " gaussianos): a rota não-gaussiana **não existe** ali. ",
     "A não-gaussianidade do painel é dirigida pela COVID. É justamente a janela ",
-    "em que o proxy é mais forte (ξ_mp 12,22), então as duas identificações ",
+    "em que o proxy é mais forte (ξ_mp 11,53), então as duas identificações ",
     "não podem ser comparadas nessa amostra.") else "",
   "",
   "## Onde vive a direção monetária do proxy",

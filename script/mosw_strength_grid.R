@@ -1,11 +1,8 @@
 # ===================================================================
-# MOSW instrument-strength grid: the Wald block of Montiel Olea,
+# MOSW instrument-strength grid of Montiel Olea,
 # Stock & Watson (2021, sec. 4.2) over (r,q) x sample x instrument.
-# For each cell reports xi_mp (Wald in the yield_6m-impact direction,
-# analogue of the official Waldstat; AR set bounded iff > 3.84),
-# the joint Wald T*G'W^-1*G ~ chi2_q with its F-form (xi/q), the
-# per-factor min/max xi_k, and the legacy homoskedastic max-F for
-# comparability with the 2026-07-11 spec sweep.
+# For each cell reports xi_mp and the robust first-stage F in the same
+# yield_6m-impact direction.
 # One estimate_dfm per (sample, r, q); instruments enter only the
 # cheap projection/diagnostic step.
 # Outputs: output/instrument/mosw_strength_grid.csv
@@ -105,12 +102,7 @@ for (sample_name in names(SAMPLES)) {
         q          = q,
         instrument = v,
         n_obs      = diag_fs$n_obs,
-        f_factor   = diag_fs$f_factor,
-        wald_min   = diag_fs$wald_min,
-        wald_max   = diag_fs$wald_max,
-        wald_joint = diag_fs$wald_joint,
-        f_joint    = diag_fs$F_joint,
-        p_joint    = diag_fs$p_joint,
+        f_robust_mp = diag_fs$f_robust_mp,
         wald_mp    = diag_fs$wald_mp,
         ar_bounded = diag_fs$wald_mp > CHI2_1_95,
         stringsAsFactors = FALSE
@@ -145,19 +137,18 @@ summary_tbl <- grid |>
     xi_mp_max      = max(wald_mp),
     best_rq        = sprintf("(%d,%d)", r[which.max(wald_mp)],
                              q[which.max(wald_mp)]),
-    f_joint_median = median(f_joint),
+    f_robust_mp_median = median(f_robust_mp),
     .groups = "drop"
   ) |>
   arrange(sample, desc(xi_mp_median))
 
 prod_tbl <- grid |>
   filter(r == 7, q == 6) |>
-  select(sample, instrument, f_factor, wald_min, wald_max,
-         wald_joint, f_joint, p_joint, wald_mp, ar_bounded) |>
+  select(sample, instrument, wald_mp, f_robust_mp, ar_bounded) |>
   arrange(sample, desc(wald_mp))
 
 sections <- c(
-  "# Grade de força MOSW — ξ_mp, Wald conjunta e F conjunta por (r,q) × amostra × instrumento",
+  "# Grade de força MOSW — ξ_mp e F robusto por (r,q) × amostra × instrumento",
   "",
   sprintf("Gerado por `script/mosw_strength_grid.R` em %s.", format(Sys.Date())),
   "",
@@ -171,15 +162,15 @@ sections <- c(
   "(Kilian oil: ξ₁ = 4.4, F robusta = 9.4 — `script/validate_olea_kilian.R`).",
   "Régua de leitura:",
   "",
-  "- **ξ_mp ≥ 10** — força adequada na direção da normalização (análogo do",
-  "  `Waldstat` oficial); bandas padrão aproximadamente válidas.",
-  "- **3.84 < ξ_mp < 10** — instrumento fraco; conjunto AR 95% limitado, usar",
-  "  intervalos Anderson-Rubin.",
-  "- **ξ_mp ≤ 3.84** — conjunto AR 95% potencialmente ilimitado.",
-  "- **F conjunta (ξ/q)** — relevância conservadora \"em alguma direção\" do",
-  "  espaço de fatores; dilui a não-centralidade por q graus de liberdade,",
-  "  então valores baixos com ξ_mp alto indicam relevância concentrada na",
-  "  direção certa (o esperado sob exogeneidade).",
+  "- **10** é uma referência convencional para ξ_mp e F robusto_mp, não um",
+  "  valor crítico fornecido por MOSW.",
+  "- Valores divergentes das duas estatísticas constituem evidência mista;",
+  "  nenhuma delas é usada como pré-teste para selecionar as IRFs.",
+  "- **3.84 < ξ_mp < 10** — qualificar o bootstrap; a inferência",
+  "  Anderson-Rubin do DFM está adiada.",
+  "- **ξ_mp ≤ 3.84** — um futuro conjunto AR 95% pode ser ilimitado.",
+  "- **F robusto_mp** — primeiro estágio HC1 de c_mp'η_t sobre o instrumento",
+  "  e as defasagens dos fatores; usa a mesma direção de normalização de ξ_mp.",
   "",
   "## Resumo por instrumento (contagem de células por faixa de ξ_mp)",
   "",
@@ -201,13 +192,9 @@ for (s in names(SAMPLES)) {
     "",
     md_table(heat(sub, "wald_mp")),
     "",
-    "### F conjunta (T·Γ̂'Ŵ⁻¹Γ̂ / q)",
+    "### F robusto na direção de impacto de yield_6m",
     "",
-    md_table(heat(sub, "f_joint")),
-    "",
-    "### F (factor-space) legada — max-F homocedástica, comparável ao spec sweep",
-    "",
-    md_table(heat(sub, "f_factor")),
+    md_table(heat(sub, "f_robust_mp")),
     ""
   )
 }
