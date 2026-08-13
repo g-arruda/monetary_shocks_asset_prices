@@ -1,31 +1,25 @@
-# Handoff, 2026-08-12 (correção mensal e reavaliação de r,q)
-SESSLOG:[2026-08-12 23:58]
-<!-- written by: pop-os at 2026-08-12T23:58:24-03:00 -->
+# Handoff, 2026-08-13 (rodada mensal e relevância MOSW commitadas)
+SESSLOG:[2026-08-13 01:04]
+<!-- written by: pop-os at 2026-08-13T01:04:40-03:00 -->
 *Project: monetary_shocks_asset_prices*
 
 ## Session topic
-Correção do fechamento mensal, reconstrução canônica e comparação das dimensões do DFM.
+Reconstrução após correção de fechamento mensal e migração dos diagnósticos para ξ_mp/F_rob,mp.
 
 ## Active decisions
-- A produção continua em (r,q)=(7,6); (7,7) é candidato, não decisão.
-- `yields_dia.csv` é insumo externo intocado; curva, EMBI+ e ANBIMA usam a maior data mensal.
-- O usuário não queria alterações no `.tex`; resolver isso antes de nova edição do paper.
-- Não houve staging nem commit; preservar o worktree preexistente.
+- Produção preservada em (r,q)=(7,6); (7,7) é apenas candidato de robustez.
+- A inferência operacional é o wild bootstrap; Anderson--Rubin plug-in foi retirado.
+- Relevância ativa: ξ_mp e F_rob,mp na direção de `yield_6m`.
 
 ## Key files
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/script/download.R
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/R/data_download/anbima_breakeven.R
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/notas/2026-08-12_correcao_fim_mes_curva.md
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/irf/month_end_correction_decomposition.csv
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/R/modeling/impulse_responde.R
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/R/identification/factor_space_diagnostics.R
 - /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/paper/paper_anpec.tex
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/registro/pendencias.md
 
 ## Next steps
-- [ ] Confirmar e restaurar apenas o estado pretendido de `paper/paper_anpec.tex`.
-- [ ] Se reabrir (r,q), rodar (7,7) com 800 bootstraps antes de decidir.
-- [ ] Revisar o diff completo sem tocar nas mudanças preexistentes.
-
-## Working artifacts
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/progress_logs/2026-08-12_reavaliacao_rq_pos_correcao.md porque registra a comparação ainda não incorporada ao método.
+- [ ] Rodar (7,7) com 800 réplicas somente se a escolha de dimensão for formalmente reaberta.
+- [ ] Resolver as pendências editoriais em `registro/pendencias.md` antes de nova submissão.
 
 ## Context
-O novo painel tem 106 séries e 153 meses; ξ_mp é 7,65/11,53 em (7,6) e 10,92/11,55 em (7,7). O smoke test central passou e o insumo externo permaneceu bit-idêntico.
+Commits: `cf109f1` (rodada de pesquisa) e `a8e8e47` (regras e handoff). Worktree limpo; produção (7,6): ξ_mp/F_rob,mp = 7,65/7,95 full e 11,53/6,26 pré-COVID.
