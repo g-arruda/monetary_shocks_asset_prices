@@ -45,11 +45,16 @@ consulte antes de propor um caminho novo.
 | Identificação | proxy-SVAR (instrumento externo), `H = (Z'η)/(Z'Z)` |
 | Instrumento | **`z_jk_bs_purif`** — surpresa DI Qua→Qui no vértice 126 du + ortogonalização Bauer-Swanson **pré-evento** + máscara JK em resíduos predeterminados |
 | Variável de política | `yield_6m`, choque +50bp no impacto (+0,005 em proporção decimal) |
-| Dimensão | **r = 7, q = 6**, VAR(p = 6) nos fatores |
-| Painel | 106 séries, 2013-01 a 2025-09 (153 observações alinhadas; 147 inovações fatoriais após p=6) |
+| Dimensão | **r = 5, q = 5**, VAR(p = 6) nos fatores; `r` por Bai--Ng IC2 BLL, `q` provisório |
+| Painel | **111 séries**, variante `drop_setor_externo__eua__credito__imoveis`, 2013-01 a 2025-09 (153 observações alinhadas; 147 inovações fatoriais após p=6) |
 | Inferência | wild bootstrap Gonçalves-Kilian, Kilian (1998) só no DGP do bootstrap; nboot = 800, seed 123, bandas 68/90, h = 0-48 |
-| Força | ξ_mp/F_rob,mp = **7,65/7,95** full e **11,53/6,26** pre-COVID; evidência mista e sem pré-teste de seleção |
+| Força | ξ_mp/F_rob,mp = **6,27085/10,12054** full e **10,99268/9,74746** pré-COVID; raiz máxima 0,964858 full e 1,000202 pré-COVID |
 
+Esta tabela descreve a produção vigente. O painel-base de 106 séries continua
+em arquivo separado somente para reproduzir as grades históricas. A recomendação
+intermediária de 123 séries `(4,3)` foi superada pela decisão e migração de
+2026-08-13. O paper continua desatualizado por decisão explícita desta rodada:
+nenhum arquivo `.tex` foi modificado.
 
 ---
 
@@ -57,18 +62,18 @@ consulte antes de propor um caminho novo.
 
 | Tema | Item | Observação |
 |---|---|---|
-| A | §5 Robustez em `paper/` tem 3 subseções — faltam het/GRG, construção do instrumento, especificação e Limitações | destravado em 2026-08-09; deixou de ser bloqueador |
-| A | Escrever a subseção de robustez sobre heterocedasticidade (Rigobon) | números prontos, redação pendente; entra como §5.3 depois de `sec:confound`; sem chave nova |
-| A | Ressalva §4 + Limitações (reversão = quase-raiz-unitária) | depende da subseção Limitações; framing invertido pelo council 2026-08-10 |
+| A | Reescrever `paper/paper_anpec.tex` para a produção 111 `(5,5)` | revisão extensa: resumo, método, resultados, robustez, conclusão, legendas e apêndice; checklist abaixo |
+| A | §5 Robustez em `paper/` tem 3 subseções — faltam het/GRG-GMR, construção do instrumento, especificação e Limitações | destravado em 2026-08-09; números da vintage anterior não podem ser portados |
+| A | Escrever a subseção de robustez sobre heterocedasticidade (Rigobon) | 288 células válidas/320 desenhadas, nenhuma identifica; entra depois de `sec:confound` |
+| A | Ressalva §4 + Limitações sobre a reversão de médio prazo | raiz 0,964858; retirar a leitura antiga de “um modo quase unitário” |
 | A | Documentar a mecânica do bootstrap no texto | — |
 | A | Vertente de prêmio de risco cambial ausente do §2 | exige chave nova (regra das 25) |
 | A | Corrigir leitura do IMAT em §4.6 | independente, sem citação nova |
-| A | Resumo contradiz §4.2 sobre o câmbio na reversão de médio prazo | council 2026-08-10, verificado, sem citação nova |
-| A | 5,55% não é escala-livre; comparações com GRG/Ibovespa/Gertler-Karadi em bases diferentes | council 2026-08-10, atualizado para a vintage 2026-08-12 |
+| A | Conversão percentual do câmbio não é escala-livre; comparações usam bases diferentes | refazer com impacto corrente de 3,84% por 50 pb |
 | A | Atribuição errada do limiar "≥10" a Montiel Olea-Stock-Watson | council 2026-08-10, sem citação nova |
 | A | Portar reconciliação com GRG (2025) para o corpo do §6 | decisão já tomada (Tema D), falta redação; réplica precisa rodar na vintage atual |
 | A | Bandas Anderson-Rubin no `.tex` | adiadas sem prazo em 2026-08-12; linha que faltava no índice |
-| A | Selic lida nas duas direções em §4.1 (controle negativo vs. resultado) | blindspot 2026-08-12; sem citação nova, independe do Tema E |
+| A | Reescrever o papel da Selic em §4.1 | na produção corrente ela sobe e exclui zero a 90% em h=0--11; CDI saiu |
 | A | Convenção de horizonte do §4 (impacto vs. pico em h=1) | blindspot 2026-08-12; casar com o item de base 100 pb |
 | A | Reportar as cinco moedas no §4.2, não duas | blindspot 2026-08-12; dado já estimado, nada a rodar |
 | A | Bloco de agregados monetários ausente do §4 | blindspot 2026-08-12; dado já estimado |
@@ -83,14 +88,15 @@ consulte antes de propor um caminho novo.
 | B | Bandas Anderson-Rubin (implementação) | adiadas sem prazo em 2026-08-12; linha que faltava no índice |
 | B | Decompor a curva entre expectativa e prêmio (diário vs. mensal) | blindspot 2026-08-12, prioridade alta; depende da correção do Tema E |
 | B | A amplificação 5a/6m é do choque ou de Λ? | blindspot 2026-08-12; teste discriminante do item acima |
-| B | IRFs em subamostra como exercício reportado | blindspot 2026-08-12; falta a etapa 2 (bandas) pré-COVID |
-| B | Diagnosticar o pico uniforme em h=1 | blindspot 2026-08-12; rodar **depois** da correção do Tema E |
+| B | Tratar a janela pré-COVID como diagnóstico de força/estabilidade | raiz 1,000202 impede usá-la como evidência dinâmica |
 | C | Decidir enquadramento do GMR no paper | — |
 | C | Construir um teste com poder | — |
 | C | LMS (2017) como terceira leitura | desempate mais barato disponível |
-| D | Comparação cross-instrumento do IPCA sob (7,6) | dado já existe, falta rodar |
+| D | Comparação cross-instrumento do IPCA sob (5,5) | dado já existe, falta rodar |
 | D | Spread de concessões novas | desejável, não bloqueante |
 | E | Corrigir o `cumsum` do bloco acionário | só o transform, não o painel |
+| E | Fundamentar ou substituir o default operacional `q=5` | `r=5` está decidido pelo Bai--Ng IC2; `q=5` permanece provisório |
+| E | Corrigir o caso escalar `q=1<r` em `estimate_dynamic_factors()` | defeito exposto pela grade nova; produção `(5,5)` não é afetada |
 | E | `kilian_correction`: determinante em matriz enorme | não mexer sem re-rodar smoke test |
 | E | Cortar a `tab:first_stage` | relatório já regenerado em 2026-08-05; falta o `.tex` |
 | E | Seleção da etapa 2 dominada pela janela pré-COVID | — |
@@ -98,6 +104,81 @@ consulte antes de propor um caminho novo.
 ---
 
 ## A. Texto do paper
+
+- [ ] **Reescrever `paper/paper_anpec.tex` para a produção de 111 séries
+  `(5,5)`** — *aberto em 2026-08-13 por separação deliberada de escopo.* Não é
+  uma substituição mecânica de `106` por `111`: o resumo, a seleção de dimensão,
+  quase toda a interpretação das IRFs, três exercícios de robustez, as legendas
+  e a lista de variáveis ainda descrevem a produção `(7,6)` de 106 séries. As
+  figuras e `output/irf/irf_section.md` já foram regenerados; nenhum `.tex` foi
+  alterado. A rodada editorial deve cumprir, no mínimo, a checklist abaixo.
+
+  - **Resumo, abstract, introdução e conclusão:** substituir em conjunto as
+    quatro manchetes de impacto: BRL/USD **3,84%** (IC90 [2,24; 6,06]), EMBI+
+    **26,2 pb** ([17,2; 47,3]), CDS 5 anos **32,5 pb** ([22,2; 53,8]) e DI 5
+    anos **77,6 pb** ([57,9; 111,0]). Atualizar painel para 111 séries e
+    `xi_mp` para **6,27085**. Preservar a formulação “compatível com transmissão
+    via prêmio de risco”, mas retirar a atribuição causal a dominância fiscal e
+    qualquer alegação de que o prêmio “domina” o diferencial sem a decomposição
+    do wedge de UIP do Tema B. As versões portuguesa e inglesa precisam fechar
+    exatamente nos mesmos números e qualificações.
+  - **Base e proveniência:** declarar 153 meses, 111 séries e 147 inovações;
+    registrar que saem `juros_cdi`, `asset_mlcx` e os quatro blocos candidatos
+    excluídos, enquanto permanecem as três séries fiscais e quatro de
+    expectativas. Corrigir a afirmação de que a curva foi ajustada no projeto
+    por Svensson: `data/raw/yields/yields_dia.csv` é insumo externo fixo, sem
+    produtor no repositório. Corrigir também a fonte do CDS para o arquivo fixo
+    Bloomberg `data/raw/CDS 5y.xlsx`, não Investing.com. Não reivindicar
+    reprodutibilidade desses dois insumos.
+  - **Seleção e força:** reescrever integralmente a subseção de seleção de
+    `(r,q)` e a `tab:rq_sweep`. `r=5` é decidido pelo Bai--Ng IC2 padronizado
+    para BLL; `q=5` é default operacional **provisório**, não escolha pela célula
+    de maior força. Reportar `p=6`, `xi_mp/F_rob,mp = 6,27085/10,12054` na
+    amostra cheia e `10,99268/9,74746` pré-COVID. A janela pré-COVID tem raiz
+    **1,000202** e não pode sustentar interpretação dinâmica; a cheia tem raiz
+    **0,964858**. Revalidar, em vez de portar, a comparação Selic versus DI 6m.
+    Fonte: `output/instrument/mosw_strength_grid.csv`,
+    `output/validation/production_spec_diagnostics.csv` e
+    `output/irf/irf_section.md`.
+  - **Resultados e legendas:** reescrever as seis subseções e auditar cada
+    legenda contra `output/irf/irf_coherence_h.csv` e
+    `output/irf/irf_coherence_leitura.md`. No impacto, a curva 3m/1a/2a/5a/10a
+    responde **38,7/63,3/74,3/77,6/70,3 pb**; a Selic responde, não é mais
+    controle nulo, e o CDI não está no painel. Em atividade, somente indústria
+    de transformação, duráveis, horas e IBC-Br caem no impacto com banda de
+    90%; em crédito há cinco classificações incoerentes; IPP exclui zero a 90%
+    em h=0--3 e IPCA cheio não; os sete índices acionários caem no ponto de
+    impacto, mas somente IFIX exclui zero a 90% (quatro horizontes). Remover
+    contagens, picos, vales e janelas herdados da vintage anterior. Banda de
+    68% nunca deve ser chamada de significância.
+  - **Reversão:** retirar a narrativa de que um único par quase unitário produz
+    os vales. A raiz corrente é 0,964858, com período 65,8 meses, e apagar o par
+    dominante não inverte nenhuma das 14 respostas examinadas; 13 de 14 vales
+    sobrevivem. A formulação defensável é apenas que a reversão descreve a
+    dinâmica conjunta estimada e não constitui confirmação independente do
+    canal econômico. Fonte: `output/factors/factor_stationarity.md`.
+  - **Robustez:** atualizar todos os valores de exogeneidade/placebos e o texto
+    da `fig:placebos`; substituir o confound soberano antigo pelos resultados
+    `6,271 -> 6,619 -> 7,576` quando só os valores são ortogonalizados e
+    **4,264** quando a máscara é rederivada; substituir também a vintage FOMC
+    pelos resultados de `output/instrument/fomc_coincidence.md`. Incorporar ou
+    justificar a omissão do benchmark VAR corrente, do gate GMR e do exercício
+    de heterocedasticidade. Não portar números de notas anteriores sem
+    reconferência nos relatórios gerados em 2026-08-13.
+  - **Apêndice:** reconstruir `tab:lista_variaveis` a partir da ordem canônica
+    de `data/processed/data_log_deseasonalized.csv`, não por edição parcial.
+    Excluir CDI e MLCX; incluir `fiscal_dbgg`, `fiscal_dlsp`,
+    `fiscal_primary_balance`, `expect_focus_ipca12m`,
+    `expect_focus_selic_ny`, `expect_focus_pib_ny` e
+    `expect_focus_cambio_ny`, todos com código de transformação 1 e fontes
+    conferidas em `output/panel/production_candidate_manifest.csv`. A tabela
+    final deve conter exatamente 111 linhas de séries.
+  - **Gate editorial:** buscar e eliminar referências ativas a 106, `(7,6)`,
+    5,55%, 117,0 pb, 32,0 pb, 43,4 pb, `xi_mp=7,65`, CDI e MLCX; conferir que as
+    sete figuras hoje incluídas têm texto e legenda compatíveis com a vintage
+    corrente e decidir explicitamente se `fig_estado.pdf` entra como oitava;
+    compilar sem referências/citações indefinidas; executar `git diff --check`;
+    e confirmar que nenhum `.tex` além de `paper/paper_anpec.tex` foi tocado.
 
 *Inclui os achados do council review de `arquivo/tex/main.tex` (archived draft; `paper/paper_anpec.tex` is now canonical) em 2026-07-31 —
 revisão paralela de três críticos independentes (harsh-referee e
@@ -128,26 +209,23 @@ o teste **não encontra contaminação**. Segue aberto o item factual de que
 Relatório completo, com as quatro críticas brutas e a síntese com Named
 Dissents: `pareceres/council_2026-08-10.md`.*
 
-- [ ] **A `§5 Robustez` de `paper/paper_anpec.tex` existe desde
-  2026-08-09 com 3 subseções, duas da composição recomendada
-  (`notas/2026-08-01_tier_list_robustez.md` §7) e a coincidência FOMC — faltam
-  as outras 4 da composição.**
+- [ ] **A `§5 Robustez` de `paper/paper_anpec.tex` tem 3 subseções, mas as três
+  ainda carregam números da produção anterior e faltam as demais frentes da
+  composição recomendada.**
   Escritas: `sec:exogeneidade` (previsibilidade do instrumento mensal em cinco
-  especificações com wild bootstrap, Ljung-Box justificando `nw_lags = 0`, o
-  teste `commodity_metal` em R$ contra US$ com a queda de ξ_mp para 7,87
-  declarada, e os placebos nas duas barras com a `fig_placebos`) e
-  `sec:confound` (item seguinte, fechado), além de `sec:fomc` (coincidência com
-  decisões do FOMC, item fechado abaixo). A conclusão passou a ser a **§6** e
-  as duas remissões a "Seção 5" foram repontadas. Compila limpo, 27 páginas,
-  nenhuma citação ou referência indefinida, **nenhuma chave nova**.
+  especificações com wild bootstrap, Ljung-Box justificando `nw_lags = 0`,
+  teste `commodity_metal` em R$ contra US$ e `fig_placebos`), `sec:confound` e
+  `sec:fomc`. Os números então incorporados — inclusive ξ_mp = 7,87 no teste de
+  metais, 7,65 no baseline soberano e os valores da variante FOMC — **não são
+  mais citáveis**; reescrever contra os relatórios gerados em 2026-08-13. A
+  conclusão já é a §6 e as remissões a "Seção 5" estão repontadas.
   **O que falta, na ordem da composição recomendada:** identificação
-  alternativa e divergência com GRG (item abaixo), construção do instrumento e
-  dimensão do sistema (A3 + A4 + A2), especificação do modelo (A5 + A1 + A7 +
-  LP-IV com o rótulo certo) e **Limitações**, que é a que bloqueia o item da
-  reversão de médio prazo mais abaixo. A prosa antiga de `arquivo/tex/main.tex`
-  segue sendo a fonte para Limitações e `sec:estado`; a de exogeneidade e
-  placebos foi **reescrita**, não portada, contra os CSVs de origem, e por isso
-  já traz a resposta ao `commodity_metal` que a versão antiga pressupunha.
+  alternativa e divergência com GRG/GMR, heterocedasticidade mensal,
+  construção do instrumento e dimensão do sistema (A3 + A4 + A2),
+  especificação do modelo (A5 + A1 + A7 + LP-IV com o rótulo certo) e
+  **Limitações**. A prosa antiga de `arquivo/tex/main.tex` pode servir de mapa de
+  tópicos para Limitações e `sec:estado`, mas nenhum número dela deve ser
+  portado.
   A nota da `fig:acoes` que promete uma discussão "no texto" continua sem
   contrapartida.
 - [ ] **Escrever a subseção de robustez sobre identificação por
@@ -168,11 +246,12 @@ Dissents: `pareceres/council_2026-08-10.md`.*
     de Rigobon).
   - **A ordem do argumento:** (i) todo o resto do §5 varia a receita do
     instrumento, não a identificação — Rigobon dispensa a restrição de exclusão e
-    identifica por segundos momentos; (ii) 252 especificações × 5 definições de
-    regime, **nenhuma identifica**, e não é severidade de correção (Holm interno
-    ao desenho mantém zero nos cinco); (iii) **segunda condição necessária falha
-    em separado** — autovalores generalizados não distintos (separação relativa
-    mediana 0,11-0,17) —, e por isso **nenhuma IRF é reportada**, o que precisa
+    identifica por segundos momentos; (ii) a grade desenha 320 células e tem
+    **288 com status `ok`** — o regime por episódio só existe na janela cheia —,
+    **nenhuma identifica**, e não é severidade de correção (Holm interno ao
+    desenho mantém zero nos cinco); (iii) **segunda condição necessária falha
+    em separado** — autovalores generalizados não distintos (gap relativo
+    mediano **0,137-0,188**) —, e por isso **nenhuma IRF é reportada**, o que precisa
     ser dito explicitamente para o leitor não procurar uma figura; (iv) o
     diagnóstico: o salto de volatilidade pós-2020 é **fator de escala comum**
     (`volatilidade_juros` põe 47,8% dos meses no regime alto contra 5,1% antes e
@@ -193,46 +272,31 @@ Dissents: `pareceres/council_2026-08-10.md`.*
   permanece na §3.7; as bandas de 68%/90% do wild bootstrap são a única
   inferência reportável. Histórico em `historico_decisoes.md` §7.
 - [ ] **Redigir a ressalva no §4 e o parágrafo em Limitações sobre a reversão
-  de médio prazo.** *Extraído em 2026-08-01 de dentro do item fechado de
-  estacionariedade dos fatores — mesmo padrão do item acima.* A afirmação
-  defensável, mais estreita que uma acusação de artefato: a reversão de médio
-  prazo do §4 (vale setorial, contração do crédito em h=24-32, reversão da
-  curva e da Selic) e a persistência quase-unitária do VAR de fatores são **o
-  mesmo objeto** — o par dominante da companion, |λ| = 0,976794, período 117,9
-  meses. O paper pode reportar a reversão como o que o modelo implica, mas
-  **não pode citá-la como evidência separada** da dinâmica que a produz. Uma
-  frase no corpo (não em rodapé) para cada um dos dois lugares. Detalhe:
-  `output/factors/factor_stationarity.md`,
-  `notas/2026-07-31_estacionariedade_fatores.md`.
-  **Bloqueado pela subseção Limitações**, que é a única das seis da composição
-  recomendada que ainda não existe em `paper/` e é onde o parágrafo
-  entra; a ressalva do §4 é independente e pode ser escrita já.
-  - **Framing mais afiado, council 2026-08-10 (harsh-referee, achado que
-    inverte a leitura ingênua do próprio paper).** O texto (`:369`) já diz
-    que o câmbio **não** acompanha a reversão — e é exatamente `cambio_usd`
-    que sobrevive intacto (razão 1,004) à remoção do par dominante em
-    `factor_stationarity.md:160`. Ou seja: **as séries que o paper cita como
-    "revertendo de forma sincronizada" são as mecânicas, e a série citada
-    como exceção é a única com reversão não-mecânica** — a evidência do
-    paper está invertida em relação à alegação que ele faz dela. Achado
-    novo que fecha o argumento: o mesmo modo dominante também produz o vale
-    de médio prazo nos seis agregados de crédito e em `juros_selic` — séries
-    que o §4.4/§4.1 atribuem a um canal inteiramente diferente (acelerador
-    financeiro, afrouxamento da política) — o que torna o modo um mecanismo
-    de **persistência geral** do painel, não algo específico de prêmio de
-    risco. Reportar a participação de variância do par dominante **por
-    bloco** (curva/risco vs. crédito vs. atividade): se concentrada no bloco
-    câmbio/risco/curva, a leitura de "mesmo prêmio revertendo" ainda tem uma
-    versão defensável; se distribuída igualmente entre os blocos, a frase
-    "evidência adicional de um mecanismo comum de transmissão" (`:115`,
-    `:142`) não sobrevive em nenhuma forma e deve sair.
+  de médio prazo — REFORMULADO após a produção `(5,5)`.** O diagnóstico antigo
+  de um único par quase unitário, |λ| = 0,976794 e período 117,9 meses, foi
+  superado. Na produção corrente, a raiz dominante é **0,964858**, complexa,
+  com período **65,8 meses**. Apagar o par dominante não inverte o sinal de
+  nenhuma das 14 respostas e preserva 13 dos 14 vales em escala comum; a razão
+  mediana de magnitude é 1,041. Logo, o paper **não pode** dizer que a reversão
+  é gerada por um único modo quase unitário nem tratar a remoção desse modo como
+  teste que a derruba.
+
+  A formulação defensável continua estreita: os vales e inversões são
+  implicações da dinâmica conjunta estimada e **não são evidência independente**
+  do canal econômico proposto. Reportar separadamente que a sensibilidade a
+  `p` é grande (a mediana do horizonte do extremo de médio prazo muda de 42,5
+  em p=1 para 29 em p=4 e 36 em p=6) e que a janela pré-COVID é marginalmente
+  explosiva (raiz 1,000202). Fonte corrente:
+  `output/factors/factor_stationarity.md`. A ressalva do §4 pode ser escrita já;
+  a versão longa depende da subseção Limitações.
 - [ ] **Documentar no texto a mecânica do bootstrap que o código já acerta.**
   O mesmo draw Rademacher é reusado para o instrumento e os resíduos
-  (`impulse_responde.R:636-637`) e o DFM é reestimado dentro de cada réplica
-  (linha 568) — ambos frequentemente errados na literatura aplicada e nenhum
+  (`R/modeling/impulse_responde.R:669-675`) e o DFM é reestimado dentro de cada
+  réplica (`:600-610`) — ambos frequentemente errados na literatura aplicada e nenhum
   dos dois está afirmado no texto. Complementar com o número de réplicas
-  falhas em 800 (substituídas silenciosamente pelo ponto estimado, o que
-  estreita as bandas mecanicamente — `impulse_responde.R:645-647`) e uma nota
+  falhas: **zero em 800** no gate corrente. Registrar também que, se uma réplica
+  falhar, o código a substitui pelo ponto estimado (`:679-682`), o que estreitaria
+  as bandas mecanicamente, embora esse caminho não tenha sido acionado; e uma nota
   sobre `Idio` ficar fixo entre réplicas (subestima a variabilidade amostral de
   Λ̂). Achados verificados no código pelo harsh-referee e re-conferidos na
   síntese, não só extraídos da prosa.
@@ -298,9 +362,9 @@ Dissents: `pareceres/council_2026-08-10.md`.*
     chaves — decisão do autor. É *working paper* do FMI de jul/2026, ainda não
     publicado; citar como WP.
 - [ ] **Corrigir a leitura do IMAT em §4.6** (`paper/paper_anpec.tex:478`)
-  — *aberto em 2026-08-02, mesma leitura do item acima; é independente dele e
-  não depende de citar ninguém.* O texto explica o IMAT ser o único dos oito
-  índices sem banda de 68% em h=1 dizendo que seus componentes são
+  — *aberto em 2026-08-02; atualizado para a produção de sete índices.* O
+  texto explica o IMAT ser o único índice sem banda de 68% em h=1 dizendo que
+  seus componentes são
   "exportadores **amortecidos pela depreciação** da mesma janela". Sob
   *dominant-currency pricing* esse é exatamente o canal que **não** funciona:
   preço de exportação rígido em dólar não baixa rápido para o comprador externo,
@@ -308,42 +372,26 @@ Dissents: `pareceres/council_2026-08-10.md`.*
   mais fraca (Dalgic-Ozhan §5.3 e Figura 5). O amortecimento sobrevive, mas por
   outro motivo: para exportador de commodity a receita já é em dólar e o custo
   em real, então a depreciação eleva a receita em BRL por **translação
-  imediata**, sem nenhum *expenditure switching*. Trocar "amortecidos pela
+  imediata**, sem nenhum *expenditure switching*. O ponto corrente é próximo
+  de zero (−0,07 em h=0 e +0,14 em h=1), sem banda de 68%; trocar “amortecidos pela
   depreciação" por algo como "amortecidos pela receita denominada em dólar"
   fecha a inconsistência e **alinha a frase com a §4.2**, que já usa exatamente
   essa leitura de denominação para o índice de commodities do BCB em reais.
-- [ ] **Resumo contradiz §4.2 sobre o câmbio na reversão de médio prazo** —
-  *aberto em 2026-08-10, council review, achado independente de 3 dos 4
-  críticos (verificado linha a linha na síntese).* O resumo (`:115`, também
-  `:117` na versão em inglês) lista "a taxa de câmbio" entre as séries com
-  "reversão altamente sincronizada, oferecendo evidência adicional de um
-  mecanismo comum". A `§4.2` (`:369`) diz o oposto: "O câmbio, por sua vez,
-  não acompanha essa reversão... a partir de h=10 a estimativa pontual
-  reverte de sinal sem que essa reversão se torne estatisticamente
-  significativa em nenhum horizonte." A conclusão (`:545`) concorda com a
-  §4.2, não com o resumo. Corrigir o resumo removendo "a taxa de câmbio" da
-  frase — e considerar promover o fato descartado: `cambio_usd` é a única
-  série cuja reversão sobrevive intacta (razão 1,004) à remoção do par de
-  autovalor dominante da companion (ver item de médio prazo abaixo), i.e. a
-  única reversão não-mecânica do modelo.
-- [ ] **5,55% não é grandeza escala-livre, e as comparações com a literatura
-  usam bases diferentes** — *aberto em 2026-08-10, council review
-  (methodologist + harsh-referee, achado independente).* O câmbio USD/BRL
+- [ ] **A conversão percentual do câmbio não é grandeza escala-livre, e as
+  comparações com a literatura usam bases diferentes** — *aberto em
+  2026-08-10, council review; números atualizados em 2026-08-13.* O BRL/USD
   entra no painel em **nível** (Anexo A, código 1), e a conversão para
-  percentual usa a média amostral (`:351`, divisor implícito 4,11) — não é
-  log-diferença, e o mesmo choque em reais vale 6,8% no nível de 2013 e 2,7%
-  no de 2025. Duas consequências: (i) a comparação em `:357` com GRG
-  ("3,4% a 5,6% por 100 pontos-base") mistura 50bp com 100bp — em base
-  equivalente este paper reporta **11,1% por 100bp**, maior em módulo que a
-  literatura que ele contradiz, não dentro da faixa dela; (ii) o mesmo erro
-  de base aparece no Ibovespa (`:491`: −1,67%/50bp ≈ −3,3%/100bp contra a
-  faixa citada de "1% a 2% por 100 pontos-base", sem citação própria) e na
-  comparação de `:324` com o repasse de crédito corporativo americano de
-  Gertler-Karadi (20bp→15bp), que não é o mesmo objeto que amplificação de
-  curva soberana — o comparável correto é a própria curva de
-  Alessi-Kerssenfischer, sob o mesmo desenho. Reportar toda comparação por
-  100bp e contra o mesmo objeto, ou reportar R$/USD nos três pontos do
-  período (início, média, fim de amostra) além do percentual.
+  percentual usa a média amostral de 4,1117. Assim, o impacto corrente de
+  R$ 0,1579 vira **3,84% por 50 pb**, mas representa percentuais diferentes se
+  avaliado nos níveis do início e do fim da amostra. Não apresentar 3,84% como
+  medida escala-livre.
+
+  As comparações com GRG, Ibovespa e Gertler--Karadi precisam ser colocadas na
+  mesma base de choque e no mesmo objeto: por 100 pb, o número corrente do
+  câmbio seria aproximadamente 7,68% sob simples reescala linear; a comparação
+  de curva americana não é automaticamente uma comparação com curva DI
+  soberana. Reportar sempre tamanho do choque, unidade, denominador da conversão
+  e horizonte.
 - [ ] **Atribuição errada do limiar "≥10" a Montiel Olea-Stock-Watson**
   (`:266`) — *aberto em 2026-08-10, council review (methodologist).*
   "Valores acima de 10 sustentam bandas convencionais" é a regra de bolso
@@ -385,94 +433,67 @@ comparação do IPCA no Tema D e o bloqueador no Tema E. **Nada na auditoria
 contradiz o fato central** — as cinco moedas, a janela pré-COVID e a constelação
 dos placebos empurram câmbio + risco soberano na direção do paper.*
 
-- [ ] **A §4.1 lê a Selic nas duas direções ao mesmo tempo** — *aberto em
-  2026-08-12, auditoria blindspot; não estava em lugar nenhum do registro.*
-  A nota da `fig:curva` (`:339`) trata `juros_selic`/`juros_cdi` como **controle
-  negativo**, incapazes de registrar uma surpresa de 6 meses medida em um pregão;
-  o parágrafo de `:347` trata a mesma série como **resultado**: "a própria taxa de
-  política acompanha essa reversão... indicando afrouxamento". Uma série não pode
-  ser cega ao aperto e sensível ao afrouxamento.
-  **O que o dado diz** (`irf_coherence_h.csv`; a série é a meta em % a.a. — média
-  9,67, mín 1,90, máx 14,90): **−4,7 pb no impacto**, −5,9 pb em h=1, máximo de
-  **+12,9 pb em h=7**, e **nenhum horizonte positivo exclui zero nem a 68%**; o
-  ramo negativo chega a −77,8 pb em h=34 com banda de 68%. A justificativa de
-  descasamento de maturidade (`irf_section.md:131`,
-  `registro/justificativa_uso_yield-6m.md`) cobre **h=0** e foi estendida em
-  silêncio ao caminho inteiro — ela não explica h=3, h=6 nem h=12, onde o próprio
-  modelo produz movimentos materiais nos vértices de 1 e 2 anos.
-  **Duas saídas, escolher uma:** (i) controle negativo em todo horizonte, e então
-  Selic e CDI saem do parágrafo de reversão de `:347`, que fica com os cinco
-  vértices; (ii) série informativa, e então a ausência de alta é fato do resultado
-  e vai para o corpo. Sem citação nova, independe da re-estimação do Tema E.
+- [ ] **Reescrever o papel da Selic em §4.1.** A contradição antiga entre
+  “controle negativo” e “resultado” foi resolvida pelos dados, não pelo `.tex`:
+  na produção `(5,5)`, `juros_selic` sobe **23,8 pb no impacto**, exclui zero a
+  90% de h=0 a h=11 e atinge 51,1 pb em h=6. Portanto, retirar da legenda e do
+  corpo a leitura de controle nulo; CDI saiu do painel e não pode aparecer. A
+  justificativa do DI 6m como normalização continua sendo a janela de surpresa,
+  não uma alegação de que a Selic mensal seja inerte.
 - [ ] **Fixar a convenção de horizonte do §4 — hoje ela muda de bloco para
-  bloco** — *aberto em 2026-08-12, auditoria blindspot.* **As 19 séries do bloco
-  financeiro têm pico em h=1, não no impacto:** vértices ×1,14-1,17, `cambio_usd`
-  ×1,29, `cambio_eur` ×1,32, `cds_5y` ×1,10, `embi_perc` ×1,01, ações ×1,54-2,61
-  (nas ações é em parte mecânico, `cumsum`; nas demais, todas tcode 1, não é). O
-  §4.2 reporta o câmbio em h=0 (5,55%) e o §4.6 reporta as ações em h=1 — em cada
-  bloco, o horizonte que favorece a frase. O pico do próprio câmbio é **6,96% em
-  h=1** (0,2862/4,112). Escolher uma regra — impacto, ou pico com o horizonte
-  declarado — e aplicá-la aos seis blocos. **Casar com o item "5,55% não é
-  grandeza escala-livre" acima:** as duas correções mexem nos mesmos números e
-  devem ser feitas na mesma passada. A causa do pico em h=1 é item próprio no
-  Tema B.
-- [ ] **Reportar as cinco moedas no §4.2, não duas** — *aberto em 2026-08-12,
-  auditoria blindspot; dado já estimado, nada a rodar.* O painel tem cinco taxas
-  de câmbio e o paper reporta USD e EUR. No impacto, as **cinco** depreciam o real
-  com a banda de 90% excluindo zero
-  (`diagnostics/output/t2_1_irf_todas_variaveis.csv`): USD **+5,55%**, EUR
-  +4,81%, **CNY +5,61%**, **INR +5,14%** e ARS +5,79%; as cinco bandas de 90%
-  excluem zero no impacto. O EUR sozinho é controle fraco, porque EUR/USD comovem;
-  **CNY e INR são o par discriminante** — nenhuma história de fortalecimento do
-  dólar produz o real caindo mais de 5% contra o yuan e a rupia ao mesmo tempo. É a
-  alegação-manchete virando **resultado do real e não do dólar**, ao custo de uma
-  frase e de uma coluna na `fig_cambio_risco`. Sem chave nova.
-- [ ] **Bloco de agregados monetários ausente do §4** — *aberto em 2026-08-12,
-  auditoria blindspot; dado já estimado.* As cinco séries respondem com o sinal do
-  efeito liquidez no impacto e nenhuma aparece no paper: base monetária
-  **−1,72%**, M1 −1,44%, M2 −1,02%, **M3 −1,02% com banda de 90% (h=0-1; 68% até
-  h=13)**, meios de pagamento −0,63%. Um §4 que dedica subseção ao crédito
-  sustentada em banda de 68% deixa de fora o bloco de previsão teórica menos
-  ambígua e com um sig90 dentro. Decisão do autor sobre entrar como parágrafo do
-  §4.4 ou bloco próprio — mas a omissão precisa ser deliberada, não herdada de as
-  séries não terem sido pontuadas.
-- [ ] **Reportar os oito EPU no §5.1, não só o escolhido** — *aberto em
-  2026-08-12, auditoria blindspot.* O painel tem 8 índices EPU e exatamente 1 é
-  usado como placebo (`epu_us`), escolhido depois de as IRFs existirem. Os outros
-  sete estão estimados: `epu_canada` responde **−18,25% no impacto com a banda de
-  90% excluindo zero** — uma rejeição de placebo. Pela régua de contagem do
-  próprio §5.1 (~5 rejeições esperadas por série a 10% nominal) uma rejeição
-  isolada é ruído, e é assim que deve ser escrita; o ponto não é a rejeição, é que
-  mostrar as oito custa uma frase e fecha a porta da escolha *ex post*.
-  - ⚠ **Ler magnitude, não só contagem.** O `epu_us` que passa cai **18,1% da
-    média amostral no impacto** (banda de 68%) e o `sp500_vix` cai **10,7% em h=2
-    com banda de 90%**. As contagens do texto estão certas; as magnitudes não
-    estão no texto. Interage com o item do `sp500_vix` no Tema B.
-- [ ] **O §4.5 não diz que o *price puzzle* é de amostra cheia** — *aberto em
-  2026-08-12, auditoria blindspot; **bloqueado** pelo item de comparação
-  cross-instrumento do IPCA (Tema D), que é onde a afirmação fica citável.*
-  Célula de produção, `price_ipca` (`spec_sweep_irf_long.csv`, pontos): cheia h6
-  **+0,099** / h12 −0,077; pré-COVID h6 **−0,281** / h12 **−0,203** / h24 −0,121.
-  Na janela pré-COVID o sinal é o de manual. O §4.5 (`:449`) abre com "toda
-  resposta de preço que exclui zero a 90% é positiva" e chama a desinflação de
-  "evidência mais fraca de toda a seção" sem em momento algum dizer que descreve
-  um fenômeno de amostra cheia — coisa que o projeto sabe desde
-  `notas/2026-07-12_price_puzzle_ipca.md`.
+  bloco.** Refazer a comparação com a vintage corrente e escolher uma regra
+  única: impacto, ou pico acompanhado do horizonte. Para as manchetes, usar h=0
+  facilita a comparação direta com a normalização e com a tabela corrente; se
+  o texto preferir picos, deve declará-los em todos os blocos, não selecionar o
+  horizonte favorável caso a caso. Casar esta edição com a conversão percentual
+  e com a pendência do `cumsum` das ações.
+- [ ] **Reportar as cinco moedas no §4.2, não duas.** Na produção corrente, as
+  cinco depreciam o real no impacto e as cinco bandas de 90% excluem zero:
+  USD **3,84%**, EUR **3,00%**, CNY **3,67%**, INR **3,28%** e ARS **4,48%**,
+  após divisão pelas respectivas médias amostrais. CNY e INR ajudam a separar
+  um resultado do real de uma história restrita ao dólar. Atualizar a figura ou,
+  se ela permanecer com USD/EUR, reportar as cinco numa tabela/frase verificável.
+- [ ] **Bloco de agregados monetários ausente do §4.** Os números antigos não
+  sobreviveram à migração. No impacto corrente, base monetária, meios de
+  pagamento, M1 e M3 caem **0,477/0,198/0,114/0,175%**, enquanto M2
+  sobe 0,183; como o tcode 4 aplica `(exp(IRF)-1) x 100`, esses valores são
+  variações percentuais aproximadas. Somente M3 exclui zero a 90%. Decidir explicitamente se o bloco
+  entra no texto e, se entrar, abandonar a descrição antiga de queda homogênea.
+- [ ] **Reportar os oito EPU no §5.1, não só o escolhido.** A direção mudou na
+  produção corrente: no impacto, `epu_brazil`, `epu_chile` e `epu_germany`
+  sobem; somente `epu_chile` exclui zero a 90%, enquanto `epu_us` e os demais
+  não. O VIX também não exclui zero a 90% em nenhum dos horizontes h=0,1,2,6,12
+  auditados. Refazer a contagem sobre h=0--48 antes de redigir e apresentar a
+  família completa para evitar escolha ex post do placebo.
+- [ ] **O §4.5 não diz que o *price puzzle* é de amostra cheia** — *bloqueado
+  pela comparação cross-instrumento do Tema D.* Na célula corrente,
+  `price_ipca` dá h6 **+0,089**, h12 **+0,031** e h24 **−0,169** na amostra
+  cheia, contra **−0,092/−0,066/+0,112** pré-COVID. A subamostra, porém, é
+  marginalmente explosiva e não autoriza leitura dinâmica por si só. O texto só
+  pode chamar a corcova de fenômeno da amostra cheia depois do teste
+  cross-instrumento e deve separar IPCA cheio (nenhum sig90) de IPP (sig90 em
+  h=0--3).
 
 ### Fechados (contexto)
 
+- [x] **Contradição literal entre resumo e §4.2 sobre a reversão cambial —
+  SUPERADA pela redação ativa anterior à migração.** O resumo corrente no
+  `.tex` já não chama a reversão cambial de sincronizada. A interpretação de
+  médio prazo inteira ainda precisa ser refeita para `(5,5)` no item principal.
 - [x] **Diagnóstico de relevância simplificado e alinhado a MOSW — FEITO em
   2026-08-13.** O paper e os relatórios ativos agora apresentam somente ξ_mp e
-  F_rob,mp (HC1), calculados na mesma direção de normalização. Produção:
-  7,65/7,95 full e 11,53/6,26 pré-COVID; a antiga questão sobre a estatística
-  conjunta saiu do texto. Fonte: `output/instrument/olea_alignment_audit.md`.
+  F_rob,mp (HC1), calculados na mesma direção de normalização. Na produção
+  daquela rodada, os valores eram 7,65/7,95 full e 11,53/6,26 pré-COVID. A
+  migração para 111 séries `(5,5)` os substituiu por 6,27/10,12 e 10,99/9,75;
+  a antiga questão sobre a estatística conjunta saiu do texto. Fonte:
+  `output/instrument/olea_alignment_audit.md`.
 - [x] **Grade completa de $(r,q)$ incorporada ao paper — FEITO em
   2026-08-12.** A `tab:rq_sweep` agora contém as 14 dimensões e mostra o platô
   formado por (7,5), (7,6), (7,7), (8,5) e (8,6) nas duas amostras. Embora
-  (7,7) tenha o maior ξ_mp na amostra completa, a produção permanece em (7,6)
-  porque essa dimensão foi congelada na comparação inicial de quatro candidatos
-  antes da extensão da grade. Escolhê-la novamente pelo máximo observado seria
-  reotimização *ex post*. Fonte: `output/instrument/mosw_strength_grid.csv`.
+  (7,7) tenha o maior ξ_mp na amostra completa, a decisão daquela rodada manteve
+  (7,6), dimensão congelada antes da extensão da grade. Esse default foi
+  superado em 2026-08-13 pela seleção conjunta de painel e dimensão, que adotou
+  111 séries `(5,5)`. Fonte: `output/instrument/mosw_strength_grid.csv`.
 - [x] **Coincidência FOMC redigida no paper — FEITO em 2026-08-12.** A
   subseção `sec:fomc` reporta exposição, timing, testes 0 a 3 e a decomposição
   entre valores e máscara, com veredito de confound não detectado e sem usar o
@@ -539,8 +560,9 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   aponta ao contrário da acusação:** ΔEMBI carrega a surpresa com coef 0,326
   em dias comuns contra **0,099** nos 62 dias retidos
   pelo filtro; as interações `x:1(jk_bs)` são **negativas** nas quatro proxies
-  de risco (BRL −0,036, p_boot 0,068). Ortogonalizar ao EMBI e ao câmbio leva
-  ξ_mp de 7,65 a 7,18; acrescentar o CDS o leva a 8,97. **⚠ Ressalvas que não somem:** o
+  de risco (BRL −0,036, p_boot 0,068). Na produção corrente, ortogonalizar ao
+  EMBI e ao câmbio leva ξ_mp de 6,27 a 6,62; acrescentar o CDS o leva a 7,58.
+  **⚠ Ressalvas que não somem:** o
   coeficiente nos 62 dias é positivo e marginal (p=0,097) — a afirmação é
   "menos risco que um dia comum", não "zero risco". *(Atualizado em 2026-08-09: o CDS 5a diário chegou
   — `data/raw/CDS 5y.xlsx` — e o teste roda nas duas proxies com o mesmo veredito;
@@ -562,9 +584,9 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   mesmo dia a objeção do council de que "por completo" (`:538`) overstate o
   Teste C:** a máscara JK passou a ser re-derivada nos resíduos ortogonalizados
   de ambas as pernas (`z_jk_bs_norisk_mask`) — 50 dos 62 dias de produção
-  sobrevivem, 13 entram, ξ_mp cai a 5,57 (contra 12,68 só nos valores), porque
+  sobrevivem, 13 entram, ξ_mp cai a 4,26 (contra 7,58 só nos valores), porque
   o bloco de risco explica 40,4% de `e_ibov_bs` contra 15,4% de `e_di_bs`;
-  manchetes preservam sinal e ganham sig90, mas `denom_vs_prod` 0,726 —
+  manchetes preservam sinal, mas `denom_vs_prod` 0,719 —
   abaixo de ξ_mp 10, sustenta direção, não intervalo. Sem figura própria
   (overlay de 9 painéis não cortado). Fonte:
   `notas/2026-08-09_confound_soberano_cds.md`.
@@ -632,13 +654,12 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 ## B. Robustez estatística a fazer
 
 - [ ] **Bandas simultâneas ao longo do caminho** (Montiel Olea-Plagborg-Møller
-  2021) — *aberto em 2026-07-31.* Pedido pelo metodologista no council review, e
-  o resultado da decomposição espectral do mesmo dia **eleva a prioridade**: se a
-  reversão de médio prazo é dominada por **um único modo** da companion, os
-  horizontes h≈20-40 são quase perfeitamente correlacionados entre si, e uma
-  banda pontual horizonte a horizonte é especialmente enganosa para qualquer
-  afirmação sobre a **trajetória** — que é exatamente o que o tier de 68% do §4
-  faz (vale setorial, contração do crédito em h=24-32, reversão da curva).
+  2021) — *aberto em 2026-07-31; motivação atualizada em 2026-08-13.* A
+  decomposição corrente **não** sustenta mais que um único modo domine a
+  reversão: apagar o par dominante preserva 13 de 14 vales. A pendência, porém,
+  permanece porque bandas pontuais horizonte a horizonte não autorizam uma
+  afirmação sobre a trajetória inteira, justamente o que o tier de 68% do §4
+  fazia ao descrever vales setoriais, contração do crédito e reversão da curva.
   Distinto do item de AR acima: aquele trata de IV fraco no impacto, este de
   multiplicidade ao longo do horizonte. **Exige referência nova**, o que colide
   com a regra das 25 chaves — decisão do autor.
@@ -651,7 +672,7 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   força do instrumento**: o multiplicador destrói a dependência entre `z_t` e
   `u_t` de que a variância assintótica depende. É problema de **validade**, não
   de IV fraco — atinge todas as bandas do §5, inclusive as pré-COVID onde
-  ξ_mp = 11,53. O próprio MOSW (nota 21) diz que o bootstrap deles "could be
+  ξ_mp = 10,99. O próprio MOSW (nota 21) diz que o bootstrap deles "could be
   replaced by any other bootstrap procedure, such as the block bootstrap for
   proxy SVARs proposed by Jentsch and Lunsford".
   - **Contrapesos antes de trocar nada:** (i) Alessi-Kerssenfischer usam wild
@@ -716,35 +737,22 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
     cruzada; pela régua certa `asset_ibov` tem a **maior** comunalidade do painel
     (0,909) e `cds_5y` (0,676), `embi_perc` (0,561) e `cambio_usd` (0,859) estão
     bem — todos foram acusados por engano.
-- [ ] **Decomposição do wedge de UIP** — *aberto em 2026-08-10, council review
-  (macro-theorist), **prioridade alta**: ataca diretamente a frase-manchete
-  do resumo.* O paper afirma que o prêmio de risco soberano "domina o efeito
-  convencional do diferencial de juros" (`:115`, `:344`, `:543`) sem nunca
-  computar o wedge de UIP. Fazendo a conta com a própria IRF do paper
-  (`output/irf/irf_coherence_h.csv`, T=48): Σ Δ(yield_6m)/12 ≈ −1,39pp
-  (a trajetória de juros do próprio modelo vira negativa a partir de h≈22 e
-  fica assim até o fim do horizonte); Δs₄₈ ≈ +1,19% (o câmbio não retorna à
-  base, overshoot); Σ Δ(CDS)/12 ≈ −0,20pp. Sob a acumulação completa até
-  h=48, o diferencial de juros contribui **depreciação**, não apreciação, e
-  o prêmio soberano medido contribui **apreciação** — o oposto do sinal que
-  o resumo atribui a cada termo. Truncando em h=7 (onde a resposta de juros
-  ainda é positiva) restaura a leitura do paper, mas aí o CDS acumulado
-  cobre só 1/31 do wedge necessário (≈3,9pp). Em qualquer dos dois recortes
-  a palavra "domina" não se sustenta como está. **Correção:** tabela de
+- [ ] **Decomposição do wedge de UIP** — *aberto em 2026-08-10, prioridade
+  alta; todas as contas da vintage `(7,6)` estão superadas.* O paper afirma
+  que o prêmio soberano “domina” o diferencial de juros sem computar o wedge.
+  Refazer do zero com as IRFs e os 800 draws correntes; até lá, a palavra
+  “domina” deve sair do resumo, corpo e conclusão. **Entrega:** tabela de
   decomposição com colunas T ∈ {6, 12, 24, 48}, linhas {Δs_T, −ΣΔi/12,
   +ΣΔrp/12 (CDS e EMBI), resíduo}, bandas tiradas dos 800 draws já salvos em
   `irf_coherence_cell.rds` — só pós-processamento, nada reestimado.
-  - **[2026-08-12, blindspot] A mesma conta em espaço de curva, e essa é
-    favorável:** o excesso do vértice de 5 anos sobre a normalização é **67,0 pb**
-    (117,0 − 50,0) e o CDS de 5 anos abre **43,4 pb** no mesmo horizonte — mesma
-    maturidade, mesmo choque, ~65% do excedente. Hoje a §4.1 (`:334`) diz que
-    "esse prêmio carrega no vencimento longo" sem número ao lado.
+  - **Conta de impacto corrente em espaço de curva:** o excesso do vértice de
+    5 anos sobre a normalização é **27,6 pb** (77,6 − 50,0) e o CDS de 5 anos
+    abre **32,5 pb**. É comparação de magnitude na mesma maturidade, não
+    identidade contábil nem prova de causalidade.
     ⚠ CDS é denominado em dólar e a curva DI em real: é comparação de magnitude,
     **não** identidade contábil.
-    ⚠ **O número inconveniente que viaja junto:** `epu_brazil` **não sobe** —
-    −3,39% no impacto, banda de 68% em um único horizonte (h=4), nunca 90%. Se o
-    canal é notícia de sustentabilidade fiscal, a incerteza de política doméstica
-    é a variável de mecanismo mais óbvia do painel e ela está muda.
+    ⚠ `epu_brazil` agora sobe no ponto de impacto, mas não exclui zero a 90%; não
+    usá-lo como confirmação do mecanismo fiscal.
 - [ ] **Decompor o repasse da curva entre expectativa e prêmio pela diferença
   diário-vs-mensal** — *aberto em 2026-08-12, auditoria blindspot; **prioridade
   alta**, é o item com maior razão valor/custo do relatório.* Estudo de evento
@@ -755,15 +763,16 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
   | vértice | DFM mensal h=0 | evento diário | razão |
   |---|---|---|---|
-  | 3m  | 0,558 | 0,654 (t 14,4) | 0,9 |
-  | 1a  | 1,471 | 1,206 (t 17,0) | 1,2 |
-  | 2a  | 1,833 | 1,091 (t 9,6)  | 1,7 |
-  | 5a  | 1,855 | 0,631 (t 4,6)  | **2,9** |
-  | 10a | 1,617 | 0,375 (t 2,6)  | **4,3** |
+  | 3m  | 0,774 | 0,654 (t 14,4) | 1,2 |
+  | 1a  | 1,267 | 1,206 (t 17,0) | 1,1 |
+  | 2a  | 1,486 | 1,091 (t 9,6)  | 1,4 |
+  | 5a  | 1,552 | 0,631 (t 4,6)  | **2,5** |
+  | 10a | 1,406 | 0,375 (t 2,6)  | **3,7** |
 
-  Replicado sobre o ajuste Svensson do próprio projeto
-  (`data/raw/curva_juros/series_maturidades_fixas.csv`): 0,606 / 1,203 / 1,129 /
-  0,763 / 0,433 — mesmo formato. **A ponta curta bate entre as duas frequências;
+  A coluna mensal foi atualizada para `(5,5)`; a coluna diária ainda é cálculo
+  de auditoria não versionado. Não chamar nenhum dos arquivos de curva de
+  “ajuste Svensson do próprio projeto”: os yields são insumos externos fixos.
+  **A ponta curta bate entre as duas frequências;
   a ponta longa não.** No dia do anúncio o repasse é corcova com pico em 1 ano e
   **decai** — o padrão dos desenvolvidos com que o paper se compara. A monotonia
   até 5 anos é fenômeno do mensal, e o excedente se acumula **ao longo do mês**,
@@ -772,55 +781,34 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   corporativo americano vs. amplificação de curva soberana) e bases diferentes
   (50 pb vs. 100 pb), as duas já abertas no Tema A — por uma medição interna:
   mesmo instrumento, mesma curva, sem dado novo e sem chave nova.
-  - ⚠ **Os números acima são de auditoria, não de script versionado.** Antes de
-    virarem texto precisam de um `script/` próprio e de rodar **depois** da
-    correção do Tema E, que atinge exatamente esses vértices.
+  - ⚠ **A perna diária é de auditoria, não de script versionado.** Antes de
+    virar texto precisa de um `script/` próprio, validação de datas e
+    proveniência explícita do insumo externo.
 - [ ] **A amplificação 5a/6m é do choque ou de Λ?** — *aberto em 2026-08-12,
   auditoria blindspot; é o teste discriminante do item acima e **não** foi
   rodado.* Recalcular a IRF de impacto para direções alternativas no espaço das
   q inovações, todas renormalizadas a +50 pb em `yield_6m`, e ver se a razão
-  5a/6m ≈ 1,85 sobrevive. Se qualquer direção que levante o vértice de 6 meses
-  levantar o de 5 anos em ~1,85, a amplificação é propriedade da estrutura de
+  5a/6m corrente, **1,55**, sobrevive. Se qualquer direção que levante o
+  vértice de 6 meses levantar o de 5 anos em aproximadamente a mesma proporção,
+  a amplificação é propriedade da estrutura de
   fatores e não do choque identificado, e a §4.1 não pode lê-la como evidência de
   transmissão. **Sinal preliminar disponível sem reestimar nada:** na célula
-  (7,6), amostra cheia, os 8 instrumentos de `spec_sweep_irf_long.csv` dão 1,82 a
-  2,53 — inclusive a surpresa **bruta**, sem ortogonalização e sem máscara, que
-  dá **2,08**, acima da de produção (1,86). Corta nos dois sentidos: é robustez do
+  corrente `(5,5)`, amostra cheia, os 8 instrumentos de
+  `spec_sweep_irf_long.csv` dão 1,52 a 2,48 — inclusive a surpresa **bruta**,
+  sem ortogonalização e sem máscara, que dá **1,73**, acima da produção (1,55).
+  Corta nos dois sentidos: é robustez do
   resultado e é ausência de poder discriminante da receita do instrumento. Os 8
   são variantes da mesma surpresa, então isso **não** é o teste de invariância —
   é o motivo de rodá-lo.
   - ⚠ Toca o caminho de identificação: ler `.claude/rules/identification.md`
     antes, e rodar como diagnóstico, sem alterar `model_alessi.R`.
-- [ ] **IRFs em subamostra como exercício reportado** — *aberto em 2026-08-12,
-  auditoria blindspot.* A janela pré-COVID aparece **uma vez** no paper, na
-  `tab:rq_sweep`, e **só para ξ_mp**; nenhuma IRF é reportada em subamostra. Os
-  pontos já existem para a célula de produção (`spec_sweep_irf_long.csv`, etapa 1,
-  sem bandas) e não são neutros: `cds_5y` **34,10 pb pré-COVID contra 29,07**
-  cheia, `embi_perc` **0,376 contra 0,200**, `cambio_usd` 0,102 contra 0,150. A
-  janela em que o instrumento é mais forte (ξ_mp 11,53) é a janela em que o risco
-  soberano responde mais.
-  - ⚠ **Os três juntos ou nenhum.** Na mesma janela a amplificação de curva cai
-    de 1,86 para **1,29** e o impacto do Ibovespa quadruplica em módulo (−1,67%
-    → **−6,64%**). Reportar só a perna favorável seria o *cherry-picking* que o
-    projeto proíbe.
-  - Falta a etapa 2 (bandas) na janela pré-COVID para qualquer um desses números
-    virar texto. Ver o item de seleção da etapa 2 no Tema E, que hoje é dominada
-    justamente por essa janela.
-- [ ] **Diagnosticar o pico uniforme em h=1** — *aberto em 2026-08-12, auditoria
-  blindspot.* As 19 séries do bloco financeiro têm pico em h=1 (magnitudes no item
-  de convenção de horizonte, Tema A). As três causas triviais foram testadas e
-  **falham**: média intramensal não se aplica (os yields entram por observação de
-  fim de mês, `download.R:50-53`); desalinhamento de mês do instrumento não existe
-  (62 meses não-nulos e 62 quintas-feiras retidas, interseção perfeita);
-  concentração das reuniões no fim do mês não ocorre (os 62 dias se distribuem
-  23/20/19 pelos terços do mês, 9 nos últimos 5 dias corridos). Sobra a dinâmica
-  estimada do VAR de fatores — verificar se o par dominante da companion que
-  produz a reversão de médio prazo (`notas/2026-07-31_estacionariedade_fatores.md`)
-  também produz a corcova de h=1, ou se é outro modo.
-  - ⚠ **Parte do bloco de juros pode ser artefato do Tema E:** 6 das 62 reuniões
-    retidas caem em meses cuja observação de curva é anterior à reunião, o que
-    atenua h=0 e desloca resposta para h=1. **Rodar este diagnóstico depois da
-    correção**, ou ele mede os dois efeitos juntos.
+- [ ] **Tratar a janela pré-COVID como diagnóstico de força e estabilidade,
+  não como evidência dinâmica.** Ela entrega `xi_mp=10,99268`, mas
+  `F_rob,mp=9,74746` e raiz máxima **1,000202**. Os pontos de IRF disponíveis
+  podem ser usados para mostrar sensibilidade, sempre em bloco e sem escolher
+  respostas favoráveis, mas não para narrar propagação ou comparar picos/vales.
+  Se o paper mantiver a coluna pré-COVID na `tab:rq_sweep`, deve imprimir a
+  instabilidade ao lado e explicar por que as IRFs não entram.
 - [ ] **Corrigir a descrição do placebo `sp500_vix`** — *aberto em
   2026-08-10, council review (skeptic), achado factual rápido, mas que
   esvazia parte do argumento de §5.1.* O texto (`:501`, `:509`) descreve
@@ -846,6 +834,33 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 ### Fechados (contexto)
 
+- [x] **Pico uniforme em h=1 — HIPÓTESE SUPERADA pela produção `(5,5)`.** A
+  curva agora atinge o pico em h=3 e a Selic em h=5; câmbio e ações podem ter
+  pico em h=1, mas não há mais regularidade uniforme do bloco financeiro. A
+  convenção editorial de horizonte continua aberta no Tema A.
+- [x] **Decisão conjunta de painel e dimensões — ETAPA INTERMEDIÁRIA SUPERADA em
+  2026-08-13.** Nos 64
+  painéis sem `juros_cdi`/`asset_mlcx`, a grade full de 2.304 células escolhe
+  uma dimensão por painel; 64 células pré-COVID apenas qualificam confiança.
+  Nenhum bloco atingiu 24 vitórias de exclusão e a etapa recomendou a união de 123
+  séries em `(4,3)` (`xi_mp=5,05`, raiz 0,9626; pré-COVID 10,78/0,9927). Os
+  quatro finalistas completaram 800 réplicas sem falhas. Essa recomendação foi
+  substituída pela decisão final de 111 séries `(5,5)`, já migrada. Nota:
+  `notas/2026-08-13_decisao_conjunta_painel_dimensoes.md`; auditoria:
+  `diagnostics/rq_block_dimension_audit/`.
+
+- [x] **Composição experimental do painel e seis blocos candidatos — FEITO em
+  2026-08-13; veredito isolado SUPERADO pela decisão conjunta acima.** As nove
+  variantes pré-especificadas foram estimadas nas duas
+  amostras com IRFs h=0--48 e 800 réplicas, sem alterar produção. A união dos
+  blocos move `xi_mp` de 7,65 para 4,67 no full e para 16,14 no pré-COVID, mas
+  as bandas daquela rodada não sustentavam uma promoção conjunta. A conclusão
+  de manter 106 séries caiu quando composição e dimensão passaram a ser
+  escolhidas conjuntamente. ⚠ Fiscal é vintage corrente, não
+  informação disponível em tempo real. Nota:
+  `notas/2026-08-13_teste_experimental_composicao_painel.md`; outputs:
+  `output/panel_experimental/`.
+
 - [x] **Teste de coincidência FOMC — FEITO em 2026-08-10, no mesmo dia em que
   foi aberto.** `R/data_download/fomc_dates.R` (raspa as páginas de calendário
   do Fed, **enumerando** os anos de arquivo a partir de
@@ -866,8 +881,9 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   números que invertem o sinal da suspeita:** nos 35 dias em que Copom e FOMC
   caem no mesmo dia o R² é **0,005** (o menor da tabela), e o maior (**0,108**)
   está nos 33 dias que o filtro **rejeita**. Quantifica também a distinção do
-  item de máscara: os valores custam **0,21** de ξ_mp, a máscara re-derivada
-  outros **2,50**. ⚠ O argumento de horário (comunicado às 14:00 ET, antes dos dois fechamentos)
+  item de máscara: alterar só os valores eleva ξ_mp em **0,04**, enquanto
+  re-derivar a máscara o reduz em **2,14** contra a variante de mesmos valores.
+  ⚠ O argumento de horário (comunicado às 14:00 ET, antes dos dois fechamentos)
   vale para a perna de **taxa** e **não** para a de ações. Nada em produção
   alterado — as 8 colunas `z_*` saíram bit-idênticas. Leitura completa em
   `notas/2026-08-10_coincidencia_fomc.md`. A redação foi incorporada ao paper
@@ -881,13 +897,13 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   ou citável**, e a subseção de §5 do FOMC foi escrita apenas sobre os testes 0
   a 3. Ver `historico_decisoes.md` §2.4 e o cabeçalho de
   `script/fomc_coincidence.R`.
-- [x] **Robustez do próprio ξ_mp — FEITO em 2026-07-27.**
+- [x] **Robustez do próprio ξ_mp — REFEITA em 2026-08-13.**
   `script/xi_mp_robustness.R` → `output/instrument/xi_mp_robustness.{csv,md}`.
-  **Leave-one-month-out** (DFM fixo): full ξ_mp 7,65 → min 5,65/máx 9,25;
+  **Leave-one-month-out** (DFM fixo): full ξ_mp 6,27 → min 4,89/máx 6,96;
   **0 de 147** descartes abaixo de 3,84 (conjunto AR sempre limitado), mas
-  **147 de 147** abaixo de 10 (bandas convencionais são frágeis). Contraste
-  confirma a máscara: `z_jk_purif` fica 147/147 abaixo de 10. **HAC**: ξ_mp
-  chega a **9,72** em NW(6), ainda abaixo de 10. Validado em
+  **147 de 147** abaixo de 10 (bandas convencionais são frágeis). Na pré-COVID,
+  14 de 78 descartes levam a estatística abaixo de 10. **HAC**: ξ_mp chega a
+  **8,05** em NW(6) no full, ainda abaixo de 10. Validado em
   `script/validate_hac_kernel.R` contra
   `NW_hac_STATA.m` (exato) e `TaxSVARIV.m` (2,6e-10 em lag 8). Não feito: F
   efetivo de Montiel
@@ -920,9 +936,9 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 ## C. Identificação não-gaussiana — decisões em aberto
 
-*(2026-07-27, revisto em 2026-08-01.)* O ramo GMR está implementado e
-validado, e produziu um resultado que **não** é o que a rota foi buscar.
-Registro completo em
+*(2026-07-27, reestimado na produção `(5,5)` em 2026-08-13.)* O ramo GMR está
+implementado, validado e foi reestimado com 800 réplicas e zero falhas.
+Registro histórico em
 `notas/2026-08-01_robustez_identificacao.md` (a nota de
 07-27, `notas/2026-07-27_identificacao_nao_gaussiana_gmr.md`,
 descreve a corrida antiga e carrega banner).
@@ -931,21 +947,22 @@ descreve a corrida antiga e carrega banner).
   recomendação de 07-27 já dizia: usar o GMR como **teste**, não como estimativa
   concorrente. Duas afirmações são defensáveis porque nenhuma é de
   discriminação: (i) **não contradiz** — o ponto do proxy cai dentro do CI90 do
-  GMR em **100% das 5.194 células**; (ii) **rejeita o esquema recursivo**
-  (ξ = 149,3), que é a restrição que a literatura de menor dimensão impõe sem
+  GMR em **100% das 5.439 células**; (ii) **rejeita o esquema recursivo**
+  (ξ = 73,81), que é a restrição que a literatura de menor dimensão impõe sem
   testar e conversa com o argumento anti-VAR-pequeno do paper. **Não** é
   defensável escrever "outra identificação independente dá a mesma direção" sem
-  a ressalva do nulo. O estimador segue sem poder próprio: **1 célula sig90 em
-  5.194**, e essa uma é a normalização; bandas ~5,4× mais largas que as do proxy.
-  A rejeição assintótica da restrição do proxy (ξ = 122,9) continua
+  a ressalva do nulo. O estimador segue sem poder próprio: **6 células sig90 em
+  5.439**. A rejeição assintótica da restrição do proxy (ξ = 33,37; 4 gl)
+  continua
   **provavelmente espúria** — Prop. 4 cobre 0,79 contra 0,95 nominal em
-  T = 150, n = 6.
+  T = 150, n = 6, enquanto o bootstrap move substancialmente a direção e produz
+  bandas muito largas. Fonte corrente: `output/nongaussian/results.md`.
 - [ ] **Construir um teste com poder.** O gargalo agora é a régua, não o
-  estimador: com 140 células e critério binário o q95 do nulo bate no teto em 3
-  das 5 estatísticas. O fio mais promissor é a **razão de magnitude**, onde a
-  coluna rotulada mais se separa (|log| 0,101 contra 0,776 da segunda melhor,
-  p = 0,125). Um teste sobre o perfil de magnitude, e não sobre contagem de
-  sinais, pode ter poder onde este não tem.
+  estimador. A coluna rotulada concorda com o proxy em 0,963 das 353 células em
+  que o proxy é sig90, mas direções aleatórias tornam essa contagem pouco
+  discriminante (`p=0,149`). A razão de magnitude é mais promissora
+  (`p=0,087`), ainda sem rejeitar a 5%. Um teste sobre o perfil de magnitude,
+  e não sobre contagem de sinais, pode ter poder onde este não tem.
 - [ ] **LMS (2017) como terceira leitura** — `svars::id.ngml`, ML paramétrico
   sobre a mesma premissa de não-gaussianidade. Se LMS concordar com GMR, a
   discordância é do proxy; se ficar no meio, é do método. É o desempate mais
@@ -953,10 +970,11 @@ descreve a corrida antiga e carrega banner).
 
 ### Fechados (contexto)
 
-- [x] **Gate de não-gaussianidade em η — FEITO em 2026-07-27.**
-  `script/nongaussian_gate.R` → `output/nongaussian/gate.md`. **3 de 6**
-  componentes não rejeitam normalidade no full, **5 de 6** pré-COVID — a rota
-  existe só no full sample e a identificação é **parcial**. **⚠ Armadilha:** o
+- [x] **Gate de não-gaussianidade em η — REFEITO em 2026-08-13.**
+  `script/nongaussian_gate.R` → `output/nongaussian/gate.md`. **0 de 5**
+  componentes deixam de rejeitar normalidade no full, contra **2 de 5**
+  pré-COVID — a rota existe só no full sample; a janela pré-COVID viola o
+  limite de no máximo um componente gaussiano. **⚠ Armadilha:** o
   gate não pode reusar `output/irf/irf_coherence_cell.rds` — guarda só
   `irf`/`var_names`/`tcode`/`mpind`, não o objeto DFM; o script re-estima
   (barato, sem bootstrap). Detalhe: `historico_decisoes.md` §0.2.
@@ -966,21 +984,21 @@ descreve a corrida antiga e carrega banner).
   `IdSS::estim.SVAR.ICA`, quebrado para n≥4 — `historico_decisoes.md` §0.1).
   Validação em `script/validate_gmr_ica.R` reproduz a aplicação publicada.
   Smoke test do proxy inalterado.
-- [x] **Corroboração medida e testada contra nulo — FEITO em 2026-08-01.** GMR
-  reestimado (`nboot=800`, `NG_STARTS=200`). Sob a coluna rotulada, sinal
-  coincide em **0,971** das 140 células sig90 do proxy (**1,000** em
-  curva/câmbio/preços; atividade é o único bloco abaixo, 0,733). **⚠ O nulo
-  derruba isso como afirmação estatística:** 2.000 direções aleatórias dão
-  concordância mediana **0,786** nas mesmas células, e 1/4 delas iguala a
-  coluna rotulada (p=0,179) — no bloco da curva o nulo já é 1,000 por
-  construção (normalizar em `yield_6m` força a curva a co-mover).
+- [x] **Corroboração medida e testada contra nulo — REFEITA em 2026-08-13.** GMR
+  reestimado (`nboot=800`, `NG_STARTS=200`). Sob a coluna rotulada, o sinal
+  coincide em **0,963** das 353 células sig90 do proxy e em **1,000** das 54
+  células sig90 entre as oito manchetes. **⚠ O nulo derruba isso como afirmação
+  estatística:** 2.000 direções aleatórias dão `p=0,149` para a concordância e
+  `p=0,087` para a razão de magnitude. No bloco da curva o nulo é especialmente
+  permissivo porque normalizar em `yield_6m` força co-movimento.
   **Concordância de sinal não é evidência de corroboração.** Nota:
   `notas/2026-08-01_robustez_identificacao.md`.
-- [x] **Coluna vice-líder inspecionada — resposta negativa — FEITO em
-  2026-08-01.** Quatro regras de rotulagem que não usam `z`: R1/R2 escolhem a
-  coluna 1 (concorda só 0,600, magnitude 1/5); R0/R3 escolhem a coluna 2. A
-  coluna que melhor corrobora (3: 1,000 nas sig90) **nenhuma regra escolhe** —
-  **a coluna monetária não é bem definida sem o instrumento neste painel.**
+- [x] **Coluna vice-líder inspecionada — REFEITO em 2026-08-13.** A regra com
+  `z` e as três regras estruturais sem instrumento — impacto e FEVD de
+  `yield_6m`, e FEVD do bloco da curva — escolhem todas a **coluna 1**. A
+  vice-líder pela correlação é a coluna 4; concorda com o proxy em 0,841 das
+  células sig90, contra 0,963 da vencedora. A rotulagem está mais coerente que
+  na rodada `(7,6)`, embora a folga de correlação permaneça pequena (0,044).
 - [x] **Descartado por decisão do autor (2026-08-01): rodar o GMR num VAR
   pequeno.** Seria a rota com melhor chance de passar o gate (resíduos de
   observáveis quase não sofrem média cruzada), mas contradiria o argumento
@@ -991,26 +1009,26 @@ descreve a corrida antiga e carrega banner).
 
 ## D. Diagnósticos e comparações pendentes
 
-- [ ] **Comparação cross-instrumento do IPCA sob (7,6)** — *destravado em
+- [ ] **Comparação cross-instrumento do IPCA sob (5,5)** — *destravado em
   2026-07-26; falta só a análise.* O argumento "a corcova é universal entre
   instrumentos e some pre-COVID" fecha o diagnóstico do price puzzle, mas foi
   construído no vintage e instrumento antigos e não reproduzia. A fonte
   (`output/irf/spec_sweep_irf_long.csv`) **já foi regenerada** junto com a
-  migração da taxonomia — 320 células, 8 instrumentos, (7,6) e as duas janelas
-  inclusos. Falta rodar a comparação e escrever o resultado; sem ele o §5.5 não
+  migração da taxonomia — 320 células, 8 instrumentos, a célula corrente `(5,5)`
+  e as duas janelas inclusas. Falta rodar a comparação e escrever o resultado;
+  sem ele o §5.5 não
   pode afirmar que a corcova é amostral. Contexto novo do
   `irf_coherence_leitura.md`: a corcova vive em **h2-h8** e é o pedaço
   significativo (`price_ipca` sig90 em h5; `ex0` em h2 e h4-h8; `dw` em h4/h5/h7),
   **fora** da janela escorada h12-h48 — então o veredito `incoerente` do
   `price_core_ipca_ex0` é outra coisa (ele nunca volta a negativo no médio
   prazo), e a comparação tem que olhar h2-h8, não a janela da régua.
-  - **[2026-08-12, blindspot] Metade da conta já está feita e confirma a
-    direção:** na célula de produção (7,6) × `z_jk_bs_purif`, `price_ipca` dá h6
-    **+0,099** / h12 −0,077 na amostra cheia contra h6 **−0,281** / h12 **−0,203**
-    / h24 −0,121 pré-COVID — o eixo "some pré-COVID" reproduz no vintage e no
-    instrumento correntes. Falta a perna cross-instrumento (o eixo "universal
-    entre instrumentos") e a leitura em h2-h8. **Destrava** o item do §4.5 no
-    Tema A.
+  - **[2026-08-13] Metade da conta foi refeita na produção corrente:** na célula
+    `(5,5)` × `z_jk_bs_purif`, `price_ipca` dá h6 **+0,089** / h12 **+0,031** /
+    h24 **−0,169** na amostra cheia contra h6 **−0,092** / h12 **−0,066** /
+    h24 **+0,112** pré-COVID. Falta a perna cross-instrumento (o eixo
+    "universal entre instrumentos") e a leitura em h2-h8. **Destrava** o item
+    do §4.5 no Tema A.
 - [ ] **Spread de concessões novas** como complemento ao ICC — deve abrir já no
   curto prazo, ao contrário do ICC (taxa da carteira, reprecifica devagar).
   Desejável, não bloqueante.
@@ -1025,7 +1043,8 @@ descreve a corrida antiga e carrega banner).
   dá o real **apreciando 4,53% por 100bp**, **dentro do IC 95% do GRG**
   ([−6,57; −3,63] em torno de −5,10) — a identificação diária replica o GRG na
   nossa amostra. (ii) O teste de proporcionalidade dá **LR = 135,1,
-  p_boot = 0,005** no diário contra **nenhuma rejeição** em 252 células mensais.
+  p_boot = 0,005** no diário contra **nenhuma identificação** nas 288 células
+  mensais válidas da grade corrente (320 desenhadas).
   ⚠ O argumento (iii) da versão anterior deste item vinha do teste de três
   vias, **removido do script em 2026-08-10** (`historico_decisoes.md` §2.4), e
   não é mais citável. (i) e (ii) sustentam a reconciliação sozinhos.
@@ -1088,6 +1107,18 @@ descreve a corrida antiga e carrega banner).
 
 ## E. Código e higiene
 
+- [ ] **Fundamentar ou substituir o default operacional `q=5`** — *aberto em
+  2026-08-13 na migração do painel de 111 séries.* `r=5` está decidido pelo
+  Bai--Ng IC2 padronizado para BLL. `q=5` foi promovido provisoriamente para
+  preservar a direção dinâmica da célula escolhida, mas a seleção de choques
+  comuns não está fechada. Qualquer mudança deve ser comparada na mesma amostra
+  completa e repetir o gate de 800 réplicas e os cinco impactos obrigatórios.
+- [ ] **Corrigir `estimate_dynamic_factors()` quando `q=1<r`** — *aberto em
+  2026-08-13 pela grade expandida.* `diag(sqrt(eigenvals))` interpreta o único
+  autovalor como dimensão da matriz, produzindo `M` não conforme. A auditoria
+  usa uma matriz 1×1 em compatibilidade local, sem tocar produção. A correção
+  do módulo deve reproduzir todas as células `q>1` e o smoke test vigente antes
+  de substituir a compatibilidade experimental.
 - [ ] **Corrigir o `cumsum` do bloco acionário — e SÓ isso** — *aberto em
   2026-07-31, consequência do item "Ações em retorno acumulado" (Tema D,
   Fechados, acima).* **Decisão do autor (2026-07-31): a entrada do painel em
@@ -1145,9 +1176,10 @@ descreve a corrida antiga e carrega banner).
     altera o caminho numérico da produção** — exige re-rodar o smoke test e
     conferir `irf_coherence_h.csv` ponto a ponto antes de commitar.
 - [ ] **Cortar a `tab:first_stage`** — *aberto em 2026-07-27; metade fechada em
-  2026-08-05.* ✅ **A regeneração foi feita**: `instrument_diagnostics_report.md`
-  foi re-rodado em 2026-08-05 sobre as 106 séries e as 8 variantes vivas — zero
-  linhas `z_het`, corpo corrente. ❌ **Falta o corte como tabela de paper.** O
+  2026-08-05.* ✅ **A regeneração foi refeita em 2026-08-13**:
+  `instrument_diagnostics_report.md` usa o painel corrente de 111 séries e as 8
+  variantes vivas — zero linhas `z_het`. ❌ **Falta o corte como tabela de
+  paper.** O
   conteúdo que o §3 precisa está ali (§1: β̂, SE(HC0), t, p, F, ξ₁, R²; §1.1:
   bloco MOSW completo com ξ_mp) — falta transpor para o `.tex`.
   `mosw_strength_grid.md` está corrente mas é grid `(r,q) × amostra ×
@@ -1164,12 +1196,20 @@ descreve a corrida antiga e carrega banner).
 
 ### Fechados (contexto)
 
+- [x] **Produção migrada para 111 séries em `(5,5)` em 2026-08-13.** O painel
+  `drop_setor_externo__eua__credito__imoveis` remove as duas quase-duplicatas e
+  mantém fiscal + expectativas; a produção foi centralizada, regenerada e
+  validada com 800 réplicas, zero falhas e impacto exato de +50 pb. A recomendação
+  intermediária de 123 séries `(4,3)` foi superada. Nota:
+  `notas/2026-08-13_migracao_producao_painel_111_r5q5.md`.
+
 - [x] **Seleção de fim de mês corrigida e rodada canônica reconstruída em
   2026-08-12.** Curva, EMBI+ e ANBIMA usam a maior data mensal, com validação de
   datas e unicidade. Foram corrigidos 25 meses no arquivo completo e 23 na
-  amostra. O painel mantém 106 séries, 153 observações e 147 inovações; ξ_mp
-  passou a 7,65 full / 11,53 pré-COVID. O paper e os artefatos foram
-  regenerados. Nota: `notas/2026-08-12_correcao_fim_mes_curva.md`.
+  amostra. Na produção daquela rodada, o painel tinha 106 séries, 153 observações
+  e 147 inovações; ξ_mp passou a 7,65 full / 11,53 pré-COVID. Essa produção foi
+  superada pela migração de 2026-08-13. Nota:
+  `notas/2026-08-12_correcao_fim_mes_curva.md`.
 - [x] **FECHADO em 2026-08-05 — `R/modeling/svensson_model.R` ficou sem
   consumidor** (aberto em 2026-07-26). Era o motor do `script/yield_curve.R`,
   apagado na mesma data — a curva do painel é o insumo fixo do orientador
@@ -1184,13 +1224,14 @@ descreve a corrida antiga e carrega banner).
   `weak_xi_mp_severe`<3,84, `weak_xi_mp`<10). Em 2026-08-13, o relatório
   passou a apresentar ξ_mp e F_rob,mp na mesma direção. As 320 células foram
   regeneradas, e `wald_mp` foi conferido contra
-  `mosw_strength_grid.csv`. Produção agora é `ok` em (7,6) full — o
-  force-append da etapa 2 virou rede de segurança (ver item de seleção acima).
+  `mosw_strength_grid.csv`. A célula corrente `(5,5)` full é anexada
+  explicitamente à etapa 2 como rede de segurança (ver item de seleção acima).
 - [x] **Prosa do coherence separada do corpo gerado — FEITO em 2026-07-26.**
   Leitura interpretativa em `output/irf/irf_coherence_leitura.md` (manual, não
   tocada por script); `irf_coherence_report.md` é o corpo gerado, com aviso e
-  ponteiro. Reescrita sob (7,6) — a versão de 2026-07-12 perdida no `fc0ef58`
-  não foi restaurada.
+  ponteiro. A redação sob `(7,6)` foi posteriormente substituída pela leitura da
+  produção `(5,5)`; a versão de 2026-07-12 perdida no `fc0ef58` não foi
+  restaurada.
 - [x] **`irf_mp_raw` renomeado para `irf_mp_pre_tcode` — FEITO em 2026-07-26**
   em `ident_ext_instr` (`R/modeling/impulse_responde.R`) — nenhum consumidor
   do campo, docblock agora explicita pós-normalização/pré-tcode. Zero mudança
