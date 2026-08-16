@@ -462,6 +462,11 @@ veredito do FOMC também não mudou.
   de `e_ibov_bs`. O conjunto AR continua limitado e todo sinal de manchete se
   preserva, então a variante sustenta direção, não intervalo. Na janela
   pré-COVID a ordem se inverte (10,94 contra 12,22 da produção).
+  ⚠ **Os quatro ξ_mp deste parágrafo são da vintage de 106 séries** e ficam aqui
+  só como registro da decisão. Sob a produção de 111 séries `(5,5)` a cadeia é
+  6,27 → 6,62 → 7,58 nos valores e **4,26** na máscara re-derivada, com as mesmas
+  frações de 15,4% e 40,4%. Fonte corrente:
+  `output/instrument/jk_sovereign_confound.md`.
 
 ---
 
@@ -472,6 +477,8 @@ veredito do FOMC também não mudou.
 | até 2026-07-11 | auto-IC (5,4) / legado r=7,q=7-8 | Bai-Ng / Amengual-Watson BLL |
 | 2026-07-11 | **(6,5)** | Varredura de 320 células; auto-IC (5,4) borderline-weak |
 | 2026-07-24 | **(7,6)** | Refresh de vintage; única das 4 dimensões da varredura com ξ_mp > 10 nas **duas** janelas |
+| 2026-08-13 | recomendação intermediária `(4,3)`, painel 123 | Regra conjunta sobre 64 painéis; superada no mesmo dia pela migração deliberada seguinte |
+| 2026-08-13 | **produção `(5,5)`, painel 111** | Bai--Ng IC2 fixa `r=5`; removidos setor externo, EUA, crédito, imóveis e as duas quase-duplicatas; `q=5` provisório |
 
 **A leitura antiga "pre-COVID (6,5) é o pico do grid / r ≥ 7 colapsa pre_covid
 (T=84)" NÃO VALE MAIS.** No vintage atual: (5,4) 5,45/7,94; (6,5) 6,36/11,00;
@@ -528,6 +535,47 @@ está errado.
 `cumprod(1+r)` reproduz o fechamento mensal do índice porque o produto
 intramensal telescopa — conferido contra `data/processed/ibov_daily.csv` com sd
 relativo da razão de **1,4e-15**.
+
+### 3.2 O painel de 106 séries deixou de ser o universo decisório (2026-08-13)
+
+A recomendação dimensional `(5,4)` obtida isoladamente no painel canônico foi
+**superada**, não refutada numericamente. O problema era o universo: aquele
+painel ainda continha `juros_cdi` e `asset_mlcx`, duas quase-duplicatas já
+diagnosticadas, e não permitia decidir conjuntamente a presença dos seis
+blocos candidatos.
+
+A auditoria em `diagnostics/rq_block_dimension_audit/` partiu das 123 séries da
+união sem as duplicatas, percorreu as 64 combinações de blocos e estimou os 36
+pares `r=1,...,8`, `q=1,...,r` na amostra completa. Em cada painel, eliminou
+células não finitas, instáveis ou com `xi_mp<=3,84` e ordenou as demais por
+distância ao mínimo BLL/AW full, raiz, sinais e parcimônia. A pré-COVID só
+reestimou a escolha full.
+
+Nenhum bloco chegou perto da regra de remoção de 24 vitórias em 32 contrastes:
+fiscal 3, setor externo 0, expectativas 2, EUA 8, crédito 2 e imóveis 5. A
+decisão é, portanto, **manter os seis blocos**, remover apenas as duas
+quase-duplicatas e usar `(4,3)`. No painel de 123 séries, a célula tem
+`xi_mp/F_rob,mp=5,05/8,42` e raiz 0,9626; pré-COVID dá 10,78/13,13 e raiz
+0,9927. Quatro finalistas de bootstrap completaram 800 réplicas, semente 123,
+sem falhas nem bandas de 90% no sentido contrário nas janelas hard.
+
+**Estado da decisão:** esta recomendação foi superada no mesmo dia. A produção
+foi migrada para 111 séries em `(5,5)`, preservando a grade de 123 séries como
+proveniência histórica. O paper permaneceu intocado nesta rodada.
+
+### 3.3 Produção de 111 séries em `(5,5)` (2026-08-13)
+
+A decisão corrente usa o painel
+`drop_setor_externo__eua__credito__imoveis`: remove `juros_cdi`, `asset_mlcx`
+e os blocos candidatos setor externo, EUA, crédito e imóveis; mantém fiscal e
+expectativas. `r=5` vem do Bai--Ng IC2 BLL. `q=5` é provisório e permanece
+aberto em `pendencias.md`.
+
+O gate de 800 réplicas terminou sem falhas, com normalização exata em +50 pb.
+Na amostra completa, `xi_mp/F_rob,mp=6,27085/10,12054` e a raiz máxima é
+0,9648577. Na pré-COVID, os valores são 10,99268/9,74746 e a raiz 1,0002017,
+logo a janela é marginalmente instável. A nota de decisão e proveniência é
+`notas/2026-08-13_migracao_producao_painel_111_r5q5.md`.
 
 ---
 
@@ -684,6 +732,28 @@ Fonte: `notas/2026-07-31_estacionariedade_fatores.md`, seção
   opcional; Antolín-Díaz-Rubio-Ramírez é Tier 3 (maior esforço, paradigma mais
   distante). Detalhe em
   `notas/2026-07-24_avaliacao_5_artigos_robustez.md`.
+- **2026-08-14 — cinco decisões na migração da §3, da §5 e do apêndice**, todas
+  do autor, todas com o efeito de **encolher** o que o paper afirma.
+  1. **A `tab:rq_sweep` sai do paper.** Como `r` é decidido pelo Bai--Ng IC2
+     BLL, a grade de força deixa de ser justificativa de dimensão, e mantê-la
+     convidaria a leitura de que a especificação foi escolhida pelo maior ξ_mp.
+     Saíram junto as três remissões e a nota que definia ξ_mp e F_rob,mp, hoje
+     no corpo da §3.6. **Consequência não intencional:** o paper ficou sem
+     nenhuma tabela de força, o que eleva a prioridade da `tab:first_stage`.
+  2. **Anderson-Rubin sai do `.tex` por completo**, inclusive a menção genérica
+     da §3.7 a intervalos AR como alternativa sob IV fraco. A régua de 3,84 não
+     entrou no lugar.
+  3. **A §5 fica só com as três subseções existentes.** Heterocedasticidade,
+     GMR, construção do instrumento e Limitações não entram enquanto o
+     enquadramento do GMR (Tema C) estiver aberto e a ressalva de §4 não
+     existir.
+  4. **A atribuição da curva a Svensson permanece** em §3.2 e na coluna Fonte do
+     apêndice, embora não exista estágio de ajuste neste repositório. É
+     afirmação sobre a proveniência do insumo do orientador, não sobre o
+     pipeline.
+  5. **Os oito EPU não entram na §5.1** e a máscara re-derivada não entra na
+     §5.2. A segunda cria assimetria com a §5.3, que já a reportava, e virou
+     item aberto em `pendencias.md`.
 
 ---
 

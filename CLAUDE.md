@@ -18,11 +18,13 @@ banners, and `pareceres/`, what outside reviewers sent in.
 
 ## Production spec — the invariant that costs most to get wrong
 
-**`z_jk_bs_purif` × `yield_6m` × (r=7, q=6, p=6), +50bp**, via `mp_var = "yield_6m"` in
-`script/model_alessi.R` (explicit `r = 7L, q = 6L` override; auto-IC gives (5,4) and is
-borderline-weak). The frozen production cell has **ξ_mp = 7.65 full / 11.53
-pre-COVID** after the 2026-08-12 month-end correction; r=7 remains a plateau,
-not a knife-edge. **ξ_mp is the strength ruler of record** — the
+**`z_jk_bs_purif` × `yield_6m` × (r=5, q=5, p=6), +50bp**, read from
+`R/modeling/production_spec.R`. The production panel is the 111-series
+`drop_setor_externo__eua__credito__imoveis`; the 106-series base exists only
+for historical factor-grid reproduction. `r=5` is selected by BLL Bai--Ng IC2;
+`q=5` is provisional. The frozen production cell has **ξ_mp = 6.27085 full /
+10.99268 pre-COVID**; the pre-COVID companion is marginally unstable
+(1.000202). **ξ_mp is the strength ruler of record** — the
 AR set is bounded iff ξ_mp > 3.84, conventional bands approximately valid at ξ_mp ≥ 10. Legacy
 first-stage F rulers still print but stopped deciding on 2026-07-26.
 
@@ -53,7 +55,7 @@ Cite the note, never this table. Notes are under `notas/`.
 | FOMC coincidence | `fomc_coincidence.R` | `2026-08-10_coincidencia_fomc` | confound not detected |
 | ξ_mp robustness | `xi_mp_robustness.R` | `2026-07-27_robustez_xi_mp_e_construcao` | 24 of 147 LOO cells fall below 10 |
 | Construction sweep | `instrument_construction_sweep.R` | idem | vertex not identified; all give same IRF |
-| Factor stationarity | `factor_stationarity.R` | `2026-07-31_estacionariedade_fatores` | 4/7 I(1), Johansen rank not identified |
+| Factor stationarity | `factor_stationarity.R` | `2026-08-13_migracao_producao_painel_111_r5q5` | 3/5 I(1), no I(2), full-sample root 0.964858 |
 | VAR benchmark | `model_var.R` | `2026-07-31_benchmark_var_vs_dfm` | stronger yes, faster equity-only |
 | Equity representation | `asset_representation.R` | `2026-07-31_acoes_representacao` | null is mechanical; log-level set aside |
 | Non-Gaussian corroboration | `nongaussian_corroboration.R` | `2026-08-01_robustez_identificacao` | agreement fails the null |
@@ -85,7 +87,9 @@ These govern what may be **said**, so they apply even when no file is open.
   inside the GMR CI90 in 100% of cells, and the recursive scheme is rejected.
 - **The VAR benchmark tests DFM-vs-small-VAR, not "vs the literature"**, which uses Cholesky.
 - **ξ_mp ≥ 10 is the Staiger-Stock rule of thumb** for the homoskedastic 2SLS first-stage F, **not an
-  MOSW result**. The paper's attribution of it to MOSW is an open item.
+  MOSW result**. §3.6 states this correctly since 2026-08-14; the naming is deliberately generic
+  ("referência convencional") because a Staiger-Stock or Montiel Olea-Pflueger entry would break the
+  25-key budget. Any future rewrite must not silently re-attribute the 10 to `montielolea`.
 - **The state-dependence persistence result is suggestive, not central** — marginal p, found after
   looking, needs the three specs side by side.
 - **Report the inconvenient number too.** The daily GRG replication that vindicates the FX result
@@ -96,8 +100,10 @@ These govern what may be **said**, so they apply even when no file is open.
 - **Sovereign-confound tests B and D** (three-way split; dated 95-row table), cut 2026-08-10.
 - **FOMC test 4** (the FOMC/non-FOMC split), cut 2026-08-10. Removing a leg that *passed* makes the
   reading rule strictly more permissive, so no verdict changed — but the numbers are gone.
-- **The 21 raw-level Rigobon cells** that pass both conditions: 17 are at the grid's smallest `q`,
-  none survives even a lenient correction.
+- **The raw-level Rigobon cells** that pass both conditions — **24** on the 111-series panel, of
+  which 15 sit at the grid's smallest `q` and all sit in the full window; none survives even a
+  lenient correction. The counts move with the panel (they were 21 and 17 under 106 series), so
+  read them off `output/het/het_robustness.md`, never from memory.
 - For all three the record is in git, the rationale in `historico_decisoes.md` §2.4.
 - **`svars::id.dc` / `id.cvm` are Matteson-Tsay and Herwartz-Plödt, not GMR.** Citing them as GMR
   would be a citation error.
@@ -154,7 +160,7 @@ Rscript script/het_robustness.R              # Rigobon gate, 252 cells, no IRF s
 Rscript script/validate_gmr_ica.R            # translation vs IdSS + the paper's own application
 Rscript script/nongaussian_gate.R            # at-most-one-Gaussian precondition on eta
 Rscript script/model_nongaussian.R [nboot]   # production run + proxy comparison (~23 min)
-Rscript script/nongaussian_corroboration.R   # GMR vs proxy on all 106 series (seconds)
+Rscript script/nongaussian_corroboration.R   # GMR vs proxy on all 111 series (seconds)
 Rscript script/nongaussian_labelling.R       # labelling rules without z + random-direction null
 ```
 
@@ -163,16 +169,17 @@ There is no test suite, no linter, no build step. Iterate by running the relevan
 **Smoke test after touching the identification path** (fast, no bootstrap):
 
 ```r
-src <- readLines("script/model_alessi.R"); eval(parse(text = paste(src[1:153], collapse = "\n")))
-res <- main_sdfm(r = 7L, q = 6L, p = 6, shock_size_bps = 50, mp_var = "yield_6m", nboot = 0)
+src <- readLines("script/model_alessi.R"); eval(parse(text = paste(src[1:156], collapse = "\n")))
+res <- main_sdfm(r = 5L, q = 5L, p = 6, shock_size_bps = 50, mp_var = "yield_6m", nboot = 0)
 # note the field is `irfs`, not `irf`, and the names come from the data matrix
 P <- res$irfs$irf_point_matrix; vn <- colnames(res$data)
 P[match(c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd"), vn), 1]
 ```
 
 Expected h0 (matches `output/irf/irf_coherence_h.csv`): `yield_6m` 0.005,
-`yield_2y` 0.01080227, `yield_5y` 0.01170172, `asset_ibov` −2.407125,
-`cambio_usd` 0.228100.
+`yield_2y` 0.00743006, `yield_5y` 0.00776115, `asset_ibov` −1.7226767,
+`cambio_usd` 0.15792807. The slice `src[1:156]` must end on the closing brace of
+`main_sdfm`; re-check it if the script grows.
 
 ## Conventions
 

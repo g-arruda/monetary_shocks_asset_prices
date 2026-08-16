@@ -14,7 +14,7 @@ que este arquivo cobre.
 |---|---|---|
 | `_common.R` | infraestrutura | Carregado por todo `0X_*.R`: importa 5 módulos de produção de `R/`, lê `data/raw/raw_data.csv` e o painel deseasonalizado em `PANEL`, lê `data/processed/instrumentos_mensais.csv`, e carrega o cache `output/irf/irf_coherence_cell.rds` em `CELL` (se existir). Define `SPEC` (a especificação de produção) e os helpers `diag_write()`/`md_tbl()` usados por todos os scripts abaixo. |
 | `01_exogeneidade.R` | 1 | Testa exogeneidade do instrumento: regressões de previsibilidade global/por-fator, autocorrelação, correlações cruzadas com placebos, e o teste decisivo de que `commodity_metal` é artefato de denominação (BRL), não falha de exogeneidade. |
-| `02_unidades_sinal.R` | 2 | Checa unidades/normalização/sinal: reconstrói a tabela de IRF completa (106 variáveis, contra as 52 da tabela de produção que omite `yield_6m`), compara IRF em h0 (pontos-base) com correlações contemporâneas cruas no bloco de juros. |
+| `02_unidades_sinal.R` | 2 | Checa unidades/normalização/sinal: reconstrói a tabela de IRF completa das 111 variáveis e compara IRF em h0 com correlações contemporâneas cruas no bloco de juros. |
 | `03_composicao_painel.R` | 3 | Audita a composição do painel: `juros_selic` vs. `juros_cdi`, pares quase-duplicados (\|cor\|>0,98), tamanho de bloco/colinearidade interna, e reestima o DFM sem os duplicados para checar sensibilidade de IRF/força do instrumento. |
 | `04_forca_instrumento.R` | 4 | Documenta a inferência sob instrumento fraco: o que é o "Wald=12", onde cai contra os limiares de bolso, checagens de robustez anteriores, e sinaliza explicitamente que a inversão Anderson-Rubin **fica fora do escopo** desta rodada (adiada, não improvisada). |
 | `05_persistencia_fatores.R` | 5 | Examina dinâmica/persistência dos fatores: autovalores da companion matrix, decaimento/largura de banda, seleção de ordem de defasagem, testes de raiz unitária (ADF/KPSS), R² de componente comum por série. Reestima o DFM (não lê `CELL`). |
@@ -46,3 +46,10 @@ rodada — ver `diagnostico_dfm.md`).
 - `00_pipeline_map.md` — rastreia dado bruto → gráfico em 8 seções.
 - `diagnostico_dfm.md` — o entregável: veredito por tarefa, hipóteses de
   causa-raiz, e o que sobrevive para o paper hoje.
+- `rq_block_dimension_audit/` — auditoria conjunta histórica de 2026-08-13:
+  64 painéis, 2.304 células full, uma decisão dimensional por painel, 192
+  contrastes de bloco e quatro finalistas com 800 bootstraps. A recomendação de
+  123 séries em `(4,3)` foi superada pela produção de 111 séries `(5,5)`.
+- `rq_dimension_audit/` — auditoria dimensional anterior, agora superada como
+  decisão. Sua reprodução R/NumPy e os dez bootstraps continuam sendo
+  proveniência válida para o painel de 106 séries.

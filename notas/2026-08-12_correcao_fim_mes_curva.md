@@ -1,5 +1,10 @@
 # Correção do fechamento mensal da curva e novo vintage canônico
 
+> **SUPERSEDED como produção em 2026-08-13.** A correção de fechamento mensal
+> e sua auditoria continuam válidas, mas as magnitudes da célula de 106 séries
+> `(7,6)` foram substituídas pela produção de 111 séries `(5,5)`. Ver
+> [`2026-08-13_migracao_producao_painel_111_r5q5`](2026-08-13_migracao_producao_painel_111_r5q5.md).
+
 > **CURRENT em 2026-08-12.** Esta nota substitui todas as magnitudes do DFM e
 > estatísticas de força calculadas no vintage de 2026-07-24. As conclusões
 > metodológicas das notas anteriores continuam válidas quando não dependem de

@@ -1,6 +1,26 @@
 # Método — construção do instrumento externo para o proxy-SVAR/DFM
 
-## Status (2026-08-13, diagnóstico de relevância alinhado a MOSW)
+## Status (2026-08-13, produção migrada para 111 séries e `(5,5)`)
+
+> A especificação corrente é centralizada em
+> `R/modeling/production_spec.R`: painel
+> `drop_setor_externo__eua__credito__imoveis` com 111 séries, 153 meses e 147
+> inovações; `r=5`, `q=5`, `p=6`; `z_jk_bs_purif`; choque de +50 pb em
+> `yield_6m`; 800 réplicas, semente 123, bandas 68%/90% e h=0--48. `r=5` é a
+> escolha do Bai--Ng IC2 BLL. `q=5` é provisório e continua como pendência.
+>
+> Saem `juros_cdi`, `asset_mlcx` e os blocos candidatos setor externo, EUA,
+> crédito e imóveis; permanecem as três séries fiscais e as quatro de
+> expectativas. O painel-base de 106 séries é preservado em caminho separado
+> apenas para auditorias fatoriais históricas.
+>
+> Na amostra completa, `xi_mp/F_rob,mp=6,27085/10,12054` e raiz máxima
+> 0,9648577. Na pré-COVID, 10,99268/9,74746 e raiz 1,0002017: a janela é
+> marginalmente instável. O gate de 800 réplicas teve zero falhas e
+> normalização exata em 0,005. Nota:
+> `notas/2026-08-13_migracao_producao_painel_111_r5q5.md`.
+
+## Status histórico (2026-08-13, diagnóstico de relevância alinhado a MOSW)
 
 > Os arquivos ativos agora reportam somente as duas estatísticas de relevância
 > na direção que normaliza o choque: ξ_mp e o primeiro estágio robusto
@@ -12,7 +32,7 @@
 > completa e **11,53/6,26** no pré-COVID. A leitura pré-COVID é, portanto,
 > mista e não autoriza selecionar a especificação por pré-teste.
 
-## Status (2026-08-12, fechamento mensal corrigido e rodada canônica reconstruída)
+## Status histórico (2026-08-12, fechamento mensal corrigido e rodada canônica reconstruída)
 
 > A curva de juros, o EMBI+ e a curva ANBIMA agora selecionam explicitamente a
 > maior data disponível de cada mês com `slice_max(..., with_ties = FALSE)`.
@@ -28,7 +48,7 @@
 > como vintage corrente. Nota de proveniência:
 > `notas/2026-08-12_correcao_fim_mes_curva.md`.
 
-## Status (2026-08-10, coincidência FOMC testada — Etapa 1.4 finalmente executada, máscara absolvida)
+## Status histórico (2026-08-10, coincidência FOMC testada — Etapa 1.4 finalmente executada, máscara absolvida)
 
 > **A Etapa 1.4 abaixo foi executada, treze anos de calendário depois de ter sido especificada, e o teste que ela viabiliza não encontra contaminação.** Achado mais grave do segundo council review sobre `paper/paper_anpec.tex` (4 críticos; relatório em `pareceres/council_2026-08-10.md`), **aberto e fechado no mesmo dia**. Código: `R/data_download/fomc_dates.R`, `R/instrument/event_tests.R`, `script/fomc_coincidence.R` → `output/instrument/fomc_coincidence.{csv,md}` + `fomc_coincidence_days.csv` + overlay; leitura em `notas/2026-08-10_coincidencia_fomc.md`. **Nada aqui mudou** — `DEFAULT_VARIANT`, vértice, esquema de agregação e a cadeia de `build_variants.R` seguem intocados, e as 8 colunas `z_*` saíram **bit-idênticas** depois de repopular a flag.
 > 1. **O defeito era um `else`, não o FOMC.** `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caía silenciosamente num vetor de datas vazio, então `fomc_coincide` era **identicamente FALSE desde que a flag foi escrita** — um fallback que torna "a coleta não foi feita" indistinguível de "a coleta deu vazio". Agora `load_fomc_dates()` (`R/instrument/di_surprise.R`) **aborta** com ponteiro para o downloader, e `script/run_all.R` declara o arquivo como requisito duro do estágio `instrument`.
@@ -38,7 +58,7 @@
 > 5. **⚠ A ressalva que sobrevive.** O argumento de horário (comunicado às 14:00 ET, antes do fechamento do DI na B3 e do fixing de 15:30 ET do DGS2) vale para a perna de **taxa** — UST 2a move 5,00 bp Ter→Qua contra 3,00 Qua→Qui — e **não** para a de ações, onde o S&P move **mais** dentro da janela (0,74% contra 0,54%). ⚠ A divisão em metades com e sem FOMC saiu do script em 2026-08-10 e nada do que ela produziu é reproduzível ou citável (`historico_decisoes.md` §2.4).
 > 6. **Segue aberto, e é redação:** o placebo `sp500_vix` do §5.1 é só o índice **VIX** (`data/raw/investing/sp500_vix.csv`, média 18,58, min 9,51, max 53,54) — o painel **não contém nenhuma série de nível do S&P 500**, apesar de a **Etapa 1.3** abaixo prever uma. A descrição em `:501`/`:509` do paper está errada e o argumento de `:519` depende dela.
 
-## Status (2026-07-31, confound de risco soberano testado — máscara absolvida)
+## Status histórico (2026-07-31, confound de risco soberano testado — máscara absolvida)
 
 > **A máscara JK não seleciona risco soberano para dentro; ela seleciona *menos* risco que um dia comum.** Item de topo do council review de 07-31, testado em `script/jk_sovereign_confound.R` → `output/instrument/jk_sovereign_confound.{csv,md}` + `jk_sovereign_irf_overlay.pdf`; leitura em `notas/2026-07-31_confound_soberano_jk.md`. ⚠ Em 2026-08-10 os testes B (três vias) e D (tabela datada) saíram do script, `jk_sovereign_days.csv` foi apagado, e o teste C ganhou a máscara re-derivada nos resíduos ortogonalizados das duas pernas — ver `historico_decisoes.md` §2.4. **Nada aqui mudou** — `DEFAULT_VARIANT`, vértice, esquema de agregação e a cadeia de `build_variants.R` seguem intocados.
 > 1. **A acusação.** O filtro JK descarta o efeito-informação (juros ↑, ações ↑), mas a assinatura fiscal doméstica (juros ↑, ações ↓, câmbio ↑) é **a que ele retém**. Os placebos não a descartam: um choque fiscal doméstico também não move o S&P 500.
@@ -48,18 +68,18 @@
 > 5. **⚠ A ressalva que fica:** o coeficiente nos 62 dias retidos é positivo e, no CDS, significativo, então a afirmação sustentada é a de **menos risco que um dia comum**, não a de ausência de risco. ⚠ Os testes B (três vias) e D (tabela datada) saíram do script em 2026-08-10 e nada do que produziram é reproduzível ou citável (`historico_decisoes.md` §2.4); em troca, o teste C ganhou a máscara re-derivada nos resíduos ortogonalizados das duas pernas.
 > 6. **A lacuna foi fechada em 2026-08-09** (`data/raw/CDS 5y.xlsx`, Bloomberg `BRAZIL CDS USD SR 5Y D14 Corp`; nota [`2026-08-09_confound_soberano_cds`](../notas/2026-08-09_confound_soberano_cds.md)). O teste roda nas **duas** proxies e o **veredito não muda** (interação CDS −0,191, p_boot 0,170). O CDS é medida estritamente melhor — 95/95 pares Copom contra 94/95, **0,5%** de variações exatamente zero contra 8,3%, menor variação exprimível 0,005 pb contra 1,000 pb — o que **mata a objeção de que o nulo era atenuação por arredondamento**. **⚠ Duas coisas que endurecem, não aliviam:** nos 62 dias retidos o coeficiente do CDS é claramente **não-nulo** (0,140, p_boot **0,003**), então "menos risco que um dia comum, **não** zero risco" virou fato medido; e as três metades "política" do teste de três vias têm ξ_mp **3,52 (FX) / 0,89 (EMBI) / 0,35 (CDS)**, **nenhuma cruzando 3,84** — a do CDS inverte o sinal do câmbio, mas com 1 célula sig90 em 441 e IC90 que contém o ponto de produção, então é ausência de evidência, e o teste B é **sugestivo, não conclusivo**. **O melhor resultado:** ortogonalizar ao risco diário **incluindo CDS** dá ξ_mp **12,68** full (contra 10,72 só-EMBI e 10,43 da produção) — o limite inferior mais severo é o instrumento mais forte.
 
-## Status (2026-07-15, troca de default + het fora do paper)
+## Status histórico (2026-07-15, troca de default + het fora do paper)
 
 > **`DEFAULT_VARIANT = z_jk_bs_purif`** (decisão do autor, fechando a questão aberta na auditoria de 2026-07-14 abaixo): ortogonalização Bauer-Swanson fiel (preditores pré-evento predeterminados) + filtro JK nos sinais dos resíduos pré-evento. ξ_mp na produção (7,6): 10.43 full / 12.22 pre-COVID, ≥ 10 nas duas janelas (bandas padrão) — vintage 2026-07-24; a produção migrou de (6,5) → (7,6) nessa data (em (6,5) caiu para 6.36 full / 11.00 pre-COVID). Os corpos dos relatórios stage-2/coerência estão stale até re-rodar. Cadeia re-estimada na mesma data (sweep 480 células com as 4 variantes da auditoria, stage 2 com baseline (6,5) full, `model_alessi.R`, coerência nboot=800): história qualitativa preservada (curva ↑, BRL deprecia, EMBI/CDS abrem, corcova n.s. do IPCA), magnitudes ~30–45% menores que na rodada `z_jk_purif` (Ibov h0 −1.1% vs −8.9%; BRL +0.185 vs +0.245; EMBI +25bp vs +46bp); crédito e juros_cdi/selic melhoram de veredito na coerência. **Decisão editorial: o instrumento het (z_het\*) fica fora do paper** — pipeline mantido como diagnóstico interno; `registro/estrutura_paper_v2.md` atualizado. Pendências novas: bandas AR para o full, rewrite do §5/`irf_section.md` sob o novo primário.
 
-## Status (2026-07-14, auditoria de fidelidade JK/BS)
+## Status histórico (2026-07-14, auditoria de fidelidade JK/BS)
 
 > Auditoria contra os artigos e códigos originais (`notas/2026-07-14_auditoria_fidelidade_jk_bs.md`) concluiu:
 > 1. **JK**: regra zero-out e agregação por soma mensal fiéis; mas o poor man's original classifica e agrega valores **brutos** — o default `z_jk_purif` usa resíduos em ambos. Adicionada a variante literal **`z_jk_raw`** (máscara bruta + valores brutos), completando a matriz 2×2 máscara × valores.
 > 2. **"Purificação Bauer-Swanson"**: o nome está impreciso — BS (2023, eq. 7/Table 3) regridem a surpresa em notícias **pré-anúncio** (releases macro + tendências financeiras de 13 semanas + trend), não em variações contemporâneas da janela. A regressão contemporânea SP500/VIX/Brent do projeto é uma limpeza de fator global (válida por exogeneidade de economia pequena, mas outro procedimento). Versão fiel adicionada: **`z_bs_purif`** / **`z_jk_bs_purif`** (preditores pré-evento: Δ65d de Ibov/SP500/VIX/Brent/BRL/inclinação DI + Δ20d Focus IPCA-12m e Selic + tendência; novos dados via `R/data_download/focus_fred.R`). Também testado `z_jk_purif_us` (contemporânea + UST 2y) — **inócuo** (cor 0.999 com o default), removido em 2026-08-05.
 > 3. **Força (ξ_mp, grid 392 células)**: a força vem da **máscara**, não dos valores purificados (cor ≥ 0.986 entre variantes de mesma máscara). Máscaras predeterminadas (bruta ou BS-pré-evento) excluem `2020-03-19` e dominam o default na amostra full em 14/14 células — full (6,5): `z_jk_raw` 7.05, `z_jk_bs_purif` 6.94 vs `z_jk_purif` 5.20; ambas cruzam ξ_mp ≥ 10 em 6/14 células full (default: 0). No pre_covid (6,5) o default segue líder (13.25; `z_jk_bs_purif` 12.49). **Default inalterado**; `z_jk_bs_purif` é o candidato metodologicamente mais limpo (BS fiel + máscara predeterminada + força competitiva nas duas amostras) — decisão de troca em aberto. *(Fechada em 2026-07-15: default trocado para `z_jk_bs_purif`, ver status acima.)*
 
-## Status (2026-07-11, pós-varredura de especificações)
+## Status histórico (2026-07-11, pós-varredura de especificações)
 
 > A varredura sistemática (320 células: 8 instrumentos × 5 mp_vars × 4 grids (r,q) × 2 amostras; `script/irf_spec_sweep.R` + `script/irf_spec_stage2.R`) **confirma `z_jk_purif` como default** e refina três pontos do status 2026-05-08 abaixo:
 > 1. "Único que cruza Stock-Yogo" era artefato do grid antigo (r fixo = 7): `z_jk_purif` cruza F (factor-sp) ≥ 10 no full em (6,5)/(7,6)/(8,8) — 10.08/10.17/11.76 — e `z_jk` cruza em (8,8). Na janela **pre_covid (2013-19) com (r=6, q=5), cinco instrumentos cruzam** (z_jk_purif 15.4, z_jk 15.2, z_het_jk_3var 11.1, z_het_3var 10.8, z_bruto_purif 10.4).
@@ -68,7 +88,7 @@
 >
 > Detalhes: `output/irf/spec_sweep_conclusoes.md`, `notas/2026-07-11_varredura_irf.md`.
 
-## Status (2026-05-08, pós-investigação F factor-space)
+## Status histórico (2026-05-08, pós-investigação F factor-space)
 
 > **Default revertido para `z_jk_purif` (GK timing-ID + Bauer-Swanson + JK).** A auditoria de 2026-04-25 havia recomendado `z_het_jk_3var` por um diagnóstico univariado legado. A sessão 2026-05-08 reabriu a decisão: após o fix de unit scaling em `yield_6m` (LEVE 2026-05-07) expor as IRFs reais, ficou claro que aquela régua não media a direção que normaliza o proxy-SVAR/DFM. O grid então usado levou à volta de `z_jk_purif` como default. Essa justificativa foi posteriormente superada pela estatística ξ_mp e, em 2026-08-13, pelo par ξ_mp/F_rob,mp. Documentação histórica completa: `arquivo/_instrucoes/Heteroscedasticidade.md` e `registro/historico_decisoes.md`.
 >

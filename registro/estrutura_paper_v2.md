@@ -2,8 +2,17 @@
 
 > **ROTEIRO HISTÓRICO; NÚMEROS SUPERADOS.** O manuscrito corrente é
 > `paper/paper_anpec.tex`. As magnitudes e estatísticas abaixo antecedem a
-> reconstrução canônica de 2026-08-12 e não devem ser transportadas ao paper.
-> A vintage corrente está em `notas/2026-08-12_correcao_fim_mes_curva.md`.
+> migração canônica de 2026-08-13 e não devem ser transportadas ao paper.
+> A produção corrente está em
+> `notas/2026-08-13_migracao_producao_painel_111_r5q5.md`.
+>
+> **Três decisões de estrutura de 2026-08-14 contrariam este roteiro, e não é
+> divergência de número.** A `tab:rq_sweep` **saiu do paper**, porque a dimensão
+> passou a ser justificada pelo Bai--Ng IC2 e não por varredura de força, de modo
+> que toda a discussão de platô e de reotimização *ex post* abaixo perdeu objeto.
+> Anderson-Rubin **não é mais mencionado** no `.tex`. E a seleção `(r=7, q=6)`
+> sobre 106 séries foi substituída por `(5,5)` sobre 111. Não reintroduzir
+> nenhuma das três a partir deste arquivo.
 
 **Data:** 2026-07-13 · **Revisão 2026-07-14:** números de relevância atualizados
 para a régua MOSW (ξ_mp, Wald conjunta — `output/instrument/olea_alignment_audit.md`

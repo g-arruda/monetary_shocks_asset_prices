@@ -18,7 +18,7 @@ estimate_static_factors()  (factor_estimation.R:285-364)
      │            destendencia o NÍVEL e divide por sd(Δ) — padronização BLL
      ▼
 estimate_var_ols() → estimate_dynamic_factors()
-     │            VAR(6) nos r=7 fatores; η = u·K·M⁻¹ (q=6 inovações)
+     │            VAR(6) nos r=5 fatores; η tem q=5 inovações
      ▼
 compute_irf_dfm() → ident_ext_instr() → cumimp_transform()
                   IRF em unidades nativas, normalizada a +50bp

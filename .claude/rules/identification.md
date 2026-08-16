@@ -45,12 +45,14 @@ Cayley parametrization, labels the monetary column by `|cor(eps_j, z)|`, and ret
 so the instrument **labels** rather than identifies, and the proxy restriction becomes testable
 (`gmr_wald_column`).
 
-- **The gate is only partly passed**: 3 of 6 factor innovations do not reject normality on the full
-  sample, 5 of 6 pre-COVID, against a requirement of at most one. Identification is *partial* and
-  **does not exist pre-COVID** (`output/nongaussian/gate.md`).
+- **The gate passes on the full sample and fails pre-COVID**: under the 111-series `(5,5)`
+  production, **0 of 5** factor innovations fail to reject normality in the full sample against a
+  requirement of at most one, while **2 of 5** fail pre-COVID. Identification therefore exists only
+  in the full window (`output/nongaussian/gate.md`). The 3-of-6 / 5-of-6 reading came from the
+  106-series `(7,6)` vintage and is dead.
 - **`NG_STARTS = 200`** — 60 starts do not reach the optimum.
 - **Do not call `IdSS::estim.SVAR.ICA`** — Renne's ICA path is broken for n ≥ 4 (`make.M`/`make.C`
-  mis-order the skew-symmetric fill; the gradient uses `(I+A)` where Cayley requires `(I+C)`). q = 6
+  mis-order the skew-symmetric fill; the gradient uses `(I+A)` where Cayley requires `(I+C)`). q = 5
   here. `make.Omega` / `make.A.matrix` / `make.Asympt.Cov.delta` *are* correct and are the
   cross-validation targets. `registro/historico_decisoes.md` §0.1.
 - **The wild bootstrap is invalid on this branch** — Rademacher multipliers zero all third moments

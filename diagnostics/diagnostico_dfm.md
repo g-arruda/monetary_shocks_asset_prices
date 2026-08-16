@@ -1,10 +1,10 @@
 # Diagnóstico do DFM-IV — Tarefas 0 a 7
 
 > **VINTAGE NUMÉRICO SUPERADO.** Este relatório preserva a leitura da rodada de
-> 2026-07-28. O painel e os caches foram reconstruídos em 2026-08-12 após a
-> correção da seleção de fim de mês da curva. Para os números correntes, use
+> 2026-07-28 sob 106 séries `(7,6)`. O painel e os caches foram migrados em
+> 2026-08-13 para 111 séries `(5,5)`. Para os números correntes, use
 > `diagnostics/output/`, `output/irf/irf_section.md` e
-> `notas/2026-08-12_correcao_fim_mes_curva.md`.
+> `notas/2026-08-13_migracao_producao_painel_111_r5q5.md`.
 
 Rodada de 2026-07-28, respondendo a `prompt_auditoria_dfm_iv.md`.
 Escopo: **Tarefas 0 a 7**. As Tarefas 0-5 saíram na primeira rodada; as
@@ -373,7 +373,8 @@ inovação de `yield_6m` que normaliza o choque:
 | ξ_mp | Wald robusta MOSW do momento projetado na direção de `yield_6m` | diagnóstico do denominador da normalização |
 | F_rob,mp | primeiro estágio com os lags do VAR como controles e HC1 | quadrado do t robusto de `z_t` |
 
-Na célula de produção corrente (r=7, q=6, p=6):
+Na célula de produção daquela rodada (r=7, q=6, p=6), hoje preservada apenas
+como diagnóstico histórico:
 
 | janela | n | ξ_mp | F_rob,mp | leitura |
 |---|---:|---:|---:|---|

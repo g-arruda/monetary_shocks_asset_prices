@@ -68,15 +68,18 @@ script e por tarefa, e `diagnostics/diagnostico_dfm.md` para o veredito.
 Nunca importado por `script/` na direção contrária (nada em `R/` faz
 `source()` de `script/`).
 
-- **`data_download/`** (8 arquivos) — os downloaders: `bcb.R` (séries SGS do
+- **`data_download/`** (9 arquivos) — os downloaders: `bcb.R` (séries SGS do
   Banco Central), `exchange.R` (câmbio), `external_factors.R` (SP500/VIX/Brent
   + BRL/USD diário), `ibov_daily.R`, `anbima_breakeven.R`, `focus_fred.R`
   (medianas do Focus + UST 2y do FRED), `fomc_dates.R` (datas de decisão do
   FOMC, raspadas das páginas de calendário do Fed — 2026-08-10),
-  `download_di.py` (futuros de DI).
-- **`preprocessing/`** (1 arquivo) — `seasonality.R`, o wrapper de ajuste
-  sazonal X-13 usado por `script/clean.R`.
-- **`modeling/`** (3 arquivos) — os motores de estimação: `factor_estimation.R`
+  `download_di.py` (futuros de DI), e `panel_candidates.R` (inventário,
+  metadados, coleta e validação isolada das candidatas de 2026-08-13).
+- **`preprocessing/`** (2 arquivos) — `seasonality.R`, o wrapper de ajuste
+  sazonal X-13, e `panel_candidates.R`, a preparação reutilizável das séries
+  candidatas usada por `script/clean.R` e pelas auditorias históricas.
+- **`modeling/`** (4 arquivos) — `production_spec.R`, a especificação única do
+  painel de 111 séries `(5,5,6)`, e os motores `factor_estimation.R`
   (estimação BLL do DFM, seleção de r/q), `impulse_responde.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
   `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
@@ -97,7 +100,8 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
 
 ## `output/` — artefatos de estimação (git-tracked, ~3 MB)
 
-Tudo aqui é da rodada de produção de 2026-07-24 em diante. Ver "Data layout"
+Tudo aqui é da rodada de produção de 2026-08-13 em diante, salvo artefatos
+explicitamente marcados como históricos. Ver "Data layout"
 no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 
 - **`irf/`** — a rodada de coerência (`irf_coherence_*`, fonte de todo número
@@ -116,6 +120,8 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
   aplicação de imposto), usados para validar o Wald ξ_mp e o kernel HAC. O
   `.rds` do petróleo existe porque `codigos_externos/` é gitignorado: sem ele
   `validate_olea_kilian.R` não rodaria num clone limpo.
+- **`download/`** — inventário e relatório de proveniência das séries candidatas
+  coletadas isoladamente; não é entrada da estimação.
 - **`logs/`** (gitignored) — logs de execução por estágio do `run_all.R`.
 
 ## `data/` (gitignored)
@@ -132,7 +138,9 @@ Em `raw/`: `raw_data.csv`, `raw_data_30.csv`, `di.csv` (DI futuro diário,
 `instrument` desde 2026-08-10); mais `yields/` (curva de juros fornecida pelo
 orientador, `yields_dia.csv` — entrada externa fixa, sem produtor no
 repositório) e `curva_juros/`, `investing/`, `epu/`,
-`banco_central_rep_dominicana/` (downloads brutos por fonte).
+`banco_central_rep_dominicana/` (downloads brutos por fonte), além de
+`panel_candidates/` (17 séries mensais isoladas, nunca incorporadas a
+`raw_data.csv`).
 
 ## `registro/` — a memória do projeto
 
@@ -178,9 +186,16 @@ Documentos de fora, mantidos como chegaram:
 
 O paper canônico desde **2026-08-02** (`paper_anpec.tex`, classe
 `elsarticle`, submissão ANPEC, título "Uncovered Interest Parity,
-Inverted..."). Abstract e §4 Resultados (seis subseções: estrutura a termo,
-câmbio e risco soberano, atividade, crédito, preços, ações) estão correntes
-com a rodada de produção. A **`§5 Robustez` existe desde 2026-08-09 com três
+Inverted...").
+
+⚠ **O arquivo está partido entre duas vintages desde 2026-08-14.** A §3, a §5 e
+a `tab:lista_variaveis` do apêndice falam da produção de 111 séries `(5,5)`; o
+resumo, a §1, a §2, a §4 (seis subseções: estrutura a termo, câmbio e risco
+soberano, atividade, crédito, preços, ações) e a conclusão ainda falam de 106
+séries em `(7,6)`. A `tab:rq_sweep` foi removida e Anderson-Rubin não é mais
+mencionado. Checklist do que falta em `registro/pendencias.md`, Tema A.
+
+A **`§5 Robustez` existe desde 2026-08-09 com três
 subseções** — `sec:exogeneidade` (previsibilidade do instrumento mensal,
 Ljung-Box, `commodity_metal` em R$ contra US$, placebos nas duas barras) e
 `sec:confound` (o filtro de sinal seleciona risco soberano?, nas duas proxies

@@ -11,10 +11,13 @@ paths:
 
 Inputs and intermediate files live under `data/` (gitignored), in two levels: **`data/raw/`** is
 what comes out of the downloads, untreated and never hand-edited; **`data/processed/`** is what
-goes into estimation. Sample: **2013-01 to 2025-09, monthly, 106 series** (vintage refreshed
+goes into estimation. Sample: **2013-01 to 2025-09, monthly, 111 series** — the
+`drop_setor_externo__eua__credito__imoveis` panel, migrated 2026-08-13. It drops `juros_cdi` and
+`asset_mlcx` and adds the fiscal and Focus-expectations blocks; the 106-series base is kept in
+`data_log_deseasonalized_base_106.csv` only to reproduce historical factor grids. (Vintage refreshed
 2026-07-24: the duplicated tempo-de-procura block and the empty ANBIMA break-even columns were
 dropped, and `download.R` / `clean.R` now persist their outputs via `write_csv` — the old scripts
-computed but never wrote).
+computed but never wrote.)
 
 A missing input **aborts** with a pointer to the script that produces it. Never an `else` returning
 an empty vector, `NA` or a default — that makes "the collection was never run" indistinguishable
@@ -54,9 +57,13 @@ from "the collection came back empty", and the error only surfaces months later,
 
 ## Policy variable
 
-Normalization is on **`yield_6m`**. `juros_selic` is overnight Selic accumulated and is the
-documented **negative control** — max reduced-form F = 2.49 across the whole grid. Do not promote it
-to `mp_var`.
+Normalization is on **`yield_6m`**. `juros_selic` is overnight Selic accumulated and is the weaker
+normalization target by a wide margin in the full sample — over `output/irf/spec_sweep_cells.csv` its
+best cell reaches ξ_mp 5.20 and F_rob 7.03 against 10.73 and 12.67 for `yield_6m`. Do not promote it
+to `mp_var`. Two cautions the old "negative control, max F = 2.49" wording hid: **pre-COVID the Selic
+normalization does reach ξ_mp 21.54**, so the argument is a full-sample argument; and under the
+111-series `(5,5)` production `juros_selic` is no longer inert as a *response* either, rising 23.8 bp
+on impact with the 90% band excluding zero through h=11.
 
 The downloaders guard on `sys.nframe() == 0`, and the stage scripts `rm(list = ls())`, so `run_all.R`
 runs one `Rscript` process per stage.
