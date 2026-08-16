@@ -166,6 +166,7 @@ O restante deste artigo está organizado da seguinte forma. A Seção 2 revisa a
 %O desenho é o de \cite{alessi}, aplicado a uma economia emergente com regime de dívida distinto do europeu e do americano. O instrumento é construído sobre surpresas de DI em dias de reunião do Copom. Ele combina a ortogonalização por informação predeterminada de \cite{bauer2023} e a regra de sinal de \cite{jarocinski2020}. A relevância é avaliada pela estatística de \cite{montielolea} e não pela F de primeiro estágio.
 
 \section{Revisão de literatura}
+\label{sec:literatura}
 
 Dois problemas separam as estimativas do efeito da política monetária sobre preços de ativos. O primeiro é o tamanho do conjunto de informação do modelo. O segundo é a identificação do choque. A literatura tratou os dois em linhas quase independentes.
 
@@ -239,7 +240,7 @@ O uso de um grande conjunto de séries responde ao problema de não-fundamentali
 
 \subsection{Base de Dados}
 
-A base reúne 106 séries mensais para a economia brasileira entre janeiro de 2013 e setembro de 2025, o que corresponde a 153 observações alinhadas e 147 inovações fatoriais após as seis defasagens do VAR. O início em 2013 acompanha a mudança metodológica da PNAD Contínua no mercado de trabalho. As fontes são oficiais (Banco Central do Brasil, IBGE, B3, Tesouro Nacional e ANBIMA), somadas a indicadores de risco soberano e mercado externo (EMBI, CDS de cinco anos e MSCI) e a um índice de incerteza de política econômica (EPU). Os blocos cobrem atividade real, mercado de trabalho, inflação, commodities, agregados monetários e de crédito, e preços de ativos.
+A base reúne 111 séries mensais para a economia brasileira entre janeiro de 2013 e setembro de 2025, o que corresponde a 153 observações alinhadas e 147 inovações fatoriais após as seis defasagens do VAR. O início em 2013 acompanha a mudança metodológica da PNAD Contínua no mercado de trabalho. As fontes são oficiais (Banco Central do Brasil, IBGE, B3, Tesouro Nacional e ANBIMA), somadas a indicadores de risco soberano e mercado externo (EMBI, CDS de cinco anos e MSCI) e a um índice de incerteza de política econômica (EPU). Os blocos cobrem atividade real, mercado de trabalho, inflação, commodities, agregados monetários e de crédito, e preços de ativos. Como a interpretação dos resultados envolve risco soberano, o painel inclui um bloco fiscal, com a dívida bruta do governo geral, a dívida líquida do setor público e o resultado primário consolidado, e um bloco de expectativas, com as medianas da pesquisa Focus para o IPCA acumulado em doze meses e para a Selic, o PIB e o câmbio no fim do ano seguinte.
 
 As taxas de juros de maturidade fixa (3 meses, 6 meses, 1, 2, 5 e 10 anos) vêm do ajuste do modelo de \cite{svensson1994estimating} sobre os contratos de DI futuro em cada data. As séries nominais entram em logaritmo e, quando os testes indicam componente sazonal, são ajustadas pelo procedimento X-13ARIMA-SEATS \cite{sax2018seasonal}. A lista completa de séries, fontes e transformações está no Anexo \ref{anexo-A} (\autoref{tab:lista_variaveis}).
 
@@ -247,9 +248,9 @@ As taxas de juros de maturidade fixa (3 meses, 6 meses, 1, 2, 5 e 10 anos) vêm 
 
 A identificação do choque de política monetária usa um instrumento externo, no arcabouço de proxy-SVAR de \cite{stockwatson2018} e \cite{gertler2015}, transposto para o DFM como em \cite{alessi}. A abordagem dispensa a ordenação recursiva entre os fatores. No lugar dela entra uma variável observada fora do modelo, correlacionada com o choque de interesse e ortogonal aos demais choques estruturais.
 
-Seja $z_t$ o instrumento e $\varepsilon_t^{p}$ o choque de política monetária. O instrumento é válido sob duas condições: relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, e exogeneidade, $E[z_t \varepsilon_t^{j}] = 0$ para todo choque estrutural $j \neq p$ \cite{stockwatson2018}. Sob essas condições, a projeção das inovações fatoriais $\eta_t$ sobre o instrumento identifica, a menos de escala, a coluna de $H$ associada ao choque de política monetária. Empilhando $\eta_t$ e $z_t$ na amostra alinhada, essa coluna é estimada por $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$. O alinhamento temporal segue a implementação computacional de \cite{alessi}.
+Seja $z_t$ o instrumento e $\varepsilon_t^{p}$ o choque de política monetária. O instrumento é válido sob duas condições: relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, e exogeneidade, $E[z_t \varepsilon_t^{j}] = 0$ para todo choque estrutural $j \neq p$ \cite{stockwatson2018}. Essas duas são exatamente a condição que \cite{stockwatson2018} associam ao estimador SVAR-IV, e ambas são contemporâneas. A condição de exogeneidade em relação a choques passados e futuros, que os mesmos autores chamam de lead-lag, é mais forte e pertence à alternativa por projeções locais; ela não é exigida aqui porque as inovações fatoriais já são ortogonais ao passado dos fatores e não contêm choques futuros. O preço dessa dispensa é a invertibilidade, discutida na Seção \ref{sec:literatura}, e a Seção \ref{sec:exogeneidade} reporta o diagnóstico correspondente. Sob essas condições, a projeção das inovações fatoriais $\eta_t$ sobre o instrumento identifica, a menos de escala, a coluna de $H$ associada ao choque de política monetária. Empilhando $\eta_t$ e $z_t$ na amostra alinhada, essa coluna é estimada por $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$. O alinhamento temporal segue a implementação computacional de \cite{alessi}.
 
-O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal. A escolha do yield de 6 meses como variável de política, em vez da Selic overnight, segue a distinção de \cite{gertler2015} entre o instrumento de política, a taxa overnight, e o indicador de política, uma taxa de prazo mais longo que incorpora a revisão das expectativas de juros embutida na decisão. No caso brasileiro a distinção é mais aguda. As decisões do Copom saem após o fechamento do mercado, e a surpresa é medida na curva de DI entre a quarta e a quinta-feira, não na taxa overnight. A Selic mensal, uma média do overnight dentro do mês, quase não embute essa surpresa. Sob o diagnóstico de relevância de \cite{montielolea}, a normalização pela Selic não alcança o limiar de instrumento utilizável em nenhuma dimensão da varredura de especificações, enquanto a normalização pelo yield de 6 meses alcança, como reporta a \autoref{tab:rq_sweep}.
+O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal. A escolha do yield de 6 meses como variável de política, em vez da Selic overnight, segue a distinção de \cite{gertler2015} entre o instrumento de política, a taxa overnight, e o indicador de política, uma taxa de prazo mais longo que incorpora a revisão das expectativas de juros embutida na decisão. No caso brasileiro a distinção é mais aguda. As decisões do Copom saem após o fechamento do mercado, e a surpresa é medida na curva de DI entre a quarta e a quinta-feira, não na taxa overnight. A Selic mensal, uma média do overnight dentro do mês, quase não embute essa surpresa. Sob o diagnóstico de relevância de \cite{montielolea}, a normalização pela Selic é a mais fraca das duas em toda a varredura de especificações da amostra completa, onde a Wald $\xi_{mp}$ máxima é $5{,}20$ contra $10{,}73$ da normalização pelo yield de 6 meses. Na janela pré-COVID as duas sobem, para $21{,}54$ e $22{,}24$, mas essa janela é marginalmente instável e por isso não decide a comparação.
 
 \subsection{Construção do instrumento}
 
@@ -263,53 +264,46 @@ A terceira camada separa o choque de política monetária do choque de informaç
 
 \subsection{Seleção de $(r, q)$ e estimação}
 
-A especificação de produção é $(r, q) = (7, 6)$, fixada na comparação inicial entre quatro candidatos antes da extensão da grade. A \autoref{tab:rq_sweep} usa a grade completa como auditoria posterior e reporta, para o instrumento primário, os dois diagnósticos de relevância propostos por \cite{montielolea}: a Wald $\xi_{mp}$ na direção do impacto sobre o yield de 6 meses e o $F^{rob}_{mp}$ do primeiro estágio na mesma direção. A Wald usa erros de Eicker--White e o instrumento residualizado nas defasagens do VAR dos fatores; o $F^{rob}_{mp}$ é o quadrado da estatística $t$ HC1 do instrumento na regressão da inovação comum do yield de 6 meses sobre o instrumento e os mesmos controles. Valores acima de $10$ sugerem que as bandas convencionais têm cobertura aproximadamente válida, mas os autores desaconselham condicionar a inferência a esse pré-teste.
-
-\begin{table}[H]
-\centering
-\caption{Força do instrumento primário por dimensão $(r, q)$ e janela amostral}
-\label{tab:rq_sweep}
-\begin{threeparttable}
-\begin{tabular}{c cc cc}
-\toprule
- & \multicolumn{2}{c}{Amostra completa} & \multicolumn{2}{c}{Pré-COVID} \\
-\cmidrule(lr){2-3} \cmidrule(lr){4-5}
-$(r, q)$ & $\xi_{mp}$ & $F^{rob}_{mp}$ & $\xi_{mp}$ & $F^{rob}_{mp}$ \\
-\midrule
-$(5, 4)$ &  4,77 &  6,85 &  7,89 & 6,96 \\
-$(5, 5)$ &  6,34 & 11,12 &  8,04 & 6,08 \\
-$(6, 4)$ &  4,30 &  4,52 & 11,13 & 7,01 \\
-$(6, 5)$ &  4,76 &  5,13 & 10,94 & 6,83 \\
-$(6, 6)$ &  7,78 & 10,30 & 10,44 & 6,61 \\
-$(7, 4)$ &  6,49 &  6,25 & 12,20 & 5,48 \\
-$(7, 5)$ &  7,58 &  8,00 & 12,05 & 5,36 \\
-$(7, 6)$ &  7,65 &  7,95 & 11,53 & 6,26 \\
-$(7, 7)$ & 10,92 & 12,75 & 11,55 & 6,19 \\
-$(8, 4)$ &  7,13 &  6,65 &  9,57 & 4,76 \\
-$(8, 5)$ &  8,56 &  8,88 & 10,50 & 6,39 \\
-$(8, 6)$ &  8,55 &  8,86 & 11,08 & 6,69 \\
-$(8, 7)$ &  9,02 &  8,96 &  9,83 & 4,18 \\
-$(8, 8)$ & 11,62 & 12,44 &  9,51 & 4,10 \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}[flushleft]
-\footnotesize
-\item Diagnósticos de relevância de \cite{montielolea} na direção da variável normalizadora. $\xi_{mp}$: Wald com distribuição $\chi^2_1$. $F^{rob}_{mp}$: primeiro estágio HC1 na mesma direção $c_{mp}'\eta_t$. A grade contém todas as combinações com $r \in \{5,\ldots,8\}$ e $q \in \{4,\ldots,r\}$. Instrumento primário, com ortogonalização pré-evento e filtro de sinal. Amostra completa: 2013--2025. Pré-COVID: 2013--2019.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
-
-A correção do fechamento mensal reduziu a força na amostra completa em toda a vizinhança da especificação congelada. A célula de produção $(7,6)$ tem $\xi_{mp}=7{,}65$ na amostra completa e $11{,}53$ na janela pré-COVID, enquanto $(7,7)$ é a única dimensão em que $\xi_{mp}$ supera 10 nas duas janelas, com 10,92 e 11,55. A produção permanece em $(7,6)$ porque selecionar $(7,7)$ depois de observar a nova grade constituiria reotimização \textit{ex post}. A grade mostra, portanto, que a escolha de dimensão não é o resultado de uma busca pela célula de maior força e que a inferência convencional exige ressalva na amostra completa.
+A especificação de produção é $(r, q) = (5, 5)$ com $p = 6$. O número de fatores estáticos vem do critério de informação IC2 de \cite{bai-ng} na versão padronizada de \cite{barigozzi2016non}, que é a variante admissível sob a não-estacionariedade do conjunto e seleciona $r = 5$ tanto na amostra completa quanto na janela pré-COVID. O número de fatores dinâmicos é fixado em $q = 5$ como escolha operacional associada a esse $r$, e não por um critério próprio, de modo que a fundamentação de $q$ permanece aberta. Nenhuma das duas dimensões foi escolhida pela célula de maior força do instrumento, porque selecionar $(r, q)$ pela estatística de relevância converteria um diagnóstico em critério de especificação, procedimento que \cite{montielolea} desaconselham.
 
 Os fatores estáticos são extraídos por componentes principais sobre o conjunto de séries padronizado e a dinâmica segue o VAR(6). A estimativa pontual das funções de impulso-resposta usa os coeficientes de mínimos quadrados ordinários, fiel à implementação de \cite{alessi}. A incerteza vem de um \textit{bootstrap wild} \cite{goncalveskilian2004}, com 800 replicações, robusto à heterocedasticidade dos resíduos. A correção de viés de pequena amostra de \cite{kilian1998small} entra apenas no processo gerador do bootstrap, não na estimativa pontual. As funções de impulso-resposta cobrem horizontes de 0 a 48 meses, com bandas de 68\% e 90\%.
 
 \subsection{Relevância do instrumento}
 
-A validade da inferência no proxy-SVAR depende da força do instrumento \cite{montielolea}. Com instrumento fraco, o estimador de impacto é uma razão de normais correlacionadas, com viés na direção da identificação recursiva e cobertura incorreta das bandas. A alternativa nesse caso são os intervalos de Anderson-Rubin, válidos sob qualquer força do primeiro estágio.
+A validade da inferência no proxy-SVAR depende da força do instrumento \cite{montielolea}. Com instrumento fraco, o estimador de impacto é uma razão de normais correlacionadas, com viés na direção da identificação recursiva e cobertura incorreta das bandas, de modo que tanto a magnitude quanto a largura do intervalo perdem a interpretação usual.
 
-O diagnóstico que governa essa projeção é a estatística $\xi_{mp}$ da \autoref{tab:rq_sweep}, a Wald de \cite{montielolea} na direção da normalização. Ela projeta o primeiro estágio na combinação das inovações fatoriais que determina o impacto sobre o yield de 6 meses, com erros padrão de Eicker-White e com o instrumento residualizado nas defasagens do VAR dos fatores.
+Os dois diagnósticos de relevância propostos por \cite{montielolea} são calculados na mesma direção em que o choque é normalizado. A Wald $\xi_{mp}$ projeta o primeiro estágio na combinação das inovações fatoriais que determina o impacto sobre o yield de 6 meses, com erros padrão de Eicker-White e com o instrumento residualizado nas defasagens do VAR dos fatores. O $F^{rob}_{mp}$ é o quadrado da estatística $t$ HC1 do instrumento na regressão dessa mesma combinação sobre o instrumento e os mesmos controles, de modo que as duas estatísticas diferem pela forma de estimar a variância e não pelo objeto que projetam.
 
-Na especificação de produção, $\xi_{mp}$ vale $7{,}65$ na amostra completa e $11{,}53$ na janela pré-COVID; $F^{rob}_{mp}$ vale, respectivamente, $7{,}95$ e $6{,}26$. Os dois diagnósticos ficam abaixo da referência de 10 na amostra completa. Pré-COVID, a Wald cruza 10, mas o $F$ robusto não, em parte porque a correção HC1 é severa com 78 observações efetivas e 42 defasagens fatoriais como controles. A evidência de força nessa janela é, portanto, mista. Como \cite{montielolea} desaconselham selecionar o procedimento inferencial por um pré-teste de força, as bandas do \textit{wild bootstrap} são lidas com cautela nas duas janelas.
+Na especificação de produção, $\xi_{mp}$ vale $6{,}27$ na amostra completa e $10{,}99$ na janela pré-COVID, enquanto $F^{rob}_{mp}$ vale $10{,}12$ e $9{,}75$ (\autoref{tab:first_stage}). As duas janelas dão evidência mista, e por motivos invertidos, uma vez que na amostra completa é o $F$ robusto que passa de 10 com a Wald abaixo, enquanto na pré-COVID é a Wald que passa com o $F$ abaixo. Essa segunda configuração deve algo à severidade da correção HC1 com 78 observações efetivas e 30 defasagens fatoriais como controles. O valor 10 é uma referência convencional para o $F$ de primeiro estágio homoscedástico do 2SLS, e não um valor crítico que \cite{montielolea} derivem para a Wald robusta a heterocedasticidade usada aqui, então ele orienta a leitura sem constituir um teste. A janela pré-COVID tem ainda raiz máxima da companion igual a $1{,}000202$, o que a torna diagnóstico de força e estabilidade, não fonte de leitura dinâmica. Como \cite{montielolea} desaconselham selecionar o procedimento inferencial por um pré-teste de força, as bandas do \textit{wild bootstrap} são lidas com cautela nas duas janelas.
+
+A \autoref{tab:first_stage} decompõe esses números pelas três camadas da construção do instrumento, e a força não cresce monotonicamente com elas. A ortogonalização em relação à informação predeterminada, tomada isoladamente, reduz $\xi_{mp}$ nas duas janelas, de $5{,}27$ para $4{,}37$ na amostra completa e de $14{,}86$ para $13{,}98$ na pré-COVID. O filtro de sinal move as duas janelas em direções opostas. Na amostra completa ele eleva $\xi_{mp}$ de $4{,}37$ para $6{,}27$ e $F^{rob}_{mp}$ de $4{,}32$ para $10{,}12$, ainda que reduza de 90 para 60 os meses com instrumento não-nulo. Na janela pré-COVID ele derruba $\xi_{mp}$ de $13{,}98$ para $10{,}99$, com $F^{rob}_{mp}$ quase parado, em $9{,}75$ contra $9{,}10$, de modo que nessa janela a surpresa bruta é a mais forte das três variantes pela Wald. A variante de produção não é, portanto, a de maior força em toda janela. Ela é a que reproduz as duas metodologias de origem, a ortogonalização por preditores predeterminados de \cite{bauer2023} e a regra de sinal de \cite{jarocinski2020}, e escolhê-la pela estatística de relevância seria o mesmo pré-teste que \cite{montielolea} desaconselham e que a subseção anterior já evita na seleção de $(r, q)$.
+
+% tab:first_stage — números transcritos de dois artefatos gerados em 2026-08-13,
+% ambos na produção de 111 séries com (r,q) = (5,5):
+%   amostra completa (n = 147): output/instrument/instrument_diagnostics_report.md, secao 1
+%   janela pre-COVID (n = 78):  output/instrument/mosw_strength_grid.csv, linhas sample=pre_covid, r=5, q=5
+% O CSV da grade nao carrega beta/EP/p, e por isso o bloco de primeiro estagio
+% existe so para a amostra completa. Reconferir contra esses dois arquivos antes
+% de qualquer republicacao.
+\begin{table}[H]
+\begin{center}
+\caption{\textbf{Relevância do instrumento por camada de construção}\\{Cada linha acrescenta uma camada à construção do instrumento, na ordem descrita na subseção Construção do instrumento: a surpresa do DI no vértice de 126 dias úteis na janela de um dia em torno da reunião do Copom, a ortogonalização em relação à informação pública predeterminada e o filtro de sinal, que zera as reuniões classificadas como choque de informação. A última linha é a variante de produção. A amostra completa vai de 2013:01 a 2025:09 e a janela pré-COVID de 2013:01 a 2019:12, com $147$ e $78$ inovações fatoriais depois das $p = 6$ defasagens. \emph{Meses $z \neq 0$} conta as observações em que o instrumento agregado é não-nulo. $\hat{\beta}$ e o erro padrão de Eicker-White HC1 vêm da regressão de primeiro estágio de $c_{mp}'\eta_t$ sobre o instrumento, com as defasagens do VAR dos fatores como controles, e estão multiplicados por $10^{4}$; $p$ é o valor-$p$ bicaudal correspondente. $\xi_{mp}$ e $F^{rob}_{mp}$ são as duas estatísticas definidas no corpo desta subseção, calculadas na mesma direção de normalização. O bloco de primeiro estágio é reportado apenas na amostra completa. O impacto estimado sobre o yield de 6 meses é positivo nas três variantes.}}
+\label{tab:first_stage}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}l c c c c c c c c@{}}
+\toprule
+ & \multicolumn{6}{c}{Amostra completa ($n = 147$)} & \multicolumn{2}{c}{Pré-COVID ($n = 78$)} \\
+\cmidrule(lr){2-7} \cmidrule(lr){8-9}
+Variante & Meses $z \neq 0$ & $\hat{\beta} \times 10^{4}$ & EP\,$\times\,10^{4}$ & $p$ & $\xi_{mp}$ & $F^{rob}_{mp}$ & $\xi_{mp}$ & $F^{rob}_{mp}$ \\
+\midrule
+Surpresa bruta do DI                    & 87 & $0{,}681$ & $0{,}287$ & $0{,}020$ & $5{,}27$ & $5{,}61$  & $14{,}86$ & $9{,}71$ \\
+\quad + ortogonalização predeterminada  & 90 & $0{,}612$ & $0{,}295$ & $0{,}040$ & $4{,}37$ & $4{,}32$  & $13{,}98$ & $9{,}10$ \\
+\quad + filtro de sinal (produção)      & 60 & $1{,}150$ & $0{,}361$ & $0{,}002$ & $6{,}27$ & $10{,}12$ & $10{,}99$ & $9{,}75$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
 
 
 
@@ -511,29 +505,35 @@ z_t = \alpha + \sum_{\ell=1}^{L} \boldsymbol{\beta}_\ell' \mathbf W_{t-\ell} + u
 H_0\colon \boldsymbol{\beta}_1 = \cdots = \boldsymbol{\beta}_L = \mathbf 0,
 \label{eq:predictability}
 \end{equation}
-em que $\mathbf W_t$ é o vetor-coluna de regressores e $\boldsymbol{\beta}_\ell$ reúne os coeficientes associados à defasagem $\ell$. Duas especificações usam os retornos das séries externas, com $L=3$ e $L=6$\footnote{O bloco externo contém o retorno do S\&P 500 combinado à variação do VIX, o retorno do MSCI de mercados emergentes, a variação do índice de commodities metálicas do Banco Central e a variação do índice de incerteza de política econômica dos Estados Unidos, enquanto o câmbio USD/BRL entra como quinto regressor, de natureza doméstica.}. As outras três usam os sete fatores estimados, com $L=1$, $L=3$ e $L=6$. Em cada especificação, a estatística de Wald robusta a heterocedasticidade testa conjuntamente a hipótese de que todos os vetores de coeficientes são nulos. Como o instrumento vale zero em 94 dos 156 meses do calendário, o valor-$p$ assintótico não é confiável, e os valores reportados vêm de \textit{wild bootstrap} sob a nula com 2.000 réplicas. Nenhuma das cinco especificações rejeita a imprevisibilidade, com $R^2$ entre $0{,}054$ e $0{,}408$ e valores-$p$ de \textit{bootstrap} entre $0{,}199$ e $0{,}946$.
+em que $\mathbf W_t$ é o vetor-coluna de regressores e $\boldsymbol{\beta}_\ell$ reúne os coeficientes associados à defasagem $\ell$. Duas especificações usam os retornos das séries externas, com $L=3$ e $L=6$\footnote{O bloco externo contém a variação do índice VIX, o retorno do MSCI de mercados emergentes, a variação do índice de commodities metálicas do Banco Central e a variação do índice de incerteza de política econômica dos Estados Unidos, enquanto o câmbio USD/BRL entra como quinto regressor, de natureza doméstica.}. As outras três usam os cinco fatores estimados, com $L=1$, $L=3$ e $L=6$. Em cada especificação, a estatística de Wald robusta a heterocedasticidade testa conjuntamente a hipótese de que todos os vetores de coeficientes são nulos. Como o instrumento vale zero em 94 dos 156 meses do calendário, o valor-$p$ assintótico não é confiável, e os valores reportados vêm de \textit{wild bootstrap} sob a nula com 2.000 réplicas. Nenhuma das cinco especificações rejeita a imprevisibilidade, com $R^2$ entre $0{,}044$ e $0{,}263$ e valores-$p$ de \textit{bootstrap} entre $0{,}199$ e $0{,}749$. A escolha do \textit{bootstrap} decide o veredito: na especificação com os cinco fatores e $L=6$ o valor-$p$ assintótico é $0{,}007$ e o de \textit{bootstrap} é $0{,}400$, de modo que a inferência assintótica acusaria uma violação que o desenho apropriado a um instrumento censurado em zero não encontra. Duas especificações adicionais substituem os fatores em nível pelas inovações fatoriais defasadas, com valores-$p$ de $0{,}631$ em $L=6$ e $0{,}926$ em $L=3$.
 
-O segundo diagnóstico testa a denominação dos índices de commodities e é distinto das regressões de previsibilidade. Nos dois últimos painéis da \autoref{fig:cambio}, o índice de metais do Banco Central sobe $5{,}67\%$ no impacto e exclui zero a 90\% até $h = 4$, embora uma economia pequena e aberta não mova o preço mundial dos metais. A denominação do índice permite testar se essa resposta vem de um componente global ou do câmbio.
+Essa bateria testa a metade retrospectiva da condição de exogeneidade. Ela é a metade restritiva em \cite{stockwatson2018} e a que motiva a segunda camada de construção, porque é exatamente a previsibilidade documentada por \cite{bauer2023} que a ortogonalização remove no dia do anúncio, sem garantia de sobreviver à agregação mensal. Convém registrar o alcance do teste: como observam \cite{mertensravn2013}, a previsibilidade do instrumento não invalida por si só a identificação do proxy-SVAR, cujas condições são contemporâneas, de modo que o exercício mede a qualidade do instrumento e não a consistência do estimador. A única ressalva que não desaparece está no câmbio, cujas defasagens produzem valor-$p$ de $0{,}064$ em retornos com $L=6$, o único regressor do bloco externo abaixo de $0{,}10$, e que não figura entre os preditores predeterminados da segunda camada.
+
+Uma última bateria muda de objeto e precisa ser lida como tal: ela testa invertibilidade, não exogeneidade. A condição de exogeneidade em relação a choques futuros integra a hipótese lead-lag da alternativa por projeções locais, que a Seção \ref{sec:metodologia} já descartou como exigência do estimador de produção. O que a versão prospectiva do teste de fato interroga é se o instrumento carrega informação ausente do passado do sistema, que é a implicação testável de invertibilidade explorada por \cite{stockwatson2018}. Em duas especificações, $z_t$ é regredido sobre inovações fatoriais futuras, com valores-$p$ de $0{,}711$ com três liderações e $0{,}971$ com seis. Na versão mais próxima da prática dos autores, as defasagens do instrumento são incluídas em cada uma das cinco equações do VAR dos fatores e testadas conjuntamente, mantendo irrestritas as defasagens dos próprios fatores. Com seis defasagens do instrumento, o menor valor-$p$ de \textit{bootstrap} entre as cinco equações é $0{,}324$ e nenhum sobrevive corrigido por Holm; com três defasagens, o menor é $0{,}085$, também sem sobreviver à correção. A não-causalidade de Granger não é rejeitada.
+
+Dois limites desse resultado precisam acompanhá-lo. O teste verifica uma condição necessária, e sua não-rejeição não estabelece invertibilidade, que permanece hipótese mantida do modelo. E o desenho tem pouca potência, com trinta regressores irrestritos e seis testados em cento e quarenta e sete observações, de modo que a ausência de rejeição informa apenas na medida em que o teste teria chance de detectar a alternativa.
+
+O segundo diagnóstico testa a denominação dos índices de commodities e é distinto das regressões de previsibilidade. Nos dois últimos painéis da \autoref{fig:cambio}, o índice de metais do Banco Central sobe $2{,}46\%$ da sua média amostral no impacto e exclui zero a 90\% até $h = 4$, embora uma economia pequena e aberta não mova o preço mundial dos metais. A denominação do índice permite testar se essa resposta vem de um componente global ou do câmbio.
 
 O índice do Banco Central é medido em reais. Para cada índice de commodities $i$, a conversão
 \[
 C^{USD}_{it} = \frac{C^{BRL}_{it}}{S_t},
 \]
-em que $S_t$ é a taxa de câmbio em reais por dólar, separa o preço internacional da variação cambial. Em um painel aumentado com os três índices convertidos para dólares, estimado com 200 réplicas, o índice de metais em reais responde $+6{,}30\%$ no impacto e exclui zero em quatro dos cinco primeiros horizontes, enquanto o mesmo índice em dólares responde $+1{,}59\%$ e contém zero nos 25 horizontes testados. Os índices de agropecuária e de energia têm o mesmo padrão, e a correlação entre a variação do índice de metais e a do câmbio é $+0{,}450$ em reais contra $-0{,}409$ em dólares.
+em que $S_t$ é a taxa de câmbio em reais por dólar, separa o preço internacional da variação cambial. Em um painel aumentado com os três índices convertidos para dólares, estimado com 200 réplicas, o índice de metais em reais responde $+2{,}48\%$ no impacto e exclui zero nos cinco primeiros horizontes, enquanto o mesmo índice em dólares responde $-0{,}91\%$ e contém zero nos 25 horizontes testados. Os índices de agropecuária e de energia têm o mesmo padrão, e a correlação entre a variação do índice de metais e a do câmbio é $+0{,}450$ em reais contra $-0{,}409$ em dólares.
 
-Um fator global moveria as duas denominações, mas a versão em dólares contém zero em todos os horizontes. O movimento do índice em reais herda, portanto, parte da resposta cambial, que é $+4{,}48\%$ no mesmo painel aumentado. Como a inclusão das três séries reduz $\xi_{mp}$ para $6{,}14$, a comparação identifica o papel da denominação sem fornecer uma estimativa alternativa da magnitude de produção.
+Um fator global moveria as duas denominações, mas a versão em dólares contém zero em todos os horizontes. O movimento do índice em reais herda, portanto, parte da resposta cambial, que é $+3{,}46\%$ no mesmo painel aumentado. Como a inclusão das três séries reduz $\xi_{mp}$ de $6{,}27$ para $5{,}77$, a comparação identifica o papel da denominação sem fornecer uma estimativa alternativa da magnitude de produção.
 
-As três séries externas usadas como placebo passam nos dois níveis de leitura adotados na Seção 4. Na banda de 90\%, o primeiro placebo exclui zero em 1 dos 49 horizontes, enquanto o MSCI de mercados emergentes e o índice de incerteza de política econômica dos Estados Unidos não o fazem em nenhum. Na banda de 68\%, o primeiro placebo exclui zero em 3 horizontes e os outros dois em nenhum, somando 3 dos 147 pares.
+As três séries externas usadas como placebo passam nos dois níveis de leitura adotados na Seção 4. Na banda de 90\% nenhuma das três exclui zero em qualquer um dos 49 horizontes, e na banda de 68\% o único par que exclui zero é o do VIX em $h = 8$, somando 1 dos 147 pares das três séries.
 
 \begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.7]{fig_placebos.pdf}
-\caption{\textbf{Placebos}\\{Séries externas que um choque de política monetária brasileiro não deve mover. O único marcador laranja está em $h = 2$ no primeiro painel. A faixa escura de 68\% exclui zero em 3 dos 147 pares das três séries.}}
+\caption{\textbf{Placebos}\\{Séries externas que um choque de política monetária brasileiro não deve mover. Nenhum dos 49 horizontes das três séries exclui zero na banda de 90\%, e a faixa escura de 68\% exclui zero em 1 dos 147 pares, no painel do VIX em $h = 8$.}}
 \label{fig:placebos}
 \end{center}
 \end{figure}
 
-Um choque monetário brasileiro não deve mover ativos globais e não os move em nenhuma das duas barras. O que os placebos não descartam é um confundidor doméstico, porque uma surpresa fiscal brasileira também deixaria o S\&P 500 parado, e essa alternativa pode incidir sobre a camada do instrumento.
+Um choque monetário brasileiro não deve mover ativos globais, e a banda de 90\% não o detecta movendo nenhum deles em nenhum horizonte. O que os placebos não descartam é um confundidor doméstico, porque uma surpresa fiscal brasileira deixaria igualmente parados o VIX, o MSCI de mercados emergentes e a incerteza de política econômica americana, e essa alternativa incide sobre a camada do instrumento.
 
 \subsection{O filtro de sinal seleciona risco soberano?}
 \label{sec:confound}
@@ -550,9 +550,9 @@ Contaminação exige que o dia retido carregue mais notícia de risco por unidad
 \end{equation}
 em que $x_d$ é a surpresa e $D_d$ indica um dia retido pelo filtro. A contaminação conjecturada implica $\delta>0$, mas a estimativa de $\delta$ é negativa nas cinco medidas da janela do evento. Nas 503 quintas-feiras sem reunião do Copom a variação do CDS carrega a surpresa a $0{,}436$ (t = $4{,}35$, $R^2$ $0{,}218$), enquanto nos 62 dias retidos pelo filtro o coeficiente cai para $0{,}140$, cerca de um terço. No EMBI+ a razão é a mesma, $0{,}326$ contra $0{,}099$. A interação entre a surpresa e a indicadora dos dias retidos é $-0{,}191$ no CDS (valor-$p$ de $0{,}170$), $-0{,}182$ no EMBI+ ($0{,}092$) e $-0{,}036$ no câmbio ($0{,}068$).
 
-O coeficiente nos 62 dias retidos não é zero, e essa é a primeira ressalva que o resultado carrega. Medido pelo CDS ele vale $0{,}140$ com valor-$p$ de \textit{bootstrap} de $0{,}003$, contra $0{,}099$ e $0{,}109$ do EMBI+, de modo que a afirmação sustentada é a de menos risco soberano que em um dia comum, e não a de ausência de risco. Os dias que o filtro rejeita carregam risco com sinal negativo e significativo ($-0{,}285$, valor-$p$ de $0{,}010$), enquanto o conjunto das 95 reuniões é nulo ($-0{,}004$), o que mostra que a regra separa dois regimes de sinal oposto em vez de descartar ruído.
+O coeficiente nos 62 dias retidos não é zero, e essa é a primeira ressalva que o resultado carrega. Medido pelo CDS ele vale $0{,}140$ com valor-$p$ de \textit{bootstrap} de $0{,}002$, contra $0{,}099$ e $0{,}109$ do EMBI+, de modo que a afirmação sustentada é a de menos risco soberano que em um dia comum, e não a de ausência de risco. Os dias que o filtro rejeita carregam risco com sinal negativo e significativo ($-0{,}285$, valor-$p$ de $0{,}010$), enquanto o conjunto das 95 reuniões é nulo ($-0{,}004$), o que mostra que a regra separa dois regimes de sinal oposto em vez de descartar ruído.
 
-Ortogonalizar a surpresa ao risco soberano contemporâneo é um limite inferior, porque política monetária pode mover o spread e a operação remove também essa resposta. A estatística $\xi_{mp}$ passa de $7{,}65$ na produção para $7{,}18$ quando a regressão auxiliar usa EMBI+ e câmbio, e para $8{,}97$ quando o CDS entra. Nessa última versão, o câmbio responde $0{,}225$ contra $0{,}228$ na produção e o CDS abre 40,8 contra 43,4 pontos-base, com bandas de 90\% que excluem zero nas duas versões. A força permanece abaixo de 10 na amostra completa, de modo que o exercício preserva a direção das respostas sem eliminar a ressalva de instrumento fraco.
+Ortogonalizar a surpresa ao risco soberano contemporâneo é um limite inferior, porque política monetária pode mover o spread e a operação remove também essa resposta. A operação atinge apenas os valores da surpresa e deixa intacta a seleção dos 62 dias, de modo que ela examina o conteúdo do instrumento e não a regra que o constrói. A estatística $\xi_{mp}$ passa de $6{,}27$ na produção para $6{,}62$ quando a regressão auxiliar usa EMBI+ e câmbio, e para $7{,}58$ quando o CDS entra. Nessa última versão, o câmbio responde $0{,}155$ contra $0{,}158$ real por dólar na produção e o CDS abre 29,7 contra 32,5 pontos-base, com bandas de 90\% que excluem zero nas duas versões. A força permanece abaixo de 10 na amostra completa, de modo que o exercício preserva a direção das respostas sem eliminar a ressalva de instrumento fraco.
 
 \subsection{O filtro de sinal seleciona notícias do FOMC?}
 \label{sec:fomc}
@@ -573,7 +573,7 @@ em que $U_d=(\Delta UST2_d,r^{S\&P}_d)'$ reúne a variação da UST de dois anos
 
 Os cortes da amostra apontam na mesma direção. Nos 35 dias de coincidência, o bloco americano explica $0{,}5\%$ da variância da surpresa, com $R^2=0{,}005$, enquanto nos 33 dias rejeitados pelo filtro explica $10{,}8\%$, com $R^2=0{,}108$. Se a coincidência injetasse notícia do Fed na surpresa retida, a relação deveria ser mais forte no primeiro conjunto. Os dados mostram o padrão oposto, pois a maior associação com a notícia americana está nos dias descartados.
 
-A distinção entre valores e seleção mostra onde o bloco global afeta o instrumento. Retirar esse bloco apenas dos valores reduz $\xi_{mp}$ de $7{,}65$ para $7{,}57$, enquanto rederivar também a máscara reduz a estatística para $6{,}59$. A diferença decorre de o bloco explicar $0{,}76\%$ da variância da surpresa de juros e $24{,}7\%$ da variância do retorno acionário. A bateria não detecta confundimento no bloco contemporâneo observado, mas não exclui spillovers que cheguem por variáveis fora desse bloco.
+A distinção entre valores e seleção mostra onde o bloco global afeta o instrumento. Retirar esse bloco apenas dos valores move $\xi_{mp}$ de $6{,}27$ para $6{,}31$, enquanto rederivar também a máscara a reduz para $4{,}18$. A distância entre as duas variantes mede o canal de seleção, uma vez que ambas ortogonalizam os mesmos valores contra o mesmo bloco e diferem apenas em rederivar ou não a regra de sinal. A bateria não detecta confundimento no bloco contemporâneo observado, mas não exclui spillovers que cheguem por variáveis fora desse bloco.
 
 %---------------
 \section{Concluding remarks}
@@ -634,7 +634,6 @@ Câmbio CNY/BRL & Yahoo Finance & Câmbio & 1 \\
 Câmbio ARS/BRL & Yahoo Finance & Câmbio & 1 \\
 Câmbio INR/BRL & Yahoo Finance & Câmbio & 1 \\
 Selic (meta acumulada) & BCB (4189) & Juros e curva & 1 \\
-CDI acumulado & BCB (4392) & Juros e curva & 1 \\
 DI 3 meses & Svensson/B3 & Juros e curva & 1 \\
 DI 6 meses & Svensson/B3 & Juros e curva & 1 \\
 DI 1 ano & Svensson/B3 & Juros e curva & 1 \\
@@ -720,7 +719,6 @@ IFIX (retorno mensal) & B3 & Índices de mercado & 2 \\
 IFNC (retorno mensal) & B3 & Índices de mercado & 2 \\
 IMAT (retorno mensal) & B3 & Índices de mercado & 2 \\
 IMOB (retorno mensal) & B3 & Índices de mercado & 2 \\
-MLCX (retorno mensal) & B3 & Índices de mercado & 2 \\
 SMLL (retorno mensal) & B3 & Índices de mercado & 2 \\
 EMBI+ Brasil & JP Morgan & Risco e incerteza & 1 \\
 CDS soberano 5 anos & Investing.com & Risco e incerteza & 1 \\
@@ -734,6 +732,13 @@ EPU Alemanha & policyuncertainty.com & Risco e incerteza & 1 \\
 EPU Índia & policyuncertainty.com & Risco e incerteza & 1 \\
 EPU Rússia & policyuncertainty.com & Risco e incerteza & 1 \\
 EPU Estados Unidos & policyuncertainty.com & Risco e incerteza & 1 \\
+Dívida bruta do governo geral (\% PIB) & BCB (13762) & Fiscal & 1 \\
+Dívida líquida do setor público (\% PIB) & BCB (4513) & Fiscal & 1 \\
+Resultado primário do setor público & BCB (4649) & Fiscal & 1 \\
+Focus: IPCA suavizado 12 meses & BCB/Focus & Expectativas & 1 \\
+Focus: Selic no fim do ano seguinte & BCB/Focus & Expectativas & 1 \\
+Focus: PIB no ano seguinte & BCB/Focus & Expectativas & 1 \\
+Focus: câmbio no fim do ano seguinte & BCB/Focus & Expectativas & 1 \\
 
 \end{longtable}
 \end{ThreePartTable}
