@@ -1,6 +1,6 @@
 conjunto,n_sig90_prod,n_sig90_loglevel,sobrevivem_loglevel,n_sig90_level,sobrevivem_level,tabela,var,point_prod,point_loglevel,point_level,sig90_prod,sig90_loglevel,sig90_level
-53 series escoradas,255,333,241,350,239,sobrevivencia_sig90,NA,NA,NA,NA,NA,NA,NA
-45 nao-acionarias,251,284,237,313,235,sobrevivencia_sig90,NA,NA,NA,NA,NA,NA,NA
+58 series escoradas,255,333,241,350,239,sobrevivencia_sig90,NA,NA,NA,NA,NA,NA,NA
+51 nao-acionarias,251,284,237,313,235,sobrevivencia_sig90,NA,NA,NA,NA,NA,NA,NA
 NA,NA,NA,NA,NA,NA,h0_manchetes,yield_2y,0.007430059200891002,0.006994379602991708,0.006811348712798981,TRUE,TRUE,TRUE
 NA,NA,NA,NA,NA,NA,h0_manchetes,yield_5y,0.007761146417650836,0.006697239607011724,0.006409258714438671,TRUE,TRUE,TRUE
 NA,NA,NA,NA,NA,NA,h0_manchetes,cambio_usd,0.15792806572512938,0.11675966232827772,0.11457951923872241,TRUE,TRUE,TRUE

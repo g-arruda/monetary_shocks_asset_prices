@@ -594,8 +594,6 @@ veredito <- if (xi_log_full < 3.84) {
 
 cat("\n===== VEREDITO =====\n", veredito, "\n", sep = "")
 
-fmtn <- function(x, d = 3) formatC(x, format = "f", digits = d)
-
 md <- c(
   "# Ações em log-nível: a representação causa o resultado nulo?",
   "",

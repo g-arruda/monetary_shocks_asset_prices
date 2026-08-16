@@ -37,7 +37,7 @@ Com a identificação mantida fixa, isto testa **DFM contra VAR pequeno**, não
 - mesmo sinal no impacto: 16 de 17. Células sig90: DFM **57**, VAR **282** (em h ≤ 12: 57 e 123).
 - *(pico bruto, a régua contaminada: forte 15 de 17, rápido 5 de 17 — mas o pico do DFM tem sinal **oposto** ao do impacto em 1 de 17)*
 
-**Bloco de ações (8 índices)** (n = 7)
+**Bloco de ações (7 índices)** (n = 7)
 
 - *mais forte no impacto*: **5 de 7** (razão mediana **3.38**).
 - *mais forte no pico de mesmo sinal*: **4 de 7** (razão mediana **1.06**).

@@ -81,6 +81,7 @@ source("R/modeling/impulse_response.R")    # sel_ext_inst_sample, ident_ext_inst
 source("R/modeling/var_proxy.R")           # var_est_ols, compute_irf_var_proxy
 source("R/modeling/production_spec.R")
 source("R/identification/spec_sweep.R")    # norm_value_for
+source("R/reporting/markdown_report.R")    # md_tbl
 
 
 # ---- Config: matched to script/irf_coherence_check.R ---------------
@@ -502,16 +503,6 @@ print(as.data.frame(core_disp), row.names = FALSE, digits = 3)
 # ===================================================================
 # 7. Report
 # ===================================================================
-
-md_tbl <- function(df, digits = 4) {
-  df <- as.data.frame(df)
-  num <- vapply(df, is.numeric, logical(1))
-  df[num] <- lapply(df[num], function(x) format(round(x, digits), trim = TRUE))
-  hdr <- paste0("| ", paste(names(df), collapse = " | "), " |")
-  sep <- paste0("|", paste(rep("---", ncol(df)), collapse = "|"), "|")
-  body <- apply(df, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |"))
-  c(hdr, sep, body, "")
-}
 
 tally_md <- function(d, lab) {
   c(sprintf("**%s** (n = %d)", lab, nrow(d)), "",

@@ -36,6 +36,7 @@ source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/nongaussian_branch.R")
+source("R/reporting/markdown_report.R")
 
 args  <- commandArgs(trailingOnly = TRUE)
 SPEC <- production_spec()
@@ -233,7 +234,6 @@ ggsave(file.path(OUT_DIR, "irf_comparison.pdf"), fig, width = 9, height = 10,
 # ------------------------------------------------------------------
 # Report
 # ------------------------------------------------------------------
-fmt <- function(x, d = 3) formatC(x, format = "f", digits = d)
 h0 <- function(cell, v) cell$irf_point_matrix[match(v, colnames(data)), 1]
 
 md <- c(

@@ -29,6 +29,7 @@ source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/nongaussian_gmr.R")
+source("R/reporting/markdown_report.R")
 
 SPEC <- production_spec()
 R_PROD <- SPEC$r
@@ -127,8 +128,6 @@ stab_cols <- vapply(seq_len(Q_PROD), function(j)
 # ------------------------------------------------------------------
 # Report
 # ------------------------------------------------------------------
-fmt <- function(x, d = 3) formatC(x, format = "f", digits = d)
-
 md <- c(
   "# Gate de não-gaussianidade — inovações fatoriais η",
   "",

@@ -64,6 +64,7 @@ source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/het_primary.R")
 source("R/identification/het_tests.R")
+source("R/reporting/markdown_report.R")
 
 SPEC <- production_spec()
 set.seed(SPEC$bootstrap_seed)
@@ -627,8 +628,6 @@ ggsave(file.path(OUT_DIR, "het_gate_surface.pdf"), g, width = 16, height = 7)
 # ============================================================
 # REPORT  (generated body -- never hand-edit this file)
 # ============================================================
-
-fmt <- function(x, d = 3) formatC(x, format = "f", digits = d)
 
 prod_row <- verdict |>
   filter(sample == "full", r == PROD$r, q == PROD$q, p == PROD$p)

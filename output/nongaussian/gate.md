@@ -1,6 +1,6 @@
 # Gate de não-gaussianidade — inovações fatoriais η
 
-Gerado por `script/nongaussian_gate.R` em 2026-08-13.
+Gerado por `script/nongaussian_gate.R` em 2026-08-16.
 Especificação: r = 5, q = 5, p = 6; painel 2013-07-01 a 2025-09-01.
 
 GMR (2017) e LMS (2017) identificam `C` apenas se **no máximo uma** das q

@@ -83,6 +83,7 @@ suppressPackageStartupMessages({
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
+source("R/reporting/markdown_report.R")   # md_tbl
 
 set.seed(20260731)
 
@@ -719,16 +720,6 @@ if (!is.null(rev_tbl)) {
 # ===================================================================
 # 8. Report
 # ===================================================================
-
-md_tbl <- function(df, digits = 4) {
-  df <- as.data.frame(df)
-  num <- vapply(df, is.numeric, logical(1))
-  df[num] <- lapply(df[num], function(x) format(round(x, digits), trim = TRUE))
-  hdr <- paste0("| ", paste(names(df), collapse = " | "), " |")
-  sep <- paste0("|", paste(rep("---", ncol(df)), collapse = "|"), "|")
-  body <- apply(df, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |"))
-  c(hdr, sep, body, "")
-}
 
 md <- c(
   "# Estacionariedade, cointegração e espectro da companion",

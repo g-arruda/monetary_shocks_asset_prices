@@ -124,17 +124,6 @@ var_group <- function(v = VAR_NAMES) {
 
 # ---- Utilitarios --------------------------------------------------
 
-#' Tabela markdown simples (mesma convencao dos relatorios do repo)
-md_tbl <- function(df, digits = 4) {
-  df <- as.data.frame(df)
-  num <- vapply(df, is.numeric, logical(1))
-  df[num] <- lapply(df[num], function(x) format(round(x, digits), trim = TRUE))
-  hdr <- paste0("| ", paste(names(df), collapse = " | "), " |")
-  sep <- paste0("|", paste(rep("---", ncol(df)), collapse = "|"), "|")
-  body <- apply(df, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |"))
-  c(hdr, sep, body)
-}
-
 #' Grava csv em diagnostics/output/ e ecoa o caminho
 diag_write <- function(df, file) {
   path <- file.path(DIAG_OUT, file)

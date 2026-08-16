@@ -392,3 +392,24 @@ md_table <- function(df, digits = 4) {
   body   <- apply(fmt, 1, function(row) paste0("| ", paste(row, collapse = " | "), " |"))
   paste(c(header, sep, body), collapse = "\n")
 }
+
+#' Render one xi_mp surface with r in rows and q in columns
+#'
+#' @param cells Long result table for one variant and sample.
+#'
+#' @return Character vector containing a GitHub-flavored markdown table.
+rq_surface_table <- function(cells) {
+  surface <- tidyr::complete(cells, r = 5:8, q = 3:8) |>
+    dplyr::mutate(
+      xi_mp = dplyr::if_else(is.na(xi_mp), NA_character_, sprintf("%.2f", xi_mp)),
+      mosw_class = dplyr::if_else(is.na(mosw_class), NA_character_, mosw_class)
+    ) |>
+    dplyr::select(r, q, xi_mp, mosw_class) |>
+    tidyr::pivot_wider(
+      names_from = q,
+      values_from = c(xi_mp, mosw_class),
+      names_glue = "{.value}_q{q}"
+    ) |>
+    dplyr::arrange(r)
+  md_table(surface, digits = 4)
+}

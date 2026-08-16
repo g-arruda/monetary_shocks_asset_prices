@@ -1,12 +1,12 @@
 # Ações em log-nível: a representação causa o resultado nulo?
 
-*Gerado por `script/asset_representation.R` em 2026-08-13. **Corpo gerado: não escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-07-31_acoes_representacao.md`.*
+*Gerado por `script/asset_representation.R` em 2026-08-16. **Corpo gerado: não escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-07-31_acoes_representacao.md`.*
 
 ## A pergunta
 
 As 8 séries da B3 entram no painel como **retorno mensal composto**, enquanto
 as outras 98 entram em nível ou log-nível. O `cumsum` que recupera o nível é
-aplicado à **IRF** (`impulse_responde.R:277`, tcode 2), não aos dados. Como o
+aplicado à **IRF** (`impulse_response.R:277`, tcode 2), não aos dados. Como o
 BLL diferencia o painel para estimar `Λ` (`factor_estimation.R:300`), o bloco
 acionário é estimado sobre a **segunda diferença** do log-preço. O paper
 reporta **0 de 392** células sig90 nesse bloco — o tema do próprio título.
@@ -189,8 +189,8 @@ Sem isto a comparação não vale nada: mudar o painel re-estima tudo.
 
 | conjunto | n_sig90_prod | n_sig90_loglevel | sobrevivem_loglevel | n_sig90_level | sobrevivem_level |
 |---|---|---|---|---|---|
-| 53 series escoradas |   255 |   333 |   241 |   350 |   239 |
-| 45 nao-acionarias |   251 |   284 |   237 |   313 |   235 |
+| 58 series escoradas |   255 |   333 |   241 |   350 |   239 |
+| 51 nao-acionarias |   251 |   284 |   237 |   313 |   235 |
 
 | var | point_prod | point_loglevel | point_level | sig90_prod | sig90_loglevel | sig90_level |
 |---|---|---|---|---|---|---|

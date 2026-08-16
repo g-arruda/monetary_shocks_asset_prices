@@ -1,6 +1,6 @@
 # Grade experimental de fatores (r,q)
 
-> Gerado por `script/panel_composition_rq_grid.R` em 2026-08-13. Esta rodada só estima DFM de ponto e ξ_mp; não roda bootstrap, IRFs, figuras ou RDS de células.
+> Gerado por `script/panel_composition_rq_grid.R` em 2026-08-16. Esta rodada só estima DFM de ponto e ξ_mp; não roda bootstrap, IRFs, figuras ou RDS de células.
 
 ## Desenho fixado
 
