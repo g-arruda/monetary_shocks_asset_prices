@@ -69,6 +69,59 @@ robust_joint_test <- function(y, X, nboot = NBOOT_P, label = "") {
 }
 
 
+#' Wald conjunto robusto (HC1) de que os coeficientes de `X_test` sao zero,
+#' mantendo `X_free` irrestrito, com p-valor por wild bootstrap sob H0.
+#'
+#' Generaliza `robust_joint_test`: la a nula e "todos os regressores sao zero" e
+#' o residuo sob H0 e `y - mean(y)`; aqui a nula e restrita ao bloco `X_test` e o
+#' residuo sob H0 vem da regressao restrita `y ~ X_free`. Com `X_free` vazio as
+#' duas coincidem, o que o auto-teste abaixo verifica.
+robust_subset_test <- function(y, X_free, X_test, nboot = NBOOT_P, label = "",
+                               equacao = NA_character_) {
+  X_free <- if (is.null(X_free) || ncol(X_free) == 0) NULL else as.matrix(X_free)
+  X_test <- as.matrix(X_test)
+  ok <- is.finite(y) & apply(is.finite(X_test), 1, all) &
+    (if (is.null(X_free)) TRUE else apply(is.finite(X_free), 1, all))
+  y <- y[ok]; X_test <- X_test[ok, , drop = FALSE]
+  if (!is.null(X_free)) X_free <- X_free[ok, , drop = FALSE]
+
+  n <- length(y)
+  k_free <- if (is.null(X_free)) 0L else ncol(X_free)
+  k_test <- ncol(X_test)
+  na_row <- data.frame(teste = label, equacao = equacao, n = n, k = k_test,
+                       R2 = NA_real_, F_rob = NA_real_, p_asym = NA_real_,
+                       p_boot = NA_real_)
+  if (n <= k_free + k_test + 2) return(na_row)
+
+  X_all <- if (is.null(X_free)) X_test else cbind(X_free, X_test)
+  idx   <- (k_free + 2):(k_free + k_test + 1)   # +1 pela constante do lm
+
+  wald <- function(yy) {
+    fit <- lm(yy ~ X_all)
+    V   <- tryCatch(sandwich::vcovHC(fit, type = "HC1"), error = function(e) NULL)
+    if (is.null(V)) return(NA_real_)
+    b <- coef(fit)[idx]
+    if (any(!is.finite(b))) return(NA_real_)
+    tryCatch(drop(t(b) %*% solve(V[idx, idx, drop = FALSE], b)) / length(b),
+             error = function(e) NA_real_)
+  }
+
+  Fst <- wald(y)
+  if (!is.finite(Fst)) return(na_row)
+  R2  <- summary(lm(y ~ X_all))$r.squared
+  p_a <- pf(Fst, k_test, n - k_free - k_test - 1, lower.tail = FALSE)
+
+  # wild bootstrap sob H0: y* = ajuste da restrita + residuo da restrita * rademacher
+  fit0 <- if (is.null(X_free)) lm(y ~ 1) else lm(y ~ X_free)
+  mu0  <- fitted(fit0)
+  e0   <- residuals(fit0)
+  Fb <- replicate(nboot, wald(mu0 + e0 * (1 - 2 * (runif(n) > 0.5))))
+
+  data.frame(teste = label, equacao = equacao, n = n, k = k_test, R2 = R2,
+             F_rob = Fst, p_asym = p_a, p_boot = mean(Fb >= Fst, na.rm = TRUE))
+}
+
+
 # -------------------------------------------------------------------
 # Dados: instrumento alinhado ao painel
 # -------------------------------------------------------------------
@@ -134,8 +187,7 @@ for (L in c(6L, 3L, 1L)) {
 }
 
 # eta: inovacoes dinamicas, alinhadas via sel_ext_inst_sample
-u   <- dfm$var_residuals
-eta <- u %*% dfm$dynamic_loadings %*% solve(dfm$dynamic_scaling)
+eta <- extract_dynamic_innovations(dfm)
 colnames(eta) <- paste0("eta", seq_len(ncol(eta)))
 z_eta <- Z[(SPEC$p + 1):length(Z)]
 
@@ -293,6 +345,73 @@ cat("\n-- espaco de fatores: producao vs aumentado --\n")
 print(as.data.frame(fs_cmp), row.names = FALSE, digits = 5)
 diag_write(fs_cmp, "t1_6_espaco_fatores.csv")
 diag_write(t16, "t1_6_placebo_brl_vs_usd.csv")
+
+
+# ===================================================================
+# 1.7 — INVERTIBILIDADE: z Granger-causa os fatores?
+#
+# ATENCAO: este bloco NAO testa exogeneidade. O estimador de producao e o
+# SVAR-IV, e a Condicao SVAR-IV de Stock-Watson (2018, secao 2.1) exige apenas
+# relevancia e exogeneidade CONTEMPORANEA -- os autores dizem explicitamente que
+# o SVAR-IV "does not require lead-lag exogeneity. But to be valid, this method
+# requires invertibility". A condicao lead-lag e da LP-IV (Condicao LP-IV, item
+# iii), e a troca esta no Theorem 1 deles: as duas rotas gastam o mesmo orcamento
+# de hipoteses.
+#
+# O que se testa aqui e a hipotese que o proxy-DFM de fato assume e que nada no
+# repositorio interroga: a invertibilidade. Sob invertibilidade o passado dos
+# fatores ja contem a informacao do instrumento, logo defasagens de z nao podem
+# ajudar a prever os fatores. E o teste que SW rodam na Tabela 2 deles como
+# "VAR Z-GC test", devido a Forni-Gambetti (2014): F conjunto de que os
+# coeficientes das defasagens de z sao nulos em CADA equacao do VAR.
+#
+# Regra de veredito, fixada antes dos numeros:
+#   - L = p = 6 decide (casa com a ordem do proprio VAR de fatores); L = 3 e
+#     sensibilidade;
+#   - p por wild bootstrap sob H0, nao assintotico, porque z e censurado em zero;
+#   - Holm sobre as r equacoes, dentro de cada L; rejeita se algum p ajustado
+#     ficar abaixo de 0,05.
+# Nao-rejeicao e teste de condicao NECESSARIA: nao estabelece invertibilidade.
+# ===================================================================
+cat("\n[1.7] invertibilidade: z Granger-causa os fatores? (SW Tabela 2)\n")
+
+P_LAG <- SPEC$p
+Zm <- matrix(Z, ncol = 1, dimnames = list(NULL, "z"))
+F_lags <- lag_matrix(Fh, P_LAG, "f")             # defasagens 1..p dos r fatores
+Z_lags <- lag_matrix(Zm, P_LAG, "inst")          # defasagens 1..p de z
+y_all  <- Fh[(P_LAG + 1):nrow(Fh), , drop = FALSE]
+stopifnot(nrow(F_lags) == nrow(Z_lags), nrow(F_lags) == nrow(y_all))
+
+# auto-teste: com X_free vazio, robust_subset_test tem de reproduzir
+# robust_joint_test na mesma amostra (mesma Wald, mesmo R2)
+.chk_y <- y_all[, 1]
+.chk_a <- robust_joint_test(.chk_y, F_lags, nboot = 1L, label = "chk")
+.chk_b <- robust_subset_test(.chk_y, NULL, F_lags, nboot = 1L, label = "chk")
+stopifnot(isTRUE(all.equal(.chk_a$F_rob, .chk_b$F_rob)),
+          isTRUE(all.equal(.chk_a$R2,    .chk_b$R2)))
+cat("  auto-teste robust_subset_test == robust_joint_test (X_free vazio): OK\n")
+
+t17 <- lapply(c(6L, 3L), function(L) {
+  cols <- paste0("inst_z_l", seq_len(L))
+  out <- lapply(seq_len(ncol(Fh)), function(i) {
+    robust_subset_test(y_all[, i], F_lags, Z_lags[, cols, drop = FALSE],
+                       label = sprintf("granger_z_para_fator_L%d", L),
+                       equacao = colnames(Fh)[i])
+  }) |> bind_rows()
+  out |> mutate(L = L, p_holm = p.adjust(p_boot, "holm"), .before = 1)
+}) |> bind_rows()
+
+print(as.data.frame(t17), row.names = FALSE, digits = 4)
+diag_write(t17, "t1_7_invertibilidade_granger.csv")
+
+gc_dec <- t17 |> filter(L == P_LAG)
+cat(sprintf("\nVEREDITO (invertibilidade, L = %d, Holm sobre %d equacoes): %s\n",
+            P_LAG, nrow(gc_dec),
+            if (all(gc_dec$p_holm >= 0.05, na.rm = TRUE))
+              "nao-causalidade de Granger NAO rejeitada — condicao necessaria de invertibilidade sobrevive"
+            else paste0("REJEITADA em: ",
+                        paste(gc_dec$equacao[gc_dec$p_holm < 0.05], collapse = ", "))))
+cat("  (nao-rejeicao nao estabelece invertibilidade; e teste de condicao necessaria)\n")
 
 
 # ===================================================================
