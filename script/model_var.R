@@ -79,20 +79,22 @@ suppressPackageStartupMessages({
 source("R/modeling/factor_estimation.R")   # kilian_correction, infer_tcode
 source("R/modeling/impulse_responde.R")    # sel_ext_inst_sample, ident_ext_instr
 source("R/modeling/var_proxy.R")           # var_est_ols, compute_irf_var_proxy
+source("R/modeling/production_spec.R")
 source("R/identification/spec_sweep.R")    # norm_value_for
 
 
 # ---- Config: matched to script/irf_coherence_check.R ---------------
 
-P_LAGS     <- 6L
-HORIZON    <- 48L
-N_BOOT     <- 800L
-BOOT_SEED  <- 123L
-SHOCK_BPS  <- 50
-CI_LEVELS  <- c(0.68, 0.90)
-INSTRUMENT <- "z_jk_bs_purif"
-MP_VAR     <- "yield_6m"
-WINDOW     <- as.Date(c("2013-01-01", "2025-12-31"))
+SPEC       <- production_spec()
+P_LAGS     <- SPEC$p
+HORIZON    <- SPEC$horizon
+N_BOOT     <- SPEC$nboot
+BOOT_SEED  <- SPEC$bootstrap_seed
+SHOCK_BPS  <- SPEC$shock_bps
+CI_LEVELS  <- SPEC$ci_levels
+INSTRUMENT <- SPEC$instrument
+MP_VAR     <- SPEC$mp_var
+WINDOW     <- SPEC$sample
 
 # AK's corevars: activity, prices, medium-term rate (the last one is mpind)
 CORE_VARS <- c("ind_transformacao", "price_ipca", "yield_6m")
@@ -104,14 +106,14 @@ VARLIST <- list(
                 "spread_icc_juridica"),
   cambio    = c("cambio_usd"),
   acoes     = c("asset_ibov", "asset_idiv", "asset_ifix", "asset_ifnc",
-                "asset_imat", "asset_imob", "asset_mlcx", "asset_smll",
+                "asset_imat", "asset_imob", "asset_smll",
                 "price_ipp"),
   extensao  = c("yield_2y", "yield_10y", "ibc_br", "price_core_ipca_ex0")
 )
 
-DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
-INST_PATH <- "data/processed/instrumentos_mensais.csv"
-CELL_PATH <- "output/irf/irf_coherence_cell.rds"
+DATA_PATH <- SPEC$data_path
+INST_PATH <- SPEC$instrument_path
+CELL_PATH <- SPEC$coherence_cell_path
 HCSV_PATH <- "output/irf/irf_coherence_h.csv"
 OUT_DIR   <- "output/var"
 
@@ -141,7 +143,7 @@ inst_df <- read_csv(INST_PATH, show_col_types = FALSE) |>
   filter(!is.na(shock))
 
 cell <- readRDS(CELL_PATH)
-stopifnot(cell$instrument == INSTRUMENT, cell$r == 7L, cell$q == 6L,
+stopifnot(cell$instrument == INSTRUMENT, cell$r == SPEC$r, cell$q == SPEC$q,
           cell$p == P_LAGS, cell$mp_var == MP_VAR)
 
 RESPONSES <- unlist(VARLIST, use.names = FALSE)
@@ -257,7 +259,7 @@ d2 <- max(abs(chk$lo90 - chk$lo90_csv), abs(chk$hi90 - chk$hi90_csv))
 cat(sprintf("    (2) DFM vs irf_coherence_h.csv on %d of %d responses, %d rows: point %.3g, band %.3g\n",
             length(scored), length(RESPONSES), nrow(chk), d1, d2))
 if (length(unscored))
-  cat(sprintf("        fora da regua de 53 (esperado): %s\n",
+  cat(sprintf("        fora da regua de coerencia (esperado): %s\n",
               paste(unscored, collapse = ", ")))
 stopifnot(d1 < 1e-10, d2 < 1e-10)
 
@@ -388,7 +390,8 @@ tally <- function(d, lab) {
               sum(d$n_sig90_cp_VAR)))
 }
 tally(cmp, "TODAS as respostas")
-tally(cmp |> filter(var %in% acoes8), "bloco de ACOES (8 indices)")
+tally(cmp |> filter(var %in% acoes8),
+      sprintf("bloco de ACOES (%d indices)", length(acoes8)))
 
 expl <- cmp |> filter(var_explosivo)
 if (nrow(expl)) {
@@ -436,7 +439,10 @@ fig_group <- function(vars, file, titulo) {
   })
   p <- Reduce(`/`, rows) +
     plot_annotation(title = titulo,
-                    subtitle = "esquerda: VAR pequeno (4 variaveis)   |   direita: DFM (r=7, q=6) — mesmo eixo y por linha",
+                    subtitle = sprintf(
+                      "esquerda: VAR pequeno (4 variaveis) | direita: DFM (r=%d, q=%d) — mesmo eixo y por linha",
+                      SPEC$r, SPEC$q
+                    ),
                     theme = theme_minimal(base_size = 9))
   ggsave(file.path(OUT_DIR, file), p, width = 7.5,
          height = 1.5 * length(vars) + 0.8, device = cairo_pdf)
@@ -562,7 +568,8 @@ md <- c(
   "## Placar",
   "",
   tally_md(cmp, "Todas as respostas"),
-  tally_md(cmp |> filter(var %in% acoes8), "Bloco de ações (8 índices)"),
+  tally_md(cmp |> filter(var %in% acoes8),
+           sprintf("Bloco de ações (%d índices)", length(acoes8))),
   "E há uma segunda razão para desconfiar do pico bruto: a nota de 2026-07-31",
   "sobre o espectro da companion mostra que o extremo de médio prazo do DFM *é*",
   "a oscilação amortecida do par complexo dominante — apagar o par inverte o",

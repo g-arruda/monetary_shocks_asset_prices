@@ -14,6 +14,7 @@ suppressMessages({
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")
 source("R/identification/irf_coherence.R")
@@ -22,18 +23,16 @@ DIAG_OUT <- "diagnostics/output"
 dir.create(DIAG_OUT, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Especificacao de producao (espelha irf_coherence_check.R) -----
-SPEC <- list(
-  r = 7L, q = 6L, p = 6L,
-  instrument = "z_jk_bs_purif",
-  mp_var = "yield_6m",
-  h = 48L, nboot = 800L, seed = 123L, shock_bps = 50,
-  ci_levels = c(0.68, 0.90),
-  window = as.Date(c("2013-01-01", "2025-12-31"))
-)
+PRODUCTION <- production_spec()
+SPEC <- c(PRODUCTION, list(
+  h = PRODUCTION$horizon,
+  seed = PRODUCTION$bootstrap_seed,
+  window = PRODUCTION$sample
+))
 
 # ---- Painel -------------------------------------------------------
 PANEL_RAW <- read_csv("data/raw/raw_data.csv", show_col_types = FALSE)
-panel_df  <- read_csv("data/processed/data_log_deseasonalized.csv",
+panel_df  <- read_csv(SPEC$data_path,
                       show_col_types = FALSE) |> drop_na()
 DATES     <- as.Date(panel_df$ref.date)
 PANEL     <- panel_df |> select(-ref.date) |> as.matrix()
@@ -53,7 +52,7 @@ inst_df <- function(variant = SPEC$instrument) {
 }
 
 # ---- Celula de producao ja estimada -------------------------------
-CELL_PATH <- "output/irf/irf_coherence_cell.rds"
+CELL_PATH <- SPEC$coherence_cell_path
 CELL <- if (file.exists(CELL_PATH)) readRDS(CELL_PATH) else NULL
 
 
@@ -107,7 +106,9 @@ GROUP_PATTERNS <- c(
   ativos     = "^asset_",
   incerteza  = "^epu_",
   risco_ext  = "^embi|^cds_5y$|^msci$|^sp500_vix$",
-  atividade  = "^pib$|^ibc_br$|^icc$|^ics$"
+  atividade  = "^pib$|^ibc_br$|^icc$|^ics$",
+  fiscal     = "^fiscal_",
+  expectativas = "^expect_"
 )
 
 var_group <- function(v = VAR_NAMES) {

@@ -21,24 +21,27 @@ suppressPackageStartupMessages({
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 
 dir.create("output/instrument", showWarnings = FALSE, recursive = TRUE)
 
-YIELD6M_TARGET <- "yield_6m"
+SPEC <- production_spec()
+YIELD6M_TARGET <- SPEC$mp_var
 
 # ---- 1. DFM estimation (instrument-agnostic) ---------------
 
-raw_data <- read_csv("data/processed/data_log_deseasonalized.csv",
+raw_data <- read_csv(SPEC$data_path,
                      show_col_types = FALSE) |> drop_na()
 
 dates  <- as.Date(raw_data$ref.date)
 X      <- raw_data |> select(-ref.date) |> as.matrix()
 
-message("Estimating DFM (r=8, q=8, p=6) ...")
+message(sprintf("Estimating production DFM (r=%d, q=%d, p=%d) ...",
+                SPEC$r, SPEC$q, SPEC$p))
 # We need any instrument df just so estimate_dfm() builds the VAR; use the bruto.
 seed_inst <- read_csv("data/processed/instrument_bruto.csv", show_col_types = FALSE)
-dfm <- estimate_dfm(X, r = 8, q = 8, p = 6,
+dfm <- estimate_dfm(X, r = SPEC$r, q = SPEC$q, p = SPEC$p,
                     dates = dates, instrument = seed_inst,
                     apply_kilian = FALSE)
 

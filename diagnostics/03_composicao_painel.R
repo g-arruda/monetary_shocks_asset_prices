@@ -22,15 +22,12 @@ raw_w <- PANEL_RAW |>
 cat("\n[3.1] juros_selic vs juros_cdi\n")
 
 t31 <- data.frame(
-  base = c("raw_data.csv (bruto)", "data_log_deseasonalized.csv (painel)"),
-  cor_nivel = c(cor(raw_w$juros_selic, raw_w$juros_cdi),
-                cor(PANEL[, "juros_selic"], PANEL[, "juros_cdi"])),
-  cor_diff = c(cor(diff(raw_w$juros_selic), diff(raw_w$juros_cdi)),
-               cor(diff(PANEL[, "juros_selic"]), diff(PANEL[, "juros_cdi"]))),
-  dif_media_abs = c(mean(abs(raw_w$juros_selic - raw_w$juros_cdi)),
-                    mean(abs(PANEL[, "juros_selic"] - PANEL[, "juros_cdi"]))),
-  dif_max_abs = c(max(abs(raw_w$juros_selic - raw_w$juros_cdi)),
-                  max(abs(PANEL[, "juros_selic"] - PANEL[, "juros_cdi"])))
+  base = "raw_data.csv (bruto)",
+  cor_nivel = cor(raw_w$juros_selic, raw_w$juros_cdi),
+  cor_diff = cor(diff(raw_w$juros_selic), diff(raw_w$juros_cdi)),
+  dif_media_abs = mean(abs(raw_w$juros_selic - raw_w$juros_cdi)),
+  dif_max_abs = max(abs(raw_w$juros_selic - raw_w$juros_cdi)),
+  in_production = "juros_cdi" %in% VAR_NAMES
 )
 print(as.data.frame(t31), row.names = FALSE, digits = 6)
 cat("  Fontes: SGS 4189 (Selic acumulada no mes) e SGS 4392 (CDI acumulado no mes).\n")
@@ -44,7 +41,7 @@ diag_write(t31, "t3_1_selic_cdi.csv")
 # ===================================================================
 cat("\n[3.2] varredura de quase-duplicidade em TODOS os pares\n")
 
-X_lvl <- as.matrix(raw_w |> select(all_of(VAR_NAMES)))
+X_lvl <- PANEL
 X_dif <- diff(X_lvl)
 C_lvl <- cor(X_lvl, use = "pairwise.complete.obs")
 C_dif <- cor(X_dif, use = "pairwise.complete.obs")
@@ -147,7 +144,7 @@ run_and_extract <- function(M, tc, lab) {
   )
 }
 
-r_full <- run_and_extract(PANEL, TCODE, "producao_106")
+r_full <- run_and_extract(PANEL, TCODE, sprintf("producao_%d", ncol(PANEL)))
 r_trim <- run_and_extract(PANEL_TRIM, tc_trim, sprintf("podado_%d", ncol(PANEL_TRIM)))
 
 t34_forca <- bind_rows(r_full$forca, r_trim$forca)

@@ -27,28 +27,30 @@ suppressPackageStartupMessages({
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/nongaussian_gmr.R")
 
-R_PROD <- 7L
-Q_PROD <- 6L
-P_LAGS <- 6
-COVID_START <- as.Date("2020-03-01")
+SPEC <- production_spec()
+R_PROD <- SPEC$r
+Q_PROD <- SPEC$q
+P_LAGS <- SPEC$p
+PRE_COVID_END <- SPEC$pre_covid_sample[2]
 OUT_DIR <- "output/nongaussian"
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ------------------------------------------------------------------
 # Estimate the production DFM and extract eta
 # ------------------------------------------------------------------
-raw <- read_csv("data/processed/data_log_deseasonalized.csv",
+raw <- read_csv(SPEC$data_path,
                 show_col_types = FALSE) |> drop_na()
 dates <- as.Date(raw$ref.date)
 data  <- raw |> select(-ref.date) |> as.matrix()
-inst  <- read_csv("data/processed/instrument.csv", show_col_types = FALSE)
+inst  <- read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
 
 dfm <- estimate_dfm(data, R_PROD, Q_PROD, P_LAGS, dates = dates,
                     instrument = inst, apply_kilian = TRUE)
 
-eta <- dfm$var_residuals %*% dfm$dynamic_loadings %*% solve(dfm$dynamic_scaling)
+eta <- extract_dynamic_innovations(dfm)
 eta_dates <- as.Date(dfm$dates)[(P_LAGS + 1):length(dfm$dates)]
 stopifnot(nrow(eta) == length(eta_dates))
 
@@ -68,7 +70,7 @@ moments_tbl <- function(E, label) {
   }))
 }
 
-pre <- eta_dates < COVID_START
+pre <- eta_dates <= PRE_COVID_END
 tbl <- rbind(moments_tbl(eta, "full"),
              moments_tbl(eta[pre, , drop = FALSE], "pre_covid"))
 
@@ -168,7 +170,7 @@ md <- c(
     "Na janela **pré-COVID** a situação é qualitativamente pior (", ng_pre,
     " de ", Q_PROD, " gaussianos): a rota não-gaussiana **não existe** ali. ",
     "A não-gaussianidade do painel é dirigida pela COVID. É justamente a janela ",
-    "em que o proxy é mais forte (ξ_mp 11,53), então as duas identificações ",
+    "em que o proxy é relativamente mais forte, então as duas identificações ",
     "não podem ser comparadas nessa amostra.") else "",
   "",
   "## Onde vive a direção monetária do proxy",

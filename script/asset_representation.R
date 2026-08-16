@@ -3,7 +3,7 @@
 # the null result in the equity block?
 #
 # Council-review item of 2026-07-31 (registro/pendencias.md:588-595):
-# the 8 `asset_*` series enter the panel as monthly compounded simple
+# the `asset_*` series enter the panel as monthly compounded simple
 # returns while the other 98 enter in level (or log-level), which is
 # inconsistent with BLL's own "do not difference" point and with
 # Alessi-Kerssenfischer's log-levels. The paper reports 0 of 392 sig90
@@ -99,6 +99,7 @@ suppressPackageStartupMessages({
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")
 source("R/identification/irf_coherence.R")
@@ -107,24 +108,29 @@ OUT_DIR <- "output/assets"
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # --- production spec (mirrors irf_coherence_check.R / diagnostics/_common.R)
-R_FACTORS  <- 7L
-Q_DYNAMIC  <- 6L
-P_LAGS     <- 6L
-INSTRUMENT <- "z_jk_bs_purif"
-MP_VAR     <- "yield_6m"
-HORIZON    <- 48L
-N_BOOT     <- 800L
-SEED       <- 123L
-SHOCK_BPS  <- 50
-CI_LEVELS  <- c(0.68, 0.90)
-WIN_FULL   <- as.Date(c("2013-01-01", "2025-12-31"))
-WIN_PRE    <- as.Date(c("2013-01-01", "2019-12-31"))
+SPEC       <- production_spec()
+R_FACTORS  <- SPEC$r
+Q_DYNAMIC  <- SPEC$q
+P_LAGS     <- SPEC$p
+INSTRUMENT <- SPEC$instrument
+MP_VAR     <- SPEC$mp_var
+HORIZON    <- SPEC$horizon
+N_BOOT     <- SPEC$nboot
+SEED       <- SPEC$bootstrap_seed
+SHOCK_BPS  <- SPEC$shock_bps
+CI_LEVELS  <- SPEC$ci_levels
+WIN_FULL   <- SPEC$sample
+WIN_PRE    <- SPEC$pre_covid_sample
 
-# reference values this run must reproduce
-XI_MP_REF <- c(full = 7.647789722807889, pre_covid = 11.534896821694217)
-SMOKE_REF <- c(yield_6m = 0.005, yield_2y = 0.01080227,
-               yield_5y = 0.01170172, asset_ibov = -2.407125,
-               cambio_usd = 0.228100)
+# Independent pre-migration gate values for the selected 111/(5,5) cell.
+XI_MP_REF <- c(full = 6.27084962152744, pre_covid = 10.99267698349354)
+SMOKE_REF <- c(
+  yield_6m = 0.005,
+  yield_2y = 0.00743005920089100,
+  yield_5y = 0.00776114641765084,
+  asset_ibov = -1.72267665644627943,
+  cambio_usd = 0.15792806572512938
+)
 
 hcol <- function(h) h + 1L
 
@@ -135,7 +141,7 @@ hcol <- function(h) h + 1L
 
 cat("\n[1] painel e construcao das quatro representacoes\n")
 
-panel_df <- read_csv("data/processed/data_log_deseasonalized.csv",
+panel_df <- read_csv(SPEC$data_path,
                      show_col_types = FALSE) |> drop_na()
 DATES     <- as.Date(panel_df$ref.date)
 PANEL     <- panel_df |> select(-ref.date) |> as.matrix()
@@ -213,7 +219,8 @@ rt <- vapply(ASSETS, function(v) {
   back <- exp(diff(log(lvl_from_ret(PANEL[, v])))) - 1
   max(abs(back - PANEL[-1, v]))
 }, numeric(1))
-cat(sprintf("    (2) ida e volta nas 8 series: desvio maximo %.2e\n", max(rt)))
+cat(sprintf("    (2) ida e volta nas %d series: desvio maximo %.2e\n",
+            length(ASSETS), max(rt)))
 stopifnot(max(rt) < 1e-12)
 
 
@@ -223,7 +230,7 @@ stopifnot(max(rt) < 1e-12)
 
 cat("\n[3] celula de producao (cache) e auto-testes 3-5\n")
 
-CELL <- readRDS("output/irf/irf_coherence_cell.rds")
+CELL <- readRDS(SPEC$coherence_cell_path)
 stopifnot(identical(CELL$var_names, VAR_NAMES),
           CELL$instrument == INSTRUMENT, CELL$r == R_FACTORS, CELL$q == Q_DYNAMIC)
 
@@ -322,7 +329,8 @@ Pp <- cells$prod$irf$irf_point_matrix
 Pn <- cells$prod_nocum$irf$irf_point_matrix
 dev6 <- max(abs(t(apply(Pn[A_IDX, , drop = FALSE], 1, cumsum)) * 100 -
                 Pp[A_IDX, , drop = FALSE]))
-cat(sprintf("    (6) cumsum(prod_nocum)*100 == prod nas 8 series: desvio %.2e\n", dev6))
+cat(sprintf("    (6) cumsum(prod_nocum)*100 == prod nas %d series: desvio %.2e\n",
+            length(ASSETS), dev6))
 stopifnot(dev6 < 1e-9)
 
 
@@ -338,7 +346,7 @@ band <- function(tag, lvl) {
        hi = cells[[tag]]$irf$ci[[key]]$upper)
 }
 
-# --- 6a. long IRF table for the 8 indices + the non-equity guards, on the
+# --- 6a. long IRF table for the equity indices + the non-equity guards, on the
 #         common % scale (prod_nocum excluded: not a level response)
 GUARD_VARS <- c("yield_2y", "yield_5y", "cambio_usd", "embi_perc", "cds_5y",
                 "price_ipca", "ibc_br")
@@ -368,7 +376,8 @@ score <- irf_long |> filter(bloco == "acoes") |>
             n_sig68 = sum(sig68), n_sig68_h12 = sum(sig68 & h <= 12),
             n_neg_h0 = sum(point < 0 & h == 0),
             .groups = "drop")
-cat("\n  placar do bloco acionario (8 indices x 49 horizontes):\n")
+cat(sprintf("\n  placar do bloco acionario (%d indices x 49 horizontes):\n",
+            length(ASSETS)))
 print(as.data.frame(score), row.names = FALSE)
 
 # --- 6c. h = 0 side by side: the clean test of the representation
@@ -399,18 +408,18 @@ cat("\n  razao de largura da banda de 90%% h36/h0, por tcode:\n")
 print(as.data.frame(band_ratio), row.names = FALSE, digits = 3)
 
 # Per-index version. The grouped table above is misleading for the headline:
-# under `loglevel` the 8 indices move into tcode 4 and get pooled with the 16
+# under `loglevel` the indices move into tcode 4 and get pooled with the
 # credit/base/pib series, so the group median is not the block's.
 band_asset <- map_dfr(TAGS, function(tag) {
   b90 <- band(tag, 0.90); W <- b90$hi - b90$lo
   tibble(variante = tag, var = ASSETS,
          razao = W[A_IDX, hcol(36)] / W[A_IDX, hcol(0)])
 }) |> pivot_wider(names_from = variante, values_from = razao)
-cat("\n  a mesma razao, so nos 8 indices:\n")
+cat(sprintf("\n  a mesma razao, so nos %d indices:\n", length(ASSETS)))
 print(as.data.frame(band_asset), row.names = FALSE, digits = 3)
 
 # --- 6e. |t| proxy: |point| / half-width of the 68% band (the ruler of
-#         section 5 Limitacoes), median over the 8 indices by horizon
+#         section 5 Limitacoes), median over the indices by horizon
 tstat <- irf_long |> filter(bloco == "acoes") |>
   mutate(tproxy = abs(point) / ((hi68 - lo68) / 2)) |>
   group_by(variante, h) |>
@@ -474,7 +483,10 @@ sig_set <- function(tag) {
 s_prod <- sig_set("prod"); s_log <- sig_set("loglevel"); s_lvl <- sig_set("level")
 non_asset <- setdiff(SCORED, ASSETS)
 surv <- tibble(
-  conjunto = c("53 series escoradas", "45 nao-acionarias"),
+  conjunto = c(
+    sprintf("%d series escoradas", length(SCORED)),
+    sprintf("%d nao-acionarias", length(non_asset))
+  ),
   n_sig90_prod = c(sum(s_prod), sum(s_prod[non_asset, ])),
   n_sig90_loglevel = c(sum(s_log), sum(s_log[non_asset, ])),
   sobrevivem_loglevel = c(sum(s_prod & s_log), sum(s_prod[non_asset, ] & s_log[non_asset, ])),
@@ -496,10 +508,12 @@ print(as.data.frame(guard_h0), row.names = FALSE, digits = 4)
 
 cat("\n[7] figura\n")
 
-LBL <- c(asset_ibov = "Ibovespa", asset_mlcx = "MLCX, large caps",
+LBL <- c(asset_ibov = "Ibovespa",
          asset_smll = "SMLL, small caps", asset_idiv = "IDIV, dividendos",
          asset_imob = "IMOB, incorporadoras", asset_ifnc = "IFNC, bancos",
          asset_imat = "IMAT, materiais", asset_ifix = "IFIX, renda imob.")
+LBL <- LBL[ASSETS]
+stopifnot(!anyNA(LBL))
 PAL <- c(prod = "#1b1b1b", loglevel = "#0072B2", level = "#009E73")
 
 H_PLOT <- 36L
@@ -637,7 +651,8 @@ md <- c(
   "",
   md_table(band_ratio),
   "",
-  "A mesma razão só nos 8 índices — sob `loglevel` eles migram para tcode 4 e a",
+  sprintf("A mesma razão só nos %d índices — sob `loglevel` eles migram para tcode 4 e a",
+          length(ASSETS)),
   "mediana do grupo acima passa a misturá-los com as 16 séries de crédito/base/PIB:",
   "",
   md_table(band_asset),
@@ -684,7 +699,8 @@ md <- c(
   "  `check_seasonality`, que hoje não marca retornos mas pode marcar níveis com",
   "  tendência.",
   "- **(r,q) não é re-selecionado.** ξ_mp no painel log-nível é reportado acima;",
-  "  se (7,6) ficar fraco lá, isso é achado, não decisão.",
+  sprintf("  se (%d,%d) ficar fraco lá, isso é achado, não decisão.",
+          SPEC$r, SPEC$q),
   "- **A assimetria mais ampla do painel não é tocada**: `cambio_usd` entra em",
   "  nível, não em log.",
   "",

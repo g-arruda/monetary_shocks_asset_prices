@@ -4,7 +4,7 @@
 > **execução — não escrever prosa aqui.** A leitura interpretativa fica em
 > `notas/2026-07-31_benchmark_var_vs_dfm.md`.
 
-Tradução de `codigo_alessi-mark/MAIN_VARloop.m`. Core `{ind_transformacao, price_ipca, yield_6m}`, `mp_var = yield_6m` (a terceira core, como em `RUN_MAIN_US.m:9`), 18 VARs de 4 variáveis, p = 6, h = 48, nboot = 800, seed = 123, bandas 68%/90%, instrumento `z_jk_bs_purif`, painel 153 x 106 (2013-01-01 a 2025-09-01).
+Tradução de `codigos_externos/codigo_alessi-mark/MAIN_VARloop.m`. Core `{ind_transformacao, price_ipca, yield_6m}`, `mp_var = yield_6m` (a terceira core, como em `RUN_MAIN_US.m:9`), 17 VARs de 4 variáveis, p = 6, h = 48, nboot = 800, seed = 123, bandas 68%/90%, instrumento `z_jk_bs_purif`, painel 153 x 111 (2013-01-01 a 2025-09-01).
 
 AK reporta percentis 5/10/90/95 (bandas de 90% e 80%); aqui são 68/90, para casar com `irf_coherence_cell.rds`.
 
@@ -28,23 +28,23 @@ Com a identificação mantida fixa, isto testa **DFM contra VAR pequeno**, não
 
 ## Placar
 
-**Todas as respostas** (n = 18)
+**Todas as respostas** (n = 17)
 
-- *mais forte no impacto*: **16 de 18** (razão mediana **2.32**).
-- *mais forte no pico de mesmo sinal*: **16 de 18** (razão mediana **1.61**).
-- *mais rápido* (pico de mesmo sinal): **9 de 18**.
-- banda de 68% do DFM mais **estreita** no impacto: 0 de 18 (razão mediana **4.35**).
-- mesmo sinal no impacto: 18 de 18. Células sig90: DFM **37**, VAR **266** (em h ≤ 12: 37 e 129).
-- *(pico bruto, a régua contaminada: forte 18 de 18, rápido 4 de 18 — mas o pico do DFM tem sinal **oposto** ao do impacto em 8 de 18)*
+- *mais forte no impacto*: **13 de 17** (razão mediana **1.85**).
+- *mais forte no pico de mesmo sinal*: **13 de 17** (razão mediana **1.26**).
+- *mais rápido* (pico de mesmo sinal): **7 de 17**.
+- banda de 68% do DFM mais **estreita** no impacto: 0 de 17 (razão mediana **2.82**).
+- mesmo sinal no impacto: 16 de 17. Células sig90: DFM **57**, VAR **282** (em h ≤ 12: 57 e 123).
+- *(pico bruto, a régua contaminada: forte 15 de 17, rápido 5 de 17 — mas o pico do DFM tem sinal **oposto** ao do impacto em 1 de 17)*
 
-**Bloco de ações (8 índices)** (n = 8)
+**Bloco de ações (8 índices)** (n = 7)
 
-- *mais forte no impacto*: **7 de 8** (razão mediana **2.98**).
-- *mais forte no pico de mesmo sinal*: **7 de 8** (razão mediana **1.31**).
-- *mais rápido* (pico de mesmo sinal): **7 de 8**.
-- banda de 68% do DFM mais **estreita** no impacto: 0 de 8 (razão mediana **4.71**).
-- mesmo sinal no impacto: 8 de 8. Células sig90: DFM **0**, VAR **132** (em h ≤ 12: 0 e 68).
-- *(pico bruto, a régua contaminada: forte 8 de 8, rápido 0 de 8 — mas o pico do DFM tem sinal **oposto** ao do impacto em 6 de 8)*
+- *mais forte no impacto*: **5 de 7** (razão mediana **3.38**).
+- *mais forte no pico de mesmo sinal*: **4 de 7** (razão mediana **1.06**).
+- *mais rápido* (pico de mesmo sinal): **4 de 7**.
+- banda de 68% do DFM mais **estreita** no impacto: 0 de 7 (razão mediana **3.22**).
+- mesmo sinal no impacto: 7 de 7. Células sig90: DFM **4**, VAR **153** (em h ≤ 12: 4 e 70).
+- *(pico bruto, a régua contaminada: forte 7 de 7, rápido 0 de 7 — mas o pico do DFM tem sinal **oposto** ao do impacto em 0 de 7)*
 
 E há uma segunda razão para desconfiar do pico bruto: a nota de 2026-07-31
 sobre o espectro da companion mostra que o extremo de médio prazo do DFM *é*
@@ -56,88 +56,85 @@ pontuá-lo justamente onde aquela análise diz não haver evidência independent
 
 | var | grupo | h0_DFM | h0_VAR | razao_impacto | peak_ss_h_DFM | peak_ss_val_DFM | peak_ss_h_VAR | peak_ss_val_VAR | razao_pico_ss | razao_banda_h0 | n_sig90_DFM | n_sig90_VAR |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| asset_ibov | acoes | -1.6726 | -0.4985 | 3.3551 | 1 | -3.1089 | 9 | -2.4640 | 1.2617 | 4.8918 | 0 | 18 |
-| asset_idiv | acoes | -2.0376 | -0.4840 | 4.2096 | 1 | -3.5691 | 3 | -2.2664 | 1.5748 | 4.7430 | 0 | 3 |
-| asset_ifix | acoes | -1.0345 | -0.3594 | 2.8780 | 48 | -33.3432 | 4 | -1.4772 | 22.5719 | 4.9547 | 0 | 7 |
-| asset_ifnc | acoes | -1.9749 | -0.6425 | 3.0738 | 1 | -3.2662 | 3 | -2.4529 | 1.3316 | 4.4681 | 0 | 5 |
-| asset_imat | acoes | -0.3149 | -0.6465 | 0.4871 | 1 | -0.4846 | 23 | -4.7013 | 0.1031 | 3.5305 | 0 | 18 |
-| asset_imob | acoes | -2.8947 | -2.3258 | 1.2446 | 1 | -5.4931 | 8 | -4.2655 | 1.2878 | 4.2580 | 0 | 14 |
-| asset_mlcx | acoes | -1.7357 | -0.5293 | 3.2791 | 1 | -3.2915 | 9 | -2.3952 | 1.3742 | 4.7299 | 0 | 18 |
-| asset_smll | acoes | -2.6765 | -1.6267 | 1.6453 | 1 | -5.3572 | 9 | -5.0770 | 1.0552 | 4.6842 | 0 | 49 |
-| cambio_usd | cambio | 0.1498 | 0.0440 | 3.4041 | 1 | 0.1937 | 3 | 0.0839 | 2.3096 | 3.7858 | 5 | 5 |
-| cds_5y | risco | 29.0673 | 12.5312 | 2.3196 | 1 | 31.9081 | 1 | 13.0316 | 2.4485 | 4.1755 | 5 | 6 |
-| embi_perc | risco | 0.1995 | 0.1156 | 1.7261 | 1 | 0.2019 | 3 | 0.1474 | 1.3695 | 4.0407 | 2 | 10 |
-| ibc_br | extensao | -0.3930 | -0.2378 | 1.6528 | 0 | -0.3930 | 0 | -0.2378 | 1.6528 | 3.7980 | 0 | 1 |
-| price_core_ipca_ex0 | extensao | 0.0183 | 0.0326 | 0.5623 | 5 | 0.1310 | 0 | 0.0326 | 4.0244 | 4.4370 | 6 | 16 |
-| price_ipp | acoes | 0.5859 | 0.1440 | 4.0677 | 1 | 0.8810 | 1 | 0.1628 | 5.4114 | 3.5286 | 5 | 20 |
-| spread_icc_fisica | risco | -0.0306 | -0.0082 | 3.7384 | 1 | -0.0504 | 1 | -0.0163 | 3.0970 | 3.8343 | 0 | 15 |
-| spread_icc_juridica | risco | -0.0162 | -0.0118 | 1.3701 | 1 | -0.0203 | 1 | -0.0204 | 0.9974 | 3.6090 | 0 | 25 |
-| yield_10y | extensao | 0.0081 | 0.0035 | 2.3234 | 1 | 0.0092 | 1 | 0.0041 | 2.2490 | 4.8049 | 7 | 19 |
-| yield_2y | extensao | 0.0092 | 0.0063 | 1.4566 | 1 | 0.0107 | 0 | 0.0063 | 1.7018 | 4.6795 | 7 | 17 |
+| asset_ibov | acoes | -1.7227 | -0.3262 | 5.2808 | 4 | -3.2572 | 9 | -4.1354 | 0.7876 | 3.2156 | 0 | 23 |
+| asset_idiv | acoes | -2.0392 | -0.3431 | 5.9441 | 4 | -4.0554 | 4 | -4.0893 | 0.9917 | 3.2468 | 0 | 9 |
+| asset_ifix | acoes | -1.3106 | -0.3873 | 3.3844 | 48 | -11.7272 | 4 | -2.3436 | 5.0039 | 3.0444 | 4 | 9 |
+| asset_ifnc | acoes | -2.7007 | -0.6205 | 4.3526 | 4 | -5.9123 | 4 | -3.7681 | 1.5690 | 2.9930 | 0 | 6 |
+| asset_imat | acoes | -0.0691 | -0.6323 | 0.1092 | 0 | -0.0691 | 25 | -8.4730 | 0.0082 | 2.3419 | 0 | 46 |
+| asset_imob | acoes | -2.5573 | -2.7179 | 0.9409 | 4 | -6.9932 | 9 | -5.8027 | 1.2052 | 3.2534 | 0 | 11 |
+| asset_smll | acoes | -2.6110 | -2.0068 | 1.3011 | 4 | -7.9005 | 16 | -7.4640 | 1.0585 | 3.3315 | 0 | 49 |
+| cambio_usd | cambio | 0.1579 | 0.0466 | 3.3904 | 1 | 0.1773 | 4 | 0.0955 | 1.8563 | 2.4648 | 7 | 5 |
+| cds_5y | risco | 32.5417 | 13.9982 | 2.3247 | 3 | 36.7956 | 1 | 14.8560 | 2.4768 | 2.8200 | 8 | 2 |
+| embi_perc | risco | 0.2620 | 0.1414 | 1.8524 | 3 | 0.2810 | 3 | 0.1695 | 1.6580 | 2.5340 | 8 | 4 |
+| ibc_br | extensao | -0.4605 | -0.2835 | 1.6242 | 0 | -0.4605 | 0 | -0.2835 | 1.6242 | 2.9202 | 1 | 1 |
+| price_core_ipca_ex0 | extensao | 0.0174 | 0.0304 | 0.5734 | 8 | 0.0958 | 5 | 0.0764 | 1.2536 | 2.2557 | 3 | 16 |
+| price_ipp | acoes | 0.4677 | 0.1850 | 2.5283 | 1 | 0.5725 | 1 | 0.2910 | 1.9673 | 2.3513 | 4 | 21 |
+| spread_icc_fisica | risco | 0.0039 | -0.0206 | 0.1879 | 0 | 0.0039 | 0 | -0.0206 | 0.1879 | 2.5870 | 0 | 15 |
+| spread_icc_juridica | risco | -0.0154 | -0.0145 | 1.0587 | 1 | -0.0257 | 1 | -0.0228 | 1.1274 | 2.5383 | 0 | 25 |
+| yield_10y | extensao | 0.0070 | 0.0027 | 2.5914 | 3 | 0.0097 | 6 | 0.0065 | 1.4836 | 2.6816 | 11 | 21 |
+| yield_2y | extensao | 0.0074 | 0.0058 | 1.2854 | 3 | 0.0117 | 6 | 0.0093 | 1.2558 | 2.9474 | 11 | 19 |
 
 Pico bruto (o extremo global), com a bandeira de sinal:
 
 | var | peak_h_DFM | peak_val_DFM | peak_sinal_igual_h0_DFM | peak_h_VAR | peak_val_VAR | peak_sinal_igual_h0_VAR | razao_pico |
 |---|---|---|---|---|---|---|---|
-| asset_ibov | 24 | 20.2624 | FALSE | 9 | -2.4640 | TRUE | 8.2233 |
-| asset_idiv | 32 | 28.6111 | FALSE | 3 | -2.2664 | TRUE | 12.6242 |
-| asset_ifix | 48 | -33.3432 | TRUE | 4 | -1.4772 | TRUE | 22.5719 |
-| asset_ifnc | 37 | 48.0807 | FALSE | 3 | -2.4529 | TRUE | 19.6014 |
-| asset_imat | 48 | -18.0373 | TRUE | 23 | -4.7013 | TRUE | 3.8367 |
-| asset_imob | 33 | 22.8811 | FALSE | 8 | -4.2655 | TRUE | 5.3642 |
-| asset_mlcx | 24 | 16.9909 | FALSE | 9 | -2.3952 | TRUE | 7.0936 |
-| asset_smll | 23 | 11.4117 | FALSE | 9 | -5.0770 | TRUE | 2.2477 |
-| cambio_usd | 1 | 0.1937 | TRUE | 3 | 0.0839 | TRUE | 2.3096 |
-| cds_5y | 1 | 31.9081 | TRUE | 1 | 13.0316 | TRUE | 2.4485 |
-| embi_perc | 1 | 0.2019 | TRUE | 3 | 0.1474 | TRUE | 1.3695 |
-| ibc_br | 11 | -0.5000 | TRUE | 0 | -0.2378 | TRUE | 2.1027 |
-| price_core_ipca_ex0 | 5 | 0.1310 | TRUE | 5 | 0.0511 | TRUE | 2.5629 |
-| price_ipp | 1 | 0.8810 | TRUE | 1 | 0.1628 | TRUE | 5.4114 |
-| spread_icc_fisica | 11 | 0.1344 | FALSE | 17 | 0.1151 | FALSE | 1.1682 |
-| spread_icc_juridica | 11 | 0.0724 | FALSE | 26 | 0.0606 | FALSE | 1.1960 |
-| yield_10y | 1 | 0.0092 | TRUE | 1 | 0.0041 | TRUE | 2.2490 |
-| yield_2y | 1 | 0.0107 | TRUE | 0 | 0.0063 | TRUE | 1.7018 |
+| asset_ibov | 48 | -28.8996 | TRUE | 9 | -4.1354 | TRUE | 6.9884 |
+| asset_idiv | 48 | -31.0646 | TRUE | 4 | -4.0893 | TRUE | 7.5965 |
+| asset_ifix | 48 | -11.7272 | TRUE | 4 | -2.3436 | TRUE | 5.0039 |
+| asset_ifnc | 48 | -39.5630 | TRUE | 4 | -3.7681 | TRUE | 10.4995 |
+| asset_imat | 48 | -23.8439 | TRUE | 25 | -8.4730 | TRUE | 2.8141 |
+| asset_imob | 48 | -41.2534 | TRUE | 9 | -5.8027 | TRUE | 7.1093 |
+| asset_smll | 48 | -32.6064 | TRUE | 16 | -7.4640 | TRUE | 4.3685 |
+| cambio_usd | 1 | 0.1773 | TRUE | 4 | 0.0955 | TRUE | 1.8563 |
+| cds_5y | 3 | 36.7956 | TRUE | 1 | 14.8560 | TRUE | 2.4768 |
+| embi_perc | 3 | 0.2810 | TRUE | 3 | 0.1695 | TRUE | 1.6580 |
+| ibc_br | 0 | -0.4605 | TRUE | 5 | 0.3265 | FALSE | 1.4105 |
+| price_core_ipca_ex0 | 8 | 0.0958 | TRUE | 5 | 0.0764 | TRUE | 1.2536 |
+| price_ipp | 1 | 0.5725 | TRUE | 1 | 0.2910 | TRUE | 1.9673 |
+| spread_icc_fisica | 19 | 0.1295 | TRUE | 16 | 0.1775 | FALSE | 0.7297 |
+| spread_icc_juridica | 20 | 0.0775 | FALSE | 25 | 0.0896 | FALSE | 0.8648 |
+| yield_10y | 3 | 0.0097 | TRUE | 6 | 0.0065 | TRUE | 1.4836 |
+| yield_2y | 3 | 0.0117 | TRUE | 6 | 0.0093 | TRUE | 1.2558 |
 
 ## Estabilidade das respostas core entre os VARs
 
-Se o VAR pequeno fosse instável, a mesma variável core teria respostas muito diferentes conforme a quarta variável. Amplitude entre os 18 VARs:
+Se o VAR pequeno fosse instável, a mesma variável core teria respostas muito diferentes conforme a quarta variável. Amplitude entre os 17 VARs:
 
 | core | h | min | mediana | max | amplitude |
 |---|---|---|---|---|---|
-| ind_transformacao | 0 | -1.1849 | -0.7459 | -0.2325 | 0.9524 |
-| ind_transformacao | 6 | -0.4105 | 0.0066 | 0.5082 | 0.9187 |
-| ind_transformacao | 12 | -0.5276 | -0.3730 | 0.0248 | 0.5524 |
-| ind_transformacao | 24 | -0.1859 | -0.0726 | 0.0352 | 0.2211 |
-| price_ipca | 0 | -0.0632 | -0.0318 | 0.0254 | 0.0886 |
-| price_ipca | 6 | 0.0208 | 0.0465 | 0.0597 | 0.0389 |
-| price_ipca | 12 | -0.0228 | -0.0131 | -0.0045 | 0.0183 |
-| price_ipca | 24 | -0.0266 | -0.0243 | -0.0175 | 0.0091 |
+| ind_transformacao | 0 | -1.4069 | -0.9080 | -0.2409 | 1.1659 |
+| ind_transformacao | 6 | -0.4676 | 0.0245 | 0.7379 | 1.2054 |
+| ind_transformacao | 12 | -0.6998 | -0.4572 | -0.0514 | 0.6484 |
+| ind_transformacao | 24 | -0.2509 | -0.1311 | 0.0814 | 0.3323 |
+| price_ipca | 0 | -0.0773 | -0.0411 | 0.0164 | 0.0938 |
+| price_ipca | 6 | 0.0343 | 0.0840 | 0.0905 | 0.0562 |
+| price_ipca | 12 | -0.0332 | -0.0095 | -0.0002 | 0.0330 |
+| price_ipca | 24 | -0.0436 | -0.0348 | -0.0248 | 0.0187 |
 | yield_6m | 0 | 0.0050 | 0.0050 | 0.0050 | 0.0000 |
-| yield_6m | 6 | 0.0051 | 0.0075 | 0.0080 | 0.0030 |
-| yield_6m | 12 | 0.0038 | 0.0076 | 0.0086 | 0.0048 |
-| yield_6m | 24 | -0.0001 | 0.0028 | 0.0035 | 0.0036 |
+| yield_6m | 6 | 0.0079 | 0.0115 | 0.0120 | 0.0041 |
+| yield_6m | 12 | 0.0059 | 0.0126 | 0.0138 | 0.0079 |
+| yield_6m | 24 | -0.0002 | 0.0058 | 0.0068 | 0.0070 |
 
 ## Diagnóstico da estimação
 
 | var | max_eig | explosivo | n_inst | replicas_falhas |
 |---|---|---|---|---|
-| embi_perc | 0.9567 | FALSE | 147 | 0 |
-| cds_5y | 0.9611 | FALSE | 147 | 0 |
-| spread_icc_fisica | 0.9808 | FALSE | 147 | 0 |
-| spread_icc_juridica | 0.9800 | FALSE | 147 | 0 |
-| cambio_usd | 0.9666 | FALSE | 147 | 0 |
-| asset_ibov | 0.9611 | FALSE | 147 | 0 |
-| asset_idiv | 0.9583 | FALSE | 147 | 0 |
-| asset_ifix | 0.9548 | FALSE | 147 | 0 |
-| asset_ifnc | 0.9626 | FALSE | 147 | 0 |
-| asset_imat | 0.9576 | FALSE | 147 | 0 |
-| asset_imob | 0.9594 | FALSE | 147 | 0 |
-| asset_mlcx | 0.9613 | FALSE | 147 | 0 |
-| asset_smll | 0.9585 | FALSE | 147 | 0 |
-| price_ipp | 0.9597 | FALSE | 147 | 0 |
-| yield_2y | 0.9485 | FALSE | 147 | 0 |
-| yield_10y | 0.9550 | FALSE | 147 | 0 |
-| ibc_br | 1.0076 | TRUE | 147 | 0 |
-| price_core_ipca_ex0 | 0.9599 | FALSE | 147 | 0 |
+| embi_perc | 0.9603 | FALSE | 147 | 0 |
+| cds_5y | 0.9621 | FALSE | 147 | 0 |
+| spread_icc_fisica | 0.9777 | FALSE | 147 | 0 |
+| spread_icc_juridica | 0.9798 | FALSE | 147 | 0 |
+| cambio_usd | 0.9669 | FALSE | 147 | 0 |
+| asset_ibov | 0.9638 | FALSE | 147 | 0 |
+| asset_idiv | 0.9609 | FALSE | 147 | 0 |
+| asset_ifix | 0.9544 | FALSE | 147 | 0 |
+| asset_ifnc | 0.9647 | FALSE | 147 | 0 |
+| asset_imat | 0.9555 | FALSE | 147 | 0 |
+| asset_imob | 0.9615 | FALSE | 147 | 0 |
+| asset_smll | 0.9604 | FALSE | 147 | 0 |
+| price_ipp | 0.9638 | FALSE | 147 | 0 |
+| yield_2y | 0.9531 | FALSE | 147 | 0 |
+| yield_10y | 0.9549 | FALSE | 147 | 0 |
+| ibc_br | 1.0082 | TRUE | 147 | 0 |
+| price_core_ipca_ex0 | 0.9629 | FALSE | 147 | 0 |
 
 ⚠ **1 VAR(s) com companion explosiva** (max |λ| ≥ 1): `ibc_br` (1.008). São 4 variáveis × 6 defasagens = 25 parâmetros por equação em 147 observações; a correção de Kilian não encontra `delta` que estabilize e emite aviso. É o custo de dimensionalidade do VAR pequeno, medido.

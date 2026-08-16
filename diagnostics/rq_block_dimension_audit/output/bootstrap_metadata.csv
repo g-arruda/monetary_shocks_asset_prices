@@ -1,0 +1,5 @@
+variant,r,q,p,n_series,n_months,max_companion_root,stable,nboot,bootstrap_seed,bootstrap_failures,elapsed_minutes
+conjunto_completo_sem_duplicatas,3,2,6,123,153,0.9763810265107692,TRUE,800,123,0,0.5681779146194458
+conjunto_completo_sem_duplicatas,4,3,6,123,153,0.9625695997704398,TRUE,800,123,0,0.4846163392066955
+conjunto_completo_sem_duplicatas,7,6,6,123,153,0.9732091159708652,TRUE,800,123,0,0.6926231702168782
+drop_eua,4,3,6,118,153,0.969411436395829,TRUE,800,123,0,0.5651461680730184

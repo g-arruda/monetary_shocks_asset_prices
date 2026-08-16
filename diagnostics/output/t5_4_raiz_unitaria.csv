@@ -5,7 +5,6 @@ cambio_ars,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 cambio_inr,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 cambio_usd,cambio,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 juros_selic,juros,1,FALSE,0.06568555618484093,FALSE,ambiguo
-juros_cdi,juros,1,FALSE,0.06732499575954179,FALSE,ambiguo
 yield_3m,juros,1,FALSE,0.05838428258796441,FALSE,ambiguo
 yield_6m,juros,1,FALSE,0.05498452521790492,FALSE,ambiguo
 yield_1y,juros,1,FALSE,0.049839967416840644,TRUE,I(1) — os dois concordam
@@ -91,7 +90,6 @@ asset_ifix,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
 asset_ifnc,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
 asset_imat,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
 asset_imob,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
-asset_mlcx,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
 asset_smll,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
 embi_perc,risco_ext,1,FALSE,0.06272600981336285,FALSE,ambiguo
 cds_5y,risco_ext,1,FALSE,0.09942274001584975,FALSE,ambiguo
@@ -105,3 +103,10 @@ epu_germany,incerteza,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 epu_india,incerteza,1,TRUE,0.048279115114846324,TRUE,ambiguo
 epu_russia,incerteza,1,TRUE,0.01,TRUE,ambiguo
 epu_us,incerteza,1,TRUE,0.01,TRUE,ambiguo
+fiscal_dbgg,fiscal,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+fiscal_dlsp,fiscal,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+fiscal_primary_balance,fiscal,1,TRUE,0.1,FALSE,I(0) — os dois concordam
+expect_focus_ipca12m,expectativas,1,FALSE,0.01,TRUE,I(1) — os dois concordam
+expect_focus_selic_ny,expectativas,1,FALSE,0.029994734012909023,TRUE,I(1) — os dois concordam
+expect_focus_pib_ny,expectativas,1,FALSE,0.1,FALSE,ambiguo
+expect_focus_cambio_ny,expectativas,1,FALSE,0.01,TRUE,I(1) — os dois concordam

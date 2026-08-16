@@ -4,37 +4,37 @@
 > **cada execução — não escrever prosa aqui.** A leitura interpretativa fica em
 > `notas/2026-07-31_estacionariedade_fatores.md`.
 
-Spec: r = 7, q = 6, p = 6, instrumento `z_jk_bs_purif`, painel 153 x 106 (2013-01-01 a 2025-09-01).
+Spec: r = 5, q = 5, p = 6, instrumento `z_jk_bs_purif`, painel 153 x 111 (2013-01-01 a 2025-09-01).
 
 ## 1. Espectro da companion (produção: OLS, p = 6)
 
 | ordem | modulo | complexo | periodo_meses | quarto_ciclo | meia_volta_ciclo | meia_vida_meses |
 |---|---|---|---|---|---|---|
-| 1 | 0.9747 | TRUE | 119.6226 | 29.9056 | 59.8113 | 27.1021 |
-| 2 | 0.9747 | TRUE | 119.6226 | 29.9056 | 59.8113 | 27.1021 |
-| 3 | 0.9594 | TRUE | 54.6128 | 13.6532 | 27.3064 | 16.7244 |
-| 4 | 0.9594 | TRUE | 54.6128 | 13.6532 | 27.3064 | 16.7244 |
-| 5 | 0.9023 | TRUE | 42.2808 | 10.5702 | 21.1404 | 6.7413 |
-| 6 | 0.9023 | TRUE | 42.2808 | 10.5702 | 21.1404 | 6.7413 |
-| 7 | 0.8611 | TRUE | 2.9738 | 0.7435 | 1.4869 | 4.6365 |
-| 8 | 0.8611 | TRUE | 2.9738 | 0.7435 | 1.4869 | 4.6365 |
+| 1 | 0.9649 | TRUE | 65.7502 | 16.4375 | 32.8751 | 19.3754 |
+| 2 | 0.9649 | TRUE | 65.7502 | 16.4375 | 32.8751 | 19.3754 |
+| 3 | 0.9553 | TRUE | 125.6989 | 31.4247 | 62.8494 | 15.1448 |
+| 4 | 0.9553 | TRUE | 125.6989 | 31.4247 | 62.8494 | 15.1448 |
+| 5 | 0.8143 | TRUE | 27.0830 | 6.7707 | 13.5415 | 3.3734 |
+| 6 | 0.8143 | TRUE | 27.0830 | 6.7707 | 13.5415 | 3.3734 |
+| 7 | 0.7957 | TRUE | 5.4602 | 1.3651 | 2.7301 | 3.0335 |
+| 8 | 0.7957 | TRUE | 5.4602 | 1.3651 | 2.7301 | 3.0335 |
 
-Raiz dominante: |λ| = 0.974749, **complexa**, período 119.6 meses (quarto de ciclo 29.9, meia-volta 59.8).
+Raiz dominante: |λ| = 0.964858, **complexa**, período 65.8 meses (quarto de ciclo 16.4, meia-volta 32.9).
 
-Raízes com |λ| > 0,97: 2. Com |λ| > 0,90: 6. Explosivas (|λ| ≥ 1): 0.
+Raízes com |λ| > 0,97: 0. Com |λ| > 0,90: 4. Explosivas (|λ| ≥ 1): 0.
 
 ### Sensibilidade à ordem de defasagem
 
 | matriz | p | max_mod | n_complexo | per_dominante |
 |---|---|---|---|---|
-| Kilian | 1 | 0.9999 | 4 | NA |
-| Kilian | 4 | 0.9897 | 24 | NA |
-| Kilian | 6 | 0.9802 | 40 | 157.0029 |
-| OLS | 1 | 0.9857 | 4 | NA |
-| OLS | 4 | 0.9657 | 24 | 93.8299 |
-| OLS | 6 | 0.9747 | 40 | 119.6226 |
+| Kilian | 1 | 0.9971 | 4 | 131.2559 |
+| Kilian | 4 | 0.9998 | 16 | NA |
+| Kilian | 6 | 0.9754 | 28 | 71.9503 |
+| OLS | 1 | 0.9907 | 4 | 119.4659 |
+| OLS | 4 | 0.9681 | 16 | NA |
+| OLS | 6 | 0.9649 | 28 | 65.7502 |
 
-## 2. Raiz unitária nos 7 fatores (ADF / PP / KPSS, 5%, spec drift-mu)
+## 2. Raiz unitária nos 5 fatores (ADF / PP / KPSS, 5%, spec drift-mu)
 
 | fator | transf | ADF | PP | KPSS | veredito |
 |---|---|---|---|---|---|
@@ -45,127 +45,119 @@ Raízes com |λ| > 0,97: 2. Com |λ| > 0,90: 6. Explosivas (|λ| ≥ 1): 0.
 | F3 | nivel | FALSE | FALSE | FALSE | ambiguo |
 | F3 | diferenca | TRUE | TRUE | FALSE | I(0) - ADF e KPSS concordam |
 | F4 | nivel | FALSE | FALSE | TRUE | I(1) - ADF e KPSS concordam |
-| F4 | diferenca | TRUE | TRUE | TRUE | ambiguo |
+| F4 | diferenca | TRUE | TRUE | FALSE | I(0) - ADF e KPSS concordam |
 | F5 | nivel | FALSE | FALSE | TRUE | I(1) - ADF e KPSS concordam |
 | F5 | diferenca | TRUE | TRUE | FALSE | I(0) - ADF e KPSS concordam |
-| F6 | nivel | FALSE | FALSE | TRUE | I(1) - ADF e KPSS concordam |
-| F6 | diferenca | TRUE | TRUE | TRUE | ambiguo |
-| F7 | nivel | TRUE | TRUE | FALSE | I(0) - ADF e KPSS concordam |
-| F7 | diferenca | TRUE | TRUE | FALSE | I(0) - ADF e KPSS concordam |
 
-Fatores I(1) em nível: **4 de 7**. I(0) em primeira diferença: **5 de 7**.
+Fatores I(1) em nível: **3 de 5**. I(0) em primeira diferença: **5 de 5**.
 
-## 3. Phillips-Perron nas 106 séries do painel
+## 3. Phillips-Perron nas 111 séries do painel
 
-PP rejeita a raiz unitária a 5% em **38 de 106** séries.
+PP rejeita a raiz unitária a 5% em **38 de 111** séries.
 
 | veredito_adf_kpss | pp_rejeita_RU_5pct | n |
 |---|---|---|
 | I(0) — os dois concordam | TRUE | 20 |
-| I(1) — os dois concordam | FALSE | 57 |
+| I(1) — os dois concordam | FALSE | 62 |
 | ambiguo | FALSE | 11 |
 | ambiguo | TRUE | 18 |
 
-## 4. Cointegração de Johansen (n = 7)
+## 4. Cointegração de Johansen (n = 5)
 
 | K | tipo | posto_5pct | posto_5pct_ra |
 |---|---|---|---|
-| 2 | eigen | 4 | 4 |
-| 2 | trace | 4 | 4 |
-| 4 | eigen | 1 | 1 |
-| 4 | trace | 1 | 0 |
-| 6 | eigen | 1 | 0 |
-| 6 | trace | 2 | 0 |
+| 2 | eigen | 3 | 3 |
+| 2 | trace | 3 | 3 |
+| 4 | eigen | 0 | 0 |
+| 4 | trace | 2 | 1 |
+| 6 | eigen | 0 | 0 |
+| 6 | trace | 1 | 0 |
 
-Na defasagem de produção (K = 6), traço: posto **2** (0 com Reinsel-Ahn) — 5 tendências comuns.
+Na defasagem de produção (K = 6), traço: posto **1** (0 com Reinsel-Ahn) — 4 tendências comuns.
 
 | tipo | r0 | stat | cv5 | rejeita_5pct | stat_reinsel_ahn | rejeita_5pct_ra |
 |---|---|---|---|---|---|---|
-| eigen | 0 | 58.257 | 46.45 | TRUE | 41.612 | FALSE |
-| eigen | 1 | 33.193 | 40.30 | FALSE | 23.709 | FALSE |
-| eigen | 2 | 27.329 | 34.40 | FALSE | 19.521 | FALSE |
-| eigen | 3 | 16.621 | 28.14 | FALSE | 11.872 | FALSE |
-| eigen | 4 | 11.290 | 22.00 | FALSE | 8.064 | FALSE |
-| eigen | 5 | 9.698 | 15.67 | FALSE | 6.927 | FALSE |
-| eigen | 6 | 4.931 | 9.24 | FALSE | 3.522 | FALSE |
-| trace | 0 | 161.319 | 131.70 | TRUE | 115.228 | FALSE |
-| trace | 1 | 103.062 | 102.14 | TRUE | 73.616 | FALSE |
-| trace | 2 | 69.869 | 76.07 | FALSE | 49.906 | FALSE |
-| trace | 3 | 42.540 | 53.12 | FALSE | 30.386 | FALSE |
-| trace | 4 | 25.919 | 34.91 | FALSE | 18.514 | FALSE |
-| trace | 5 | 14.629 | 19.96 | FALSE | 10.449 | FALSE |
-| trace | 6 | 4.931 | 9.24 | FALSE | 3.522 | FALSE |
+| eigen | 0 | 30.064 | 34.40 | FALSE | 23.928 | FALSE |
+| eigen | 1 | 18.715 | 28.14 | FALSE | 14.896 | FALSE |
+| eigen | 2 | 17.671 | 22.00 | FALSE | 14.064 | FALSE |
+| eigen | 3 | 11.545 | 15.67 | FALSE | 9.189 | FALSE |
+| eigen | 4 | 3.928 | 9.24 | FALSE | 3.127 | FALSE |
+| trace | 0 | 81.923 | 76.07 | TRUE | 65.204 | FALSE |
+| trace | 1 | 51.859 | 53.12 | FALSE | 41.276 | FALSE |
+| trace | 2 | 33.144 | 34.91 | FALSE | 26.380 | FALSE |
+| trace | 3 | 15.473 | 19.96 | FALSE | 12.315 | FALSE |
+| trace | 4 | 3.928 | 9.24 | FALSE | 3.127 | FALSE |
 
 ## 5. Regra R1 — reversão observada contra o marco mecânico
 
 | var | h_inversao | meia_volta | dentro_25pct_meia_volta | h_extremo | h_extremo_mp | quarto_ciclo | dentro_25pct_quarto_mp |
 |---|---|---|---|---|---|---|---|
-| yield_3m | 14 | 59.81 | FALSE | 33 | 33 | 29.91 | TRUE |
-| yield_6m | 13 | 59.81 | FALSE | 32 | 32 | 29.91 | TRUE |
-| yield_2y | 12 | 59.81 | FALSE | 1 | 26 | 29.91 | TRUE |
-| yield_10y | 12 | 59.81 | FALSE | 1 | 23 | 29.91 | TRUE |
-| juros_selic | 2 | 59.81 | FALSE | 34 | 34 | 29.91 | TRUE |
-| cds_5y | 12 | 59.81 | FALSE | 1 | 23 | 29.91 | TRUE |
-| embi_perc | 11 | 59.81 | FALSE | 1 | 23 | 29.91 | TRUE |
-| cambio_usd | 11 | 59.81 | FALSE | 1 | 17 | 29.91 | FALSE |
-| credit_outstanding | 9 | 59.81 | FALSE | 30 | 30 | 29.91 | TRUE |
-| credito_pessoa_fisica | 2 | 59.81 | FALSE | 33 | 33 | 29.91 | TRUE |
-| credito_comercio | 4 | 59.81 | FALSE | 27 | 27 | 29.91 | TRUE |
-| credito_construcao | 4 | 59.81 | FALSE | 30 | 30 | 29.91 | TRUE |
-| credito_industria_total | 6 | 59.81 | FALSE | 26 | 26 | 29.91 | TRUE |
-| credito_agro | 11 | 59.81 | FALSE | 26 | 26 | 29.91 | TRUE |
+| yield_3m | 23 | 32.88 | FALSE | 3 | 41 | 16.44 | FALSE |
+| yield_6m | 22 | 32.88 | FALSE | 3 | 40 | 16.44 | FALSE |
+| yield_2y | 19 | 32.88 | FALSE | 3 | 37 | 16.44 | FALSE |
+| yield_10y | 17 | 32.88 | FALSE | 3 | 35 | 16.44 | FALSE |
+| juros_selic | 25 | 32.88 | TRUE | 5 | 43 | 16.44 | FALSE |
+| cds_5y | 15 | 32.88 | FALSE | 3 | 31 | 16.44 | FALSE |
+| embi_perc | 15 | 32.88 | FALSE | 3 | 29 | 16.44 | FALSE |
+| cambio_usd | 12 | 32.88 | FALSE | 1 | 23 | 16.44 | FALSE |
+| credit_outstanding | 19 | 32.88 | FALSE | 3 | 37 | 16.44 | FALSE |
+| credito_pessoa_fisica | 23 | 32.88 | FALSE | 3 | 41 | 16.44 | FALSE |
+| credito_comercio | 14 | 32.88 | FALSE | 3 | 31 | 16.44 | FALSE |
+| credito_construcao | 18 | 32.88 | FALSE | 5 | 37 | 16.44 | FALSE |
+| credito_industria_total | 14 | 32.88 | FALSE | 3 | 29 | 16.44 | FALSE |
+| credito_agro | 16 | 32.88 | FALSE | 3 | 34 | 16.44 | FALSE |
 
-Inversão de sinal dentro de ±25% da meia-volta (59.8 meses): **0 de 14**.
-Extremo **global** dentro de ±25% do quarto de ciclo (29.9 meses): **9 de 14**.
-Extremo de **médio prazo** (h ≥ 13) dentro de ±25% do quarto de ciclo: **13 de 14**.
+Inversão de sinal dentro de ±25% da meia-volta (32.9 meses): **1 de 14**.
+Extremo **global** dentro de ±25% do quarto de ciclo (16.4 meses): **0 de 14**.
+Extremo de **médio prazo** (h ≥ 13) dentro de ±25% do quarto de ciclo: **0 de 14**.
 
 ## 6. O vale de médio prazo acompanha a ordem de defasagem?
 
 | p | dominante_complexa | quarto_ciclo | mediana_h_extremo_mp |
 |---|---|---|---|
-| 1 | FALSE | NA | 31.5 |
-| 4 | TRUE | 23.46 | 29.5 |
-| 6 | TRUE | 29.91 | 26.5 |
+| 1 | TRUE | 29.87 | 42.5 |
+| 4 | FALSE | NA | 29.0 |
+| 6 | TRUE | 16.44 | 36.0 |
 
 | var | h_mp_p1 | h_mp_p4 | h_mp_p6 |
 |---|---|---|---|
-| yield_3m | 35 | 33 | 33 |
-| yield_6m | 34 | 32 | 32 |
-| yield_2y | 31 | 29 | 26 |
-| yield_10y | 28 | 27 | 23 |
-| juros_selic | 36 | 34 | 34 |
-| cds_5y | 27 | 26 | 23 |
-| embi_perc | 26 | 26 | 23 |
-| cambio_usd | 48 | 48 | 17 |
-| credit_outstanding | 32 | 30 | 30 |
-| credito_pessoa_fisica | 35 | 32 | 33 |
-| credito_comercio | 28 | 28 | 27 |
-| credito_construcao | 32 | 30 | 30 |
-| credito_industria_total | 27 | 28 | 26 |
-| credito_agro | 29 | 28 | 26 |
+| yield_3m | 48 | 13 | 41 |
+| yield_6m | 47 | 37 | 40 |
+| yield_2y | 44 | 35 | 37 |
+| yield_10y | 41 | 32 | 35 |
+| juros_selic | 48 | 13 | 43 |
+| cds_5y | 36 | 29 | 31 |
+| embi_perc | 33 | 28 | 29 |
+| cambio_usd | 13 | 21 | 23 |
+| credit_outstanding | 44 | 34 | 37 |
+| credito_pessoa_fisica | 48 | 13 | 41 |
+| credito_comercio | 37 | 29 | 31 |
+| credito_construcao | 44 | 34 | 37 |
+| credito_industria_total | 34 | 27 | 29 |
+| credito_agro | 40 | 32 | 34 |
 
 ## 7. Decomposição espectral — apagar o par dominante de `B`
 
-⚠ **Apagar modos muda o denominador da normalização.** `B₀` só é a identidade com todos os modos (`Σₖ vₖwₖ' = I`); sem o par dominante o impacto pré-normalização de `yield_6m` passa a **-0.087** do original (sem o par 2, 1.172). Como o denominador pode trocar de sinal, magnitude e sinal são comparados na **escala comum** (multiplicando pela razão de denominadores), antes da renormalização específica de cada caminho. O **horizonte** do extremo é invariante a essa escala. Renormalizar cada caminho a +50 pb responde a outra pergunta — *"se este modo não existisse, o que faria um choque de 50 pb?"* — e não é uma decomposição aditiva. A tabela traz a escala comum.
+⚠ **Apagar modos muda o denominador da normalização.** `B₀` só é a identidade com todos os modos (`Σₖ vₖwₖ' = I`); sem o par dominante o impacto pré-normalização de `yield_6m` passa a **1.174** do original (sem o par 2, -0.456). Como o denominador pode trocar de sinal, magnitude e sinal são comparados na **escala comum** (multiplicando pela razão de denominadores), antes da renormalização específica de cada caminho. O **horizonte** do extremo é invariante a essa escala. Renormalizar cada caminho a +50 pb responde a outra pergunta — *"se este modo não existisse, o que faria um choque de 50 pb?"* — e não é uma decomposição aditiva. A tabela traz a escala comum.
 
 | var | h_mp_completo | val_mp_completo | h_mp_sem_par1 | razao_sem_par1_defl | inverte_sinal_sem_par1 | vale_sobrevive_sem_par1 |
 |---|---|---|---|---|---|---|
-| yield_3m | 33 | -0.011 | 13 | -0.592 | TRUE | FALSE |
-| yield_6m | 32 | -0.011 | 13 | -0.576 | TRUE | FALSE |
-| yield_2y | 26 | -0.009 | 13 | -0.497 | TRUE | FALSE |
-| yield_10y | 23 | -0.006 | 13 | -0.423 | TRUE | FALSE |
-| juros_selic | 34 | -1.101 | 13 | -0.592 | TRUE | FALSE |
-| cds_5y | 23 | -24.955 | 13 | -0.389 | TRUE | FALSE |
-| embi_perc | 23 | -0.245 | 13 | -0.372 | TRUE | FALSE |
-| cambio_usd | 17 | -0.097 | 20 | 0.988 | FALSE | TRUE |
-| credit_outstanding | 30 | -1.656 | 13 | -0.445 | TRUE | FALSE |
-| credito_pessoa_fisica | 33 | -1.302 | 13 | -0.502 | TRUE | FALSE |
-| credito_comercio | 27 | -2.898 | 13 | -0.329 | TRUE | FALSE |
-| credito_construcao | 30 | -3.243 | 13 | -0.419 | TRUE | FALSE |
-| credito_industria_total | 26 | -2.102 | 13 | -0.334 | TRUE | FALSE |
-| credito_agro | 26 | -1.900 | 13 | -0.403 | TRUE | FALSE |
+| yield_3m | 41 | -0.006 | 22 | 1.103 | FALSE | TRUE |
+| yield_6m | 40 | -0.007 | 21 | 1.106 | FALSE | TRUE |
+| yield_2y | 37 | -0.008 | 20 | 1.081 | FALSE | TRUE |
+| yield_10y | 35 | -0.006 | 19 | 1.002 | FALSE | TRUE |
+| juros_selic | 43 | -0.485 | 23 | 1.088 | FALSE | TRUE |
+| cds_5y | 31 | -15.353 | 17 | 0.761 | FALSE | TRUE |
+| embi_perc | 29 | -0.116 | 17 | 0.650 | FALSE | TRUE |
+| cambio_usd | 23 | -0.109 | 14 | 0.356 | FALSE | FALSE |
+| credit_outstanding | 37 | -0.638 | 20 | 1.085 | FALSE | TRUE |
+| credito_pessoa_fisica | 41 | -0.617 | 21 | 1.130 | FALSE | TRUE |
+| credito_comercio | 31 | -1.025 | 18 | 0.928 | FALSE | TRUE |
+| credito_construcao | 37 | -1.030 | 20 | 1.084 | FALSE | TRUE |
+| credito_industria_total | 29 | -0.732 | 18 | 0.751 | FALSE | TRUE |
+| credito_agro | 34 | -1.113 | 19 | 0.983 | FALSE | TRUE |
 
-**Inverte de sinal** ao apagar o par dominante: **13 de 14**.
-Vale sobrevive (mesmo sinal **e** > 50% da magnitude em escala comum): **1 de 14**.
-Razão mediana em **escala comum**: **0.434** sem o par 1, contra **0.980** sem o par 2 (controle). Renormalizando cada caminho a +50 pb seriam 4.965 e 0.836.
+**Inverte de sinal** ao apagar o par dominante: **0 de 14**.
+Vale sobrevive (mesmo sinal **e** > 50% da magnitude em escala comum): **13 de 14**.
+Razão mediana em **escala comum**: **1.041** sem o par 1, contra **1.326** sem o par 2 (controle). Renormalizando cada caminho a +50 pb seriam 0.887 e 2.906.
 

@@ -7,7 +7,7 @@
 #      Jarocinski-Karadi; alternative: Gertler-Karadi fn. 11).
 #
 # Scored by xi_mp — the Montiel Olea-Stock-Watson Wald in the
-# yield_6m impact direction — at the production dimension (7,6), on
+# yield_6m impact direction — at the centralized production dimension, on
 # both sample windows. One estimate_dfm per window; the instruments
 # enter only the cheap projection step.
 #
@@ -44,17 +44,19 @@ source("R/instrument/di_surprise.R")
 source("R/instrument/build_variants.R")
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")   # md_table
 
 
 # ---- Config --------------------------------------------------------
 
-R_PROD <- 7L; Q_PROD <- 6L; P_LAGS <- 6L
-MP_VAR <- "yield_6m"
+SPEC <- production_spec()
+R_PROD <- SPEC$r; Q_PROD <- SPEC$q; P_LAGS <- SPEC$p
+MP_VAR <- SPEC$mp_var
 
-SAMPLE_START <- as.Date("2013-01-01")
-SAMPLE_END   <- as.Date("2025-12-31")
+SAMPLE_START <- SPEC$sample[1]
+SAMPLE_END   <- SPEC$sample[2]
 LOAD_START   <- as.Date("2012-06-01")
 
 PROD_BD  <- 126L
@@ -72,11 +74,11 @@ VARIANTS <- c("z_jk_bs_purif", "z_jk_raw", "z_jk_raw_purif",
               "z_jk_purif", "z_bruto")
 
 SAMPLES <- list(
-  full      = as.Date(c("2013-01-01", "2025-12-31")),
-  pre_covid = as.Date(c("2013-01-01", "2019-12-31"))
+  full = SPEC$sample,
+  pre_covid = SPEC$pre_covid_sample
 )
 
-DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
+DATA_PATH <- SPEC$data_path
 OUT_DIR   <- "output/instrument"
 CHI2_1_95 <- qchisq(0.95, df = 1)
 XI_CONV   <- 10
@@ -495,7 +497,8 @@ p <- ggplot() +
     title = "Resposta a um choque de +50bp por vértice do DI usado na surpresa",
     subtitle = paste0("Linha preta: vértice de produção (", PROD_BD,
                       " du). Bandas de 68% e 90% do bootstrap de produção.\n",
-                      "Agregação mensal por soma; instrumento z_jk_bs_purif; (r,q) = (7,6); amostra completa."),
+                      sprintf("Agregação mensal por soma; instrumento %s; (r,q) = (%d,%d); amostra completa.",
+                              SPEC$instrument, SPEC$r, SPEC$q)),
     x = "horizonte (meses)", y = NULL,
     caption = "Analogo da Figura A4 de Alessi & Kerssenfischer (2019)."
   ) +

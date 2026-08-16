@@ -1,0 +1,11 @@
+sample,r,q,correct_sign,correct_sig68,correct_sig90,scored_horizons,cambio_positive,cambio_sig68,cambio_sig90
+full,2,2,28,28,28,28,7,7,7
+pre_covid,2,2,28,28,28,28,7,7,7
+full,5,3,27,22,16,28,7,7,7
+pre_covid,5,3,28,22,17,28,5,4,2
+full,5,4,24,23,18,28,7,7,7
+pre_covid,5,4,24,22,15,28,4,3,0
+full,7,6,25,21,17,28,7,5,5
+pre_covid,7,6,26,6,1,28,2,0,0
+full,7,7,23,21,21,28,7,5,4
+pre_covid,7,7,26,6,1,28,2,0,0

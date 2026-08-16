@@ -820,3 +820,37 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
     )
   ))
 }
+#' Recover the dynamic-factor innovations from a fitted DFM
+#'
+#' When `q == r`, the estimator stores scalar identity placeholders for the
+#' dynamic loading and scaling matrices. In that case the factor-VAR residuals
+#' already are the dynamic innovations.
+#'
+#' @param dfm_results Fitted DFM returned by `estimate_dfm()`.
+#'
+#' @return Numeric matrix with one dynamic innovation per column.
+extract_dynamic_innovations <- function(dfm_results) {
+  K <- dfm_results$dynamic_loadings
+  M <- dfm_results$dynamic_scaling
+  u <- dfm_results$var_residuals
+  if (!is.matrix(K) && !is.matrix(M)) {
+    return(u)
+  }
+  u %*% K %*% solve(M)
+}
+
+
+#' Map a dynamic-shock direction into the static-factor space
+#'
+#' @param dfm_results Fitted DFM returned by `estimate_dfm()`.
+#' @param direction Numeric direction in the dynamic innovation space.
+#'
+#' @return Numeric vector in the static-factor space.
+map_dynamic_direction_to_static <- function(dfm_results, direction) {
+  K <- dfm_results$dynamic_loadings
+  M <- dfm_results$dynamic_scaling
+  if (!is.matrix(K) && !is.matrix(M)) {
+    return(as.numeric(direction))
+  }
+  drop(K %*% M %*% direction)
+}

@@ -233,7 +233,7 @@ s2 <- simulate_case(n_gauss = 2L)
 cat(sprintf("  2 Gaussian components: mean max|dC| col1 = %.4f, col6 = %.4f\n",
             s2$err_nong, s2$err_last))
 cat("  (col6 is inside the Gaussian block and is NOT identified; col1 is.\n")
-cat("   This is the direct analogue of the (7,6) panel — see output/nongaussian/gate.md.)\n")
+cat("   This is the direct analogue of the production panel — see output/nongaussian/gate.md.)\n")
 pass(s2$err_last > s2$err_nong,
      "with 2 Gaussian sources the Gaussian block degrades, the rest survives",
      sprintf("%.3f vs %.3f", s2$err_last, s2$err_nong))

@@ -1,0 +1,5 @@
+variant,r,q,role
+conjunto_completo_sem_duplicatas,3,2,final_panel_second_dimension
+conjunto_completo_sem_duplicatas,4,3,final_panel_selected_dimension
+conjunto_completo_sem_duplicatas,7,6,final_panel_r7q6
+drop_eua,4,3,closest_block_inversion

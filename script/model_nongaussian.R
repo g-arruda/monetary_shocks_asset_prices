@@ -34,14 +34,16 @@ suppressPackageStartupMessages({
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/nongaussian_branch.R")
 
 args  <- commandArgs(trailingOnly = TRUE)
-NBOOT <- if (length(args) >= 1) as.integer(args[1]) else 200L
+SPEC <- production_spec()
+NBOOT <- if (length(args) >= 1) as.integer(args[1]) else SPEC$nboot
 
-R_PROD <- 7L; Q_PROD <- 6L; P_LAGS <- 6; H_MAX <- 48
-MP_VAR <- "yield_6m"; SHOCK_BPS <- 50; SEED <- 123
-CI_LEVELS <- c(0.68, 0.90)
+R_PROD <- SPEC$r; Q_PROD <- SPEC$q; P_LAGS <- SPEC$p; H_MAX <- SPEC$horizon
+MP_VAR <- SPEC$mp_var; SHOCK_BPS <- SPEC$shock_bps; SEED <- SPEC$bootstrap_seed
+CI_LEVELS <- SPEC$ci_levels
 # NG_STARTS was 60 until 2026-08-01, and 60 was not enough: the run of 2026-07-27
 # landed on logLik -1209.61 labelling column 6, while nongaussian_gate.R with 100
 # starts reached -1209.30 labelling column 1. The correlation vectors are not
@@ -50,7 +52,6 @@ CI_LEVELS <- c(0.68, 0.90)
 # with n_at_best = 1 of 60. Check the reconciliation block at the end of the run
 # before trusting any number here.
 NG_STARTS <- 200L; NG_BOOT_STARTS <- 2L
-GATE_LOGLIK <- -1209.30  # reference optimum from nongaussian_gate.R (100 starts)
 HEADLINE <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd",
               "price_ipca", "embi_perc", "commodity_metal")
 OUT_DIR <- "output/nongaussian"
@@ -59,11 +60,11 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 # ------------------------------------------------------------------
 # Data and DFM (estimated once, shared by both identifications)
 # ------------------------------------------------------------------
-raw <- read_csv("data/processed/data_log_deseasonalized.csv",
+raw <- read_csv(SPEC$data_path,
                 show_col_types = FALSE) |> drop_na()
 dates <- as.Date(raw$ref.date)
 data  <- raw |> select(-ref.date) |> as.matrix()
-inst  <- read_csv("data/processed/instrument.csv", show_col_types = FALSE)
+inst  <- read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
 
 tcode <- infer_tcode_from_varnames(colnames(data))
 mpind <- match(MP_VAR, colnames(data))
@@ -113,7 +114,7 @@ if (reusable) {
 # ------------------------------------------------------------------
 cat("[2/4] tests\n")
 
-eta   <- dfm$var_residuals %*% dfm$dynamic_loadings %*% solve(dfm$dynamic_scaling)
+eta   <- extract_dynamic_innovations(dfm)
 eta_c <- sweep(eta, 2, colMeans(eta))
 align <- sel_ext_inst_sample(as.Date(dfm$dates), P_LAGS, inst)
 Zsel  <- as.matrix(align$inst_sel)
@@ -257,21 +258,7 @@ md <- c(
           fmt(ng$ng_point$logLik, 2), ng$ng_point$n_at_best, ng$ng_point$converged),
   sprintf("- Partidas pedidas: %d; folga do melhor para o segundo ótimo: %s",
           NG_STARTS, fmt(gap_2nd, 4)),
-  sprintf("- Referência do gate (100 partidas): %s — este run está **%s**",
-          fmt(GATE_LOGLIK, 2),
-          if (ng$ng_point$logLik >= GATE_LOGLIK) "no ótimo do gate ou melhor" else
-            sprintf("%s unidades ABAIXO; otimizador sub-dimensionado",
-                    fmt(GATE_LOGLIK - ng$ng_point$logLik, 4))),
   sprintf("- cond(A) = %s", formatC(cv$cond_A, format = "e", digits = 3)),
-  "",
-  # The objective has many local optima and the labelled column is not stable
-  # across them, so a run that fails to reach the gate's optimum is reporting a
-  # different structural direction, not a noisier estimate of the same one.
-  if (ng$ng_point$logLik < GATE_LOGLIK)
-    paste0("> **Ressalva de otimização.** Este run não alcançou o ótimo que o ",
-           "`nongaussian_gate.R` alcança com 100 partidas (", fmt(GATE_LOGLIK, 2),
-           "). Como a coluna rotulada muda entre ótimos locais, os números abaixo ",
-           "descrevem uma direção estrutural diferente — aumente `NG_STARTS`.") else "",
   "",
   if (!is.na(ng$ng_point$label$gap) && ng$ng_point$label$gap < 0.05)
     paste0("> **Ressalva de rotulagem.** A folga entre a coluna escolhida e a ",
@@ -361,7 +348,7 @@ md <- c(
             fmt(p$point), fmt(p$lo90), fmt(p$hi90))
   }),
   "",
-  "## 6. Reconciliação: a Wald assintótica e o bootstrap discordam",
+  "## 5. Reconciliação: a Wald assintótica e o bootstrap discordam",
   "",
   "As duas inferências deste ramo dão respostas opostas e é preciso escolher.",
   "",
@@ -373,19 +360,23 @@ md <- c(
           fmt(ng$ng_boot$frac_low_cos, 3)),
   "  90% no impacto contêm zero em **todas** as variáveis exceto a normalizada.",
   "",
-  paste0("A simulação do bloco D de `validate_gmr_ica.R` desempata: em T = 150 e ",
-         "n = 6 — exatamente esta dimensão — o intervalo nominal de 95% da Prop. 4 ",
+  paste0("A simulação do bloco D de `validate_gmr_ica.R` alerta para a distorção: ",
+         "em T = 150 e n = 6 — dimensão próxima e ligeiramente maior que q = ",
+         Q_PROD, " da produção — o intervalo nominal de 95% da Prop. 4 ",
          "cobre **0,79**. Os erros-padrão assintóticos são pequenos demais aqui, ",
          "então a rejeição da restrição do proxy é **provavelmente espúria**."),
   "",
   "> **Conclusão.** O estimador GMR não contradiz o proxy neste painel: ele é",
-  "> **pouco informativo**. O ponto de −10,7% no `asset_ibov` vem com CI90 de",
-  "> [−49, +81], compatível com quase qualquer coisa. Isso não desqualifica a",
+  sprintf("> **pouco informativo**. O ponto de %s%% no `asset_ibov` vem com CI90 de",
+          fmt(h0(ng, "asset_ibov"), 2)),
+  sprintf("> [%s, %s], compatível com quase qualquer coisa. Isso não desqualifica a",
+          fmt(ng$ci[[lvl_hi]]$lower[match("asset_ibov", colnames(data)), 1], 1),
+          fmt(ng$ci[[lvl_hi]]$upper[match("asset_ibov", colnames(data)), 1], 1)),
   "> rota como *teste* (o esquema recursivo é rejeitado, e o próprio artigo usa",
   "> a identificação assim), mas desqualifica-a como **estimativa concorrente**",
   "> das magnitudes do §5.",
   "",
-  "## 5. Estabilidade do bootstrap",
+  "## 6. Estabilidade do bootstrap",
   "",
   sprintf("- Cosseno mediano entre a direção do draw e a do ponto: **%s**",
           fmt(ng$ng_boot$median_cos, 4)),

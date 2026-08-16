@@ -7,9 +7,9 @@
 # UNARCHIVED 2026-08-01. This module was archived on 2026-07-26 after the
 # calendar and BPSS-episode designs were rejected on 2026-07-16
 # (historico_decisoes.md §1.2). That rejection predates the 2026-07-24
-# vintage refresh (106 series) and the migration to (r=7, q=6) — the same
-# refresh that restored the proxy's strength — so the gate is being
-# re-evaluated over a (p, q) grid rather than at a single spec.
+# vintage refresh that restored the proxy's strength. The gate is therefore
+# evaluated over a (p, q) grid rather than inferred from a single production
+# specification; the current 111-series (r=5, q=5) cell is included explicitly.
 #
 # The daily companion (het_shock_extraction.R, Rigobon-Sack 2003 on
 # Wed->Thu pairs) stays in arquivo/: the daily object is out of scope. Its

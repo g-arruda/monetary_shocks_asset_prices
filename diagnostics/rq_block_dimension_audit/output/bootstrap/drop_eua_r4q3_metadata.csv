@@ -1,0 +1,2 @@
+variant,r,q,p,n_series,n_months,max_companion_root,stable,nboot,bootstrap_seed,bootstrap_failures,elapsed_minutes
+drop_eua,4,3,6,118,153,0.969411436395829,TRUE,800,123,0,0.5651461680730184

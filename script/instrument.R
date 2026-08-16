@@ -26,15 +26,17 @@ suppressPackageStartupMessages({
 
 source("R/instrument/di_surprise.R")
 source("R/instrument/build_variants.R")
+source("R/modeling/production_spec.R")
 
 # ---- Config ------------------------------------------------
 
-SAMPLE_START <- as.Date("2013-01-01")
-SAMPLE_END   <- as.Date("2025-12-31")
+SPEC <- production_spec()
+SAMPLE_START <- SPEC$event_sample[1]
+SAMPLE_END   <- SPEC$event_sample[2]
 LOAD_START   <- as.Date("2012-06-01")   # earlier so Wed→Thu pairs at sample start work
 TARGET_BD    <- 126                      # ~6 months in business days
 AGG_SCHEME   <- "sum"                    # Jarocinski-Karadi within-month sum
-DEFAULT_VARIANT <- "z_jk_bs_purif" # legacy data/processed/instrument.csv
+DEFAULT_VARIANT <- SPEC$instrument # legacy data/processed/instrument.csv
 #
 # 2026-07-27: both construction choices above were swept on the current
 # vintage under xi_mp — see script/instrument_construction_sweep.R and

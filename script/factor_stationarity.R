@@ -17,8 +17,8 @@
 # 42x42 companion and already concludes, in prose, "a corcova e
 # mecanica". This script is the completion of that, not a repeat:
 #
-#   (i)   unit roots on the FACTORS. t5_4 tests the 106 panel series,
-#         not the 7 factors, and those are two different objects.
+#   (i)   unit roots on the FACTORS. t5_4 tests the panel series,
+#         not the static factors, and those are two different objects.
 #   (ii)  Phillips-Perron. The repo has ADF and KPSS and nothing else.
 #   (iii) COINTEGRATION. ca.jo / vars appear nowhere in the repo.
 #   (iv)  the FULL 42-eigenvalue spectrum with arguments and implied
@@ -82,24 +82,26 @@ suppressPackageStartupMessages({
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 
 set.seed(20260731)
 
 
 # ---- Config: production spec (script/irf_coherence_check.R) --------
 
-R_FACTORS <- 7L
-Q_DYNAMIC <- 6L
-P_LAGS    <- 6L
-INSTRUMENT <- "z_jk_bs_purif"
-MP_VAR     <- "yield_6m"
+SPEC <- production_spec()
+R_FACTORS <- SPEC$r
+Q_DYNAMIC <- SPEC$q
+P_LAGS    <- SPEC$p
+INSTRUMENT <- SPEC$instrument
+MP_VAR     <- SPEC$mp_var
 
 P_GRID <- c(1L, 4L, 6L)   # BIC/HQ pick 1, AIC picks 4, production is 6
 K_GRID <- c(2L, 4L, 6L)   # Johansen lag order; the rank is lag-sensitive
 
-DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
-INST_PATH <- "data/processed/instrumentos_mensais.csv"
-CELL_PATH <- "output/irf/irf_coherence_cell.rds"
+DATA_PATH <- SPEC$data_path
+INST_PATH <- SPEC$instrument_path
+CELL_PATH <- SPEC$coherence_cell_path
 T51_PATH  <- "diagnostics/output/t5_1_autovalores.csv"
 T54_PATH  <- "diagnostics/output/t5_4_raiz_unitaria.csv"
 HCSV_PATH <- "output/irf/irf_coherence_h.csv"
@@ -328,7 +330,7 @@ cat(sprintf("    -> %s/factor_unit_root.csv (%d rows)\n", OUT_DIR, nrow(fac)))
 
 
 # ===================================================================
-# 3. Phillips-Perron on the 106 panel series
+# 3. Phillips-Perron on the production panel series
 # ===================================================================
 # Completes the methodologist's explicit ADF/KPSS/PP request. ADF and
 # KPSS are READ from t5_4 rather than recomputed, and the self-test
@@ -383,10 +385,10 @@ cat(sprintf("    -> %s/panel_unit_root_pp.csv (%d rows)\n",
 
 
 # ===================================================================
-# 4. Johansen cointegration among the 7 factors
+# 4. Johansen cointegration among the production factors
 # ===================================================================
 # The rank estimate is notoriously lag-sensitive, so K is swept. And
-# with n=7, K=6 and T=147 effective this is ~300 parameters: the
+# with n=r, K=6 and T-p effective this is a heavily parameterized system: the
 # asymptotic statistic over-rejects, exactly the distortion already
 # documented for this sample in diagnostico_dfm.md section 7.4 (the
 # asymptotic chi2 over-rejects by 2.3x-5.3x there). The Reinsel-Ahn
@@ -432,7 +434,7 @@ rank_tbl <- joh |> group_by(K, tipo) |>
             posto_5pct_ra = first_nonreject_ra(pick(everything())),
             .groups = "drop")
 
-cat("    estimated cointegration rank (n = 7):\n")
+cat(sprintf("    estimated cointegration rank (n = %d):\n", ncol(Fh)))
 print(as.data.frame(rank_tbl), row.names = FALSE)
 
 POSTO_PROD <- (rank_tbl |> filter(K == P_LAGS, tipo == "trace"))$posto_5pct
@@ -584,6 +586,11 @@ if (!is.null(rev_tbl)) {
   Md <- dfm$dynamic_scaling
   sy <- dfm$data_sd
   rr <- ncol(Lm); rp <- nrow(A); H_MAX <- 48L
+  if (!is.matrix(Kd) || !is.matrix(Md)) {
+    stopifnot(dfm$q == rr)
+    Kd <- diag(rr)
+    Md <- diag(rr)
+  }
   mpind <- match(MP_VAR, VAR_NAMES)
   norm_v <- 50 / 10000
 
@@ -595,7 +602,7 @@ if (!is.null(rev_tbl)) {
   lam <- lam[ord]; V <- V[, ord, drop = FALSE]; W <- W[ord, , drop = FALSE]
 
   # eta and the instrument alignment, exactly as compute_irf_dfm does
-  eta <- dfm$var_residuals %*% Kd %*% solve(Md)
+  eta <- extract_dynamic_innovations(dfm)
   al  <- sel_ext_inst_sample(DATES, P_LAGS, inst_df)
   eta_sel <- eta[al$rsh_sel_ind, , drop = FALSE]
 
@@ -755,20 +762,21 @@ md <- c(
            summarise(max_mod = max(modulo), n_complexo = sum(complexo),
                      per_dominante = periodo_meses[which.max(modulo)],
                      .groups = "drop"), 4),
-  "## 2. Raiz unitária nos 7 fatores (ADF / PP / KPSS, 5%, spec drift-mu)",
+  sprintf("## 2. Raiz unitária nos %d fatores (ADF / PP / KPSS, 5%%, spec drift-mu)",
+          R_FACTORS),
   "",
   md_tbl(ver |> select(fator, transf, ADF, PP, KPSS, veredito), 4),
   sprintf("Fatores I(1) em nível: **%d de %d**. I(0) em primeira diferença: **%d de %d**.",
           n_i1, ncol(Fh), n_d0, ncol(Fh)),
   "",
-  "## 3. Phillips-Perron nas 106 séries do painel",
+  sprintf("## 3. Phillips-Perron nas %d séries do painel", ncol(PANEL)),
   "",
   sprintf("PP rejeita a raiz unitária a 5%% em **%d de %d** séries.",
           sum(pp_panel$pp_rejeita_RU_5pct, na.rm = TRUE), nrow(pp_panel)),
   "",
   if ("veredito_adf_kpss" %in% names(pp_panel))
     md_tbl(pp_panel |> count(veredito_adf_kpss, pp_rejeita_RU_5pct)) else "",
-  "## 4. Cointegração de Johansen (n = 7)",
+  sprintf("## 4. Cointegração de Johansen (n = %d)", ncol(Fh)),
   "",
   md_tbl(rank_tbl, 0),
   sprintf("Na defasagem de produção (K = %d), traço: posto **%d** (%d com Reinsel-Ahn) — %d tendências comuns.",

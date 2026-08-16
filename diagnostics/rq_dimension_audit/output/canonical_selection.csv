@@ -1,0 +1,9 @@
+sample,n_series,n_months,r_ic1,r_ic2,r_ic3,p_aw,max_q,q_aw_ic2,q_gt_r
+full,106,153,5,5,20,6,5,3,FALSE
+full,106,153,5,5,20,6,15,3,FALSE
+full,106,153,5,5,20,12,5,3,FALSE
+full,106,153,5,5,20,12,15,3,FALSE
+pre_covid,106,84,3,2,20,6,2,2,FALSE
+pre_covid,106,84,3,2,20,6,15,2,FALSE
+pre_covid,106,84,3,2,20,12,2,2,FALSE
+pre_covid,106,84,3,2,20,12,15,2,FALSE

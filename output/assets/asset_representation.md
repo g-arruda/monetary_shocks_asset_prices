@@ -22,29 +22,29 @@ reporta **0 de 392** células sig90 nesse bloco — o tema do próprio título.
   mesmo seed, só o transform muda. Afirmação **separada**.
 - **Inconclusivo** se ξ_mp do painel log-nível cair abaixo de 3,84.
 
-## Veredito: MECANICO CONFIRMADO — 37 celulas sig90 em h<=12 sob log-nivel
+## Veredito: MECANICO CONFIRMADO — 49 celulas sig90 em h<=12 sob log-nivel
 
 ## As quatro representações
 
 | variante | painel | tcode_asset | xi_mp | f_robust_mp | max_eig | n_sig90 | n_sig90_h12 | n_sig68 |
 |---|---|---|---|---|---|---|---|---|
-| prod | retorno mensal |     2 | 7.648 | 7.955 | 0.9747 |     2 |     2 |    24 |
-| loglevel | log(cumprod(1+r)) |     4 | 7.948 | 10.07 | 0.9717 |    37 |    37 |    55 |
-| level | cumprod(1+r) |     1 | 8.526 | 10.91 | 0.975 |    34 |    34 |    52 |
-| prod_nocum | retorno mensal |     1 | 7.648 | 7.955 | 0.9747 |    NA |    NA |    NA |
+| prod | retorno mensal |     2 | 6.271 | 10.12 | 0.9649 |     4 |     4 |    20 |
+| loglevel | log(cumprod(1+r)) |     4 | 6.073 | 9.964 | 0.9729 |    49 |    49 |   105 |
+| level | cumprod(1+r) |     1 | 7.012 | 12.18 | 0.973 |    37 |    37 |    86 |
+| prod_nocum | retorno mensal |     1 | 6.271 | 10.12 | 0.9649 |    NA |    NA |    NA |
 
 Força do instrumento nas duas janelas:
 
 | variante | amostra | n_obs | xi_mp | f_robust_mp | ar_bounded | bandas_convencionais |
 |---|---|---|---|---|---|---|
-| prod | full |   147 | 7.648 | 7.955 | TRUE | FALSE |
-| prod | pre_covid |    78 | 11.53 | 6.264 | TRUE | TRUE |
-| loglevel | full |   147 | 7.948 | 10.07 | TRUE | FALSE |
-| loglevel | pre_covid |    78 | 4.474 | 1.822 | TRUE | FALSE |
-| level | full |   147 | 8.526 | 10.91 | TRUE | FALSE |
-| level | pre_covid |    78 |  6.44 | 3.836 | TRUE | FALSE |
-| prod_nocum | full |   147 | 7.648 | 7.955 | TRUE | FALSE |
-| prod_nocum | pre_covid |    78 | 11.53 | 6.264 | TRUE | TRUE |
+| prod | full |   147 | 6.271 | 10.12 | TRUE | FALSE |
+| prod | pre_covid |    78 | 10.99 | 9.747 | TRUE | TRUE |
+| loglevel | full |   147 | 6.073 | 9.964 | TRUE | FALSE |
+| loglevel | pre_covid |    78 | 10.31 | 11.32 | TRUE | TRUE |
+| level | full |   147 | 7.012 | 12.18 | TRUE | FALSE |
+| level | pre_covid |    78 | 9.493 | 9.893 | TRUE | FALSE |
+| prod_nocum | full |   147 | 6.271 | 10.12 | TRUE | FALSE |
+| prod_nocum | pre_covid |    78 | 10.99 | 9.747 | TRUE | TRUE |
 
 ## h = 0 — o teste limpo da representação
 
@@ -52,14 +52,13 @@ Resposta em % do nível do índice no mês do impacto, com IC90.
 
 | var | point_prod | lo90_prod | hi90_prod | point_loglevel | lo90_loglevel | hi90_loglevel | sig90_loglevel | sig68_loglevel |
 |---|---|---|---|---|---|---|---|---|
-| asset_ibov | -2.407 | -13.08 |  4.78 | -4.587 | -10.82 | -0.7463 | TRUE | TRUE |
-| asset_idiv |  -2.9 | -14.45 | 3.984 | -4.798 | -10.93 | -1.025 | TRUE | TRUE |
-| asset_ifix | -2.175 | -6.666 | 0.6141 | -2.485 | -5.054 | -0.881 | TRUE | TRUE |
-| asset_ifnc | -3.151 | -17.58 | 5.948 | -6.775 | -13.87 | -1.999 | TRUE | TRUE |
-| asset_imat | -0.4555 | -8.014 | 5.187 | 1.147 | -4.388 | 5.014 | FALSE | FALSE |
-| asset_imob | -3.787 | -15.91 | 4.521 | -8.359 | -16.47 | -3.499 | TRUE | TRUE |
-| asset_mlcx | -2.478 | -13.14 |  4.35 | -4.422 | -10.47 | -0.6364 | TRUE | TRUE |
-| asset_smll | -4.056 | -15.69 | 3.338 | -5.847 | -12.36 | -1.626 | TRUE | TRUE |
+| asset_ibov | -1.723 | -6.91 | 0.7747 | -2.796 | -6.712 | -1.269 | TRUE | TRUE |
+| asset_idiv | -2.039 | -7.425 | 0.2763 | -2.805 | -6.535 | -1.436 | TRUE | TRUE |
+| asset_ifix | -1.311 | -3.331 | -0.2344 | -1.713 | -3.268 | -1.164 | TRUE | TRUE |
+| asset_ifnc | -2.701 | -9.131 | 0.4169 | -3.936 | -7.888 | -1.689 | TRUE | TRUE |
+| asset_imat | -0.06907 | -4.08 | 2.056 | -0.02129 | -4.01 | 1.056 | FALSE | FALSE |
+| asset_imob | -2.557 | -8.58 | 0.5677 | -5.214 | -9.554 | -3.008 | TRUE | TRUE |
+| asset_smll | -2.611 | -7.976 | 0.1328 | -3.759 | -7.982 | -2.028 | TRUE | TRUE |
 
 ## Largura de banda h36/h0 por tcode
 
@@ -69,49 +68,46 @@ mesmo modelo — o ponto é idêntico após cumular (conferido a 1e-9), a banda 
 
 | variante | tcode | n | mediana | min | max |
 |---|---|---|---|---|---|
-| prod |     1 |    81 | 0.8306 | 0.3337 | 20.84 |
-| prod |     2 |     8 | 8.569 | 6.896 | 12.75 |
-| prod |     4 |    16 | 2.799 | 0.6208 | 6.876 |
-| prod_nocum |     1 |    89 | 0.7226 | 0.2456 | 20.84 |
-| prod_nocum |     4 |    16 | 2.799 | 0.6208 | 6.876 |
-| loglevel |     1 |    81 | 0.8324 | 0.366 | 17.68 |
-| loglevel |     4 |    24 | 1.708 | 0.5697 | 7.604 |
-| level |     1 |    89 |  0.81 | 0.3521 | 19.48 |
-| level |     4 |    16 | 2.469 | 0.7222 | 9.421 |
+| prod |     1 |    87 | 1.168 | 0.6801 | 17.37 |
+| prod |     2 |     7 |  27.8 |  26.6 | 28.17 |
+| prod |     4 |    16 | 2.661 | 0.8735 | 4.931 |
+| prod_nocum |     1 |    94 | 1.112 | 0.6801 | 17.37 |
+| prod_nocum |     4 |    16 | 2.661 | 0.8735 | 4.931 |
+| loglevel |     1 |    87 | 1.387 | 0.7101 | 15.19 |
+| loglevel |     4 |    23 | 2.233 | 0.8947 | 3.919 |
+| level |     1 |    94 | 1.347 | 0.7186 | 15.46 |
+| level |     4 |    16 | 2.557 | 1.324 | 4.032 |
 
-A mesma razão só nos 8 índices — sob `loglevel` eles migram para tcode 4 e a
+A mesma razão só nos 7 índices — sob `loglevel` eles migram para tcode 4 e a
 mediana do grupo acima passa a misturá-los com as 16 séries de crédito/base/PIB:
 
 | var | prod | prod_nocum | loglevel | level |
 |---|---|---|---|---|
-| asset_ibov | 7.213 | 0.2536 | 0.6694 | 0.4049 |
-| asset_idiv | 8.946 | 0.3106 | 0.6875 | 0.3782 |
-| asset_ifix | 12.75 | 0.4837 | 1.241 | 0.9023 |
-| asset_ifnc | 10.38 | 0.3411 | 0.5906 | 0.4016 |
-| asset_imat | 11.99 | 0.4162 | 1.295 | 1.049 |
-| asset_imob | 8.191 | 0.281 | 0.8278 | 0.5704 |
-| asset_mlcx | 6.896 | 0.2456 | 0.5697 | 0.3521 |
-| asset_smll | 6.991 | 0.2692 | 0.9244 | 0.6691 |
+| asset_ibov |  27.8 | 0.9391 | 0.8947 | 0.7349 |
+| asset_idiv | 28.17 | 0.9738 | 0.9346 | 0.7838 |
+| asset_ifix |  26.6 | 0.8049 | 1.367 | 0.9606 |
+| asset_ifnc | 28.14 | 0.9403 | 0.9364 | 0.7478 |
+| asset_imat | 27.47 | 0.9464 | 1.181 | 1.342 |
+| asset_imob |  27.9 | 0.9387 | 1.265 | 0.7891 |
+| asset_smll | 26.93 | 0.8989 | 0.9878 | 0.7902 |
 
 ## Onde ficam as células sig90 do bloco
 
 | variante | var | n | h_min | h_max | horizontes |
 |---|---|---|---|---|---|
-| level | asset_ibov |     5 |     0 |     4 | 0,1,2,3,4 |
-| level | asset_idiv |     4 |     0 |     3 | 0,1,2,3 |
-| level | asset_ifix |     5 |     0 |     4 | 0,1,2,3,4 |
-| level | asset_ifnc |     5 |     0 |     4 | 0,1,2,3,4 |
-| level | asset_imob |     5 |     0 |     4 | 0,1,2,3,4 |
-| level | asset_mlcx |     5 |     0 |     4 | 0,1,2,3,4 |
-| level | asset_smll |     5 |     0 |     4 | 0,1,2,3,4 |
-| loglevel | asset_ibov |     5 |     0 |     4 | 0,1,2,3,4 |
-| loglevel | asset_idiv |     5 |     0 |     4 | 0,1,2,3,4 |
-| loglevel | asset_ifix |     5 |     0 |     4 | 0,1,2,3,4 |
-| loglevel | asset_ifnc |     5 |     0 |     4 | 0,1,2,3,4 |
-| loglevel | asset_imob |     6 |     0 |     5 | 0,1,2,3,4,5 |
-| loglevel | asset_mlcx |     5 |     0 |     4 | 0,1,2,3,4 |
-| loglevel | asset_smll |     6 |     0 |     5 | 0,1,2,3,4,5 |
-| prod | asset_ifix |     2 |     1 |     2 | 1,2 |
+| level | asset_ibov |     6 |     0 |     5 | 0,1,2,3,4,5 |
+| level | asset_idiv |     5 |     0 |     4 | 0,1,2,3,4 |
+| level | asset_ifix |     7 |     0 |     6 | 0,1,2,3,4,5,6 |
+| level | asset_ifnc |     6 |     0 |     5 | 0,1,2,3,4,5 |
+| level | asset_imob |     6 |     0 |     5 | 0,1,2,3,4,5 |
+| level | asset_smll |     7 |     0 |     6 | 0,1,2,3,4,5,6 |
+| loglevel | asset_ibov |     8 |     0 |     7 | 0,1,2,3,4,5,6,7 |
+| loglevel | asset_idiv |     7 |     0 |     6 | 0,1,2,3,4,5,6 |
+| loglevel | asset_ifix |     9 |     0 |     8 | 0,1,2,3,4,5,6,7,8 |
+| loglevel | asset_ifnc |     7 |     0 |     6 | 0,1,2,3,4,5,6 |
+| loglevel | asset_imob |     8 |     0 |     7 | 0,1,2,3,4,5,6,7 |
+| loglevel | asset_smll |    10 |     0 |     9 | 0,1,2,3,4,5,6,7,8,9 |
+| prod | asset_ifix |     4 |     0 |     3 | 0,1,2,3 |
 
 ## A deriva de médio prazo do Ibovespa
 
@@ -122,44 +118,44 @@ vez de explicá-lo depois.
 
 | h | lo68 | hi68 | sig90 | point_prod | point_loglevel | point_level | sig68_prod | sig68_loglevel | sig68_level |
 |---|---|---|---|---|---|---|---|---|---|
-|     0 | -8.353 | 1.276 | FALSE | -2.407 |    NA |    NA | FALSE | NA | NA |
-|     1 | -12.32 | 0.9812 | FALSE | -4.459 |    NA |    NA | FALSE | NA | NA |
-|     6 | -7.673 | 18.07 | FALSE | 5.135 |    NA |    NA | FALSE | NA | NA |
-|    12 | -2.945 | 37.74 | FALSE | 19.16 |    NA |    NA | FALSE | NA | NA |
-|    18 | -0.1062 | 51.86 | FALSE | 28.82 |    NA |    NA | FALSE | NA | NA |
-|    24 | 0.2121 | 58.88 | FALSE | 31.82 |    NA |    NA | TRUE | NA | NA |
-|    36 | -4.283 | 62.12 | FALSE | 25.49 |    NA |    NA | FALSE | NA | NA |
-|    48 | -12.89 | 53.22 | FALSE | 13.86 |    NA |    NA | FALSE | NA | NA |
-|     0 | -8.114 | -2.295 | TRUE |    NA | -4.587 |    NA | NA | TRUE | NA |
-|     1 | -11.35 | -4.882 | TRUE |    NA | -7.555 |    NA | NA | TRUE | NA |
-|     6 | -5.876 | -0.6855 | FALSE |    NA | -4.104 |    NA | NA | TRUE | NA |
-|    12 | -2.272 |  2.21 | FALSE |    NA | -0.4024 |    NA | NA | FALSE | NA |
-|    18 | -1.368 | 2.475 | FALSE |    NA | 0.6849 |    NA | NA | FALSE | NA |
-|    24 | -0.9529 | 2.571 | FALSE |    NA | 1.537 |    NA | NA | FALSE | NA |
-|    36 | -0.4801 | 2.927 | FALSE |    NA | 2.029 |    NA | NA | FALSE | NA |
-|    48 | -0.479 |  2.25 | FALSE |    NA |  1.75 |    NA | NA | FALSE | NA |
-|     0 | -10.43 | -3.663 | TRUE |    NA |    NA | -6.074 | NA | NA | TRUE |
-|     1 | -12.22 | -5.323 | TRUE |    NA |    NA | -7.958 | NA | NA | TRUE |
-|     6 | -5.044 | -0.2353 | FALSE |    NA |    NA | -2.97 | NA | NA | TRUE |
-|    12 | -1.685 | 2.176 | FALSE |    NA |    NA | 0.0188 | NA | NA | FALSE |
-|    18 | -1.099 | 1.966 | FALSE |    NA |    NA | 0.1891 | NA | NA | FALSE |
-|    24 | -0.8197 | 1.881 | FALSE |    NA |    NA | 0.7719 | NA | NA | FALSE |
-|    36 | -0.309 | 2.524 | FALSE |    NA |    NA | 1.457 | NA | NA | FALSE |
-|    48 | -0.4656 | 1.886 | FALSE |    NA |    NA | 0.9585 | NA | NA | FALSE |
+|     0 | -5.042 | -0.6327 | FALSE | -1.723 |    NA |    NA | TRUE | NA | NA |
+|     1 | -7.657 | -0.9403 | FALSE | -3.228 |    NA |    NA | TRUE | NA | NA |
+|     6 | -11.56 | 8.314 | FALSE | -0.9125 |    NA |    NA | FALSE | NA | NA |
+|    12 | -9.165 | 27.21 | FALSE | 10.26 |    NA |    NA | FALSE | NA | NA |
+|    18 | -10.6 | 45.34 | FALSE | 16.95 |    NA |    NA | FALSE | NA | NA |
+|    24 | -16.37 | 61.18 | FALSE | 16.83 |    NA |    NA | FALSE | NA | NA |
+|    36 | -36.49 | 80.08 | FALSE | -0.8527 |    NA |    NA | FALSE | NA | NA |
+|    48 | -64.67 | 85.02 | FALSE | -28.9 |    NA |    NA | FALSE | NA | NA |
+|     0 | -5.357 | -2.058 | TRUE |    NA | -2.796 |    NA | NA | TRUE | NA |
+|     1 | -7.488 | -3.807 | TRUE |    NA | -5.016 |    NA | NA | TRUE | NA |
+|     6 | -5.855 | -1.799 | TRUE |    NA | -3.926 |    NA | NA | TRUE | NA |
+|    12 | -3.68 | -0.1473 | FALSE |    NA | -1.519 |    NA | NA | TRUE | NA |
+|    18 | -2.728 | 0.4176 | FALSE |    NA | -0.7405 |    NA | NA | FALSE | NA |
+|    24 | -2.044 | 0.9889 | FALSE |    NA | -0.1054 |    NA | NA | FALSE | NA |
+|    36 | -0.7045 | 1.753 | FALSE |    NA | 0.8191 |    NA | NA | FALSE | NA |
+|    48 | -0.3474 | 1.798 | FALSE |    NA | 0.9058 |    NA | NA | FALSE | NA |
+|     0 | -4.929 | -1.88 | TRUE |    NA |    NA | -2.371 | NA | NA | TRUE |
+|     1 | -6.646 | -2.886 | TRUE |    NA |    NA | -3.896 | NA | NA | TRUE |
+|     6 | -5.067 | -1.267 | FALSE |    NA |    NA | -2.91 | NA | NA | TRUE |
+|    12 | -3.28 | 0.3048 | FALSE |    NA |    NA | -0.6076 | NA | NA | FALSE |
+|    18 | -2.468 | 0.6279 | FALSE |    NA |    NA | -0.5568 | NA | NA | FALSE |
+|    24 | -1.981 | 0.8748 | FALSE |    NA |    NA | -0.1961 | NA | NA | FALSE |
+|    36 | -0.6944 |  1.37 | FALSE |    NA |    NA | 0.4605 | NA | NA | FALSE |
+|    48 | -0.431 | 1.423 | FALSE |    NA |    NA | 0.4257 | NA | NA | FALSE |
 
 ## Proxy de |t| no bloco (|ponto| / meia-banda de 68%)
 
 | h | level | loglevel | prod |
 |---|---|---|---|
-|     0 | 1.845 | 1.784 | 0.5566 |
-|     1 |   2.3 | 2.485 | 0.7227 |
-|     3 | 1.894 | 2.452 | 0.2183 |
-|     6 | 1.194 | 1.611 | 0.3958 |
-|    12 | 0.2225 | 0.1465 | 0.8671 |
-|    18 | 0.4689 | 0.4411 | 1.029 |
-|    24 | 0.6754 | 0.9253 | 1.016 |
-|    36 | 0.9938 | 1.159 | 0.7918 |
-|    48 | 0.7068 | 1.137 | 0.6434 |
+|     0 | 1.719 | 2.093 | 0.9677 |
+|     1 | 2.167 | 2.947 | 1.095 |
+|     3 | 2.138 | 2.935 | 0.6745 |
+|     6 | 1.531 | 2.004 | 0.4133 |
+|    12 | 0.05899 | 0.7344 | 0.4521 |
+|    18 | 0.3597 | 0.1562 | 0.5041 |
+|    24 | 0.4156 | 0.4222 | 0.3439 |
+|    36 | 0.7423 | 1.017 | 0.1094 |
+|    48 | 0.2792 | 0.818 | 0.4238 |
 
 ## Seção cruzada
 
@@ -168,24 +164,24 @@ Correlação (n = 8) entre a sensibilidade a juros medida fora do modelo
 
 | variante | h | cor_beta_juros | cor_sp_juros | amplitude | n_neg |
 |---|---|---|---|---|---|
-| prod |     0 | 0.8674 | 0.881 | 3.601 |     8 |
-| prod |     6 | -0.06914 | 0.1905 | 20.51 |     2 |
-| prod |    12 | -0.3625 | -0.1905 | 43.23 |     1 |
-| prod |    24 | -0.6032 |  -0.5 | 76.19 |     1 |
-| prod |    36 | -0.6583 |  -0.5 | 98.26 |     2 |
-| prod |    48 | -0.6656 | -0.619 | 107.4 |     3 |
-| loglevel |     0 | 0.9504 | 0.9048 | 9.505 |     7 |
-| loglevel |     6 | 0.9723 | 0.9524 | 5.983 |     8 |
-| loglevel |    12 | 0.1036 | 0.04762 | 0.6993 |     7 |
-| loglevel |    24 | -0.8994 | -0.8333 | 3.154 |     0 |
-| loglevel |    36 | -0.2306 | -0.2381 | 1.863 |     0 |
-| loglevel |    48 | 0.2594 | -0.1667 | 2.792 |     0 |
-| level |     0 | 0.9752 | 0.9762 | 10.05 |     8 |
-| level |     6 | 0.9774 | 0.9762 | 4.907 |     8 |
-| level |    12 | -0.8092 | -0.5476 | 2.532 |     2 |
-| level |    24 | -0.8735 | -0.8333 | 3.841 |     1 |
-| level |    36 | -0.2329 | -0.4286 | 2.507 |     0 |
-| level |    48 | 0.3418 | -0.04762 | 2.921 |     0 |
+| prod |     0 | 0.8634 | 0.8214 | 2.632 |     7 |
+| prod |     6 | 0.6283 | 0.5357 | 13.15 |     6 |
+| prod |    12 | 0.1572 | 0.3214 | 18.49 |     1 |
+| prod |    24 | -0.1882 | 0.03571 | 21.02 |     1 |
+| prod |    36 | 0.4537 | 0.3929 | 11.33 |     7 |
+| prod |    48 | 0.8089 | 0.8929 | 29.53 |     7 |
+| loglevel |     0 | 0.9782 | 0.9286 | 5.193 |     7 |
+| loglevel |     6 | 0.9888 | 0.9643 |  5.56 |     7 |
+| loglevel |    12 | 0.7847 | 0.8929 |  1.58 |     7 |
+| loglevel |    24 | -0.7776 | -0.6786 | 4.292 |     2 |
+| loglevel |    36 | -0.9064 | -0.8929 | 4.643 |     1 |
+| loglevel |    48 | -0.9656 | -0.9643 | 2.031 |     1 |
+| level |     0 | 0.9848 |     1 | 4.526 |     7 |
+| level |     6 | 0.9735 |     1 | 3.678 |     7 |
+| level |    12 | -0.5704 | -0.4643 | 2.305 |     4 |
+| level |    24 | -0.7701 | -0.6786 | 4.573 |     3 |
+| level |    36 | -0.8628 | -0.8929 | 2.968 |     2 |
+| level |    48 | -0.338 | -0.6429 | 0.961 |     1 |
 
 ## Guardas sobre o resto do modelo
 
@@ -193,18 +189,18 @@ Sem isto a comparação não vale nada: mudar o painel re-estima tudo.
 
 | conjunto | n_sig90_prod | n_sig90_loglevel | sobrevivem_loglevel | n_sig90_level | sobrevivem_level |
 |---|---|---|---|---|---|
-| 53 series escoradas |    84 |   139 |    78 |   126 |    77 |
-| 45 nao-acionarias |    82 |   102 |    76 |    92 |    75 |
+| 53 series escoradas |   255 |   333 |   241 |   350 |   239 |
+| 45 nao-acionarias |   251 |   284 |   237 |   313 |   235 |
 
 | var | point_prod | point_loglevel | point_level | sig90_prod | sig90_loglevel | sig90_level |
 |---|---|---|---|---|---|---|
-| yield_2y | 0.0108 | 0.01021 | 0.01067 | TRUE | TRUE | TRUE |
-| yield_5y | 0.0117 | 0.01108 | 0.01189 | TRUE | TRUE | TRUE |
-| cambio_usd | 0.2281 | 0.2269 | 0.2517 | TRUE | TRUE | TRUE |
-| embi_perc | 0.3204 | 0.2911 | 0.341 | TRUE | TRUE | TRUE |
-| cds_5y | 43.44 | 40.46 | 45.68 | TRUE | TRUE | TRUE |
-| price_ipca | -0.1678 | 0.01075 | -0.009397 | FALSE | FALSE | FALSE |
-| ibc_br | -0.7673 | -0.7279 | -0.6866 | TRUE | TRUE | TRUE |
+| yield_2y | 0.00743 | 0.006994 | 0.006811 | TRUE | TRUE | TRUE |
+| yield_5y | 0.007761 | 0.006697 | 0.006409 | TRUE | TRUE | TRUE |
+| cambio_usd | 0.1579 | 0.1168 | 0.1146 | TRUE | TRUE | TRUE |
+| embi_perc | 0.262 | 0.172 | 0.1586 | TRUE | TRUE | TRUE |
+| cds_5y | 32.54 | 22.72 | 21.36 | TRUE | TRUE | TRUE |
+| price_ipca | -0.06179 | -0.01642 | -0.0484 | FALSE | FALSE | FALSE |
+| ibc_br | -0.4605 | -0.3047 | -0.211 | TRUE | FALSE | FALSE |
 
 ## O que não foi feito, declarado
 
@@ -215,7 +211,7 @@ Sem isto a comparação não vale nada: mudar o painel re-estima tudo.
   `check_seasonality`, que hoje não marca retornos mas pode marcar níveis com
   tendência.
 - **(r,q) não é re-selecionado.** ξ_mp no painel log-nível é reportado acima;
-  se (7,6) ficar fraco lá, isso é achado, não decisão.
+  se (5,5) ficar fraco lá, isso é achado, não decisão.
 - **A assimetria mais ampla do painel não é tocada**: `cambio_usd` entra em
   nível, não em log.
 
@@ -225,6 +221,6 @@ Sem isto a comparação não vale nada: mudar o painel re-estima tudo.
 2. Ida e volta nas 8 séries: desvio máximo 2.36e-16 (< 1e-12).
 3. Smoke test do `CLAUDE.md` na célula de produção.
 4. Célula de produção vs `irf_coherence_h.csv`: desvio 4.55e-13 (< 1e-10).
-5. ξ_mp de produção vs `mosw_strength_grid.csv`: 7.647790 full, 11.534897 pré-COVID.
+5. ξ_mp de produção vs `mosw_strength_grid.csv`: 6.270850 full, 10.992677 pré-COVID.
 6. `cumsum(prod_nocum)×100 == prod` nas 8 séries: desvio 0.00e+00 (< 1e-9).
 

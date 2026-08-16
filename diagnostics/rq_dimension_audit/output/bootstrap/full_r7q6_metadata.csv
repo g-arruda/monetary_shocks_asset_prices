@@ -1,0 +1,2 @@
+sample,r,q,p,n_series,n_months,max_companion_root,stable,nboot,bootstrap_seed,bootstrap_failures,elapsed_minutes
+full,7,6,6,106,153,0.9747488663879236,TRUE,800,123,0,0.24163373311360678

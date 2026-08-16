@@ -106,6 +106,7 @@ source("R/instrument/build_variants.R")
 source("R/instrument/event_tests.R")       # wild_coef_test, wild_wald_test
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")    # norm_value_for, run_stage2_cell,
                                            # plot_overlay_cells, md_table
@@ -116,26 +117,27 @@ set.seed(20260810)
 # ---- Config --------------------------------------------------------
 
 # Instrument construction: production values (script/instrument.R)
-SAMPLE_START <- as.Date("2013-01-01")
-SAMPLE_END   <- as.Date("2025-12-31")
+SPEC         <- production_spec()
+SAMPLE_START <- SPEC$event_sample[1]
+SAMPLE_END   <- SPEC$event_sample[2]
 LOAD_START   <- as.Date("2012-06-01")
 TARGET_BD    <- 126
 AGG_SCHEME   <- "sum"
 
 # Estimation: production spec (script/irf_coherence_check.R)
-R_FACTORS <- 7L
-Q_DYNAMIC <- 6L
-P_LAGS    <- 6L
-MP_VAR    <- "yield_6m"
-HORIZON   <- 48L
-N_BOOT    <- 800L
-BOOT_SEED <- 123L
-SHOCK_BPS <- 50
-CI_LEVELS <- c(0.68, 0.90)
+R_FACTORS <- SPEC$r
+Q_DYNAMIC <- SPEC$q
+P_LAGS    <- SPEC$p
+MP_VAR    <- SPEC$mp_var
+HORIZON   <- SPEC$horizon
+N_BOOT    <- SPEC$nboot
+BOOT_SEED <- SPEC$bootstrap_seed
+SHOCK_BPS <- SPEC$shock_bps
+CI_LEVELS <- SPEC$ci_levels
 
 SAMPLES <- list(
-  full      = as.Date(c("2013-01-01", "2025-12-31")),
-  pre_covid = as.Date(c("2013-01-01", "2019-12-31"))
+  full = SPEC$sample,
+  pre_covid = SPEC$pre_covid_sample
 )
 
 NBOOT_P <- 2000L   # wild-bootstrap draws for the daily regressions
@@ -147,8 +149,8 @@ NBOOT_P <- 2000L   # wild-bootstrap draws for the daily regressions
 US_BLOCK     <- c("d_ust2", "r_sp500")
 GLOBAL_BLOCK <- c("d_ust2", "r_sp500", "d_vix", "r_brent")
 
-DATA_PATH  <- "data/processed/data_log_deseasonalized.csv"
-INST_PATH  <- "data/processed/instrumentos_mensais.csv"
+DATA_PATH  <- SPEC$data_path
+INST_PATH  <- SPEC$instrument_path
 EVENT_PATH <- "data/processed/copom_event_diagnostics.csv"
 OUT_DIR    <- "output/instrument"
 
@@ -559,11 +561,13 @@ for (v in IRF_VARIANTS) {
   cat(sprintf("    %-15s %.1f min\n", v, as.numeric(Sys.time() - t0, units = "mins")))
 }
 
-# End-to-end self-test against the CLAUDE.md smoke test.
+# End-to-end self-test against the independently gated 111-series production cell.
 Pref <- cells[["z_jk_bs_purif"]]$irf$irf_point_matrix
-smoke <- c(yield_6m = 0.005, yield_2y = 0.01080227,
-           yield_5y = 0.01170172, asset_ibov = -2.407125,
-           cambio_usd = 0.228100)
+smoke <- c(yield_6m = 0.005,
+           yield_2y = 0.007430059200891,
+           yield_5y = 0.007761146417651,
+           asset_ibov = -1.722676656446279,
+           cambio_usd = 0.157928065725129)
 got <- Pref[match(names(smoke), var_names), 1]
 cat("    smoke test h0: ")
 cat(paste(sprintf("%s %.6g", names(smoke), got), collapse = " | "), "\n")

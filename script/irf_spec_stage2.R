@@ -4,8 +4,8 @@
 # Selection: eligible cells (failure_class == "ok") with mp_var fixed at
 # yield_6m for comparability with the paper's normalization, ranked by
 # hard-sign score, extended score and xi_mp (MOSW), capped at 2 cells
-# per instrument, TOP_N total; the production baseline (full, r=7, q=6,
-# z_jk_bs_purif, yield_6m) is force-appended if not selected. Since the
+# per instrument, TOP_N total; the centralized production baseline is
+# force-appended if not selected. Since the
 # stage-1 taxonomy is governed by xi_mp; the matching robust first-stage F is
 # reported but does not condition cell selection. The baseline
 # qualifies on its own, so the force-append is a safety net, not a workaround.
@@ -23,6 +23,7 @@ library(patchwork)
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/validation_tests.R")
 source("R/identification/spec_sweep.R")
@@ -32,21 +33,22 @@ source("R/identification/spec_sweep.R")
 
 TOP_N     <- 5L
 MAX_PER_INSTRUMENT <- 2L
-N_BOOT    <- 800L
-HORIZON   <- 50L
-SHOCK_BPS <- 50
-P_LAGS    <- 6L
-BOOT_SEED <- 123L
-CI_LEVELS <- c(0.68, 0.90)
-STAGE2_MP <- "yield_6m"
+SPEC      <- production_spec()
+N_BOOT    <- SPEC$nboot
+HORIZON   <- SPEC$horizon
+SHOCK_BPS <- SPEC$shock_bps
+P_LAGS    <- SPEC$p
+BOOT_SEED <- SPEC$bootstrap_seed
+CI_LEVELS <- SPEC$ci_levels
+STAGE2_MP <- SPEC$mp_var
 
 SAMPLES <- list(
-  full      = as.Date(c("2013-01-01", "2025-12-31")),
-  pre_covid = as.Date(c("2013-01-01", "2019-12-31"))
+  full = SPEC$sample,
+  pre_covid = SPEC$pre_covid_sample
 )
 
-BASELINE <- data.frame(sample = "full", r = 7L, q = 6L,
-                       instrument = "z_jk_bs_purif", mp_var = "yield_6m",
+BASELINE <- data.frame(sample = "full", r = SPEC$r, q = SPEC$q,
+                       instrument = SPEC$instrument, mp_var = SPEC$mp_var,
                        stringsAsFactors = FALSE)
 
 # Same 3x3 panel as irf_cross_instrument.R, for comparability
@@ -65,8 +67,8 @@ RESPONSE_VARS <- list(
 PALETTE_BASE <- c("steelblue", "firebrick", "darkgreen", "goldenrod3",
                   "purple3", "grey40")
 
-DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
-INST_PATH <- "data/processed/instrumentos_mensais.csv"
+DATA_PATH <- SPEC$data_path
+INST_PATH <- SPEC$instrument_path
 OUT_DIR   <- "output/irf"
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)

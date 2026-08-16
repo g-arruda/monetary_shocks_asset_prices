@@ -23,8 +23,11 @@ suppressMessages({
   library(dplyr)
 })
 
-CELL_RDS  <- "output/irf/irf_coherence_cell.rds"
-PANEL_CSV <- "data/processed/data_log_deseasonalized.csv"
+source("R/modeling/production_spec.R")
+SPEC <- production_spec()
+
+CELL_RDS  <- SPEC$coherence_cell_path
+PANEL_CSV <- SPEC$data_path
 HCSV      <- "output/irf/irf_coherence_h.csv"
 T7_CSV    <- "diagnostics/output/t7_2_irf_estado.csv"
 IMG_DIR   <- "paper"
@@ -32,7 +35,7 @@ IMG_DIR   <- "paper"
 H_MAX <- 36L   # every IRF figure stops here
 
 cell <- readRDS(CELL_RDS)
-stopifnot(cell$instrument == "z_jk_bs_purif", cell$r == 7L, cell$q == 6L)
+stopifnot(cell$instrument == SPEC$instrument, cell$r == SPEC$r, cell$q == SPEC$q)
 
 panel <- read_csv(PANEL_CSV, show_col_types = FALSE)
 hcsv  <- read_csv(HCSV, show_col_types = FALSE)
@@ -98,8 +101,7 @@ save_fig("fig_curva.pdf", grid_of(list(
   list("yield_2y",  "DI 2 anos (p.b.)",   1e4),
   list("yield_5y",  "DI 5 anos (p.b.)",   1e4),
   list("yield_10y", "DI 10 anos (p.b.)",  1e4),
-  list("juros_selic", "Selic overnight (p.b.)", 100),
-  list("juros_cdi",   "CDI overnight (p.b.)",   100)
+  list("juros_selic", "Selic overnight (p.b.)", 100)
 ), ncol = 4), 10.4, 5.8)
 
 
@@ -197,7 +199,6 @@ save_fig("fig_precos.pdf", grid_of(list(
 # --- 7. ações --------------------------------------------------------
 save_fig("fig_acoes.pdf", grid_of(list(
   list("asset_ibov", "Ibovespa (%)",        1),
-  list("asset_mlcx", "MLCX, large caps (%)", 1),
   list("asset_smll", "SMLL, small caps (%)", 1),
   list("asset_idiv", "IDIV, dividendos (%)", 1),
   list("asset_imob", "IMOB, incorporadoras (%)", 1),
@@ -209,7 +210,7 @@ save_fig("fig_acoes.pdf", grid_of(list(
 
 # --- 8. placebos ------------------------------------------------------
 save_fig("fig_placebos.pdf", grid_of(list(
-  list("sp500_vix", "S&P 500 / VIX",           1),
+  list("sp500_vix", "VIX",                     1),
   list("msci",      "MSCI emergentes",         1),
   list("epu_us",    "EPU Estados Unidos",      1)
 ), ncol = 3), 9.6, 3.1)
@@ -218,7 +219,7 @@ save_fig("fig_placebos.pdf", grid_of(list(
 # --- auto-teste ------------------------------------------------------
 # Todo valor plotado em h=0 tem que bater com irf_coherence_h.csv.
 plotted <- c("yield_3m","yield_6m","yield_1y","yield_2y","yield_5y","yield_10y",
-             "juros_selic","juros_cdi","cambio_usd","cambio_eur","embi_perc",
+             "juros_selic","cambio_usd","cambio_eur","embi_perc",
              "cds_5y","commodity_metal","commodity_agro","ind_transformacao",
              "ind_bens_duraveis","ind_bens_capital","vendas_varejo",
              "capacidade_instalada_industria","trab_hrs_trabalhadas_industria",
@@ -228,7 +229,7 @@ plotted <- c("yield_3m","yield_6m","yield_1y","yield_2y","yield_5y","yield_10y",
              "credito_construcao",
              "price_ipp","price_igp_m","price_ipca","price_core_ipca_ex0",
              "price_core_ipca_dw","price_core_ipca_ex1","price_ipca_difusao",
-             "price_inpc","asset_ibov","asset_mlcx","asset_smll","asset_idiv",
+             "price_inpc","asset_ibov","asset_smll","asset_idiv",
              "asset_imob","asset_ifnc","asset_imat","asset_ifix",
              "sp500_vix","msci","epu_us")
 n_chk <- 0L

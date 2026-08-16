@@ -1,0 +1,5 @@
+quantity,n_values,max_absolute_difference,max_tolerance_ratio,passed
+bai_ng_criteria,7680,1.9984014443252818e-15,1.7249732803976087e-05,True
+aw_criteria,384,1.3322676295501878e-15,2.9833290745751867e-06,True
+bai_ng_eigenvalues,2560,5.861977570020827e-14,7.521083168805202e-06,True
+aw_eigenvalues,384,5.950795411990839e-14,7.609575180355195e-06,True

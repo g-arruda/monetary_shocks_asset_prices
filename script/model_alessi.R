@@ -9,6 +9,7 @@ library(patchwork)
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/nongaussian_branch.R")
 # The het identification branch was archived on 2026-07-26 (empirically rejected
 # 2026-07-16). Production runs identification = "proxy"; to revive the het branch
@@ -17,30 +18,36 @@ source("R/identification/nongaussian_branch.R")
 
 
 
-X <- readr::read_csv("data/processed/data_log_deseasonalized.csv") |> 
-    dplyr::select(-ref.date) |>
-    tidyr::drop_na()
+SPEC <- production_spec()
 
-# Aplicar bai_ng_criteria com a padronização BLL para lidar com dados não-estacionários
-results_bai_ng <- bai_ng_criteria(X, max_r = 20, apply_bll = TRUE)
-
-
-# Aplicar amengual_watson assumindo r = 8 e p = 6
-results_amengual_watson <- amengual_watson(X,
-  r = results_bai_ng$r_hat$IC2, p = 12, max_q = 15, apply_bll = TRUE
-)
-
-
-
-
-
-main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
-                      instrument_path = "data/processed/instrument.csv",
-                      r = results_bai_ng$r_hat$IC2,
-                      q = results_amengual_watson$q_hat, p = 6,
-                      h = 50, nboot = 800, bootstrap_seed = 123,
-                      mp_var = "yield_6m", shock_size_bps = 50,
-                      tcode = NULL, ci_levels = c(0.90, 0.95),
+#' Estimate the DFM and its impulse responses
+#'
+#' @param data_path Processed panel CSV.
+#' @param instrument_path Monthly production instrument CSV.
+#' @param r Number of static factors.
+#' @param q Number of dynamic shocks.
+#' @param p Factor-VAR lag order.
+#' @param h Maximum impulse-response horizon.
+#' @param nboot Number of wild-bootstrap draws.
+#' @param bootstrap_seed Bootstrap seed.
+#' @param mp_var Monetary-policy normalization variable.
+#' @param shock_size_bps Impact normalization in basis points.
+#' @param tcode Optional transformation-code vector.
+#' @param ci_levels Confidence levels.
+#' @param identification Identification branch.
+#' @param het_weight Weighting scheme for the archived heteroskedastic branch.
+#' @param ng_distri Non-Gaussian density specification.
+#' @param ng_starts Number of non-Gaussian optimization starts.
+#' @param ng_boot_starts Number of starts in each non-Gaussian bootstrap draw.
+#'
+#' @return List with the fitted DFM, IRFs, panel, transformations, and normalization.
+main_sdfm <- function(data_path = SPEC$data_path,
+                      instrument_path = SPEC$legacy_instrument_path,
+                      r = SPEC$r, q = SPEC$q, p = SPEC$p,
+                      h = SPEC$horizon, nboot = SPEC$nboot,
+                      bootstrap_seed = SPEC$bootstrap_seed,
+                      mp_var = SPEC$mp_var, shock_size_bps = SPEC$shock_bps,
+                      tcode = NULL, ci_levels = SPEC$ci_levels,
                       identification = c("proxy", "het", "nongaussian"),
                       het_weight = "optimal",
                       ng_distri = NULL, ng_starts = 30L, ng_boot_starts = 3L) {
@@ -149,24 +156,22 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
 }
 
 # Set global seed for reproducibility
-set.seed(123)
+set.seed(SPEC$bootstrap_seed)
 
 # Execute main analysis
-# Especificação de produção r=7, q=6, p=6 (movida de (6,5) em 2026-07-24 após o
-# refresh de vintage). Sob a régua MOSW, (7,6) é a única dimensão da varredura com
-# A célula congelada tem ξ_mp 7.65 full / 11.53 pre_covid após a correção
-# para a zona AR no full (6.36) — ver output/instrument/mosw_strength_grid.md.
+# Especificação de produção no painel de 111 séries, com r decidido pelo
+# Bai--Ng IC2 e q=5 mantido como escolha operacional provisória.
 # Instrumento: data/processed/instrument.csv = z_jk_bs_purif (default desde
 # 2026-07-15; máscara JK em resíduos pré-evento BS). Bootstrap wild nboot=800
 # (Gonçalves-Kilian), correção de viés Kilian só no DGP do bootstrap.
 sdfm_results <- main_sdfm(
-  r = 7L,
-  q = 6L,
-  p = 6,
-  shock_size_bps = 50,
-  mp_var = "yield_6m",
-  ci_levels = c(0.68, 0.90),
-  nboot = 800
+  r = SPEC$r,
+  q = SPEC$q,
+  p = SPEC$p,
+  shock_size_bps = SPEC$shock_bps,
+  mp_var = SPEC$mp_var,
+  ci_levels = SPEC$ci_levels,
+  nboot = SPEC$nboot
 )
 
 
@@ -194,7 +199,7 @@ response_vars <- list(
 irf_plot <- plot_irf(sdfm_results$irfs,
   response_vars = response_vars,
   shock = 1,
-  horizon = 50,
+  horizon = SPEC$horizon,
   cumulative = FALSE,
   var_names = colnames(sdfm_results$data),
   tcode = sdfm_results$tcode,
@@ -203,5 +208,5 @@ irf_plot <- plot_irf(sdfm_results$irfs,
 
 print(irf_plot)
 
-ggplot2::ggsave("output/irf/irf_model_alessi_r7q6.pdf", irf_plot,
+ggplot2::ggsave(SPEC$model_output, irf_plot,
                 width = 11, height = 9, dpi = 200)

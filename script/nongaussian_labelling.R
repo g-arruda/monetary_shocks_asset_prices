@@ -27,9 +27,11 @@ suppressPackageStartupMessages({
 })
 
 source("R/modeling/factor_estimation.R")
+source("R/modeling/production_spec.R")
 source("R/identification/nongaussian_labelling.R")
 source("R/identification/irf_coherence.R")
 
+SPEC     <- production_spec()
 args     <- commandArgs(trailingOnly = TRUE)
 CELL_RDS <- if (length(args) >= 1) args[1] else "output/nongaussian/gmr_cell.rds"
 OUT_DIR  <- "output/nongaussian"
@@ -51,18 +53,18 @@ cat(sprintf("== labelling sem instrumento: %s (nboot = %d) ==\n", CELL_RDS, cell
 # ------------------------------------------------------------------
 # 1. DFM and rawimp
 # ------------------------------------------------------------------
-raw   <- read_csv("data/processed/data_log_deseasonalized.csv",
+raw   <- read_csv(SPEC$data_path,
                   show_col_types = FALSE) |> drop_na()
 dates <- as.Date(raw$ref.date)
 dat   <- raw |> select(-ref.date) |> as.matrix()
-inst  <- read_csv("data/processed/instrument.csv", show_col_types = FALSE)
+inst  <- read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
 stopifnot(identical(colnames(dat), vn))
 
 dfm    <- estimate_dfm(dat, cell$r, cell$q, cell$p, dates = dates,
                        instrument = inst, apply_kilian = TRUE)
 rawimp <- ng_rawimp_from_dfm(dfm, H)
 
-eta   <- dfm$var_residuals %*% dfm$dynamic_loadings %*% solve(dfm$dynamic_scaling)
+eta   <- extract_dynamic_innovations(dfm)
 eta_c <- sweep(eta, 2, colMeans(eta))
 P     <- t(chol(stats::var(eta_c)))
 C_hat <- cell$ng$ng_point$C

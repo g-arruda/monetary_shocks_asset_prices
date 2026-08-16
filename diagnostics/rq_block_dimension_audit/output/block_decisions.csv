@@ -1,0 +1,7 @@
+block,contrasts,unresolved,exclusion_wins,inclusion_wins,remove_block,distance_to_flip
+fiscal,32,28,3,1,FALSE,21
+setor_externo,32,29,0,3,FALSE,24
+expectativas,32,26,2,4,FALSE,22
+eua,32,22,8,2,FALSE,16
+credito,32,30,2,0,FALSE,22
+imoveis,32,27,5,0,FALSE,19

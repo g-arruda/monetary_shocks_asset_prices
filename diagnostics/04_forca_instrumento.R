@@ -48,9 +48,7 @@ cat("  do petroleo de Kilian em script/validate_olea_kilian.R.\n")
 cat("\n[4.2] valor observado contra os limiares que existem\n")
 
 z_df <- inst_df(SPEC$instrument)
-windows <- list(full = SPEC$window,
-                # mesma janela de mosw_strength_grid.R:37 e irf_spec_sweep.R:43
-                pre_covid = as.Date(c("2013-01-01", "2019-12-31")))
+windows <- list(full = SPEC$window, pre_covid = SPEC$pre_covid_sample)
 
 t42 <- lapply(names(windows), function(w) {
   win <- windows[[w]]

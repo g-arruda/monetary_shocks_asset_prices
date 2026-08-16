@@ -92,8 +92,8 @@ print(as.data.frame(ic_tbl), row.names = FALSE, digits = 5)
 cat(sprintf("\n  argmin: AIC p=%d | BIC p=%d | HQ p=%d\n",
             ic_tbl$p[which.min(ic_tbl$AIC)], ic_tbl$p[which.min(ic_tbl$BIC)],
             ic_tbl$p[which.min(ic_tbl$HQ)]))
-cat("  PRODUCAO: p = 6, HARD-CODED em model_alessi.R:166 e irf_coherence_check.R:37.\n")
-cat("  Nenhum criterio e consultado no pipeline.\n")
+cat(sprintf("  PRODUCAO: p = %d, centralizado em production_spec().\n", SPEC$p))
+cat("  Os criterios sao diagnosticos; o pipeline consome a especificacao central.\n")
 diag_write(ic_tbl, "t5_3_ordem_defasagens.csv")
 
 
@@ -145,7 +145,7 @@ diag_write(t54, "t5_4_raiz_unitaria.csv")
 # ===================================================================
 # 5.5 — R2 do componente comum, serie a serie
 # ===================================================================
-cat("\n[5.5] R2 do componente comum (projecao nos r=7 fatores)\n")
+cat(sprintf("\n[5.5] R2 do componente comum (projecao nos r=%d fatores)\n", SPEC$r))
 
 sy   <- dfm$data_sd
 Chi  <- sweep(dfm$static_factors %*% t(dfm$static_loadings), 2, sy, "*")
@@ -155,7 +155,7 @@ Idio <- Xdt - Chi
 # Tres medidas, e a diferenca entre elas E o achado:
 #  R2_chi — reconstrucao do PROPRIO DFM: Chi = F * Lambda' * sy. E o objeto que
 #           gera as IRFs (impulse_responde.R:448-455 usa o mesmo Lambda).
-#  R2_ols — projecao de minimos quadrados da serie nos mesmos 7 fatores. Mede se
+#  R2_ols — projecao de minimos quadrados da serie nos mesmos fatores. Mede se
 #           os fatores GERAM a serie, independentemente de Lambda.
 #  R2_dif — o mesmo em primeira diferenca, que e o espaco onde Lambda foi estimado
 #           (eigs(cov(yy)) em DFMest_BLL.m:24 / factor_estimation.R:323-330).
@@ -188,10 +188,10 @@ print(as.data.frame(t55 |> group_by(grupo) |>
                   .groups = "drop") |>
         arrange(desc(R2_chi))), row.names = FALSE, digits = 3)
 
-DESTAQUE <- c("juros_selic", "juros_cdi", "yield_6m", "yield_3m", "yield_2y",
+DESTAQUE <- intersect(c("juros_selic", "juros_cdi", "yield_6m", "yield_3m", "yield_2y",
               "yield_10y", "pib", "ibc_br", "cambio_usd", "embi_perc",
               "cds_5y", "price_core_ipca_ex0", "price_ipca", "commodity_metal",
-              "asset_ibov", "asset_ifix", "ind_transformacao")
+              "asset_ibov", "asset_ifix", "ind_transformacao"), VAR_NAMES)
 cat("\n  series destacadas:\n")
 print(as.data.frame(t55 |> filter(var %in% DESTAQUE) |> arrange(desc(R2_comum)) |>
         select(var, grupo, tcode, R2_comum, R2_ols, R2_dif, gap_ols_chi)),
@@ -208,8 +208,9 @@ diag_write(t55, "t5_5_r2_comum.csv")
 # Veredito
 # ===================================================================
 cat("\n===== VEREDITO TAREFA 5 =====\n")
-cat(sprintf("Maior raiz = %.4f (> 0.97). E a explicacao mecanica das corcovas\n", mod[1]))
-cat("em h=24-37 e do alargamento das bandas. NAO e bug: o DFM e em nivel\n")
+cat(sprintf("Maior raiz = %.4f. Ela implica persistencia e alargamento das bandas,\n", mod[1]))
+cat("mas a decomposicao espectral corrente mostra que nao explica sozinha os vales.\n")
+cat("NAO e bug: o DFM e em nivel\n")
 cat("destendenciado (BLL/Alessi-Kerssenfischer) e raiz quase unitaria e a\n")
 cat("especificacao. A consequencia pratica e o limite de interpretacao.\n")
 r2 <- setNames(t55$R2_comum, t55$var)

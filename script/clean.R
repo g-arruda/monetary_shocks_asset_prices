@@ -1,11 +1,16 @@
 rm(list = ls())
 
 source("R/preprocessing/seasonality.R")
+source("R/data_download/panel_candidates.R")
+source("R/preprocessing/panel_candidates.R")
+source("R/modeling/production_spec.R")
 # source("R/preprocessing/stationarity.R")  # arquivo inexistente, chamada morta (padronização BLL ocorre em factor_estimation.R)
 
+spec <- production_spec()
 
 # loading data ----
-raw_data <- readr::read_csv("data/raw/raw_data.csv") |> dplyr::filter(ref.date >= "2013-01-01" & ref.date <= "2025-09-01")
+raw_data <- readr::read_csv("data/raw/raw_data.csv") |>
+  dplyr::filter(ref.date >= spec$sample[1], ref.date <= spec$sample[2])
 
 # Descarta colunas totalmente vazias na janela (ex.: break-even ANBIMA sem cache rb3),
 # que quebrariam o teste de sazonalidade e o drop_na do DFM.
@@ -128,9 +133,39 @@ data <- data |>
   )
 
 
-# Persistir o painel log + dessazonalizado ----
-readr::write_csv(data, "data/processed/data_log_deseasonalized.csv")
+# Persist processed panels ----
 
+expected_dates <- seq(spec$sample[1], spec$sample[2], by = "month")
+if (!identical(as.Date(data$ref.date), expected_dates) || ncol(data) - 1L != 106L ||
+    any(!is.finite(as.matrix(data[, -1])))) {
+  stop("The processed base panel must contain 106 finite series over the fixed 153 months.")
+}
+readr::write_csv(data, spec$base_data_path)
 
+candidate_inputs <- build_candidate_inputs(expected_dates)
+candidate_keep <- names(candidate_inputs$blocks)[
+  candidate_inputs$blocks %in% spec$candidate_blocks_kept
+]
+base_keep <- setdiff(names(data), c("ref.date", spec$base_series_removed))
+production_matrix <- cbind(
+  as.matrix(data[, base_keep]),
+  candidate_inputs$matrix[, candidate_keep, drop = FALSE]
+)
+if (nrow(production_matrix) != spec$n_months || ncol(production_matrix) != spec$n_series ||
+    any(!is.finite(production_matrix)) || anyDuplicated(colnames(production_matrix)) ||
+    !all(spec$required_series %in% colnames(production_matrix)) ||
+    any(spec$excluded_series %in% colnames(production_matrix))) {
+  stop("The canonical production panel does not match the centralized 111-series specification.")
+}
+
+production_data <- tibble::as_tibble(production_matrix) |>
+  dplyr::mutate(ref.date = expected_dates, .before = 1)
+readr::write_csv(production_data, spec$data_path)
+
+dir.create("output/panel", showWarnings = FALSE, recursive = TRUE)
+panel_manifest <- candidate_inputs$treatments |>
+  dplyr::mutate(in_production = variable %in% candidate_keep) |>
+  dplyr::arrange(dplyr::desc(in_production), block, variable)
+readr::write_csv(panel_manifest, "output/panel/production_candidate_manifest.csv")
 
 

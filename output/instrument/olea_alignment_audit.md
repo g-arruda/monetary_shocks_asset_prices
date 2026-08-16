@@ -35,19 +35,18 @@ além da tolerância definida no script.
 
 ## Produção brasileira
 
-Para `z_jk_bs_purif`, r=7, q=6 e p=6:
+Para `z_jk_bs_purif`, r=5, q=5 e p=6:
 
 | amostra | ξ_mp | F_rob,mp |
 |---|---:|---:|
-| completa | 7,65 | 7,95 |
-| pré-COVID | 11,53 | 6,26 |
+| completa | 6,27085 | 10,12054 |
+| pré-COVID | 10,99268 | 9,74746 |
 
-Na amostra completa, as duas estatísticas apontam relevância abaixo da
-referência convencional de 10. No pré-COVID, elas divergem: ξ_mp fica acima de
-10, mas F_rob,mp não. A leitura correta é evidência mista, com cautela na
-inferência em ambas as janelas. A diferença pré-COVID é ampliada pela correção
-HC1 numa regressão curta: 78 observações efetivas e 42 controles de lags dos
-fatores.
+Na amostra completa, ξ_mp fica abaixo da referência convencional de 10 e
+F_rob,mp ligeiramente acima; no pré-COVID ocorre o inverso. A leitura correta é
+evidência mista, com cautela na inferência em ambas as janelas. A janela
+pré-COVID tem 78 observações efetivas, 30 controles de lags dos fatores e raiz
+máxima 1,000202, portanto não sustenta uma leitura dinâmica alternativa.
 
 ## Implementação e consumidores
 

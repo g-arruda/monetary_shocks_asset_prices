@@ -17,28 +17,30 @@ library(tidyr)
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")   # md_table
 
 
 # ---- Config --------------------------------------------------------
 
-P_LAGS  <- 6L
-MP_VAR  <- "yield_6m"
+SPEC <- production_spec()
+P_LAGS  <- SPEC$p
+MP_VAR  <- SPEC$mp_var
 
 RQ_GRID <- do.call(rbind, lapply(5:8, function(r)
   data.frame(r = r, q = 4:r)))
 
 SAMPLES <- list(
-  full      = as.Date(c("2013-01-01", "2025-12-31")),
-  pre_covid = as.Date(c("2013-01-01", "2019-12-31"))
+  full = SPEC$sample,
+  pre_covid = SPEC$pre_covid_sample
 )
 
 VARIANTS <- c("z_bruto", "z_bruto_purif", "z_jk", "z_jk_purif",
               "z_jk_raw_purif", "z_jk_raw", "z_bs_purif", "z_jk_bs_purif")
 
-DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
-INST_PATH <- "data/processed/instrumentos_mensais.csv"
+DATA_PATH <- SPEC$data_path
+INST_PATH <- SPEC$instrument_path
 OUT_DIR   <- "output/instrument"
 
 CHI2_1_95 <- qchisq(0.95, df = 1)
@@ -143,7 +145,7 @@ summary_tbl <- grid |>
   arrange(sample, desc(xi_mp_median))
 
 prod_tbl <- grid |>
-  filter(r == 7, q == 6) |>
+  filter(r == SPEC$r, q == SPEC$q) |>
   select(sample, instrument, wald_mp, f_robust_mp, ar_bounded) |>
   arrange(sample, desc(wald_mp))
 
@@ -176,7 +178,7 @@ sections <- c(
   "",
   md_table(summary_tbl),
   "",
-  "## Especificação de produção (r=7, q=6)",
+  sprintf("## Especificação de produção (r=%d, q=%d)", SPEC$r, SPEC$q),
   "",
   md_table(prod_tbl),
   ""

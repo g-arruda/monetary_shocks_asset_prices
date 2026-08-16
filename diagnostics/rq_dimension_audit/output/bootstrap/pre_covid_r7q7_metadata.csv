@@ -1,0 +1,2 @@
+sample,r,q,p,n_series,n_months,max_companion_root,stable,nboot,bootstrap_seed,bootstrap_failures,elapsed_minutes
+pre_covid,7,7,6,106,84,0.9960040990692911,TRUE,800,123,0,0.2566427230834961

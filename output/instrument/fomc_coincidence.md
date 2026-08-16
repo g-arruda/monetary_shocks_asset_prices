@@ -124,14 +124,14 @@ Ortogonalizar so os **valores** ao bloco global e a forma do Teste C da rodada s
 
 | amostra | instrumento | meses_nao_nulos | xi_mp | f_robust_mp | impacto_mp_pre | denom_vs_prod | ar_limitada | bandas_validas |
 |---|---|---|---|---|---|---|---|---|
-| full | z_jk_bs_purif |    62 | 7.648 | 7.955 | 5.33e-05 |     1 | TRUE | FALSE |
-| full | z_jk_bs_noglob |    62 | 7.566 | 7.846 | 5.37e-05 | 1.007 | TRUE | FALSE |
-| full | z_jk_bs_glob |    61 | 6.594 | 7.063 | 4.954e-05 | 0.9295 | TRUE | FALSE |
-| full | z_jk_us |    63 | 4.998 | 4.952 | 4.266e-05 | 0.8005 | TRUE | FALSE |
-| pre_covid | z_jk_bs_purif |    31 | 11.53 | 6.264 | 5.056e-05 |     1 | TRUE | TRUE |
-| pre_covid | z_jk_bs_noglob |    31 | 11.95 | 6.557 | 5.237e-05 | 1.036 | TRUE | TRUE |
-| pre_covid | z_jk_bs_glob |    30 | 14.52 | 12.83 | 6.826e-05 |  1.35 | TRUE | TRUE |
-| pre_covid | z_jk_us |    31 | 13.85 | 11.31 | 6.695e-05 | 1.324 | TRUE | TRUE |
+| full | z_jk_bs_purif |    62 | 6.271 | 10.12 | 8.426e-05 |     1 | TRUE | FALSE |
+| full | z_jk_bs_noglob |    62 | 6.312 | 10.21 | 8.582e-05 | 1.018 | TRUE | FALSE |
+| full | z_jk_bs_glob |    61 | 4.175 | 5.798 | 6.786e-05 | 0.8053 | TRUE | FALSE |
+| full | z_jk_us |    62 | 3.926 | 5.295 | 6.134e-05 | 0.728 | TRUE | FALSE |
+| pre_covid | z_jk_bs_purif |    31 | 10.99 | 9.747 | 8.054e-05 |     1 | TRUE | TRUE |
+| pre_covid | z_jk_bs_noglob |    31 | 11.09 | 9.982 | 8.211e-05 | 1.019 | TRUE | TRUE |
+| pre_covid | z_jk_bs_glob |    30 | 7.784 | 8.113 | 7.871e-05 | 0.9773 | TRUE | FALSE |
+| pre_covid | z_jk_us |    31 | 7.579 | 8.454 | 7.727e-05 | 0.9593 | TRUE | FALSE |
 
 `ar_limitada` e ξ_mp > 3,84 (conjunto AR de 95% limitado); `bandas_validas` e ξ_mp ≥ 10. A distancia entre `z_jk_bs_noglob` e `z_jk_bs_glob` e a medida do canal de selecao: as duas ortogonalizam os mesmos valores no mesmo bloco e diferem so em re-derivar ou nao a mascara.
 
@@ -139,28 +139,28 @@ Ortogonalizar so os **valores** ao bloco global e a forma do Teste C da rodada s
 
 ## 5 — IRFs no impacto (h = 0)
 
-`yield_6m` e mecanico: h=0 e o alvo da normalizacao, identico em toda variante. A comparacao de sinais roda nas outras quatro manchetes. Celulas sig90 por variante: z_jk_bs_purif 34, z_jk_bs_glob 33.
+`yield_6m` e mecanico: h=0 e o alvo da normalizacao, identico em toda variante. A comparacao de sinais roda nas outras quatro manchetes. Celulas sig90 por variante: z_jk_bs_glob 64, z_jk_bs_purif 61.
 
 | instrumento | variavel | ponto | lo68 | hi68 | lo90 | hi90 | sig90 |
 |---|---|---|---|---|---|---|---|
 | z_jk_bs_purif | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk_bs_purif | yield_2y | 0.0108 | 0.009539 | 0.01351 | 0.008739 | 0.01563 | TRUE |
-| z_jk_bs_purif | yield_5y | 0.0117 | 0.009911 | 0.01589 | 0.008587 | 0.01973 | TRUE |
-| z_jk_bs_purif | cambio_usd | 0.2281 | 0.1573 | 0.3646 | 0.116 | 0.535 | TRUE |
-| z_jk_bs_purif | asset_ibov | -2.407 | -8.353 | 1.276 | -13.08 |  4.78 | FALSE |
-| z_jk_bs_purif | embi_perc | 0.3204 | 0.2226 | 0.5913 | 0.1205 | 0.8341 | TRUE |
-| z_jk_bs_purif | cds_5y | 43.44 |  32.8 |  71.8 |  22.5 | 101.3 | TRUE |
-| z_jk_bs_purif | price_ipca | -0.1678 | -0.4563 | 0.06433 | -0.8106 | 0.2217 | FALSE |
-| z_jk_bs_purif | price_ipp | 0.9357 | 0.6115 | 1.506 | 0.3543 | 2.021 | TRUE |
+| z_jk_bs_purif | yield_2y | 0.00743 | 0.006551 | 0.008595 | 0.006076 | 0.009482 | TRUE |
+| z_jk_bs_purif | yield_5y | 0.007761 | 0.00663 | 0.009619 | 0.005791 | 0.01113 | TRUE |
+| z_jk_bs_purif | cambio_usd | 0.1579 | 0.1123 | 0.2033 | 0.09207 | 0.2493 | TRUE |
+| z_jk_bs_purif | asset_ibov | -1.723 | -5.042 | -0.6327 | -6.91 | 0.7747 | FALSE |
+| z_jk_bs_purif | embi_perc | 0.262 | 0.2074 | 0.3791 | 0.1719 | 0.473 | TRUE |
+| z_jk_bs_purif | cds_5y | 32.54 | 26.32 | 44.35 | 22.15 | 53.84 | TRUE |
+| z_jk_bs_purif | price_ipca | -0.06179 | -0.1831 | 0.04684 | -0.2758 | 0.117 | FALSE |
+| z_jk_bs_purif | price_ipp | 0.4677 | 0.3075 | 0.704 | 0.1856 | 0.8838 | TRUE |
 | z_jk_bs_glob | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk_bs_glob | yield_2y | 0.01111 | 0.009821 | 0.01453 | 0.008968 | 0.01784 | TRUE |
-| z_jk_bs_glob | yield_5y | 0.0126 | 0.01065 | 0.01825 | 0.009289 | 0.02368 | TRUE |
-| z_jk_bs_glob | cambio_usd | 0.2474 | 0.1732 | 0.4041 | 0.129 | 0.5936 | TRUE |
-| z_jk_bs_glob | asset_ibov | -5.133 | -12.81 | -2.293 | -18.85 | 0.504 | FALSE |
-| z_jk_bs_glob | embi_perc |  0.37 | 0.2607 | 0.7058 | 0.1804 | 1.027 | TRUE |
-| z_jk_bs_glob | cds_5y | 49.81 | 37.71 | 85.58 | 29.89 | 123.6 | TRUE |
-| z_jk_bs_glob | price_ipca | -0.02143 | -0.2596 | 0.2174 | -0.4877 | 0.3684 | FALSE |
-| z_jk_bs_glob | price_ipp | 1.252 | 0.907 | 1.952 | 0.6806 | 2.626 | TRUE |
+| z_jk_bs_glob | yield_2y | 0.008228 | 0.007273 | 0.009787 | 0.006639 | 0.01104 | TRUE |
+| z_jk_bs_glob | yield_5y | 0.009155 | 0.007829 | 0.01183 | 0.006842 | 0.01452 | TRUE |
+| z_jk_bs_glob | cambio_usd | 0.1837 | 0.132 | 0.2488 | 0.1083 | 0.3235 | TRUE |
+| z_jk_bs_glob | asset_ibov | -3.926 | -8.58 | -2.678 | -11.51 | -0.8791 | TRUE |
+| z_jk_bs_glob | embi_perc | 0.347 | 0.2778 | 0.5205 | 0.231 | 0.7116 | TRUE |
+| z_jk_bs_glob | cds_5y | 41.27 | 33.33 | 58.23 | 28.08 | 78.01 | TRUE |
+| z_jk_bs_glob | price_ipca | -0.02108 | -0.152 | 0.1115 | -0.2788 | 0.1986 | FALSE |
+| z_jk_bs_glob | price_ipp | 0.6227 | 0.4258 | 0.9439 | 0.2953 | 1.234 | TRUE |
 
 Mascara re-derivada: sinais preservados = TRUE; ponto de producao dentro do CI90 = TRUE.
 

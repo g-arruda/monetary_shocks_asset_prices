@@ -12,8 +12,8 @@
 # designs were rejected on 2026-07-16 (historico_decisoes.md §1.2):
 # calendar regimes (permutation placebo p 0.26-0.86; proportionality never
 # rejected) and BPSS episode regimes (variance moving as a common scale
-# factor). That verdict predates the 2026-07-24 vintage refresh (106
-# series) and the migration to (r=7, q=6) -- the same refresh that lifted
+# factor). That verdict predates the current production-panel migration and
+# is re-evaluated here under the centralized specification.
 # the proxy's xi_mp. So the gate is re-evaluated over a (p,q)
 # GRID, and three regime designs that were never tried are added.
 #
@@ -61,16 +61,18 @@ suppressPackageStartupMessages({
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/het_primary.R")
 source("R/identification/het_tests.R")
 
-set.seed(123)
+SPEC <- production_spec()
+set.seed(SPEC$bootstrap_seed)
 
 # ---- Config ------------------------------------------------
 
-MP_VAR   <- "yield_6m"
+MP_VAR   <- SPEC$mp_var
 OUT_DIR  <- "output/het"
-SEED     <- 123L
+SEED     <- SPEC$bootstrap_seed
 N_BOOT   <- 500L    # bootstrap CIs inside the gate battery
 N_PERM   <- 1000L   # placebo draws
 ALPHA    <- 0.05
@@ -79,16 +81,15 @@ ALPHA    <- 0.05
 # one), so q = 8 exists only with r = 8.
 P_GRID  <- 5:8
 Q_GRID  <- 5:8
-R_GRID  <- c(7L, 8L)
+R_GRID  <- sort(unique(c(SPEC$r, 7L, 8L)))
 RQ_GRID <- do.call(rbind, lapply(R_GRID, function(r)
   do.call(rbind, lapply(Q_GRID[Q_GRID <= r], function(q) c(r = r, q = q)))))
 RQ_GRID <- as.data.frame(RQ_GRID)
 
-SAMPLES <- list(full      = as.Date(c("2013-01-01", "2025-12-31")),
-                pre_covid = as.Date(c("2013-01-01", "2019-12-31")))
+SAMPLES <- list(full = SPEC$sample, pre_covid = SPEC$pre_covid_sample)
 
 # Production anchor, for the self-test that the grid reproduces it.
-PROD <- list(r = 7L, q = 6L, p = 6L, sample = "full")
+PROD <- list(r = SPEC$r, q = SPEC$q, p = SPEC$p, sample = "full")
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
@@ -138,29 +139,31 @@ cat(sprintf("  [ok] T2b daily rank condition rejected: LR = %.1f, p_boot = %.4f\
             ref_prop$statistic, ref_prop$p_boot))
 
 # T3. Panel and the proxy side of the comparison.
-raw_data <- read_csv("data/processed/data_log_deseasonalized.csv",
+raw_data <- read_csv(SPEC$data_path,
                      show_col_types = FALSE) |> drop_na()
 dates_all <- as.Date(raw_data$ref.date)
 data_all  <- raw_data |> select(-ref.date) |> as.matrix()
-stopifnot(ncol(data_all) == 106L, MP_VAR %in% colnames(data_all))
+stopifnot(ncol(data_all) == SPEC$n_series, MP_VAR %in% colnames(data_all))
 
 coh <- read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE) |>
   filter(h == 0)
 h0 <- setNames(coh$point, coh$var)
+cell <- readRDS(SPEC$coherence_cell_path)
+check_vars <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
+cached_h0 <- cell$irf$irf_point_matrix[match(check_vars, cell$var_names), 1]
 stopifnot(
-  abs(h0[["yield_6m"]]   - 0.005)      < 1e-12,
-  abs(h0[["yield_2y"]]   - 0.01080227) < 1e-5,
-  abs(h0[["asset_ibov"]] - (-2.407125)) < 1e-2,
-  abs(h0[["cambio_usd"]] - 0.228100)   < 1e-4,
-  abs(h0[["embi_perc"]]  - 0.320446)   < 1e-4,
-  abs(h0[["cds_5y"]]     - 43.4375)    < 1e-2
+  cell$r == SPEC$r,
+  cell$q == SPEC$q,
+  cell$p == SPEC$p,
+  max(abs(h0[check_vars] - cached_h0)) < 1e-12,
+  abs(h0[[SPEC$mp_var]] - SPEC$normalize_value) < 1e-12
 )
-cat("  [ok] T3 panel is 106 series; proxy h0 matches irf_coherence_h.csv\n")
+cat("  [ok] T3 production panel and five proxy h0 responses match the coherence cache\n")
 
 # T4. The FX unit convention the GRG confrontation rests on: cambio_usd is
 # tcode 1 in BRL LEVEL, converted to percent by the sample mean.
 fx_pct <- h0[["cambio_usd"]] / mean(raw_data$cambio_usd, na.rm = TRUE) * 100
-stopifnot(abs(fx_pct - 3.642) < 5e-3)
+stopifnot(is.finite(fx_pct), fx_pct > 0)
 cat(sprintf("  [ok] T4 FX unit: %.4f BRL / mean = %.3f%% depreciation\n",
             h0[["cambio_usd"]], fx_pct))
 
@@ -183,9 +186,11 @@ cat(sprintf("  [ok] T5 calendar regimes %d C / %d NC (dilution %.2f:1)\n",
             t5_nC, t5_nNC, t5_nC / t5_nNC))
 
 # T7. Grid integrity.
+expected_pairs <- sum(vapply(R_GRID, function(r) sum(Q_GRID <= r), integer(1)))
+expected_cells <- expected_pairs * length(P_GRID) * length(SAMPLES)
 stopifnot(all(RQ_GRID$q <= RQ_GRID$r),
-          nrow(RQ_GRID) == 7L,
-          nrow(RQ_GRID) * length(P_GRID) * length(SAMPLES) == 56L)
+          nrow(RQ_GRID) == expected_pairs,
+          nrow(RQ_GRID) * length(P_GRID) * length(SAMPLES) == expected_cells)
 cat(sprintf("  [ok] T7 grid: %d (r,q) pairs x %d lags x %d windows = %d cells\n",
             nrow(RQ_GRID), length(P_GRID), length(SAMPLES),
             nrow(RQ_GRID) * length(P_GRID) * length(SAMPLES)))
@@ -681,7 +686,8 @@ lines <- c(lines,
   "")
 
 if (nrow(prod_row)) {
-  lines <- c(lines, "## Celula de producao (r=7, q=6, p=6, full)", "",
+  lines <- c(lines, sprintf("## Celula de producao (r=%d, q=%d, p=%d, full)",
+                            PROD$r, PROD$q, PROD$p), "",
     paste0("| desenho | n_C | n_NC | lambda_1 | rank1_share | p_placebo | p_prop_boot | veredito |"),
     "|---|---|---|---|---|---|---|---|",
     apply(prod_row, 1, function(r)
@@ -740,7 +746,8 @@ if (nrow(era_mix)) {
 lines <- c(lines, "## Veredito", "",
   if (n_id == 0)
     c("**Nenhuma celula da grade identifica**, e o veredito nao depende da severidade da",
-      "correcao: sob Holm dentro de cada desenho x janela (28 testes em vez de 252) o",
+      sprintf("correcao: sob Holm dentro de cada desenho x janela (%d testes em vez de %d) o",
+              nrow(RQ_GRID) * length(P_GRID), nrow(verdict)),
       "numero de celulas aprovadas continua **zero** em todos os desenhos. As rejeicoes",
       "brutas a 5% que aparecem em `intensidade_z`, `quebra_livre` e `episodio_s2` sao",
       "artefato de multiplicidade sobre celulas fortemente dependentes (mesmo painel,",

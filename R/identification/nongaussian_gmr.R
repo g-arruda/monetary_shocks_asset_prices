@@ -9,7 +9,7 @@
 #
 # WHY A TRANSLATION AND NOT A DEPENDENCY. The IdSS ICA path is correct only for
 # n <= 3 (the dimension of the published application). Three independent defects
-# bite at n >= 4, and this project runs it at q = 6:
+# bite at n >= 4, and the current production specification runs it at q = 5:
 #
 #   1. `make.M` fills the upper triangle of A in column-major order of the
 #      *positions*, which is not the transpose of the column-major order of the

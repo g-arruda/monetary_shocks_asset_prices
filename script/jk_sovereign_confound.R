@@ -95,6 +95,7 @@ source("R/instrument/build_variants.R")
 source("R/instrument/event_tests.R")      # wild_coef_test
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")   # norm_value_for, run_stage2_cell,
                                           # plot_overlay_cells, md_table
@@ -105,32 +106,33 @@ set.seed(20260731)
 # ---- Config --------------------------------------------------------
 
 # Instrument construction: production values (script/instrument.R)
-SAMPLE_START <- as.Date("2013-01-01")
-SAMPLE_END   <- as.Date("2025-12-31")
+SPEC         <- production_spec()
+SAMPLE_START <- SPEC$event_sample[1]
+SAMPLE_END   <- SPEC$event_sample[2]
 LOAD_START   <- as.Date("2012-06-01")
 TARGET_BD    <- 126
 AGG_SCHEME   <- "sum"
 
 # Estimation: production spec (script/irf_coherence_check.R)
-R_FACTORS <- 7L
-Q_DYNAMIC <- 6L
-P_LAGS    <- 6L
-MP_VAR    <- "yield_6m"
-HORIZON   <- 48L
-N_BOOT    <- 800L
-BOOT_SEED <- 123L
-SHOCK_BPS <- 50
-CI_LEVELS <- c(0.68, 0.90)
+R_FACTORS <- SPEC$r
+Q_DYNAMIC <- SPEC$q
+P_LAGS    <- SPEC$p
+MP_VAR    <- SPEC$mp_var
+HORIZON   <- SPEC$horizon
+N_BOOT    <- SPEC$nboot
+BOOT_SEED <- SPEC$bootstrap_seed
+SHOCK_BPS <- SPEC$shock_bps
+CI_LEVELS <- SPEC$ci_levels
 
 SAMPLES <- list(
-  full      = as.Date(c("2013-01-01", "2025-12-31")),
-  pre_covid = as.Date(c("2013-01-01", "2019-12-31"))
+  full = SPEC$sample,
+  pre_covid = SPEC$pre_covid_sample
 )
 
 NBOOT_P <- 2000L   # wild-bootstrap draws for the daily regression p-values
 
-DATA_PATH  <- "data/processed/data_log_deseasonalized.csv"
-INST_PATH  <- "data/processed/instrumentos_mensais.csv"
+DATA_PATH  <- SPEC$data_path
+INST_PATH  <- SPEC$instrument_path
 EMBI_PATH  <- "data/raw/banco_central_rep_dominicana/embi_brasil.csv"
 CDS_PATH   <- "data/raw/CDS 5y.xlsx"          # Bloomberg export, see header
 RAW_PATH   <- "data/raw/raw_data.csv"         # monthly cds_5y, cross-check only
@@ -685,9 +687,11 @@ for (v in IRF_VARIANTS) {
 # smoke-test values, which proves the alternative-instrument machinery is
 # wired exactly like production.
 Pref <- cells[["z_jk_bs_purif"]]$irf$irf_point_matrix
-smoke <- c(yield_6m = 0.005, yield_2y = 0.01080227,
-           yield_5y = 0.01170172, asset_ibov = -2.407125,
-           cambio_usd = 0.228100)
+smoke <- c(yield_6m = 0.005,
+           yield_2y = 0.007430059200891,
+           yield_5y = 0.007761146417651,
+           asset_ibov = -1.722676656446279,
+           cambio_usd = 0.157928065725129)
 got <- Pref[match(names(smoke), var_names), 1]
 cat("    smoke test h0: ")
 cat(paste(sprintf("%s %.6g", names(smoke), got), collapse = " | "), "\n")
@@ -837,9 +841,14 @@ md <- c(
           xf(xi_at("z_jk_bs_purif") - xi_at("z_jk_bs_norisk_mask")),
           100 * r2_di_nr, 100 * r2_ibov_nr),
   "",
-  sprintf("Na janela pre-COVID a variante de mascara fica em %s contra %s da producao. As duas superam 10, ao contrario do que ocorre na amostra cheia.",
+  sprintf("Na janela pre-COVID a variante de mascara fica em %s contra %s da producao. Pela referencia convencional de 10, %s.",
           xf(xi_at("z_jk_bs_norisk_mask", "pre_covid")),
-          xf(xi_at("z_jk_bs_purif", "pre_covid"))),
+          xf(xi_at("z_jk_bs_purif", "pre_covid")),
+          if (xi_at("z_jk_bs_norisk_mask", "pre_covid") >= 10) {
+            "ambas sustentam bandas convencionais"
+          } else {
+            "somente a producao sustenta bandas convencionais"
+          }),
   "",
   "⚠ **Por que uma variante ortogonalizada pode imprimir respostas MAIORES, e por que isso nao e evidencia a favor.** `impacto_mp_pre` e a resposta de `yield_6m` no impacto **antes** da normalizacao, isto e o denominador pelo qual cada IRF da celula e dividida, e `denom_vs_prod` o poe em razao da producao. Onde ele encolhe, toda a IRF da celula cresce por aritmetica, sem que nada de economico tenha mudado. E o mesmo mecanismo que a classe `unstable_normalization` da taxonomia do sweep monitora (`R/identification/spec_sweep.R`), e por isso a leitura de magnitude entre variantes so vale com essa coluna ao lado.",
   "",

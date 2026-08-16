@@ -1,85 +1,61 @@
 fator,transf,teste,spec,stat,cv5,h0,rejeita_h0_5pct,veredito
-F1,nivel,ADF,drift,-3.2879872404834405,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F1,nivel,ADF,trend,-3.2781479751877893,-3.43,raiz unitaria,FALSE,I(0) - ADF e KPSS concordam
-F1,nivel,PP,drift,-2.9698455524343936,-2.8804749999999997,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F1,nivel,PP,trend,-2.944007781804382,-3.4399440962603878,raiz unitaria,FALSE,I(0) - ADF e KPSS concordam
-F1,nivel,KPSS,drift,0.3299040999890448,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F1,nivel,KPSS,trend,0.32990409998904896,0.146,estacionaria,TRUE,I(0) - ADF e KPSS concordam
-F1,diferenca,ADF,drift,-9.697266033896279,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F1,diferenca,ADF,trend,-9.709706985276556,-3.43,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F1,diferenca,PP,drift,-10.772735308346455,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F1,diferenca,PP,trend,-10.758702633621013,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F1,diferenca,KPSS,drift,0.07840214336574144,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F1,diferenca,KPSS,trend,0.02683899775456347,0.146,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F2,nivel,ADF,drift,-0.9417855937163717,-2.88,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F2,nivel,ADF,trend,-0.9279327305585311,-3.43,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F2,nivel,PP,drift,-1.007446178873816,-2.8804749999999997,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F2,nivel,PP,trend,-0.9891013408033826,-3.4399440962603878,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F2,nivel,KPSS,drift,0.5937444288819127,0.463,estacionaria,TRUE,I(1) - ADF e KPSS concordam
-F2,nivel,KPSS,trend,0.5937444288819135,0.146,estacionaria,TRUE,I(1) - ADF e KPSS concordam
-F2,diferenca,ADF,drift,-8.005864140529486,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F2,diferenca,ADF,trend,-8.034530597088422,-3.43,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F2,diferenca,PP,drift,-11.155905278443573,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F2,diferenca,PP,trend,-11.155966072076712,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F2,diferenca,KPSS,drift,0.23464812415513756,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F2,diferenca,KPSS,trend,0.15084577613439257,0.146,estacionaria,TRUE,I(0) - ADF e KPSS concordam
-F3,nivel,ADF,drift,-1.7232668704987224,-2.88,raiz unitaria,FALSE,ambiguo
-F3,nivel,ADF,trend,-1.7002979899166302,-3.43,raiz unitaria,FALSE,ambiguo
-F3,nivel,PP,drift,-1.197781951587267,-2.8804749999999997,raiz unitaria,FALSE,ambiguo
-F3,nivel,PP,trend,-1.1748143600792071,-3.4399440962603878,raiz unitaria,FALSE,ambiguo
-F3,nivel,KPSS,drift,0.33700665146027314,0.463,estacionaria,FALSE,ambiguo
-F3,nivel,KPSS,trend,0.3370066514602524,0.146,estacionaria,TRUE,ambiguo
-F3,diferenca,ADF,drift,-3.3215121408848307,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F3,diferenca,ADF,trend,-3.3161762436126003,-3.43,raiz unitaria,FALSE,I(0) - ADF e KPSS concordam
-F3,diferenca,PP,drift,-5.184881449516534,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F3,diferenca,PP,trend,-5.223983319182418,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F3,diferenca,KPSS,drift,0.1743097109453999,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F3,diferenca,KPSS,trend,0.11831450796954124,0.146,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F4,nivel,ADF,drift,-0.3510079666145797,-2.88,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F4,nivel,ADF,trend,-0.31027465102834784,-3.43,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F4,nivel,PP,drift,-0.5027407351196271,-2.8804749999999997,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F4,nivel,PP,trend,-0.45109153272900887,-3.4399440962603878,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F4,nivel,KPSS,drift,0.6725099867978858,0.463,estacionaria,TRUE,I(1) - ADF e KPSS concordam
-F4,nivel,KPSS,trend,0.6725099867978881,0.146,estacionaria,TRUE,I(1) - ADF e KPSS concordam
-F4,diferenca,ADF,drift,-6.562578178489167,-2.88,raiz unitaria,TRUE,ambiguo
-F4,diferenca,ADF,trend,-6.716460929652364,-3.43,raiz unitaria,TRUE,ambiguo
-F4,diferenca,PP,drift,-10.78249399048078,-2.8805991009166263,raiz unitaria,TRUE,ambiguo
-F4,diferenca,PP,trend,-10.884788494455393,-3.4401303276172093,raiz unitaria,TRUE,ambiguo
-F4,diferenca,KPSS,drift,0.47461498746345254,0.463,estacionaria,TRUE,ambiguo
-F4,diferenca,KPSS,trend,0.22677953986990376,0.146,estacionaria,TRUE,ambiguo
-F5,nivel,ADF,drift,-0.592630214280186,-2.88,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F5,nivel,ADF,trend,-0.569027509508618,-3.43,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F5,nivel,PP,drift,-0.6639658017546534,-2.8804749999999997,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F5,nivel,PP,trend,-0.6235960556215938,-3.4399440962603878,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F5,nivel,KPSS,drift,0.6665459050918187,0.463,estacionaria,TRUE,I(1) - ADF e KPSS concordam
-F5,nivel,KPSS,trend,0.666545905091824,0.146,estacionaria,TRUE,I(1) - ADF e KPSS concordam
-F5,diferenca,ADF,drift,-8.832326423375685,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F5,diferenca,ADF,trend,-8.943041322424818,-3.43,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F5,diferenca,PP,drift,-13.52856768419625,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F5,diferenca,PP,trend,-13.620067989606351,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F5,diferenca,KPSS,drift,0.39358199076647765,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F5,diferenca,KPSS,trend,0.18642006965775856,0.146,estacionaria,TRUE,I(0) - ADF e KPSS concordam
-F6,nivel,ADF,drift,-0.31427129494831946,-2.88,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F6,nivel,ADF,trend,-0.250912215540443,-3.43,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F6,nivel,PP,drift,-0.401082220899561,-2.8804749999999997,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F6,nivel,PP,trend,-0.30227356703460767,-3.4399440962603878,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
-F6,nivel,KPSS,drift,0.7387200223237668,0.463,estacionaria,TRUE,I(1) - ADF e KPSS concordam
-F6,nivel,KPSS,trend,0.7387200223237688,0.146,estacionaria,TRUE,I(1) - ADF e KPSS concordam
-F6,diferenca,ADF,drift,-6.128341616318477,-2.88,raiz unitaria,TRUE,ambiguo
-F6,diferenca,ADF,trend,-6.527227793495956,-3.43,raiz unitaria,TRUE,ambiguo
-F6,diferenca,PP,drift,-9.876613228947447,-2.8805991009166263,raiz unitaria,TRUE,ambiguo
-F6,diferenca,PP,trend,-10.190818907523528,-3.4401303276172093,raiz unitaria,TRUE,ambiguo
-F6,diferenca,KPSS,drift,0.7361475774918033,0.463,estacionaria,TRUE,ambiguo
-F6,diferenca,KPSS,trend,0.22723143666900006,0.146,estacionaria,TRUE,ambiguo
-F7,nivel,ADF,drift,-3.3953550932676166,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F7,nivel,ADF,trend,-3.391209313381939,-3.43,raiz unitaria,FALSE,I(0) - ADF e KPSS concordam
-F7,nivel,PP,drift,-4.162502079717951,-2.8804749999999997,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F7,nivel,PP,trend,-4.129216148601706,-3.4399440962603878,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F7,nivel,KPSS,drift,0.11829961497564609,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F7,nivel,KPSS,trend,0.11829961497564638,0.146,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F7,diferenca,ADF,drift,-10.86012953643087,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F7,diferenca,ADF,trend,-10.878266967838355,-3.43,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F7,diferenca,PP,drift,-16.64089451462638,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F7,diferenca,PP,trend,-16.675747091275408,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
-F7,diferenca,KPSS,drift,0.09821379894207492,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
-F7,diferenca,KPSS,trend,0.053579437945167376,0.146,estacionaria,FALSE,I(0) - ADF e KPSS concordam
+F1,nivel,ADF,drift,-3.3257157313223344,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F1,nivel,ADF,trend,-3.315734071468864,-3.43,raiz unitaria,FALSE,I(0) - ADF e KPSS concordam
+F1,nivel,PP,drift,-2.95171611611313,-2.8804749999999997,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F1,nivel,PP,trend,-2.9268341221203427,-3.4399440962603878,raiz unitaria,FALSE,I(0) - ADF e KPSS concordam
+F1,nivel,KPSS,drift,0.2814919895672043,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
+F1,nivel,KPSS,trend,0.2814919895672082,0.146,estacionaria,TRUE,I(0) - ADF e KPSS concordam
+F1,diferenca,ADF,drift,-9.620910429918123,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F1,diferenca,ADF,trend,-9.632551552646374,-3.43,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F1,diferenca,PP,drift,-10.331023087161856,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F1,diferenca,PP,trend,-10.31566968960744,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F1,diferenca,KPSS,drift,0.07633560906639893,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
+F1,diferenca,KPSS,trend,0.02833612297842793,0.146,estacionaria,FALSE,I(0) - ADF e KPSS concordam
+F2,nivel,ADF,drift,-0.9612066979401684,-2.88,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F2,nivel,ADF,trend,-0.9481731513130073,-3.43,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F2,nivel,PP,drift,-1.028752727368607,-2.8804749999999997,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F2,nivel,PP,trend,-1.012212838567651,-3.4399440962603878,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F2,nivel,KPSS,drift,0.5920870307167313,0.463,estacionaria,TRUE,I(1) - ADF e KPSS concordam
+F2,nivel,KPSS,trend,0.5920870307167319,0.146,estacionaria,TRUE,I(1) - ADF e KPSS concordam
+F2,diferenca,ADF,drift,-7.241649193259675,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F2,diferenca,ADF,trend,-7.263599695461188,-3.43,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F2,diferenca,PP,drift,-10.477089364380287,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F2,diferenca,PP,trend,-10.473389575766696,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F2,diferenca,KPSS,drift,0.22563410135439171,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
+F2,diferenca,KPSS,trend,0.14880790776693742,0.146,estacionaria,TRUE,I(0) - ADF e KPSS concordam
+F3,nivel,ADF,drift,-1.7783502013881334,-2.88,raiz unitaria,FALSE,ambiguo
+F3,nivel,ADF,trend,-1.755850544387516,-3.43,raiz unitaria,FALSE,ambiguo
+F3,nivel,PP,drift,-1.2963823849915328,-2.8804749999999997,raiz unitaria,FALSE,ambiguo
+F3,nivel,PP,trend,-1.273270078875129,-3.4399440962603878,raiz unitaria,FALSE,ambiguo
+F3,nivel,KPSS,drift,0.33315135907320953,0.463,estacionaria,FALSE,ambiguo
+F3,nivel,KPSS,trend,0.3331513590731881,0.146,estacionaria,TRUE,ambiguo
+F3,diferenca,ADF,drift,-3.5407872857455027,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F3,diferenca,ADF,trend,-3.53845747308798,-3.43,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F3,diferenca,PP,drift,-5.490366480219926,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F3,diferenca,PP,trend,-5.52958404020935,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F3,diferenca,KPSS,drift,0.15981689640641322,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
+F3,diferenca,KPSS,trend,0.10318518497150948,0.146,estacionaria,FALSE,I(0) - ADF e KPSS concordam
+F4,nivel,ADF,drift,-0.5100854868115612,-2.88,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F4,nivel,ADF,trend,-0.479852006598177,-3.43,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F4,nivel,PP,drift,-0.6404510821686223,-2.8804749999999997,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F4,nivel,PP,trend,-0.5988856861879849,-3.4399440962603878,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F4,nivel,KPSS,drift,0.6685165645930131,0.463,estacionaria,TRUE,I(1) - ADF e KPSS concordam
+F4,nivel,KPSS,trend,0.6685165645930149,0.146,estacionaria,TRUE,I(1) - ADF e KPSS concordam
+F4,diferenca,ADF,drift,-7.843754237475923,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F4,diferenca,ADF,trend,-7.956983021206245,-3.43,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F4,diferenca,PP,drift,-11.961544434625036,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F4,diferenca,PP,trend,-12.024612319064202,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F4,diferenca,KPSS,drift,0.39509275517212805,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
+F4,diferenca,KPSS,trend,0.19754003013165836,0.146,estacionaria,TRUE,I(0) - ADF e KPSS concordam
+F5,nivel,ADF,drift,-0.526474104064265,-2.88,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F5,nivel,ADF,trend,-0.49904876783798185,-3.43,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F5,nivel,PP,drift,-0.6216450868061768,-2.8804749999999997,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F5,nivel,PP,trend,-0.5746516679352746,-3.4399440962603878,raiz unitaria,FALSE,I(1) - ADF e KPSS concordam
+F5,nivel,KPSS,drift,0.6732760359606094,0.463,estacionaria,TRUE,I(1) - ADF e KPSS concordam
+F5,nivel,KPSS,trend,0.6732760359606134,0.146,estacionaria,TRUE,I(1) - ADF e KPSS concordam
+F5,diferenca,ADF,drift,-8.374998431866691,-2.88,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F5,diferenca,ADF,trend,-8.51820888273794,-3.43,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F5,diferenca,PP,drift,-12.82941425353373,-2.8805991009166263,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F5,diferenca,PP,trend,-12.94065998214634,-3.4401303276172093,raiz unitaria,TRUE,I(0) - ADF e KPSS concordam
+F5,diferenca,KPSS,drift,0.4306330287082768,0.463,estacionaria,FALSE,I(0) - ADF e KPSS concordam
+F5,diferenca,KPSS,trend,0.1886235466490428,0.146,estacionaria,TRUE,I(0) - ADF e KPSS concordam

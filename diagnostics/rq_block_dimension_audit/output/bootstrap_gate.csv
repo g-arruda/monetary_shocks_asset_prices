@@ -1,0 +1,5 @@
+variant,r,q,wrong_direction_90,bootstrap_gate_pass,bootstrap_failures
+conjunto_completo_sem_duplicatas,3,2,0,TRUE,0
+conjunto_completo_sem_duplicatas,4,3,0,TRUE,0
+conjunto_completo_sem_duplicatas,7,6,0,TRUE,0
+drop_eua,4,3,0,TRUE,0

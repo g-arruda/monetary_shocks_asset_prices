@@ -1,6 +1,6 @@
 # ===================================================================
 # Point-by-point theory-coherence check of the production IRFs across
-# ~40 key panel variables (z_jk_bs_purif x yield_6m x r=7 q=6, full sample,
+# ~40 key panel variables under the centralized production specification,
 # wild bootstrap nboot=800). For each variable, every horizon h = 0..48
 # is checked for sign and CI68/CI90 significance against the theory
 # window defined in R/identification/irf_coherence.R.
@@ -24,6 +24,7 @@ library(patchwork)
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/validation_tests.R")
 source("R/identification/spec_sweep.R")
@@ -32,20 +33,21 @@ source("R/identification/irf_coherence.R")
 
 # ---- Config (production spec) --------------------------------------
 
-R_FACTORS  <- 7L
-Q_DYNAMIC  <- 6L
-P_LAGS     <- 6L
-INSTRUMENT <- "z_jk_bs_purif"
-MP_VAR     <- "yield_6m"
-HORIZON    <- 48L
-N_BOOT     <- 800L
-BOOT_SEED  <- 123L
-SHOCK_BPS  <- 50
-CI_LEVELS  <- c(0.68, 0.90)
-WINDOW     <- as.Date(c("2013-01-01", "2025-12-31"))
+SPEC       <- production_spec()
+R_FACTORS  <- SPEC$r
+Q_DYNAMIC  <- SPEC$q
+P_LAGS     <- SPEC$p
+INSTRUMENT <- SPEC$instrument
+MP_VAR     <- SPEC$mp_var
+HORIZON    <- SPEC$horizon
+N_BOOT     <- SPEC$nboot
+BOOT_SEED  <- SPEC$bootstrap_seed
+SHOCK_BPS  <- SPEC$shock_bps
+CI_LEVELS  <- SPEC$ci_levels
+WINDOW     <- SPEC$sample
 
-DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
-INST_PATH <- "data/processed/instrumentos_mensais.csv"
+DATA_PATH <- SPEC$data_path
+INST_PATH <- SPEC$instrument_path
 OUT_DIR   <- "output/irf"
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
@@ -81,7 +83,7 @@ cell <- run_stage2_cell(
   shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS
 )
 cat(sprintf("  done in %.1f min\n", as.numeric(Sys.time() - t0, units = "mins")))
-saveRDS(cell, file.path(OUT_DIR, "irf_coherence_cell.rds"))
+saveRDS(cell, SPEC$coherence_cell_path)
 
 point <- cell$irf$irf_point_matrix
 ci68  <- cell$irf$ci[["0.68"]]

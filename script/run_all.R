@@ -32,6 +32,12 @@
 
 RSCRIPT <- file.path(R.home("bin"), "Rscript")
 LOG_DIR <- "output/logs"
+source("R/modeling/production_spec.R")
+source("R/data_download/panel_candidates.R")
+SPEC <- production_spec()
+CANDIDATE_FILES <- panel_candidate_inventory() |>
+  dplyr::filter(status == "novo download necessário") |>
+  dplyr::pull(file)
 
 
 # ---- Stage table ---------------------------------------------------
@@ -106,8 +112,17 @@ STAGES <- list(
     interp   = "Rscript",
     file     = "script/clean.R",
     network  = FALSE,
-    requires = "data/raw/raw_data.csv",
-    produces = "data/processed/data_log_deseasonalized.csv"
+    requires = c(
+      "data/raw/raw_data.csv",
+      CANDIDATE_FILES,
+      "data/raw/fred_dgs2.csv",
+      "data/raw/investing/external_factors_daily.csv"
+    ),
+    produces = c(
+      SPEC$base_data_path,
+      SPEC$data_path,
+      "output/panel/production_candidate_manifest.csv"
+    )
   ),
   list(
     name     = "instrument",
@@ -127,13 +142,12 @@ STAGES <- list(
   ),
   list(
     name     = "model",
-    desc     = "Production DFM (r=7, q=6) + wild bootstrap IRFs",
+    desc     = sprintf("Production DFM (r=%d, q=%d) + wild bootstrap IRFs", SPEC$r, SPEC$q),
     interp   = "Rscript",
     file     = "script/model_alessi.R",
     network  = FALSE,
-    requires = c("data/processed/data_log_deseasonalized.csv",
-                 "data/processed/instrument.csv"),
-    produces = "output/irf/irf_model_alessi_r7q6.pdf"
+    requires = c(SPEC$data_path, SPEC$legacy_instrument_path),
+    produces = SPEC$model_output
   )
 )
 

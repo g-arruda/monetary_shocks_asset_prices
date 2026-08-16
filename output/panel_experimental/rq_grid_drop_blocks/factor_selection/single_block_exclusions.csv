@@ -1,0 +1,17 @@
+variant,removed_blocks,n_blocks_removed,sample,n_series,n_months,r_ic1,r_ic2,r_ic3,r_ic3_at_upper_bound,q_aw_ic2,p_aw
+conjunto_completo_sem_duplicatas,none,0,full,123,153,5,4,20,TRUE,2,6
+drop_credito,credito,1,full,121,153,5,4,20,TRUE,2,6
+drop_eua,eua,1,full,118,153,5,4,20,TRUE,2,6
+drop_expectativas,expectativas,1,full,119,153,5,3,20,TRUE,2,6
+drop_fiscal,fiscal,1,full,120,153,5,4,20,TRUE,2,6
+drop_imoveis,imoveis,1,full,122,153,5,4,20,TRUE,2,6
+drop_setor_externo,setor_externo,1,full,119,153,5,4,20,TRUE,2,6
+baseline,fiscal;setor_externo;expectativas;eua;credito;imoveis,6,full,104,153,5,5,20,TRUE,3,6
+conjunto_completo_sem_duplicatas,none,0,pre_covid,123,84,3,2,20,TRUE,2,6
+drop_credito,credito,1,pre_covid,121,84,3,2,20,TRUE,2,6
+drop_eua,eua,1,pre_covid,118,84,3,2,20,TRUE,2,6
+drop_expectativas,expectativas,1,pre_covid,119,84,3,2,20,TRUE,2,6
+drop_fiscal,fiscal,1,pre_covid,120,84,2,2,20,TRUE,2,6
+drop_imoveis,imoveis,1,pre_covid,122,84,3,2,20,TRUE,2,6
+drop_setor_externo,setor_externo,1,pre_covid,119,84,3,2,20,TRUE,2,6
+baseline,fiscal;setor_externo;expectativas;eua;credito;imoveis,6,pre_covid,104,84,2,2,20,TRUE,2,6

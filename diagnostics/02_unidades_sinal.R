@@ -1,7 +1,7 @@
 # ===================================================================
 # TAREFA 2 — Unidades, normalizacao e sinal
 #
-# 1. Tabela de IRFs para as 106 variaveis (a de producao cobre so 52 e omite
+# 1. Tabela de IRFs para todas as variaveis do painel de producao.
 #    yield_6m, a variavel de normalizacao).
 # 2. Tabela unidade | IRF h=0 | h=0 em bp | esperado, para o bloco de juros.
 # 3. Correlacao contemporanea nos dados BRUTOS entre as mesmas series.
@@ -25,7 +25,8 @@ H    <- ncol(P) - 1
 # ===================================================================
 # 2.1 — Tabela de IRFs para TODAS as variaveis (inclui yield_6m)
 # ===================================================================
-cat("\n[2.1] tabela completa de IRFs (106 variaveis x", H + 1, "horizontes)\n")
+cat("\n[2.1] tabela completa de IRFs (", length(vn), " variaveis x ",
+    H + 1, " horizontes)\n", sep = "")
 
 irf_all <- lapply(seq_along(vn), function(i) {
   data.frame(var = vn[i], grupo = var_group(vn[i]), tcode = CELL$tcode[i],
@@ -49,8 +50,11 @@ diag_write(irf_all, "t2_1_irf_todas_variaveis.csv")
 # ===================================================================
 cat("\n[2.2] bloco de juros: unidade, IRF h=0 e equivalente em bp\n")
 
-JUROS <- c("yield_3m", "yield_6m", "yield_1y", "yield_2y", "yield_5y",
-           "yield_10y", "juros_selic", "juros_cdi")
+JUROS <- intersect(
+  c("yield_3m", "yield_6m", "yield_1y", "yield_2y", "yield_5y",
+    "yield_10y", "juros_selic", "juros_cdi"),
+  vn
+)
 ut <- unit_table()
 
 t22 <- lapply(JUROS, function(v) {
@@ -88,16 +92,17 @@ cat(sprintf("  h24 : yield_6m %+.1fbp  vs  juros_selic %+.1fbp\n",
 # ===================================================================
 cat("\n[2.3] correlacao contemporanea nos dados brutos (data/raw/raw_data.csv)\n")
 
+JUROS_RAW <- intersect(c(JUROS, "juros_cdi"), names(PANEL_RAW))
 raw_w <- PANEL_RAW |>
   filter(ref.date >= min(DATES), ref.date <= max(DATES)) |>
-  select(all_of(JUROS))
+  select(all_of(JUROS_RAW))
 C_lvl <- cor(raw_w, use = "pairwise.complete.obs")
 C_dif <- cor(diff(as.matrix(raw_w)), use = "pairwise.complete.obs")
 
 cat("\n-- nivel --\n"); print(round(C_lvl, 4))
 cat("\n-- primeira diferenca (o que a padronizacao BLL usa) --\n"); print(round(C_dif, 4))
 
-t23 <- expand.grid(a = JUROS, b = JUROS, stringsAsFactors = FALSE) |>
+t23 <- expand.grid(a = JUROS_RAW, b = JUROS_RAW, stringsAsFactors = FALSE) |>
   filter(a < b) |>
   mutate(cor_nivel = mapply(function(x, y) C_lvl[x, y], a, b),
          cor_diff  = mapply(function(x, y) C_dif[x, y], a, b)) |>

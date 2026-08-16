@@ -44,14 +44,9 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
   K      <- dfm_results$dynamic_loadings
   M      <- dfm_results$dynamic_scaling
   Lambda <- dfm_results$static_loadings
-  u      <- dfm_results$var_residuals
   sy     <- dfm_results$data_sd
 
-  if (!is.matrix(K) && !is.matrix(M)) {
-    eta <- u
-  } else {
-    eta <- u %*% K %*% solve(M)
-  }
+  eta <- extract_dynamic_innovations(dfm_results)
 
   eta_sel   <- eta[sel_ind, , drop = FALSE]
   rsh_mean0 <- sweep(eta_sel, 2, colMeans(eta_sel))

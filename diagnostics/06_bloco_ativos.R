@@ -74,8 +74,9 @@ print(as.data.frame(resumo61), row.names = FALSE, digits = 4)
 n_neg_h0  <- sum(resumo61$sinal_h0  < 0)
 n_neg_h12 <- sum(resumo61$sinal_h12 < 0)
 n_neg_h48 <- sum(resumo61$sinal_h48 < 0)
-cat(sprintf("\n  indices com sinal NEGATIVO: h0 %d/8 | h12 %d/8 | h48 %d/8\n",
-            n_neg_h0, n_neg_h12, n_neg_h48))
+cat(sprintf("\n  indices com sinal NEGATIVO: h0 %d/%d | h12 %d/%d | h48 %d/%d\n",
+            n_neg_h0, length(ASSETS), n_neg_h12, length(ASSETS),
+            n_neg_h48, length(ASSETS)))
 cat(sprintf("  horizontes sig90 somados: h0-h12 = %d | h13-h48 = %d\n",
             sum(resumo61$n_sig90_h0a12), sum(resumo61$n_sig90_h13a48)))
 
@@ -85,7 +86,8 @@ disp <- lapply(c(0, 6, 12, 24, 36, 48), function(h) {
   data.frame(h = h, min = min(x), max = max(x), amplitude = max(x) - min(x),
              desvio_padrao = sd(x), n_negativos = sum(x < 0))
 }) |> bind_rows()
-cat("\n  dispersao da secao cruzada dos 8 indices por horizonte:\n")
+cat(sprintf("\n  dispersao da secao cruzada dos %d indices por horizonte:\n",
+            length(ASSETS)))
 print(as.data.frame(disp), row.names = FALSE, digits = 4)
 
 diag_write(t61, "t6_1_ativos_h12.csv")
@@ -150,7 +152,8 @@ cat("  ao painel para testar a hipotese de duration do IFIX.\n\n")
 cat("  Estado do dado:\n")
 cat("   - data/raw/raw_data.csv TEM as colunas breakeven_1y/2y/5y, mas as 193 linhas\n")
 cat("     sao a string 'NA'. script/clean.R:12 descarta colunas 100% NA, e por\n")
-cat("     isso o painel processado tem 106 series e nenhum breakeven.\n")
+cat(sprintf("     isso o painel processado tem %d series e nenhum breakeven.\n",
+            ncol(PANEL)))
 cat("   - R/data_download/anbima_breakeven.R:41-56 chama rb3::yc_brl_get() e\n")
 cat("     rb3::yc_ipca_get(); sem cache populado devolve tibble vazio com warning\n")
 cat("     e o pipeline segue.\n")
@@ -169,7 +172,7 @@ cat("  de sensibilidade — nao substitui a curva real.\n")
 # ===================================================================
 # 6.4 — Secao cruzada: resposta contra caracteristicas observaveis
 # ===================================================================
-cat("\n[6.4] secao cruzada dos 8 indices\n")
+cat(sprintf("\n[6.4] secao cruzada dos %d indices\n", length(ASSETS)))
 
 # O prompt pede "participacao de receita em dolar, duration implicita, beta a
 # juros". Nenhuma dessas tres existe como dado no repositorio. Duas tem analogo
@@ -224,8 +227,9 @@ cat("  dos indices). Declarado, nao improvisado.\n")
 rank_j <- setNames(rank(t64$beta_juros), t64$var)
 pos_imob <- rank_j[["asset_imob"]]; pos_ifix <- rank_j[["asset_ifix"]]
 cat(sprintf("\n  POSICAO NO ORDENAMENTO por beta_juros (1 = mais sensivel):\n"))
-cat(sprintf("    asset_imob = %d de 8 | asset_ifix = %d de 8 | distancia = %d\n",
-            pos_imob, pos_ifix, abs(pos_imob - pos_ifix)))
+cat(sprintf("    asset_imob = %d de %d | asset_ifix = %d de %d | distancia = %d\n",
+            pos_imob, length(ASSETS), pos_ifix, length(ASSETS),
+            abs(pos_imob - pos_ifix)))
 
 # correlacao da caracteristica com a resposta, por horizonte
 cor_tab <- lapply(c(0, 6, 12, 24, 36, 48), function(h) {
@@ -236,13 +240,15 @@ cor_tab <- lapply(c(0, 6, 12, 24, 36, 48), function(h) {
              cor_sp_juros = cor(t64$beta_juros, y, method = "spearman"),
              cor_sp_cambio = cor(t64$beta_cambio, y, method = "spearman"))
 }) |> bind_rows()
-cat("\n  correlacao (n=8) entre caracteristica e resposta, por horizonte:\n")
+cat(sprintf("\n  correlacao (n=%d) entre caracteristica e resposta, por horizonte:\n",
+            length(ASSETS)))
 print(as.data.frame(cor_tab), row.names = FALSE, digits = 3)
 cat("\n  RESSALVA: a correlacao em h0 NAO e validacao independente — o beta e\n")
 cat("  contemporaneo e a IRF em h0 tambem, entao parte da concordancia e\n")
 cat("  mecanica. O informativo e a INVERSAO DE SINAL entre h0 e h24-h48:\n")
 cat("  a mesma caracteristica que ordena a secao cruzada no impacto passa a\n")
-cat("  ordena-la ao contrario no horizonte longo. Com n=8 as correlacoes sao\n")
+cat(sprintf("  ordena-la ao contrario no horizonte longo. Com n=%d as correlacoes sao\n",
+            length(ASSETS)))
 cat("  imprecisas; o Spearman esta reportado ao lado do Pearson por isso.\n")
 
 diag_write(t64, "t6_4_secao_cruzada.csv")
@@ -253,8 +259,8 @@ diag_write(cor_tab, "t6_4b_cor_caracteristica_resposta.csv")
 # Veredito
 # ===================================================================
 cat("\n===== VEREDITO TAREFA 6 =====\n")
-cat(sprintf("6.1 Sinal no impacto: %d dos 8 indices negativos em h0, %d em h12,\n",
-            n_neg_h0, n_neg_h12))
+cat(sprintf("6.1 Sinal no impacto: %d dos %d indices negativos em h0, %d em h12,\n",
+            n_neg_h0, length(ASSETS), n_neg_h12))
 cat(sprintf("    %d em h48. Significancia: %d horizontes sig90 em h0-h12 contra\n",
             n_neg_h48, sum(resumo61$n_sig90_h0a12)))
 cat(sprintf("    %d em h13-h48 (35 horizontes a mais).\n",
@@ -265,7 +271,7 @@ cat(sprintf("    Amplitude da secao cruzada: %.1f pp em h0 -> %.1f pp em h48 (%.
 cat(sprintf("6.2 Razao h36/h0 da banda de 90%%: mediana %.2f nos ativos.\n",
             median(t62$razao_h36_h0)))
 cat("6.3 NAO EXECUTAVEL — cache rb3 sem b3-reference-rates.\n")
-cat(sprintf("6.4 asset_imob e asset_ifix nas posicoes %d e %d de 8 por beta_juros.\n",
-            pos_imob, pos_ifix))
+cat(sprintf("6.4 asset_imob e asset_ifix nas posicoes %d e %d de %d por beta_juros.\n",
+            pos_imob, pos_ifix, length(ASSETS)))
 
 cat("\n=== TAREFA 6 concluida ===\n")

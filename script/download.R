@@ -2,12 +2,25 @@
 source("R/data_download/bcb.R")
 source("R/data_download/exchange.R")
 source("R/data_download/anbima_breakeven.R")
+source("R/data_download/focus_fred.R")
+source("R/data_download/panel_candidates.R")
 # svensson_model.R nao e mais sourceado: nenhuma funcao dele era chamada aqui.
 # A curva vem pronta de data/raw/yields/yields_dia.csv (insumo do orientador).
 # O modulo foi arquivado em arquivo/R/modeling/svensson_model.R em 2026-08-05.
 
 # rb3 cache directory must be set before calling ANBIMA fetch helpers.
 options(rb3.cachedir = "~/rb3-cache")
+
+args <- commandArgs(trailingOnly = TRUE)
+unknown_args <- setdiff(args, "--candidates-only")
+if (length(unknown_args) > 0) {
+  stop("Unknown argument(s): ", paste(unknown_args, collapse = ", "), ".")
+}
+
+download_panel_candidates()
+if ("--candidates-only" %in% args) {
+  quit(save = "no", status = 0)
+}
 
 
 # Taxa de cambio ----
@@ -484,7 +497,6 @@ merged_df <- all_dfs |>
 
 # Persistir o painel bruto ----
 readr::write_csv(merged_df, "data/raw/raw_data.csv")
-
 
 
 

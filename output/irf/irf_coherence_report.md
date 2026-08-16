@@ -1,12 +1,12 @@
 # Coerência ponto a ponto das IRFs — especificação de produção
 
-Gerado por `script/irf_coherence_check.R` em 2026-08-12.
+Gerado por `script/irf_coherence_check.R` em 2026-08-13.
 
 > **Arquivo gerado — sobrescrito por inteiro a cada rodada.** Não escreva
 > prosa aqui: ela se perde no próximo run. A leitura interpretativa vive em
 > [`irf_coherence_leitura.md`](irf_coherence_leitura.md), que nenhum script toca.
 
-Especificação: `z_jk_bs_purif` x `yield_6m`, r=7, q=6, p=6, full sample, choque +50bp, wild bootstrap nboot=800 (seed 123), bandas 68/90, h=0..48.
+Especificação: `z_jk_bs_purif` x `yield_6m`, r=5, q=5, p=6, full sample, choque +50bp, wild bootstrap nboot=800 (seed 123), bandas 68/90, h=0..48.
 
 ## Método
 
@@ -23,12 +23,12 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 
 | tier | verdict | n |
 |---|---|---|
-| ambiguous | ambigua |     7 |
+| ambiguous | ambigua |    14 |
 | placebo | placebo_ok |     3 |
-| scored | coerente_forte |    20 |
-| scored | parcial |    12 |
-| scored | coerente |     6 |
-| scored | incoerente |     1 |
+| scored | coerente_forte |    18 |
+| scored | incoerente |     9 |
+| scored | coerente |     8 |
+| scored | parcial |     2 |
 | soft | soft_depreciacao_fiscal_dom |     2 |
 | soft | soft_risco_abre_fiscal_dom |     2 |
 
@@ -36,11 +36,19 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 
 | group | var | verdict | share_correct | wrong_sig90 | h0 | h12 | h24 |
 |---|---|---|---|---|---|---|---|
-| risco_cambio_soft | cambio_usd | soft_depreciacao_fiscal_dom |     0 | TRUE | 0.2281 | -0.03022 | -0.0602 |
-| risco_cambio_soft | cambio_eur | soft_depreciacao_fiscal_dom |     0 | TRUE | 0.2244 | -0.05246 | -0.0187 |
-| risco_cambio_soft | embi_perc | soft_risco_abre_fiscal_dom |     0 | TRUE | 0.3204 | -0.04795 | -0.2439 |
-| risco_cambio_soft | cds_5y | soft_risco_abre_fiscal_dom |     0 | TRUE | 43.44 | -1.976 | -24.64 |
-| precos | price_core_ipca_ex0 | incoerente |     0 | FALSE | 0.02026 | 0.09209 | 0.04234 |
+| risco_cambio_soft | cambio_usd | soft_depreciacao_fiscal_dom |     0 | TRUE | 0.1579 | -0.01208 | -0.1085 |
+| risco_cambio_soft | cambio_eur | soft_depreciacao_fiscal_dom |     0 | TRUE |  0.14 | -0.04786 | -0.1154 |
+| risco_cambio_soft | embi_perc | soft_risco_abre_fiscal_dom |     0 | TRUE | 0.262 | 0.04412 | -0.1039 |
+| risco_cambio_soft | cds_5y | soft_risco_abre_fiscal_dom |     0 | TRUE | 32.54 | 6.796 | -12.93 |
+| atividade | pib | incoerente |     0 | FALSE | 0.1579 | 0.3136 | 0.2104 |
+| atividade | vendas_servicos | incoerente | 0.3182 | FALSE | -0.356 | 0.1591 | -0.3189 |
+| trabalho | trab_tx_desemprego | incoerente | 0.3226 | FALSE | -0.1019 | -0.2157 | -0.04827 |
+| trabalho | trab_pop_ocupada | incoerente | 0.2258 | FALSE | 233.2 | 607.2 |   325 |
+| credito | credit_outstanding | incoerente | 0.5806 | TRUE | 0.565 | 0.3931 | -0.3051 |
+| credito | credito_pessoa_fisica | incoerente | 0.4516 | TRUE | 0.293 | 0.4557 | -0.09737 |
+| credito_setorial | credito_comercio | incoerente | 0.7419 | TRUE | 0.7864 | 0.2759 | -0.8678 |
+| credito_setorial | credito_transporte | incoerente | 0.7419 | TRUE | 1.424 | 0.3366 | -1.015 |
+| credito_setorial | credito_industria_total | incoerente | 0.7419 | TRUE | 0.8214 | 0.1648 | -0.6767 |
 
 ## Trajetórias por grupo (unidades nativas; tcode aplicado)
 
@@ -48,122 +56,137 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| yield_3m | 0.002625 | 0.004827 | 0.004848 | 0.001131 | -0.008443 | -0.01059 | -0.006339 |     1 | coerente_forte |
-| yield_6m | 0.005 | 0.007363 | 0.006157 | 0.000865 | -0.00904 | -0.01044 | -0.005846 |     1 | coerente_forte |
-| yield_1y | 0.007958 | 0.0103 | 0.007531 | 0.0003856 | -0.009335 | -0.009539 | -0.004733 |     1 | coerente_forte |
-| yield_2y | 0.0108 | 0.0125 | 0.008316 | -2.564e-05 | -0.008559 | -0.007443 | -0.00297 |     1 | coerente_forte |
-| yield_5y | 0.0117 | 0.01223 | 0.007737 | -0.0003102 | -0.007135 | -0.005064 | -0.001313 |     1 | coerente_forte |
-| yield_10y | 0.01049 | 0.01079 | 0.006827 | -0.0003134 | -0.006268 | -0.004221 | -0.0009306 |     1 | coerente_forte |
-| juros_cdi | -0.06802 | 0.115 | 0.2742 | 0.1012 | -0.8042 | -1.092 | -0.6975 | 0.7143 | parcial |
-| juros_selic | -0.06633 | 0.1155 | 0.2735 |   0.1 | -0.8049 | -1.092 | -0.6971 | 0.9167 | coerente |
+| yield_3m | 0.003868 | 0.00725 | 0.007114 | 0.004997 | -0.00077 | -0.005764 | -0.005461 |     1 | coerente_forte |
+| yield_6m | 0.005 | 0.008968 | 0.008518 | 0.005425 | -0.001668 | -0.006891 | -0.006047 |     1 | coerente_forte |
+| yield_1y | 0.006334 | 0.01075 | 0.009895 | 0.005562 | -0.002853 | -0.007914 | -0.006333 |     1 | coerente_forte |
+| yield_2y | 0.00743 | 0.0117 | 0.01037 | 0.005041 | -0.003704 | -0.00794 | -0.005776 |     1 | coerente_forte |
+| yield_5y | 0.007761 | 0.01098 | 0.009414 | 0.00374 | -0.003847 | -0.006531 | -0.004177 |     1 | coerente_forte |
+| yield_10y | 0.00703 | 0.009677 | 0.008326 | 0.003114 | -0.003557 | -0.005638 | -0.003445 |     1 | coerente_forte |
+| juros_selic | 0.238 | 0.4881 | 0.5109 | 0.4161 | 0.02039 | -0.4162 | -0.4432 |     1 | coerente_forte |
 
 ### acoes
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| asset_ibov | -2.407 | -0.1612 | 5.135 | 19.16 | 31.82 | 25.49 | 13.86 | 0.5714 | parcial |
-| asset_smll | -4.056 | -6.838 | -4.459 | 6.012 | 19.12 |  12.1 | -1.501 |     1 | coerente_forte |
-| asset_idiv |  -2.9 | -0.5083 | 5.807 |  21.3 |  39.5 | 38.89 | 30.19 | 0.5714 | parcial |
-| asset_imob | -3.787 | -3.607 | 1.537 | 15.53 | 33.97 | 36.19 | 31.35 | 0.8571 | coerente_forte |
-| asset_ifix | -2.175 | -8.129 | -11.46 | -14.39 | -18.79 | -31.17 | -42.82 |     1 | coerente_forte |
-| asset_mlcx | -2.478 | -0.9571 |  3.56 | 16.12 | 27.18 | 20.07 | 8.238 | 0.5714 | parcial |
+| asset_ibov | -1.723 | -3.118 | -0.9125 | 10.26 | 16.83 | -0.8527 | -28.9 |     1 | coerente_forte |
+| asset_smll | -2.611 | -6.884 | -6.841 | 2.429 | 9.161 | -6.408 | -32.61 |     1 | coerente_forte |
+| asset_idiv | -2.039 | -3.778 | -2.065 |  8.94 | 17.16 | -0.9166 | -31.06 |     1 | coerente_forte |
+| asset_imob | -2.557 | -6.201 | -5.31 | 5.138 | 8.466 | -12.19 | -41.25 |     1 | coerente_forte |
+| asset_ifix | -1.311 | -4.859 | -6.034 | -4.093 | -1.899 | -5.215 | -11.73 |     1 | coerente_forte |
 
 ### acoes_ambiguas
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| asset_ifnc | -3.151 | 1.018 | 9.046 | 28.84 |  57.4 | 67.08 | 64.59 |    NA | ambigua |
-| asset_imat | -0.4555 |  3.54 | 6.674 | 11.97 | 3.066 | -14.7 | -27.06 |    NA | ambigua |
+| asset_ifnc | -2.701 | -5.389 | -3.766 | 9.256 | 19.12 | -2.879 | -39.56 |    NA | ambigua |
+| asset_imat | -0.06907 | 2.572 | 6.311 |  14.4 | 10.96 | -6.232 | -23.84 |    NA | ambigua |
 
 ### risco_cambio_soft
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| cambio_usd | 0.2281 | 0.215 | 0.1048 | -0.03022 | -0.0602 | 0.04247 | 0.07235 |     0 | soft_depreciacao_fiscal_dom |
-| cambio_eur | 0.2244 | 0.1981 | 0.07586 | -0.05246 | -0.0187 | 0.1094 | 0.1181 |     0 | soft_depreciacao_fiscal_dom |
-| embi_perc | 0.3204 | 0.2279 | 0.1282 | -0.04795 | -0.2439 | -0.1571 | -0.03831 |     0 | soft_risco_abre_fiscal_dom |
-| cds_5y | 43.44 | 36.24 | 21.93 | -1.976 | -24.64 | -14.37 | -1.963 |     0 | soft_risco_abre_fiscal_dom |
+| cambio_usd | 0.1579 | 0.1729 | 0.1203 | -0.01208 | -0.1085 | -0.05606 | 0.01348 |     0 | soft_depreciacao_fiscal_dom |
+| cambio_eur |  0.14 | 0.1373 | 0.07973 | -0.04786 | -0.1154 | -0.0254 | 0.04963 |     0 | soft_depreciacao_fiscal_dom |
+| embi_perc | 0.262 | 0.281 | 0.2323 | 0.04412 | -0.1039 | -0.09951 | -0.02917 |     0 | soft_risco_abre_fiscal_dom |
+| cds_5y | 32.54 |  36.8 | 29.83 | 6.796 | -12.93 | -14.02 | -5.413 |     0 | soft_risco_abre_fiscal_dom |
 
 ### atividade
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| ibc_br | -0.7673 | -0.1995 | -0.2506 | -0.634 | -0.268 | -0.2908 | -0.1582 |     1 | coerente |
-| pib | 0.2257 | 0.1495 | 0.07287 | -0.02234 | -0.3873 | -0.6838 | -0.4903 | 0.7273 | parcial |
-| ind_transformacao | -2.305 | -1.25 | -1.894 | -3.19 | -1.364 | -0.5484 | 0.02889 |     1 | coerente_forte |
-| ind_bens_duraveis | -8.524 | -4.999 | -6.44 | -10.54 | -3.631 | -1.224 | 0.2902 |     1 | coerente_forte |
-| ind_bens_capital | -4.215 | -2.688 | -3.669 | -6.161 | -3.631 | -1.993 | -0.4314 |     1 | coerente_forte |
-| vendas_varejo | -1.628 | -0.7251 | -0.8342 | -1.575 | -0.4743 | 0.001145 | 0.2015 |     1 | coerente_forte |
-| vendas_servicos | -1.043 | -0.3488 | -0.4298 | -1.171 | -1.384 | -1.462 | -0.8091 |     1 | coerente |
-| ind_automoveis | -6328 | -3124 | -5149 | -9685 | -5273 | -4508 | -2107 |     1 | coerente |
-| capacidade_instalada_industria | -0.2781 | -0.1769 | -0.2914 | -0.5222 | -0.2518 | -0.0709 | 0.03583 |     1 | coerente_forte |
+| ibc_br | -0.4605 | 0.01452 | -0.2468 | -0.02162 | -0.1732 | -0.3334 | -0.2463 | 0.8182 | coerente |
+| pib | 0.1579 | 0.4491 | 0.2441 | 0.3136 | 0.2104 | -0.2167 | -0.3451 |     0 | incoerente |
+| ind_transformacao | -1.414 | -0.4457 | -1.449 | -1.044 | -1.042 | -0.3566 | 0.2632 |     1 | coerente_forte |
+| ind_bens_duraveis | -4.855 | -1.743 | -5.528 | -3.896 | -3.068 | -0.584 | 1.303 |     1 | coerente_forte |
+| ind_bens_capital |  -1.9 | -0.2254 | -2.118 | -1.902 | -2.197 | -0.7818 | 0.5539 |     1 | coerente_forte |
+| vendas_varejo | -0.7974 | -0.2181 | -0.6756 | -0.5204 | -0.7119 | -0.3678 | 0.04978 |     1 | coerente_forte |
+| vendas_servicos | -0.356 | 0.4357 | 0.02065 | 0.1591 | -0.3189 | -0.7067 | -0.539 | 0.3182 | incoerente |
+| ind_automoveis | -4231 |   160 | -3897 | -1806 | -1811 | -1907 | -836.8 | 0.9545 | coerente |
+| capacidade_instalada_industria | -0.1237 | 0.004724 | -0.1671 | -0.1798 | -0.2066 | -0.05721 | 0.07092 | 0.9545 | coerente_forte |
 
 ### trabalho
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| trab_tx_desemprego | 0.008335 | -0.06408 | -0.1356 | -0.08058 | 0.2969 | 0.4486 |   0.3 | 0.7097 | parcial |
-| trab_pop_ocupada | 88.15 | 319.9 | 579.1 | 542.2 | -281.3 | -838.8 | -665.7 | 0.5161 | parcial |
-| trab_hrs_trabalhadas_industria | -1.512 | -0.8078 | -0.9385 | -1.642 | -0.7661 | -0.4816 | -0.1442 |     1 | coerente_forte |
+| trab_tx_desemprego | -0.1019 | -0.2238 | -0.235 | -0.2157 | -0.04827 | 0.1884 | 0.2247 | 0.3226 | incoerente |
+| trab_pop_ocupada | 233.2 | 542.3 | 538.7 | 607.2 |   325 | -392.6 | -602.9 | 0.2258 | incoerente |
+| trab_hrs_trabalhadas_industria | -0.7714 | -0.1565 | -0.712 | -0.4534 | -0.5011 | -0.2931 | 0.00492 |     1 | coerente_forte |
 
 ### credito
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| credit_outstanding | 0.04628 | 0.1553 | 0.1537 | -0.3699 | -1.514 | -1.531 | -0.8199 | 0.9032 | coerente_forte |
-| credito_pessoa_fisica | -0.08942 | 0.1486 | 0.2355 | -0.1108 | -1.059 | -1.269 | -0.7581 | 0.8387 | coerente_forte |
-| spread_icc_juridica | -0.01987 | 0.0009221 | 0.05139 | 0.09965 | 0.06673 | -0.01034 | -0.03768 | 0.7692 | parcial |
-| spread_icc_fisica | -0.0344 | -0.00741 | 0.09804 | 0.1884 | 0.06732 | -0.07116 | -0.09664 | 0.6923 | parcial |
+| credit_outstanding | 0.565 | 0.9137 | 0.8104 | 0.3931 | -0.3051 | -0.6352 | -0.4585 | 0.5806 | incoerente |
+| credito_pessoa_fisica | 0.293 | 0.6611 | 0.6245 | 0.4557 | -0.09737 | -0.5724 | -0.5306 | 0.4516 | incoerente |
+| spread_icc_juridica | -0.01537 | -0.00994 | 0.000529 | 0.04346 | 0.06945 | 0.008149 | -0.03484 | 0.5385 | parcial |
+| spread_icc_fisica | 0.003862 | 0.001663 | 0.03122 | 0.08418 | 0.114 | 0.009804 | -0.06072 | 0.8462 | coerente |
 
 ### credito_setorial
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| credito_comercio | -0.1916 | -0.1261 | -0.312 | -1.273 | -2.833 | -2.452 | -1.159 |     1 | coerente_forte |
-| credito_transporte | 1.044 | 0.937 | 0.3916 | -0.9805 | -2.563 | -1.945 | -0.7398 | 0.9355 | coerente_forte |
-| credito_industria_total | 0.3291 | 0.191 | -0.07407 | -0.8254 | -2.076 | -1.687 | -0.7355 |     1 | coerente_forte |
-| credito_agro | 1.328 | 1.453 | 0.9298 | -0.4224 | -1.873 | -1.474 | -0.5533 |    NA | ambigua |
-| credito_construcao | -0.3993 | -0.2004 | -0.0888 | -0.8007 | -2.948 | -3.019 | -1.66 |    NA | ambigua |
+| credito_comercio | 0.7864 | 1.259 | 1.081 | 0.2759 | -0.8678 | -0.9567 | -0.4429 | 0.7419 | incoerente |
+| credito_transporte | 1.424 | 1.861 | 1.558 | 0.3366 | -1.015 | -1.054 | -0.4263 | 0.7419 | incoerente |
+| credito_industria_total | 0.8214 |  1.04 | 0.9179 | 0.1648 | -0.6767 | -0.6269 | -0.2148 | 0.7419 | incoerente |
+| credito_agro | 1.277 | 1.786 | 1.565 | 0.547 | -0.7676 |  -1.1 | -0.6331 |    NA | ambigua |
+| credito_construcao | 0.6536 | 1.163 | 1.195 | 0.6241 | -0.5206 | -1.027 | -0.7435 |    NA | ambigua |
 
 ### precos
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| price_ipca | -0.1678 | 0.07952 | 0.1247 | -0.06429 | -0.05449 | 0.03728 | 0.07533 | 0.5405 | parcial |
-| price_ipca_difusao | 0.1084 | 0.905 | 0.8578 | -0.4199 | -1.397 | -1.084 | -0.3445 |     1 | coerente |
-| price_core_ipca_ex0 | 0.02026 | 0.1339 | 0.1521 | 0.09209 | 0.04234 | 0.03384 | 0.02316 |     0 | incoerente |
-| price_core_ipca_ex1 | -0.1117 | 0.0001795 | 0.03958 | -0.04849 | -0.07339 | -0.03268 | 0.007181 | 0.9189 | coerente |
-| price_core_ipca_dw | -0.008019 | 0.08808 | 0.0859 | -0.005629 | -0.02877 | 0.00346 | 0.02327 | 0.6216 | parcial |
-| price_inpc | -0.2284 | 0.004487 | 0.05898 | -0.1359 | -0.1122 | 0.003799 | 0.0657 | 0.6486 | parcial |
+| price_ipca | -0.06179 | 0.009289 | 0.08857 | 0.03091 | -0.1692 | -0.1887 | -0.09399 | 0.9459 | coerente |
+| price_ipca_difusao | 0.266 | 0.8526 | 1.254 | 0.6793 | -0.8347 | -1.438 | -0.9717 | 0.8378 | coerente |
+| price_core_ipca_ex0 | 0.01743 | 0.05427 | 0.09013 | 0.06456 | -0.0316 | -0.09111 | -0.07641 | 0.7838 | parcial |
+| price_core_ipca_ex1 | -0.02814 | 0.002918 | 0.05003 | 0.01947 | -0.08199 | -0.09507 | -0.04903 | 0.9189 | coerente |
+| price_core_ipca_dw | 0.006785 | 0.04631 | 0.06825 | 0.03116 | -0.06701 | -0.09136 | -0.05395 | 0.8919 | coerente |
+| price_inpc | -0.07657 | -0.01525 | 0.05923 | -0.003604 | -0.1924 | -0.175 | -0.06482 |     1 | coerente |
 
 ### precos_ambiguos
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| price_igp_m | 0.2554 | 0.5157 | 0.3142 | -0.1188 | -0.002682 | 0.2826 | 0.3004 |    NA | ambigua |
-| price_ipp | 0.9357 | 0.9862 | 0.5239 | -0.1104 | 0.2298 | 0.6939 | 0.6089 |    NA | ambigua |
+| price_igp_m | 0.1279 | 0.2298 | 0.1889 | -0.04032 | -0.3395 | -0.2378 | -0.03358 |    NA | ambigua |
+| price_ipp | 0.4677 | 0.5245 | 0.2493 | -0.1738 | -0.394 | -0.1198 | 0.1439 |    NA | ambigua |
 
 ### commodity_domestica
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| commodity_metal |  17.2 | 20.26 | 10.46 | -2.501 | -0.732 | 7.804 | 8.646 |    NA | ambigua |
+| commodity_metal | 7.456 | 10.56 | 8.575 | 0.4023 | -9.19 | -7.377 | -1.799 |    NA | ambigua |
+
+### fiscal
+
+| var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| fiscal_dbgg | -0.1129 | -0.437 | -0.5122 | -0.5894 | -0.2159 | 0.4571 | 0.6157 |    NA | ambigua |
+| fiscal_dlsp | -0.6904 | -0.9402 | -0.7944 | -0.4107 | 0.09956 | 0.4606 | 0.395 |    NA | ambigua |
+| fiscal_primary_balance | -3319 | -6769 | -2496 | -1602 | -376.7 |  2230 |  2294 |    NA | ambigua |
+
+### expectativas
+
+| var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| expect_focus_ipca12m | 0.1088 | 0.2439 | 0.2311 | 0.1283 | -0.116 | -0.2336 | -0.1703 |    NA | ambigua |
+| expect_focus_selic_ny | 0.4735 | 0.8212 | 0.6844 | 0.4301 | -0.09561 | -0.524 | -0.474 |    NA | ambigua |
+| expect_focus_pib_ny | -0.191 | -0.3387 | -0.277 | -0.1918 | 0.008165 | 0.2071 | 0.2058 |    NA | ambigua |
+| expect_focus_cambio_ny | 0.09098 | 0.115 | 0.09505 | 0.006078 | -0.08891 | -0.06764 | -0.01362 |    NA | ambigua |
 
 ### placebo_externas
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| sp500_vix | -0.3717 | -1.995 | -1.157 | -0.3272 | -0.1013 | -0.7499 | -0.7454 |    NA | placebo_ok |
-| msci | 0.08579 | -1.044 | -3.301 | -4.907 | -6.23 | -1.612 | 1.067 |    NA | placebo_ok |
-| epu_us | -39.89 | -24.35 | -0.2443 | 4.028 | -14.38 | -18.16 | -12.44 |    NA | placebo_ok |
+| sp500_vix | 0.5305 | 0.02614 | -0.8654 | -0.5865 | 1.119 | 1.435 | 0.9064 |    NA | placebo_ok |
+| msci | 0.4969 | 0.03955 |  3.06 | 0.03314 | -4.878 | -3.155 | -0.4377 |    NA | placebo_ok |
+| epu_us | 10.46 | 7.957 |  2.08 | -5.84 | -5.554 | 3.392 | 7.289 |    NA | placebo_ok |
 
 
 ## Canais soft (câmbio / risco soberano)
 
 | var | h0 | h6 | h12 | h24 | channel | right_sig90 |
 |---|---|---|---|---|---|---|
-| cambio_usd | 0.2281 | 0.1048 | -0.03022 | -0.0602 | depreciacao_fiscal_dom | FALSE |
-| cambio_eur | 0.2244 | 0.07586 | -0.05246 | -0.0187 | depreciacao_fiscal_dom | FALSE |
-| embi_perc | 0.3204 | 0.1282 | -0.04795 | -0.2439 | risco_abre_fiscal_dom | FALSE |
-| cds_5y | 43.44 | 21.93 | -1.976 | -24.64 | risco_abre_fiscal_dom | FALSE |
+| cambio_usd | 0.1579 | 0.1203 | -0.01208 | -0.1085 | depreciacao_fiscal_dom | FALSE |
+| cambio_eur |  0.14 | 0.07973 | -0.04786 | -0.1154 | depreciacao_fiscal_dom | FALSE |
+| embi_perc | 0.262 | 0.2323 | 0.04412 | -0.1039 | risco_abre_fiscal_dom | FALSE |
+| cds_5y | 32.54 | 29.83 | 6.796 | -12.93 | risco_abre_fiscal_dom | FALSE |
 

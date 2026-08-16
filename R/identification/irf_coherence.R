@@ -26,10 +26,10 @@ coherence_var_table <- function() {
     # the window is free and h1..h6 are what inform the verdict. Included so
     # the delivered +50bp is auditable in the output table (B2, 2026-07-28).
     row(c("yield_3m", "yield_6m", "yield_1y", "yield_2y", "yield_5y",
-          "yield_10y", "juros_cdi"), "curva_juros", 1, "scored", 0, 6),
+          "yield_10y"), "curva_juros", 1, "scored", 0, 6),
     row("juros_selic", "curva_juros", 1, "scored", 1, 12),
     row(c("asset_ibov", "asset_smll", "asset_idiv", "asset_imob",
-          "asset_ifix", "asset_mlcx"), "acoes", -1, "scored", 0, 6),
+          "asset_ifix"), "acoes", -1, "scored", 0, 6),
     row(c("asset_ifnc", "asset_imat"), "acoes_ambiguas", NA, "ambiguous", 0, 6),
     row(c("cambio_usd", "cambio_eur", "embi_perc", "cds_5y"),
         "risco_cambio_soft", -1, "soft", 0, 6),
@@ -62,6 +62,11 @@ coherence_var_table <- function() {
     # horizons (+0.42, CI90 [-1.44, 1.88]). The violation was never the
     # instrument's — it is denomination.
     row("commodity_metal", "commodity_domestica", NA, "ambiguous", 0, 24),
+    row(c("fiscal_dbgg", "fiscal_dlsp", "fiscal_primary_balance"),
+        "fiscal", NA, "ambiguous", 0, 48),
+    row(c("expect_focus_ipca12m", "expect_focus_selic_ny",
+          "expect_focus_pib_ny", "expect_focus_cambio_ny"),
+        "expectativas", NA, "ambiguous", 0, 48),
     row(c("sp500_vix", "msci", "epu_us"),
         "placebo_externas", 0, "placebo", 0, 24)
   )

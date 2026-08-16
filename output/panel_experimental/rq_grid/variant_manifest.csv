@@ -1,0 +1,10 @@
+variant,description,n_series,added,removed,dates,first_month,last_month
+baseline,Canonical 106-series production panel.,106,,,153,2013-01-01,2025-09-01
+drop_near_duplicates,Diagnostic only: remove juros_cdi and asset_mlcx.,104,,juros_cdi;asset_mlcx,153,2013-01-01,2025-09-01
+add_fiscal,Add the pre-specified fiscal block.,109,fiscal_dbgg;fiscal_dlsp;fiscal_primary_balance,,153,2013-01-01,2025-09-01
+add_setor_externo,Add the pre-specified external-sector block.,110,external_current_account_gdp;external_exports;external_imports;external_reserves,,153,2013-01-01,2025-09-01
+add_expectativas,Add the four month-end Focus expectations.,110,expect_focus_ipca12m;expect_focus_selic_ny;expect_focus_pib_ny;expect_focus_cambio_ny,,153,2013-01-01,2025-09-01
+add_eua,"Add US rates, dollar index, and Yahoo S&P 500 log return.",111,us_dgs2;us_dgs10;us_fedfunds;us_dtwexbgs;asset_sp500_yahoo,,153,2013-01-01,2025-09-01
+add_credito,Add aggregate default and lending-rate measures.,108,credit_default_rate;credit_average_rate,,153,2013-01-01,2025-09-01
+add_imoveis,Add IVG-R.,107,housing_ivgr,,153,2013-01-01,2025-09-01
+add_conjunto,Exact union of all six pre-specified blocks.,125,fiscal_dbgg;fiscal_dlsp;fiscal_primary_balance;external_current_account_gdp;external_exports;external_imports;external_reserves;expect_focus_ipca12m;expect_focus_selic_ny;expect_focus_pib_ny;expect_focus_cambio_ny;us_dgs2;us_dgs10;us_fedfunds;us_dtwexbgs;asset_sp500_yahoo;credit_default_rate;credit_average_rate;housing_ivgr,,153,2013-01-01,2025-09-01

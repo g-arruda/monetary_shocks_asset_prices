@@ -19,26 +19,29 @@ library(tidyr)
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_responde.R")
+source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")
 
 
 # ---- Config --------------------------------------------------------
 
-P_LAGS    <- 6L
+SPEC      <- production_spec()
+P_LAGS    <- SPEC$p
 H_SWEEP   <- 24L
-SHOCK_BPS <- 50
+SHOCK_BPS <- SPEC$shock_bps
 
 RQ_GRID <- list(
   c(5L, 4L),   # auto-IC choice on the full panel (Bai-Ng IC2 / Amengual-Watson)
+  c(SPEC$r, SPEC$q),
   c(6L, 5L),
   c(7L, 6L),   # spec where z_jk_purif crossed Stock-Yogo (F = 10.17)
   c(8L, 8L)    # production spec of irf_cross_instrument.R
 )
 
 SAMPLES <- list(
-  full      = as.Date(c("2013-01-01", "2025-12-31")),
-  pre_covid = as.Date(c("2013-01-01", "2019-12-31"))
+  full = SPEC$sample,
+  pre_covid = SPEC$pre_covid_sample
 )
 
 VARIANTS <- c("z_bruto", "z_bruto_purif", "z_jk", "z_jk_purif",
@@ -46,8 +49,8 @@ VARIANTS <- c("z_bruto", "z_bruto_purif", "z_jk", "z_jk_purif",
 
 MP_VARS <- c("yield_3m", "yield_6m", "yield_1y", "yield_2y", "juros_selic")
 
-DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
-INST_PATH <- "data/processed/instrumentos_mensais.csv"
+DATA_PATH <- SPEC$data_path
+INST_PATH <- SPEC$instrument_path
 OUT_DIR   <- "output/irf"
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
@@ -230,15 +233,16 @@ report <- c(
   "  O `f_robust_mp` é o primeiro estágio HC1 na mesma direção e é reportado",
   "  como diagnóstico complementar, sem condicionar a inferência a pré-teste.",
   "  Na rodada corrente, a célula de produção",
-  "  (7,6) full tem ξ_mp = 7,65 e, portanto, fica abaixo da referência",
-  "  convencional de 10. Ela permanece fixada por decisão anterior ao resultado,",
+  sprintf("  (%d,%d) full fica abaixo da referência convencional de 10; o valor",
+          SPEC$r, SPEC$q),
+  "  exato consta na tabela abaixo. Ela permanece fixada por decisão anterior ao resultado,",
   "  sem otimização ex post do par (r,q).",
   "- **Diagnósticos reportados que NÃO classificam** (B4, 2026-07-28): as colunas",
   "  `yield_ordering_ok` e `magnitude_flag` são calculadas por célula e gravadas no",
   "  CSV, mas não entram em `classify_sweep_cells`. `yield_ordering_ok` exige",
   "  |6m| ≥ |2y| ≥ |5y| no impacto e é **FALSE na",
-  "  célula de produção** e em 58 das 68 células `ok`, porque o pico da curva está em",
-  "  2-5 anos (+108,0 / +117,0bp) e não no vértice de política (+50,0bp). Promovê-la a",
+  "  célula de produção**, porque o pico da curva está nos vértices longos, não no",
+  "  vértice de política normalizado em +50,0bp. Promovê-la a",
   "  critério classificaria a própria produção como falha; ela é evidência sobre o",
   "  *choque* (hipótese H3 de `diagnostics/diagnostico_dfm.md`), não critério de",
   "  descarte de célula.",
@@ -305,7 +309,8 @@ report <- c(
   "## Instrumento de produção (z_jk_bs_purif x yield_6m) através do grid",
   "",
   paste0("`z_jk_bs_purif` é o `DEFAULT_VARIANT` desde 2026-07-15 e a produção é ",
-         "(r=7, q=6) desde 2026-07-24. ξ_mp e F robusto usam a mesma direção ",
+         sprintf("(r=%d, q=%d). ξ_mp e F robusto usam a mesma direção ",
+                 SPEC$r, SPEC$q),
          "de normalização; a taxonomia permanece governada por ξ_mp."),
   "",
   md_table(baseline_cmp),
