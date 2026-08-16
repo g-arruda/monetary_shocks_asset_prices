@@ -7,7 +7,7 @@
 #   codigos_externos/codigo_alessi-mark/MAIN_VARloop.m -> script/model_var.R (the driver)
 #
 # The identification is SHARED with the DFM, not re-implemented:
-# `sel_ext_inst_sample` and `ident_ext_instr` from impulse_responde.R are
+# `sel_ext_inst_sample` and `ident_ext_instr` from impulse_response.R are
 # the same functions the factor model calls. The only difference between
 # the two paths is what gets projected on the instrument — here the
 # N-dimensional reduced-form residuals of the VAR, there the
@@ -23,7 +23,7 @@
 # was deleted.
 #
 # Requires: R/modeling/factor_estimation.R (kilian_correction)
-#           R/modeling/impulse_responde.R  (sel_ext_inst_sample,
+#           R/modeling/impulse_response.R  (sel_ext_inst_sample,
 #                                           ident_ext_instr)
 # ===================================================================
 

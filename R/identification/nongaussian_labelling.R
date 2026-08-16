@@ -19,11 +19,11 @@
 # PRE-normalization response; normalization comes after the column is chosen.
 
 if (!exists("cumimp_transform", mode = "function"))
-  source("R/modeling/impulse_responde.R")
+  source("R/modeling/impulse_response.R")
 
 #' Rebuild the reduced-form impulse array from a fitted DFM
 #'
-#' Same construction as `compute_irf_dfm` (`impulse_responde.R:437-455`), using
+#' Same construction as `compute_irf_dfm` (`impulse_response.R:437-455`), using
 #' the OLS companion (no Kilian correction), which is what the point estimate
 #' uses. Exists because `rawimp` is not stored in the cached cell object and
 #' any analysis of a column other than the labelled one needs it.

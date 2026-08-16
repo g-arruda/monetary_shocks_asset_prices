@@ -16,7 +16,7 @@
 #
 #      B also tests something A cannot: the project applies the
 #      Shat correction by residualizing z on the VAR regressors
-#      (impulse_responde.R:197) instead of forming the official
+#      (impulse_response.R:197) instead of forming the official
 #      -kron(Q2 Q1^-1, I) block. The two are equal because Shat is
 #      a constant matrix and the NW form is bilinear, so
 #      Shat*NW(M)*Shat' = NW(M Shat') — but that is an argument,
@@ -28,7 +28,7 @@
 # notas/2026-07-27_robustez_xi_mp_e_construcao.md.
 # ============================================================
 
-source("R/modeling/impulse_responde.R")
+source("R/modeling/impulse_response.R")
 
 TOL_KERNEL <- 1e-12
 TOL_MATLAB <- 1e-8

@@ -21,7 +21,7 @@ Read `script/README.md` before selecting diagnostics or validation scripts. Run 
 ## Identification and model invariants
 
 - The production instrument is `z_jk_bs_purif`, selected by `DEFAULT_VARIANT`. The eight surviving variants and their exact construction are defined in the current instrument documentation and builder; do not reconstruct them from prose or archived code.
-- `data/raw/fomc_dates.csv` is a hard input to the instrument stage and is produced by `R/data_download/fomc_dates.R`. Missing event-date data must abort, never become an empty silent fallback.
+- `data/raw/fomc_dates.csv` is a hard input to the instrument stage and is produced by `script/fomc_dates.R`. Missing event-date data must abort, never become an empty silent fallback.
 - `data/raw/yields/yields_dia.csv` and `data/raw/CDS 5y.xlsx` are fixed external inputs with no repository producer. Treat them as read-only. Do not claim the yield curve is reproducible from this repository.
 - The production monthly sample is 2013-01 through 2025-09 with 111 series; the 106-series base is retained only for historical factor-grid reproduction. Production uses `(r,q,p)=(5,5,6)`, with `r=5` selected by BLL Bai–Ng IC2 and `q=5` provisional. The policy normalization variable is `yield_6m`, with a +50 bp impact shock.
 - Use `res$irfs`, not `res$irf`, and recover variable names from the estimation data. Preserve the documented factor-space dimensions and normalization when comparing IRFs.

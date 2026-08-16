@@ -60,7 +60,7 @@ suppressPackageStartupMessages({
 })
 
 source("R/modeling/factor_estimation.R")
-source("R/modeling/impulse_responde.R")
+source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/het_primary.R")
 source("R/identification/het_tests.R")

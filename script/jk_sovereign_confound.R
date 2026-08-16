@@ -94,7 +94,7 @@ source("R/instrument/di_surprise.R")
 source("R/instrument/build_variants.R")
 source("R/instrument/event_tests.R")      # wild_coef_test
 source("R/modeling/factor_estimation.R")
-source("R/modeling/impulse_responde.R")
+source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")   # norm_value_for, run_stage2_cell,

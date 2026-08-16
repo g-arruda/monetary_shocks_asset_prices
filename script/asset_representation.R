@@ -12,7 +12,7 @@
 # THE MECHANICS, verified before this script was written:
 #
 #   * The `cumsum` is NOT in the data path. It is in `cumimp_transform`
-#     (impulse_responde.R:277), applied to the IRF under tcode 2, in
+#     (impulse_response.R:277), applied to the IRF under tcode 2, in
 #     the point estimate AND inside each of the 800 replicas.
 #   * `tcode` never enters the DFM (zero occurrences in
 #     factor_estimation.R). Changing tcode moves only the display map.
@@ -98,7 +98,7 @@ suppressPackageStartupMessages({
 })
 
 source("R/modeling/factor_estimation.R")
-source("R/modeling/impulse_responde.R")
+source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")
@@ -606,7 +606,7 @@ md <- c(
   "",
   "As 8 séries da B3 entram no painel como **retorno mensal composto**, enquanto",
   "as outras 98 entram em nível ou log-nível. O `cumsum` que recupera o nível é",
-  "aplicado à **IRF** (`impulse_responde.R:277`, tcode 2), não aos dados. Como o",
+  "aplicado à **IRF** (`impulse_response.R:277`, tcode 2), não aos dados. Como o",
   "BLL diferencia o painel para estimar `Λ` (`factor_estimation.R:300`), o bloco",
   "acionário é estimado sobre a **segunda diferença** do log-preço. O paper",
   "reporta **0 de 392** células sig90 nesse bloco — o tema do próprio título.",

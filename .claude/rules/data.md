@@ -51,7 +51,7 @@ from "the collection came back empty", and the error only surfaces months later,
   `download.R` and the two agree at **cor 0.9994** — which is what makes the daily test and the
   monthly IRF the same object rather than homonyms.
 - **`data/raw/fomc_dates.csv`** — FOMC decision dates with a `scheduled`/`unscheduled` column. Unlike the
-  two above it **has a producer**: `R/data_download/fomc_dates.R`, which scrapes and **enumerates**
+  two above it **has a producer**: `script/fomc_dates.R`, which scrapes and **enumerates**
   the Fed's archive years rather than hard-coding a range. Hard requirement of `instrument.R` and of
   the `fomc` stage in `run_all.R`.
 

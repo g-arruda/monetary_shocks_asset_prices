@@ -51,12 +51,30 @@ Verificação: parse OK em todos os arquivos · smoke test **bit-idêntico** ·
 
 ---
 
-## Chunk 2 — três correções estruturais ⬜ A FAZER
-- (a) `main_sdfm` → `R/modeling/dfm_pipeline.R`; `model_alessi.R` linear; **atualizar smoke test do
-  `CLAUDE.md`** (mata o `readLines()[1:156]`)
-- (b) `impulse_responde.R` → `impulse_response.R` + 34 sítios + `CLAUDE.md` +
-  `.claude/rules/identification.md` (NÃO repontuar `notas/`/`pareceres/`)
-- (c) `R/data_download/fomc_dates.R` → `script/fomc_dates.R` + `CLAUDE.md` + `run_all.R:81`
+## Chunk 2 — três correções estruturais ✅ FEITO E VERIFICADO
+- (a) `main_sdfm` → `R/modeling/dfm_pipeline.R` (novo); `script/model_alessi.R` agora é linear, sem
+  `library()`, 212 → 60 linhas. Ganhou o parâmetro `spec = production_spec()` para não depender do
+  global `SPEC` do chamador; todo call site já passava argumentos nomeados. Smoke test do
+  `CLAUDE.md` reescrito para `source()` — **o hack `readLines()[1:156]` morreu**.
+- (b) `impulse_responde.R` → `impulse_response.R`, 47 arquivos repontuados (27 `script/`, 3 `R/`,
+  11 `diagnostics/`, `README.md`, `.claude/rules/{identification,instrument}.md`).
+- (c) `R/data_download/fomc_dates.R` → `script/fomc_dates.R` (nunca era sourced); repontuados
+  `run_all.R`, `CLAUDE.md`, `AGENTS.md`, `README.md`, `script/README.md`, `.claude/rules/data.md`,
+  `R/instrument/di_surprise.R` (msg de erro) e a string de relatório de `fomc_coincidence.R`.
+
+Verificação: parse OK · todo `source()` resolve · `run_all.R --list` e `--dry-run` passam com o
+estágio `fomc` no novo caminho · smoke test **bit-idêntico** na forma que o `CLAUDE.md` documenta ·
+`script/model_alessi.R` roda ponta a ponta e o PDF sai com conteúdo idêntico (só CreationDate).
+
+⚠ **32 arquivos de `notas/`/`pareceres/`/`registro/` ainda citam `impulse_responde.R` e
+`R/data_download/fomc_dates.R`** — deixados verbatim por regra (`.claude/rules/writing.md`).
+Falta decidir com o usuário se entra nota de leitura com o mapa de renome.
+
+⚠ **`script/fomc_coincidence.R` teve a string de relatório repontuada**, então
+`output/instrument/fomc_coincidence.md` fica stale até o chunk 5 re-rodar o script.
+
+📌 **Custo real medido:** `model_alessi.R` roda em **13 s** com nboot=800, não "long" como o
+`CLAUDE.md` diz. A estimativa de custo dos chunks 5-6 provavelmente está superestimada.
 
 ## Chunk 3 — duplicatas para domínio ⬜
 `R/reporting/markdown_tables.R` com `md_tbl` **verbatim** (≠ `md_table`, não substituir) e o `fmt`

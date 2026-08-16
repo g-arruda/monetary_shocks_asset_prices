@@ -12,7 +12,7 @@ paths:
 
 # Identification core — do not silently re-architect
 
-Two functions in `R/modeling/impulse_responde.R` are the contract between the DFM/VAR and the
+Two functions in `R/modeling/impulse_response.R` are the contract between the DFM/VAR and the
 instrument:
 
 - `sel_ext_inst_sample()` — temporal alignment, equivalent to MATLAB `selextinstsample.m`.
@@ -22,7 +22,7 @@ instrument:
   percent-scale `juros_selic` (the legacy default 0.5, mirroring `IdentExtInstr.m:14`). **That
   default has no consumer** — every caller passes the value explicitly.
 
-**Three branches.** `compute_irf_dfm` and `main_sdfm` accept
+**Three branches.** `compute_irf_dfm` and `main_sdfm` (`R/modeling/dfm_pipeline.R`) accept
 `identification = c("proxy", "het", "nongaussian")`, dispatched by an explicit 3-way `switch` (the
 old `else` was a catch-all that would silently route an unknown value into the proxy path). The het
 branch is inert in production (modules archived 2026-07-26; the branch `stop()`s unless sourced from
@@ -74,7 +74,7 @@ LMS (2017) via `svars::id.ngml` is still open as the parametric-ML twin.
 - **The scale trap** (companion-spectrum mode decomposition). Deleting modes changes the
   normalization denominator: sign and extremum horizon are immune, **magnitude is not** and must be
   read on the common scale.
-- **tcode**: tcode 1 does **not** multiply by 100 (`impulse_responde.R:273-274`), and
+- **tcode**: tcode 1 does **not** multiply by 100 (`impulse_response.R:273-274`), and
   `coherence_var_table()` (`irf_coherence.R:31-33`) asks for a *sustained* negative sign over h0-6 —
   a price-level property a per-month return response does not have. That is what drove the 1 → 2
   migration.

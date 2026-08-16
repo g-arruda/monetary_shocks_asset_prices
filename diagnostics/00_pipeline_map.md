@@ -69,7 +69,7 @@ das **diferenças** padronizadas, mas os fatores são `F = Z·λ` (:347), em ní
 Essa assimetria é o desenho de BLL, e é a razão pela qual Bai-Ng simples seria a
 régua errada (já registrado em `CLAUDE.md`).
 
-**Despadronização — `impulse_responde.R:454`:**
+**Despadronização — `impulse_response.R:454`:**
 
 ```r
 rawimp[, , i] <- sweep(temp, 1, sy, "*")
@@ -120,7 +120,7 @@ Dois pontos, e só dois:
    O helper equivalente da varredura é `norm_value_for()`
    (`spec_sweep.R:19-21`), que trata `juros_selic` à parte com `/100` porque
    aquela série está em p.p. — a única concessão explícita ao descompasso do §4.
-2. **`impulse_responde.R:124`** — `irf_mp <- irf_mp / irf_mp[mpind, 1] * normalize_value`.
+2. **`impulse_response.R:124`** — `irf_mp <- irf_mp / irf_mp[mpind, 1] * normalize_value`.
 
 O escalonamento é aplicado à **matriz IRF inteira** (todas as variáveis, todos
 os horizontes), dividindo pela resposta de impacto da variável de política. É
@@ -133,7 +133,7 @@ uma renormalização global, portanto:
 
 ## 6. Há `cumsum` de IRFs?
 
-Sim, e **apenas via tcode**, em `cumimp_transform` (`impulse_responde.R:257-291`):
+Sim, e **apenas via tcode**, em `cumimp_transform` (`impulse_response.R:257-291`):
 
 | tcode | tratamento | quem recebe |
 |---|---|---|

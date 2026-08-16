@@ -37,7 +37,8 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
 2. **`script/clean.R`** → `data/processed/data_log_deseasonalized.csv` (log + X-13).
 3. **`script/instrument.R`** → 8 monthly variants via `R/instrument/build_variants.R`. Requires
    `data/raw/fomc_dates.csv` (hard).
-4. **Estimation** — `script/model_alessi.R` (main DFM) and `script/model_var.R` (small-VAR
+4. **Estimation** — `script/model_alessi.R` (main DFM; the pipeline itself is `main_sdfm()` in
+   `R/modeling/dfm_pipeline.R`) and `script/model_var.R` (small-VAR
    **benchmark**; it does not use the factors).
 
 `script/irf_coherence_check.R` runs the production spec once and writes
@@ -132,7 +133,7 @@ Rscript script/run_all.R --from=clean        # skip the network stages
 # Full instrument rebuild + diagnostics
 Rscript R/data_download/external_factors.R   # SP500/VIX/Brent + BRL/USD daily
 Rscript R/data_download/focus_fred.R         # Focus medians (BCB olinda) + FRED DGS2
-Rscript R/data_download/fomc_dates.R         # FOMC decision dates (required by instrument.R)
+Rscript script/fomc_dates.R         # FOMC decision dates (required by instrument.R)
 Rscript script/instrument.R                  # 8 GK-family variants
 Rscript script/instrument_diagnostics.R      # first-stage F + MOSW Wald block
 Rscript script/mosw_strength_grid.R          # ξ_mp over (r,q) × sample × instrument
@@ -169,7 +170,10 @@ There is no test suite, no linter, no build step. Iterate by running the relevan
 **Smoke test after touching the identification path** (fast, no bootstrap):
 
 ```r
-src <- readLines("script/model_alessi.R"); eval(parse(text = paste(src[1:156], collapse = "\n")))
+source("R/modeling/factor_estimation.R")
+source("R/modeling/impulse_response.R")
+source("R/modeling/production_spec.R")
+source("R/modeling/dfm_pipeline.R")
 res <- main_sdfm(r = 5L, q = 5L, p = 6, shock_size_bps = 50, mp_var = "yield_6m", nboot = 0)
 # note the field is `irfs`, not `irf`, and the names come from the data matrix
 P <- res$irfs$irf_point_matrix; vn <- colnames(res$data)
@@ -178,8 +182,9 @@ P[match(c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd"), vn), 
 
 Expected h0 (matches `output/irf/irf_coherence_h.csv`): `yield_6m` 0.005,
 `yield_2y` 0.00743006, `yield_5y` 0.00776115, `asset_ibov` −1.7226767,
-`cambio_usd` 0.15792807. The slice `src[1:156]` must end on the closing brace of
-`main_sdfm`; re-check it if the script grows.
+`cambio_usd` 0.15792807. Full precision, for a bit-identical check:
+`0.0050000000000000001`, `0.0074300592008910019`, `0.0077611464176508358`,
+`-1.7226766564462794`, `0.15792806572512938`.
 
 ## Conventions
 

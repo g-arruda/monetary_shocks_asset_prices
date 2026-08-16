@@ -14,7 +14,7 @@ source("R/data_download/panel_candidates.R")
 source("R/preprocessing/panel_candidates.R")
 source("R/identification/experimental_panel.R")
 source("R/modeling/factor_estimation.R")
-source("R/modeling/impulse_responde.R")
+source("R/modeling/impulse_response.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")
 

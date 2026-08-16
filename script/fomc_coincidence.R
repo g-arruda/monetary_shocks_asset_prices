@@ -105,7 +105,7 @@ source("R/instrument/di_surprise.R")
 source("R/instrument/build_variants.R")
 source("R/instrument/event_tests.R")       # wild_coef_test, wild_wald_test
 source("R/modeling/factor_estimation.R")
-source("R/modeling/impulse_responde.R")
+source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")    # norm_value_for, run_stage2_cell,
@@ -670,7 +670,7 @@ md <- c(
   "",
   "A surpresa de producao `e_di_bs` e residualizada so em regressores **predeterminados**, entao um choque realizado *dentro* da janela Qua->Qui e ortogonal a essa RHS por construcao e passa direto. Uma surpresa hawkish do Fed sobe o DI, derruba o Ibovespa — e o filtro JK **retem** o dia como \"politica\" — deprecia o BRL e abre EMBI/CDS. E o resultado central inteiro, sem canal domestico.",
   "",
-  sprintf("Ate 2026-08-10 o repositorio nao tinha como responder: `R/instrument/build_variants.R:244` computa `fomc_coincide`, mas `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caia num vetor vazio, entao a flag era **sempre FALSE**. As datas agora vem de `R/data_download/fomc_dates.R` (paginas de calendario do proprio Fed): **%d dos %d dias Copom** da amostra coincidem com decisao do FOMC.",
+  sprintf("Ate 2026-08-10 o repositorio nao tinha como responder: `R/instrument/build_variants.R:244` computa `fomc_coincide`, mas `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caia num vetor vazio, entao a flag era **sempre FALSE**. As datas agora vem de `script/fomc_dates.R` (paginas de calendario do proprio Fed): **%d dos %d dias Copom** da amostra coincidem com decisao do FOMC.",
           sum(days$fomc_coincide), nrow(days)),
   "",
   "## Regra de leitura, fixada antes de os numeros existirem",

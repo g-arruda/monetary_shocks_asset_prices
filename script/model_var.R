@@ -77,7 +77,7 @@ suppressPackageStartupMessages({
 })
 
 source("R/modeling/factor_estimation.R")   # kilian_correction, infer_tcode
-source("R/modeling/impulse_responde.R")    # sel_ext_inst_sample, ident_ext_instr
+source("R/modeling/impulse_response.R")    # sel_ext_inst_sample, ident_ext_instr
 source("R/modeling/var_proxy.R")           # var_est_ols, compute_irf_var_proxy
 source("R/modeling/production_spec.R")
 source("R/identification/spec_sweep.R")    # norm_value_for

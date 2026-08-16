@@ -22,7 +22,7 @@ coherence_var_table <- function() {
   }
   rbind(
     # yield_6m is the normalization variable: its h0 is MECHANICAL
-    # (= shock_bps/10000 by impulse_responde.R:124), so 1 of the 7 points in
+    # (= shock_bps/10000 by impulse_response.R:124), so 1 of the 7 points in
     # the window is free and h1..h6 are what inform the verdict. Included so
     # the delivered +50bp is auditable in the output table (B2, 2026-07-28).
     row(c("yield_3m", "yield_6m", "yield_1y", "yield_2y", "yield_5y",

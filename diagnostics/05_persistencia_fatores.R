@@ -154,7 +154,7 @@ Idio <- Xdt - Chi
 
 # Tres medidas, e a diferenca entre elas E o achado:
 #  R2_chi — reconstrucao do PROPRIO DFM: Chi = F * Lambda' * sy. E o objeto que
-#           gera as IRFs (impulse_responde.R:448-455 usa o mesmo Lambda).
+#           gera as IRFs (impulse_response.R:448-455 usa o mesmo Lambda).
 #  R2_ols — projecao de minimos quadrados da serie nos mesmos fatores. Mede se
 #           os fatores GERAM a serie, independentemente de Lambda.
 #  R2_dif — o mesmo em primeira diferenca, que e o espaco onde Lambda foi estimado

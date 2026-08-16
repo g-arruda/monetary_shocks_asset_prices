@@ -80,7 +80,7 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   candidatas usada por `script/clean.R` e pelas auditorias históricas.
 - **`modeling/`** (4 arquivos) — `production_spec.R`, a especificação única do
   painel de 111 séries `(5,5,6)`, e os motores `factor_estimation.R`
-  (estimação BLL do DFM, seleção de r/q), `impulse_responde.R` (núcleo de
+  (estimação BLL do DFM, seleção de r/q), `impulse_response.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
   `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
   benchmark VAR pequeno, extraído de `script/model_var.R`). O órfão
@@ -134,7 +134,7 @@ Em `raw/`: `raw_data.csv`, `raw_data_30.csv`, `di.csv` (DI futuro diário,
 32 MB), `copom_historico.csv`, `fred_dgs2.csv`, `CDS 5y.xlsx` (CDS soberano
 5a diário, export Bloomberg — entrada externa fixa, como a curva; lido por
 `jk_sovereign_confound.R`), `fomc_dates.csv` (datas de decisão do FOMC;
-**produzido** por `R/data_download/fomc_dates.R`, e requisito duro do estágio
+**produzido** por `script/fomc_dates.R`, e requisito duro do estágio
 `instrument` desde 2026-08-10); mais `yields/` (curva de juros fornecida pelo
 orientador, `yields_dia.csv` — entrada externa fixa, sem produtor no
 repositório) e `curva_juros/`, `investing/`, `epu/`,

@@ -109,7 +109,7 @@ control_block <- function(v, state_name, L, dat) {
 }
 
 #' Variavel dependente no horizonte h, espelhando cumimp_transform
-#' (impulse_responde.R:257-291): tcode 2 acumula e multiplica por 100.
+#' (impulse_response.R:257-291): tcode 2 acumula e multiplica por 100.
 dep_var <- function(series, tc, h, Tn) {
   if (tc == 2L) {
     out <- rep(NA_real_, Tn)

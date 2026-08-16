@@ -1,5 +1,5 @@
 source("R/modeling/factor_estimation.R")
-source("R/modeling/impulse_responde.R")
+source("R/modeling/impulse_response.R")
 
 arguments <- commandArgs(trailingOnly = TRUE)
 if (length(arguments) != 3L) {

@@ -81,7 +81,7 @@ suppressPackageStartupMessages({
 })
 
 source("R/modeling/factor_estimation.R")
-source("R/modeling/impulse_responde.R")
+source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 
 set.seed(20260731)

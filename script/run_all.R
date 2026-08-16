@@ -78,7 +78,7 @@ STAGES <- list(
     name     = "fomc",
     desc     = "FOMC decision dates from the Fed's own calendar pages",
     interp   = "Rscript",
-    file     = "R/data_download/fomc_dates.R",
+    file     = "script/fomc_dates.R",
     network  = TRUE,
     requires = character(),
     produces = "data/raw/fomc_dates.csv"

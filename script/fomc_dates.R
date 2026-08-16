@@ -21,7 +21,7 @@
 # URLs rather than the rendered meeting dates, which appear as
 # ranges ("28-29") with the month in a sibling element.
 #
-# Run: Rscript R/data_download/fomc_dates.R
+# Run: Rscript script/fomc_dates.R
 # ============================================================
 
 FROM <- as.Date("2012-01-01")

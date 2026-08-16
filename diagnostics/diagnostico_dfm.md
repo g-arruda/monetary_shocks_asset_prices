@@ -65,9 +65,9 @@ projection, fora do DFM por construção.
   `base_*` (7), `credit*`/`credito_*` (7), `fin_inst_reserve_req`, `pib`.
   Não há diferenciação em lugar nenhum.
 - **Padronização BLL** em `factor_estimation.R:299-316`: nível destendenciado
-  dividido por `sd(Δ)`. **Despadronização** em `impulse_responde.R:454`. Um
+  dividido por `sd(Δ)`. **Despadronização** em `impulse_response.R:454`. Um
   fator de escala constante numa série é absorvido na ida e restituído na volta.
-- **`cumsum` só via tcode 2** (`impulse_responde.R:277`), só nos `asset_*`, que
+- **`cumsum` só via tcode 2** (`impulse_response.R:277`), só nos `asset_*`, que
   são de fato retornos mensais (`download.R:406-418`). Tcodes 3 e 5, os que
   fariam dupla acumulação, **não estão atribuídos a nenhuma série**.
 - **`price_*` são taxas mensais em % entrando em nível com tcode 1.** A IRF é
@@ -254,8 +254,8 @@ erro de pipeline aqui: a divergência de ordem de grandeza era só de unidade.**
 | `factor_estimation.R:336-344` | sinal dos loadings estáticos | **SIM** — maior \|elemento\| forçado positivo |
 | `factor_estimation.R:667-673` | sinal dos autovetores dinâmicos | **SIM** — idem |
 | `factor_estimation.R:458` | `Abias = -bias/T`, interno ao Kilian | SIM — não toca sinal de IRF |
-| `impulse_responde.R:124` | divisão por `irf_mp[mpind,1]` | SIM — sinal vem do dado |
-| `impulse_responde.R:759-766` | opção `invert_shock` do plot | **INATIVA** (default `FALSE`) |
+| `impulse_response.R:124` | divisão por `irf_mp[mpind,1]` | SIM — sinal vem do dado |
+| `impulse_response.R:759-766` | opção `invert_shock` do plot | **INATIVA** (default `FALSE`) |
 
 `impact_pre` (denominador da normalização) = **+8,636e-05**, positivo — a
 normalização **não** inverte as IRFs.
@@ -458,7 +458,7 @@ Mediana da razão h36/h1 **por tcode**:
 
 > **O alargamento de 8×-14× não é geral: é exclusivo do tcode 2.** As séries em
 > nível têm bandas que *encolhem* levemente com o horizonte. A causa é a
-> acumulação: o tcode 2 aplica `cumsum` à IRF (`impulse_responde.R:277`), e a
+> acumulação: o tcode 2 aplica `cumsum` à IRF (`impulse_response.R:277`), e a
 > variância de uma soma acumulada cresce com o horizonte por construção. Não é
 > sintoma de raiz unitária — é o que acumular faz.
 
@@ -504,7 +504,7 @@ estão atribuídos a nenhuma série.
 Três medidas, e a diferença entre elas *é* o achado:
 
 - **R²_chi** — reconstrução do próprio DFM, `Chi = F·Λ'·sy`. É o objeto que gera
-  as IRFs (`impulse_responde.R:448-455` usa o mesmo `Λ`).
+  as IRFs (`impulse_response.R:448-455` usa o mesmo `Λ`).
 - **R²_ols** — projeção de mínimos quadrados da série nos mesmos 7 fatores. Mede
   se os fatores **geram** a série, independentemente de `Λ`.
 - **R²_dif** — o mesmo em primeira diferença, o espaço onde `Λ` foi estimado.
