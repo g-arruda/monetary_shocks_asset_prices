@@ -18,10 +18,6 @@
 # sources from arquivo/.
 # ===================================================================
 
-library(dplyr)
-library(lubridate)
-
-
 #' Symmetric matrix square root via spectral decomposition
 #'
 #' Returns the principal square root of a symmetric PSD matrix M such that

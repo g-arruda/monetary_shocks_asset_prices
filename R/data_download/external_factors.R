@@ -1,7 +1,3 @@
-library(dplyr)
-library(lubridate)
-library(quantmod)
-
 #' Fetch daily closing prices from Yahoo Finance for a single ticker
 #'
 #' Uses quantmod::Cl() to extract the Close column by name, which is robust to

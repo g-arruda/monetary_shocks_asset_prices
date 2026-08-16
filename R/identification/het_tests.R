@@ -18,11 +18,6 @@
 # are defined in het_primary.R, which this file assumes is sourced first.
 # ===================================================================
 
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(tibble)
-})
-
 #' Validate the variance split between C and NC regimes
 #'
 #' Replicates GRG (2025) Table 1: per-variable variance under each regime,

@@ -127,7 +127,7 @@ make_aggregator <- function(scheme = c("sum", "gk")) {
 #'
 #' @return List with `monthly` (tibble: `month` + the eight `z_*` columns),
 #'   `daily` (the valid Thursday panel with residuals and masks) and
-#'   `diag` (counts, R2 of the BS regressions, realized DI maturities).
+#'   `diag` (counts and R2 of the BS regressions).
 build_instrument_variants <- function(inputs,
                                       target_bd    = 126,
                                       agg          = "sum",
@@ -367,7 +367,6 @@ build_instrument_variants <- function(inputs,
   # ---- Diagnostics -------------------------------------------
 
   copom_days <- valid |> dplyr::filter(copom_day)
-  realized   <- if ("bdays_used" %in% names(valid)) copom_days$bdays_used else NA_real_
 
   list(
     monthly = instrumentos,
@@ -389,4 +388,10 @@ build_instrument_variants <- function(inputs,
   )
 }
 
+#' Null-coalescing operator
+#'
+#' @param x Value to use when not NULL.
+#' @param y Fallback.
+#'
+#' @return `x` unless it is NULL, in which case `y`.
 `%||%` <- function(x, y) if (is.null(x)) y else x

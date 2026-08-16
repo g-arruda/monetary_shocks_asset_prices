@@ -1,11 +1,3 @@
-library(dplyr)
-library(lubridate)
-library(tibble)
-library(purrr)
-library(sandwich)
-library(lmtest)
-library(tidyr)
-
 #' Residualize a monthly target by AR(p)
 #'
 #' Fits y_t = c + sum phi_k y_{t-k} + e_t with na.exclude so the residual
@@ -21,7 +13,7 @@ residualize_target <- function(target, n_lags = 6L) {
   innov_data <- data.frame(
     y = target,
     purrr::map_dfc(seq_len(n_lags),
-                   \(k) tibble(!!paste0("lag", k) := dplyr::lag(target, k)))
+                   \(k) tibble::tibble(!!paste0("lag", k) := dplyr::lag(target, k)))
   )
   innov_lm <- lm(y ~ ., data = innov_data, na.action = na.exclude)
   as.numeric(residuals(innov_lm))
@@ -48,7 +40,7 @@ first_stage_F <- function(z_aligned, innov) {
   if (stats::sd(z_ok) == 0) return(na_result)
 
   fs <- lm(y ~ z, data = data.frame(y = innov[ok], z = z_ok))
-  ct <- coeftest(fs, vcov = vcovHC(fs, type = "HC0"))
+  ct <- lmtest::coeftest(fs, vcov = sandwich::vcovHC(fs, type = "HC0"))
   list(F_partial = unname(ct["z", "t value"])^2,
        beta = unname(ct["z", "Estimate"]),
        se   = unname(ct["z", "Std. Error"]),
@@ -78,7 +70,7 @@ placebo_test <- function(z, innov, n_perm = 2000L, seed = NULL) {
   purrr::map_dfr(seq_len(n_perm), function(b) {
     z_perm <- sample(z)
     fs <- first_stage_F(z_perm, innov)
-    tibble(perm_id = b, F_partial = fs$F_partial, beta = fs$beta)
+    tibble::tibble(perm_id = b, F_partial = fs$F_partial, beta = fs$beta)
   })
 }
 
@@ -118,8 +110,8 @@ random_mask_test <- function(shocks_C,
             "); capping at n_total.")
     k_keep <- n_total
   }
-  start <- floor_date(month_range[1], "month")
-  end   <- floor_date(month_range[2], "month")
+  start <- lubridate::floor_date(month_range[1], "month")
+  end   <- lubridate::floor_date(month_range[2], "month")
   monthly_grid <- seq(start, end, by = "month")
 
   purrr::map_dfr(seq_len(n_draws), function(b) {
@@ -131,7 +123,7 @@ random_mask_test <- function(shocks_C,
     z_aligned <- align_z_to_target(z_monthly, monthly_grid, target_dates)
 
     fs <- first_stage_F(z_aligned, innov)
-    tibble(draw_id = b, F_partial = fs$F_partial, beta = fs$beta, n_kept = k_keep)
+    tibble::tibble(draw_id = b, F_partial = fs$F_partial, beta = fs$beta, n_kept = k_keep)
   })
 }
 
@@ -145,14 +137,14 @@ random_mask_test <- function(shocks_C,
 #'
 #' @return Numeric vector aligned to monthly_grid.
 aggregate_to_monthly_grid <- function(shocks, dates, monthly_grid) {
-  obs <- tibble(date = dates, s = shocks) |>
-    mutate(month = floor_date(date, "month")) |>
-    group_by(month) |>
-    summarise(z = sum(s, na.rm = TRUE), .groups = "drop")
-  tibble(month = monthly_grid) |>
-    left_join(obs, by = "month") |>
-    mutate(z = replace_na(z, 0)) |>
-    pull(z)
+  obs <- tibble::tibble(date = dates, s = shocks) |>
+    dplyr::mutate(month = lubridate::floor_date(date, "month")) |>
+    dplyr::group_by(month) |>
+    dplyr::summarise(z = sum(s, na.rm = TRUE), .groups = "drop")
+  tibble::tibble(month = monthly_grid) |>
+    dplyr::left_join(obs, by = "month") |>
+    dplyr::mutate(z = tidyr::replace_na(z, 0)) |>
+    dplyr::pull(z)
 }
 
 #' Reindex a monthly instrument to the target's month sequence
@@ -167,10 +159,10 @@ aggregate_to_monthly_grid <- function(shocks, dates, monthly_grid) {
 #'
 #' @return Numeric vector aligned to target_dates.
 align_z_to_target <- function(z_vec, z_dates, target_dates) {
-  z_tbl <- tibble(month = floor_date(z_dates, "month"), z = z_vec)
-  tibble(month = floor_date(target_dates, "month")) |>
-    left_join(z_tbl, by = "month") |>
-    pull(z)
+  z_tbl <- tibble::tibble(month = lubridate::floor_date(z_dates, "month"), z = z_vec)
+  tibble::tibble(month = lubridate::floor_date(target_dates, "month")) |>
+    dplyr::left_join(z_tbl, by = "month") |>
+    dplyr::pull(z)
 }
 
 #' Sub-period first-stage F for stability assessment
@@ -192,7 +184,7 @@ align_z_to_target <- function(z_vec, z_dates, target_dates) {
 #' @return Tibble with one row per window: window, n_months, F_partial,
 #'   beta, se, r2, n_eff (effective sample after NA-exclusion).
 subperiod_F <- function(z, innov, target_dates, windows) {
-  target_dates <- floor_date(target_dates, "month")
+  target_dates <- lubridate::floor_date(target_dates, "month")
 
   purrr::imap_dfr(windows, function(spec, name) {
     if (name == "drop_covid") {
@@ -201,7 +193,7 @@ subperiod_F <- function(z, innov, target_dates, windows) {
       keep <- target_dates >= spec[1] & target_dates <= spec[2]
     }
     fs <- first_stage_F(z[keep], innov[keep])
-    tibble(
+    tibble::tibble(
       window    = name,
       n_months  = sum(keep),
       F_partial = fs$F_partial,
@@ -245,8 +237,8 @@ anti_jk_test <- function(shocks_C,
                sign(shocks_C) == sign(ibov_C)
   zero_mask <- sign(shocks_C) == 0 | sign(ibov_C) == 0
 
-  start <- floor_date(month_range[1], "month")
-  end   <- floor_date(month_range[2], "month")
+  start <- lubridate::floor_date(month_range[1], "month")
+  end   <- lubridate::floor_date(month_range[2], "month")
   monthly_grid <- seq(start, end, by = "month")
 
   z_monthly <- aggregate_to_monthly_grid(shocks_C * info_mask,
@@ -358,18 +350,18 @@ qlr_supF <- function(z, innov, target_dates, trim = 0.15) {
     return(list(sup_F = NA_real_, tau_star = NA_integer_,
                 tau_star_date = as.Date(NA), n = n, trim = trim,
                 cv_5pct = 8.85, cv_1pct = 12.16,
-                verdict = NA_character_, detail = tibble()))
+                verdict = NA_character_, detail = tibble::tibble()))
   }
 
   detail <- purrr::map_dfr(seq.int(tau_min, tau_max), function(tau) {
     d_t <- as.integer(seq_len(n) > tau)
-    if (length(unique(d_t)) < 2L) return(tibble(tau = tau,
+    if (length(unique(d_t)) < 2L) return(tibble::tibble(tau = tau,
                                                 tau_date = d_v[tau],
                                                 F_int = NA_real_))
     fit <- lm(y ~ z * d_t, data = data.frame(y = e_v, z = z_v, d_t = d_t))
-    ct  <- coeftest(fit, vcov = vcovHC(fit, type = "HC0"))
+    ct  <- lmtest::coeftest(fit, vcov = sandwich::vcovHC(fit, type = "HC0"))
     f_int <- if ("z:d_t" %in% rownames(ct)) ct["z:d_t", "t value"]^2 else NA_real_
-    tibble(tau = tau, tau_date = d_v[tau], F_int = f_int)
+    tibble::tibble(tau = tau, tau_date = d_v[tau], F_int = f_int)
   })
 
   if (all(is.na(detail$F_int))) {
@@ -427,7 +419,7 @@ monthly_correlation <- function(z1, z2, name1 = "z1", name2 = "z2") {
   purrr::imap_dfr(subsets, function(mask, label) {
     a <- z1[mask]
     b <- z2[mask]
-    tibble(
+    tibble::tibble(
       pair     = sprintf("%s ~ %s", name1, name2),
       subset   = label,
       n        = length(a),

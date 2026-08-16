@@ -1,7 +1,13 @@
-library(dplyr)
-library(lubridate)
-library(rb3)
-
+#' Download the daily IBOV index series from B3 via rb3
+#'
+#' Fetches the B3 historical-index files year by year into the local rb3 cache,
+#' then reads IBOV back out of it. Feeds the Jarocinski-Karadi sign filter, which
+#' needs the equity move on the same Wed-Thu pair as the DI surprise.
+#'
+#' @param from,to Date bounds; only the calendar years are used to decide which
+#'   yearly files to fetch.
+#'
+#' @return Tibble with the daily IBOV series over the requested window.
 download_ibov_daily <- function(from = "2012-01-01", to = "2026-02-01") {
   options(rb3.cachedir = "~/rb3-cache")
   years <- seq(lubridate::year(as.Date(from)), lubridate::year(as.Date(to)))

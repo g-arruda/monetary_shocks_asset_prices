@@ -220,14 +220,6 @@ cayley_C <- function(a, n, M = NULL) {
   (diag(n) + A) %*% solve(diag(n) - A)
 }
 
-#' Inverse Cayley transform, eq. (2.5)
-#' @param C Orthogonal matrix.
-cayley_a <- function(C) {
-  n <- nrow(C)
-  A <- solve(C + diag(n)) %*% (C - diag(n))
-  A[lower.tri(A)]
-}
-
 # ---------------------------------------------------------------------------
 # Pseudo log-likelihood, eq. (2.2)-(2.6)
 # ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 # Coerência ponto a ponto das IRFs — especificação de produção
 
-Gerado por `script/irf_coherence_check.R` em 2026-08-13.
+Gerado por `script/irf_coherence_check.R` em 2026-08-16.
 
 > **Arquivo gerado — sobrescrito por inteiro a cada rodada.** Não escreva
 > prosa aqui: ela se perde no próximo run. A leitura interpretativa vive em

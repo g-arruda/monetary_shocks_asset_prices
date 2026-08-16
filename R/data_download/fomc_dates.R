@@ -24,12 +24,6 @@
 # Run: Rscript R/data_download/fomc_dates.R
 # ============================================================
 
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(readr)
-  library(tibble)
-})
-
 FROM <- as.Date("2012-01-01")
 TO   <- as.Date("2026-12-31")
 
@@ -39,12 +33,21 @@ CAL_URL   <- file.path(BASE, "fomccalendars.htm")
 OUT_PATH  <- "data/raw/fomc_dates.csv"
 
 #' Read a page into a single string.
+#'
+#' @param url Page URL.
+#'
+#' @return The whole page as one character scalar.
 fetch_page <- function(url) {
   con <- url(url, encoding = "UTF-8")
   on.exit(close(con))
   paste(readLines(con, warn = FALSE), collapse = "\n")
 }
 
+#' Drop HTML tags and collapse whitespace
+#'
+#' @param x Character vector of raw HTML.
+#'
+#' @return The same vector as plain text.
 strip_tags <- function(x) gsub("\\s+", " ", gsub("<[^>]*>", " ", x))
 
 #' Statement dates on one calendar page, with the scheduled/unscheduled split.
@@ -55,10 +58,14 @@ strip_tags <- function(x) gsub("\\s+", " ", gsub("<[^>]*>", " ", x))
 #' Tealbook links), and the local text window catches 2025-08-22 (a notation
 #' vote on the current-years page, where the only panel heading is the year
 #' itself). Their union classifies every known case correctly.
+#'
+#' @param html One calendar page, as returned by `fetch_page()`.
+#'
+#' @return Tibble with `date` and `type` ("scheduled" / "unscheduled").
 extract_statement_dates <- function(html) {
   hits <- gregexpr("monetary[0-9]{8}a", html)
   if (hits[[1]][1] == -1L) {
-    return(tibble(date = as.Date(character(0)), type = character(0)))
+    return(tibble::tibble(date = as.Date(character(0)), type = character(0)))
   }
   starts <- as.integer(hits[[1]])
   # substr() recycles `x`, not `start`/`stop`, so slicing one long string at a
@@ -78,10 +85,10 @@ extract_statement_dates <- function(html) {
           paste(strip_tags(heading), strip_tags(window)), ignore.case = TRUE)
   }, logical(1))
 
-  tibble(date = as.Date(raw_dates, format = "%Y%m%d"), unscheduled) |>
-    group_by(date) |>
-    summarise(unscheduled = any(unscheduled), .groups = "drop") |>
-    transmute(date, type = ifelse(unscheduled, "unscheduled", "scheduled"))
+  tibble::tibble(date = as.Date(raw_dates, format = "%Y%m%d"), unscheduled) |>
+    dplyr::group_by(date) |>
+    dplyr::summarise(unscheduled = any(unscheduled), .groups = "drop") |>
+    dplyr::transmute(date, type = ifelse(unscheduled, "unscheduled", "scheduled"))
 }
 
 # ---- Collect ------------------------------------------------
@@ -107,12 +114,12 @@ fomc <- lapply(names(pages), function(nm) {
   message(sprintf("  %s", pages[[nm]]))
   extract_statement_dates(fetch_page(pages[[nm]]))
 }) |>
-  bind_rows() |>
-  group_by(date) |>
-  summarise(type = ifelse(any(type == "unscheduled"), "unscheduled", "scheduled"),
+  dplyr::bind_rows() |>
+  dplyr::group_by(date) |>
+  dplyr::summarise(type = ifelse(any(type == "unscheduled"), "unscheduled", "scheduled"),
             .groups = "drop") |>
-  filter(date >= FROM, date <= TO) |>
-  arrange(date)
+  dplyr::filter(date >= FROM, date <= TO) |>
+  dplyr::arrange(date)
 
 # ---- Self-tests: fail loud if the Fed's HTML changes ---------
 # The whole point of this file is that a silent empty fallback hid the
@@ -122,9 +129,9 @@ fomc <- lapply(names(pages), function(nm) {
 stopifnot(!any(duplicated(fomc$date)))
 
 sched <- fomc |>
-  filter(type == "scheduled", date >= as.Date("2013-01-01"),
+  dplyr::filter(type == "scheduled", date >= as.Date("2013-01-01"),
          date <= as.Date("2025-12-31")) |>
-  count(year = as.integer(format(date, "%Y")))
+  dplyr::count(year = as.integer(format(date, "%Y")))
 
 # Eight scheduled meetings a year, except 2020: the 17-18 March meeting was
 # cancelled and replaced by the unscheduled 15 March one, leaving seven.
@@ -158,7 +165,7 @@ stopifnot(n_sample == 110L)
 # ---- Write --------------------------------------------------
 
 dir.create("data", showWarnings = FALSE, recursive = TRUE)
-write_csv(fomc, OUT_PATH)
+readr::write_csv(fomc, OUT_PATH)
 
 message(sprintf("Wrote %d FOMC dates to %s (%s to %s); %d in 2013-2025, %d unscheduled",
                 nrow(fomc), OUT_PATH, min(fomc$date), max(fomc$date),

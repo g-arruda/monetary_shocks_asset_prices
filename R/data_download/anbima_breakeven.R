@@ -1,10 +1,3 @@
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(tidyr)
-  library(lubridate)
-  library(rb3)
-})
-
 #' Download monthly break-even inflation from ANBIMA reference rates
 #'
 #' Pulls the daily nominal (PRE) and real (DIC, NTN-B implied) ANBIMA

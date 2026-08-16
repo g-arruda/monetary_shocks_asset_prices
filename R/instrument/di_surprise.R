@@ -1,10 +1,14 @@
-library(dplyr)
-library(lubridate)
-
-# DI file columns: TradeDate, ExpirationDate, TickerSymbol, DaysToExp, BDaysToExp, ..., CloseRate.
-# CloseRate is a decimal annual rate (e.g. 0.1375 = 13.75% a.a.).
-# ΔDI is returned in basis points: (r_thu - r_wed) * 10000.
-
+#' Read the daily DI futures panel
+#'
+#' The DI file carries TradeDate, ExpirationDate, TickerSymbol, DaysToExp,
+#' BDaysToExp and CloseRate, where CloseRate is a decimal annual rate
+#' (0.1375 = 13.75% a.a.). Contracts already expired (`bdays <= 0`) and rows
+#' with missing rate or maturity are dropped here rather than downstream.
+#'
+#' @param path Path to the raw DI CSV.
+#' @param from,to Date bounds on TradeDate.
+#'
+#' @return Tibble with date, expiration, ticker, bdays and close_rate.
 load_di_panel <- function(path = "data/raw/di.csv",
                           from = as.Date("2012-06-01"),
                           to   = as.Date("2026-02-01")) {
@@ -21,9 +25,21 @@ load_di_panel <- function(path = "data/raw/di.csv",
                   bdays > 0)
 }
 
-# Surprise on the same contract, Wed close -> Thu close, in basis points.
-# Picks the Wed contract with BDaysToExp closest to target_bd (>= min_bd).
-# If that contract has no Thu close, falls back to the next-nearest, and so on.
+#' Wednesday-to-Thursday DI surprise on a single contract, in basis points
+#'
+#' Picks the Wednesday contract whose BDaysToExp is closest to `target_bd`
+#' (and at least `min_bd`), then reads the same ticker on Thursday. Holding the
+#' contract fixed across the two days is what makes the difference a rate
+#' surprise rather than a maturity effect. When the chosen contract has no
+#' Thursday close, falls back to the next-nearest, and so on.
+#'
+#' @param di_panel Tibble from `load_di_panel()`.
+#' @param wed_date,thu_date The Copom Wednesday and the following Thursday.
+#' @param target_bd Target maturity in business days.
+#' @param min_bd Minimum maturity in business days.
+#'
+#' @return `(r_thu - r_wed) * 10000` in basis points, or `NA_real_` when no
+#'   contract is quoted on both days.
 surprise_wed_to_thu <- function(di_panel, wed_date, thu_date,
                                 target_bd = 63, min_bd = 10) {
   di_wed <- di_panel |> dplyr::filter(date == wed_date, bdays >= min_bd)
@@ -97,6 +113,18 @@ load_fomc_dates <- function(path = "data/raw/fomc_dates.csv",
     dplyr::pull(date)
 }
 
+#' DI surprises for a vector of Thursdays
+#'
+#' Maps `surprise_wed_to_thu()` over each Thursday and its preceding
+#' Wednesday. Thursdays with no quotable contract come back as `NA_real_`
+#' rather than 0, so a missing quote never masquerades as a zero surprise.
+#'
+#' @param di_panel Tibble from `load_di_panel()`.
+#' @param thursdays Date vector of event Thursdays.
+#' @param target_bd Target maturity in business days.
+#' @param min_bd Minimum maturity in business days.
+#'
+#' @return Tibble with date and delta_di (basis points).
 build_thursday_surprises <- function(di_panel, thursdays, target_bd = 63, min_bd = 10) {
   stopifnot(inherits(thursdays, "Date"))
   wed <- thursdays - 1L

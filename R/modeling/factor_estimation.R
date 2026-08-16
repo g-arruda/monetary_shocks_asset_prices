@@ -209,84 +209,26 @@ amengual_watson <- function(X, r, p = 4, max_q = NULL, scale = TRUE, apply_bll =
 }
 
 
-#' Generate scree plot analysis following Stock & Watson (2016)
-#' @param X Matrix of standardized data
-#' @param max_comp Maximum number of components to plot (default = 15)
-#' @return List containing variance decomposition and plot
-scree_analysis <- function(X, max_comp = 15) {
-  # Get dimensions
-  T <- nrow(X)
-  N <- ncol(X)
-  max_comp <- min(max_comp, N) # Ensure max_comp doesn't exceed N
 
-  # Standardize data
-  X_std <- scale(X)
-
-  # Get PCA
-  pca <- stats::prcomp(X_std, scale. = FALSE) # Already standardized
-
-  # Compute R2 for each number of factors
-  r2_vec <- numeric(max_comp)
-  for (k in 1:max_comp) {
-    F_hat <- pca$x[, 1:k, drop = FALSE]
-    ssr <- 0
-
-    # For each variable, compute SSR with k factors
-    for (i in 1:N) {
-      y <- X_std[, i]
-      lambda <- solve(crossprod(F_hat), crossprod(F_hat, y))
-      resid <- y - F_hat %*% lambda
-      ssr <- ssr + sum(resid^2)
-    }
-
-    # Compute R2
-    r2_vec[k] <- 1 - ssr / sum(X_std^2)
-  }
-
-  # Compute marginal R2
-  marg_r2 <- c(r2_vec[1], diff(r2_vec))
-
-  # Create data frame for ggplot
-  plot_data <- data.frame(
-    k = 1:max_comp,
-    marginal_r2 = marg_r2
-  )
-
-  # Create plot
-  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = k, y = marginal_r2)) +
-    ggplot2::geom_line() +
-    ggplot2::geom_point(size = 4) +
-    ggplot2::labs(
-      x = "Number of Components",
-      y = "Proportion of Variance Explained",
-      title = "Scree Plot: Marginal Contribution of Each Factor"
-    ) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(
-      text = ggplot2::element_text(size = 12),
-      plot.title = ggplot2::element_text(hjust = 0.5)
-    )
-
-  # Return results
-  results <- list(
-    r2 = r2_vec,
-    marginal_r2 = marg_r2,
-    eigenvalues = pca$sdev[1:max_comp]^2,
-    cumulative_r2 = cumsum(marg_r2),
-    plot = p
-  )
-
-  return(invisible(results))
-}
-
-
-
-
+#' Extract static factors under BLL standardization
+#'
+#' Standardizes the level panel by the standard deviation of its first
+#' differences (Barigozzi, Lippi & Luciani 2016), removes a linear trend
+#' series by series, and takes the leading `r` eigenvectors of the covariance
+#' of the standardized differences via SVD. SVD rather than `eigen()` and the
+#' sign normalization below make the decomposition bit-reproducible.
+#'
+#' @param data Numeric matrix of the level panel (T x N).
+#' @param r Number of static factors to extract.
+#' @param standardized Retained for signature compatibility; BLL
+#'   standardization is unconditional.
+#' @param seed Optional integer seed.
+#'
+#' @return List with factors, loadings, sy, Z, eigenvalues, yy,
+#'   detrended_data and diagnostics.
 estimate_static_factors <- function(data, r, standardized = TRUE, seed = NULL) {
-  # Dimensões
-  T <- nrow(data)
-  N <- ncol(data)
-  
+  n_obs <- nrow(data)
+
   # Fixar seed se fornecido para reprodutibilidade absoluta
   if (!is.null(seed)) {
     set.seed(seed)
@@ -306,7 +248,7 @@ estimate_static_factors <- function(data, r, standardized = TRUE, seed = NULL) {
   
   # 3. Detrending dos dados em nível
   # Construir matriz de regressores: [1, t] para remoção de tendência linear
-  regX <- cbind(1, 1:T)  # Constante e tendência linear
+  regX <- cbind(1, 1:n_obs)  # Constante e tendência linear
   
   # Remover tendência de cada série individualmente
   beta <- solve(crossprod(regX)) %*% crossprod(regX, data)  # Coeficientes da regressão
@@ -365,13 +307,23 @@ estimate_static_factors <- function(data, r, standardized = TRUE, seed = NULL) {
 
 
 
+#' Kilian (1998) small-sample bias correction of the companion matrix
+#'
+#' Pope's (1990) analytic bias approximation, shrunk toward stationarity by the
+#' `delta` loop when the corrected companion would otherwise have a root on or
+#' outside the unit circle. Faithful to Lutz Kilian's original MATLAB code
+#' (Pope 1990, JTSA; Kilian 1997), including the reuse of the Lyapunov solution.
+#'
+#' @param A Companion matrix of the factor VAR.
+#' @param SIGMA Residual covariance matrix.
+#' @param t Number of observations before lag truncation.
+#' @param q Number of dynamic factors (VAR dimension).
+#' @param p Factor-VAR lag order.
+#'
+#' @return List with the bias-corrected companion matrix and the shrinkage
+#'   actually applied.
 kilian_correction <- function(A, SIGMA, t, q, p) {
-  # ===================================================================
-  # CORREÇÃO DE VIÉS DE KILIAN (1998) - BASEADA NO CÓDIGO MATLAB ORIGINAL
-  # Fonte: Pope (1990), JTSA; Kilian (1997)
-  # Implementação fiel ao código MATLAB original de Lutz Kilian
-  # ===================================================================
-  
+
   # Seguindo exatamente o código MATLAB
   T <- t - p
   
@@ -473,8 +425,7 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
     
     # Verificar estabilidade
     bcmod <- abs(eigen(bcA)$values)
-    max_eigenval <- max(bcmod)
-    
+
     if (any(bcmod >= 1)) {
       bcstab <- 1
     } else {
@@ -503,10 +454,16 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
 
 
 
-# ===================================================================
-# ESTIMAÇÃO VAR OLS SIMPLES (sem correção de Kilian)
-# Equivalente direto de DFMest_BLL.m linhas 29-50
-# ===================================================================
+#' Plain OLS factor VAR, no bias correction
+#'
+#' Direct equivalent of `DFMest_BLL.m` lines 29-50. This is what the point
+#' estimate uses; `estimate_corrected_var()` is only for the bootstrap DGP.
+#'
+#' @param data Numeric matrix of factors (T x K).
+#' @param p Lag order.
+#'
+#' @return List with coefficients, residuals, companion matrix and the residual
+#'   covariance matrix.
 estimate_var_ols <- function(data, p) {
   T <- nrow(data)
   K <- ncol(data)
@@ -541,6 +498,17 @@ estimate_var_ols <- function(data, p) {
 }
 
 
+#' Factor VAR with the Kilian bias-corrected companion matrix
+#'
+#' Same OLS fit as `estimate_var_ols()`, then `kilian_correction()` on the
+#' companion. Used only to build the bootstrap DGP — never for the reported
+#' point IRF.
+#'
+#' @param data Numeric matrix of factors (T x K).
+#' @param p Lag order.
+#'
+#' @return List with the OLS and corrected coefficients, residuals, both
+#'   companion matrices, the residual covariance and stability diagnostics.
 estimate_corrected_var <- function(data, p) {
   T <- nrow(data)
   K <- ncol(data)
@@ -641,12 +609,20 @@ estimate_corrected_var <- function(data, p) {
 
 
 
+#' Reduce the factor-VAR residuals to q dynamic shocks
+#'
+#' Takes the leading `q` eigenvectors of the residual covariance, so the
+#' `r`-dimensional VAR innovations are spanned by `q` dynamic shocks
+#' `eta = K M^{-1} u`. When `q == r` the reduction is the identity and the
+#' innovations pass through unchanged.
+#'
+#' @param var_residuals Matrix of factor-VAR residuals (T-p x r).
+#' @param q Number of dynamic factors.
+#' @param r Number of static factors.
+#'
+#' @return List with eta, the eigenvector matrix K, the scaling matrix M, the
+#'   eigenvalues and diagnostics.
 estimate_dynamic_factors <- function(var_residuals, q, r) {
-  # ===================================================================
-  # ESTIMAÇÃO DOS FATORES DINÂMICOS
-  # ===================================================================
-  
-  
   if (q == r) {
     # Caso especial: q = r (fatores dinâmicos = fatores estáticos)
     K <- 1
@@ -699,23 +675,29 @@ estimate_dynamic_factors <- function(var_residuals, q, r) {
 
 
 
+#' Estimate the structural dynamic factor model end to end
+#'
+#' Chains static factors (BLL standardization), the factor VAR, and the
+#' dynamic factors, following Alessi & Kerssenfischer over BLL methodology.
+#' When both `dates` and `instrument` are supplied the panel and the
+#' instrument are trimmed to their common months before estimation, so the
+#' returned residuals are already aligned to the proxy.
+#'
+#' @param data Numeric matrix T x N (no date column).
+#' @param r Number of static factors.
+#' @param q Number of dynamic factors.
+#' @param p Factor-VAR lag order.
+#' @param dates Optional Date vector with T elements.
+#' @param instrument Optional data.frame with columns `month` (Date) and
+#'   `shock` (numeric).
+#' @param apply_kilian When TRUE, also computes the Kilian (1998) bias-corrected
+#'   coefficients for the bootstrap DGP. The point estimate ALWAYS uses plain
+#'   OLS, faithful to `DFMest_BLL.m`.
+#'
+#' @return List with the static factors, the factor VAR, the dynamic factors,
+#'   the aligned dates and instrument, and diagnostics.
 estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
                          apply_kilian = FALSE) {
-  # ===================================================================
-  # ESTIMAÇÃO COMPLETA DO MODELO DE FATORES DINÂMICOS ESTRUTURAIS (SDFM)
-  # Implementação baseada em Alessi & Kerssenfischer com metodologia BLL
-  #
-  # @param data      Matriz T x N de dados (sem coluna de datas)
-  # @param r         Número de fatores estáticos
-  # @param q         Número de fatores dinâmicos
-  # @param p         Ordem do VAR
-  # @param dates     Vetor de datas (Date) com T elementos
-  # @param instrument Data.frame com colunas 'month' (Date) e 'shock' (numeric)
-  # @param apply_kilian Se TRUE, calcula também os coeficientes corrigidos por
-  #                     Kilian (1998) para uso no DGP do bootstrap. O ponto
-  #                     estimado SEMPRE usa OLS puro (fiel ao Matlab DFMest_BLL.m).
-  # ===================================================================
-
   T_orig <- nrow(data)
 
   # --- Validação e alinhamento temporal via datas ---

@@ -5,10 +5,21 @@
 # ===================================================================
 
 
-# ===================================================================
-# ALINHAMENTO TEMPORAL: INSTRUMENTO × RESÍDUOS
-# Equivalente a selextinstsample.m
-# ===================================================================
+#' Align the external instrument to the factor-VAR residuals
+#'
+#' Equivalent to MATLAB `selextinstsample.m`. The residuals start at `p + 1`,
+#' so the instrument has to be matched against `data_dates[(p+1):T]` and not
+#' against the raw panel dates — getting this offset wrong shifts the whole
+#' identification by `p` months. Part of the identification contract; see
+#' `.claude/rules/identification.md`.
+#'
+#' @param data_dates Date vector of the estimation panel.
+#' @param p Factor-VAR lag order.
+#' @param instrument_df Data.frame with columns `month` (Date) and `shock`.
+#' @param rr Optional numeric weights applied to the selected instrument.
+#'
+#' @return List with `rsh_sel_ind` (logical index into the residuals) and
+#'   `inst_sel` (the instrument on the common months).
 sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
   inst_dates <- as.Date(instrument_df$month)
   inst_data  <- instrument_df$shock
@@ -283,11 +294,18 @@ compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L) {
 }
 
 
-# ===================================================================
-# TRANSFORMAÇÃO DE IRFS SEGUNDO TCODE (equivalente a cumimp.m)
-# 1 = level, 2 = first difference, 3 = second difference,
-# 4 = log-level, 5 = first log-difference
-# ===================================================================
+#' Put raw IRFs into economic units according to tcode
+#'
+#' Equivalent to `cumimp.m`. Codes: 1 = level, 2 = first difference,
+#' 3 = second difference, 4 = log-level, 5 = first log-difference.
+#' Note that **tcode 1 does not multiply by 100** — a trap documented in
+#' `.claude/rules/identification.md`.
+#'
+#' @param Imp Matrix of raw IRFs (vars x horizons).
+#' @param tcode Integer vector of transformation codes, one per variable;
+#'   defaults to all 1.
+#'
+#' @return Matrix of the same shape, in economic units.
 cumimp_transform <- function(Imp, tcode = NULL) {
   if (is.null(tcode)) {
     tcode <- rep(1L, nrow(Imp))
@@ -335,6 +353,11 @@ cumimp_transform <- function(Imp, tcode = NULL) {
 # - pib                   -> tcode = 4 (log-level)
 # - asset_*               -> tcode = 2 (retorno mensal; IRF cumulada p/ nível)
 # ===================================================================
+#' Assign transformation codes from panel variable names
+#'
+#' @param var_names Character vector of panel column names.
+#'
+#' @return Integer vector of tcodes aligned to `var_names`.
 infer_tcode_from_varnames <- function(var_names) {
   tcode <- rep(1L, length(var_names))
 
@@ -354,9 +377,48 @@ infer_tcode_from_varnames <- function(var_names) {
 }
 
 
-# ===================================================================
-# FUNÇÃO PRINCIPAL: IRFs COM IDENTIFICAÇÃO VIA INSTRUMENTO EXTERNO
-# ===================================================================
+#' Impulse responses of the DFM, identified and with bootstrap bands
+#'
+#' The main entry point of the identification stage. Three branches, dispatched
+#' by an explicit 3-way `switch` so an unknown value aborts instead of silently
+#' routing into the proxy path:
+#'
+#' - `"proxy"` — external instrument (Gertler-Karadi / Alessi-Kerssenfischer),
+#'   the production branch;
+#' - `"het"` — Rigobon (2003) regime heteroskedasticity, inert in production
+#'   (modules archived 2026-07-26);
+#' - `"nongaussian"` — Gouriéroux-Monfort-Renne (2017) PML-ICA, where the
+#'   instrument only *labels* the monetary column.
+#'
+#' The point estimate uses the plain OLS companion; the wild bootstrap DGP uses
+#' the Kilian-corrected one. The bootstrap draws Rademacher multipliers on the
+#' proxy and het branches and resamples i.i.d. on the non-Gaussian branch, where
+#' Rademacher would zero the third moments the identification needs.
+#'
+#' @param dfm_results List returned by `estimate_dfm()`.
+#' @param instrument Optional instrument data.frame; normally already embedded
+#'   in `dfm_results` by the alignment stage.
+#' @param h Maximum horizon.
+#' @param nboot Number of bootstrap draws; 0 skips the band stage.
+#' @param bootstrap_seed Optional integer seed.
+#' @param mpind Column index of the monetary-policy variable used for
+#'   normalization.
+#' @param normalize_value Impact response imposed on the policy variable, in its
+#'   native units (0.005 for a +50bp shock on a decimal-proportion yield).
+#' @param data_dates Optional Date vector of the panel.
+#' @param tcode Integer vector of transformation codes, one per variable.
+#' @param ci_levels Confidence levels for the bootstrap bands.
+#' @param diagnose When TRUE, attaches first-stage and factor-space diagnostics.
+#' @param var_names Character vector of panel column names.
+#' @param identification One of `"proxy"`, `"het"`, `"nongaussian"`.
+#' @param regime_labels Regime vector for the het branch.
+#' @param het_weight Weighting scheme for the het branch.
+#' @param ng_distri Non-Gaussian density specification.
+#' @param ng_starts Number of PML optimization starts on the point estimate.
+#' @param ng_boot_starts Number of PML starts inside each bootstrap draw.
+#'
+#' @return List with `irf_point_matrix` (vars x horizons), `ci` (one entry per
+#'   level, each with `lower`/`upper`), the raw bootstrap array and diagnostics.
 compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                             bootstrap_seed = NULL, mpind = NULL,
                             normalize_value = 0.5, data_dates = NULL,
@@ -682,8 +744,8 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
       })
     }
 
-    # Validação do bootstrap
-    bootstrap_validation <- validate_bootstrap_results(irf_boot, irf_point)
+    # Validação do bootstrap: chamada pelo warning, o retorno não é consumido
+    validate_bootstrap_results(irf_boot, irf_point)
 
     # Intervalos de confianca
     ci <- list()
@@ -764,9 +826,21 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
 }
 
 
-# ===================================================================
-# PLOT DE IRFs
-# ===================================================================
+#' Plot IRFs with shaded bootstrap bands, paper style
+#'
+#' @param irf_results Full list returned by `compute_irf_dfm()`.
+#' @param response_vars List of named variables (or indices) to draw.
+#' @param shock Retained for signature compatibility; a single shock is drawn.
+#' @param horizon Maximum horizon on the x axis.
+#' @param cumulative Ignored — IRFs already arrive in economic units via
+#'   `cumimp_transform()`; passing TRUE only raises a warning.
+#' @param invert_shock When TRUE, flips the sign of the plotted response.
+#' @param var_names Character vector of panel column names.
+#' @param tcode Retained for signature compatibility; units come from
+#'   `irf_results`, already transformed.
+#' @param ci_to_plot Confidence levels to shade.
+#'
+#' @return A patchwork of ggplot2 panels.
 plot_irf <- function(irf_results, response_vars, shock = 1, horizon = 20,
                      cumulative = FALSE, invert_shock = FALSE,
                      var_names = NULL, tcode = NULL,
@@ -889,6 +963,15 @@ plot_irf <- function(irf_results, response_vars, shock = 1, horizon = 20,
 
 
 
+#' Check that a fitted DFM carries every component the IRF stage needs
+#'
+#' Structural check only — it does not judge the estimates. The `q == r` branch
+#' matters because the dynamic reduction degenerates to scalars there, and code
+#' downstream that assumes matrices would fail silently.
+#'
+#' @param dfm_results List returned by `estimate_dfm()`.
+#'
+#' @return List of checks, including `missing_components`.
 validate_dfm_results <- function(dfm_results) {
   checks <- list()
 
@@ -922,10 +1005,19 @@ validate_dfm_results <- function(dfm_results) {
 }
 
 
+#' Warn when wild-bootstrap draws collapse onto the point estimate
+#'
+#' A draw that reproduces `irf_point` exactly means the replication failed and
+#' fell back to the point IRF, so the bands it feeds are too narrow. Called for
+#' its `warning()`; the returned stats are diagnostic.
+#'
+#' @param irf_boot Array (vars x horizons x draws) of bootstrap IRFs.
+#' @param irf_point Matrix (vars x horizons) of the point IRF.
+#'
+#' @return List with total_iterations, failed_iterations, success_rate,
+#'   mean_abs_irf and bootstrap_variance.
 validate_bootstrap_results <- function(irf_boot, irf_point) {
-  n_vars <- dim(irf_boot)[1]
-  h      <- dim(irf_boot)[2] - 1
-  nboot  <- dim(irf_boot)[3]
+  nboot <- dim(irf_boot)[3]
 
   failed_iterations <- 0
   for (b in seq_len(nboot)) {
