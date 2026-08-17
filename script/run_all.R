@@ -50,7 +50,7 @@ STAGES <- list(
     name     = "di",
     desc     = "DI futures panel from the pyield-data release (python)",
     interp   = "python3",
-    file     = "R/data_download/download_di.py",
+    file     = "script/download_di.py",
     network  = TRUE,
     requires = character(),
     produces = "data/raw/di.csv"
