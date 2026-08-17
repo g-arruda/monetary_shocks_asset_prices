@@ -44,7 +44,7 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
 `script/irf_coherence_check.R` runs the production spec once and writes
 `output/irf/irf_coherence_h.csv` — point + 68/90 bands + flags, **the source of §5** — plus
 `irf_coherence_cell.rds`, the cached estimation object follow-up analyses reuse instead of
-re-estimating. Catalog of all 26 scripts in `script/README.md`; repo map in `README.md`.
+re-estimating. Catalog of all 28 scripts in `script/README.md`; repo map in `README.md`.
 
 ## Completed rounds
 
@@ -81,6 +81,11 @@ These govern what may be **said**, so they apply even when no file is open.
 - **No text may credit the `cumsum` fix with recovering the asset block.** At h=0 the `cumsum` is a
   no-op and the ×100 is a positive scalar on point and both bounds, so **h=0 significance is
   invariant to tcode**. Only the panel representation recovers the block, and it was declined.
+  The fix shipped on 2026-08-17 (`asset_*` moved from tcode 2 to **tcode 6**, ×100 without
+  accumulating) and the prohibition is now *measured*, not merely predicted: the block got **worse**
+  away from h=0 — sig90 fell from 4 cells to 2, and sig68 at h≤12 stayed at 20. What the fix did
+  deliver is band behaviour: the h36/h0 width ratio fell from 27.573 to 0.920 and the false
+  Ibovespa peak went from +17.71% at h=21 to +2.01% at h=8.
 - **No het-vs-proxy sign comparison may be claimed** — the Rigobon round produces no IRF *on
   purpose*, since without a separable column any IRF is a number with no identification behind it.
 - **GMR sign agreement is not evidence of corroboration** — the metric saturates against the null.

@@ -1,6 +1,6 @@
 # `script/` — o que cada arquivo faz
 
-26 scripts, organizados por tema (não por subpasta — ver a decisão em
+28 scripts, organizados por tema (não por subpasta — ver a decisão em
 `registro/pendencias.md` sobre manter isto flat: mover para subpastas
 quebraria dezenas de referências de caminho no `CLAUDE.md`, no `run_all.R` e
 em notas). Cinco scripts que faziam parte de uma investigação já
@@ -51,6 +51,7 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 |---|---|
 | `irf_spec_sweep.R` | Etapa 1: sweep só de ponto (rápido) sobre instrumento × mp_var × (r,q) × janela amostral, com um `estimate_dfm` em cache por (amostra,r,q); classifica cada célula por `failure_class` no ξ_mp. Escreve `output/irf/spec_sweep_{cells,irf_long}.csv`, `spec_sweep_report.md`. |
 | `irf_spec_stage2.R` | Etapa 2: bootstrap completo (nboot=800) nas células vencedoras da etapa 1, com a especificação de produção sempre incluída (force-append). Escreve `output/irf/irf_spec_<tag>.{rds,pdf}`, `irf_spec_stage2_overlay.pdf`, `spec_sweep_stage2.md`. |
+| `q_selection.R` | Põe as três células de `q` em `r = 5` lado a lado na amostra completa — produção `(5,5)`, `(5,3)` e `(5,2)`, esta a que o critério BLL de Amengual-Watson seleciona — com o gate de 800 réplicas, os cinco impactos obrigatórios, ξ_mp, o denominador de normalização e a raiz máxima. Não recomenda: entrega as colunas. Escreve `output/factors/q_selection.{csv,md}`. |
 | `irf_coherence_check.R` | Roda a especificação de produção uma vez e pontua 53 variáveis do painel ponto-a-ponto em cada horizonte contra janelas de teoria (`R/identification/irf_coherence.R`). É o script que alimenta a §5 do paper. Escreve `output/irf/irf_coherence_{h,summary}.csv`, `irf_coherence_report.md` (reescrito por inteiro a cada rodada — nunca editar à mão), `irf_coherence_plots.pdf`, e o cache `irf_coherence_cell.rds` (lido por muitos scripts a jusante). |
 | `fig_section5.R` | Pós-processamento puro: lê o `irf_coherence_cell.rds` em cache + as tabelas da Tarefa 7, não reestima nada, escreve as 8 figuras `paper/fig_*.pdf` (todas até h=36), que é de onde `paper_anpec.tex` as inclui. Repontado em 2026-08-05: antes escrevia em `arquivo/tex/img/`, de modo que regenerar as figuras nunca alcançava o paper canônico. |
 
@@ -86,6 +87,7 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | `validate_hac_kernel.R` | Valida a opção Newey-West de `compute_factor_space_wald` de duas formas: (A) transcrição literal de `NW_hac_STATA.m` vs. o kernel embutido nos lags 0-8 em dado sintético; (B) fim-a-fim contra o fixture oficial `TaxSVARIV.m` (NWlags=8). Só console, com `stopifnot`; degrada com "SKIPPED" se o fixture faltar. |
 | `validate_olea_kilian.R` | Reproduz os números publicados de Montiel Olea-Stock-Watson (2021) no caso Kilian-oil (ξ₁=4.4, F robusto=9.4) a partir do fixture `output/validation/olea_oil_fixture.rds`. Confere de quebra que o VAR reestimado aqui bate com o `RForm` dos autores. Apontava para `codigo_olea/Data/Oil/` e estava **quebrado** desde a migração do código de referência para `codigos_externos/` (repontado em 2026-08-10). Só console, com `stopifnot`. |
 | `validate_candidate_downloads.R` | Reconfirma nomes, códigos, unidades e frequências SGS/FRED nas fontes oficiais e exige, para as 17 candidatas e os 2 insumos reutilizados, exatamente 153 meses sem duplicatas, `NA` ou valores não finitos entre 2013-01 e 2025-09. Só console, com falha imediata. |
+| `validate_amengual_watson.R` | Valida a tradução de `amengual_watson()` contra `amengual_watson.m`, `factor_estimation_ls.m` e `bai_ng.m` de Stock-Watson, transcritos literalmente (não há MATLAB/Octave aqui — a transcrição *é* o instrumento), contra a fixture commitada `output/validation/amengual_watson_fixture.csv`. Mede em separado o que `apply_bll = TRUE` faz: é o espaço fatorial da produção diferenciado, não uma variante rival. Escreve `output/validation/amengual_watson_validation.md` e falha alto se `q_hat` divergir ou se o gap deixar de ser a constante `log(n/(n-1))`. |
 | `validate_production_spec.R` | Valida composição 111/base 106, datas, Bai--Ng IC2, força e raízes full/pré-COVID e os cinco impactos obrigatórios. Com `--bootstrap`, reestima o gate canônico de 800 réplicas e exige zero falhas, bandas finitas/ordenadas e normalização exata. |
 
 ## Notas cruzadas

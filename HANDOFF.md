@@ -1,34 +1,33 @@
-# Handoff — 2026-08-14 (exogeneidade lead-lag: procedência resolvida, invertibilidade testada)
-SESSLOG:[2026-08-14 19:00]
-<!-- written by: pop-os at 2026-08-14T19:00:41-03:00 -->
+# Handoff — 2026-08-17 (fechamento do Tema E: 7 de 8 itens de código e higiene)
+SESSLOG:[2026-08-17 14:27]
+<!-- written by: pop-os at 2026-08-17T14:27:08-03:00 -->
 *Project: monetary_shocks_asset_prices*
 
 ## Session Topic
-A condição lead-lag é de Stock-Watson, não de Braun-Brüggemann — e não é exigida pelo SVAR-IV, que paga em invertibilidade. Teste de Granger implementado; não rejeita.
+Resolvidos os itens abertos do Tema E de `pendencias.md`. Nada commitado.
 
 ## Active Decisions
-- **Lead-lag = SW (2018), Condição LP-IV (iii).** BB é bayesiano e não é a fonte. Nunca atribuir a condição a BB.
-- **A perna de leads testa invertibilidade, não exogeneidade.** O SVAR-IV exige só relevância + exogeneidade contemporânea; a §5.1 já rotula isso.
-- **O teste de Granger fica fora de `t1_gate.csv`.** A trava de parada continua sendo de exogeneidade.
-- **Ressalvas obrigatórias em qualquer texto:** condição só necessária; potência baixa (30 livres, 6 testados, n=147); nenhuma simulação de tamanho; `cambio_usd` defasado em `p_boot` 0,064.
-- Regra de veredito (fixada antes dos números): L = p = 6 decide, L = 3 sensibilidade, Holm sobre as 5 equações.
+- **`q=5` continua aberto por decisão sua.** O critério admissível (BLL) diz q=2; (5,2) e (5,3) têm xi_mp 3,809 e 3,149, abaixo de 3,84. Produção intocada.
+- **Janela de coerência das ações fica em h0-6** — não retunar junto com o tcode 6.
+- `asset_*` agora é **tcode 6** (x100 sem acumular). h=0 é invariante: smoke test e os 3 guards de -1,7226766564462794 seguem válidos.
+- `kilian_correction` usa **rcond**, e aborta onde a Lyapunov é singular. `tryCatch(solve)` foi tentado e regrediu o VAR — não voltar a ele.
+- `notas/` e `pareceres/` ficam verbatim; renomes vivem em `registro/mapa_renomeacoes.md`.
 
 ## Key Files
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/notas/2026-08-14_exogeneidade_lead_lag_e_invertibilidade.md
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/diagnostics/01_exogeneidade.R
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/diagnostics/output/t1_7_invertibilidade_granger.csv
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/paper/paper_anpec.tex
 - /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/registro/pendencias.md
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/factors/q_selection.md
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/R/modeling/factor_estimation.R
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/R/modeling/impulse_response.R
 
 ## Next Steps
-- [ ] Correlações canônicas VAR pequeno × espaço de fatores (`hom_var_approx.m`) — sustenta `paper_anpec.tex:238` diretamente
-- [ ] `script/validate_amengual_watson.R` com fixture em `output/validation/`, caminho `apply_bll = FALSE`
-- [ ] Decidir se a invertibilidade vira subseção própria da §5
-- [ ] LP-IV (Tema B): pré-condição satisfeita, destrava o Hausman LP-IV × SVAR-IV
-- [ ] Pré-teste de relevância de Angelini-Cavaliere-Fanelli (exige 26ª chave — decisão do autor)
+- [ ] Reescrever o bloco de ações do §4 e a legenda da `fig:acoes` — há contradição literal viva em `paper_anpec.tex:485` e `:491` (a figura já não é acumulada, o texto ainda diz que é)
+- [ ] Decidir `q` com os números de `q_selection.md`
+- [ ] Backup de `data/raw/di.csv` fora do repo — insumo insubstituível e gitignored
+- [ ] Revisar o diff (75 arquivos) e commitar
 
 ## Working Artifacts
-- progress_logs/2026-08-14_inventario_testes_instrumento.md — inventário do que já foi testado no instrumento + o que há (e não há) em `codigos_externos/codigo_sw`
+- progress_logs/2026-08-17_tema_e_fechamento.md — det/rcond das 4 matrizes, decomposição do gap AW, tabela antes/depois do cumsum, estado do upstream do DI
 
 ## Context
-Granger não rejeita: menor `p_boot` 0,324 em L=6, todos Holm 1,000. As tabelas `t1_*` antigas saíram idênticas ao pré-run; paper compila limpo com 25 chaves. A metade não migrada do `.tex` (§1, §2, §4, conclusão) continua na vintage de 106 séries — esta rodada não a tocou.
+Sete itens fecharam (cumsum, kilian, q=1<r, validação AW, download_di, renomes, install.packages) e cinco novos abriram. Achados fora do previsto: o defeito do determinante também estava em SIGMAY com efeito invertido, o upstream do pyield-data apagou `b3_di.parquet` e truncou o histórico em 2018, e o cumsum **piorou** o bloco acionário fora de h=0. Smoke test bit-idêntico, paper compila limpo (28 pp).

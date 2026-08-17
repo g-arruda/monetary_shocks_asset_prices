@@ -1,6 +1,8 @@
 # Pendências
 
-**Última revisão:** 2026-08-17. Itens abertos organizados por tema (A-E);
+**Última revisão:** 2026-08-17 (rodada que fechou sete itens do Tema E; ver o
+bloco `Fechados` de lá e `notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md`).
+Itens abertos organizados por tema (A-E);
 cada tema termina num bloco `### Fechados (contexto)` com o que já foi feito,
 resumido a poucas linhas — o detalhe completo mora no working-note ou output
 apontado ali, nunca duplicado aqui. Resultados negativos e decisões
@@ -98,20 +100,17 @@ metades deve ser usada para conferir a outra.
 | B | Tratar a janela pré-COVID como diagnóstico de força/estabilidade | raiz 1,000202 impede usá-la como evidência dinâmica |
 | B | Correlações canônicas VAR pequeno × espaço de fatores | sustentação direta de `:238`, hoje só indireta; não existe no repo |
 | B | Pré-teste de relevância de Angelini-Cavaliere-Fanelli | robusto a proxy censurada em zero, que é o desenho da máscara JK; exige chave nova |
-| E | `amengual_watson()` é tradução sem `validate_*.R` | o critério discorda da produção (`q=2..3` contra `q=5`), então a fidelidade decide |
+| A | Reescrever o bloco de ações do §4 e a nota da `fig:acoes` | aberto em 2026-08-17 ao fechar o `cumsum`; §4 ainda não migrou |
 | C | Decidir enquadramento do GMR no paper | — |
 | C | Construir um teste com poder | — |
 | C | LMS (2017) como terceira leitura | desempate mais barato disponível |
 | D | Comparação cross-instrumento do IPCA sob (5,5) | dado já existe, falta rodar |
 | D | Spread de concessões novas | desejável, não bloqueante |
-| E | Corrigir o `cumsum` do bloco acionário | só o transform, não o painel |
-| E | Fundamentar ou substituir o default operacional `q=5` | `r=5` está decidido pelo Bai--Ng IC2; `q=5` permanece provisório |
-| E | Corrigir o caso escalar `q=1<r` em `estimate_dynamic_factors()` | defeito exposto pela grade nova; produção `(5,5)` não é afetada |
-| E | `kilian_correction`: determinante em matriz enorme | não mexer sem re-rodar smoke test |
-| E | Seleção da etapa 2 dominada pela janela pré-COVID | — |
-| E | Registrar o renome `impulse_responde.R` e a mudança de `fomc_dates.R` no acervo | 21 arquivos vivos de `notas/`/`pareceres/`/`registro/` citam o caminho antigo; decisão editorial, nenhum número |
-| E | `download_di.py` baixa de `releases/latest` e não valida nada | decisão de pesquisa (vintage), não de estilo; toca a construção do instrumento diário |
-| E | Confirmar a remoção do `install.packages()` de `instrument_diagnostics.R` | mudança de comportamento já commitada; só falta o aval |
+| E | Decidir `q`: o critério admissível diz 2, a força diz que 2 não identifica | evidência completa em `notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md`; produção intocada |
+| E | O estágio `di` não reproduz mais a vintage do repo | asset renomeado, schema mudou, histórico começa em 2018, releases podadas; `data/raw/di.csv` virou insumo insubstituível |
+| E | Padronização do 2º estágio em `amengual_watson()` | única divergência de substância contra o MATLAB; mexer nela reescreve `q_hat` de 64 painéis × 2 amostras |
+| E | `output/panel_experimental/irfs_required_long.csv` com `asset_ibov` sob o tcode antigo | rodada histórica de 106 séries `(7,6)`; re-rodar quebraria o que ela documenta |
+| E | Remover o shim `scalar_dynamic_factor_compat.R` | o módulo já corrige `q=1<r`; espera a próxima re-rodada da auditoria congelada |
 
 ---
 
@@ -501,6 +500,37 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   pode chamar a corcova de fenômeno da amostra cheia depois do teste
   cross-instrumento e deve separar IPCA cheio (nenhum sig90) de IPP (sig90 em
   h=0--3).
+- [ ] **Reescrever o bloco de ações do §4 e a nota da `fig:acoes`** — *aberto em
+  2026-08-17 ao fechar o `cumsum` do bloco acionário (Tema E, Fechados).* A
+  correção do transform mudou a trajetória dos 7 índices em todo h ≥ 1, e o §4
+  ainda não migrou para a produção `(5,5)`, então esta reescrita entra junto com
+  a do item principal deste tema, não antes.
+  - ⚠ **Há uma contradição literal em aberto desde 2026-08-17, e ela é
+    consequência direta da correção.** `fig_acoes.pdf` foi regenerado sem
+    acumulação, mas a legenda da figura (`paper_anpec.tex:485`) ainda diz que "a
+    resposta é acumulada para recuperar o nível de preço", e `:491` ainda promete
+    reinterpretar o bloco "quando a pendência específica do \texttt{cumsum} for
+    resolvida" — pendência que está resolvida. Os dois trechos ficaram **de
+    propósito** sem edição, porque a prosa em volta ainda carrega os números da
+    vintage de 106 séries (2,41% no impacto, faixa −0,46% a −4,06%, IFIX 2,18%) e
+    consertar a legenda isolada deixaria uma figura correta sob um parágrafo
+    errado. Tratar como bloco único.
+  - **O que o texto pode dizer quando for reescrito:** o pico de médio prazo do
+    Ibovespa caiu de **+17,71% em h=21** para **+2,01% em h=8**, e a razão de
+    largura de banda h36/h0 nos índices caiu de **27,573 para 0,920**. A resposta
+    passou a ser de **retorno mensal em %**, não de nível de preço acumulado — a
+    legenda e a unidade do eixo têm de dizer isso.
+  - ⚠ **O que o texto NÃO pode dizer.** A proibição do `CLAUDE.md` continua
+    valendo e agora está medida: **nenhum texto pode creditar ao `cumsum` a
+    recuperação do bloco acionário.** Em h = 0 a significância é invariante ao
+    tcode, e o bloco **piorou** nos outros horizontes — sig90 total caiu de 4
+    para 2 e o tier de 68% em h ≤ 12 ficou parado em 20.
+  - ⚠ **Quatro índices caíram de `coerente_forte` para `parcial`**
+    (`asset_ibov`, `asset_smll`, `asset_idiv`, `asset_imob`), consequência
+    conhecida de manter a janela de coerência em h0-6 sobre uma resposta de
+    retorno. Se o §5 citar a contagem de vereditos, tem de citar esta.
+  - A nota da `fig:acoes` que promete uma discussão "no texto" continua sem
+    contrapartida (mesma pendência listada no item da §5).
 
 ### Fechados (contexto)
 
@@ -1207,148 +1237,167 @@ descreve a corrida antiga e carrega banner).
 
 ## E. Código e higiene
 
-- [ ] **Registrar o renome `impulse_responde.R` → `impulse_response.R` e a mudança
-  de `fomc_dates.R` para `script/`** — *aberto em 2026-08-17 pelo refactor de
-  convenções (`coding-style`).* O código e os documentos vivos foram repontuados
-  (47 arquivos no renome, mais `run_all.R`, `CLAUDE.md`, `AGENTS.md`, os dois
-  `README` e `.claude/rules/{identification,instrument,data}.md`). **O acervo não
-  foi tocado, de propósito**, por `.claude/rules/writing.md`: `notas/`,
-  `pareceres/` e `registro/` valem verbatim, e reescrever um caminho dentro de um
-  parecer transforma uma verificação datada numa afirmação que ninguém fez.
-  Resultado: **21 arquivos vivos** ainda citam o caminho antigo — 12 em `notas/`,
-  4 em `pareceres/`, 5 em `registro/` (incluindo este). Mais 14 em `arquivo/`, que
-  é histórico e não se mexe.
-  - **O padrão já existe no repo**, e é o que `writing.md` manda usar: o
-    blockquote **Nota de leitura** no topo de `pareceres/council_2026-08-10.md`,
-    que carrega o mapa de renames de 2026-08-11. A decisão é onde pendurar o mapa
-    novo — estender aquele blockquote, abrir um mapa único de renames em
-    `registro/`, ou pôr uma nota em cada arquivo afetado.
-  - **⚠ Aquele mesmo blockquote ficou stale com este refactor:** ele afirma que
-    `data/raw/fomc_dates.csv` é "produzido por `R/data_download/fomc_dates.R`",
-    caminho que deixou de existir. É um caso em que o texto verbatim do parecer
-    está certo para a árvore de 2026-08-10 mas a *nota de leitura* — que é
-    project-authored e **por regra se atualiza** — não está.
-- [ ] **`script/download_di.py` baixa de `releases/latest` e não valida nada do
-  que baixou** — *aberto em 2026-08-17; visto no refactor e deixado intacto de
-  propósito, porque é decisão de pesquisa e não de estilo.* Duas coisas separadas:
-  - **Vintage móvel.** `BASE_URL` aponta para
-    `github.com/crdcj/pyield-data/releases/latest/download`, num repositório cuja
-    disciplina inteira é fixar vintage (`data.md`: "Vintage refreshed 2026-07-24").
-    O comentário do próprio arquivo dizia "URL fixa para o release mais recente",
-    que é contradição em termos. Rodar o estágio `di` hoje e daqui a seis meses
-    pode devolver painéis diferentes sem nada no repo registrando a diferença.
-  - **Sem gate de sanidade.** O script lê o parquet e escreve
-    `data/raw/di.csv` sem contagem de linhas, checagem de colunas ou intervalo de
-    datas. Todo downloader em R do projeto aborta alto (`stopifnot`, contagem
-    esperada); este não. Uma mudança de schema no release entra silenciosamente e
-    sobe por `load_di_panel()` → `build_thursday_surprises()` → as 8 variantes do
-    instrumento, onde só apareceria como ξ_mp estranho muitos passos depois.
-  - Fechar isto é escolher uma release fixa (ou gravar a tag baixada junto do
-    CSV) e acrescentar as asserções mínimas: nº de linhas, presença de
-    `TradeDate`/`ExpirationDate`/`BDaysToExp`/`CloseRate`, e cobertura de datas.
-- [ ] **Confirmar a remoção do laço de `install.packages()` de
-  `instrument_diagnostics.R`** — *aberto em 2026-08-17; a remoção já está
-  commitada, falta o aval.* O script tinha, dentro de
-  `suppressPackageStartupMessages({...})`, um laço que instalava
-  `tidyverse`/`sandwich`/`lmtest`/`broom`/`lubridate` se `requireNamespace`
-  falhasse. Isso é efeito de rede no momento do `source()` e contraria a regra
-  "fail loud" do `CLAUDE.md`: um ambiente incompleto passava a se autocorrigir em
-  silêncio em vez de abortar. **Efeito da remoção:** num clone limpo o script
-  agora aborta com erro de pacote ausente em vez de instalar sozinho. `broom` e
-  `lmtest` nem eram usados ali. Se a intenção original era ergonomia de máquina
-  nova, o lugar disso é um `README`/`renv`, não um script de diagnóstico.
-- [ ] **Fundamentar ou substituir o default operacional `q=5`** — *aberto em
-  2026-08-13 na migração do painel de 111 séries.* `r=5` está decidido pelo
-  Bai--Ng IC2 padronizado para BLL. `q=5` foi promovido provisoriamente para
-  preservar a direção dinâmica da célula escolhida, mas a seleção de choques
-  comuns não está fechada. Qualquer mudança deve ser comparada na mesma amostra
-  completa e repetir o gate de 800 réplicas e os cinco impactos obrigatórios.
-- [ ] **`amengual_watson()` é tradução sem `validate_*.R`, e agora existe código
-  de referência** — *aberto em 2026-08-14.* A função
-  (`R/modeling/factor_estimation.R:168`) já rodou em 64 painéis × 2 amostras
-  (`notas/2026-08-13_selecao_fatores_blocos_fatoriais.md`) e é **ela que sustenta
-  o registro de que o critério automático escolhe `q = 2` ou `3`**, contra o
-  `q = 5` de produção — inclusive `(2,2)` em 64/64 painéis na pré-COVID. Como o
-  critério **discorda** da produção, a fidelidade da tradução deixa de ser
-  detalhe: se ela estiver errada, a discordância que mantém o item acima aberto é
-  espúria. O `amengual_watson.m` original chegou em
-  `codigos_externos/codigo_sw/ddisk/matlab/`, então dá para fechar a lacuna do
-  mesmo jeito que já foi feito para HAC, GMR e MOSW — `script/validate_*.R`
-  rodando contra **fixture commitada em `output/validation/`**, nunca contra o
-  diretório gitignorado. Note que a versão do projeto tem `apply_bll`, ausente do
-  original: a fixture precisa exercitar o caminho sem BLL, que é o comparável.
-- [ ] **Corrigir `estimate_dynamic_factors()` quando `q=1<r`** — *aberto em
-  2026-08-13 pela grade expandida.* `diag(sqrt(eigenvals))` interpreta o único
-  autovalor como dimensão da matriz, produzindo `M` não conforme. A auditoria
-  usa uma matriz 1×1 em compatibilidade local, sem tocar produção. A correção
-  do módulo deve reproduzir todas as células `q>1` e o smoke test vigente antes
-  de substituir a compatibilidade experimental.
-- [ ] **Corrigir o `cumsum` do bloco acionário — e SÓ isso** — *aberto em
-  2026-07-31, consequência do item "Ações em retorno acumulado" (Tema D,
-  Fechados, acima).* **Decisão do autor (2026-07-31): a entrada do painel em
-  log-nível fica de lado**; ver `historico_decisoes.md` §3.1 para o teste e o
-  porquê, e não reabrir sem evidência nova. O que entra é o conserto do
-  transform de exibição.
-  - **⚠ Saiba o que isto entrega antes de escrever qualquer frase sobre ele.**
-    Medido em 2026-07-31 com a spec de produção e nboot=800: o bloco continua
-    **nulo a 90% — 1 célula de 392** (só `asset_ifix` em h=1), e **0 de 8 em
-    h=0**. Isso é **matemática, não amostra**: em h=0 o `cumsum` é no-op e o
-    ×100 é escalar positivo, logo **a significância em h=0 é invariante ao
-    tcode**. Quem recupera o bloco acionário é a representação do painel, e só
-    ela. **Nenhum texto pode atribuir a recuperação do bloco a esta correção.**
-  - **O que ela entrega de fato, e não é pouco:** a razão de largura h36/h0 cai
-    de **10,46 para 0,38** nos 8 índices; o pico falso de **+20,3% do Ibovespa
-    em h≈24** desaparece; e o tier de 68% **melhora onde importa** — sig68 em
-    h ≤ 12 sobe de **19 para 35**, porque as células de médio prazo que eram
-    ruído acumulado deixam de existir e o sinal de curto prazo fica visível.
-    Some também a armadilha de pontuação do benchmark VAR (extremo global com
-    sinal oposto ao do impacto nas 8 ações).
-  - **⚠ Duas armadilhas de implementação — não é `tcode 2 → 1`.**
-    (i) **tcode 1 não multiplica por 100** (`impulse_responde.R:273-274`), então
-    a troca crua devolve as ações a decimais e recria exatamente o estado
-    pré-2026-07-24 que o `historico_decisoes.md` §3 marca como "fora de escala".
-    É preciso um código que faça `x * 100` **sem** acumular.
-    (ii) **A janela de coerência tem de ser retunada junto.** `coherence_var_table()`
-    (`R/identification/irf_coherence.R:31-33`) pede sinal negativo **sustentado**
-    em h0-6, que é propriedade de um *nível* de preço; uma resposta de retorno
-    mensal cai no impacto e volta a ~0. Foi exatamente isso que motivou a
-    migração 1 → 2 em 2026-07-24 (`incoerente` caiu de 5 para 1). Sem retunar a
-    janela, os vereditos `incoerente` de Ibov/IDIV/IMOB/MLCX voltam.
-  - **A jusante:** re-rodar `irf_coherence_check.R` e `fig_section5.R`, atualizar
-    a constante `asset_ibov -1.673` fixada no smoke test do `CLAUDE.md` e em
-    `script/jk_sovereign_confound.R:603`, e reescrever o bloco de ações do §4 e
-    a nota da `fig:acoes`. O comentário de `arquivo/tex/main.tex:445` (archived draft), que explica o pico
-    de médio prazo como erro acumulado, **fica sem objeto** e deve sair.
-- [ ] **`kilian_correction` testa singularidade por determinante de matriz enorme**
-  — *aberto em 2026-07-31, encontrado ao rodar o benchmark VAR; **não corrigido
-  de propósito**, porque mexe no caminho de produção.*
-  `R/modeling/factor_estimation.R:385` decide entre `solve` e `MASS::ginv` para a
-  equação de Lyapunov por `Mod(det(Re(lyapunov_matrix))) < 1e-12`. A matriz é
-  `(N·p)²  ×  (N·p)²`: **576×576** no VAR pequeno e **1764×1764** no DFM. O
-  determinante de uma matriz desse porte subborda para ~0 mesmo perfeitamente
-  bem-condicionada (é o produto de centenas de fatores `1 − λᵢλⱼ`, todos < 1), de
-  modo que o ramo do `ginv` é **sempre** tomado e o aviso
-  "Usando pseudo-inversa para SIGMAY" sai em toda rodada.
-  - **Não é bug de resultado:** `ginv` coincide com a inversa quando a matriz é
-    não-singular. Conferido de duas formas em 2026-07-31 — a implementação de
-    `factor_estimation.R` bate a cópia (agora apagada) de `model_var.R` a
-    **5,6e-17**, e o smoke test do `CLAUDE.md` continua exato.
-  - **Custo real:** tempo (pseudo-inversa de 1764×1764 por réplica de bootstrap) e
-    ruído no log que mascara avisos de verdade.
-  - **Correção certa:** trocar o teste por `rcond()` ou `kappa()`, ou tentar
-    `solve()` dentro de `tryCatch` e só cair no `ginv` se falhar. **Mudar isso
-    altera o caminho numérico da produção** — exige re-rodar o smoke test e
-    conferir `irf_coherence_h.csv` ponto a ponto antes de commitar.
-- [ ] **Seleção da etapa 2 é dominada pela janela pre-COVID** (aberto em
-  2026-07-26). Com a taxonomia migrada, 23 células ficam `ok` em `yield_6m` e
-  **todas empatam** em `score_hard_frac = 1` e `score_ext = 3`, então o
-  desempate é só ξ_mp — que é sistematicamente maior pre-COVID. Resultado: o
-  top-5 é inteiramente `pre_covid`, e o baseline de produção (full, 7, 6) entra
-  pelo force-append. A comparação da etapa 2 acaba confundindo escolha de
-  instrumento com escolha de janela. Considerar um teto por amostra análogo ao
-  `MAX_PER_INSTRUMENT`, ou desempatar por `f_reduced`.
+- [ ] **Decidir `q`: o critério admissível seleciona 2, e em 2 o instrumento não
+  identifica** — *aberto em 2026-08-13; reformulado em 2026-08-17, quando a
+  premissa que o sustentava caiu.* O item nasceu dizendo que a fidelidade da
+  tradução de `amengual_watson()` decidiria a discordância. **Não decide**, e a
+  razão é o inverso do que parecia: `apply_bll = TRUE` não é uma variante caseira
+  — é o espaço fatorial da produção **diferenciado**, que é o objeto estacionário
+  que Amengual-Watson exige. Medido: os autovetores de `cov(yy)` **são** o
+  `lambda` da produção (desvio 2,165e-15) e `cor(PC_k(yy), diff(F_prod)_k)` =
+  1,000000 nos cinco fatores.
+  - **Portanto `q = 2` vem do caminho admissível e discorda da produção**, e o
+    `q = 5` do caminho em níveis não conta a favor: ele roda Bai-Ng num painel
+    não-estacionário, que `.claude/rules/identification.md` exclui.
+  - **Mas `(5,2)` e `(5,3)` têm ξ_mp 3,809 e 3,149 na amostra completa, abaixo de
+    3,84** — conjunto de Anderson-Rubin ilimitado. Pela régua de força do próprio
+    projeto, a IRF dessas células é um número sem identificação atrás.
+  - ⚠ **O número inconveniente:** essas células dão impactos **maiores** e
+    **recuperam o bloco acionário a 90%**, que é o nulo que o paper hoje precisa
+    qualificar. É assinatura de instrumento fraco: o denominador de normalização
+    cai de 8,426e-05 para 2,471e-05, e `asset_ibov` vai de −1,72 a −22,43. Não
+    usar isso como argumento a favor de migrar, nem omiti-lo.
+  - **Saídas coerentes, e a escolha é do autor:** manter `q = 5` e declarar a
+    discordância como limitação na §3.5; migrar para `(5,2)` assumindo uma célula
+    que não passa na régua de força; ou procurar um critério de `q` que não
+    dependa de diferenciar o painel. A §3.5 hoje diz que `q = 5` é escolha
+    operacional e que a fundamentação segue aberta — o que continua **exato**.
+  - Números e as três células lado a lado:
+    `notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md`,
+    `output/factors/q_selection.{csv,md}`, `output/instrument/mosw_strength_grid.csv`
+    (a grade agora cobre `q = 2:r`).
+- [ ] **O estágio `di` não reproduz mais a vintage do repo** — *aberto em
+  2026-08-17 ao fechar o item de `download_di.py`.* Verificado contra a API do
+  GitHub nessa data, o upstream `crdcj/pyield-data` mudou em quatro frentes, e
+  nenhuma se resolve editando o script: (i) o asset `b3_di.parquet` **não
+  existe mais** — a release publica `b3_futures.parquet`; (ii) o schema passou
+  aos nomes crus da B3 (`TradDt`, `TckrSymb`, `AdjstdQtTax`) e as colunas
+  `ExpirationDate`, `BDaysToExp` e `CloseRate`, que eram **derivadas**, sumiram;
+  (iii) o histórico do asset novo começa em **2018-01-02**, enquanto
+  `load_di_panel()` pede desde 2012-06-01, de modo que baixar hoje truncaria
+  metade da amostra de Copom; (iv) só as ~30 releases mais recentes são mantidas,
+  então `data-2026-02-10`, a vintage que produziu o `di.csv` local, já responde
+  404.
+  - ⚠ **Consequência que não pode ficar implícita:** `data/raw/di.csv`
+    (2026-02-09, **gitignored**) é hoje um insumo **insubstituível**, e dele saem
+    as 8 variantes do instrumento. Deve ser tratado como dado de arquivo, com
+    cópia fora do repo.
+  - **Caminho para fechar:** reconstruir as três colunas derivadas pelo pacote
+    `pyield` (instalado, 0.43.1), que traz o calendário de dias úteis da B3, e
+    achar fonte para 2012-2017. Antes de adotar, conferir a reconstrução contra o
+    `di.csv` atual no período em que se sobrepõem. É decisão de pesquisa.
+- [ ] **A padronização do 2º estágio de `amengual_watson()` diverge do original**
+  — *aberto em 2026-08-17 pela validação.* `factor_estimation_ls.m` padroniza a
+  matriz de resíduos coluna a coluna antes do PCA e do `ssr`; a versão do projeto
+  chama `bai_ng_criteria(resid_mat, standardize = FALSE)` e trabalha sobre os
+  resíduos crus. É a **única** divergência de substância que a validação
+  encontrou — casada a convenção, as duas implementações concordam a 4,163e-16.
+  Como é reescala **por coluna**, e não por constante comum, ela **pode** mover o
+  `argmin` em outro painel; neste não move.
+  - **Por que não foi corrigida junto:** ligar a flag reescreveria os `q_hat`
+    registrados em `notas/2026-08-13_selecao_fatores_blocos_fatoriais.md` para 64
+    painéis × 2 amostras. É mudança de critério, não de estilo.
+  - Fonte: `output/validation/amengual_watson_validation.md` §A3.
+- [ ] **`output/panel_experimental/irfs_required_long.csv` traz `asset_ibov` sob o
+  tcode antigo** — *aberto em 2026-08-17 ao fechar o `cumsum`.* A rodada é
+  histórica e reproduz de propósito a vintage de 106 séries `(7,6)` (o validador
+  confere ξ/F 7,65/11,53), então **re-rodar quebraria o que ela documenta**. As
+  linhas de `asset_ibov` em h ≥ 1 seguem cumuladas. Decidir entre congelar com
+  banner, re-rodar aceitando que a rodada passa a ser de outra vintage, ou
+  remover a coluna acionária do artefato.
+- [ ] **Remover o shim `scalar_dynamic_factor_compat.R`** — *aberto em 2026-08-17
+  ao fechar o `q=1<r`.* O módulo de produção já constrói `M` conforme, e o
+  override devolve os mesmos fatores. Ele sobrevive só porque divide por
+  `M[1, 1]` enquanto o módulo multiplica por `solve(M)`, e as duas formas diferem
+  na última casa (**4,4e-16**); a auditoria `rq_block_dimension_audit` está
+  congelada e seus CSVs são citados, então a remoção espera a próxima re-rodada
+  da grade. O docblock e o `README` da auditoria já dizem isso.
 
 ### Fechados (contexto)
+
+- [x] **`cumsum` do bloco acionário corrigido — FEITO em 2026-08-17.** Entrou o
+  **tcode 6** (`x * 100` sem acumular, extensão do projeto sobre o `cumimp.m` de
+  AK) e `infer_tcode_from_varnames()` passou as 7 séries `asset_*` de `2L` para
+  `6L`. **h = 0 é invariante** — o `cumsum` é no-op e o ×100 é escalar positivo —,
+  então o smoke test do `CLAUDE.md` saiu **bit-idêntico** e os três guards de
+  `asset_ibov = -1,7226766564462794` continuam válidos. Entregou o que prometia
+  em banda e trajetória: razão de largura h36/h0 **27,573 → 0,920** e o pico falso
+  do Ibovespa **+17,71% em h=21 → +2,01% em h=8**.
+  ⚠ **Duas previsões do item não se confirmaram, e as duas importam.** O tier de
+  68% **não melhorou** (sig68 em h ≤ 12 ficou em **20 → 20**, contra os "19 → 35"
+  previstos sob a vintage de 106 séries) e o sig90 total do bloco **caiu de 4
+  para 2**. E os vereditos `incoerente` **não voltaram**: o conjunto é o mesmo de
+  9 séries, nenhuma delas de ações. O custo real de manter a janela h0-6 (decisão
+  do autor) foi **quatro índices caírem de `coerente_forte` para `parcial`** —
+  `asset_ibov`, `asset_smll`, `asset_idiv`, `asset_imob`.
+  Regenerados e conferidos: `irf_coherence_*`, `fig_acoes.pdf` (as outras 7
+  figuras saíram **pixel-idênticas**), `spec_sweep_*`, `asset_representation`,
+  `var_benchmark`, `jk_sovereign_confound`, `fomc_coincidence`, `model_alessi`,
+  `model_nongaussian`. Nenhuma série não-`asset_*` mudou de ponto.
+- [x] **`kilian_correction`: teste de singularidade trocado — FEITO em
+  2026-08-17.** O `det(M) < 1e-12` virou `rcond()` em `solve_or_pseudo()`, com
+  limiar `.Machine$double.eps^(2/3)`. O diagnóstico do item se confirma e vai
+  além dele: no DFM `(5,5)` a Lyapunov 900×900 tem `det` **6,29e-19** contra
+  `rcond` **1,7e-06** — o ramo do `ginv` era tomado sempre —, e o mesmo defeito
+  estava em **SIGMAY** (`det` 1,14e-66, `rcond` 3,85e-05), onde o efeito era o
+  oposto: pseudo-inversa numa matriz perfeitamente invertível.
+  ⚠ **A afirmação do item de que o aviso "Usando pseudo-inversa para SIGMAY" sai
+  em toda rodada NÃO reproduz** em `(5,5)`, e o ganho de tempo previsto também
+  não: 0,198 → 0,190 min no gate de produção.
+  ⚠ **Um `tryCatch(solve(...))` seria errado e chegou a regredir o benchmark
+  VAR**: LAPACK só erra em pivô exatamente zero, então numa Lyapunov de `rcond`
+  7,3e-17 o `solve()` retorna em silêncio e o lixo propaga até bandas NA. Onde a
+  Lyapunov é numericamente singular a correção **aborta** — SIGMAY não está
+  definida ali —, e `var_proxy.R:156` já cai para coeficientes não corrigidos,
+  que é a resposta honesta. Efeito medido: ponto do DFM **bit-idêntico**, bandas
+  do DFM ≤ **1,65e-06**; no VAR pequeno os pontos não mudam e as bandas se movem
+  até 0,076, porque os 17 VARs agora recusam explicitamente a correção em vez de
+  metade rodá-la sobre uma pseudo-inversa.
+- [x] **`estimate_dynamic_factors()` com `q = 1 < r` corrigido — FEITO em
+  2026-08-17.** `M <- diag(sqrt(eigenvals), nrow = q)`; o ramo especial `q == 1`
+  foi apagado, porque `solve(M)` passou a cobrir todos os `q`. Confere com o shim
+  de auditoria (`all.equal` TRUE). Produção usa `q == r` e não toca este caminho;
+  smoke test bit-idêntico e as 224 linhas antigas de `mosw_strength_grid.csv`
+  reproduzidas com desvio **0**. A remoção do shim virou item próprio acima.
+- [x] **`amengual_watson()` validado contra o MATLAB de SW — FEITO em
+  2026-08-17.** `script/validate_amengual_watson.R` transcreve literalmente
+  `amengual_watson.m`, `factor_estimation_ls.m` e `bai_ng.m` e roda contra
+  `output/validation/amengual_watson_fixture.csv` (o painel de produção), no
+  padrão Check A de `validate_hac_kernel.R` — não há MATLAB nem Octave aqui.
+  **Veredito: tradução fiel.** `q_hat` 5 contra 5, e casada a padronização do 2º
+  estágio o gap é a constante `log(147/146)` = **0,0068259651** com dispersão
+  **4,163e-16**, que é só desvio padrão populacional contra amostral. A
+  divergência restante virou item próprio acima. Fonte:
+  `output/validation/amengual_watson_validation.md`.
+- [x] **`download_di.py`: gate de sanidade posto, vintage impossível de fixar —
+  FEITO em 2026-08-17.** O script agora resolve a release pela API (com override
+  por `DI_RELEASE_TAG`), grava a tag em `data/raw/di_release_tag.txt`, e aborta
+  alto se faltar coluna obrigatória, se houver menos de 100 mil linhas, se
+  `CloseRate` for todo nulo ou se a cobertura não abraçar 2012-06-01 a 2026-02-01.
+  A perna de vintage **não fecha por código**: o upstream apagou o asset, mudou o
+  schema, truncou o histórico em 2018 e poda releases. Com o upstream atual o
+  script aborta com o diagnóstico correto em vez de gravar painel truncado, e o
+  `di.csv` local fica intacto. O resto virou item próprio acima.
+- [x] **Remoção do `install.packages()` de `instrument_diagnostics.R` confirmada
+  pelo autor — 2026-08-17.** O laço instalava pacotes no momento do `source()`,
+  contra a regra "fail loud" do `CLAUDE.md`. Num clone limpo o script agora
+  aborta com erro de pacote ausente; `broom` e `lmtest` nem eram usados ali.
+  Ergonomia de máquina nova pertence a um `README`/`renv`, não a um script de
+  diagnóstico.
+- [x] **Renomes registrados no acervo — FEITO em 2026-08-17.**
+  `registro/mapa_renomeacoes.md` passou a ser o lugar único do mapa, cobrindo
+  2026-08-17 (`impulse_responde.R` → `impulse_response.R`,
+  `R/data_download/fomc_dates.R` → `script/fomc_dates.R`), 2026-08-11, 2026-08-02
+  e 2026-08-05, mais os arquivos cuja **existência** mudou. Os 12 arquivos de
+  `notas/` e 4 de `pareceres/` ficam **verbatim** e são lidos por ele. Editados em
+  lugar, por serem documentos vivos: `metodo.md`, `estrutura_paper_v2.md`,
+  `justificativa_uso_yield-6m.md` e `output/instrument/olea_alignment_audit.md`
+  (que não é corpo gerado — `mosw_strength_grid.R` só o cita).
+  ⚠ O blockquote de leitura de `pareceres/council_2026-08-10.md` era
+  project-authored e estava **stale**; foi atualizado, e o corpo do parecer não
+  foi tocado. Em `historico_decisoes.md` §4.1 entrou nota de leitura em vez de
+  edição cirúrgica, porque os **números de linha** citados ali também
+  envelheceram e não foram re-verificados.
 
 - [x] **`tab:first_stage` cortada para o `.tex` — FEITO em 2026-08-14**, com o
   que o paper volta a ter uma tabela de força depois da saída da `tab:rq_sweep`.
