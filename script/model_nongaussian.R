@@ -24,14 +24,6 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(readr)
-  library(dplyr)
-  library(tidyr)
-  library(ggplot2)
-  library(patchwork)
-})
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -61,11 +53,11 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 # ------------------------------------------------------------------
 # Data and DFM (estimated once, shared by both identifications)
 # ------------------------------------------------------------------
-raw <- read_csv(SPEC$data_path,
-                show_col_types = FALSE) |> drop_na()
+raw <- readr::read_csv(SPEC$data_path,
+                show_col_types = FALSE) |> tidyr::drop_na()
 dates <- as.Date(raw$ref.date)
-data  <- raw |> select(-ref.date) |> as.matrix()
-inst  <- read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
+data  <- raw |> dplyr::select(-ref.date) |> as.matrix()
+inst  <- readr::read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
 
 tcode <- infer_tcode_from_varnames(colnames(data))
 mpind <- match(MP_VAR, colnames(data))
@@ -204,23 +196,23 @@ long_of <- function(cell, label) {
   }))
 }
 cmp <- rbind(long_of(ng, "GMR nao-gaussiano"), long_of(px, "proxy-SVAR"))
-write_csv(cmp, file.path(OUT_DIR, "irf_comparison.csv"))
+readr::write_csv(cmp, file.path(OUT_DIR, "irf_comparison.csv"))
 
 pal <- c("GMR nao-gaussiano" = "#1b4965", "proxy-SVAR" = "#bc4749")
 plots <- lapply(intersect(HEADLINE, colnames(data)), function(v) {
   dd <- cmp[cmp$var == v, ]
-  ggplot(dd, aes(h, point, colour = ident, fill = ident)) +
-    geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey40") +
-    geom_ribbon(aes(ymin = lo90, ymax = hi90), alpha = 0.12, colour = NA) +
-    geom_ribbon(aes(ymin = lo68, ymax = hi68), alpha = 0.22, colour = NA) +
-    geom_line(linewidth = 0.7) +
-    scale_colour_manual(values = pal) + scale_fill_manual(values = pal) +
-    labs(title = v, x = NULL, y = NULL) +
-    theme_minimal(base_size = 9) +
-    theme(legend.position = "none", panel.grid.minor = element_blank())
+  ggplot2::ggplot(dd, ggplot2::aes(h, point, colour = ident, fill = ident)) +
+    ggplot2::geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey40") +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo90, ymax = hi90), alpha = 0.12, colour = NA) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo68, ymax = hi68), alpha = 0.22, colour = NA) +
+    ggplot2::geom_line(linewidth = 0.7) +
+    ggplot2::scale_colour_manual(values = pal) + ggplot2::scale_fill_manual(values = pal) +
+    ggplot2::labs(title = v, x = NULL, y = NULL) +
+    ggplot2::theme_minimal(base_size = 9) +
+    ggplot2::theme(legend.position = "none", panel.grid.minor = ggplot2::element_blank())
 })
-fig <- wrap_plots(plots, ncol = 2) +
-  plot_annotation(
+fig <- patchwork::wrap_plots(plots, ncol = 2) +
+  patchwork::plot_annotation(
     title = sprintf("IRFs a um choque de +%dbp em %s — GMR nao-gaussiano vs proxy-SVAR",
                     SHOCK_BPS, MP_VAR),
     subtitle = sprintf("r=%d, q=%d, p=%d; bandas 68%%/90%%; nboot=%d (i.i.d. no ramo GMR, wild no proxy)",
@@ -228,7 +220,7 @@ fig <- wrap_plots(plots, ncol = 2) +
     caption = "Azul: GMR (2017) PML-ICA. Vermelho: proxy-SVAR (z_jk_bs_purif).")
 # cairo_pdf: the default pdf() device cannot encode the accented Portuguese and
 # the em-dash in the annotations and silently substitutes dots.
-ggsave(file.path(OUT_DIR, "irf_comparison.pdf"), fig, width = 9, height = 10,
+ggplot2::ggsave(file.path(OUT_DIR, "irf_comparison.pdf"), fig, width = 9, height = 10,
        device = grDevices::cairo_pdf)
 
 # ------------------------------------------------------------------

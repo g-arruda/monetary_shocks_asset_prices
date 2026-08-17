@@ -1,6 +1,6 @@
 # Ações em log-nível: a representação causa o resultado nulo?
 
-*Gerado por `script/asset_representation.R` em 2026-08-16. **Corpo gerado: não escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-07-31_acoes_representacao.md`.*
+*Gerado por `script/asset_representation.R` em 2026-08-17. **Corpo gerado: não escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-07-31_acoes_representacao.md`.*
 
 ## A pergunta
 

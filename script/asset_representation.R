@@ -87,16 +87,6 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(readr)
-  library(tidyr)
-  library(purrr)
-  library(tibble)
-  library(ggplot2)
-  library(patchwork)
-})
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -141,16 +131,16 @@ hcol <- function(h) h + 1L
 
 cat("\n[1] painel e construcao das quatro representacoes\n")
 
-panel_df <- read_csv(SPEC$data_path,
-                     show_col_types = FALSE) |> drop_na()
+panel_df <- readr::read_csv(SPEC$data_path,
+                     show_col_types = FALSE) |> tidyr::drop_na()
 DATES     <- as.Date(panel_df$ref.date)
-PANEL     <- panel_df |> select(-ref.date) |> as.matrix()
+PANEL     <- panel_df |> dplyr::select(-ref.date) |> as.matrix()
 VAR_NAMES <- colnames(PANEL)
 ASSETS    <- grep("^asset_", VAR_NAMES, value = TRUE)
 A_IDX     <- match(ASSETS, VAR_NAMES)
 
-INST_PANEL <- read_csv("data/processed/instrumentos_mensais.csv",
-                       show_col_types = FALSE) |> mutate(month = as.Date(month))
+INST_PANEL <- readr::read_csv("data/processed/instrumentos_mensais.csv",
+                       show_col_types = FALSE) |> dplyr::mutate(month = as.Date(month))
 
 cat(sprintf("    painel %d x %d | %s a %s | %d indices B3\n",
             nrow(PANEL), ncol(PANEL), format(min(DATES)), format(max(DATES)),
@@ -181,7 +171,7 @@ build_panel <- function(tag) {
 }
 
 TAGS   <- c("prod", "prod_nocum", "loglevel", "level")
-PANELS <- set_names(map(TAGS, build_panel), TAGS)
+PANELS <- purrr::set_names(purrr::map(TAGS, build_panel), TAGS)
 
 # Multiplier that puts each variant's asset rows on the common "% deviation of
 # the index level" scale. tcode 2 and 4 already multiply by 100 inside
@@ -190,7 +180,7 @@ PANELS <- set_names(map(TAGS, build_panel), TAGS)
 # every magnitude comparison — it exists only for the band decomposition.
 asset_scale <- function(tag) {
   if (tag == "level") 100 / colMeans(PANELS$level$M[, ASSETS, drop = FALSE])
-  else set_names(rep(1, length(ASSETS)), ASSETS)
+  else purrr::set_names(rep(1, length(ASSETS)), ASSETS)
 }
 
 
@@ -201,13 +191,13 @@ asset_scale <- function(tag) {
 cat("\n[2] auto-testes da reconstrucao\n")
 
 # (1) external check: the reconstructed IBOV level against the daily file
-ibov_d <- read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE)
+ibov_d <- readr::read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE)
 ibov_m <- ibov_d |>
-  mutate(month = as.Date(format(date, "%Y-%m-01"))) |>
-  group_by(month) |> slice_tail(n = 1) |> ungroup() |>
-  select(month, ibov)
-chk <- tibble(month = DATES, rec = lvl_from_ret(PANEL[, "asset_ibov"])) |>
-  left_join(ibov_m, by = "month")
+  dplyr::mutate(month = as.Date(format(date, "%Y-%m-01"))) |>
+  dplyr::group_by(month) |> dplyr::slice_tail(n = 1) |> dplyr::ungroup() |>
+  dplyr::select(month, ibov)
+chk <- tibble::tibble(month = DATES, rec = lvl_from_ret(PANEL[, "asset_ibov"])) |>
+  dplyr::left_join(ibov_m, by = "month")
 stopifnot(sum(is.na(chk$ibov)) == 0)
 ratio_cv <- sd(chk$ibov / chk$rec) / mean(chk$ibov / chk$rec)
 cat(sprintf("    (1) nivel reconstruido vs ibov_daily.csv: sd relativo da razao %.2e (n=%d)\n",
@@ -241,10 +231,10 @@ cat("    (3) smoke test h0: ",
 stopifnot(max(abs(got - SMOKE_REF)) < 5e-3)
 
 # (4) the cached cell reproduces the published per-horizon table
-hcsv <- read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE)
+hcsv <- readr::read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE)
 dev4 <- hcsv |>
-  mutate(pt = CELL$irf$irf_point_matrix[cbind(match(var, VAR_NAMES), hcol(h))]) |>
-  summarise(d = max(abs(pt - point))) |> pull(d)
+  dplyr::mutate(pt = CELL$irf$irf_point_matrix[cbind(match(var, VAR_NAMES), hcol(h))]) |>
+  dplyr::summarise(d = max(abs(pt - point))) |> dplyr::pull(d)
 cat(sprintf("    (4) celula vs irf_coherence_h.csv: desvio maximo %.2e\n", dev4))
 stopifnot(dev4 < 1e-10)
 
@@ -254,12 +244,12 @@ xi_of <- function(M, window) {
   dfm  <- estimate_dfm(M[keep, , drop = FALSE], r = R_FACTORS, q = Q_DYNAMIC,
                        p = P_LAGS, dates = DATES[keep],
                        instrument = INST_PANEL |>
-                         select(month, shock = all_of(INSTRUMENT)) |>
-                         filter(!is.na(shock)),
+                         dplyr::select(month, shock = dplyr::all_of(INSTRUMENT)) |>
+                         dplyr::filter(!is.na(shock)),
                        apply_kilian = TRUE)
   d <- diagnose_instrument_in_factor_space(
-    dfm, INST_PANEL |> select(month, shock = all_of(INSTRUMENT)) |>
-      filter(!is.na(shock)),
+    dfm, INST_PANEL |> dplyr::select(month, shock = dplyr::all_of(INSTRUMENT)) |>
+      dplyr::filter(!is.na(shock)),
     DATES[keep], P_LAGS, match(MP_VAR, VAR_NAMES))
   list(wald_mp = d$wald_mp, f_robust_mp = d$f_robust_mp,
        n_obs = d$n_obs, max_eig = dfm$diagnostics$max_eigenvalue)
@@ -290,9 +280,9 @@ STRENGTH <- list(
 )
 STRENGTH$prod_nocum <- STRENGTH$prod
 
-strength_tbl <- imap_dfr(STRENGTH, function(s, tag) {
-  imap_dfr(s, function(x, win) {
-    tibble(variante = tag, amostra = win, n_obs = x$n_obs,
+strength_tbl <- purrr::imap_dfr(STRENGTH, function(s, tag) {
+  purrr::imap_dfr(s, function(x, win) {
+    tibble::tibble(variante = tag, amostra = win, n_obs = x$n_obs,
            xi_mp = x$wald_mp, f_robust_mp = x$f_robust_mp,
            max_eig = x$max_eig,
            ar_bounded = x$wald_mp > 3.84, bandas_convencionais = x$wald_mp >= 10)
@@ -351,27 +341,27 @@ band <- function(tag, lvl) {
 GUARD_VARS <- c("yield_2y", "yield_5y", "cambio_usd", "embi_perc", "cds_5y",
                 "price_ipca", "ibc_br")
 
-irf_long <- map_dfr(c("prod", "loglevel", "level"), function(tag) {
+irf_long <- purrr::map_dfr(c("prod", "loglevel", "level"), function(tag) {
   P <- cells[[tag]]$irf$irf_point_matrix
   b68 <- band(tag, 0.68); b90 <- band(tag, 0.90)
   k_a <- asset_scale(tag)
-  map_dfr(c(ASSETS, GUARD_VARS), function(v) {
+  purrr::map_dfr(c(ASSETS, GUARD_VARS), function(v) {
     i <- match(v, VAR_NAMES)
     k <- if (v %in% ASSETS) unname(k_a[[v]]) else 1
-    tibble(variante = tag, var = v, bloco = if (v %in% ASSETS) "acoes" else "guarda",
+    tibble::tibble(variante = tag, var = v, bloco = if (v %in% ASSETS) "acoes" else "guarda",
            h = 0:HORIZON,
            point = P[i, ] * k,
            lo68 = b68$lo[i, ] * k, hi68 = b68$hi[i, ] * k,
            lo90 = b90$lo[i, ] * k, hi90 = b90$hi[i, ] * k) |>
-      mutate(sig68 = (lo68 > 0) | (hi68 < 0),
+      dplyr::mutate(sig68 = (lo68 > 0) | (hi68 < 0),
              sig90 = (lo90 > 0) | (hi90 < 0))
   })
 })
 
 # --- 6b. scoreboard over the 8 x 49 = 392 equity cells
-score <- irf_long |> filter(bloco == "acoes") |>
-  group_by(variante) |>
-  summarise(n_cel = n(),
+score <- irf_long |> dplyr::filter(bloco == "acoes") |>
+  dplyr::group_by(variante) |>
+  dplyr::summarise(n_cel = dplyr::n(),
             n_sig90 = sum(sig90), n_sig90_h12 = sum(sig90 & h <= 12),
             n_sig68 = sum(sig68), n_sig68_h12 = sum(sig68 & h <= 12),
             n_neg_h0 = sum(point < 0 & h == 0),
@@ -381,27 +371,27 @@ cat(sprintf("\n  placar do bloco acionario (%d indices x 49 horizontes):\n",
 print(as.data.frame(score), row.names = FALSE)
 
 # --- 6c. h = 0 side by side: the clean test of the representation
-h0_tbl <- irf_long |> filter(bloco == "acoes", h == 0) |>
-  select(var, variante, point, lo90, hi90, sig90, sig68) |>
-  pivot_wider(names_from = variante,
+h0_tbl <- irf_long |> dplyr::filter(bloco == "acoes", h == 0) |>
+  dplyr::select(var, variante, point, lo90, hi90, sig90, sig68) |>
+  tidyr::pivot_wider(names_from = variante,
               values_from = c(point, lo90, hi90, sig90, sig68))
 cat("\n  h=0 (unico horizonte em que as representacoes medem o mesmo objeto):\n")
-print(as.data.frame(h0_tbl |> select(var, point_prod, lo90_prod, hi90_prod,
+print(as.data.frame(h0_tbl |> dplyr::select(var, point_prod, lo90_prod, hi90_prod,
                                      point_loglevel, lo90_loglevel, hi90_loglevel,
                                      sig90_loglevel)),
       row.names = FALSE, digits = 3)
 
 # --- 6d. band width h36/h0 by tcode group, per variant (replicates
 #         diagnostics/06_bloco_ativos.R:101-140)
-band_ratio <- map_dfr(TAGS, function(tag) {
+band_ratio <- purrr::map_dfr(TAGS, function(tag) {
   b90 <- band(tag, 0.90)
   W <- b90$hi - b90$lo
   r <- W[, hcol(36)] / W[, hcol(0)]      # yield_6m has width 0 at h0 -> Inf
-  tibble(variante = tag, var = VAR_NAMES, tcode = cells[[tag]]$tcode,
+  tibble::tibble(variante = tag, var = VAR_NAMES, tcode = cells[[tag]]$tcode,
          razao_h36_h0 = r) |>
-    filter(is.finite(razao_h36_h0)) |>
-    group_by(variante, tcode) |>
-    summarise(n = n(), mediana = median(razao_h36_h0),
+    dplyr::filter(is.finite(razao_h36_h0)) |>
+    dplyr::group_by(variante, tcode) |>
+    dplyr::summarise(n = dplyr::n(), mediana = median(razao_h36_h0),
               min = min(razao_h36_h0), max = max(razao_h36_h0), .groups = "drop")
 })
 cat("\n  razao de largura da banda de 90%% h36/h0, por tcode:\n")
@@ -410,38 +400,38 @@ print(as.data.frame(band_ratio), row.names = FALSE, digits = 3)
 # Per-index version. The grouped table above is misleading for the headline:
 # under `loglevel` the indices move into tcode 4 and get pooled with the
 # credit/base/pib series, so the group median is not the block's.
-band_asset <- map_dfr(TAGS, function(tag) {
+band_asset <- purrr::map_dfr(TAGS, function(tag) {
   b90 <- band(tag, 0.90); W <- b90$hi - b90$lo
-  tibble(variante = tag, var = ASSETS,
+  tibble::tibble(variante = tag, var = ASSETS,
          razao = W[A_IDX, hcol(36)] / W[A_IDX, hcol(0)])
-}) |> pivot_wider(names_from = variante, values_from = razao)
+}) |> tidyr::pivot_wider(names_from = variante, values_from = razao)
 cat(sprintf("\n  a mesma razao, so nos %d indices:\n", length(ASSETS)))
 print(as.data.frame(band_asset), row.names = FALSE, digits = 3)
 
 # --- 6e. |t| proxy: |point| / half-width of the 68% band (the ruler of
 #         section 5 Limitacoes), median over the indices by horizon
-tstat <- irf_long |> filter(bloco == "acoes") |>
-  mutate(tproxy = abs(point) / ((hi68 - lo68) / 2)) |>
-  group_by(variante, h) |>
-  summarise(t_mediano = median(tproxy), .groups = "drop")
+tstat <- irf_long |> dplyr::filter(bloco == "acoes") |>
+  dplyr::mutate(tproxy = abs(point) / ((hi68 - lo68) / 2)) |>
+  dplyr::group_by(variante, h) |>
+  dplyr::summarise(t_mediano = median(tproxy), .groups = "drop")
 cat("\n  proxy de |t| mediano no bloco, horizontes selecionados:\n")
-print(as.data.frame(tstat |> filter(h %in% c(0, 1, 6, 12, 24, 36, 48)) |>
-                      pivot_wider(names_from = variante, values_from = t_mediano)),
+print(as.data.frame(tstat |> dplyr::filter(h %in% c(0, 1, 6, 12, 24, 36, 48)) |>
+                      tidyr::pivot_wider(names_from = variante, values_from = t_mediano)),
       row.names = FALSE, digits = 3)
 
 # --- 6e2. where the sig90 cells sit, and the medium-run drift that the
 #          commented arquivo/tex/main.tex:445 explains away as accumulated noise
-sig_where <- irf_long |> filter(bloco == "acoes", sig90) |>
-  group_by(variante, var) |>
-  summarise(n = n(), h_min = min(h), h_max = max(h),
+sig_where <- irf_long |> dplyr::filter(bloco == "acoes", sig90) |>
+  dplyr::group_by(variante, var) |>
+  dplyr::summarise(n = dplyr::n(), h_min = min(h), h_max = max(h),
             horizontes = paste(h, collapse = ","), .groups = "drop")
 cat("\n  onde ficam as celulas sig90 do bloco:\n")
 print(as.data.frame(sig_where), row.names = FALSE)
 
 drift <- irf_long |>
-  filter(var == "asset_ibov", h %in% c(0, 1, 6, 12, 18, 24, 36, 48)) |>
-  select(variante, h, point, lo68, hi68, sig68, sig90) |>
-  pivot_wider(names_from = variante, values_from = c(point, sig68))
+  dplyr::filter(var == "asset_ibov", h %in% c(0, 1, 6, 12, 18, 24, 36, 48)) |>
+  dplyr::select(variante, h, point, lo68, hi68, sig68, sig90) |>
+  tidyr::pivot_wider(names_from = variante, values_from = c(point, sig68))
 cat("\n  deriva de medio prazo do Ibovespa (o +20%% em h~24 da producao):\n")
 print(as.data.frame(drift), row.names = FALSE, digits = 3)
 
@@ -454,16 +444,16 @@ hc1_se <- function(fit) {
   bread <- solve(crossprod(X)); meat <- crossprod(X * u)
   sqrt(diag(bread %*% meat %*% bread) * n / (n - k))
 }
-betas <- map_dfr(ASSETS, function(v) {
+betas <- purrr::map_dfr(ASSETS, function(v) {
   fit <- lm(PANEL[-1, v] ~ dy2 + dfx); se <- hc1_se(fit); cf <- coef(fit)
-  tibble(var = v, beta_juros = cf[["dy2"]], t_juros = cf[["dy2"]] / se[2],
+  tibble::tibble(var = v, beta_juros = cf[["dy2"]], t_juros = cf[["dy2"]] / se[2],
          beta_cambio = cf[["dfx"]], t_cambio = cf[["dfx"]] / se[3])
 })
-cross_sec <- map_dfr(c("prod", "loglevel", "level"), function(tag) {
-  map_dfr(c(0, 6, 12, 24, 36, 48), function(h) {
-    y <- irf_long |> filter(variante == tag, var %in% ASSETS, h == !!h) |>
-      arrange(match(var, betas$var)) |> pull(point)
-    tibble(variante = tag, h = h,
+cross_sec <- purrr::map_dfr(c("prod", "loglevel", "level"), function(tag) {
+  purrr::map_dfr(c(0, 6, 12, 24, 36, 48), function(h) {
+    y <- irf_long |> dplyr::filter(variante == tag, var %in% ASSETS, h == !!h) |>
+      dplyr::arrange(match(var, betas$var)) |> dplyr::pull(point)
+    tibble::tibble(variante = tag, h = h,
            cor_beta_juros = cor(betas$beta_juros, y),
            cor_sp_juros   = cor(betas$beta_juros, y, method = "spearman"),
            amplitude      = max(y) - min(y), n_neg = sum(y < 0))
@@ -482,7 +472,7 @@ sig_set <- function(tag) {
 }
 s_prod <- sig_set("prod"); s_log <- sig_set("loglevel"); s_lvl <- sig_set("level")
 non_asset <- setdiff(SCORED, ASSETS)
-surv <- tibble(
+surv <- tibble::tibble(
   conjunto = c(
     sprintf("%d series escoradas", length(SCORED)),
     sprintf("%d nao-acionarias", length(non_asset))
@@ -495,9 +485,9 @@ surv <- tibble(
 cat("\n  sobrevivencia dos pares sig90 do paper:\n")
 print(as.data.frame(surv), row.names = FALSE)
 
-guard_h0 <- irf_long |> filter(bloco == "guarda", h == 0) |>
-  select(var, variante, point, sig90) |>
-  pivot_wider(names_from = variante, values_from = c(point, sig90))
+guard_h0 <- irf_long |> dplyr::filter(bloco == "guarda", h == 0) |>
+  dplyr::select(var, variante, point, sig90) |>
+  tidyr::pivot_wider(names_from = variante, values_from = c(point, sig90))
 cat("\n  h0 das manchetes nao-acionarias:\n")
 print(as.data.frame(guard_h0), row.names = FALSE, digits = 4)
 
@@ -517,28 +507,28 @@ stopifnot(!anyNA(LBL))
 PAL <- c(prod = "#1b1b1b", loglevel = "#0072B2", level = "#009E73")
 
 H_PLOT <- 36L
-panels <- map(names(LBL), function(v) {
-  d <- irf_long |> filter(var == v, h <= H_PLOT)
-  ggplot(d, aes(x = h, colour = variante, fill = variante)) +
-    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey60") +
-    geom_ribbon(aes(ymin = lo90, ymax = hi90), alpha = 0.08, colour = NA) +
-    geom_ribbon(aes(ymin = lo68, ymax = hi68), alpha = 0.16, colour = NA) +
-    geom_line(aes(y = point), linewidth = 0.7) +
-    scale_colour_manual(values = PAL) + scale_fill_manual(values = PAL) +
-    labs(title = LBL[[v]], x = NULL, y = NULL) +
-    theme_minimal(base_size = 10) +
-    theme(legend.position = "bottom",
-          plot.title = element_text(size = 11, face = "bold"))
+panels <- purrr::map(names(LBL), function(v) {
+  d <- irf_long |> dplyr::filter(var == v, h <= H_PLOT)
+  ggplot2::ggplot(d, ggplot2::aes(x = h, colour = variante, fill = variante)) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "grey60") +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo90, ymax = hi90), alpha = 0.08, colour = NA) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo68, ymax = hi68), alpha = 0.16, colour = NA) +
+    ggplot2::geom_line(ggplot2::aes(y = point), linewidth = 0.7) +
+    ggplot2::scale_colour_manual(values = PAL) + ggplot2::scale_fill_manual(values = PAL) +
+    ggplot2::labs(title = LBL[[v]], x = NULL, y = NULL) +
+    ggplot2::theme_minimal(base_size = 10) +
+    ggplot2::theme(legend.position = "bottom",
+          plot.title = ggplot2::element_text(size = 11, face = "bold"))
 })
 
 pdf(file.path(OUT_DIR, "asset_irf_overlay.pdf"), width = 13, height = 7)
-print(wrap_plots(panels, ncol = 4, guides = "collect") +
-        plot_annotation(
+print(patchwork::wrap_plots(panels, ncol = 4, guides = "collect") +
+        patchwork::plot_annotation(
           title = "Bloco acionario: retorno mensal (producao) vs. log-nivel vs. nivel",
           subtitle = sprintf(
             "r=%d q=%d p=%d | %s | %s | +%dbp | nboot=%d | bandas 68/90 | resposta em %% do nivel do indice",
             R_FACTORS, Q_DYNAMIC, P_LAGS, INSTRUMENT, MP_VAR, SHOCK_BPS, N_BOOT)) &
-        theme(legend.position = "bottom"))
+        ggplot2::theme(legend.position = "bottom"))
 invisible(dev.off())
 cat(sprintf("    -> %s/asset_irf_overlay.pdf\n", OUT_DIR))
 
@@ -550,27 +540,27 @@ cat(sprintf("    -> %s/asset_irf_overlay.pdf\n", OUT_DIR))
 cat("\n[8] gravando\n")
 
 cells_tbl <- strength_tbl |>
-  left_join(score, by = c("variante")) |>
-  mutate(painel = case_when(variante %in% c("prod", "prod_nocum") ~ "retorno mensal",
+  dplyr::left_join(score, by = c("variante")) |>
+  dplyr::mutate(painel = dplyr::case_when(variante %in% c("prod", "prod_nocum") ~ "retorno mensal",
                             variante == "loglevel" ~ "log(cumprod(1+r))",
                             TRUE ~ "cumprod(1+r)"),
          tcode_asset = c(prod = 2L, prod_nocum = 1L, loglevel = 4L,
                          level = 1L)[variante]) |>
-  relocate(variante, painel, tcode_asset, amostra)
+  dplyr::relocate(variante, painel, tcode_asset, amostra)
 
-write_csv(cells_tbl,  file.path(OUT_DIR, "asset_cells.csv"))
-write_csv(irf_long,   file.path(OUT_DIR, "asset_irf_compare.csv"))
-write_csv(band_ratio, file.path(OUT_DIR, "asset_band_ratio.csv"))
-write_csv(tstat,      file.path(OUT_DIR, "asset_tstat.csv"))
-write_csv(betas |> left_join(
-  irf_long |> filter(bloco == "acoes", h %in% c(0, 12, 48)) |>
-    select(var, variante, h, point) |>
-    pivot_wider(names_from = c(variante, h), values_from = point,
+readr::write_csv(cells_tbl,  file.path(OUT_DIR, "asset_cells.csv"))
+readr::write_csv(irf_long,   file.path(OUT_DIR, "asset_irf_compare.csv"))
+readr::write_csv(band_ratio, file.path(OUT_DIR, "asset_band_ratio.csv"))
+readr::write_csv(tstat,      file.path(OUT_DIR, "asset_tstat.csv"))
+readr::write_csv(betas |> dplyr::left_join(
+  irf_long |> dplyr::filter(bloco == "acoes", h %in% c(0, 12, 48)) |>
+    dplyr::select(var, variante, h, point) |>
+    tidyr::pivot_wider(names_from = c(variante, h), values_from = point,
                 names_prefix = "irf_"), by = "var") |>
-  bind_rows(cross_sec |> mutate(var = paste0("cor_h", h))),
+  dplyr::bind_rows(cross_sec |> dplyr::mutate(var = paste0("cor_h", h))),
   file.path(OUT_DIR, "asset_cross_section.csv"))
-write_csv(bind_rows(surv |> mutate(tabela = "sobrevivencia_sig90"),
-                    guard_h0 |> mutate(tabela = "h0_manchetes")),
+readr::write_csv(dplyr::bind_rows(surv |> dplyr::mutate(tabela = "sobrevivencia_sig90"),
+                    guard_h0 |> dplyr::mutate(tabela = "h0_manchetes")),
           file.path(OUT_DIR, "asset_guards.csv"))
 for (f in c("asset_cells", "asset_irf_compare", "asset_band_ratio",
             "asset_tstat", "asset_cross_section", "asset_guards"))
@@ -624,20 +614,20 @@ md <- c(
   "",
   "## As quatro representações",
   "",
-  md_table(cells_tbl |> filter(amostra == "full") |>
-             select(variante, painel, tcode_asset, xi_mp, f_robust_mp, max_eig,
+  md_table(cells_tbl |> dplyr::filter(amostra == "full") |>
+             dplyr::select(variante, painel, tcode_asset, xi_mp, f_robust_mp, max_eig,
                     n_sig90, n_sig90_h12, n_sig68)),
   "",
   "Força do instrumento nas duas janelas:",
   "",
-  md_table(strength_tbl |> select(variante, amostra, n_obs, xi_mp, f_robust_mp,
+  md_table(strength_tbl |> dplyr::select(variante, amostra, n_obs, xi_mp, f_robust_mp,
                                   ar_bounded, bandas_convencionais)),
   "",
   "## h = 0 — o teste limpo da representação",
   "",
   "Resposta em % do nível do índice no mês do impacto, com IC90.",
   "",
-  md_table(h0_tbl |> select(var, point_prod, lo90_prod, hi90_prod,
+  md_table(h0_tbl |> dplyr::select(var, point_prod, lo90_prod, hi90_prod,
                             point_loglevel, lo90_loglevel, hi90_loglevel,
                             sig90_loglevel, sig68_loglevel)),
   "",
@@ -670,8 +660,8 @@ md <- c(
   "",
   "## Proxy de |t| no bloco (|ponto| / meia-banda de 68%)",
   "",
-  md_table(tstat |> filter(h %in% c(0, 1, 3, 6, 12, 18, 24, 36, 48)) |>
-             pivot_wider(names_from = variante, values_from = t_mediano)),
+  md_table(tstat |> dplyr::filter(h %in% c(0, 1, 3, 6, 12, 18, 24, 36, 48)) |>
+             tidyr::pivot_wider(names_from = variante, values_from = t_mediano)),
   "",
   "## Seção cruzada",
   "",

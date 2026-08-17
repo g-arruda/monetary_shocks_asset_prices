@@ -68,13 +68,11 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(readr)
-  library(dplyr)
-  library(tidyr)
-  library(ggplot2)
-  library(patchwork)
-})
+# patchwork precisa estar ANEXADO: a figura VAR-esquerda / DFM-direita compõe
+# com o operador `|` (linhas 431 e 475), e o método de `|` só existe no search
+# path. Namespacear `patchwork::` não basta — `p1 | p2` cai no `|` lógico e
+# aborta com "Can't find method for generic |(e1, e2)".
+library(patchwork)
 
 source("R/modeling/factor_estimation.R")   # kilian_correction, infer_tcode
 source("R/modeling/impulse_response.R")    # sel_ext_inst_sample, ident_ext_instr
@@ -130,18 +128,18 @@ cat("=== VAR benchmark against the DFM ===\n\n")
 # ===================================================================
 cat("[1] loading\n")
 
-panel_df <- read_csv(DATA_PATH, show_col_types = FALSE) |>
-  filter(ref.date >= WINDOW[1], ref.date <= WINDOW[2]) |>
-  drop_na()
+panel_df <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |>
+  dplyr::filter(ref.date >= WINDOW[1], ref.date <= WINDOW[2]) |>
+  tidyr::drop_na()
 DATES <- as.Date(panel_df$ref.date)
-PANEL <- panel_df |> select(-ref.date) |> as.matrix()
+PANEL <- panel_df |> dplyr::select(-ref.date) |> as.matrix()
 VAR_NAMES <- colnames(PANEL)
 TCODE <- infer_tcode_from_varnames(VAR_NAMES)
 
-inst_df <- read_csv(INST_PATH, show_col_types = FALSE) |>
-  mutate(month = as.Date(month)) |>
-  select(month, shock = all_of(INSTRUMENT)) |>
-  filter(!is.na(shock))
+inst_df <- readr::read_csv(INST_PATH, show_col_types = FALSE) |>
+  dplyr::mutate(month = as.Date(month)) |>
+  dplyr::select(month, shock = dplyr::all_of(INSTRUMENT)) |>
+  dplyr::filter(!is.na(shock))
 
 cell <- readRDS(CELL_PATH)
 stopifnot(cell$instrument == INSTRUMENT, cell$r == SPEC$r, cell$q == SPEC$q,
@@ -201,7 +199,7 @@ var_long <- lapply(fits, function(f) {
              hi68 = f$res$ci[["0.68"]]$upper[k, j],
              lo90 = f$res$ci[["0.90"]]$lower[k, j],
              hi90 = f$res$ci[["0.90"]]$upper[k, j])
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 dfm_long <- lapply(RESPONSES, function(v) {
   i <- match(v, cell$var_names)
@@ -211,15 +209,15 @@ dfm_long <- lapply(RESPONSES, function(v) {
              hi68 = cell$irf$ci[["0.68"]]$upper[i, j],
              lo90 = cell$irf$ci[["0.90"]]$lower[i, j],
              hi90 = cell$irf$ci[["0.90"]]$upper[i, j])
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
-irf_long <- bind_rows(var_long, dfm_long) |>
-  mutate(sig68 = lo68 > 0 | hi68 < 0,
+irf_long <- dplyr::bind_rows(var_long, dfm_long) |>
+  dplyr::mutate(sig68 = lo68 > 0 | hi68 < 0,
          sig90 = lo90 > 0 | hi90 < 0,
-         grupo = rep(NA_character_, n()))
+         grupo = rep(NA_character_, dplyr::n()))
 for (g in names(VARLIST)) irf_long$grupo[irf_long$var %in% VARLIST[[g]]] <- g
 
-write_csv(irf_long, file.path(OUT_DIR, "var_benchmark_irf.csv"))
+readr::write_csv(irf_long, file.path(OUT_DIR, "var_benchmark_irf.csv"))
 cat(sprintf("    -> %s/var_benchmark_irf.csv (%d rows)\n",
             OUT_DIR, nrow(irf_long)))
 
@@ -228,9 +226,9 @@ core_long <- lapply(fits, function(f) {
   lapply(seq_along(CORE_VARS), function(k) {
     data.frame(var_do_var = f$var, core = CORE_VARS[k], h = 0:HORIZON,
                point = f$res$irf_point[k, j])
-  }) |> bind_rows()
-}) |> bind_rows()
-write_csv(core_long, file.path(OUT_DIR, "var_benchmark_core.csv"))
+  }) |> dplyr::bind_rows()
+}) |> dplyr::bind_rows()
+readr::write_csv(core_long, file.path(OUT_DIR, "var_benchmark_core.csv"))
 cat(sprintf("    -> %s/var_benchmark_core.csv (%d rows)\n",
             OUT_DIR, nrow(core_long)))
 
@@ -241,18 +239,18 @@ cat(sprintf("    -> %s/var_benchmark_core.csv (%d rows)\n",
 cat("\n[4] self-tests\n")
 
 # 4.1 the VAR normalizes yield_6m to exactly 0.005 on impact, in all VARs
-h0_mp <- core_long |> filter(core == MP_VAR, h == 0)
+h0_mp <- core_long |> dplyr::filter(core == MP_VAR, h == 0)
 cat(sprintf("    (1) %s h0 in every VAR: max |dev| from %g = %.3g\n",
             MP_VAR, NORM_V, max(abs(h0_mp$point - NORM_V))))
 stopifnot(nrow(h0_mp) == length(RESPONSES),
           max(abs(h0_mp$point - NORM_V)) < 1e-12)
 
 # 4.2 the DFM side read from the .rds reproduces irf_coherence_h.csv
-hcsv <- read_csv(HCSV_PATH, show_col_types = FALSE)
+hcsv <- readr::read_csv(HCSV_PATH, show_col_types = FALSE)
 scored <- intersect(RESPONSES, unique(hcsv$var))
 unscored <- setdiff(RESPONSES, scored)
-chk <- dfm_long |> filter(var %in% scored) |>
-  inner_join(hcsv |> select(var, h, point_csv = point, lo90_csv = lo90,
+chk <- dfm_long |> dplyr::filter(var %in% scored) |>
+  dplyr::inner_join(hcsv |> dplyr::select(var, h, point_csv = point, lo90_csv = lo90,
                             hi90_csv = hi90),
              by = c("var", "h"))
 d1 <- max(abs(chk$point - chk$point_csv))
@@ -318,8 +316,8 @@ peak_same_sign <- function(h, y) {
   list(h = h[i], val = y[i], n = last)
 }
 
-summ <- irf_long |> group_by(model, var, grupo) |>
-  summarise(
+summ <- irf_long |> dplyr::group_by(model, var, grupo) |>
+  dplyr::summarise(
     h0 = point[h == 0], h3 = point[h == 3], h6 = point[h == 6],
     h12 = point[h == 12], h24 = point[h == 24],
     peak_h = h[which.max(abs(point))],
@@ -337,19 +335,19 @@ summ <- irf_long |> group_by(model, var, grupo) |>
     .groups = "drop")
 
 cmp <- summ |>
-  select(var, grupo, model, h0, h6, h12, peak_h, peak_val,
+  dplyr::select(var, grupo, model, h0, h6, h12, peak_h, peak_val,
          peak_sinal_igual_h0, peak_ss_h, peak_ss_val, h_inversao, peak_h_cp,
          peak_val_cp, larg68_h0, larg68_h12, n_sig68, n_sig90, n_sig90_cp) |>
-  pivot_wider(names_from = model,
+  tidyr::pivot_wider(names_from = model,
               values_from = c(h0, h6, h12, peak_h, peak_val,
                               peak_sinal_igual_h0, peak_ss_h, peak_ss_val,
                               h_inversao, peak_h_cp, peak_val_cp, larg68_h0,
                               larg68_h12, n_sig68, n_sig90, n_sig90_cp)) |>
-  left_join(data.frame(var = RESPONSES,
+  dplyr::left_join(data.frame(var = RESPONSES,
                        var_max_eig = vapply(fits, function(f) f$res$max_eig,
                                             numeric(1))),
             by = "var") |>
-  mutate(
+  dplyr::mutate(
     razao_impacto  = abs(h0_DFM) / abs(h0_VAR),
     razao_pico_ss  = abs(peak_ss_val_DFM) / abs(peak_ss_val_VAR),
     razao_pico     = abs(peak_val_DFM) / abs(peak_val_VAR),
@@ -365,7 +363,7 @@ cmp <- summ |>
     var_explosivo = var_max_eig >= 1)
 
 print(as.data.frame(cmp |>
-        select(var, grupo, h0_DFM, h0_VAR, razao_impacto, peak_ss_h_DFM,
+        dplyr::select(var, grupo, h0_DFM, h0_VAR, razao_impacto, peak_ss_h_DFM,
                peak_ss_h_VAR, razao_pico_ss, razao_banda_h0,
                dfm_mais_forte_ss, dfm_mais_rapido_ss)),
       row.names = FALSE, digits = 3)
@@ -391,10 +389,10 @@ tally <- function(d, lab) {
               sum(d$n_sig90_cp_VAR)))
 }
 tally(cmp, "TODAS as respostas")
-tally(cmp |> filter(var %in% acoes8),
+tally(cmp |> dplyr::filter(var %in% acoes8),
       sprintf("bloco de ACOES (%d indices)", length(acoes8)))
 
-expl <- cmp |> filter(var_explosivo)
+expl <- cmp |> dplyr::filter(var_explosivo)
 if (nrow(expl)) {
   cat(sprintf("\n    ATENCAO — %d VAR(s) com companion EXPLOSIVA (max|eig| >= 1): %s\n",
               nrow(expl), paste(sprintf("%s (%.3f)", expl$var,
@@ -403,7 +401,7 @@ if (nrow(expl)) {
   cat("      A correcao de Kilian nao encontra delta que estabilize e avisa.\n")
 }
 
-write_csv(cmp, file.path(OUT_DIR, "var_benchmark_compare.csv"))
+readr::write_csv(cmp, file.path(OUT_DIR, "var_benchmark_compare.csv"))
 cat(sprintf("\n    -> %s/var_benchmark_compare.csv (%d rows)\n",
             OUT_DIR, nrow(cmp)))
 
@@ -416,36 +414,36 @@ cat("\n[6] figures\n")
 pal <- c(VAR = "#7f7f7f", DFM = "steelblue")
 
 one_panel <- function(v, mdl, ylim) {
-  d <- irf_long |> filter(var == v, model == mdl)
-  ggplot(d, aes(h, point)) +
-    geom_ribbon(aes(ymin = lo90, ymax = hi90), fill = pal[[mdl]], alpha = 0.18) +
-    geom_ribbon(aes(ymin = lo68, ymax = hi68), fill = pal[[mdl]], alpha = 0.36) +
-    geom_hline(yintercept = 0, linetype = "dashed", colour = "red",
+  d <- irf_long |> dplyr::filter(var == v, model == mdl)
+  ggplot2::ggplot(d, ggplot2::aes(h, point)) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo90, ymax = hi90), fill = pal[[mdl]], alpha = 0.18) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo68, ymax = hi68), fill = pal[[mdl]], alpha = 0.36) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red",
                linewidth = 0.3) +
-    geom_line(linewidth = 0.8) +
-    geom_point(data = d |> filter(sig90), size = 1.9, shape = 21,
+    ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::geom_point(data = d |> dplyr::filter(sig90), size = 1.9, shape = 21,
                fill = "#d95f02", colour = "black", stroke = 0.45) +
-    coord_cartesian(ylim = ylim) +      # the linkaxes of MAIN_plotfigs.m
-    labs(x = NULL, y = NULL, title = if (mdl == "VAR") v else NULL,
+    ggplot2::coord_cartesian(ylim = ylim) +      # the linkaxes of MAIN_plotfigs.m
+    ggplot2::labs(x = NULL, y = NULL, title = if (mdl == "VAR") v else NULL,
          subtitle = NULL) +
-    theme_minimal(base_size = 8) +
-    theme(plot.title = element_text(size = 8, hjust = 0))
+    ggplot2::theme_minimal(base_size = 8) +
+    ggplot2::theme(plot.title = ggplot2::element_text(size = 8, hjust = 0))
 }
 
 fig_group <- function(vars, file, titulo) {
   rows <- lapply(vars, function(v) {
-    d <- irf_long |> filter(var == v)
+    d <- irf_long |> dplyr::filter(var == v)
     yl <- range(c(d$lo90, d$hi90), na.rm = TRUE)
     one_panel(v, "VAR", yl) | one_panel(v, "DFM", yl)
   })
   p <- Reduce(`/`, rows) +
-    plot_annotation(title = titulo,
+    patchwork::plot_annotation(title = titulo,
                     subtitle = sprintf(
                       "esquerda: VAR pequeno (4 variaveis) | direita: DFM (r=%d, q=%d) — mesmo eixo y por linha",
                       SPEC$r, SPEC$q
                     ),
-                    theme = theme_minimal(base_size = 9))
-  ggsave(file.path(OUT_DIR, file), p, width = 7.5,
+                    theme = ggplot2::theme_minimal(base_size = 9))
+  ggplot2::ggsave(file.path(OUT_DIR, file), p, width = 7.5,
          height = 1.5 * length(vars) + 0.8, device = cairo_pdf)
   cat(sprintf("    -> %s/%s\n", OUT_DIR, file))
 }
@@ -458,7 +456,7 @@ fig_group(acoes8, "var_benchmark_acoes.pdf", "Indices de acoes da B3")
 
 # Core responses across all VARs against the single DFM panel
 core_plot <- lapply(CORE_VARS, function(cv) {
-  dv <- core_long |> filter(core == cv)
+  dv <- core_long |> dplyr::filter(core == cv)
   i <- match(cv, cell$var_names)
   dd <- data.frame(h = 0:HORIZON, point = cell$irf$irf_point_matrix[i, j],
                    lo68 = cell$irf$ci[["0.68"]]$lower[i, j],
@@ -466,35 +464,35 @@ core_plot <- lapply(CORE_VARS, function(cv) {
                    lo90 = cell$irf$ci[["0.90"]]$lower[i, j],
                    hi90 = cell$irf$ci[["0.90"]]$upper[i, j])
   yl <- range(c(dv$point, dd$lo90, dd$hi90), na.rm = TRUE)
-  pv <- ggplot(dv, aes(h, point, group = var_do_var)) +
-    geom_hline(yintercept = 0, linetype = "dashed", colour = "red",
+  pv <- ggplot2::ggplot(dv, ggplot2::aes(h, point, group = var_do_var)) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red",
                linewidth = 0.3) +
-    geom_line(alpha = 0.5, linewidth = 0.4, colour = "#7f7f7f") +
-    coord_cartesian(ylim = yl) +
-    labs(x = NULL, y = NULL, title = cv) +
-    theme_minimal(base_size = 8)
-  pd <- ggplot(dd, aes(h, point)) +
-    geom_ribbon(aes(ymin = lo90, ymax = hi90), fill = "steelblue", alpha = 0.18) +
-    geom_ribbon(aes(ymin = lo68, ymax = hi68), fill = "steelblue", alpha = 0.36) +
-    geom_hline(yintercept = 0, linetype = "dashed", colour = "red",
+    ggplot2::geom_line(alpha = 0.5, linewidth = 0.4, colour = "#7f7f7f") +
+    ggplot2::coord_cartesian(ylim = yl) +
+    ggplot2::labs(x = NULL, y = NULL, title = cv) +
+    ggplot2::theme_minimal(base_size = 8)
+  pd <- ggplot2::ggplot(dd, ggplot2::aes(h, point)) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo90, ymax = hi90), fill = "steelblue", alpha = 0.18) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo68, ymax = hi68), fill = "steelblue", alpha = 0.36) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red",
                linewidth = 0.3) +
-    geom_line(linewidth = 0.8) + coord_cartesian(ylim = yl) +
-    labs(x = NULL, y = NULL) + theme_minimal(base_size = 8)
+    ggplot2::geom_line(linewidth = 0.8) + ggplot2::coord_cartesian(ylim = yl) +
+    ggplot2::labs(x = NULL, y = NULL) + ggplot2::theme_minimal(base_size = 8)
   pv | pd
 })
 pc <- Reduce(`/`, core_plot) +
-  plot_annotation(title = "Respostas das variaveis core",
+  patchwork::plot_annotation(title = "Respostas das variaveis core",
                   subtitle = sprintf("esquerda: as %d estimativas do VAR pequeno sobrepostas   |   direita: DFM",
                                      length(RESPONSES)),
-                  theme = theme_minimal(base_size = 9))
-ggsave(file.path(OUT_DIR, "var_benchmark_core.pdf"), pc, width = 7.5,
+                  theme = ggplot2::theme_minimal(base_size = 9))
+ggplot2::ggsave(file.path(OUT_DIR, "var_benchmark_core.pdf"), pc, width = 7.5,
        height = 5.5, device = cairo_pdf)
 cat(sprintf("    -> %s/var_benchmark_core.pdf\n", OUT_DIR))
 
 # Stability of the core responses across the VARs
-core_disp <- core_long |> filter(h %in% c(0, 6, 12, 24)) |>
-  group_by(core, h) |>
-  summarise(min = min(point), mediana = median(point), max = max(point),
+core_disp <- core_long |> dplyr::filter(h %in% c(0, 6, 12, 24)) |>
+  dplyr::group_by(core, h) |>
+  dplyr::summarise(min = min(point), mediana = median(point), max = max(point),
             amplitude = max(point) - min(point), .groups = "drop")
 cat("\n    dispersion of the core responses across the VARs:\n")
 print(as.data.frame(core_disp), row.names = FALSE, digits = 3)
@@ -559,7 +557,7 @@ md <- c(
   "## Placar",
   "",
   tally_md(cmp, "Todas as respostas"),
-  tally_md(cmp |> filter(var %in% acoes8),
+  tally_md(cmp |> dplyr::filter(var %in% acoes8),
            sprintf("Bloco de ações (%d índices)", length(acoes8))),
   "E há uma segunda razão para desconfiar do pico bruto: a nota de 2026-07-31",
   "sobre o espectro da companion mostra que o extremo de médio prazo do DFM *é*",
@@ -569,13 +567,13 @@ md <- c(
   "",
   "## Comparação por resposta",
   "",
-  md_tbl(cmp |> select(var, grupo, h0_DFM, h0_VAR, razao_impacto,
+  md_tbl(cmp |> dplyr::select(var, grupo, h0_DFM, h0_VAR, razao_impacto,
                        peak_ss_h_DFM, peak_ss_val_DFM, peak_ss_h_VAR,
                        peak_ss_val_VAR, razao_pico_ss, razao_banda_h0,
                        n_sig90_DFM, n_sig90_VAR), 4),
   "Pico bruto (o extremo global), com a bandeira de sinal:",
   "",
-  md_tbl(cmp |> select(var, peak_h_DFM, peak_val_DFM, peak_sinal_igual_h0_DFM,
+  md_tbl(cmp |> dplyr::select(var, peak_h_DFM, peak_val_DFM, peak_sinal_igual_h0_DFM,
                        peak_h_VAR, peak_val_VAR, peak_sinal_igual_h0_VAR,
                        razao_pico), 4),
   "## Estabilidade das respostas core entre os VARs",

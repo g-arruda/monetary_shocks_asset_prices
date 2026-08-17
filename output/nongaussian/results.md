@@ -1,6 +1,6 @@
 # Identificação não-gaussiana (GMR 2017) — resultados
 
-Gerado por `script/model_nongaussian.R` em 2026-08-16.
+Gerado por `script/model_nongaussian.R` em 2026-08-17.
 r = 5, q = 5, p = 6, h = 0-48, nboot = 800, seed = 123.
 
 A identificação vem da **não-gaussianidade** das q inovações fatoriais

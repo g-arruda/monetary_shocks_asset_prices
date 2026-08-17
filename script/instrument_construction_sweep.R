@@ -35,11 +35,6 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(dplyr); library(tidyr); library(readr)
-  library(lubridate); library(tibble); library(purrr)
-})
-
 source("R/instrument/di_surprise.R")
 source("R/instrument/build_variants.R")
 source("R/modeling/factor_estimation.R")
@@ -94,18 +89,18 @@ di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END 
 
 inputs <- list(
   di_panel   = di_panel,
-  ibov_daily = read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
-    transmute(date = as.Date(date), ibov = as.numeric(ibov)) |> filter(!is.na(ibov)),
-  ext_daily  = read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
-    transmute(date = as.Date(date), sp500 = as.numeric(sp500),
+  ibov_daily = readr::read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
+    dplyr::transmute(date = as.Date(date), ibov = as.numeric(ibov)) |> dplyr::filter(!is.na(ibov)),
+  ext_daily  = readr::read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
+    dplyr::transmute(date = as.Date(date), sp500 = as.numeric(sp500),
               vix = as.numeric(vix), brent = as.numeric(brent)),
-  brl_daily  = read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
-    transmute(date = as.Date(date), brl = as.numeric(brl)) |> filter(!is.na(brl)),
-  focus_daily = read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
-    transmute(date = as.Date(date), focus_ipca12m = as.numeric(focus_ipca12m),
+  brl_daily  = readr::read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
+    dplyr::transmute(date = as.Date(date), brl = as.numeric(brl)) |> dplyr::filter(!is.na(brl)),
+  focus_daily = readr::read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
+    dplyr::transmute(date = as.Date(date), focus_ipca12m = as.numeric(focus_ipca12m),
               focus_selic_ny = as.numeric(focus_selic_ny)),
-  dgs2_daily = read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
-    transmute(date = as.Date(date), ust2y = as.numeric(ust2y)),
+  dgs2_daily = readr::read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
+    dplyr::transmute(date = as.Date(date), ust2y = as.numeric(ust2y)),
   copom_wed  = load_copom_wednesdays(from = LOAD_START, to = SAMPLE_END),
   fomc_dates = as.Date(character(0))
 )
@@ -117,16 +112,16 @@ inputs <- list(
 
 copom_thu <- inputs$copom_wed + 1
 
-realized_bd <- map_dfr(VERTICES, function(tbd) {
-  bd <- map_dbl(copom_thu, function(thu) {
-    wed <- di_panel |> filter(date == thu - 1)
+realized_bd <- purrr::map_dfr(VERTICES, function(tbd) {
+  bd <- purrr::map_dbl(copom_thu, function(thu) {
+    wed <- di_panel |> dplyr::filter(date == thu - 1)
     if (!nrow(wed)) return(NA_real_)
     wed$bdays[which.min(abs(wed$bdays - tbd))]
   })
   bd <- bd[!is.na(bd)]
-  tibble(target_bd = tbd, n = length(bd),
+  tibble::tibble(target_bd = tbd, n = length(bd),
          bd_median = median(bd), bd_p10 = quantile(bd, .10),
-         bd_p90 = quantile(bd, .90), n_distinct_bd = n_distinct(bd))
+         bd_p90 = quantile(bd, .90), n_distinct_bd = dplyr::n_distinct(bd))
 })
 
 
@@ -152,19 +147,19 @@ for (tbd in VERTICES) {
     }
     panels[[key]] <- b$monthly
     ib <- ib + 1
-    build_diag[[ib]] <- as_tibble(b$diag)
+    build_diag[[ib]] <- tibble::as_tibble(b$diag)
   }
   cat(sprintf("  vertex %3d du done\n", tbd))
 }
 
-build_diag <- bind_rows(build_diag)
+build_diag <- dplyr::bind_rows(build_diag)
 
 
 # ---- Score every panel under xi_mp ---------------------------------
 
-raw_data <- read_csv(DATA_PATH, show_col_types = FALSE) |> drop_na()
+raw_data <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
 dates    <- as.Date(raw_data$ref.date)
-data_mat <- raw_data |> select(-ref.date) |> as.matrix()
+data_mat <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
 mp_idx   <- match(MP_VAR, colnames(data_mat))
 stopifnot(!is.na(mp_idx))
 
@@ -230,24 +225,24 @@ for (sample_name in names(SAMPLES)) {
   }
 }
 
-grid <- bind_rows(rows)
-write_csv(grid, file.path(OUT_DIR, "instrument_construction_sweep.csv"))
+grid <- dplyr::bind_rows(rows)
+readr::write_csv(grid, file.path(OUT_DIR, "instrument_construction_sweep.csv"))
 cat(sprintf("\nWrote %d cells to instrument_construction_sweep.csv\n", nrow(grid)))
 
 
 # ---- Tables --------------------------------------------------------
 
 incumbent <- grid |>
-  filter(target_bd == PROD_BD, agg == PROD_AGG, instrument == "z_jk_bs_purif") |>
-  select(sample, xi_inc = wald_mp)
+  dplyr::filter(target_bd == PROD_BD, agg == PROD_AGG, instrument == "z_jk_bs_purif") |>
+  dplyr::select(sample, xi_inc = wald_mp)
 
 heat <- function(df, ag) {
   df |>
-    filter(agg == ag) |>
-    mutate(val = round(wald_mp, 2)) |>
-    select(instrument, target_bd, val) |>
-    pivot_wider(names_from = target_bd, values_from = val) |>
-    rename_with(~ ifelse(.x == "instrument", .x, paste0(.x, "du")))
+    dplyr::filter(agg == ag) |>
+    dplyr::mutate(val = round(wald_mp, 2)) |>
+    dplyr::select(instrument, target_bd, val) |>
+    tidyr::pivot_wider(names_from = target_bd, values_from = val) |>
+    dplyr::rename_with(~ ifelse(.x == "instrument", .x, paste0(.x, "du")))
 }
 
 xi_inc_full <- incumbent$xi_inc[incumbent$sample == "full"]
@@ -255,16 +250,16 @@ xi_inc_pre  <- incumbent$xi_inc[incumbent$sample == "pre_covid"]
 
 # Cells that beat the incumbent in BOTH windows.
 both <- grid |>
-  select(sample, target_bd, agg, instrument, wald_mp) |>
-  pivot_wider(names_from = sample, values_from = wald_mp) |>
-  mutate(beats_both  = full > xi_inc_full & pre_covid > xi_inc_pre,
+  dplyr::select(sample, target_bd, agg, instrument, wald_mp) |>
+  tidyr::pivot_wider(names_from = sample, values_from = wald_mp) |>
+  dplyr::mutate(beats_both  = full > xi_inc_full & pre_covid > xi_inc_pre,
          clears_both = full >= XI_CONV & pre_covid >= XI_CONV,
          margin_full = full - xi_inc_full) |>
-  arrange(desc(beats_both & clears_both), desc(margin_full))
+  dplyr::arrange(dplyr::desc(beats_both & clears_both), dplyr::desc(margin_full))
 
 top <- both |>
-  filter(beats_both, clears_both) |>
-  select(target_bd, agg, instrument, full, pre_covid, margin_full)
+  dplyr::filter(beats_both, clears_both) |>
+  dplyr::select(target_bd, agg, instrument, full, pre_covid, margin_full)
 
 # ---- Pre-registered decision rule ----------------------------------
 # Fixed in the plan before any of these numbers existed. A challenger
@@ -277,11 +272,11 @@ top <- both |>
 
 LOO_PATH <- file.path(OUT_DIR, "xi_mp_robustness.csv")
 loo_swing <- if (file.exists(LOO_PATH)) {
-  r <- read_csv(LOO_PATH, show_col_types = FALSE)
-  b <- r |> filter(exercise == "baseline", sample == "full",
-                   instrument == "z_jk_bs_purif") |> pull(wald_mp)
-  l <- r |> filter(exercise == "loo", sample == "full",
-                   instrument == "z_jk_bs_purif") |> pull(wald_mp)
+  r <- readr::read_csv(LOO_PATH, show_col_types = FALSE)
+  b <- r |> dplyr::filter(exercise == "baseline", sample == "full",
+                   instrument == "z_jk_bs_purif") |> dplyr::pull(wald_mp)
+  l <- r |> dplyr::filter(exercise == "loo", sample == "full",
+                   instrument == "z_jk_bs_purif") |> dplyr::pull(wald_mp)
   max(b - min(l), max(l) - b)
 } else NA_real_
 
@@ -291,7 +286,7 @@ rule_fires <- !is.na(loo_swing) && nrow(top) > 0 &&
 
 # ---- Report --------------------------------------------------------
 
-fmt <- function(df) md_table(df |> mutate(across(where(is.numeric), ~ round(.x, 3))))
+fmt <- function(df) md_table(df |> dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ round(.x, 3))))
 
 sections <- c(
   "# Robustez da construção do instrumento — vértice do DI e esquema de agregação",
@@ -324,11 +319,11 @@ sections <- c(
   "",
   "### Amostra completa",
   "",
-  fmt(heat(grid |> filter(sample == "full"), "sum")),
+  fmt(heat(grid |> dplyr::filter(sample == "full"), "sum")),
   "",
   "### Pré-COVID",
   "",
-  fmt(heat(grid |> filter(sample == "pre_covid"), "sum")),
+  fmt(heat(grid |> dplyr::filter(sample == "pre_covid"), "sum")),
   "",
   "## 3. ξ_mp por vértice — agregação Gertler-Karadi (nota 11)",
   "",
@@ -340,11 +335,11 @@ sections <- c(
   "",
   "### Amostra completa",
   "",
-  fmt(heat(grid |> filter(sample == "full"), "gk")),
+  fmt(heat(grid |> dplyr::filter(sample == "full"), "gk")),
   "",
   "### Pré-COVID",
   "",
-  fmt(heat(grid |> filter(sample == "pre_covid"), "gk")),
+  fmt(heat(grid |> dplyr::filter(sample == "pre_covid"), "gk")),
   "",
   "## 4. Células que batem o incumbente nas duas janelas e cruzam 10 nas duas",
   "",
@@ -389,16 +384,16 @@ sections <- c(
   "",
   "## 5. Contagem de células por variante (agregação por soma)",
   "",
-  fmt(grid |> filter(agg == "sum") |>
-        group_by(sample, instrument) |>
-        summarise(n_vertices = n(),
+  fmt(grid |> dplyr::filter(agg == "sum") |>
+        dplyr::group_by(sample, instrument) |>
+        dplyr::summarise(n_vertices = dplyr::n(),
                   xi_min = min(wald_mp), xi_median = median(wald_mp),
                   xi_max = max(wald_mp),
                   best_bd = target_bd[which.max(wald_mp)],
                   n_ge10 = sum(wald_mp >= XI_CONV),
                   n_ge384 = sum(wald_mp > CHI2_1_95),
                   .groups = "drop") |>
-        arrange(sample, desc(xi_median))),
+        dplyr::arrange(sample, dplyr::desc(xi_median))),
   "",
   "## 6. Diagnóstico de construção por célula",
   "",
@@ -407,8 +402,8 @@ sections <- c(
          "predeterminada. R² das regressões BS pré-evento para referência ",
          "(faixa da Tabela 3 de Bauer-Swanson: 0,12–0,20)."),
   "",
-  fmt(build_diag |> filter(agg == "sum") |>
-        select(target_bd, n_valid, n_copom, n_jk, n_jk_raw, n_jk_bs,
+  fmt(build_diag |> dplyr::filter(agg == "sum") |>
+        dplyr::select(target_bd, n_valid, n_copom, n_jk, n_jk_raw, n_jk_bs,
                r2_di_bs, r2_ibov_bs)),
   ""
 )
@@ -417,12 +412,12 @@ writeLines(sections, file.path(OUT_DIR, "instrument_construction_sweep.md"))
 cat(sprintf("Wrote %s\n", file.path(OUT_DIR, "instrument_construction_sweep.md")))
 
 cat("\n========== xi_mp, sum scheme, production instrument ==========\n")
-print(as.data.frame(grid |> filter(agg == "sum", instrument == "z_jk_bs_purif") |>
-                      select(sample, target_bd, n_nonzero, wald_mp) |>
-                      mutate(wald_mp = round(wald_mp, 2))), row.names = FALSE)
+print(as.data.frame(grid |> dplyr::filter(agg == "sum", instrument == "z_jk_bs_purif") |>
+                      dplyr::select(sample, target_bd, n_nonzero, wald_mp) |>
+                      dplyr::mutate(wald_mp = round(wald_mp, 2))), row.names = FALSE)
 cat("\n========== Cells beating the incumbent in both windows ==========\n")
 if (nrow(top) == 0) cat("  none\n") else
-  print(as.data.frame(top |> mutate(across(where(is.numeric), ~ round(.x, 2)))),
+  print(as.data.frame(top |> dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ round(.x, 2)))),
         row.names = FALSE)
 
 
@@ -436,8 +431,6 @@ if (nrow(top) == 0) cat("  none\n") else
 # (output/irf/irf_coherence_h.csv), so no new bootstrap is run.
 # ===================================================================
 
-suppressPackageStartupMessages({ library(ggplot2) })
-
 OVERLAY_VARS <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
 H_OVER       <- 24L
 BENCH_PATH   <- "output/irf/irf_coherence_h.csv"
@@ -450,7 +443,7 @@ mp_norm   <- norm_value_for(MP_VAR, 50)
 
 cat("\nBuilding vertex IRF overlay (sum scheme, z_jk_bs_purif) ...\n")
 
-irf_long <- map_dfr(VERTICES, function(tbd) {
+irf_long <- purrr::map_dfr(VERTICES, function(tbd) {
   pan <- panels[[paste(tbd, "sum", sep = "|")]]
   if (is.null(pan)) return(NULL)
   inst_df <- data.frame(month = pan$month, shock = pan$z_jk_bs_purif)
@@ -464,36 +457,36 @@ irf_long <- map_dfr(VERTICES, function(tbd) {
   if (is.null(ir)) return(NULL)
 
   m <- ir$irf_point_matrix
-  map_dfr(OVERLAY_VARS, function(v) {
+  purrr::map_dfr(OVERLAY_VARS, function(v) {
     i <- match(v, var_names)
-    tibble(var = v, h = 0:H_OVER, point = m[i, seq_len(H_OVER + 1)],
+    tibble::tibble(var = v, h = 0:H_OVER, point = m[i, seq_len(H_OVER + 1)],
            target_bd = tbd)
   })
 })
 
-bench <- read_csv(BENCH_PATH, show_col_types = FALSE) |>
-  filter(var %in% OVERLAY_VARS, h <= H_OVER) |>
-  select(var, h, lo68, hi68, lo90, hi90)
+bench <- readr::read_csv(BENCH_PATH, show_col_types = FALSE) |>
+  dplyr::filter(var %in% OVERLAY_VARS, h <= H_OVER) |>
+  dplyr::select(var, h, lo68, hi68, lo90, hi90)
 
 irf_long <- irf_long |>
-  mutate(var = factor(var, levels = OVERLAY_VARS),
+  dplyr::mutate(var = factor(var, levels = OVERLAY_VARS),
          role = ifelse(target_bd == PROD_BD, "producao", "alternativo"))
 bench$var <- factor(bench$var, levels = OVERLAY_VARS)
 
-p <- ggplot() +
-  geom_ribbon(data = bench, aes(h, ymin = lo90, ymax = hi90),
+p <- ggplot2::ggplot() +
+  ggplot2::geom_ribbon(data = bench, ggplot2::aes(h, ymin = lo90, ymax = hi90),
               fill = "grey70", alpha = 0.35) +
-  geom_ribbon(data = bench, aes(h, ymin = lo68, ymax = hi68),
+  ggplot2::geom_ribbon(data = bench, ggplot2::aes(h, ymin = lo68, ymax = hi68),
               fill = "grey50", alpha = 0.35) +
-  geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey30") +
-  geom_line(data = filter(irf_long, role == "alternativo"),
-            aes(h, point, group = target_bd, colour = target_bd),
+  ggplot2::geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey30") +
+  ggplot2::geom_line(data = dplyr::filter(irf_long, role == "alternativo"),
+            ggplot2::aes(h, point, group = target_bd, colour = target_bd),
             linewidth = 0.45, alpha = 0.85) +
-  geom_line(data = filter(irf_long, role == "producao"),
-            aes(h, point), colour = "black", linewidth = 1.1) +
-  scale_colour_viridis_c(name = "vértice DI\n(dias úteis)", option = "plasma", end = 0.9) +
-  facet_wrap(~ var, scales = "free_y", ncol = 2) +
-  labs(
+  ggplot2::geom_line(data = dplyr::filter(irf_long, role == "producao"),
+            ggplot2::aes(h, point), colour = "black", linewidth = 1.1) +
+  ggplot2::scale_colour_viridis_c(name = "vértice DI\n(dias úteis)", option = "plasma", end = 0.9) +
+  ggplot2::facet_wrap(~ var, scales = "free_y", ncol = 2) +
+  ggplot2::labs(
     title = "Resposta a um choque de +50bp por vértice do DI usado na surpresa",
     subtitle = paste0("Linha preta: vértice de produção (", PROD_BD,
                       " du). Bandas de 68% e 90% do bootstrap de produção.\n",
@@ -502,20 +495,20 @@ p <- ggplot() +
     x = "horizonte (meses)", y = NULL,
     caption = "Analogo da Figura A4 de Alessi & Kerssenfischer (2019)."
   ) +
-  theme_minimal(base_size = 10) +
-  theme(legend.position = "bottom",
-        plot.title = element_text(face = "bold"),
-        strip.text = element_text(face = "bold"))
+  ggplot2::theme_minimal(base_size = 10) +
+  ggplot2::theme(legend.position = "bottom",
+        plot.title = ggplot2::element_text(face = "bold"),
+        strip.text = ggplot2::element_text(face = "bold"))
 
-ggsave(file.path(OUT_DIR, "vertex_irf_overlay.pdf"), p,
+ggplot2::ggsave(file.path(OUT_DIR, "vertex_irf_overlay.pdf"), p,
        width = 9, height = 10)
 cat(sprintf("Wrote %s\n", file.path(OUT_DIR, "vertex_irf_overlay.pdf")))
 
 # Sanity: the production vertex must reproduce the benchmark point path.
-chk <- irf_long |> filter(target_bd == PROD_BD) |>
-  inner_join(read_csv(BENCH_PATH, show_col_types = FALSE) |>
-               select(var, h, bench_point = point) |>
-               mutate(var = factor(var, levels = OVERLAY_VARS)),
+chk <- irf_long |> dplyr::filter(target_bd == PROD_BD) |>
+  dplyr::inner_join(readr::read_csv(BENCH_PATH, show_col_types = FALSE) |>
+               dplyr::select(var, h, bench_point = point) |>
+               dplyr::mutate(var = factor(var, levels = OVERLAY_VARS)),
              by = c("var", "h"))
 cat(sprintf("Production vertex vs benchmark point path: max |diff| = %.2e over %d points\n",
             max(abs(chk$point - chk$bench_point)), nrow(chk)))

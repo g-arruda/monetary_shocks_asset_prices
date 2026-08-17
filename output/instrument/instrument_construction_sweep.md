@@ -1,6 +1,6 @@
 # Robustez da construção do instrumento — vértice do DI e esquema de agregação
 
-Gerado por `script/instrument_construction_sweep.R` em 2026-08-13.
+Gerado por `script/instrument_construction_sweep.R` em 2026-08-17.
 
 Grid: 13 vértices × 2 esquemas de agregação × 5 variantes × 2 amostras = 260 células. Dimensão (r, q) = (5, 5), p = 6, direção de normalização = `yield_6m`. Um `estimate_dfm` por amostra.
 
