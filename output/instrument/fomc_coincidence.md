@@ -1,12 +1,12 @@
 # Coincidencia FOMC no instrumento Copom — teste diario e reestimacao
 
-*Gerado por `script/fomc_coincidence.R` em 2026-08-13. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-10_coincidencia_fomc.md`.*
+*Gerado por `script/fomc_coincidence.R` em 2026-08-17. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-10_coincidencia_fomc.md`.*
 
 ## A pergunta
 
 A surpresa de producao `e_di_bs` e residualizada so em regressores **predeterminados**, entao um choque realizado *dentro* da janela Qua->Qui e ortogonal a essa RHS por construcao e passa direto. Uma surpresa hawkish do Fed sobe o DI, derruba o Ibovespa — e o filtro JK **retem** o dia como "politica" — deprecia o BRL e abre EMBI/CDS. E o resultado central inteiro, sem canal domestico.
 
-Ate 2026-08-10 o repositorio nao tinha como responder: `R/instrument/build_variants.R:244` computa `fomc_coincide`, mas `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caia num vetor vazio, entao a flag era **sempre FALSE**. As datas agora vem de `R/data_download/fomc_dates.R` (paginas de calendario do proprio Fed): **35 dos 95 dias Copom** da amostra coincidem com decisao do FOMC.
+Ate 2026-08-10 o repositorio nao tinha como responder: `R/instrument/build_variants.R:244` computa `fomc_coincide`, mas `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caia num vetor vazio, entao a flag era **sempre FALSE**. As datas agora vem de `script/fomc_dates.R` (paginas de calendario do proprio Fed): **35 dos 95 dias Copom** da amostra coincidem com decisao do FOMC.
 
 ## Regra de leitura, fixada antes de os numeros existirem
 

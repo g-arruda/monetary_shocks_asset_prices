@@ -1,6 +1,6 @@
 # Robustez: identificacao por heterocedasticidade (Rigobon 2003) no DFM mensal
 
-Gerado por `script/het_robustness.R` em 2026-08-16. **Corpo gerado — nao editar a mao.**
+Gerado por `script/het_robustness.R` em 2026-08-17. **Corpo gerado — nao editar a mao.**
 
 ## O que este exercicio responde
 

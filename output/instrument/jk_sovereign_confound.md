@@ -1,6 +1,6 @@
 # Confound soberano no filtro JK — teste diario
 
-*Gerado por `script/jk_sovereign_confound.R` em 2026-08-13. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-09_confound_soberano_cds.md` (rodada das duas proxies) e `2026-07-31_confound_soberano_jk.md` (rodada original, so EMBI).*
+*Gerado por `script/jk_sovereign_confound.R` em 2026-08-17. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-09_confound_soberano_cds.md` (rodada das duas proxies) e `2026-07-31_confound_soberano_jk.md` (rodada original, so EMBI).*
 
 ## A pergunta
 

@@ -73,12 +73,12 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(readr)
-  library(tidyr)
-  library(urca)
-})
+# urca precisa estar ANEXADO, não só namespaceado: `ur.df` é S4 e o método
+# `summary()` dele só entra no despacho quando o pacote está no search path.
+# Com `urca::ur.df()` sozinho, `summary()` cai no método base, o objeto sai
+# sem `@teststat`, e o `tryCatch` de `run_ur()` transforma isso em NA — o
+# ADF inteiro vira "ambiguo" sem nenhum erro visível.
+library(urca)
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
@@ -117,16 +117,16 @@ cat("=== Factor stationarity, cointegration and companion spectrum ===\n\n")
 # 0. Panel, instrument, DFM
 # ===================================================================
 
-panel_df <- read_csv(DATA_PATH, show_col_types = FALSE) |> drop_na()
+panel_df <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
 DATES <- as.Date(panel_df$ref.date)
-PANEL <- panel_df |> select(-ref.date) |> as.matrix()
+PANEL <- panel_df |> dplyr::select(-ref.date) |> as.matrix()
 VAR_NAMES <- colnames(PANEL)
 TCODE <- infer_tcode_from_varnames(VAR_NAMES)
 
-inst_df <- read_csv(INST_PATH, show_col_types = FALSE) |>
-  mutate(month = as.Date(month)) |>
-  select(month, shock = all_of(INSTRUMENT)) |>
-  filter(!is.na(shock))
+inst_df <- readr::read_csv(INST_PATH, show_col_types = FALSE) |>
+  dplyr::mutate(month = as.Date(month)) |>
+  dplyr::select(month, shock = dplyr::all_of(INSTRUMENT)) |>
+  dplyr::filter(!is.na(shock))
 
 cat(sprintf("[0] panel %d x %d | %s to %s | instrument %s\n",
             nrow(PANEL), ncol(PANEL),
@@ -183,16 +183,16 @@ for (pp in P_GRID) {
   spec_rows[[length(spec_rows) + 1]] <- spectrum_table(A_ols, "OLS", pp)
   spec_rows[[length(spec_rows) + 1]] <- spectrum_table(A_kil, "Kilian", pp)
 }
-spec <- bind_rows(spec_rows)
+spec <- dplyr::bind_rows(spec_rows)
 
-prod_ols <- spec |> filter(matriz == "OLS", p == P_LAGS)
+prod_ols <- spec |> dplyr::filter(matriz == "OLS", p == P_LAGS)
 cat("    production (OLS, p = 6), five largest:\n")
-print(as.data.frame(prod_ols |> slice(1:5) |>
-        select(ordem, modulo, complexo, periodo_meses, quarto_ciclo,
+print(as.data.frame(prod_ols |> dplyr::slice(1:5) |>
+        dplyr::select(ordem, modulo, complexo, periodo_meses, quarto_ciclo,
                meia_volta_ciclo, meia_vida_meses)),
       row.names = FALSE, digits = 5)
 
-DOM <- prod_ols |> slice(1)
+DOM <- prod_ols |> dplyr::slice(1)
 cat(sprintf("\n    dominant root: |lambda| = %.6f, %s",
             DOM$modulo, ifelse(DOM$complexo, "COMPLEX", "real")))
 if (DOM$complexo) {
@@ -205,23 +205,23 @@ cat(sprintf("    |lambda| > 0.97: %d | > 0.90: %d | >= 1 (explosive): %d\n",
             sum(prod_ols$modulo >= 1)))
 
 cat("\n    max |eig| by p and matrix:\n")
-print(as.data.frame(spec |> group_by(matriz, p) |>
-        summarise(max_mod = max(modulo),
+print(as.data.frame(spec |> dplyr::group_by(matriz, p) |>
+        dplyr::summarise(max_mod = max(modulo),
                   n_complexo = sum(complexo),
                   per_dominante = periodo_meses[which.max(modulo)],
                   .groups = "drop")),
       row.names = FALSE, digits = 5)
 
-write_csv(spec, file.path(OUT_DIR, "factor_companion_spectrum.csv"))
+readr::write_csv(spec, file.path(OUT_DIR, "factor_companion_spectrum.csv"))
 cat(sprintf("    -> %s/factor_companion_spectrum.csv (%d rows)\n",
             OUT_DIR, nrow(spec)))
 
 
 # --- Self-test 1: the five largest moduli must match Tarefa 5 -------
 if (file.exists(T51_PATH)) {
-  t51 <- read_csv(T51_PATH, show_col_types = FALSE)
+  t51 <- readr::read_csv(T51_PATH, show_col_types = FALSE)
   mine_ols <- prod_ols$modulo[1:5]
-  mine_kil <- (spec |> filter(matriz == "Kilian", p == P_LAGS))$modulo[1:5]
+  mine_kil <- (spec |> dplyr::filter(matriz == "Kilian", p == P_LAGS))$modulo[1:5]
   d_ols <- max(abs(mine_ols - t51$modulo_OLS))
   d_kil <- max(abs(mine_kil - t51$modulo_Kilian))
   cat(sprintf("    self-test vs %s: max |diff| OLS %.3g, Kilian %.3g\n",
@@ -260,20 +260,20 @@ cat("\n[2] unit roots on the factors\n")
 run_ur <- function(x, test, spec) {
   out <- tryCatch({
     if (test == "ADF") {
-      s <- summary(ur.df(x, type = if (spec == "trend") "trend" else "drift",
+      s <- summary(urca::ur.df(x, type = if (spec == "trend") "trend" else "drift",
                          selectlags = "AIC"))
       list(stat = as.numeric(s@teststat[1]), cv = as.numeric(s@cval[1, "5pct"]),
            h0 = "raiz unitaria", rejeita = as.numeric(s@teststat[1]) <
                                             as.numeric(s@cval[1, "5pct"]))
     } else if (test == "PP") {
-      s <- ur.pp(x, type = "Z-tau",
+      s <- urca::ur.pp(x, type = "Z-tau",
                  model = if (spec == "trend") "trend" else "constant",
                  lags = "short")
       list(stat = as.numeric(s@teststat), cv = as.numeric(s@cval[1, "5pct"]),
            h0 = "raiz unitaria", rejeita = as.numeric(s@teststat) <
                                             as.numeric(s@cval[1, "5pct"]))
     } else {
-      s <- ur.kpss(x, type = if (spec == "trend") "tau" else "mu",
+      s <- urca::ur.kpss(x, type = if (spec == "trend") "tau" else "mu",
                    lags = "short")
       list(stat = as.numeric(s@teststat), cv = as.numeric(s@cval[1, "5pct"]),
            h0 = "estacionaria", rejeita = as.numeric(s@teststat) >
@@ -300,15 +300,15 @@ for (j in seq_len(ncol(Fh))) {
     }
   }
 }
-fac <- bind_rows(fac_rows)
+fac <- dplyr::bind_rows(fac_rows)
 
 # Verdict per factor and transformation, on the drift/mu specification
 # (the one t5_4 uses), by ADF+KPSS agreement, with PP recorded beside.
 ver <- fac |>
-  filter(spec == "drift") |>
-  select(fator, transf, teste, rejeita_h0_5pct) |>
-  pivot_wider(names_from = teste, values_from = rejeita_h0_5pct) |>
-  mutate(veredito = case_when(
+  dplyr::filter(spec == "drift") |>
+  dplyr::select(fator, transf, teste, rejeita_h0_5pct) |>
+  tidyr::pivot_wider(names_from = teste, values_from = rejeita_h0_5pct) |>
+  dplyr::mutate(veredito = dplyr::case_when(
     !ADF &  KPSS ~ "I(1) - ADF e KPSS concordam",
      ADF & !KPSS ~ "I(0) - ADF e KPSS concordam",
     TRUE ~ "ambiguo"),
@@ -324,9 +324,9 @@ cat(sprintf("\n    levels I(1): %d of %d | differences I(0): %d of %d\n",
 cat("    (I(1) in levels + I(0) in differences = I(1), which is the BLL design;\n")
 cat("     a factor NOT I(0) in difference would be I(2) and would be a problem)\n")
 
-fac <- fac |> left_join(ver |> select(fator, transf, veredito),
+fac <- fac |> dplyr::left_join(ver |> dplyr::select(fator, transf, veredito),
                         by = c("fator", "transf"))
-write_csv(fac, file.path(OUT_DIR, "factor_unit_root.csv"))
+readr::write_csv(fac, file.path(OUT_DIR, "factor_unit_root.csv"))
 cat(sprintf("    -> %s/factor_unit_root.csv (%d rows)\n", OUT_DIR, nrow(fac)))
 
 
@@ -343,18 +343,18 @@ pp_panel <- lapply(seq_along(VAR_NAMES), function(i) {
   data.frame(var = VAR_NAMES[i], tcode = TCODE[i],
              pp_stat = rr$stat, pp_cv5 = rr$cv,
              pp_rejeita_RU_5pct = rr$rejeita)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 if (file.exists(T54_PATH)) {
-  t54 <- read_csv(T54_PATH, show_col_types = FALSE)
+  t54 <- readr::read_csv(T54_PATH, show_col_types = FALSE)
 
   # Self-test 3: re-run ADF and KPSS on a sample and check t5_4 reproduces
   chk_idx <- sort(sample(seq_along(VAR_NAMES), min(20L, length(VAR_NAMES))))
   chk <- lapply(chk_idx, function(i) {
     a <- run_ur(PANEL[, i], "ADF", "drift")
     data.frame(var = VAR_NAMES[i], adf_mine = a$rejeita)
-  }) |> bind_rows() |>
-    left_join(t54 |> select(var, adf_disk = adf_rejeita_RU_5pct), by = "var")
+  }) |> dplyr::bind_rows() |>
+    dplyr::left_join(t54 |> dplyr::select(var, adf_disk = adf_rejeita_RU_5pct), by = "var")
   ok <- all(chk$adf_mine == chk$adf_disk, na.rm = TRUE)
   cat(sprintf("    self-test vs %s: ADF agrees on %d of %d sampled series\n",
               T54_PATH, sum(chk$adf_mine == chk$adf_disk, na.rm = TRUE),
@@ -362,10 +362,10 @@ if (file.exists(T54_PATH)) {
   stopifnot(ok)
 
   pp_panel <- t54 |>
-    select(var, grupo, tcode, adf_rejeita_RU_5pct, kpss_p,
+    dplyr::select(var, grupo, tcode, adf_rejeita_RU_5pct, kpss_p,
            kpss_rejeita_estac_5pct, veredito_adf_kpss = veredito) |>
-    left_join(pp_panel |> select(-tcode), by = "var") |>
-    mutate(tres_concordam = !adf_rejeita_RU_5pct & !pp_rejeita_RU_5pct &
+    dplyr::left_join(pp_panel |> dplyr::select(-tcode), by = "var") |>
+    dplyr::mutate(tres_concordam = !adf_rejeita_RU_5pct & !pp_rejeita_RU_5pct &
              kpss_rejeita_estac_5pct)
 } else {
   cat("    (t5_4_raiz_unitaria.csv absent - ADF/KPSS columns not joined)\n")
@@ -376,11 +376,11 @@ cat(sprintf("    PP rejects the unit root at 5%% in %d of %d series\n",
 if ("veredito_adf_kpss" %in% names(pp_panel)) {
   cat("\n    PP against the ADF+KPSS verdict:\n")
   print(as.data.frame(pp_panel |>
-          count(veredito_adf_kpss, pp_rejeita_RU_5pct)), row.names = FALSE)
+          dplyr::count(veredito_adf_kpss, pp_rejeita_RU_5pct)), row.names = FALSE)
   cat(sprintf("\n    all three agree on I(1) in %d series\n",
               sum(pp_panel$tres_concordam, na.rm = TRUE)))
 }
-write_csv(pp_panel, file.path(OUT_DIR, "panel_unit_root_pp.csv"))
+readr::write_csv(pp_panel, file.path(OUT_DIR, "panel_unit_root_pp.csv"))
 cat(sprintf("    -> %s/panel_unit_root_pp.csv (%d rows)\n",
             OUT_DIR, nrow(pp_panel)))
 
@@ -399,7 +399,7 @@ cat("\n[4] Johansen cointegration on the factors\n")
 joh_rows <- list()
 for (KK in K_GRID) {
   for (ty in c("trace", "eigen")) {
-    jo <- ca.jo(Fh, type = ty, ecdet = "const", K = KK, spec = "transitory")
+    jo <- urca::ca.jo(Fh, type = ty, ecdet = "const", K = KK, spec = "transitory")
     st <- jo@teststat
     cv <- jo@cval
     n  <- ncol(Fh)
@@ -416,37 +416,37 @@ for (KK in K_GRID) {
     )
   }
 }
-joh <- bind_rows(joh_rows) |> arrange(K, tipo, r0)
+joh <- dplyr::bind_rows(joh_rows) |> dplyr::arrange(K, tipo, r0)
 
 #' Estimated rank: the first r0 (ascending) whose H0 is NOT rejected
 first_nonreject <- function(d) {
-  d <- d |> arrange(r0)
+  d <- d |> dplyr::arrange(r0)
   i <- which(!d$rejeita_5pct)
   if (length(i) == 0) max(d$r0) + 1L else d$r0[i[1]]
 }
 first_nonreject_ra <- function(d) {
-  d <- d |> arrange(r0)
+  d <- d |> dplyr::arrange(r0)
   i <- which(!d$rejeita_5pct_ra)
   if (length(i) == 0) max(d$r0) + 1L else d$r0[i[1]]
 }
 
-rank_tbl <- joh |> group_by(K, tipo) |>
-  summarise(posto_5pct = first_nonreject(pick(everything())),
-            posto_5pct_ra = first_nonreject_ra(pick(everything())),
+rank_tbl <- joh |> dplyr::group_by(K, tipo) |>
+  dplyr::summarise(posto_5pct = first_nonreject(dplyr::pick(dplyr::everything())),
+            posto_5pct_ra = first_nonreject_ra(dplyr::pick(dplyr::everything())),
             .groups = "drop")
 
 cat(sprintf("    estimated cointegration rank (n = %d):\n", ncol(Fh)))
 print(as.data.frame(rank_tbl), row.names = FALSE)
 
-POSTO_PROD <- (rank_tbl |> filter(K == P_LAGS, tipo == "trace"))$posto_5pct
-POSTO_PROD_RA <- (rank_tbl |> filter(K == P_LAGS, tipo == "trace"))$posto_5pct_ra
+POSTO_PROD <- (rank_tbl |> dplyr::filter(K == P_LAGS, tipo == "trace"))$posto_5pct
+POSTO_PROD_RA <- (rank_tbl |> dplyr::filter(K == P_LAGS, tipo == "trace"))$posto_5pct_ra
 cat(sprintf("\n    production lag (K = %d), trace: rank = %d (%d with Reinsel-Ahn)\n",
             P_LAGS, POSTO_PROD, POSTO_PROD_RA))
 cat(sprintf("    -> %d common trends, %d cointegrating relations\n",
             ncol(Fh) - POSTO_PROD, POSTO_PROD))
 
-joh <- joh |> left_join(rank_tbl, by = c("K", "tipo"))
-write_csv(joh, file.path(OUT_DIR, "factor_cointegration.csv"))
+joh <- joh |> dplyr::left_join(rank_tbl, by = c("K", "tipo"))
+readr::write_csv(joh, file.path(OUT_DIR, "factor_cointegration.csv"))
 cat(sprintf("    -> %s/factor_cointegration.csv (%d rows)\n",
             OUT_DIR, nrow(joh)))
 
@@ -458,7 +458,7 @@ cat("\n[5] observed reversal horizons against the mechanical benchmark\n")
 
 rev_tbl <- NULL
 if (file.exists(HCSV_PATH) && DOM$complexo) {
-  hcsv <- read_csv(HCSV_PATH, show_col_types = FALSE)
+  hcsv <- readr::read_csv(HCSV_PATH, show_col_types = FALSE)
   REV_VARS <- c("yield_3m", "yield_6m", "yield_2y", "yield_10y",
                 "juros_selic", "cds_5y", "embi_perc", "cambio_usd",
                 "credit_outstanding", "credito_pessoa_fisica",
@@ -471,18 +471,18 @@ if (file.exists(HCSV_PATH) && DOM$complexo) {
   #  h_extremo_mp— extremum restricted to h >= 13, which IS the trough that
   #                section 4 tells (the quarter cycle mark)
   rev_tbl <- lapply(intersect(REV_VARS, unique(hcsv$var)), function(v) {
-    d <- hcsv |> filter(var == v) |> arrange(h)
+    d <- hcsv |> dplyr::filter(var == v) |> dplyr::arrange(h)
     s0 <- sign(d$point[1])
     i <- which(sign(d$point) == -s0 & d$h > 0)
-    dm <- d |> filter(h >= 13)
+    dm <- d |> dplyr::filter(h >= 13)
     jm <- which.max(abs(dm$point))
     data.frame(var = v, sinal_h0 = s0,
                h_inversao = if (length(i)) d$h[i[1]] else NA_integer_,
                h_extremo = d$h[which.max(abs(d$point))],
                val_extremo = d$point[which.max(abs(d$point))],
                h_extremo_mp = dm$h[jm], val_extremo_mp = dm$point[jm])
-  }) |> bind_rows() |>
-    mutate(
+  }) |> dplyr::bind_rows() |>
+    dplyr::mutate(
       quarto_ciclo = DOM$quarto_ciclo,
       meia_volta = DOM$meia_volta_ciclo,
       dentro_25pct_meia_volta = !is.na(h_inversao) &
@@ -493,7 +493,7 @@ if (file.exists(HCSV_PATH) && DOM$complexo) {
         0.25 * DOM$quarto_ciclo)
 
   print(as.data.frame(rev_tbl |>
-          select(var, h_inversao, meia_volta, dentro_25pct_meia_volta,
+          dplyr::select(var, h_inversao, meia_volta, dentro_25pct_meia_volta,
                  h_extremo, h_extremo_mp, quarto_ciclo,
                  dentro_25pct_quarto_mp)),
         row.names = FALSE, digits = 4)
@@ -534,7 +534,7 @@ if (!is.null(rev_tbl)) {
     ir <- compute_irf_dfm(d, h = 48L, nboot = 0, mpind = mpind,
                           normalize_value = norm_v, tcode = TCODE,
                           var_names = VAR_NAMES)$irf_point_matrix
-    sp <- spectrum_table(d$companion_matrix, "OLS", pp) |> slice(1)
+    sp <- spectrum_table(d$companion_matrix, "OLS", pp) |> dplyr::slice(1)
     lapply(rev_tbl$var, function(v) {
       i <- match(v, VAR_NAMES)
       y <- ir[i, ]
@@ -543,22 +543,22 @@ if (!is.null(rev_tbl)) {
                  val_extremo_mp = y[jm],
                  dominante_complexa = sp$complexo,
                  quarto_ciclo = sp$quarto_ciclo)
-    }) |> bind_rows()
-  }) |> bind_rows()
+    }) |> dplyr::bind_rows()
+  }) |> dplyr::bind_rows()
 
-  wide <- lag_rows |> select(p, var, h_extremo_mp) |>
-    pivot_wider(names_from = p, values_from = h_extremo_mp,
+  wide <- lag_rows |> dplyr::select(p, var, h_extremo_mp) |>
+    tidyr::pivot_wider(names_from = p, values_from = h_extremo_mp,
                 names_prefix = "h_mp_p")
   print(as.data.frame(wide), row.names = FALSE)
 
-  qc <- lag_rows |> group_by(p) |>
-    summarise(dominante_complexa = first(dominante_complexa),
-              quarto_ciclo = first(quarto_ciclo),
+  qc <- lag_rows |> dplyr::group_by(p) |>
+    dplyr::summarise(dominante_complexa = dplyr::first(dominante_complexa),
+              quarto_ciclo = dplyr::first(quarto_ciclo),
               mediana_h_extremo_mp = median(h_extremo_mp), .groups = "drop")
   cat("\n    median medium-run trough against the quarter cycle, by p:\n")
   print(as.data.frame(qc), row.names = FALSE, digits = 4)
 
-  write_csv(lag_rows, file.path(OUT_DIR, "factor_lag_sensitivity_irf.csv"))
+  readr::write_csv(lag_rows, file.path(OUT_DIR, "factor_lag_sensitivity_irf.csv"))
   cat(sprintf("    -> %s/factor_lag_sensitivity_irf.csv (%d rows)\n",
               OUT_DIR, nrow(lag_rows)))
 } else {
@@ -672,8 +672,8 @@ if (!is.null(rev_tbl)) {
                h_mp_completo = hmp(irf_all, v),  val_mp_completo = vmp(irf_all, v),
                h_mp_sem_par1 = hmp(irf_nod, v),  val_mp_sem_par1 = vmp(irf_nod, v),
                h_mp_sem_par2 = hmp(irf_no34, v), val_mp_sem_par2 = vmp(irf_no34, v))
-  }) |> bind_rows() |>
-    mutate(razao_sem_par1 = val_mp_sem_par1 / val_mp_completo,
+  }) |> dplyr::bind_rows() |>
+    dplyr::mutate(razao_sem_par1 = val_mp_sem_par1 / val_mp_completo,
            razao_sem_par2 = val_mp_sem_par2 / val_mp_completo,
            # Two readings, and they answer different questions.
            #  `razao_*`        — both paths renormalized to +50bp on the
@@ -693,7 +693,7 @@ if (!is.null(rev_tbl)) {
              !inverte_sinal_sem_par1)
 
   print(as.data.frame(spec_rows7 |>
-          select(var, h_mp_completo, val_mp_completo, h_mp_sem_par1,
+          dplyr::select(var, h_mp_completo, val_mp_completo, h_mp_sem_par1,
                  razao_sem_par1_defl, inverte_sinal_sem_par1,
                  vale_sobrevive_sem_par1)),
         row.names = FALSE, digits = 3)
@@ -709,7 +709,7 @@ if (!is.null(rev_tbl)) {
               median(abs(spec_rows7$razao_sem_par1)),
               median(abs(spec_rows7$razao_sem_par2))))
 
-  write_csv(spec_rows7, file.path(OUT_DIR, "factor_irf_mode_decomposition.csv"))
+  readr::write_csv(spec_rows7, file.path(OUT_DIR, "factor_irf_mode_decomposition.csv"))
   cat(sprintf("    -> %s/factor_irf_mode_decomposition.csv (%d rows)\n",
               OUT_DIR, nrow(spec_rows7)))
 } else {
@@ -734,8 +734,8 @@ md <- c(
   "",
   "## 1. Espectro da companion (produção: OLS, p = 6)",
   "",
-  md_tbl(prod_ols |> slice(1:8) |>
-           select(ordem, modulo, complexo, periodo_meses, quarto_ciclo,
+  md_tbl(prod_ols |> dplyr::slice(1:8) |>
+           dplyr::select(ordem, modulo, complexo, periodo_meses, quarto_ciclo,
                   meia_volta_ciclo, meia_vida_meses), 4),
   sprintf("Raiz dominante: |λ| = %.6f, %s%s", DOM$modulo,
           ifelse(DOM$complexo, "**complexa**", "real"),
@@ -749,14 +749,14 @@ md <- c(
   "",
   "### Sensibilidade à ordem de defasagem",
   "",
-  md_tbl(spec |> group_by(matriz, p) |>
-           summarise(max_mod = max(modulo), n_complexo = sum(complexo),
+  md_tbl(spec |> dplyr::group_by(matriz, p) |>
+           dplyr::summarise(max_mod = max(modulo), n_complexo = sum(complexo),
                      per_dominante = periodo_meses[which.max(modulo)],
                      .groups = "drop"), 4),
   sprintf("## 2. Raiz unitária nos %d fatores (ADF / PP / KPSS, 5%%, spec drift-mu)",
           R_FACTORS),
   "",
-  md_tbl(ver |> select(fator, transf, ADF, PP, KPSS, veredito), 4),
+  md_tbl(ver |> dplyr::select(fator, transf, ADF, PP, KPSS, veredito), 4),
   sprintf("Fatores I(1) em nível: **%d de %d**. I(0) em primeira diferença: **%d de %d**.",
           n_i1, ncol(Fh), n_d0, ncol(Fh)),
   "",
@@ -766,15 +766,15 @@ md <- c(
           sum(pp_panel$pp_rejeita_RU_5pct, na.rm = TRUE), nrow(pp_panel)),
   "",
   if ("veredito_adf_kpss" %in% names(pp_panel))
-    md_tbl(pp_panel |> count(veredito_adf_kpss, pp_rejeita_RU_5pct)) else "",
+    md_tbl(pp_panel |> dplyr::count(veredito_adf_kpss, pp_rejeita_RU_5pct)) else "",
   sprintf("## 4. Cointegração de Johansen (n = %d)", ncol(Fh)),
   "",
   md_tbl(rank_tbl, 0),
   sprintf("Na defasagem de produção (K = %d), traço: posto **%d** (%d com Reinsel-Ahn) — %d tendências comuns.",
           P_LAGS, POSTO_PROD, POSTO_PROD_RA, ncol(Fh) - POSTO_PROD),
   "",
-  md_tbl(joh |> filter(K == P_LAGS) |>
-           select(tipo, r0, stat, cv5, rejeita_5pct, stat_reinsel_ahn,
+  md_tbl(joh |> dplyr::filter(K == P_LAGS) |>
+           dplyr::select(tipo, r0, stat, cv5, rejeita_5pct, stat_reinsel_ahn,
                   rejeita_5pct_ra), 3),
   "## 5. Regra R1 — reversão observada contra o marco mecânico",
   ""
@@ -782,7 +782,7 @@ md <- c(
 
 if (!is.null(rev_tbl)) {
   md <- c(md,
-    md_tbl(rev_tbl |> select(var, h_inversao, meia_volta,
+    md_tbl(rev_tbl |> dplyr::select(var, h_inversao, meia_volta,
                              dentro_25pct_meia_volta, h_extremo, h_extremo_mp,
                              quarto_ciclo, dentro_25pct_quarto_mp), 2),
     sprintf("Inversão de sinal dentro de ±25%% da meia-volta (%.1f meses): **%d de %d**.",
@@ -800,13 +800,13 @@ if (!is.null(lag_rows)) {
   md <- c(md,
     "## 6. O vale de médio prazo acompanha a ordem de defasagem?",
     "",
-    md_tbl(lag_rows |> group_by(p) |>
-             summarise(dominante_complexa = first(dominante_complexa),
-                       quarto_ciclo = first(quarto_ciclo),
+    md_tbl(lag_rows |> dplyr::group_by(p) |>
+             dplyr::summarise(dominante_complexa = dplyr::first(dominante_complexa),
+                       quarto_ciclo = dplyr::first(quarto_ciclo),
                        mediana_h_extremo_mp = median(h_extremo_mp),
                        .groups = "drop"), 2),
-    md_tbl(lag_rows |> select(p, var, h_extremo_mp) |>
-             pivot_wider(names_from = p, values_from = h_extremo_mp,
+    md_tbl(lag_rows |> dplyr::select(p, var, h_extremo_mp) |>
+             tidyr::pivot_wider(names_from = p, values_from = h_extremo_mp,
                          names_prefix = "h_mp_p"), 0))
 }
 
@@ -817,7 +817,7 @@ if (!is.null(spec_rows7)) {
     sprintf("⚠ **Apagar modos muda o denominador da normalização.** `B₀` só é a identidade com todos os modos (`Σₖ vₖwₖ' = I`); sem o par dominante o impacto pré-normalização de `%s` passa a **%.3f** do original (sem o par 2, %.3f). Como o denominador pode trocar de sinal, magnitude e sinal são comparados na **escala comum** (multiplicando pela razão de denominadores), antes da renormalização específica de cada caminho. O **horizonte** do extremo é invariante a essa escala. Renormalizar cada caminho a +50 pb responde a outra pergunta — *\"se este modo não existisse, o que faria um choque de 50 pb?\"* — e não é uma decomposição aditiva. A tabela traz a escala comum.",
             MP_VAR, k_nod, k_no34),
     "",
-    md_tbl(spec_rows7 |> select(var, h_mp_completo, val_mp_completo,
+    md_tbl(spec_rows7 |> dplyr::select(var, h_mp_completo, val_mp_completo,
                                 h_mp_sem_par1, razao_sem_par1_defl,
                                 inverte_sinal_sem_par1,
                                 vale_sobrevive_sem_par1), 3),

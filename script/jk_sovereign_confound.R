@@ -77,19 +77,6 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(readr)
-  library(tidyr)
-  library(tibble)
-  library(lubridate)
-  library(purrr)
-  library(ggplot2)
-  library(patchwork)
-  library(sandwich)
-  library(readxl)
-})
-
 source("R/instrument/di_surprise.R")
 source("R/instrument/build_variants.R")
 source("R/instrument/event_tests.R")      # wild_coef_test
@@ -155,25 +142,25 @@ cat("[1] rebuilding the daily event panel\n")
 
 di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
-ibov_daily <- read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
-  filter(!is.na(ibov))
+ibov_daily <- readr::read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
+  dplyr::filter(!is.na(ibov))
 
-ext_daily <- read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date), sp500 = as.numeric(sp500),
+ext_daily <- readr::read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date), sp500 = as.numeric(sp500),
             vix = as.numeric(vix), brent = as.numeric(brent))
 
-brl_daily <- read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date), brl = as.numeric(brl)) |>
-  filter(!is.na(brl))
+brl_daily <- readr::read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date), brl = as.numeric(brl)) |>
+  dplyr::filter(!is.na(brl))
 
-focus_daily <- read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date),
+focus_daily <- readr::read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date),
             focus_ipca12m  = as.numeric(focus_ipca12m),
             focus_selic_ny = as.numeric(focus_selic_ny))
 
-dgs2_daily <- read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date), ust2y = as.numeric(ust2y))
+dgs2_daily <- readr::read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date), ust2y = as.numeric(ust2y))
 
 copom_wed <- load_copom_wednesdays(from = LOAD_START, to = SAMPLE_END)
 
@@ -202,10 +189,10 @@ stopifnot(built$diag$n_copom == 95L, built$diag$n_jk_bs == 62L)
 
 # Self-test: the rebuild must match the persisted event file exactly.
 if (file.exists(EVENT_PATH)) {
-  ev <- read_csv(EVENT_PATH, show_col_types = FALSE) |> mutate(date = as.Date(date))
+  ev <- readr::read_csv(EVENT_PATH, show_col_types = FALSE) |> dplyr::mutate(date = as.Date(date))
   shared <- intersect(names(ev), names(valid))
-  jn <- inner_join(ev |> select(all_of(shared)),
-                   valid |> select(all_of(shared)), by = "date",
+  jn <- dplyr::inner_join(ev |> dplyr::select(dplyr::all_of(shared)),
+                   valid |> dplyr::select(dplyr::all_of(shared)), by = "date",
                    suffix = c(".disk", ".new"))
   num_cols <- setdiff(shared[vapply(ev[shared], is.numeric, logical(1))], "date")
   maxdiff <- max(vapply(num_cols, function(cc)
@@ -235,9 +222,6 @@ if (file.exists(EVENT_PATH)) {
 
 cat("\n[2] Wed->Thu risk changes\n")
 
-#' Exact-date lookup of `col` in a daily tibble.
-on_date <- function(want, daily, col) daily[[col]][match(want, daily$date)]
-
 #' Wed->Thu change of a daily series, optionally in logs, times `scale`.
 wed_thu <- function(thu, daily, col, scale = 1, log_scale = FALSE) {
   a <- on_date(thu - 1, daily, col)
@@ -245,34 +229,34 @@ wed_thu <- function(thu, daily, col, scale = 1, log_scale = FALSE) {
   if (log_scale) scale * (log(b) - log(a)) else scale * (b - a)
 }
 
-embi_daily <- read_csv(EMBI_PATH, show_col_types = FALSE) |>
-  transmute(date = dmy(date), embi = as.numeric(embi_perc)) |>
-  filter(!is.na(date), !is.na(embi)) |>
-  arrange(date)
+embi_daily <- readr::read_csv(EMBI_PATH, show_col_types = FALSE) |>
+  dplyr::transmute(date = lubridate::dmy(date), embi = as.numeric(embi_perc)) |>
+  dplyr::filter(!is.na(date), !is.na(embi)) |>
+  dplyr::arrange(date)
 
 # Bloomberg export: rows 1-5 are metadata (Start/End Date, Period,
 # Currency, Security), row 6 the header, and the series sits in columns
 # C:D — hence the explicit upper-left corner. `skip` would be ignored
 # here: readxl lets `range` win, and cell_cols alone would trim to the
 # Security row and read the dates as text.
-cds_daily <- read_excel(CDS_PATH, range = cell_limits(c(7, 3), c(NA, 4)),
+cds_daily <- readxl::read_excel(CDS_PATH, range = readxl::cell_limits(c(7, 3), c(NA, 4)),
                         col_names = c("date", "cds")) |>
-  transmute(date = as.Date(date), cds = as.numeric(cds)) |>
-  filter(!is.na(date), !is.na(cds)) |>
-  arrange(date)
+  dplyr::transmute(date = as.Date(date), cds = as.numeric(cds)) |>
+  dplyr::filter(!is.na(date), !is.na(cds)) |>
+  dplyr::arrange(date)
 
 # Self-test: the daily CDS and the monthly `cds_5y` already in the panel
 # come from different vendors (Bloomberg vs Investing.com). If they were
 # not the same object, the daily test below and the monthly IRF of
 # `cds_5y` would share a name and nothing else.
 cds_eom <- cds_daily |>
-  filter(date >= SAMPLE_START, date <= SAMPLE_END) |>
-  group_by(month = floor_date(date, "month")) |>
-  summarise(cds_bbg = cds[which.max(date)], .groups = "drop")
-cds_monthly_chk <- read_csv(RAW_PATH, show_col_types = FALSE) |>
-  transmute(month = as.Date(ref.date), cds_panel = as.numeric(cds_5y)) |>
-  filter(!is.na(cds_panel)) |>
-  inner_join(cds_eom, by = "month")
+  dplyr::filter(date >= SAMPLE_START, date <= SAMPLE_END) |>
+  dplyr::group_by(month = lubridate::floor_date(date, "month")) |>
+  dplyr::summarise(cds_bbg = cds[which.max(date)], .groups = "drop")
+cds_monthly_chk <- readr::read_csv(RAW_PATH, show_col_types = FALSE) |>
+  dplyr::transmute(month = as.Date(ref.date), cds_panel = as.numeric(cds_5y)) |>
+  dplyr::filter(!is.na(cds_panel)) |>
+  dplyr::inner_join(cds_eom, by = "month")
 cds_cor <- cor(cds_monthly_chk$cds_panel, cds_monthly_chk$cds_bbg)
 cat(sprintf("    CDS diario x cds_5y mensal do painel: n = %d, cor = %.4f, max |diff| = %.2f bp\n",
             nrow(cds_monthly_chk), cds_cor,
@@ -282,17 +266,17 @@ stopifnot(nrow(cds_monthly_chk) > 140L, cds_cor > 0.99)
 # DI curve slope (504bd - 63bd), same construction as build_variants.R:209-216.
 # Hard-wired vertices, so it stays predetermined-free of TARGET_BD.
 di_slope_daily <- di_panel |>
-  group_by(date) |>
-  summarise(slope = 100 * (close_rate[which.min(abs(bdays - 504))] -
+  dplyr::group_by(date) |>
+  dplyr::summarise(slope = 100 * (close_rate[which.min(abs(bdays - 504))] -
                            close_rate[which.min(abs(bdays - 63))]),
             .groups = "drop") |>
-  arrange(date)
+  dplyr::arrange(date)
 
 # Long end of the DI curve (~10y) as an additional daily risk proxy.
 di_long_daily <- di_panel |>
-  group_by(date) |>
-  summarise(long = 100 * close_rate[which.min(abs(bdays - 2520))], .groups = "drop") |>
-  arrange(date)
+  dplyr::group_by(date) |>
+  dplyr::summarise(long = 100 * close_rate[which.min(abs(bdays - 2520))], .groups = "drop") |>
+  dplyr::arrange(date)
 
 thu <- valid$date
 
@@ -311,26 +295,26 @@ valid$d_di10y_bp  <- wed_thu(thu, di_long_daily,  "long",  scale = 100)
 #' one-day lag, its `t-1` column would dominate.
 align_check <- function(daily, col, proxy) {
   src <- daily |>
-    filter(date >= SAMPLE_START, date <= SAMPLE_END) |>
-    mutate(d_risk = .data[[col]] - lag(.data[[col]])) |>
-    left_join(brl_daily, by = "date") |>
-    left_join(ext_daily, by = "date") |>
-    left_join(ibov_daily, by = "date") |>
-    mutate(r_brl = 100 * (log(brl) - log(lag(brl))),
-           r_sp500 = 100 * (log(sp500) - log(lag(sp500))),
-           d_vix = vix - lag(vix),
-           r_ibov = 100 * (log(ibov) - log(lag(ibov)))) |>
-    filter(!is.na(d_risk))
-  map_dfr(c("r_brl", "r_sp500", "d_vix", "r_ibov"), function(v) {
+    dplyr::filter(date >= SAMPLE_START, date <= SAMPLE_END) |>
+    dplyr::mutate(d_risk = .data[[col]] - dplyr::lag(.data[[col]])) |>
+    dplyr::left_join(brl_daily, by = "date") |>
+    dplyr::left_join(ext_daily, by = "date") |>
+    dplyr::left_join(ibov_daily, by = "date") |>
+    dplyr::mutate(r_brl = 100 * (log(brl) - log(dplyr::lag(brl))),
+           r_sp500 = 100 * (log(sp500) - log(dplyr::lag(sp500))),
+           d_vix = vix - dplyr::lag(vix),
+           r_ibov = 100 * (log(ibov) - log(dplyr::lag(ibov)))) |>
+    dplyr::filter(!is.na(d_risk))
+  purrr::map_dfr(c("r_brl", "r_sp500", "d_vix", "r_ibov"), function(v) {
     x <- src[[v]]
-    tibble(proxy = proxy, serie = v,
+    tibble::tibble(proxy = proxy, serie = v,
            cor_t   = cor(src$d_risk, x, use = "pairwise"),
-           cor_tm1 = cor(src$d_risk, lag(x), use = "pairwise"),
-           cor_tp1 = cor(src$d_risk, lead(x), use = "pairwise"))
+           cor_tm1 = cor(src$d_risk, dplyr::lag(x), use = "pairwise"),
+           cor_tp1 = cor(src$d_risk, dplyr::lead(x), use = "pairwise"))
   })
 }
 
-align_tbl <- bind_rows(align_check(cds_daily,  "cds",  "CDS 5a"),
+align_tbl <- dplyr::bind_rows(align_check(cds_daily,  "cds",  "CDS 5a"),
                        align_check(embi_daily, "embi", "EMBI+"))
 cat("    alinhamento (cor da variacao diaria com o mercado em t / t-1 / t+1):\n")
 for (i in seq_len(nrow(align_tbl))) {
@@ -339,8 +323,8 @@ for (i in seq_len(nrow(align_tbl))) {
               align_tbl$cor_tm1[i], align_tbl$cor_tp1[i]))
 }
 same_day_tbl <- align_tbl |>
-  group_by(proxy) |>
-  summarise(same_day = all(abs(cor_t) > abs(cor_tm1)), .groups = "drop")
+  dplyr::group_by(proxy) |>
+  dplyr::summarise(same_day = all(abs(cor_t) > abs(cor_tm1)), .groups = "drop")
 for (i in seq_len(nrow(same_day_tbl))) {
   cat(sprintf("      -> %s alinhado no MESMO dia: %s\n",
               same_day_tbl$proxy[i], same_day_tbl$same_day[i]))
@@ -390,7 +374,7 @@ cat(sprintf("    EMBI cauda 2024-25: %d obs, sd(delta) = %.2f bp\n",
             sd(valid$d_embi_bp[valid$date >= as.Date("2024-01-01")], na.rm = TRUE)))
 stopifnot(n_embi_cop >= 94L, n_cds_cop == 95L)
 
-quality_tbl <- tibble(
+quality_tbl <- tibble::tibble(
   proxy   = names(RISK_VARS),
   rotulo  = unname(RISK_VARS),
   n_copom = vapply(names(RISK_VARS), function(v) sum(!is.na(valid[[v]][cop])), integer(1)),
@@ -431,25 +415,25 @@ for (rv in names(RISK_VARS)) {
     d <- valid[ds$sel, c(rv, ds$x)]
     names(d) <- c("y", "x")
     res <- wild_coef_test(y ~ x, d, "x", key = paste("A_nivel", rv, ds$tag))
-    rowsA[[length(rowsA) + 1]] <- bind_cols(
-      tibble(teste = "A_nivel", proxy = rv, conjunto = ds$tag, x = ds$x), res)
+    rowsA[[length(rowsA) + 1]] <- dplyr::bind_cols(
+      tibble::tibble(teste = "A_nivel", proxy = rv, conjunto = ds$tag, x = ds$x), res)
   }
 }
 
 # The statistic that decides: does the retained day carry MORE risk news
 # per unit of surprise than an ordinary Thursday?
 for (rv in names(RISK_VARS)) {
-  d <- tibble(y = valid[[rv]], x = valid$e_di_bs,
+  d <- tibble::tibble(y = valid[[rv]], x = valid$e_di_bs,
               d_jk = as.numeric(valid$jk_monetary_bs))
   res <- wild_coef_test(y ~ x * d_jk, d, "x:d_jk", key = paste("A_interacao", rv))
-  rowsA[[length(rowsA) + 1]] <- bind_cols(
-    tibble(teste = "A_interacao", proxy = rv,
+  rowsA[[length(rowsA) + 1]] <- dplyr::bind_cols(
+    tibble::tibble(teste = "A_interacao", proxy = rv,
            conjunto = "todas as quintas | x:1(jk_bs)", x = "e_di_bs"), res)
 }
 
-testA <- bind_rows(rowsA)
+testA <- dplyr::bind_rows(rowsA)
 
-int_tbl <- testA |> filter(teste == "A_interacao")
+int_tbl <- testA |> dplyr::filter(teste == "A_interacao")
 cat("    interacao x:1(jk_bs) — a estatistica que decide\n")
 for (i in seq_len(nrow(int_tbl))) {
   cat(sprintf("      %-16s coef = %8.4f  t = %6.2f  p_boot = %.3f\n",
@@ -462,11 +446,11 @@ for (i in seq_len(nrow(int_tbl))) {
 # be judged by identical code: duplicating a pre-registered rule is how
 # it silently stops being the same rule.
 verdict_for <- function(rv) {
-  int <- int_tbl |> filter(proxy == rv)
+  int <- int_tbl |> dplyr::filter(proxy == rv)
   if (isTRUE(int$coef > 0 && int$p_boot < 0.10)) return("CONTAMINACAO CONFIRMADA")
-  lvl <- testA |> filter(teste == "A_nivel", proxy == rv)
-  a62 <- lvl |> filter(conjunto == "jk_bs (producao)")
-  ctl <- lvl |> filter(conjunto == "nao-copom (controle)")
+  lvl <- testA |> dplyr::filter(teste == "A_nivel", proxy == rv)
+  a62 <- lvl |> dplyr::filter(conjunto == "jk_bs (producao)")
+  ctl <- lvl |> dplyr::filter(conjunto == "nao-copom (controle)")
   if (isTRUE(a62$coef > 0 && a62$p_boot < 0.10 && ctl$p_boot >= 0.10)) {
     "SINAL FRACO DE CONTAMINACAO"
   } else {
@@ -540,7 +524,7 @@ cat(sprintf("    R2 do bloco de risco: e_di_bs %.4f | e_ibov_bs %.4f\n",
 cat(sprintf("    mascara re-derivada: %d dias (%d dos 62 sobrevivem, %d novos, %d dias Copom sem proxy)\n",
             n_nr_mask, n_nr_keep, n_nr_mask - n_nr_keep, n_nr_drop))
 
-mask_tbl <- tibble(
+mask_tbl <- tibble::tibble(
   teste    = "mascara",
   conjunto = c("producao (jk_bs)", "re-derivada no risco (jk_bs_norisk)",
                "intersecao", "dias Copom sem proxy de risco"),
@@ -552,30 +536,23 @@ mask_tbl <- tibble(
 # 5. Monthly aggregation of the in-memory variants
 # ===================================================================
 
-monthly_grid <- tibble(month = seq(floor_date(SAMPLE_START, "month"),
-                                   floor_date(SAMPLE_END, "month"), by = "month"))
-
-mk_z <- function(value_col, mask) {
-  monthly_grid |>
-    left_join(agg_monthly_sum(valid, value_col, mask, monthly_grid), by = "month") |>
-    mutate(shock = replace_na(shock, 0)) |>
-    pull(shock)
-}
+monthly_grid <- tibble::tibble(month = seq(lubridate::floor_date(SAMPLE_START, "month"),
+                                   lubridate::floor_date(SAMPLE_END, "month"), by = "month"))
 
 inst_wide <- monthly_grid |>
-  mutate(
-    z_jk_bs_purif      = mk_z("e_di_bs", valid$jk_monetary_bs),
+  dplyr::mutate(
+    z_jk_bs_purif      = build_monthly_z("e_di_bs", valid$jk_monetary_bs, valid, monthly_grid),
     # values orthogonalized, mask untouched
-    z_jk_bs_norisk     = mk_z("e_di_bs_norisk",     valid$jk_monetary_bs),
-    z_jk_bs_norisk_cds = mk_z("e_di_bs_norisk_cds", valid$jk_monetary_bs),
+    z_jk_bs_norisk     = build_monthly_z("e_di_bs_norisk",     valid$jk_monetary_bs, valid, monthly_grid),
+    z_jk_bs_norisk_cds = build_monthly_z("e_di_bs_norisk_cds", valid$jk_monetary_bs, valid, monthly_grid),
     # values orthogonalized AND mask re-derived on the double residuals
-    z_jk_bs_norisk_mask = mk_z("e_di_bs_norisk_cds", valid$jk_monetary_bs_norisk)
+    z_jk_bs_norisk_mask = build_monthly_z("e_di_bs_norisk_cds", valid$jk_monetary_bs_norisk, valid, monthly_grid)
   )
 
 # Self-test: the recomputed production column must equal the one on disk.
-prod_panel <- read_csv(INST_PATH, show_col_types = FALSE) |> mutate(month = as.Date(month))
-chk <- inner_join(inst_wide |> select(month, mine = z_jk_bs_purif),
-                  prod_panel |> select(month, disk = z_jk_bs_purif), by = "month")
+prod_panel <- readr::read_csv(INST_PATH, show_col_types = FALSE) |> dplyr::mutate(month = as.Date(month))
+chk <- dplyr::inner_join(inst_wide |> dplyr::select(month, mine = z_jk_bs_purif),
+                  prod_panel |> dplyr::select(month, disk = z_jk_bs_purif), by = "month")
 cat(sprintf("\n[5] z_jk_bs_purif reconstruido vs disco: n = %d, max |diff| = %.3g\n",
             nrow(chk), max(abs(chk$mine - chk$disk))))
 stopifnot(nrow(chk) == nrow(prod_panel), max(abs(chk$mine - chk$disk)) < 1e-10)
@@ -590,9 +567,9 @@ Z_VARIANTS <- c("z_jk_bs_purif", "z_jk_bs_norisk",
 
 cat("\n[6] xi_mp por variante e janela\n")
 
-panel_raw <- read_csv(DATA_PATH, show_col_types = FALSE) |> drop_na()
+panel_raw <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
 dates     <- as.Date(panel_raw$ref.date)
-data_mat  <- panel_raw |> select(-ref.date) |> as.matrix()
+data_mat  <- panel_raw |> dplyr::select(-ref.date) |> as.matrix()
 var_names <- colnames(data_mat)
 tcode     <- infer_tcode_from_varnames(var_names)
 mp_idx    <- match(MP_VAR, var_names)
@@ -612,7 +589,7 @@ for (sn in names(SAMPLES)) {
     idf <- idf[!is.na(idf$shock), ]
     dg  <- diagnose_instrument_in_factor_space(dfm, idf, tsub, P_LAGS, mp_idx)
     n_nz <- sum(inst_wide[[v]][inst_wide$month >= win[1] & inst_wide$month <= win[2]] != 0)
-    rowsX[[length(rowsX) + 1]] <- tibble(
+    rowsX[[length(rowsX) + 1]] <- tibble::tibble(
       teste = "xi_mp", amostra = sn, instrumento = v,
       meses_nao_nulos = n_nz, xi_mp = dg$wald_mp,
       f_robust_mp = dg$f_robust_mp,
@@ -627,17 +604,17 @@ for (sn in names(SAMPLES)) {
 # MOSW thresholds, the same ones the sweep taxonomy uses: below 3.84 the
 # 95% AR set is unbounded, so the column's IRF is a number with no
 # identification behind it; below 10 conventional bands are not valid.
-xi_tbl <- bind_rows(rowsX) |>
-  group_by(amostra) |>
-  mutate(ar_limitada = xi_mp > 3.84, bandas_validas = xi_mp >= 10,
+xi_tbl <- dplyr::bind_rows(rowsX) |>
+  dplyr::group_by(amostra) |>
+  dplyr::mutate(ar_limitada = xi_mp > 3.84, bandas_validas = xi_mp >= 10,
          denom_vs_prod = impacto_mp_pre /
            impacto_mp_pre[instrumento == "z_jk_bs_purif"]) |>
-  ungroup()
+  dplyr::ungroup()
 
 # Cross-check against the strength ruler of record.
-xi_prod <- xi_tbl |> filter(instrumento == "z_jk_bs_purif")
-strength_grid <- read_csv("output/instrument/mosw_strength_grid.csv", show_col_types = FALSE) |>
-  filter(r == R_FACTORS, q == Q_DYNAMIC, instrument == "z_jk_bs_purif")
+xi_prod <- xi_tbl |> dplyr::filter(instrumento == "z_jk_bs_purif")
+strength_grid <- readr::read_csv("output/instrument/mosw_strength_grid.csv", show_col_types = FALSE) |>
+  dplyr::filter(r == R_FACTORS, q == Q_DYNAMIC, instrument == "z_jk_bs_purif")
 grid_full <- strength_grid$wald_mp[strength_grid$sample == "full"]
 grid_pre <- strength_grid$wald_mp[strength_grid$sample == "pre_covid"]
 xi_prod_full <- xi_prod$xi_mp[xi_prod$amostra == "full"]
@@ -697,22 +674,22 @@ cat("    smoke test h0: ")
 cat(paste(sprintf("%s %.6g", names(smoke), got), collapse = " | "), "\n")
 stopifnot(max(abs(got - smoke)) < 5e-6)
 
-irf_rows <- imap_dfr(cells, function(cell, tag) {
+irf_rows <- purrr::imap_dfr(cells, function(cell, tag) {
   p <- cell$irf$irf_point_matrix
   lo68 <- cell$irf$ci[["0.68"]]$lower; hi68 <- cell$irf$ci[["0.68"]]$upper
   lo90 <- cell$irf$ci[["0.90"]]$lower; hi90 <- cell$irf$ci[["0.90"]]$upper
-  map_dfr(HEADLINE, function(vn) {
+  purrr::map_dfr(HEADLINE, function(vn) {
     i <- match(vn, var_names)
-    tibble(teste = "IRF", instrumento = tag, variavel = vn, h = 0:HORIZON,
+    tibble::tibble(teste = "IRF", instrumento = tag, variavel = vn, h = 0:HORIZON,
            ponto = p[i, ], lo68 = lo68[i, ], hi68 = hi68[i, ],
            lo90 = lo90[i, ], hi90 = hi90[i, ]) |>
-      mutate(sig68 = (lo68 > 0) | (hi68 < 0), sig90 = (lo90 > 0) | (hi90 < 0))
+      dplyr::mutate(sig68 = (lo68 > 0) | (hi68 < 0), sig90 = (lo90 > 0) | (hi90 < 0))
   })
 })
 
-irf_h0 <- irf_rows |> filter(h == 0) |>
-  select(instrumento, variavel, ponto, lo90, hi90, sig90) |>
-  pivot_wider(names_from = instrumento, values_from = c(ponto, lo90, hi90, sig90))
+irf_h0 <- irf_rows |> dplyr::filter(h == 0) |>
+  dplyr::select(instrumento, variavel, ponto, lo90, hi90, sig90) |>
+  tidyr::pivot_wider(names_from = instrumento, values_from = c(ponto, lo90, hi90, sig90))
 
 pal <- c(z_jk_bs_purif = "#1b1b1b", z_jk_bs_norisk_cds = "#0072B2",
          z_jk_bs_norisk_mask = "#D55E00")
@@ -735,15 +712,15 @@ cat(sprintf("    -> %s/jk_sovereign_irf_overlay.pdf\n", OUT_DIR))
 # 8. Outputs
 # ===================================================================
 
-all_cells <- bind_rows(
+all_cells <- dplyr::bind_rows(
   testA,
   xi_tbl,
-  align_tbl |> mutate(teste = "alinhamento") |> rename(conjunto = serie),
-  quality_tbl |> mutate(teste = "qualidade") |> rename(conjunto = rotulo),
+  align_tbl |> dplyr::mutate(teste = "alinhamento") |> dplyr::rename(conjunto = serie),
+  quality_tbl |> dplyr::mutate(teste = "qualidade") |> dplyr::rename(conjunto = rotulo),
   mask_tbl,
   irf_rows
 )
-write_csv(all_cells, file.path(OUT_DIR, "jk_sovereign_confound.csv"))
+readr::write_csv(all_cells, file.path(OUT_DIR, "jk_sovereign_confound.csv"))
 
 xi_at <- function(v, sn = "full") xi_tbl$xi_mp[xi_tbl$instrumento == v & xi_tbl$amostra == sn]
 xf    <- function(x) formatC(x, format = "f", digits = 2, decimal.mark = ",")
@@ -786,7 +763,7 @@ md <- c(
   "",
   "## Qualidade das proxies diarias",
   "",
-  md_table(quality_tbl |> select(proxy, rotulo, n_copom, n_valid, sd, pct_zero)),
+  md_table(quality_tbl |> dplyr::select(proxy, rotulo, n_copom, n_valid, sd, pct_zero)),
   "",
   "### Alinhamento (pre-requisito de todo o teste A)",
   "",
@@ -803,14 +780,14 @@ md <- c(
   "",
   "**Reprodutibilidade dos `p_boot`.** Desde 2026-08-09 cada celula e semeada pela propria identidade (`wild_coef_test(key = )`), entao acrescentar ou reordenar proxies nao move o `p_boot` de nenhuma outra. Antes disso todas compartilhavam um unico fluxo de RNG, e por isso os `p_boot` da nota de 07-31 diferem destes por ruido de Monte Carlo (erro-padrao ~0,007 com 2.000 sorteios). As estatisticas **deterministicas** — coeficiente, erro-padrao HC1, `t`, R² — reproduzem exatas, e sao elas que carregam o argumento: o que decide o veredito e o **sinal** da interacao.",
   "",
-  md_table(testA |> filter(teste == "A_nivel") |>
-             select(proxy, conjunto, n, coef, se_hc1, t, p_asym, p_boot, r2)),
+  md_table(testA |> dplyr::filter(teste == "A_nivel") |>
+             dplyr::select(proxy, conjunto, n, coef, se_hc1, t, p_asym, p_boot, r2)),
   "",
   "## A — interacao (a estatistica que decide)",
   "",
   "`y ~ x + 1(jk_bs) + x:1(jk_bs)` sobre todas as quintas validas. Contaminacao exige que o dia retido carregue **mais** noticia de risco por unidade de surpresa que um dia comum.",
   "",
-  md_table(int_tbl |> select(proxy, n, coef, se_hc1, t, p_asym, p_boot)),
+  md_table(int_tbl |> dplyr::select(proxy, n, coef, se_hc1, t, p_asym, p_boot)),
   "",
   "## C — instrumento ortogonalizado ao risco",
   "",
@@ -825,11 +802,11 @@ md <- c(
   sprintf("Ortogonalizar so os **valores** deixa a **selecao** dos 62 dias intacta, contra a propria auditoria de fidelidade do projeto (\"a forca vive na mascara\"). Por isso a perna de acoes tambem e ortogonalizada na mesma RHS e a regra de sinal do JK e re-derivada nos residuos duplos: o bloco de risco explica **%.4f** de `e_di_bs` e **%.4f** de `e_ibov_bs`, e a mascara re-derivada retem **%d dias**, dos quais **%d dos 62** de producao sobrevivem e **%d** entram.",
           r2_di_nr, r2_ibov_nr, n_nr_mask, n_nr_keep, n_nr_mask - n_nr_keep),
   "",
-  md_table(mask_tbl |> select(conjunto, n, r2_risco)),
+  md_table(mask_tbl |> dplyr::select(conjunto, n, r2_risco)),
   "",
   "## Forca: xi_mp por variante",
   "",
-  md_table(xi_tbl |> select(amostra, instrumento, meses_nao_nulos, xi_mp,
+  md_table(xi_tbl |> dplyr::select(amostra, instrumento, meses_nao_nulos, xi_mp,
                             f_robust_mp, impacto_mp_pre,
                             denom_vs_prod, ar_limitada, bandas_validas)),
   "",
@@ -859,8 +836,8 @@ md <- c(
                         sort(tapply(irf_rows$sig90, irf_rows$instrumento, sum), decreasing = TRUE)),
                 collapse = ", ")),
   "",
-  md_table(irf_rows |> filter(h == 0) |>
-             select(instrumento, variavel, ponto, lo68, hi68, lo90, hi90, sig90)),
+  md_table(irf_rows |> dplyr::filter(h == 0) |>
+             dplyr::select(instrumento, variavel, ponto, lo68, hi68, lo90, hi90, sig90)),
   "",
   "Trajetorias completas em `jk_sovereign_irf_overlay.pdf`; celulas em `jk_sovereign_confound.csv`.",
   ""

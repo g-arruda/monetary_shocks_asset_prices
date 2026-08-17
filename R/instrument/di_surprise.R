@@ -135,3 +135,17 @@ build_thursday_surprises <- function(di_panel, thursdays, target_bd = 63, min_bd
   )
   tibble::tibble(date = thursdays, delta_di = deltas)
 }
+
+#' Exact-date lookup of a column in a daily tibble
+#'
+#' Used instead of `dplyr::lag()` for the Wed->Thu event window. A lag would
+#' silently span a longer window whenever the relevant market (EMBI on the US
+#' calendar, UST, S&P) was shut on the Wednesday; an exact-date match returns
+#' NA there instead, which is the honest answer.
+#'
+#' @param want Date vector to look up.
+#' @param daily Daily tibble carrying a `date` column.
+#' @param col Name of the column to read.
+#'
+#' @return Values of `col` aligned to `want`, NA where the date is absent.
+on_date <- function(want, daily, col) daily[[col]][match(want, daily$date)]

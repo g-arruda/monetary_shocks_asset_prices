@@ -395,3 +395,22 @@ build_instrument_variants <- function(inputs,
 #'
 #' @return `x` unless it is NULL, in which case `y`.
 `%||%` <- function(x, y) if (is.null(x)) y else x
+
+#' Aggregate one masked daily column onto a monthly grid, zero-filled
+#'
+#' Thin wrapper over `agg_monthly_sum()` that returns a plain vector aligned to
+#' `monthly_grid`, with months contributing no event set to 0 rather than NA.
+#'
+#' @param value_col Name of the daily column to aggregate.
+#' @param mask Logical vector selecting the days that count.
+#' @param valid Daily panel of valid Thursdays.
+#' @param monthly_grid Tibble with a `month` column giving the target grid.
+#'
+#' @return Numeric vector aligned to `monthly_grid$month`.
+build_monthly_z <- function(value_col, mask, valid, monthly_grid) {
+  monthly_grid |>
+    dplyr::left_join(agg_monthly_sum(valid, value_col, mask, monthly_grid),
+                     by = "month") |>
+    dplyr::mutate(shock = tidyr::replace_na(shock, 0)) |>
+    dplyr::pull(shock)
+}

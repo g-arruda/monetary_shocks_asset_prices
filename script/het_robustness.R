@@ -49,16 +49,6 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(readr)
-  library(dplyr)
-  library(tidyr)
-  library(tibble)
-  library(purrr)
-  library(lubridate)
-  library(ggplot2)
-})
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -106,7 +96,7 @@ cat("== self-tests ==\n")
 # changes matrix, so this validates the ESTIMATOR without touching the daily
 # pipeline or re-deriving the daily object.
 ref_dir <- "arquivo/relatorio/correspondence/referee2/replication"
-ref_chg <- read_csv(file.path(ref_dir, "referee2_daily_changes.csv"),
+ref_chg <- readr::read_csv(file.path(ref_dir, "referee2_daily_changes.csv"),
                     show_col_types = FALSE)
 ref_X   <- as.matrix(ref_chg[, c("DI_3m", "DI_2y", "IBOV", "BRL")])
 ref_ok  <- stats::complete.cases(ref_X)
@@ -140,14 +130,14 @@ cat(sprintf("  [ok] T2b daily rank condition rejected: LR = %.1f, p_boot = %.4f\
             ref_prop$statistic, ref_prop$p_boot))
 
 # T3. Panel and the proxy side of the comparison.
-raw_data <- read_csv(SPEC$data_path,
-                     show_col_types = FALSE) |> drop_na()
+raw_data <- readr::read_csv(SPEC$data_path,
+                     show_col_types = FALSE) |> tidyr::drop_na()
 dates_all <- as.Date(raw_data$ref.date)
-data_all  <- raw_data |> select(-ref.date) |> as.matrix()
+data_all  <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
 stopifnot(ncol(data_all) == SPEC$n_series, MP_VAR %in% colnames(data_all))
 
-coh <- read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE) |>
-  filter(h == 0)
+coh <- readr::read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE) |>
+  dplyr::filter(h == 0)
 h0 <- setNames(coh$point, coh$var)
 cell <- readRDS(SPEC$coherence_cell_path)
 check_vars <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
@@ -175,8 +165,8 @@ cat(sprintf("  [ok] T4 FX unit: %.4f BRL / mean = %.3f%% depreciation\n",
 # "treated". (The docstring of build_monthly_regimes quotes 104/52, which is
 # a range running through 2025-12; this panel ends 2025-09, giving 102/51.)
 t5 <- build_monthly_regimes(month_range = range(dates_all))
-t5_copom <- read_csv("data/raw/copom_historico.csv", show_col_types = FALSE)$data_reuniao_parsed |>
-  as.Date() |> na.omit() |> floor_date("month") |> unique()
+t5_copom <- readr::read_csv("data/raw/copom_historico.csv", show_col_types = FALSE)$data_reuniao_parsed |>
+  as.Date() |> na.omit() |> lubridate::floor_date("month") |> unique()
 t5_nC <- sum(t5$regime == "C"); t5_nNC <- sum(t5$regime == "NC")
 stopifnot(
   nrow(t5) == length(dates_all),
@@ -210,24 +200,24 @@ cat(sprintf("  [ok] T7 grid: %d (r,q) pairs x %d lags x %d windows = %d cells\n"
 # restriction for a second-moment restriction -- but it must be labelled,
 # because "identification without z" is not what D3 delivers.
 
-inst_monthly <- read_csv("data/processed/instrumentos_mensais.csv",
+inst_monthly <- readr::read_csv("data/processed/instrumentos_mensais.csv",
                          show_col_types = FALSE) |>
-  mutate(month = as.Date(month))
+  dplyr::mutate(month = as.Date(month))
 
 # Daily 6m yield, for the realized-volatility design. Advisor-supplied file,
 # dd/mm/yyyy, columns are maturities in months.
-yields_daily <- read_csv("data/raw/yields/yields_dia.csv", show_col_types = FALSE) |>
-  mutate(date = as.Date(Data, format = "%d/%m/%Y")) |>
-  select(date, y6m = `6`) |>
-  filter(!is.na(date), !is.na(y6m)) |>
-  arrange(date) |>
-  mutate(month = floor_date(date, "month"), dy = c(NA, diff(y6m)))
+yields_daily <- readr::read_csv("data/raw/yields/yields_dia.csv", show_col_types = FALSE) |>
+  dplyr::mutate(date = as.Date(Data, format = "%d/%m/%Y")) |>
+  dplyr::select(date, y6m = `6`) |>
+  dplyr::filter(!is.na(date), !is.na(y6m)) |>
+  dplyr::arrange(date) |>
+  dplyr::mutate(month = lubridate::floor_date(date, "month"), dy = c(NA, diff(y6m)))
 
 realized_vol <- yields_daily |>
-  filter(!is.na(dy)) |>
-  group_by(month) |>
-  summarise(rv = stats::sd(dy), n_days = n(), .groups = "drop") |>
-  filter(n_days >= 10L)
+  dplyr::filter(!is.na(dy)) |>
+  dplyr::group_by(month) |>
+  dplyr::summarise(rv = stats::sd(dy), n_days = dplyr::n(), .groups = "drop") |>
+  dplyr::filter(n_days >= 10L)
 
 #' Top-fraction split of a monthly score into C/NC
 #'
@@ -271,7 +261,7 @@ REGIME_DESIGNS <- list(
     label = "Intensidade da surpresa Copom (tercil superior de |z|)",
     placebo = "permute", instrument_free = FALSE, contiguous = FALSE,
     build = function(months, dates_win) {
-      sc <- inst_monthly |> transmute(month, score = abs(z_jk_bs_purif))
+      sc <- inst_monthly |> dplyr::transmute(month, score = abs(z_jk_bs_purif))
       top_frac_regime(months, sc, 1 / 3)
     }),
 
@@ -286,7 +276,7 @@ REGIME_DESIGNS <- list(
     label = "Volatilidade realizada do DI 6m (quartil superior)",
     placebo = "permute", instrument_free = TRUE, contiguous = FALSE,
     build = function(months, dates_win) {
-      sc <- realized_vol |> transmute(month, score = rv)
+      sc <- realized_vol |> dplyr::transmute(month, score = rv)
       top_frac_regime(months, sc, 1 / 4)
     }),
 
@@ -358,7 +348,7 @@ run_gate <- function(eta, labels, design_name, months = NULL) {
   md    <- fit_rank1_md(parts$Sigma_C, parts$Sigma_NC, weight = "identity")
   eigv  <- md$lambda_all
 
-  tibble(
+  tibble::tibble(
     design          = design_name,
     placebo_type    = des$placebo,
     instrument_free = des$instrument_free,
@@ -412,7 +402,7 @@ for (sample_name in names(SAMPLES)) {
         cat("ESTIMATION FAILED\n")
         for (dn in names(REGIME_DESIGNS)) {
           ic <- ic + 1L
-          cells[[ic]] <- tibble(sample = sample_name, r = r, q = q, p = p,
+          cells[[ic]] <- tibble::tibble(sample = sample_name, r = r, q = q, p = p,
                                 design = dn, status = "estimation_failed",
                                 note = conditionMessage(dfm))
         }
@@ -422,7 +412,7 @@ for (sample_name in names(SAMPLES)) {
       K <- dfm$dynamic_loadings; M <- dfm$dynamic_scaling
       u <- dfm$var_residuals
       eta <- if (!is.matrix(K) && !is.matrix(M)) u else u %*% K %*% solve(M)
-      months <- floor_date(dates_sub[(p + 1):length(dates_sub)], "month")
+      months <- lubridate::floor_date(dates_sub[(p + 1):length(dates_sub)], "month")
       stopifnot(nrow(eta) == length(months))
 
       max_eig <- dfm$diagnostics$max_eigenvalue
@@ -434,7 +424,7 @@ for (sample_name in names(SAMPLES)) {
           br <- sweep_break(eta, months)
           if (is.null(br)) {
             ic <- ic + 1L
-            cells[[ic]] <- tibble(sample = sample_name, r = r, q = q, p = p,
+            cells[[ic]] <- tibble::tibble(sample = sample_name, r = r, q = q, p = p,
                                   design = dn, status = "no_valid_break")
             next
           }
@@ -443,7 +433,7 @@ for (sample_name in names(SAMPLES)) {
           labels <- des$build(months, dates_sub)
           if (is.null(labels)) {
             ic <- ic + 1L
-            cells[[ic]] <- tibble(sample = sample_name, r = r, q = q, p = p,
+            cells[[ic]] <- tibble::tibble(sample = sample_name, r = r, q = q, p = p,
                                   design = dn, status = "regime_unavailable")
             next
           }
@@ -451,7 +441,7 @@ for (sample_name in names(SAMPLES)) {
 
         if (length(unique(labels)) < 2L || min(table(labels)) < q + 2L) {
           ic <- ic + 1L
-          cells[[ic]] <- tibble(sample = sample_name, r = r, q = q, p = p,
+          cells[[ic]] <- tibble::tibble(sample = sample_name, r = r, q = q, p = p,
                                 design = dn, status = "regime_too_small",
                                 n_C = sum(labels == "C"), n_NC = sum(labels == "NC"))
           next
@@ -459,14 +449,14 @@ for (sample_name in names(SAMPLES)) {
 
         g <- run_gate(eta, labels, dn, months)
         ic <- ic + 1L
-        cells[[ic]] <- bind_cols(
-          tibble(sample = sample_name, r = r, q = q, p = p,
+        cells[[ic]] <- dplyr::bind_cols(
+          tibble::tibble(sample = sample_name, r = r, q = q, p = p,
                  status = "ok", max_eig = max_eig,
                  break_date = if (dn == "quebra_livre") as.character(br$date) else NA_character_),
           g)
 
         if (sample_name == "full" && r == PROD$r && q == PROD$q && p == PROD$p) {
-          regime_log[[dn]] <- tibble(month = months, design = dn, regime = labels)
+          regime_log[[dn]] <- tibble::tibble(month = months, design = dn, regime = labels)
         }
       }
       cat(sprintf("done (max|eig| = %.3f)\n", max_eig))
@@ -474,14 +464,14 @@ for (sample_name in names(SAMPLES)) {
   }
 }
 
-grid <- bind_rows(cells)
+grid <- dplyr::bind_rows(cells)
 cat(sprintf("\ngrid finished in %.1f min | %d rows | ok = %d\n",
             as.numeric(Sys.time() - t_start, units = "mins"),
             nrow(grid), sum(grid$status == "ok")))
 
-write_csv(grid, file.path(OUT_DIR, "het_gate_grid.csv"))
+readr::write_csv(grid, file.path(OUT_DIR, "het_gate_grid.csv"))
 if (length(regime_log))
-  write_csv(bind_rows(regime_log), file.path(OUT_DIR, "het_regime_designs.csv"))
+  readr::write_csv(dplyr::bind_rows(regime_log), file.path(OUT_DIR, "het_regime_designs.csv"))
 
 
 # ============================================================
@@ -495,33 +485,33 @@ if (length(regime_log))
 # a pure common scale factor leaves Sigma_C proportional to Sigma_NC and b
 # undefined, however large it is.
 
-ok <- grid |> filter(status == "ok")
+ok <- grid |> dplyr::filter(status == "ok")
 
 verdict <- ok |>
-  mutate(
+  dplyr::mutate(
     p_placebo_holm = stats::p.adjust(p_placebo,   method = "holm"),
     prop_p_holm    = stats::p.adjust(prop_p_boot, method = "holm")
   )
 
 # A cell "identifies" only if BOTH survive Holm over the whole family.
 verdict <- verdict |>
-  mutate(passes_cell = p_placebo_holm < ALPHA & prop_p_holm < ALPHA)
+  dplyr::mutate(passes_cell = p_placebo_holm < ALPHA & prop_p_holm < ALPHA)
 
 # ...and replicates in the other window under the same design and (r,q,p).
 repl <- verdict |>
-  filter(passes_cell) |>
-  count(design, r, q, p, name = "n_windows") |>
-  filter(n_windows == 2L)
+  dplyr::filter(passes_cell) |>
+  dplyr::count(design, r, q, p, name = "n_windows") |>
+  dplyr::filter(n_windows == 2L)
 
 verdict <- verdict |>
-  left_join(repl |> mutate(replicates = TRUE), by = c("design", "r", "q", "p")) |>
-  mutate(replicates = !is.na(replicates) & replicates,
-         verdict = case_when(
+  dplyr::left_join(repl |> dplyr::mutate(replicates = TRUE), by = c("design", "r", "q", "p")) |>
+  dplyr::mutate(replicates = !is.na(replicates) & replicates,
+         verdict = dplyr::case_when(
            passes_cell & replicates ~ "identifies",
            passes_cell              ~ "isolated_cell",
            TRUE                     ~ "fails"))
 
-write_csv(verdict, file.path(OUT_DIR, "het_verdict.csv"))
+readr::write_csv(verdict, file.path(OUT_DIR, "het_verdict.csv"))
 
 # Distributional test: under the null the placebo p-values are U(0,1).
 # One KS test per design, over the cells of that design.
@@ -537,20 +527,20 @@ write_csv(verdict, file.path(OUT_DIR, "het_verdict.csv"))
 GAP_MIN <- 0.20   # minimum relative gap treated as "distinct"
 
 verdict <- verdict |>
-  mutate(eig_distinct = !is.na(sys_min_rel_gap) & sys_min_rel_gap >= GAP_MIN)
+  dplyr::mutate(eig_distinct = !is.na(sys_min_rel_gap) & sys_min_rel_gap >= GAP_MIN)
 
 dist_test <- verdict |>
-  group_by(design, sample) |>
+  dplyr::group_by(design, sample) |>
   # Holm WITHIN design x window (28 tests) as well as pooled: if the pooled
   # correction were the only thing standing between the grid and a positive,
   # the verdict would rest on the severity of the correction rather than on
   # the data. It does not -- both are zero.
-  mutate(prop_holm_in = stats::p.adjust(prop_p_boot, "holm"),
+  dplyr::mutate(prop_holm_in = stats::p.adjust(prop_p_boot, "holm"),
          plac_holm_in = stats::p.adjust(p_placebo,   "holm")) |>
-  ungroup() |>
-  group_by(design) |>
-  summarise(
-    n_cells      = n(),
+  dplyr::ungroup() |>
+  dplyr::group_by(design) |>
+  dplyr::summarise(
+    n_cells      = dplyr::n(),
     p_plac_med   = stats::median(p_placebo),
     p_plac_min   = min(p_placebo),
     frac_lt_05   = mean(p_placebo < 0.05),
@@ -570,33 +560,33 @@ dist_test <- verdict |>
 
 # Where the rejections live: full vs pre-COVID, by design.
 by_window <- verdict |>
-  group_by(design, sample) |>
-  summarise(n = n(), frac_prop_05 = mean(prop_p_boot < 0.05),
+  dplyr::group_by(design, sample) |>
+  dplyr::summarise(n = dplyr::n(), frac_prop_05 = mean(prop_p_boot < 0.05),
             prop_med = stats::median(prop_p_boot),
             rank1_med = stats::median(rank1_share),
             gap_med = stats::median(sys_min_rel_gap, na.rm = TRUE),
             .groups = "drop")
-write_csv(by_window, file.path(OUT_DIR, "het_by_window.csv"))
+readr::write_csv(by_window, file.path(OUT_DIR, "het_by_window.csv"))
 
 # Era composition of each design's C regime, at the production cell. This is
 # what separates "policy-regime heteroskedasticity" from "the COVID variance
 # surge wearing a policy label".
 era_mix <- if (length(regime_log)) {
-  bind_rows(regime_log) |>
-    mutate(era = ifelse(month >= as.Date("2020-01-01"), "2020+", "pre2020")) |>
-    count(design, era, regime) |>
-    pivot_wider(names_from = regime, values_from = n, values_fill = 0) |>
-    mutate(share_C = C / (C + NC))
-} else tibble()
-if (nrow(era_mix)) write_csv(era_mix, file.path(OUT_DIR, "het_era_mix.csv"))
+  dplyr::bind_rows(regime_log) |>
+    dplyr::mutate(era = ifelse(month >= as.Date("2020-01-01"), "2020+", "pre2020")) |>
+    dplyr::count(design, era, regime) |>
+    tidyr::pivot_wider(names_from = regime, values_from = n, values_fill = 0) |>
+    dplyr::mutate(share_C = C / (C + NC))
+} else tibble::tibble()
+if (nrow(era_mix)) readr::write_csv(era_mix, file.path(OUT_DIR, "het_era_mix.csv"))
 
 # Where the free break sweep lands.
 break_mix <- verdict |>
-  filter(design == "quebra_livre", !is.na(break_date)) |>
-  count(sample, break_date, name = "n_cells")
-if (nrow(break_mix)) write_csv(break_mix, file.path(OUT_DIR, "het_break_dates.csv"))
+  dplyr::filter(design == "quebra_livre", !is.na(break_date)) |>
+  dplyr::count(sample, break_date, name = "n_cells")
+if (nrow(break_mix)) readr::write_csv(break_mix, file.path(OUT_DIR, "het_break_dates.csv"))
 
-write_csv(dist_test, file.path(OUT_DIR, "het_distribution.csv"))
+readr::write_csv(dist_test, file.path(OUT_DIR, "het_distribution.csv"))
 
 cat("\n== verdict by design ==\n")
 print(as.data.frame(dist_test), digits = 3)
@@ -607,22 +597,22 @@ print(as.data.frame(dist_test), digits = 3)
 # ============================================================
 
 surf <- verdict |>
-  select(design, sample, r, q, p, rank1_share, p_placebo, prop_p_boot) |>
-  pivot_longer(c(rank1_share, p_placebo, prop_p_boot),
+  dplyr::select(design, sample, r, q, p, rank1_share, p_placebo, prop_p_boot) |>
+  tidyr::pivot_longer(c(rank1_share, p_placebo, prop_p_boot),
                names_to = "stat", values_to = "value")
 
-g <- ggplot(surf, aes(x = factor(p), y = factor(paste0("r", r, "q", q)), fill = value)) +
-  geom_tile(colour = "white") +
-  facet_grid(stat ~ design + sample, scales = "free") +
-  scale_fill_viridis_c() +
-  labs(x = "ordem do VAR (p)", y = "(r, q)", fill = NULL,
+g <- ggplot2::ggplot(surf, ggplot2::aes(x = factor(p), y = factor(paste0("r", r, "q", q)), fill = value)) +
+  ggplot2::geom_tile(colour = "white") +
+  ggplot2::facet_grid(stat ~ design + sample, scales = "free") +
+  ggplot2::scale_fill_viridis_c() +
+  ggplot2::labs(x = "ordem do VAR (p)", y = "(r, q)", fill = NULL,
        title = "Gate da identificacao por heterocedasticidade sobre a grade (p, q)",
        subtitle = "rank1_share, placebo e teste de proporcionalidade de Rigobon") +
-  theme_minimal(base_size = 8) +
-  theme(axis.text.x = element_text(size = 6), axis.text.y = element_text(size = 6),
-        strip.text = element_text(size = 6))
+  ggplot2::theme_minimal(base_size = 8) +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(size = 6), axis.text.y = ggplot2::element_text(size = 6),
+        strip.text = ggplot2::element_text(size = 6))
 
-ggsave(file.path(OUT_DIR, "het_gate_surface.pdf"), g, width = 16, height = 7)
+ggplot2::ggsave(file.path(OUT_DIR, "het_gate_surface.pdf"), g, width = 16, height = 7)
 
 
 # ============================================================
@@ -630,7 +620,7 @@ ggsave(file.path(OUT_DIR, "het_gate_surface.pdf"), g, width = 16, height = 7)
 # ============================================================
 
 prod_row <- verdict |>
-  filter(sample == "full", r == PROD$r, q == PROD$q, p == PROD$p)
+  dplyr::filter(sample == "full", r == PROD$r, q == PROD$q, p == PROD$p)
 
 lines <- c(
   "# Robustez: identificacao por heterocedasticidade (Rigobon 2003) no DFM mensal",
@@ -667,7 +657,7 @@ lines <- c(
   "")
 
 tbl <- dist_test |>
-  transmute(
+  dplyr::transmute(
     desenho = design, n = n_cells,
     `med p_plac` = fmt(p_plac_med),
     `med p_prop` = fmt(prop_med), `min p_prop` = fmt(prop_min),
@@ -706,17 +696,17 @@ n_id <- sum(verdict$verdict == "identifies")
 # all -- the most generous reading the data admits.
 n_gap     <- sum(verdict$eig_distinct)
 n_rawrej  <- sum(verdict$prop_p_boot < ALPHA)
-both_raw  <- verdict |> filter(prop_p_boot < ALPHA, eig_distinct)
+both_raw  <- verdict |> dplyr::filter(prop_p_boot < ALPHA, eig_distinct)
 n_both    <- nrow(both_raw)
 n_both_q5 <- sum(both_raw$q == 5L)
 n_both_holm <- verdict |>
-  group_by(design, sample) |>
-  mutate(h = stats::p.adjust(prop_p_boot, "holm")) |>
-  ungroup() |>
-  filter(h < ALPHA, eig_distinct) |>
+  dplyr::group_by(design, sample) |>
+  dplyr::mutate(h = stats::p.adjust(prop_p_boot, "holm")) |>
+  dplyr::ungroup() |>
+  dplyr::filter(h < ALPHA, eig_distinct) |>
   nrow()
 stopifnot(n_both_holm == 0L || n_id > 0L)
-write_csv(both_raw, file.path(OUT_DIR, "het_both_conditions_raw.csv"))
+readr::write_csv(both_raw, file.path(OUT_DIR, "het_both_conditions_raw.csv"))
 
 cat(sprintf("\nraw: %d reject proportionality, %d have distinct eigenvalues, %d both (%d at q=5)\n",
             n_rawrej, n_gap, n_both, n_both_q5))
