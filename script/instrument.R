@@ -38,8 +38,9 @@ DEFAULT_VARIANT <- SPEC$instrument # legacy data/processed/instrument.csv
 # variants — it predates z_jk_bs_purif entirely.
 # Supported variants: the 8 GK-family instruments built by this script.
 # The 4 heteroskedasticity-identified variants (z_het*) were archived on
-# 2026-07-26 together with script/instrument_het.R — see
-# registro/historico_decisoes.md section 1.
+# 2026-07-26 and the whole route was abandoned on 2026-08-17 — code in
+# arquivo/heterocedasticidade/, verdict in registro/historico_decisoes.md
+# section 1.
 #
 # 2026-08-05: z_jk_raw_purif_local (dominated) and z_jk_purif_us (redundant,
 # cor 0.999 with z_jk_purif) were dropped — both were already declared dead in

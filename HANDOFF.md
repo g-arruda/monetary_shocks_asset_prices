@@ -1,33 +1,66 @@
-# Handoff — 2026-08-17 (fechamento do Tema E: 7 de 8 itens de código e higiene)
-SESSLOG:[2026-08-17 14:27]
-<!-- written by: pop-os at 2026-08-17T14:27:08-03:00 -->
+# Handoff — 2026-08-17 (abandono e arquivamento das duas identificações alternativas)
+SESSLOG:[2026-08-17]
 *Project: monetary_shocks_asset_prices*
 
 ## Session Topic
-Resolvidos os itens abertos do Tema E de `pendencias.md`. Nada commitado.
+Abandono, por decisão do autor, das estratégias de identificação por
+**heterocedasticidade** (Rigobon 2003) e por **momentos / não-gaussianidade**
+(GMR 2017 PML-ICA). Código, artefatos, notas e registro movidos para
+`arquivo/`, separados por estratégia. Nada commitado.
 
 ## Active Decisions
-- **`q=5` continua aberto por decisão sua.** O critério admissível (BLL) diz q=2; (5,2) e (5,3) têm xi_mp 3,809 e 3,149, abaixo de 3,84. Produção intocada.
-- **Janela de coerência das ações fica em h0-6** — não retunar junto com o tcode 6.
-- `asset_*` agora é **tcode 6** (x100 sem acumular). h=0 é invariante: smoke test e os 3 guards de -1,7226766564462794 seguem válidos.
-- `kilian_correction` usa **rcond**, e aborta onde a Lyapunov é singular. `tryCatch(solve)` foi tentado e regrediu o VAR — não voltar a ele.
-- `notas/` e `pareceres/` ficam verbatim; renomes vivem em `registro/mapa_renomeacoes.md`.
+- **O projeto tem uma identificação: o proxy externo `z_jk_bs_purif`.** As duas
+  rotas alternativas não entram no paper, nem como robustez, nem como
+  corroboração.
+- **Destino:** `arquivo/heterocedasticidade/` e `arquivo/nao_gaussiana/`, cada
+  uma com README próprio (veredito, índice, armadilhas). Consolidado no acervo
+  `arquivo/` que já existia — não num `arquivos/` novo — porque a regra de
+  fronteira "no live path sources from `arquivo/`" já o cobre. O material het
+  arquivado em 2026-07-26 migrou para o subfolder.
+- **O núcleo de identificação foi colapsado para ramo único.** O `switch` de 3
+  vias saiu de `R/modeling/{dfm_pipeline,impulse_response}.R`. O parâmetro
+  `identification` **ficou** (domínio `"proxy"`, via `match.arg`): seis
+  chamadores vivos o passam explicitamente, cinco deles sob `diagnostics/`, que
+  não é editável.
+- **`historico_decisoes.md` §0 e §1 viraram stub + ponteiro.** O corpo integral
+  está em `arquivo/*/registro/historico_decisoes_secao{0,1}.md`. A função
+  anti-retrabalho fica no lugar; o detalhe morto sai do registro vivo.
+- **Três notas saíram de `notas/`** para as pastas de arquivo, com os links do
+  `_indice.md` repontados e marcados `(arquivada)`.
+- **O paper não foi tocado, e não precisa ser.** As menções a heterocedasticidade
+  em `paper_anpec.tex:156,209,589` citam `goncalves2025` — evidência alheia com
+  que o artigo dialoga, não a rota deste projeto.
+- **Não confundir com o que ficou:** inferência robusta a heterocedasticidade
+  (wild bootstrap Gonçalves-Kilian, HAC do primeiro estágio) é produção e está
+  intocada. `R/identification/validation_tests.R` também fica — a suíte T1-T8 foi
+  escrita para `z_het_jk` mas é agnóstica ao instrumento.
 
 ## Key Files
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/registro/pendencias.md
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/output/factors/q_selection.md
-- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/R/modeling/factor_estimation.R
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/arquivo/heterocedasticidade/README.md
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/arquivo/nao_gaussiana/README.md
 - /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/R/modeling/impulse_response.R
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/R/modeling/dfm_pipeline.R
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/registro/historico_decisoes.md
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/registro/pendencias.md
 
 ## Next Steps
-- [ ] Reescrever o bloco de ações do §4 e a legenda da `fig:acoes` — há contradição literal viva em `paper_anpec.tex:485` e `:491` (a figura já não é acumulada, o texto ainda diz que é)
-- [ ] Decidir `q` com os números de `q_selection.md`
+- [ ] Revisar o diff e commitar (três commits: moves, cirurgia, limpeza dos `.md`)
+- [ ] Reescrever o bloco de ações do §4 e a legenda da `fig:acoes` — contradição
+      viva em `paper_anpec.tex:485` e `:491`
+- [ ] Decidir `q` com os números de `output/factors/q_selection.md`
 - [ ] Backup de `data/raw/di.csv` fora do repo — insumo insubstituível e gitignored
-- [ ] Revisar o diff (75 arquivos) e commitar
+- [ ] A §5 perdeu duas pernas prometidas; decidir a composição que sobra
+      (construção do instrumento, especificação, Limitações)
 
 ## Working Artifacts
-- progress_logs/2026-08-17_tema_e_fechamento.md — det/rcond das 4 matrizes, decomposição do gap AW, tabela antes/depois do cumsum, estado do upstream do DI
+- `arquivo/*/registro/historico_decisoes_secao{0,1}.md` — corpos integrais das
+  duas seções, extraídos do registro vivo
 
 ## Context
-Sete itens fecharam (cumsum, kilian, q=1<r, validação AW, download_di, renomes, install.packages) e cinco novos abriram. Achados fora do previsto: o defeito do determinante também estava em SIGMAY com efeito invertido, o upstream do pyield-data apagou `b3_di.parquet` e truncou o histórico em 2018, e o cumsum **piorou** o bloco acionário fora de h=0. Smoke test bit-idêntico, paper compila limpo (28 pp).
+Escopo executado: 11 arquivos `.R` movidos (4.336 linhas), 27 artefatos de
+`output/`, 3 notas, e limpeza cirúrgica de `registro/` (5 arquivos), `CLAUDE.md`,
+`README.md`, `script/README.md`, `.claude/rules/{identification,writing}.md` e
+`notas/_indice.md`. O guard da cirurgia foi o smoke test de produção, que
+reproduz **bit-a-bit** antes e depois (`-1.7226766564462794` etc.); a ordem de
+consumo do RNG no bootstrap foi preservada, então as bandas também não se movem.
+`run_all.R --list` intacto, 33 scripts em `script/`.

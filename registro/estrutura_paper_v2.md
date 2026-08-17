@@ -25,7 +25,8 @@ predeterminados — auditoria de fidelidade em
 relevância trocados para os do novo primário; (ii) **decisão do autor: o
 instrumento por heterocedasticidade (z_het\*) fica fora do paper** — os blocos
 het (antiga §3.4.4, antigo Apêndice C, itens het do §5.6) foram removidos deste
-roteiro; o pipeline het permanece no repositório como diagnóstico interno;
+roteiro. *(2026-08-17: a rota het foi abandonada e o pipeline saiu do
+repositório — `arquivo/heterocedasticidade/`.)*
 (iii) cadeia de estimação (sweep, stage 2, model_alessi, coerência) re-rodada
 sob o novo primário.
 **Revisão 2026-07-26:** (i) produção migrou para **(r=7, q=6)** após o refresh de
@@ -34,7 +35,8 @@ vintage de 2026-07-24 (**106 séries**, não ~111) — todas as menções a (6,5
 `output/irf/irf_section.md` (a pendência 6.1 está fechada, mas **várias
 afirmações inverteram** — ver a tabela na pendência 6.1); (iii) removida do §5.6
 a afirmação "F ≥ 10 ⇒ sinais corretos", contraditada pela working-note de
-2026-07-15; (iv) todo o material het foi arquivado em `arquivo/`.
+2026-07-15; (iv) todo o material het foi arquivado em
+`arquivo/heterocedasticidade/` (rota abandonada em 2026-08-17).
 **Revisão 2026-08-02:** o `tex/` desta nota foi arquivado em `arquivo/tex/` —
 o autor trocou o documento de trabalho para `paper/paper_anpec.tex`
 (paper canônico desde então). As referências a `tex/main.tex` abaixo
@@ -281,7 +283,7 @@ rugosidade×comunalidade = −0.50). **Sem suavização ex-post.**
   do script em 2026-08-10** (`historico_decisoes.md` §2.4): o número segue
   correto como registro mas não é mais reproduzível, e os itens (i) e (ii)
   sustentam a reconciliação sozinhos.
-  Fonte: `notas/2026-08-01_robustez_heterocedasticidade.md` §6.
+  Fonte: `arquivo/heterocedasticidade/notas/2026-08-01_robustez_heterocedasticidade.md` §6.
   ⚠️ Ao escrever, reportar também a **variável inconveniente**: o mesmo `b_1`
   diário dá IBOV **+2,83%** por 100bp (sinal teoricamente errado), com
   participação espectral de 0,0015 — o bloco de ações é não identificado naquele
@@ -344,43 +346,18 @@ rugosidade×comunalidade = −0.50). **Sem suavização ex-post.**
 3. **Coerência ponto-a-ponto** (53 variáveis × 49 horizontes): anomalias
    localizadas todas rastreadas a medida ou amostra, nenhuma a identificação
    → **Apêndice C**. Releitura sob o novo primário pendente (6.1).
-4. **Robustez à forma de identificação (2026-08-01) — disponível, e com um
-   teto baixo que precisa ser respeitado.** Os itens 1-3 acima variam a receita
-   do instrumento, o (r,q) e a janela; **nenhum varia a identificação**. A rota
-   não-gaussiana (GMR 2017) é a única implementada que identifica sem `z` — o
-   instrumento apenas **rotula** a coluna monetária. Fonte:
-   `notas/2026-08-01_robustez_identificacao.md`,
-   `output/nongaussian/{corroboration,labelling}_*.csv`.
-   **Só duas afirmações são defensáveis, e nenhuma é de discriminação:**
-   (i) **não contradiz** — o ponto do proxy cai dentro do CI90 do GMR em
-   **100% das 5.194 células**; (ii) **rejeita o esquema recursivo** (Cholesky,
-   ξ = 149,3), a restrição que a literatura de menor dimensão impõe sem testar
-   — o que conversa diretamente com o argumento anti-VAR-pequeno da Introdução.
-   ⚠️ **Não** escrever "outra identificação independente dá a mesma direção"
-   sem a ressalva: sob 2.000 direções aleatórias normalizadas ao mesmo choque a
-   concordância mediana já é **0,786** e um quarto delas iguala a coluna
-   rotulada (p = 0,179) — a métrica satura e o teste não tem poder. E a
-   rotulagem **ainda depende de `z`**: as regras que não o usam selecionam uma
-   coluna que corrobora mal (0,600, um quinto da magnitude).
-   ⚠️ **Não** existe robustez de identificação por heterocedasticidade **no
-   sentido de corroboração**, e agora isso está demonstrado em vez de assumido.
-5. **Heterocedasticidade (Rigobon 2003): por que o paper não a usa — 2026-08-01.**
-   `script/het_robustness.R` → `output/het/`, nota
-   `notas/2026-08-01_robustez_heterocedasticidade.md`. Testada **no objeto
-   do paper** (DFM mensal) em **252 células** de `p × q × r × janela` e **5
-   desenhos de regime**, três deles novos. **Zero identificam**, e não é
-   severidade de correção: sob Holm interno ao desenho (28 testes) continua zero.
-   Duas condições necessárias falham em separado — a de posto (o desenho de
-   calendário rejeita em **0%** das células nas duas janelas) e a distinção dos
-   autovalores generalizados (gap mediano 0,11-0,17). **Nenhuma IRF é produzida**,
-   de propósito: sem coluna separável o número não teria identificação atrás.
-   O achado que explica: `volatilidade_juros` concentra o regime C no pós-2020
-   (0,478 contra 0,051) e não rejeita proporcionalidade em nenhuma célula — o
-   surto pós-2020 é **fator de escala comum**, não mudança de composição.
-   **Uso no texto:** isto entra como *justificativa do desenho* (um DFM mensal
-   precisa de instrumento externo) e como **reconciliação com o GRG**, nunca como
-   corroboração. ⚠️ **Não** escrever "outra identificação confirma o proxy" com
-   base nisto.
+4. **Robustez à forma de identificação — REMOVIDA DO ROTEIRO em 2026-08-17.**
+   Os itens 1-3 acima variam a receita do instrumento, o (r,q) e a janela;
+   **nenhum varia a identificação**, e a partir desta data nenhum pode: as duas
+   rotas que identificavam sem `z` — não-gaussiana (GMR 2017) e
+   heterocedasticidade (Rigobon 2003) — foram abandonadas. Vereditos e números em
+   `arquivo/nao_gaussiana/README.md` e `arquivo/heterocedasticidade/README.md`;
+   resumo em `historico_decisoes.md` §0 e §1.
+   ⚠️ Nenhuma das duas pode ser citada como corroboração — a do GMR satura
+   contra o nulo, e a de Rigobon nunca produziu IRF por falta de coluna
+   separável. **A §5 varia a receita do instrumento, não a hipótese
+   identificadora**, e o texto precisa dizer isso em vez de prometer uma perna
+   que não existe.
 
 ### O que NÃO entra em Resultados
 - Os "paper-worthy findings" (`irf_section.md` §5.7) são o **roteiro da
@@ -559,7 +536,7 @@ visível em vez de afirmada.
 | `registro/justificativa_uso_yield-6m.md` | §3.3 |
 | `notas/2026-07-1*` | leituras econômicas do §5 + Apêndice C |
 
-*(Todo o material het foi arquivado em `arquivo/` em 2026-07-26 e os artefatos
+*(Todo o material het foi arquivado em `arquivo/heterocedasticidade/` e os artefatos
 regeneráveis apagados — ver `arquivo/README.md` e `registro/historico_decisoes.md` §1.)*
 
 ## 6. Pendências que a nova versão deve sinalizar (não bloqueiam a estrutura)

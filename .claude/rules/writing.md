@@ -30,7 +30,7 @@ It is a prose source to draw from, **not a target to edit**.
 ## Generated vs hand-written — the distinction that already cost this project once
 
 **These bodies are rewritten in full on every run. Never put prose in them:**
-`output/irf/irf_coherence_report.md`, `output/irf/ar_bands.md`, `output/het/het_robustness.md`,
+`output/irf/irf_coherence_report.md`, `output/irf/ar_bands.md`,
 `output/factors/factor_stationarity.md`, `output/assets/asset_representation.md`,
 `output/var/var_benchmark.md`.
 

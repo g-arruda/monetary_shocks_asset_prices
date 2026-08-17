@@ -10,6 +10,15 @@
 > `diagnostics/diagnostico_dfm.md`, `output/{het,var,assets,factors,instrument,nongaussian,irf}/`
 > e as notas de 07-27 a 08-01.
 >
+> **2026-08-17 — nota de leitura, corpo intocado.** As duas rotas de
+> identificação que esta triagem coloca na §5 foram **abandonadas**:
+> heterocedasticidade (Rigobon) e momentos/não-gaussianidade (GMR). Nenhuma das
+> duas entra no paper, e os tiers que dependem delas estão mortos. Os caminhos
+> citados abaixo se moveram: `output/het/` → `arquivo/heterocedasticidade/output/het/`,
+> `output/nongaussian/` → `arquivo/nao_gaussiana/output/nongaussian/`, e as três
+> notas das rotas estão em `arquivo/{heterocedasticidade,nao_gaussiana}/notas/`.
+> Vereditos em `registro/historico_decisoes.md` §0 e §1.
+>
 > **2026-08-02:** `tex/main.tex` foi arquivado em `arquivo/tex/main.tex` —
 > a prosa "escrita, comentada" descrita nesta nota vive lá agora, e o
 > destino é portá-la para `paper/paper_anpec.tex` (o paper canônico,

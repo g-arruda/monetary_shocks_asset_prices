@@ -1,5 +1,18 @@
 # Método — construção do instrumento externo para o proxy-SVAR/DFM
 
+> **Nota de leitura (2026-08-17).** As duas rotas alternativas de identificação
+> foram abandonadas: heterocedasticidade (Rigobon) e momentos/não-gaussianidade
+> (GMR). O projeto tem **uma** identificação, o proxy externo `z_jk_bs_purif`.
+> Os blocos de *Status histórico* abaixo são registros datados e ficam
+> **verbatim**, inclusive onde citam `z_het*`, `script/instrument_het.R`,
+> `script/instrument_validation.R` e `script/irf_cross_instrument.R` — esses
+> arquivos hoje estão em `arquivo/heterocedasticidade/script/`. Vereditos em
+> `historico_decisoes.md` §0 e §1.
+>
+> Duas coisas que **não** foram abandonadas e usam a mesma palavra: a inferência
+> robusta a heterocedasticidade (wild bootstrap de Gonçalves-Kilian, HAC do
+> primeiro estágio) e a citação de `goncalves2025`, que é evidência alheia.
+
 ## Status (2026-08-13, produção migrada para 111 séries e `(5,5)`)
 
 > A especificação corrente é centralizada em
@@ -70,7 +83,7 @@
 
 ## Status histórico (2026-07-15, troca de default + het fora do paper)
 
-> **`DEFAULT_VARIANT = z_jk_bs_purif`** (decisão do autor, fechando a questão aberta na auditoria de 2026-07-14 abaixo): ortogonalização Bauer-Swanson fiel (preditores pré-evento predeterminados) + filtro JK nos sinais dos resíduos pré-evento. ξ_mp na produção (7,6): 10.43 full / 12.22 pre-COVID, ≥ 10 nas duas janelas (bandas padrão) — vintage 2026-07-24; a produção migrou de (6,5) → (7,6) nessa data (em (6,5) caiu para 6.36 full / 11.00 pre-COVID). Os corpos dos relatórios stage-2/coerência estão stale até re-rodar. Cadeia re-estimada na mesma data (sweep 480 células com as 4 variantes da auditoria, stage 2 com baseline (6,5) full, `model_alessi.R`, coerência nboot=800): história qualitativa preservada (curva ↑, BRL deprecia, EMBI/CDS abrem, corcova n.s. do IPCA), magnitudes ~30–45% menores que na rodada `z_jk_purif` (Ibov h0 −1.1% vs −8.9%; BRL +0.185 vs +0.245; EMBI +25bp vs +46bp); crédito e juros_cdi/selic melhoram de veredito na coerência. **Decisão editorial: o instrumento het (z_het\*) fica fora do paper** — pipeline mantido como diagnóstico interno; `registro/estrutura_paper_v2.md` atualizado. Pendências novas: bandas AR para o full, rewrite do §5/`irf_section.md` sob o novo primário.
+> **`DEFAULT_VARIANT = z_jk_bs_purif`** (decisão do autor, fechando a questão aberta na auditoria de 2026-07-14 abaixo): ortogonalização Bauer-Swanson fiel (preditores pré-evento predeterminados) + filtro JK nos sinais dos resíduos pré-evento. ξ_mp na produção (7,6): 10.43 full / 12.22 pre-COVID, ≥ 10 nas duas janelas (bandas padrão) — vintage 2026-07-24; a produção migrou de (6,5) → (7,6) nessa data (em (6,5) caiu para 6.36 full / 11.00 pre-COVID). Os corpos dos relatórios stage-2/coerência estão stale até re-rodar. Cadeia re-estimada na mesma data (sweep 480 células com as 4 variantes da auditoria, stage 2 com baseline (6,5) full, `model_alessi.R`, coerência nboot=800): história qualitativa preservada (curva ↑, BRL deprecia, EMBI/CDS abrem, corcova n.s. do IPCA), magnitudes ~30–45% menores que na rodada `z_jk_purif` (Ibov h0 −1.1% vs −8.9%; BRL +0.185 vs +0.245; EMBI +25bp vs +46bp); crédito e juros_cdi/selic melhoram de veredito na coerência. **Decisão editorial: o instrumento het (z_het\*) fica fora do paper** — pipeline mantido como diagnóstico interno; `registro/estrutura_paper_v2.md` atualizado. *(O pipeline deixou de existir em 2026-08-17: rota abandonada, ver `arquivo/heterocedasticidade/`.)* Pendências novas: bandas AR para o full, rewrite do §5/`irf_section.md` sob o novo primário.
 
 ## Status histórico (2026-07-14, auditoria de fidelidade JK/BS)
 
@@ -311,8 +324,9 @@ Duas variantes saíram em 2026-08-05, ambas já declaradas mortas em
 `historico_decisoes.md` §2 e sem consumidor em nenhuma varredura viva:
 `z_jk_raw_purif_local` (dominada) e `z_jk_purif_us` (redundante, cor 0,999 com
 `z_jk_purif`). As quatro variantes por heterocedasticidade (`z_het*`) nunca
-foram produzidas por este script e foram arquivadas em 2026-07-26 junto com
-`script/instrument_het.R` — ver `historico_decisoes.md` §1.1.
+foram produzidas por este script; foram arquivadas em 2026-07-26 e a rota inteira
+foi abandonada em 2026-08-17 — `arquivo/heterocedasticidade/`, resumo em
+`historico_decisoes.md` §1.
 
 > **2026-07-14 — ordem purificação ↔ JK:** constatou-se que o pipeline acima já é "purificação → JK" (a classificação da §5.2 usa os sinais dos *resíduos*). Duas variantes com a ordem inversa (máscara JK nos **sinais brutos** `delta_di` × `r_ibov`, purificação depois) foram adicionadas a `script/instrument.R`: `z_jk_raw_purif` (valores = `e_di` da regressão de painel completo) e `z_jk_raw_purif_local` (regressão re-estimada só nos dias selecionados). No grid MOSW, `z_jk_raw_purif` domina `z_jk_purif` em ξ_mp na amostra **full** (13/14 células; único GK a cruzar 10 em células full) — a máscara bruta exclui `2020-03-19` (pânico COVID classificado como monetário pela máscara residual) — mas perde no pre_covid (6,5) (10.80 vs 13.25); default inalterado, `z_jk_raw_purif` vira robustez full-sample e a `_local` foi descartada (dominada — e removida do código em 2026-08-05). Detalhes: `notas/2026-07-14_ordem_purificacao_jk.md`.
 
@@ -402,9 +416,8 @@ Horizonte: 0 a 24 meses. Bandas: 68% e 90%.
 - **Instrumento base (surpresas de DI):** Gertler & Karadi (2015, AEJ:Macro) — lógica do proxy-SVAR com surpresas de futuros
 - **Filtro JK:** Jarociński & Karadi (2020, AEJ:Macro) — classificação por co-movimento, restrições de sinal
 - **Purificação:** Bauer & Swanson (2023, AER) — controle por fatores pré-anúncio
-- **Identificação por heterocedasticidade (estratégia atual):** Rigobon (2003, *RES*); Rigobon & Sack (2003 *QJE*; 2004 *JME*); Stock & Watson (2018, *EJ*) §4.7
 - **Recuperação do choque por GLS:** Mertens & Ravn (2013, *AER*) §II.B
-- **Contexto brasileiro:** Gonçalves, Rodrigues & Genta (2025, IMF WP/25/48) — janela Wed→Thu, dados de DI, testes de Rigobon
+- **Contexto brasileiro:** Gonçalves, Rodrigues & Genta (2025, IMF WP/25/48) — janela Wed→Thu, dados de DI, testes de Rigobon. É a evidência *alheia* com que o paper dialoga; a rota het **deste** projeto foi abandonada (`arquivo/heterocedasticidade/`)
 - **Teste de instrumento fraco:** Montiel Olea, Stock & Watson (2021, *JoE*) — estatística F robusta
 - **DFM + proxy-SVAR:** Alessi & Kerssenfischer (2019) — "The Response of Asset Prices to Monetary Policy Shocks: Stronger than Thought" — pipeline de estimação replicado neste projeto
 - **Wild bootstrap sob heterocedasticidade MD:** Gonçalves & Kilian (2004)

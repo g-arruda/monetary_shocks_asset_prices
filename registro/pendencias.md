@@ -71,10 +71,9 @@ metades deve ser usada para conferir a outra.
 | Tema | Item | Observação |
 |---|---|---|
 | A | Reescrever resumo, §1, §2, §4 e conclusão para a produção 111 `(5,5)` | §3, §5 e o apêndice já migrados em 2026-08-14; checklist abaixo |
-| A | §5 Robustez tem 3 subseções — faltam het, GMR, construção do instrumento, especificação e Limitações | as 3 escritas já estão na vintage corrente; o que falta é composição, não número |
+| A | §5 Robustez tem 3 subseções — faltam construção do instrumento, especificação e Limitações | as 3 escritas já estão na vintage corrente; o que falta é composição, não número |
 | A | Decidir se o diagnóstico de invertibilidade vira subseção própria da §5 | hoje é parágrafo dentro de `sec:exogeneidade`; decisão de composição, não de número |
 | A | Assimetria da máscara re-derivada entre §5.2 e §5.3 | §5.3 reporta, §5.2 não; decisão editorial pendente |
-| A | Escrever a subseção de robustez sobre heterocedasticidade (Rigobon) | 288 células válidas/320 desenhadas, nenhuma identifica; entra depois de `sec:confound` |
 | A | Ressalva §4 + Limitações sobre a reversão de médio prazo | raiz 0,964858; retirar a leitura antiga de “um modo quase unitário” |
 | A | Documentar a mecânica do bootstrap no texto | — |
 | A | Vertente de prêmio de risco cambial ausente do §2 | exige chave nova (regra das 25) |
@@ -101,9 +100,6 @@ metades deve ser usada para conferir a outra.
 | B | Correlações canônicas VAR pequeno × espaço de fatores | sustentação direta de `:238`, hoje só indireta; não existe no repo |
 | B | Pré-teste de relevância de Angelini-Cavaliere-Fanelli | robusto a proxy censurada em zero, que é o desenho da máscara JK; exige chave nova |
 | A | Reescrever o bloco de ações do §4 e a nota da `fig:acoes` | aberto em 2026-08-17 ao fechar o `cumsum`; §4 ainda não migrou |
-| C | Decidir enquadramento do GMR no paper | — |
-| C | Construir um teste com poder | — |
-| C | LMS (2017) como terceira leitura | desempate mais barato disponível |
 | D | Comparação cross-instrumento do IPCA sob (5,5) | dado já existe, falta rodar |
 | D | Spread de concessões novas | desejável, não bloqueante |
 | E | Decidir `q`: o critério admissível diz 2, a força diz que 2 não identifica | evidência completa em `notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md`; produção intocada |
@@ -172,7 +168,7 @@ metades deve ser usada para conferir a outra.
     `0,76%` e `24,7%` de variância **saiu**, porque não reproduz no relatório
     regenerado. **A perna da máscara ficou só na §5.3**, por decisão do autor, e
     a assimetria com a §5.2 virou item próprio abaixo. A composição que falta
-    (het, GMR, construção, especificação e Limitações) é o item seguinte.
+    (construção, especificação e Limitações) é o item seguinte.
   - ✅ **Apêndice — FEITO em 2026-08-14.** A `tab:lista_variaveis` tem exatamente
     111 linhas, conferidas por comparação de conjuntos contra as colunas de
     `data/processed/data_log_deseasonalized.csv`, e a distribuição de `tcode`
@@ -223,8 +219,7 @@ Dissents: `pareceres/council_2026-08-10.md`.*
   2026-08-14:* `sec:exogeneidade`, `sec:confound` e `sec:fomc` estão reescritas
   contra os relatórios de 2026-08-13, e nenhum número da vintage de 106 séries
   sobrevive ali.
-  **O que falta, na ordem da composição recomendada:** identificação
-  alternativa e divergência com GRG/GMR, heterocedasticidade mensal,
+  **O que falta, na ordem da composição recomendada:** divergência com GRG,
   construção do instrumento e dimensão do sistema (A3 + A4 + A2),
   especificação do modelo (A5 + A1 + A7 + LP-IV com o rótulo certo) e
   **Limitações**. A prosa antiga de `arquivo/tex/main.tex` pode servir de mapa de
@@ -255,45 +250,9 @@ Dissents: `pareceres/council_2026-08-10.md`.*
   invertibilidade é a **única hipótese mantida do estimador de produção**, e
   ficar dentro de uma subseção intitulada "Exogeneidade do instrumento" pede ao
   leitor que segure a distinção sozinho. O argumento contra é que a composição
-  recomendada da §5 já tem fila (het, GMR, construção, especificação,
-  Limitações) e o material é curto. É decisão de composição, não de número —
+  recomendada da §5 já tem fila (construção, especificação, Limitações) e o
+  material é curto. É decisão de composição, não de número —
   nenhum resultado muda.
-- [ ] **Escrever a subseção de robustez sobre identificação por
-  heterocedasticidade.** Os números existem, estão conferidos e a leitura está
-  redigida em `notas/2026-08-01_robustez_heterocedasticidade.md` §7
-  ("o que pode e o que não pode ser escrito"); falta só a redação no `.tex`.
-  **Nenhum `.tex` foi tocado nesta rodada — proibição do autor em 2026-08-01.**
-  A dependência de a §5 existir foi resolvida em 2026-08-09.
-  - **Onde:** como §5.3, depois de `sec:confound`, que é onde a composição
-    recomendada a coloca — as três primeiras subseções defendem a
-    identificação em ordem crescente de agressividade, da exogeneidade do
-    instrumento à troca da hipótese identificadora. Label sugerido
-    `sec:heterocedasticidade`.
-  - **Chaves de bibliografia já existem** — `rigobon2003` e `goncalves2025`;
-    **não** é preciso entrada nova. A condição de autovalores distintos é de
-    Lanne-Lütkepohl (2008), que **não** está no `.bib`: ou se adiciona a entrada,
-    ou se enuncia a condição sem atribuição específica (ela é parte do arcabouço
-    de Rigobon).
-  - **A ordem do argumento:** (i) todo o resto do §5 varia a receita do
-    instrumento, não a identificação — Rigobon dispensa a restrição de exclusão e
-    identifica por segundos momentos; (ii) a grade desenha 320 células e tem
-    **288 com status `ok`** — o regime por episódio só existe na janela cheia —,
-    **nenhuma identifica**, e não é severidade de correção (Holm interno ao
-    desenho mantém zero nos cinco); (iii) **segunda condição necessária falha
-    em separado** — autovalores generalizados não distintos (gap relativo
-    mediano **0,137-0,188**) —, e por isso **nenhuma IRF é reportada**, o que precisa
-    ser dito explicitamente para o leitor não procurar uma figura; (iv) o
-    diagnóstico: o salto de volatilidade pós-2020 é **fator de escala comum**
-    (`volatilidade_juros` põe 47,8% dos meses no regime alto contra 5,1% antes e
-    mesmo assim não rejeita proporcionalidade em nenhuma célula); (v) a
-    reconciliação com `goncalves2025`.
-  - ⚠️ **Não escrever como corroboração.** Não há IRF, logo não há concordância
-    de sinal a reportar. É *justificativa do desenho* e *reconciliação de
-    frequência*.
-  - ⚠️ **Incluir a variável inconveniente:** no mesmo sistema diário o IBOV
-    responde **+2,83%** por 100bp (sinal errado), com participação espectral de
-    0,0015 — ações não identificadas naquele desenho, e por isso a comparação de
-    ações entre os dois exercícios não é possível.
 - [ ] **Bandas Anderson-Rubin no `.tex` — ADIADAS SEM PRAZO e sem prioridade
   ativa em 2026-08-12.** A implementação plug-in foi retirada e seus números
   não são operacionais. Não escrever resultados AR no paper antes de existir
@@ -438,7 +397,7 @@ Dissents: `pareceres/council_2026-08-10.md`.*
   ressalva obrigatória junto — o mesmo `b_1` diário dá IBOV +2,83% (sinal
   errado, participação espectral 0,0015, ações não identificadas naquele
   sistema); reportar só a célula favorável (BRL) seria *cherry-picking*.
-  Ver `historico_decisoes.md` §4 e `notas/2026-08-01_robustez_heterocedasticidade.md` para os números; a réplica arquivada
+  Ver `historico_decisoes.md` §4 e `arquivo/heterocedasticidade/notas/2026-08-01_robustez_heterocedasticidade.md` para os números; a réplica arquivada
   (`arquivo/relatorio/correspondence/referee2/replication/referee2_py_b1.csv`)
   precisa de uma rodada na vintage atual antes de virar número citável no
   texto.
@@ -772,8 +731,9 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   bloqueante; o autor quer tentar se houver tempo (2026-07-26).* Local
   Projections com o mesmo instrumento: `IdSS::make.LPIV.irf` (uma regressão IV
   por horizonte, controles opcionais de defasagens de `Y` e `Z`, erro-padrão HAC
-  via `tsls` com Newey-West em `h + 1`). O pacote já entra no projeto pela rota
-  não-gaussiana, então o custo marginal é baixo.
+  via `tsls` com Newey-West em `h + 1`). ⚠ **`IdSS` deixou de entrar no projeto**
+  quando a rota não-gaussiana foi arquivada (2026-08-17): a dependência agora é
+  nova, e o custo marginal deixou de ser baixo.
   - **Por que vale:** é um **estimador diferente da mesma identificação**. Não
     inverte o polinômio autorregressivo nem propaga por potências da companion,
     logo **nada nele depende de `p = 6`** nem da forma funcional do VAR. E roda
@@ -789,8 +749,9 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   - **Detalhe de implementação:** `make.LPIV.irf` normaliza para efeito unitário
     na **primeira coluna de `Y`** — ordenar `yield_6m` primeiro.
   - **Ressalva:** continua dependendo de `z_jk_bs_purif` ser relevante e exógeno.
-    **Não** responde ao ξ_mp no limiar nem ao placebo `commodity_metal` — só a
-    rota não-gaussiana faz isso, porque só ela identifica sem `z`.
+    **Não** responde ao ξ_mp no limiar nem ao placebo `commodity_metal`. Desde
+    2026-08-17 **não há mais nenhuma rota que identifique sem `z`** no
+    repositório — as duas que havia foram abandonadas (Tema C).
   - **[2026-08-14] O que destrava, e é mais do que robustez de especificação.** A
     LP-IV exige a condição lead-lag, que a rodada de 2026-08-14 testou e não
     rejeitou (Tema A, Fechados), então a pré-condição está satisfeita. E o prêmio
@@ -1064,76 +1025,40 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 ---
 
-## C. Identificação não-gaussiana — decisões em aberto
+## C. Identificação por momentos e por heterocedasticidade — ENCERRADO
 
-*(2026-07-27, reestimado na produção `(5,5)` em 2026-08-13.)* O ramo GMR está
-implementado, validado e foi reestimado com 800 réplicas e zero falhas.
-Registro histórico em
-`notas/2026-08-01_robustez_identificacao.md` (a nota de
-07-27, `notas/2026-07-27_identificacao_nao_gaussiana_gmr.md`,
-descreve a corrida antiga e carrega banner).
+**Ambas as rotas foram abandonadas em 2026-08-17, por decisão do autor.** Não há
+item aberto neste tema. O código, os artefatos, as notas e os vereditos vivem em
+`arquivo/nao_gaussiana/` e `arquivo/heterocedasticidade/`, cada um com README
+próprio; o resumo está em `historico_decisoes.md` §0 e §1.
 
-- [ ] **Decidir o enquadramento do GMR no paper.** O que sobrevive, e é o que a
-  recomendação de 07-27 já dizia: usar o GMR como **teste**, não como estimativa
-  concorrente. Duas afirmações são defensáveis porque nenhuma é de
-  discriminação: (i) **não contradiz** — o ponto do proxy cai dentro do CI90 do
-  GMR em **100% das 5.439 células**; (ii) **rejeita o esquema recursivo**
-  (ξ = 73,81), que é a restrição que a literatura de menor dimensão impõe sem
-  testar e conversa com o argumento anti-VAR-pequeno do paper. **Não** é
-  defensável escrever "outra identificação independente dá a mesma direção" sem
-  a ressalva do nulo. O estimador segue sem poder próprio: **6 células sig90 em
-  5.439**. A rejeição assintótica da restrição do proxy (ξ = 33,37; 4 gl)
-  continua
-  **provavelmente espúria** — Prop. 4 cobre 0,79 contra 0,95 nominal em
-  T = 150, n = 6, enquanto o bootstrap move substancialmente a direção e produz
-  bandas muito largas. Fonte corrente: `output/nongaussian/results.md`.
-- [ ] **Construir um teste com poder.** O gargalo agora é a régua, não o
-  estimador. A coluna rotulada concorda com o proxy em 0,963 das 353 células em
-  que o proxy é sig90, mas direções aleatórias tornam essa contagem pouco
-  discriminante (`p=0,149`). A razão de magnitude é mais promissora
-  (`p=0,087`), ainda sem rejeitar a 5%. Um teste sobre o perfil de magnitude,
-  e não sobre contagem de sinais, pode ter poder onde este não tem.
-- [ ] **LMS (2017) como terceira leitura** — `svars::id.ngml`, ML paramétrico
-  sobre a mesma premissa de não-gaussianidade. Se LMS concordar com GMR, a
-  discordância é do proxy; se ficar no meio, é do método. É o desempate mais
-  barato disponível.
+O núcleo de identificação foi colapsado para o ramo único `proxy` na mesma data
+(`R/modeling/{dfm_pipeline,impulse_response}.R`), com o smoke test de produção
+bit-idêntico como guard.
 
 ### Fechados (contexto)
 
-- [x] **Gate de não-gaussianidade em η — REFEITO em 2026-08-13.**
-  `script/nongaussian_gate.R` → `output/nongaussian/gate.md`. **0 de 5**
-  componentes deixam de rejeitar normalidade no full, contra **2 de 5**
-  pré-COVID — a rota existe só no full sample; a janela pré-COVID viola o
-  limite de no máximo um componente gaussiano. **⚠ Armadilha:** o
-  gate não pode reusar `output/irf/irf_coherence_cell.rds` — guarda só
-  `irf`/`var_names`/`tcode`/`mpind`, não o objeto DFM; o script re-estima
-  (barato, sem bootstrap). Detalhe: `historico_decisoes.md` §0.2.
-- [x] **Ramo `identification = "nongaussian"` implementado — FEITO em
-  2026-07-27**, branch `identificacao-nao-gaussiana`. GMR (2017) PML-ICA
-  **traduzido para o repo** em `R/identification/nongaussian_gmr.R` (não usa
-  `IdSS::estim.SVAR.ICA`, quebrado para n≥4 — `historico_decisoes.md` §0.1).
-  Validação em `script/validate_gmr_ica.R` reproduz a aplicação publicada.
-  Smoke test do proxy inalterado.
-- [x] **Corroboração medida e testada contra nulo — REFEITA em 2026-08-13.** GMR
-  reestimado (`nboot=800`, `NG_STARTS=200`). Sob a coluna rotulada, o sinal
-  coincide em **0,963** das 353 células sig90 do proxy e em **1,000** das 54
-  células sig90 entre as oito manchetes. **⚠ O nulo derruba isso como afirmação
-  estatística:** 2.000 direções aleatórias dão `p=0,149` para a concordância e
-  `p=0,087` para a razão de magnitude. No bloco da curva o nulo é especialmente
-  permissivo porque normalizar em `yield_6m` força co-movimento.
-  **Concordância de sinal não é evidência de corroboração.** Nota:
-  `notas/2026-08-01_robustez_identificacao.md`.
-- [x] **Coluna vice-líder inspecionada — REFEITO em 2026-08-13.** A regra com
-  `z` e as três regras estruturais sem instrumento — impacto e FEVD de
-  `yield_6m`, e FEVD do bloco da curva — escolhem todas a **coluna 1**. A
-  vice-líder pela correlação é a coluna 4; concorda com o proxy em 0,841 das
-  células sig90, contra 0,963 da vencedora. A rotulagem está mais coerente que
-  na rodada `(7,6)`, embora a folga de correlação permaneça pequena (0,044).
-- [x] **Descartado por decisão do autor (2026-08-01): rodar o GMR num VAR
-  pequeno.** Seria a rota com melhor chance de passar o gate (resíduos de
-  observáveis quase não sofrem média cruzada), mas contradiria o argumento
-  central do paper contra modelos VAR pequenos por maldição da
-  dimensionalidade.
+- [x] **Enquadramento do GMR no paper — ENCERRADO SEM ENTRAR (2026-08-17).** A
+  recomendação viva era usar o GMR como *teste*, não como estimativa concorrente,
+  apoiada em duas afirmações de não-discriminação: o ponto do proxy cai dentro do
+  CI90 do GMR em 100% das 5.439 células, e o esquema recursivo é rejeitado
+  (ξ = 73,81). Nada disso entra no paper.
+- [x] **Construir um teste com poder — ENCERRADO (2026-08-17).** O gargalo era a
+  régua, não o estimador: a concordância de sinal satura contra o nulo (p=0,149)
+  e a razão de magnitude nunca rejeitou a 5% (p=0,087).
+- [x] **LMS (2017) como terceira leitura — ENCERRADO SEM TENTAR (2026-08-17).**
+  `svars::id.ngml` era o desempate mais barato disponível; `svars` nunca foi
+  instalado.
+- [x] **Heterocedasticidade *condicional* (GARCH-SVAR) — ENCERRADA SEM TENTAR
+  (2026-08-17).** Era a ponta solta declarada da rota het, a única com chance de
+  produzir IRF mensal por dispensar datas de regime.
+- [x] **Subseção de robustez sobre heterocedasticidade — NÃO SERÁ ESCRITA
+  (2026-08-17).** Os números existiam e estavam conferidos (288 células válidas
+  de 320, nenhuma identifica), mas a §5 não recebe a subseção.
+
+> Os itens fechados anteriores deste tema — gate em η, implementação do ramo,
+> corroboração contra nulo, coluna vice-líder, descarte do VAR pequeno — estão
+> em `arquivo/nao_gaussiana/README.md` e em `historico_decisoes_secao0.md`.
 
 ---
 
@@ -1181,7 +1106,7 @@ descreve a corrida antiga e carrega banner).
   Ao escrever, **incluir a variável inconveniente**: o mesmo `b_1` diário dá IBOV
   +2,83% por 100bp, participação espectral 0,0015 — ações não identificadas
   naquele sistema. Fonte:
-  `notas/2026-08-01_robustez_heterocedasticidade.md` §6.
+  `arquivo/heterocedasticidade/notas/2026-08-01_robustez_heterocedasticidade.md` §6.
 - [x] **Dominância fiscal: IMPACTO não é dependente de estado, PERSISTÊNCIA é
   — FEITO em 2026-07-28/29; virou subseção `sec:estado` do §5, baseline
   migrado de EMBI para CDS.** `diagnostics/07_dominancia_fiscal.R`, LP-IV com

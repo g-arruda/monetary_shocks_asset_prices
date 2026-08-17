@@ -85,12 +85,11 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
   benchmark VAR pequeno, extraído de `script/model_var.R`). O órfão
   `svensson_model.R` foi para `arquivo/R/modeling/` em 2026-08-05.
-- **`identification/`** — a máquina de identificação além do
-  proxy-SVAR básico: `spec_sweep.R`, `validation_tests.R`,
-  `factor_space_diagnostics.R`, `irf_coherence.R` (pontuação de coerência
-  teórica) e o ramo não-gaussiano (`nongaussian_gmr.R`,
-  `nongaussian_branch.R`, `nongaussian_labelling.R` — só diagnóstico, não usado
-  no caminho de produção).
+- **`identification/`** — a máquina de diagnóstico em torno do proxy-SVAR:
+  `spec_sweep.R`, `validation_tests.R`, `factor_space_diagnostics.R`,
+  `irf_coherence.R` (pontuação de coerência teórica) e `experimental_panel.R`.
+  Os ramos het e não-gaussiano saíram em 2026-08-17 para
+  `arquivo/{heterocedasticidade,nao_gaussiana}/R/identification/`.
 - **`instrument/`** (3 arquivos) — `build_variants.R` (a cadeia de construção
   das 8 variantes de instrumento GK/JK/BS; eram 10 até 2026-08-05),
   `di_surprise.R` (helper de surpresa de futuro de DI, mais os carregadores de
@@ -114,8 +113,6 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
   companion matrix dos fatores (2026-07-31).
 - **`var/`** — o benchmark de VAR pequeno (2026-07-31).
 - **`assets/`** — o teste de representação do bloco de ações (2026-07-31).
-- **`nongaussian/`** — a identificação GMR (2017): gate, rodada de produção,
-  corroboração contra o proxy, rotulagem da coluna monetária.
 - **`validation/`** — artefatos de replicação Olea-Stock-Watson (Kilian-oil,
   aplicação de imposto), usados para validar o Wald ξ_mp e o kernel HAC. O
   `.rds` do petróleo existe porque `codigos_externos/` é gitignorado: sem ele
@@ -152,8 +149,8 @@ fica riscado aqui, vai para `historico_decisoes.md`.
 - **`pendencias.md`** — só o que está aberto, organizado por tema A-E, cada
   um com um apêndice comprimido dos itens fechados.
 - **`historico_decisoes.md`** — resultados negativos e decisões revertidas
-  (ex.: a identificação por heterocedasticidade abandonada, os achados do
-  GMR não-gaussiano) — ler antes de propor uma nova direção metodológica.
+  (ex.: as duas identificações abandonadas — heterocedasticidade e
+  momentos/GMR) — ler antes de propor uma nova direção metodológica.
 - **`justificativa_uso_yield-6m.md`** — nota curta justificando normalizar o
   choque no yield de 6 meses em vez da Selic.
 - **`estrutura_paper_v2.md`** — roadmap seção-a-seção do paper, mapeando
@@ -241,9 +238,13 @@ editado.
 
 Nada aqui é executado pelo pipeline de produção nem citado pelo paper —
 preservado em vez de apagado porque documenta resultados negativos e
-decisões revertidas (o track de heterocedasticidade abandonado, scripts
-órfãos superados, uma investigação de contaminação de IRF de 2026-07-15/16).
-Ver **[`arquivo/README.md`](arquivo/README.md)** para o inventário completo.
+decisões revertidas. Duas estratégias de identificação inteiras vivem aqui,
+cada uma em sua pasta e com README próprio:
+**[`arquivo/heterocedasticidade/`](arquivo/heterocedasticidade/README.md)** e
+**[`arquivo/nao_gaussiana/`](arquivo/nao_gaussiana/README.md)**, ambas
+abandonadas em 2026-08-17. O resto — scripts órfãos superados, a investigação de
+contaminação de IRF de 2026-07-15/16, o draft anterior em `tex/` — está no
+inventário de **[`arquivo/README.md`](arquivo/README.md)**.
 
 ## Arquivos soltos na raiz
 

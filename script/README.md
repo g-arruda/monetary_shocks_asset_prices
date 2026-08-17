@@ -1,6 +1,6 @@
 # `script/` — o que cada arquivo faz
 
-28 scripts, organizados por tema (não por subpasta — ver a decisão em
+33 scripts, organizados por tema (não por subpasta — ver a decisão em
 `registro/pendencias.md` sobre manter isto flat: mover para subpastas
 quebraria dezenas de referências de caminho no `CLAUDE.md`, no `run_all.R` e
 em notas). Cinco scripts que faziam parte de uma investigação já
@@ -8,6 +8,12 @@ superada (contaminação de IRF, 2026-07-15/16) foram arquivados em
 `arquivo/script/` em 2026-08-01, e `diagnose_factor_space_F.R` em 2026-08-05
 — ver `arquivo/README.md` se precisar deles. `fomc_coincidence.R` entrou em
 2026-08-10.
+
+**2026-08-17 — saíram seis scripts, com as duas rotas de identificação que
+foram abandonadas:** `het_robustness.R` para
+`arquivo/heterocedasticidade/script/`, e `model_nongaussian.R`,
+`nongaussian_{gate,corroboration,labelling}.R` e `validate_gmr_ica.R` para
+`arquivo/nao_gaussiana/script/`. Cada pasta tem README com o veredito.
 
 Todo script aqui é carga viva de uma de duas coisas: reproduzir
 `paper/paper_anpec.tex` ou sustentar um item da tier list de robustez
@@ -32,7 +38,6 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | script | o que faz |
 |---|---|
 | `model_var.R` | Tradução do `codigo_alessi-mark/MAIN_VARloop.m`: o benchmark de VAR pequeno de 4 variáveis (18 VARs), testando se o DFM é "mais forte/mais rápido" que um VAR pequeno. É o único script de `script/` com guarda `sys.nframe() == 0` própria (`run_benchmark()`), então pode ser `source()`ado com segurança. Lê o lado DFM do cache `output/irf/irf_coherence_cell.rds`. Escreve `output/var/var_benchmark_*.csv`, `var_benchmark.md`, 4 PDFs. |
-| `model_nongaussian.R` | Rodada de produção da identificação não-gaussiana GMR (2017, PML-ICA) vs. proxy-SVAR, no mesmo DFM. 4 blocos: ponto+bootstrap para as duas identificações; testes de restrição do proxy/esquema recursivo; robustez a má-especificação de densidade; comparação de IRF em 8 variáveis-headline. Guarda o objeto de estimação em `output/nongaussian/gmr_cell.rds`. Escreve `output/nongaussian/{results.md, irf_comparison.{csv,pdf}}`. |
 
 ## 3. Diagnóstico de força do instrumento
 
@@ -65,22 +70,7 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | `panel_composition_rq_grid_drop_blocks.R` | Grade fatorial isolada de composição: remove `juros_cdi` e `asset_mlcx` de todos os painéis e varre as 64 combinações de remoção dos seis blocos candidatos, nas duas janelas e nos 18 pares `(r,q)` admissíveis (`p=6`, `z_jk_bs_purif`, direção `yield_6m`). Estima somente DFM de ponto e ξ_mp; escreve 2.304 células, manifesto, falhas e 128 superfícies em `output/panel_experimental/rq_grid_drop_blocks/`. `validate_panel_composition_rq_grid_drop_blocks.R` exige cobertura, finitude, exclusão das duplicatas, N por variante e reproduções independentes. |
 | `panel_composition_factor_selection_drop_blocks.R` | Aplica os critérios BLL de Bai--Ng (`r=1,...,20`) e Amengual--Watson (IC2, `p=6`, `q≤r_IC2`) aos mesmos 64 painéis fatoriais e duas janelas, sem estimação de ξ_mp ou IRFs. Escreve as seleções, superfícies dos critérios e relatório em `output/panel_experimental/rq_grid_drop_blocks/factor_selection/`. |
 
-## 6. Identificação não-gaussiana (track GMR 2017)
-
-| script | o que faz |
-|---|---|
-| `validate_gmr_ica.R` | Valida a tradução em repositório do PML-ICA de GMR (`R/identification/nongaussian_gmr.R`) contra `IdSS::estim.SVAR.ICA` e a aplicação do próprio paper original; documenta defeitos específicos do pacote `IdSS` para n≥4. Não escreve nada em disco — só console, com `stopifnot`. |
-| `nongaussian_gate.R` | Testa a precondição "no máximo um gaussiano" (Comon 1994) nas q inovações de fator dinâmico do DFM de produção, nas duas janelas amostrais. Escreve `output/nongaussian/gate.md`. |
-| `nongaussian_corroboration.R` | Pós-processamento sobre `gmr_cell.rds`: confronta GMR e proxy nas 111 séries do painel, não só nas 8 headline, e compara a métrica com um nulo de direção aleatória. Escreve `output/nongaussian/corroboration_*.csv` + `corroboration_overlay.pdf`. |
-| `nongaussian_labelling.R` | Rotula a coluna monetária do GMR sem usar o instrumento (4 regras fixadas antes de medir) e testa se a métrica de corroboração discrimina, contra um nulo de 2.000 direções aleatórias. Escreve `output/nongaussian/labelling_*.csv` + `labelling_overlay.pdf`. |
-
-## 7. Identificação por heterocedasticidade (track Rigobon 2003)
-
-| script | o que faz |
-|---|---|
-| `het_robustness.R` | Roda a identificação de Rigobon (2003) sobre o DFM mensal. A grade inclui o `r` de produção e as referências 7/8, `p,q ∈ {5..8}` com `q≤r`, duas janelas e cinco desenhos de regime. Gate = placebo + proporcionalidade, com Holm sobre a família e replicação entre janelas. Escreve `output/het/het_{gate_grid,verdict,distribution}.csv`, `het_robustness.md`, `het_gate_surface.pdf`. |
-
-## 8. Validações de fidelidade contra código de referência
+## 6. Validações de fidelidade contra código de referência
 
 | script | o que faz |
 |---|---|

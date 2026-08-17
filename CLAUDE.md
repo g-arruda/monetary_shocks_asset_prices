@@ -44,7 +44,7 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
 `script/irf_coherence_check.R` runs the production spec once and writes
 `output/irf/irf_coherence_h.csv` — point + 68/90 bands + flags, **the source of §5** — plus
 `irf_coherence_cell.rds`, the cached estimation object follow-up analyses reuse instead of
-re-estimating. Catalog of all 28 scripts in `script/README.md`; repo map in `README.md`.
+re-estimating. Catalog of the 33 scripts in `script/README.md`; repo map in `README.md`.
 
 ## Completed rounds
 
@@ -59,8 +59,6 @@ Cite the note, never this table. Notes are under `notas/`.
 | Factor stationarity | `factor_stationarity.R` | `2026-08-13_migracao_producao_painel_111_r5q5` | 3/5 I(1), no I(2), full-sample root 0.964858 |
 | VAR benchmark | `model_var.R` | `2026-07-31_benchmark_var_vs_dfm` | stronger yes, faster equity-only |
 | Equity representation | `asset_representation.R` | `2026-07-31_acoes_representacao` | null is mechanical; log-level set aside |
-| Non-Gaussian corroboration | `nongaussian_corroboration.R` | `2026-08-01_robustez_identificacao` | agreement fails the null |
-| Rigobon on monthly DFM | `het_robustness.R` | `2026-08-01_robustez_heterocedasticidade` | zero cells identify |
 | DFM-IV audit (Tasks 0-7) | `diagnostics/` | `diagnostics/diagnostico_dfm.md` | H2 confirmed; state dependence split |
 
 ## ⚠ Prohibitions
@@ -86,11 +84,11 @@ These govern what may be **said**, so they apply even when no file is open.
   away from h=0 — sig90 fell from 4 cells to 2, and sig68 at h≤12 stayed at 20. What the fix did
   deliver is band behaviour: the h36/h0 width ratio fell from 27.573 to 0.920 and the false
   Ibovespa peak went from +17.71% at h=21 to +2.01% at h=8.
-- **No het-vs-proxy sign comparison may be claimed** — the Rigobon round produces no IRF *on
-  purpose*, since without a separable column any IRF is a number with no identification behind it.
-- **GMR sign agreement is not evidence of corroboration** — the metric saturates against the null.
-  Never write "GMR corroborates". What survives are non-discrimination claims: the proxy point lies
-  inside the GMR CI90 in 100% of cells, and the recursive scheme is rejected.
+- **The paper has one identification: the external proxy.** Heteroskedasticity and non-Gaussian
+  (GMR) identification were abandoned on 2026-08-17 and may not be cited as corroboration, as a
+  robustness leg, or as an alternative estimate — see `arquivo/heterocedasticidade/` and
+  `arquivo/nao_gaussiana/`. `goncalves2025` stays cited: that is *other people's* daily
+  het-identified evidence the paper argues with, not this project's route.
 - **The VAR benchmark tests DFM-vs-small-VAR, not "vs the literature"**, which uses Cholesky.
 - **ξ_mp ≥ 10 is the Staiger-Stock rule of thumb** for the homoskedastic 2SLS first-stage F, **not an
   MOSW result**. §3.6 states this correctly since 2026-08-14; the naming is deliberately generic
@@ -106,13 +104,7 @@ These govern what may be **said**, so they apply even when no file is open.
 - **Sovereign-confound tests B and D** (three-way split; dated 95-row table), cut 2026-08-10.
 - **FOMC test 4** (the FOMC/non-FOMC split), cut 2026-08-10. Removing a leg that *passed* makes the
   reading rule strictly more permissive, so no verdict changed — but the numbers are gone.
-- **The raw-level Rigobon cells** that pass both conditions — **24** on the 111-series panel, of
-  which 15 sit at the grid's smallest `q` and all sit in the full window; none survives even a
-  lenient correction. The counts move with the panel (they were 21 and 17 under 106 series), so
-  read them off `output/het/het_robustness.md`, never from memory.
-- For all three the record is in git, the rationale in `historico_decisoes.md` §2.4.
-- **`svars::id.dc` / `id.cvm` are Matteson-Tsay and Herwartz-Plödt, not GMR.** Citing them as GMR
-  would be a citation error.
+- For both the record is in git, the rationale in `historico_decisoes.md` §2.4.
 
 ### Do not reopen without new evidence
 
@@ -120,10 +112,13 @@ These govern what may be **said**, so they apply even when no file is open.
 - The **log-level equity panel** — author decision, `historico_decisoes.md` §3.1.
 - A **VECM** — the Johansen rank is not identified and the levels VAR is consistent regardless
   (Sims-Stock-Watson 1990; AK's own §2.2 defence).
-- **Heteroskedasticity as primary identification** — rejected at both frequencies
-  (`historico_decisoes.md` §1, §1.2). The 2026-07-16 decision to abandon the proxy was **reverted on
-  2026-07-24**. Declared loose end, not attempted: *conditional* het (GARCH-SVAR), which needs no
-  regime dates; `svars` is not installed.
+- **Heteroskedasticity and non-Gaussian (GMR) identification** — both abandoned on **2026-08-17**,
+  code and artefacts in `arquivo/{heterocedasticidade,nao_gaussiana}/`, verdicts in
+  `historico_decisoes.md` §0 and §1. Het is rejected at both frequencies; GMR has no power on this
+  panel because DFM aggregation destroys the non-Gaussianity. Loose ends that die with them:
+  *conditional* het (GARCH-SVAR) and LMS (2017) via `svars::id.ngml`, neither attempted, `svars`
+  not installed. **Heteroskedasticity-robust *inference* is untouched** — the Gonçalves-Kilian wild
+  bootstrap and the HAC first stage are production.
 - **Do not silently re-architect the identification core** — see `.claude/rules/identification.md`.
 
 ## Common commands
@@ -160,14 +155,6 @@ Rscript script/model_alessi.R                # main DFM (long; bootstrap dominat
 Rscript script/model_var.R                   # small-VAR benchmark (~15 min)
 Rscript script/factor_stationarity.R         # unit roots, cointegration, spectrum (~2 min)
 Rscript script/asset_representation.R        # returns vs log-level vs level (~12 min)
-Rscript script/het_robustness.R              # Rigobon gate, 252 cells, no IRF stage (~2 min)
-
-# Non-Gaussian identification (GMR 2017 PML-ICA)
-Rscript script/validate_gmr_ica.R            # translation vs IdSS + the paper's own application
-Rscript script/nongaussian_gate.R            # at-most-one-Gaussian precondition on eta
-Rscript script/model_nongaussian.R [nboot]   # production run + proxy comparison (~23 min)
-Rscript script/nongaussian_corroboration.R   # GMR vs proxy on all 111 series (seconds)
-Rscript script/nongaussian_labelling.R       # labelling rules without z + random-direction null
 ```
 
 There is no test suite, no linter, no build step. Iterate by running the relevant script.
