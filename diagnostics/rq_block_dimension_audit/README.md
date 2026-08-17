@@ -21,10 +21,16 @@ raiz, relevância pré-COVID, RMSE normalizado das cinco IRFs, erros de sinal e
 parcimônia. O câmbio é preservado como canal `soft`: entra no RMSE, mas não
 gera erro de sinal.
 
-O arquivo `scripts/scalar_dynamic_factor_compat.R` corrige apenas dentro desta
-auditoria a construção de `M` quando `q=1<r`: `diag(x)` interpreta o escalar
+O arquivo `scripts/scalar_dynamic_factor_compat.R` corrigia apenas dentro desta
+auditoria a construção de `M` quando `q=1<r`: `diag(x)` interpretava o escalar
 como dimensão, em vez de valor diagonal. As trajetórias `q>1` e `q=r` chamam
 diretamente o helper do projeto, e nenhum módulo de produção é alterado.
+
+**O defeito foi corrigido no módulo em 2026-08-17** (`diag(sqrt(eigenvals),
+nrow = q)`). O override sobrevive só porque divide por `M[1, 1]` enquanto o
+módulo multiplica por `solve(M)`, e as duas formas diferem na última casa
+(4,4e-16); esta auditoria está congelada e seus CSVs são citados, então a
+remoção espera a próxima re-rodada da grade.
 
 ## Ordem de execução
 

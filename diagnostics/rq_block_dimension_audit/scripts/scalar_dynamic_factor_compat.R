@@ -1,14 +1,20 @@
-# Audit-local compatibility for q=1 when q<r.
+# Audit-local compatibility for q=1 when q<r. Frozen, and kept only for
+# bit-reproducibility of this audit — see the docblock.
 
 estimate_dynamic_factors_project <- estimate_dynamic_factors
 
 #' Estimate dynamic factors with an explicit 1-by-1 scaling matrix
 #'
-#' The production helper uses `diag(x)` for the scalar q=1 case. R interprets
-#' a scalar `x` as a requested matrix dimension, not as a diagonal value. This
-#' audit-local override leaves every existing q>1 and q=r path untouched and
-#' makes the newly required q=1, q<r cells conformable without changing the
-#' production module.
+#' **The defect this worked around is fixed.** `estimate_dynamic_factors()`
+#' builds `M` with `diag(sqrt(eigenvals), nrow = q)` since 2026-08-17, so the
+#' production module is conformable at q=1 and returns the same factors this
+#' override does.
+#'
+#' The override survives for one reason only: it divides by `M[1, 1]` while the
+#' module now post-multiplies by `solve(M)`, and `a / x` differs from
+#' `a * (1 / x)` in the last bit (measured: 4.4e-16). This audit is frozen and
+#' its CSVs are cited, so removing the override without re-running the grid
+#' would move them at that order. Delete it the next time the audit re-runs.
 #'
 #' @param var_residuals Static-factor VAR residual matrix.
 #' @param q Number of dynamic factors.

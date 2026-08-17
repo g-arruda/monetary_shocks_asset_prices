@@ -307,6 +307,39 @@ estimate_static_factors <- function(data, r, standardized = TRUE, seed = NULL) {
 
 
 
+#' Invert a matrix, falling back to the pseudo-inverse when ill-conditioned
+#'
+#' Replaces the `det(M) < 1e-12` guard the Kilian correction used at four
+#' sites. A determinant does not measure conditioning: for the Lyapunov matrix
+#' it is the product of hundreds of factors `1 - lambda_i lambda_j`, all below
+#' one, so it underflows toward 0 on a perfectly well-conditioned matrix.
+#' Measured on 2026-08-17: the DFM (5,5) Lyapunov has `det` 6,3e-19 against
+#' `rcond` 1,7e-06 — the `ginv` branch was taken on a matrix that inverts fine.
+#'
+#' `rcond()` is the test that asks the right question, and it has to be a
+#' *test*, not a `tryCatch` around `solve()`: LAPACK only errors on an exact
+#' zero pivot, so on the small VAR's Lyapunov matrix (`rcond` 7,3e-17) `solve()`
+#' returns silently and the garbage inverse propagates into NaN bands.
+#'
+#' The threshold `.Machine$double.eps^(2/3)` is ~3,7e-11, where `solve()` has
+#' already lost about eleven of sixteen digits. Every matrix this function sees
+#' in production sits orders of magnitude on one side or the other of it.
+#'
+#' @param M Square matrix to invert; the real part is taken.
+#' @param label Name used in the warning when the fallback is reached.
+#'
+#' @return The inverse, or the Moore-Penrose pseudo-inverse when `M` is too
+#'   ill-conditioned to invert.
+solve_or_pseudo <- function(M, label) {
+  M <- Re(M)
+  if (rcond(M) >= .Machine$double.eps^(2 / 3)) {
+    return(solve(M))
+  }
+  warning("Matriz mal condicionada em ", label, "; usando pseudo-inversa")
+  MASS::ginv(M)
+}
+
+
 #' Kilian (1998) small-sample bias correction of the companion matrix
 #'
 #' Pope's (1990) analytic bias approximation, shrunk toward stationarity by the
@@ -333,12 +366,25 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
   A_kron_A <- kronecker(A, A)
   lyapunov_matrix <- I_kron - A_kron_A
   
-  # Verificar se a matriz é invertível
-  if (Mod(det(Re(lyapunov_matrix))) < 1e-12) {
-    lyapunov_inv <- MASS::ginv(Re(lyapunov_matrix))
-  } else {
-    lyapunov_inv <- solve(Re(lyapunov_matrix))
+  # A matriz é (q*p)^2 x (q*p)^2 — 900x900 na produção (5,5) com p=6. O teste
+  # antigo por det() dava 6,29e-19 contra um rcond de 1,7e-06, então o ramo da
+  # pseudo-inversa era tomado em toda réplica de bootstrap sem necessidade.
+  #
+  # Aqui NÃO cabe pseudo-inversa. SIGMAY é a covariância incondicional do
+  # estado da companion; se a equação de Lyapunov é singular, ela não está
+  # definida, e a `ginv` devolve um objeto que não é essa covariância. A fórmula
+  # de viés de Pope alimentada com ele produz um `Abias` enorme e uma companion
+  # corrigida explosiva — medido no VAR pequeno de `cds_5y` (rcond 7,3e-17),
+  # onde as 800 réplicas falharam e as bandas saíram NA. Abortar é o
+  # comportamento certo: `var_proxy.R:156` já cai para coeficientes não
+  # corrigidos, que é a resposta honesta quando a correção não é computável.
+  lyap_rcond <- rcond(Re(lyapunov_matrix))
+  if (lyap_rcond < .Machine$double.eps^(2 / 3)) {
+    stop("Equacao de Lyapunov numericamente singular (rcond = ",
+         format(lyap_rcond, digits = 3), "): SIGMAY nao esta definida e a ",
+         "correcao de Kilian fica indefinida.")
   }
+  lyapunov_inv <- solve(Re(lyapunov_matrix))
   
   # vec(SIGMA) - vetorizar SIGMA por colunas (como no MATLAB)
   SIGMA_expanded <- matrix(0, q * p, q * p)
@@ -378,27 +424,13 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
   
   # ...diagnóstico removido...
   
-  # Verificar se as matrizes são invertíveis
-  if (Mod(det(Re(I_minus_B))) < 1e-12) {
-    cat("- AVISO: Usando pseudo-inversa para (I-B)\n")
-    inv_I_minus_B <- MASS::ginv(Re(I_minus_B))
-  } else {
-    inv_I_minus_B <- solve(Re(I_minus_B))
-  }
-  
-  if (abs(det(Re(I_minus_B2))) < 1e-12) {
-    cat("- AVISO: Usando pseudo-inversa para (I-B²)\n")
-    inv_I_minus_B2 <- MASS::ginv(Re(I_minus_B2))
-  } else {
-    inv_I_minus_B2 <- solve(Re(I_minus_B2))
-  }
-  
-  if (abs(det(Re(SIGMAY))) < 1e-12) {
-    cat("- AVISO: Usando pseudo-inversa para SIGMAY\n")
-    inv_SIGMAY <- MASS::ginv(Re(SIGMAY))
-  } else {
-    inv_SIGMAY <- solve(Re(SIGMAY))
-  }
+  # Verificar se as matrizes são invertíveis. Mesmo motivo do bloco de Lyapunov
+  # acima: o determinante de uma q*p x q*p não mede condicionamento. Estas três
+  # tomam o ramo do solve na produção (5,5) — dets 2,0e-05, 9,2e-04 e 2,9e+24 —
+  # mas o teste falharia do mesmo jeito para q*p maior.
+  inv_I_minus_B <- solve_or_pseudo(I_minus_B, "(I-B)")
+  inv_I_minus_B2 <- solve_or_pseudo(I_minus_B2, "(I-B²)")
+  inv_SIGMAY <- solve_or_pseudo(SIGMAY, "SIGMAY")
   
   # Calcular bias
   bias_term <- inv_I_minus_B + B %*% inv_I_minus_B2 + sumeig
@@ -649,14 +681,11 @@ estimate_dynamic_factors <- function(var_residuals, q, r) {
     }
     # Construir matrizes K e M
     K <- eigenvects  # Autovetores (matriz K)
-    M <- diag(sqrt(eigenvals))  # M = diag(sqrt(diag(MM)))
+    # nrow = q é obrigatório: com q = 1, diag() lê o escalar como DIMENSAO da
+    # identidade, não como valor diagonal, e devolve uma matriz não conforme.
+    M <- diag(sqrt(eigenvals), nrow = q)  # M = diag(sqrt(diag(MM)))
     # Calcular fatores dinâmicos: eta = u * K / M
-    if (q == 1) {
-      # Caso especial para q=1: M é escalar
-      eta <- var_residuals %*% K / as.numeric(M)
-    } else {
-      eta <- var_residuals %*% K %*% solve(M)
-    }
+    eta <- var_residuals %*% K %*% solve(M)
   }
   
   if (q == r) {
