@@ -369,7 +369,7 @@ dados_mensais <- tempo_procura_trab |>
 # Aplicar interpolação spline para cada coluna
 colunas_interpoladas <- dados_mensais |>
   dplyr::mutate(
-    across(
+    dplyr::across(
       .cols = -meses,
       .fns = ~ stats::spline(
         x = as.numeric(meses),
@@ -384,7 +384,7 @@ resultado_mensal <- colunas_interpoladas |>
   dplyr::mutate(
     mes = lubridate::floor_date(meses, "month")
   ) |>
-  dplyr::select(ref.date = mes, everything(), -meses) |>
+  dplyr::select(ref.date = mes, dplyr::everything(), -meses) |>
   dplyr::arrange(ref.date) |>
   dplyr::rename_with(~ paste0("trab_", .), -ref.date)
 
@@ -396,7 +396,6 @@ emprego <- emprego |>
 # Mercado financeiro ----
 
 # Definir a pasta de cache
-options(rb3.cachedir = "~/rb3-cache")
 
 # Define os índices da B3 (CORRETOS)
 indices_b3 <- c("IBOV", "SMLL", "IDIV", "IFIX", "IFNC", "IMAT", "IMOB", "MLCX")
