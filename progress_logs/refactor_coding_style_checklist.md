@@ -14,8 +14,9 @@ helpers duplicados a arquivos de domínio.
 ## Régua de verificação
 
 ```bash
-# smoke test full-precision (segundos) — script em scratchpad, ver plano
-Rscript -e 'src <- readLines("script/model_alessi.R"); eval(parse(text = paste(src[1:156], collapse="\n")))
+# smoke test full-precision (segundos)
+Rscript -e 'source("R/modeling/factor_estimation.R"); source("R/modeling/impulse_response.R")
+source("R/modeling/production_spec.R"); source("R/modeling/dfm_pipeline.R")
 res <- main_sdfm(r=5L, q=5L, p=6, shock_size_bps=50, mp_var="yield_6m", nboot=0)
 cat(sprintf("%.17g\n", res$irfs$irf_point_matrix[match(c("yield_6m","yield_2y","yield_5y","asset_ibov","cambio_usd"), colnames(res$data)), 1]), sep="")'
 ```
