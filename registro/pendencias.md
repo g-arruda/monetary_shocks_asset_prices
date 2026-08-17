@@ -1,6 +1,6 @@
 # Pendências
 
-**Última revisão:** 2026-08-14. Itens abertos organizados por tema (A-E);
+**Última revisão:** 2026-08-17. Itens abertos organizados por tema (A-E);
 cada tema termina num bloco `### Fechados (contexto)` com o que já foi feito,
 resumido a poucas linhas — o detalhe completo mora no working-note ou output
 apontado ali, nunca duplicado aqui. Resultados negativos e decisões
@@ -109,6 +109,9 @@ metades deve ser usada para conferir a outra.
 | E | Corrigir o caso escalar `q=1<r` em `estimate_dynamic_factors()` | defeito exposto pela grade nova; produção `(5,5)` não é afetada |
 | E | `kilian_correction`: determinante em matriz enorme | não mexer sem re-rodar smoke test |
 | E | Seleção da etapa 2 dominada pela janela pré-COVID | — |
+| E | Registrar o renome `impulse_responde.R` e a mudança de `fomc_dates.R` no acervo | 21 arquivos vivos de `notas/`/`pareceres/`/`registro/` citam o caminho antigo; decisão editorial, nenhum número |
+| E | `download_di.py` baixa de `releases/latest` e não valida nada | decisão de pesquisa (vintage), não de estilo; toca a construção do instrumento diário |
+| E | Confirmar a remoção do `install.packages()` de `instrument_diagnostics.R` | mudança de comportamento já commitada; só falta o aval |
 
 ---
 
@@ -1204,6 +1207,56 @@ descreve a corrida antiga e carrega banner).
 
 ## E. Código e higiene
 
+- [ ] **Registrar o renome `impulse_responde.R` → `impulse_response.R` e a mudança
+  de `fomc_dates.R` para `script/`** — *aberto em 2026-08-17 pelo refactor de
+  convenções (`coding-style`).* O código e os documentos vivos foram repontuados
+  (47 arquivos no renome, mais `run_all.R`, `CLAUDE.md`, `AGENTS.md`, os dois
+  `README` e `.claude/rules/{identification,instrument,data}.md`). **O acervo não
+  foi tocado, de propósito**, por `.claude/rules/writing.md`: `notas/`,
+  `pareceres/` e `registro/` valem verbatim, e reescrever um caminho dentro de um
+  parecer transforma uma verificação datada numa afirmação que ninguém fez.
+  Resultado: **21 arquivos vivos** ainda citam o caminho antigo — 12 em `notas/`,
+  4 em `pareceres/`, 5 em `registro/` (incluindo este). Mais 14 em `arquivo/`, que
+  é histórico e não se mexe.
+  - **O padrão já existe no repo**, e é o que `writing.md` manda usar: o
+    blockquote **Nota de leitura** no topo de `pareceres/council_2026-08-10.md`,
+    que carrega o mapa de renames de 2026-08-11. A decisão é onde pendurar o mapa
+    novo — estender aquele blockquote, abrir um mapa único de renames em
+    `registro/`, ou pôr uma nota em cada arquivo afetado.
+  - **⚠ Aquele mesmo blockquote ficou stale com este refactor:** ele afirma que
+    `data/raw/fomc_dates.csv` é "produzido por `R/data_download/fomc_dates.R`",
+    caminho que deixou de existir. É um caso em que o texto verbatim do parecer
+    está certo para a árvore de 2026-08-10 mas a *nota de leitura* — que é
+    project-authored e **por regra se atualiza** — não está.
+- [ ] **`script/download_di.py` baixa de `releases/latest` e não valida nada do
+  que baixou** — *aberto em 2026-08-17; visto no refactor e deixado intacto de
+  propósito, porque é decisão de pesquisa e não de estilo.* Duas coisas separadas:
+  - **Vintage móvel.** `BASE_URL` aponta para
+    `github.com/crdcj/pyield-data/releases/latest/download`, num repositório cuja
+    disciplina inteira é fixar vintage (`data.md`: "Vintage refreshed 2026-07-24").
+    O comentário do próprio arquivo dizia "URL fixa para o release mais recente",
+    que é contradição em termos. Rodar o estágio `di` hoje e daqui a seis meses
+    pode devolver painéis diferentes sem nada no repo registrando a diferença.
+  - **Sem gate de sanidade.** O script lê o parquet e escreve
+    `data/raw/di.csv` sem contagem de linhas, checagem de colunas ou intervalo de
+    datas. Todo downloader em R do projeto aborta alto (`stopifnot`, contagem
+    esperada); este não. Uma mudança de schema no release entra silenciosamente e
+    sobe por `load_di_panel()` → `build_thursday_surprises()` → as 8 variantes do
+    instrumento, onde só apareceria como ξ_mp estranho muitos passos depois.
+  - Fechar isto é escolher uma release fixa (ou gravar a tag baixada junto do
+    CSV) e acrescentar as asserções mínimas: nº de linhas, presença de
+    `TradeDate`/`ExpirationDate`/`BDaysToExp`/`CloseRate`, e cobertura de datas.
+- [ ] **Confirmar a remoção do laço de `install.packages()` de
+  `instrument_diagnostics.R`** — *aberto em 2026-08-17; a remoção já está
+  commitada, falta o aval.* O script tinha, dentro de
+  `suppressPackageStartupMessages({...})`, um laço que instalava
+  `tidyverse`/`sandwich`/`lmtest`/`broom`/`lubridate` se `requireNamespace`
+  falhasse. Isso é efeito de rede no momento do `source()` e contraria a regra
+  "fail loud" do `CLAUDE.md`: um ambiente incompleto passava a se autocorrigir em
+  silêncio em vez de abortar. **Efeito da remoção:** num clone limpo o script
+  agora aborta com erro de pacote ausente em vez de instalar sozinho. `broom` e
+  `lmtest` nem eram usados ali. Se a intenção original era ergonomia de máquina
+  nova, o lugar disso é um `README`/`renv`, não um script de diagnóstico.
 - [ ] **Fundamentar ou substituir o default operacional `q=5`** — *aberto em
   2026-08-13 na migração do painel de 111 séries.* `r=5` está decidido pelo
   Bai--Ng IC2 padronizado para BLL. `q=5` foi promovido provisoriamente para
