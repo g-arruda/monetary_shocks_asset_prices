@@ -1,6 +1,6 @@
 # Instrument Validity Diagnostics Report
 
-**Date generated:** 2026-08-13
+**Date generated:** 2026-08-17
 **DFM sample:** 2013-01-01 to 2025-09-01  
 **Identification:** proxy-SVAR with external instrument (Montiel Olea, Stock & Watson 2021).
 **Instrument variants:** raw Copom-day ΔDI (3m), purified by global factors (SP500, VIX, Brent),

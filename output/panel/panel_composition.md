@@ -1,6 +1,6 @@
 # Composição do painel: dominância, redundância e sensibilidade de ξ_mp
 
-Gerado por `script/panel_composition.R` em 2026-08-13.
+Gerado por `script/panel_composition.R` em 2026-08-17.
 Célula: r=5, q=5, p=6, `yield_6m`, instrumento `z_jk_bs_purif`.
 Baseline ξ_mp: **6.27** full / **10.99** pré-COVID.
 

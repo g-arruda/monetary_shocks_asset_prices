@@ -16,12 +16,6 @@
 
 rm(list = ls())
 
-library(readr)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(patchwork)
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -55,13 +49,13 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Data + estimation ---------------------------------------------
 
-raw_data <- read_csv(DATA_PATH, show_col_types = FALSE) |> drop_na()
+raw_data <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
 dates    <- as.Date(raw_data$ref.date)
-data_mat <- raw_data |> select(-ref.date) |> as.matrix()
+data_mat <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
 tcode    <- infer_tcode_from_varnames(colnames(data_mat))
 var_names <- colnames(data_mat)
 
-inst_panel <- read_csv(INST_PATH, show_col_types = FALSE)
+inst_panel <- readr::read_csv(INST_PATH, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
 spec_tbl <- coherence_var_table()
@@ -104,11 +98,11 @@ for (i in seq_len(nrow(spec_tbl))) {
   perh_rows[[i]] <- res$perh
   summ_rows[[i]] <- res$summary
 }
-perh <- bind_rows(perh_rows)
-summ <- bind_rows(summ_rows)
+perh <- dplyr::bind_rows(perh_rows)
+summ <- dplyr::bind_rows(summ_rows)
 
-write_csv(perh, file.path(OUT_DIR, "irf_coherence_h.csv"))
-write_csv(summ, file.path(OUT_DIR, "irf_coherence_summary.csv"))
+readr::write_csv(perh, file.path(OUT_DIR, "irf_coherence_h.csv"))
+readr::write_csv(summ, file.path(OUT_DIR, "irf_coherence_summary.csv"))
 cat(sprintf("Wrote %d per-horizon rows, %d summary rows\n",
             nrow(perh), nrow(summ)))
 
@@ -123,7 +117,7 @@ for (g in unique(spec_tbl$group)) {
     response_idx <- lapply(pg, function(v) setNames(match(v, var_names), v))
     p <- plot_irf(cell$irf, response_vars = response_idx, horizon = HORIZON,
                   var_names = var_names, tcode = tcode, ci_to_plot = CI_LEVELS) +
-      plot_annotation(
+      patchwork::plot_annotation(
         title = sprintf("Coerência IRF — grupo: %s", g),
         subtitle = sprintf("%s x %s | r=%d q=%d | +%dbp | nboot=%d | bandas 68/90",
                            INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, SHOCK_BPS, N_BOOT)
@@ -140,14 +134,14 @@ traj_cols <- c("var", "h0", "h3", "h6", "h12", "h24", "h36", "h48",
                "share_correct", "verdict")
 
 group_sections <- unlist(lapply(unique(spec_tbl$group), function(g) {
-  tbl <- summ |> filter(group == g) |> select(all_of(traj_cols))
+  tbl <- summ |> dplyr::filter(group == g) |> dplyr::select(dplyr::all_of(traj_cols))
   c(sprintf("### %s", g), "", md_table(tbl), "")
 }))
 
 violations <- summ |>
-  filter(verdict %in% c("incoerente", "placebo_viola") | wrong_sig90 %in% TRUE)
+  dplyr::filter(verdict %in% c("incoerente", "placebo_viola") | wrong_sig90 %in% TRUE)
 
-verdict_count <- summ |> count(tier, verdict) |> arrange(tier, desc(n))
+verdict_count <- summ |> dplyr::count(tier, verdict) |> dplyr::arrange(tier, dplyr::desc(n))
 
 report <- c(
   "# Coerência ponto a ponto das IRFs — especificação de produção",
@@ -181,7 +175,7 @@ report <- c(
   "## Violações (incoerente / placebo_viola / sinal errado significativo)",
   "",
   if (nrow(violations) > 0) {
-    md_table(violations |> select(group, var, verdict, share_correct,
+    md_table(violations |> dplyr::select(group, var, verdict, share_correct,
                                   wrong_sig90, h0, h12, h24))
   } else "*Nenhuma violação significativa.*",
   "",
@@ -191,8 +185,8 @@ report <- c(
   "",
   "## Canais soft (câmbio / risco soberano)",
   "",
-  md_table(summ |> filter(tier == "soft") |>
-             select(var, h0, h6, h12, h24, channel, right_sig90)),
+  md_table(summ |> dplyr::filter(tier == "soft") |>
+             dplyr::select(var, h0, h6, h12, h24, channel, right_sig90)),
   ""
 )
 
@@ -203,6 +197,6 @@ cat("\n========== VERDICT COUNTS ==========\n")
 print(as.data.frame(verdict_count), row.names = FALSE)
 cat("\n========== VIOLATIONS ==========\n")
 if (nrow(violations) > 0) {
-  print(as.data.frame(violations |> select(group, var, verdict, share_correct, wrong_sig90)),
+  print(as.data.frame(violations |> dplyr::select(group, var, verdict, share_correct, wrong_sig90)),
         row.names = FALSE)
 } else cat("none\n")

@@ -15,12 +15,6 @@
 
 rm(list = ls())
 
-library(readr)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(patchwork)
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -76,30 +70,30 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Select winners from stage 1 -----------------------------------
 
-cells <- read_csv(file.path(OUT_DIR, "spec_sweep_cells.csv"),
+cells <- readr::read_csv(file.path(OUT_DIR, "spec_sweep_cells.csv"),
                   show_col_types = FALSE)
 
 winners <- cells |>
-  filter(failure_class == "ok", mp_var == STAGE2_MP) |>
-  mutate(score_hard_frac = score_hard / n_hard_avail) |>
-  arrange(desc(score_hard_frac), desc(score_ext), desc(wald_mp)) |>
-  group_by(instrument) |>
-  slice_head(n = MAX_PER_INSTRUMENT) |>
-  ungroup() |>
-  arrange(desc(score_hard_frac), desc(score_ext), desc(wald_mp)) |>
-  slice_head(n = TOP_N) |>
-  select(sample, r, q, instrument, mp_var)
+  dplyr::filter(failure_class == "ok", mp_var == STAGE2_MP) |>
+  dplyr::mutate(score_hard_frac = score_hard / n_hard_avail) |>
+  dplyr::arrange(dplyr::desc(score_hard_frac), dplyr::desc(score_ext), dplyr::desc(wald_mp)) |>
+  dplyr::group_by(instrument) |>
+  dplyr::slice_head(n = MAX_PER_INSTRUMENT) |>
+  dplyr::ungroup() |>
+  dplyr::arrange(dplyr::desc(score_hard_frac), dplyr::desc(score_ext), dplyr::desc(wald_mp)) |>
+  dplyr::slice_head(n = TOP_N) |>
+  dplyr::select(sample, r, q, instrument, mp_var)
 
-already_in <- nrow(semi_join(BASELINE, winners,
+already_in <- nrow(dplyr::semi_join(BASELINE, winners,
                              by = c("sample", "r", "q", "instrument", "mp_var"))) > 0
 if (!already_in) {
   cat("[!] Baseline de produção NAO foi selecionado pela etapa 1 — force-append.\n")
-  winners <- bind_rows(winners, BASELINE)
+  winners <- dplyr::bind_rows(winners, BASELINE)
 } else {
   cat("[ok] Baseline de produção selecionado pela própria etapa 1 (sem force-append).\n")
 }
 winners <- winners |>
-  mutate(tag = sprintf("%s_r%dq%d_%s", sample, r, q, instrument),
+  dplyr::mutate(tag = sprintf("%s_r%dq%d_%s", sample, r, q, instrument),
          is_baseline = sample == BASELINE$sample & r == BASELINE$r &
            q == BASELINE$q & instrument == BASELINE$instrument)
 
@@ -109,12 +103,12 @@ print(as.data.frame(winners), row.names = FALSE)
 
 # ---- Data ----------------------------------------------------------
 
-raw_data <- read_csv(DATA_PATH, show_col_types = FALSE) |> drop_na()
+raw_data <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
 dates    <- as.Date(raw_data$ref.date)
-data_mat <- raw_data |> select(-ref.date) |> as.matrix()
+data_mat <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
 tcode    <- infer_tcode_from_varnames(colnames(data_mat))
 
-inst_panel <- read_csv(INST_PATH, show_col_types = FALSE)
+inst_panel <- readr::read_csv(INST_PATH, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
 
@@ -167,12 +161,12 @@ for (tag in names(results)) {
     var_names = var_names,
     tcode = tcode,
     ci_to_plot = CI_LEVELS
-  ) + plot_annotation(
+  ) + patchwork::plot_annotation(
     title = sprintf("IRFs - %s", tag),
     subtitle = sprintf("Choque = +%dbp em %s | wild bootstrap nboot = %d | bandas 68/90",
                        SHOCK_BPS, STAGE2_MP, N_BOOT)
   )
-  ggsave(file.path(OUT_DIR, sprintf("irf_spec_%s.pdf", tag)), p,
+  ggplot2::ggsave(file.path(OUT_DIR, sprintf("irf_spec_%s.pdf", tag)), p,
          width = 11, height = 9, dpi = 200)
 }
 
@@ -182,7 +176,7 @@ overlay <- plot_overlay_cells(
   subtitle = sprintf("Choque = +%dbp em %s | nboot = %d | bandas 68 (escura) / 90 (clara)",
                      SHOCK_BPS, STAGE2_MP, N_BOOT)
 )
-ggsave(file.path(OUT_DIR, "irf_spec_stage2_overlay.pdf"), overlay,
+ggplot2::ggsave(file.path(OUT_DIR, "irf_spec_stage2_overlay.pdf"), overlay,
        width = 12, height = 10, dpi = 200)
 
 
@@ -222,15 +216,15 @@ report <- c(
   "",
   "## Células selecionadas",
   "",
-  md_table(winners |> select(-is_baseline)),
+  md_table(winners |> dplyr::select(-is_baseline)),
   ""
 )
 
 for (tag in names(results)) {
   tbl <- cell_tables[[tag]]
   hard_ok <- tbl |>
-    filter(resposta %in% HARD_VARS) |>
-    summarise(corroboradas = sum(ci90_exclui_zero), total = n())
+    dplyr::filter(resposta %in% HARD_VARS) |>
+    dplyr::summarise(corroboradas = sum(ci90_exclui_zero), total = dplyr::n())
   report <- c(
     report,
     sprintf("## %s%s", tag,

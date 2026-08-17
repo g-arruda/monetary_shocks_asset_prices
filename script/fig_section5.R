@@ -16,13 +16,6 @@
 
 rm(list = ls())
 
-suppressMessages({
-  library(ggplot2)
-  library(patchwork)
-  library(readr)
-  library(dplyr)
-})
-
 source("R/modeling/production_spec.R")
 SPEC <- production_spec()
 
@@ -37,8 +30,8 @@ H_MAX <- 36L   # every IRF figure stops here
 cell <- readRDS(CELL_RDS)
 stopifnot(cell$instrument == SPEC$instrument, cell$r == SPEC$r, cell$q == SPEC$q)
 
-panel <- read_csv(PANEL_CSV, show_col_types = FALSE)
-hcsv  <- read_csv(HCSV, show_col_types = FALSE)
+panel <- readr::read_csv(PANEL_CSV, show_col_types = FALSE)
+hcsv  <- readr::read_csv(HCSV, show_col_types = FALSE)
 
 point <- cell$irf$irf_point_matrix
 ci68  <- cell$irf$ci[["0.68"]]
@@ -66,30 +59,30 @@ irf_panel <- function(v, lab, scale = 1) {
     sig  = ci90$lower[i, j] > 0 | ci90$upper[i, j] < 0
   )
 
-  ggplot(df, aes(x = h)) +
-    geom_ribbon(aes(ymin = lo90, ymax = hi90), fill = "steelblue", alpha = 0.18) +
-    geom_ribbon(aes(ymin = lo68, ymax = hi68), fill = "steelblue", alpha = 0.36) +
-    geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
-    geom_line(aes(y = irf), colour = "black", linewidth = 0.8) +
+  ggplot2::ggplot(df, ggplot2::aes(x = h)) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo90, ymax = hi90), fill = "steelblue", alpha = 0.18) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo68, ymax = hi68), fill = "steelblue", alpha = 0.36) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
+    ggplot2::geom_line(ggplot2::aes(y = irf), colour = "black", linewidth = 0.8) +
     # marcadores nos horizontes em que a banda de 90% exclui zero
-    geom_point(data = subset(df, sig), aes(y = irf), shape = 21,
+    ggplot2::geom_point(data = subset(df, sig), ggplot2::aes(y = irf), shape = 21,
                fill = "#d95f02", colour = "black", size = 1.9, stroke = 0.45) +
-    scale_x_continuous(breaks = seq(0, H_MAX, 6), limits = c(0, H_MAX),
+    ggplot2::scale_x_continuous(breaks = seq(0, H_MAX, 6), limits = c(0, H_MAX),
                        expand = c(0.01, 0)) +
-    theme_classic(base_size = 11) +
-    labs(y = lab, x = NULL) +
-    theme(axis.title.y = element_text(size = rel(0.95)),
-          axis.text    = element_text(size = rel(0.85)),
-          plot.margin  = margin(3, 5, 1, 2))
+    ggplot2::theme_classic(base_size = 11) +
+    ggplot2::labs(y = lab, x = NULL) +
+    ggplot2::theme(axis.title.y = ggplot2::element_text(size = ggplot2::rel(0.95)),
+          axis.text    = ggplot2::element_text(size = ggplot2::rel(0.85)),
+          plot.margin  = ggplot2::margin(3, 5, 1, 2))
 }
 
 save_fig <- function(file, plot, w, h) {
-  ggsave(file.path(IMG_DIR, file), plot, width = w, height = h, device = cairo_pdf)
+  ggplot2::ggsave(file.path(IMG_DIR, file), plot, width = w, height = h, device = cairo_pdf)
   cat("->", file.path(IMG_DIR, file), "\n")
 }
 
 grid_of <- function(specs, ncol) {
-  wrap_plots(lapply(specs, function(s) irf_panel(s[[1]], s[[2]], s[[3]])), ncol = ncol)
+  patchwork::wrap_plots(lapply(specs, function(s) irf_panel(s[[1]], s[[2]], s[[3]])), ncol = ncol)
 }
 
 
@@ -122,40 +115,40 @@ save_fig("fig_cambio_risco.pdf", grid_of(list(
 # testada, porque o regime de risco baixo cai a ~59 observações em h = 12. É o
 # único uso de área cinza no paper.
 H_T7 <- 24L
-t7 <- read_csv(T7_CSV, show_col_types = FALSE) |>
-  filter(var == "cambio_usd", h <= H_T7)
+t7 <- readr::read_csv(T7_CSV, show_col_types = FALSE) |>
+  dplyr::filter(var == "cambio_usd", h <= H_T7)
 
-reg <- bind_rows(
+reg <- dplyr::bind_rows(
   data.frame(h = t7$h, b = t7$b_alto,  se = t7$se_alto,  reg = "Risco alto"),
   data.frame(h = t7$h, b = t7$b_baixo, se = t7$se_baixo, reg = "Risco baixo")
-) |> mutate(lo = b - 1.645 * se, hi = b + 1.645 * se)
+) |> dplyr::mutate(lo = b - 1.645 * se, hi = b + 1.645 * se)
 
-p_reg <- ggplot(reg, aes(x = h, colour = reg, fill = reg)) +
-  annotate("rect", xmin = 8.5, xmax = H_T7, ymin = -Inf, ymax = Inf,
+p_reg <- ggplot2::ggplot(reg, ggplot2::aes(x = h, colour = reg, fill = reg)) +
+  ggplot2::annotate("rect", xmin = 8.5, xmax = H_T7, ymin = -Inf, ymax = Inf,
            fill = "grey86", alpha = 0.5) +
-  geom_ribbon(aes(ymin = lo, ymax = hi), alpha = 0.16, colour = NA) +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
-  geom_line(aes(y = b), linewidth = 0.8) +
-  scale_colour_manual(values = c("Risco alto" = "#b2182b", "Risco baixo" = "#2166ac")) +
-  scale_fill_manual(values   = c("Risco alto" = "#b2182b", "Risco baixo" = "#2166ac")) +
-  scale_x_continuous(breaks = seq(0, H_T7, 6), expand = c(0.01, 0)) +
-  theme_classic(base_size = 11) +
-  labs(y = "Câmbio BRL/USD, resposta em nível", x = NULL, colour = NULL, fill = NULL) +
-  theme(legend.position = c(0.75, 0.88), legend.background = element_blank(),
-        legend.key.size = unit(0.8, "lines"))
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = lo, ymax = hi), alpha = 0.16, colour = NA) +
+  ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
+  ggplot2::geom_line(ggplot2::aes(y = b), linewidth = 0.8) +
+  ggplot2::scale_colour_manual(values = c("Risco alto" = "#b2182b", "Risco baixo" = "#2166ac")) +
+  ggplot2::scale_fill_manual(values   = c("Risco alto" = "#b2182b", "Risco baixo" = "#2166ac")) +
+  ggplot2::scale_x_continuous(breaks = seq(0, H_T7, 6), expand = c(0.01, 0)) +
+  ggplot2::theme_classic(base_size = 11) +
+  ggplot2::labs(y = "Câmbio BRL/USD, resposta em nível", x = NULL, colour = NULL, fill = NULL) +
+  ggplot2::theme(legend.position = c(0.75, 0.88), legend.background = ggplot2::element_blank(),
+        legend.key.size = ggplot2::unit(0.8, "lines"))
 
-p_t <- ggplot(t7, aes(x = h, y = t_dif)) +
-  annotate("rect", xmin = 8.5, xmax = H_T7, ymin = -Inf, ymax = Inf,
+p_t <- ggplot2::ggplot(t7, ggplot2::aes(x = h, y = t_dif)) +
+  ggplot2::annotate("rect", xmin = 8.5, xmax = H_T7, ymin = -Inf, ymax = Inf,
            fill = "grey86", alpha = 0.5) +
-  geom_hline(yintercept = c(-1.96, 1.96), linetype = "dotted", linewidth = 0.35) +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
-  geom_line(linewidth = 0.8) +
-  geom_point(data = subset(t7, abs(t_dif) > 1.96 & h <= 8), size = 1.5) +
-  scale_x_continuous(breaks = seq(0, H_T7, 6), expand = c(0.01, 0)) +
-  theme_classic(base_size = 11) +
-  labs(y = "t da diferença entre regimes", x = NULL)
+  ggplot2::geom_hline(yintercept = c(-1.96, 1.96), linetype = "dotted", linewidth = 0.35) +
+  ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
+  ggplot2::geom_line(linewidth = 0.8) +
+  ggplot2::geom_point(data = subset(t7, abs(t_dif) > 1.96 & h <= 8), size = 1.5) +
+  ggplot2::scale_x_continuous(breaks = seq(0, H_T7, 6), expand = c(0.01, 0)) +
+  ggplot2::theme_classic(base_size = 11) +
+  ggplot2::labs(y = "t da diferença entre regimes", x = NULL)
 
-save_fig("fig_estado.pdf", p_reg + p_t + plot_layout(ncol = 2), 8.2, 3.4)
+save_fig("fig_estado.pdf", p_reg + p_t + patchwork::plot_layout(ncol = 2), 8.2, 3.4)
 
 
 # --- 4. atividade e trabalho ----------------------------------------

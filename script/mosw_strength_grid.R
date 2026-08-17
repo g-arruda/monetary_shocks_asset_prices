@@ -11,10 +11,6 @@
 
 rm(list = ls())
 
-library(readr)
-library(dplyr)
-library(tidyr)
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -50,13 +46,13 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Data ----------------------------------------------------------
 
-raw_data <- read_csv(DATA_PATH, show_col_types = FALSE) |> drop_na()
+raw_data <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
 dates    <- as.Date(raw_data$ref.date)
-data_mat <- raw_data |> select(-ref.date) |> as.matrix()
+data_mat <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
 mp_idx   <- match(MP_VAR, colnames(data_mat))
 stopifnot(!is.na(mp_idx))
 
-inst_panel <- read_csv(INST_PATH, show_col_types = FALSE)
+inst_panel <- readr::read_csv(INST_PATH, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
 
@@ -113,8 +109,8 @@ for (sample_name in names(SAMPLES)) {
   }
 }
 
-grid <- bind_rows(rows)
-write_csv(grid, file.path(OUT_DIR, "mosw_strength_grid.csv"))
+grid <- dplyr::bind_rows(rows)
+readr::write_csv(grid, file.path(OUT_DIR, "mosw_strength_grid.csv"))
 cat(sprintf("\nWrote %d cells to mosw_strength_grid.csv\n", nrow(grid)))
 
 
@@ -122,16 +118,16 @@ cat(sprintf("\nWrote %d cells to mosw_strength_grid.csv\n", nrow(grid)))
 
 heat <- function(df, value_col) {
   df |>
-    mutate(rq = sprintf("(%d,%d)", r, q)) |>
-    select(instrument, rq, val = all_of(value_col)) |>
-    mutate(val = round(val, 2)) |>
-    pivot_wider(names_from = rq, values_from = val)
+    dplyr::mutate(rq = sprintf("(%d,%d)", r, q)) |>
+    dplyr::select(instrument, rq, val = dplyr::all_of(value_col)) |>
+    dplyr::mutate(val = round(val, 2)) |>
+    tidyr::pivot_wider(names_from = rq, values_from = val)
 }
 
 summary_tbl <- grid |>
-  group_by(sample, instrument) |>
-  summarise(
-    n_cells        = n(),
+  dplyr::group_by(sample, instrument) |>
+  dplyr::summarise(
+    n_cells        = dplyr::n(),
     xi_mp_ge10     = sum(wald_mp >= 10),
     xi_mp_ge384    = sum(wald_mp > CHI2_1_95),
     xi_mp_min      = min(wald_mp),
@@ -142,12 +138,12 @@ summary_tbl <- grid |>
     f_robust_mp_median = median(f_robust_mp),
     .groups = "drop"
   ) |>
-  arrange(sample, desc(xi_mp_median))
+  dplyr::arrange(sample, dplyr::desc(xi_mp_median))
 
 prod_tbl <- grid |>
-  filter(r == SPEC$r, q == SPEC$q) |>
-  select(sample, instrument, wald_mp, f_robust_mp, ar_bounded) |>
-  arrange(sample, desc(wald_mp))
+  dplyr::filter(r == SPEC$r, q == SPEC$q) |>
+  dplyr::select(sample, instrument, wald_mp, f_robust_mp, ar_bounded) |>
+  dplyr::arrange(sample, dplyr::desc(wald_mp))
 
 sections <- c(
   "# Grade de força MOSW — ξ_mp e F robusto por (r,q) × amostra × instrumento",
@@ -185,7 +181,7 @@ sections <- c(
 )
 
 for (s in names(SAMPLES)) {
-  sub <- grid |> filter(sample == s)
+  sub <- grid |> dplyr::filter(sample == s)
   sections <- c(
     sections,
     sprintf("## Amostra %s", s),

@@ -15,10 +15,6 @@
 
 rm(list = ls())
 
-library(readr)
-library(dplyr)
-library(tidyr)
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -51,13 +47,13 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Data ----------------------------------------------------------
 
-raw_data <- read_csv(DATA_PATH, show_col_types = FALSE) |> drop_na()
+raw_data <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
 dates    <- as.Date(raw_data$ref.date)
-data_mat <- raw_data |> select(-ref.date) |> as.matrix()
+data_mat <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
 varnames <- colnames(data_mat)
 stopifnot(MP_VAR %in% varnames)
 
-inst_panel <- read_csv(INST_PATH, show_col_types = FALSE)
+inst_panel <- readr::read_csv(INST_PATH, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 inst_df <- data.frame(month = inst_panel$month, shock = inst_panel[[VARIANT]])
 inst_df <- inst_df[!is.na(inst_df$shock), ]
@@ -127,7 +123,7 @@ census <- lapply(sort(unique(block)), function(b) {
     mean_abs_cor = mean(abs(cor(yy[, idx, drop = FALSE])[
       upper.tri(diag(length(idx)))]))
   )
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 
 # ---- Baseline fit and factor attribution ---------------------------
@@ -163,16 +159,16 @@ mp_block <- drop(fac_share %*% mp_weight)
 comm_by_block <- tapply(comm_r2, block, mean)
 
 attribution <- census |>
-  mutate(
+  dplyr::mutate(
     comm_r2_mean = as.numeric(comm_by_block[census$block]),
     mp_share_pct = 100 * as.numeric(mp_block[census$block])
   ) |>
-  arrange(desc(share_pct))
+  dplyr::arrange(dplyr::desc(share_pct))
 
 fac_share_tbl <- as.data.frame(fac_share) |>
   setNames(paste0("F", seq_len(R_FAC))) |>
   tibble::rownames_to_column("block") |>
-  mutate(across(where(is.numeric), ~ 100 * .x))
+  dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ 100 * .x))
 
 
 # ---- 2. Leave-one-block-out and leave-one-series-out ----------------
@@ -229,7 +225,7 @@ for (sname in names(SAMPLES)) {
                              n_dropped = length(drop_idx), res)
   }
 }
-lobo <- bind_rows(lobo_rows)
+lobo <- dplyr::bind_rows(lobo_rows)
 
 loso_rows <- list()
 is_ <- 0
@@ -242,7 +238,7 @@ for (sname in names(SAMPLES)) {
     loso_rows[[is_]] <- cbind(dropped = varnames[j], block = block[j], res)
   }
 }
-loso <- bind_rows(loso_rows)
+loso <- dplyr::bind_rows(loso_rows)
 
 
 # ---- 3. Block-balanced panels --------------------------------------
@@ -267,34 +263,34 @@ for (k in c(2L, 3L, 4L, 6L, 8L)) {
     balanced_rows[[ib]] <- cbind(cap = k, res)
   }
 }
-balanced <- bind_rows(balanced_rows)
+balanced <- dplyr::bind_rows(balanced_rows)
 
 
 # ---- Write ---------------------------------------------------------
 
-write_csv(attribution, file.path(OUT_DIR, "panel_composition_census.csv"))
-write_csv(fac_share_tbl, file.path(OUT_DIR, "panel_composition_factors.csv"))
-write_csv(lobo,     file.path(OUT_DIR, "panel_composition_lobo.csv"))
-write_csv(loso,     file.path(OUT_DIR, "panel_composition_loso.csv"))
-write_csv(balanced, file.path(OUT_DIR, "panel_composition_balanced.csv"))
+readr::write_csv(attribution, file.path(OUT_DIR, "panel_composition_census.csv"))
+readr::write_csv(fac_share_tbl, file.path(OUT_DIR, "panel_composition_factors.csv"))
+readr::write_csv(lobo,     file.path(OUT_DIR, "panel_composition_lobo.csv"))
+readr::write_csv(loso,     file.path(OUT_DIR, "panel_composition_loso.csv"))
+readr::write_csv(balanced, file.path(OUT_DIR, "panel_composition_balanced.csv"))
 
-base_full <- lobo |> filter(level == "baseline", sample == "full")
-base_pre  <- lobo |> filter(level == "baseline", sample == "pre_covid")
+base_full <- lobo |> dplyr::filter(level == "baseline", sample == "full")
+base_pre  <- lobo |> dplyr::filter(level == "baseline", sample == "pre_covid")
 
 lobo_wide <- lobo |>
-  filter(level != "baseline") |>
-  select(level, dropped, n_dropped, sample, xi_mp) |>
-  pivot_wider(names_from = sample, values_from = xi_mp,
+  dplyr::filter(level != "baseline") |>
+  dplyr::select(level, dropped, n_dropped, sample, xi_mp) |>
+  tidyr::pivot_wider(names_from = sample, values_from = xi_mp,
               names_prefix = "xi_") |>
-  mutate(delta_full = xi_full - base_full$xi_mp,
+  dplyr::mutate(delta_full = xi_full - base_full$xi_mp,
          delta_pre  = xi_pre_covid - base_pre$xi_mp) |>
-  arrange(delta_full)
+  dplyr::arrange(delta_full)
 
 loso_top <- loso |>
-  filter(sample == "full") |>
-  mutate(delta = xi_mp - base_full$xi_mp) |>
-  arrange(delta) |>
-  select(dropped, block, xi_mp, delta, f_robust_mp, impact_mp)
+  dplyr::filter(sample == "full") |>
+  dplyr::mutate(delta = xi_mp - base_full$xi_mp) |>
+  dplyr::arrange(delta) |>
+  dplyr::select(dropped, block, xi_mp, delta, f_robust_mp, impact_mp)
 
 md <- c(
   "# Composição do painel: dominância, redundância e sensibilidade de ξ_mp",
@@ -328,7 +324,7 @@ md <- c(
   "",
   "### As 15 séries que mais elevam ξ_mp quando removidas",
   "",
-  md_table(tail(loso_top, 15) |> arrange(desc(delta)), digits = 3),
+  md_table(tail(loso_top, 15) |> dplyr::arrange(dplyr::desc(delta)), digits = 3),
   "",
   "## 5. Painéis balanceados (teto de k séries por bloco)",
   "",

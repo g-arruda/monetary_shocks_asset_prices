@@ -19,12 +19,6 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(readr)
-  library(dplyr)
-  library(tidyr)
-})
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -42,11 +36,11 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 # ------------------------------------------------------------------
 # Estimate the production DFM and extract eta
 # ------------------------------------------------------------------
-raw <- read_csv(SPEC$data_path,
-                show_col_types = FALSE) |> drop_na()
+raw <- readr::read_csv(SPEC$data_path,
+                show_col_types = FALSE) |> tidyr::drop_na()
 dates <- as.Date(raw$ref.date)
-data  <- raw |> select(-ref.date) |> as.matrix()
-inst  <- read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
+data  <- raw |> dplyr::select(-ref.date) |> as.matrix()
+inst  <- readr::read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
 
 dfm <- estimate_dfm(data, R_PROD, Q_PROD, P_LAGS, dates = dates,
                     instrument = inst, apply_kilian = TRUE)

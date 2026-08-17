@@ -1,6 +1,6 @@
 # Varredura de especificações IRF — Etapa 2 (bootstrap nos vencedores)
 
-Gerado por `script/irf_spec_stage2.R` em 2026-08-13.
+Gerado por `script/irf_spec_stage2.R` em 2026-08-17.
 
 Wild bootstrap (Gonçalves-Kilian) com nboot = 800, seed = 123, bandas 68/90.
 mp_var fixada em `yield_6m` (+50bp no impacto) para comparabilidade entre células.

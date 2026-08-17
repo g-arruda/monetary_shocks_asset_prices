@@ -31,10 +31,6 @@
 
 rm(list = ls())
 
-library(readr)
-library(dplyr)
-library(tidyr)
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -75,13 +71,13 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Data ----------------------------------------------------------
 
-raw_data <- read_csv(DATA_PATH, show_col_types = FALSE) |> drop_na()
+raw_data <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
 dates    <- as.Date(raw_data$ref.date)
-data_mat <- raw_data |> select(-ref.date) |> as.matrix()
+data_mat <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
 mp_idx   <- match(MP_VAR, colnames(data_mat))
 stopifnot(!is.na(mp_idx))
 
-inst_panel <- read_csv(INST_PATH, show_col_types = FALSE)
+inst_panel <- readr::read_csv(INST_PATH, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
 
@@ -159,78 +155,78 @@ for (sample_name in names(SAMPLES)) {
   }
 }
 
-res <- bind_rows(rows)
-write_csv(res, file.path(OUT_DIR, "xi_mp_robustness.csv"))
+res <- dplyr::bind_rows(rows)
+readr::write_csv(res, file.path(OUT_DIR, "xi_mp_robustness.csv"))
 cat(sprintf("\nWrote %d rows to xi_mp_robustness.csv\n", nrow(res)))
 
 
 # ---- Summaries -----------------------------------------------------
 
-base_tbl <- res |> filter(exercise == "baseline") |>
-  select(sample, instrument, n_obs = n_used, xi_mp = wald_mp)
+base_tbl <- res |> dplyr::filter(exercise == "baseline") |>
+  dplyr::select(sample, instrument, n_obs = n_used, xi_mp = wald_mp)
 
-loo_all <- res |> filter(exercise == "loo")
+loo_all <- res |> dplyr::filter(exercise == "loo")
 
 nz_months <- loo_all |>
-  inner_join(
+  dplyr::inner_join(
     inst_panel |>
-      pivot_longer(-month, names_to = "instrument", values_to = "z") |>
-      filter(z != 0) |>
-      mutate(key = format(month, "%Y-%m")) |>
-      select(instrument, key) |>
-      distinct(),
+      tidyr::pivot_longer(-month, names_to = "instrument", values_to = "z") |>
+      dplyr::filter(z != 0) |>
+      dplyr::mutate(key = format(month, "%Y-%m")) |>
+      dplyr::select(instrument, key) |>
+      dplyr::distinct(),
     by = c("instrument", "key"))
 
 loo_summary <- function(df, label) {
   df |>
-    group_by(sample, instrument) |>
-    summarise(
-      n_drops   = n(),
+    dplyr::group_by(sample, instrument) |>
+    dplyr::summarise(
+      n_drops   = dplyr::n(),
       xi_min    = min(wald_mp),
       xi_median = median(wald_mp),
       xi_max    = max(wald_mp),
       n_below10 = sum(wald_mp < XI_CONV),
       n_below384 = sum(wald_mp < CHI2_1_95),
       .groups = "drop") |>
-    left_join(base_tbl |> select(sample, instrument, xi_mp),
+    dplyr::left_join(base_tbl |> dplyr::select(sample, instrument, xi_mp),
               by = c("sample", "instrument")) |>
-    mutate(scope = label,
+    dplyr::mutate(scope = label,
            swing_dn = xi_mp - xi_min,
            swing_up = xi_max - xi_mp) |>
-    select(scope, sample, instrument, xi_mp, xi_min, xi_median, xi_max,
+    dplyr::select(scope, sample, instrument, xi_mp, xi_min, xi_median, xi_max,
            swing_dn, swing_up, n_below10, n_below384, n_drops)
 }
 
-loo_tbl <- bind_rows(loo_summary(loo_all,  "todos os meses"),
+loo_tbl <- dplyr::bind_rows(loo_summary(loo_all,  "todos os meses"),
                      loo_summary(nz_months, "meses com z != 0"))
 
 # Most influential months for the production instrument
 infl <- loo_all |>
-  inner_join(base_tbl |> select(sample, instrument, xi_mp),
+  dplyr::inner_join(base_tbl |> dplyr::select(sample, instrument, xi_mp),
              by = c("sample", "instrument")) |>
-  filter(instrument == "z_jk_bs_purif") |>
-  mutate(delta = wald_mp - xi_mp) |>
-  group_by(sample) |>
-  slice_max(abs(delta), n = 10) |>
-  arrange(sample, delta) |>
-  ungroup() |>
-  select(sample, mes = key, xi_mp_sem_o_mes = wald_mp, delta)
+  dplyr::filter(instrument == "z_jk_bs_purif") |>
+  dplyr::mutate(delta = wald_mp - xi_mp) |>
+  dplyr::group_by(sample) |>
+  dplyr::slice_max(abs(delta), n = 10) |>
+  dplyr::arrange(sample, delta) |>
+  dplyr::ungroup() |>
+  dplyr::select(sample, mes = key, xi_mp_sem_o_mes = wald_mp, delta)
 
-hac_tbl <- res |> filter(exercise == "hac") |>
-  mutate(nw = paste0("NW(", key, ")")) |>
-  select(sample, instrument, nw, wald_mp) |>
-  mutate(wald_mp = round(wald_mp, 2)) |>
-  pivot_wider(names_from = nw, values_from = wald_mp)
+hac_tbl <- res |> dplyr::filter(exercise == "hac") |>
+  dplyr::mutate(nw = paste0("NW(", key, ")")) |>
+  dplyr::select(sample, instrument, nw, wald_mp) |>
+  dplyr::mutate(wald_mp = round(wald_mp, 2)) |>
+  tidyr::pivot_wider(names_from = nw, values_from = wald_mp)
 
 
 # ---- Report --------------------------------------------------------
 
-fmt <- function(df) md_table(df |> mutate(across(where(is.numeric),
+fmt <- function(df) md_table(df |> dplyr::mutate(dplyr::across(dplyr::where(is.numeric),
                                                  ~ round(.x, 3))))
 
-prod_full <- base_tbl |> filter(sample == "full",
-                                instrument == "z_jk_bs_purif") |> pull(xi_mp)
-prod_loo  <- loo_tbl |> filter(scope == "todos os meses", sample == "full",
+prod_full <- base_tbl |> dplyr::filter(sample == "full",
+                                instrument == "z_jk_bs_purif") |> dplyr::pull(xi_mp)
+prod_loo  <- loo_tbl |> dplyr::filter(scope == "todos os meses", sample == "full",
                                instrument == "z_jk_bs_purif")
 
 sections <- c(
@@ -284,8 +280,8 @@ writeLines(sections, file.path(OUT_DIR, "xi_mp_robustness.md"))
 cat(sprintf("Wrote %s\n", file.path(OUT_DIR, "xi_mp_robustness.md")))
 
 cat("\n========== LEAVE-ONE-MONTH-OUT (todos os meses) ==========\n")
-print(as.data.frame(loo_tbl |> filter(scope == "todos os meses") |>
-                    mutate(across(where(is.numeric), ~ round(.x, 2)))),
+print(as.data.frame(loo_tbl |> dplyr::filter(scope == "todos os meses") |>
+                    dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ round(.x, 2)))),
       row.names = FALSE)
 cat("\n========== HAC ==========\n")
 print(as.data.frame(hac_tbl), row.names = FALSE)

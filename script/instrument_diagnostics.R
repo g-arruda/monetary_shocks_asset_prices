@@ -1,23 +1,9 @@
 # ============================================================
-# Instrument validity diagnostics — compares 4 instrument variants
-# (bruto, bruto_purif, JK, JK_purif) on the same DFM residual.
+# Instrument validity diagnostics — compares the 8 instrument variants
+# on the same DFM residual.
 # Also: scatterplot of residual DI vs. residual Ibov on Copom days,
 # and variance F-test (Copom vs. non-Copom).
 # ============================================================
-
-suppressPackageStartupMessages({
-  required_packages <- c("tidyverse", "sandwich", "lmtest", "broom", "lubridate")
-  for (pkg in required_packages) {
-    if (!requireNamespace(pkg, quietly = TRUE)) {
-      install.packages(pkg, repos = "https://cloud.r-project.org")
-    }
-  }
-  library(tidyverse)
-  library(sandwich)
-  library(lmtest)
-  library(broom)
-  library(lubridate)
-})
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
@@ -31,16 +17,16 @@ YIELD6M_TARGET <- SPEC$mp_var
 
 # ---- 1. DFM estimation (instrument-agnostic) ---------------
 
-raw_data <- read_csv(SPEC$data_path,
-                     show_col_types = FALSE) |> drop_na()
+raw_data <- readr::read_csv(SPEC$data_path,
+                     show_col_types = FALSE) |> tidyr::drop_na()
 
 dates  <- as.Date(raw_data$ref.date)
-X      <- raw_data |> select(-ref.date) |> as.matrix()
+X      <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
 
 message(sprintf("Estimating production DFM (r=%d, q=%d, p=%d) ...",
                 SPEC$r, SPEC$q, SPEC$p))
 # We need any instrument df just so estimate_dfm() builds the VAR; use the bruto.
-seed_inst <- read_csv("data/processed/instrument_bruto.csv", show_col_types = FALSE)
+seed_inst <- readr::read_csv("data/processed/instrument_bruto.csv", show_col_types = FALSE)
 dfm <- estimate_dfm(X, r = SPEC$r, q = SPEC$q, p = SPEC$p,
                     dates = dates, instrument = seed_inst,
                     apply_kilian = FALSE)
@@ -70,26 +56,26 @@ variants <- variants[file.exists(unlist(variants))]
 fmt_p <- function(p) if (is.na(p)) "NA" else if (p < 0.001) "< 0.001" else sprintf("%.3f", p)
 
 run_variant <- function(name, path) {
-  inst_df <- read_csv(path, show_col_types = FALSE)
+  inst_df <- readr::read_csv(path, show_col_types = FALSE)
   align   <- sel_ext_inst_sample(dfm$dates, p_lag, inst_df)
   Z_t     <- align$inst_sel
   res_al  <- policy_residual[align$rsh_sel_ind]
   T_eff   <- length(Z_t)
 
   n_lags <- 6
-  ex_df <- tibble(Z = Z_t)
+  ex_df <- tibble::tibble(Z = Z_t)
   for (k in seq_len(n_lags)) ex_df[[paste0("lag", k)]] <- dplyr::lag(res_al, k)
   ex_df <- na.omit(ex_df)
   ex_lm <- lm(Z ~ ., data = ex_df)
-  ex_vc <- vcovHC(ex_lm, type = "HC0")
-  ex_wf <- waldtest(ex_lm, vcov = ex_vc)
+  ex_vc <- sandwich::vcovHC(ex_lm, type = "HC0")
+  ex_wf <- lmtest::waldtest(ex_lm, vcov = ex_vc)
   exog_f  <- ex_wf$F[2]
   exog_pv <- ex_wf$`Pr(>F)`[2]
 
   diag_fs <- diagnose_instrument_in_factor_space(dfm, inst_df, dates, p_lag,
                                                  mp_idx_diag)
 
-  tibble(
+  tibble::tibble(
     variant      = name,
     n            = T_eff,
     nonzero      = sum(Z_t != 0),
@@ -105,19 +91,19 @@ run_variant <- function(name, path) {
   )
 }
 
-results <- map2_dfr(names(variants), variants, run_variant)
+results <- purrr::map2_dfr(names(variants), variants, run_variant)
 
-print(results |> mutate(across(where(is.numeric), ~ round(.x, 3))))
+print(results |> dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ round(.x, 3))))
 
 # ---- 3. Scatterplot of residual DI vs residual Ibov --------
 
 diag_path <- "data/processed/copom_event_diagnostics.csv"
 if (file.exists(diag_path)) {
-  diag <- read_csv(diag_path, show_col_types = FALSE)
-  copom_pts <- diag |> filter(copom_day)
+  diag <- readr::read_csv(diag_path, show_col_types = FALSE)
+  copom_pts <- diag |> dplyr::filter(copom_day)
 
   quad <- copom_pts |>
-    mutate(quadrant = case_when(
+    dplyr::mutate(quadrant = dplyr::case_when(
       e_di > 0 & e_ibov > 0 ~ "I (+,+) info",
       e_di < 0 & e_ibov > 0 ~ "II (-,+) monetary",
       e_di < 0 & e_ibov < 0 ~ "III (-,-) info",
@@ -128,25 +114,25 @@ if (file.exists(diag_path)) {
     sum(quad$quadrant %in% c("I (+,+) info", "III (-,-) info")) /
     nrow(quad), 1)
 
-  p_scatter <- ggplot(quad, aes(x = e_di, y = e_ibov)) +
-    geom_vline(xintercept = 0, linewidth = 0.3, colour = "grey50") +
-    geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey50") +
-    geom_point(aes(colour = quadrant), alpha = 0.8) +
-    scale_colour_manual(values = c(
+  p_scatter <- ggplot2::ggplot(quad, ggplot2::aes(x = e_di, y = e_ibov)) +
+    ggplot2::geom_vline(xintercept = 0, linewidth = 0.3, colour = "grey50") +
+    ggplot2::geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey50") +
+    ggplot2::geom_point(ggplot2::aes(colour = quadrant), alpha = 0.8) +
+    ggplot2::scale_colour_manual(values = c(
       "I (+,+) info" = "#d95f02", "II (-,+) monetary" = "#1b9e77",
       "III (-,-) info" = "#d95f02", "IV (+,-) monetary" = "#1b9e77",
       "zero" = "grey70"
     )) +
-    labs(
+    ggplot2::labs(
       title    = "Purified surprises on Copom days",
       subtitle = sprintf("Wrong-signed (info) share: %.1f%%  (n = %d)", pct_wrong, nrow(quad)),
       x = "e_DI (residual, bps)",
       y = "e_Ibov (residual, log-return %)",
       colour = NULL
     ) +
-    theme_minimal(base_size = 11) +
-    theme(legend.position = "bottom")
-  ggsave("output/instrument/scatterplot_surpresas_copom.png", p_scatter,
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(legend.position = "bottom")
+  ggplot2::ggsave("output/instrument/scatterplot_surpresas_copom.png", p_scatter,
          width = 7, height = 6, dpi = 150)
   message(sprintf("Scatterplot saved. Wrong-signed share: %.1f%%", pct_wrong))
 } else {
@@ -166,20 +152,20 @@ var_test_row <- function(x, copom_flag, label) {
     pf(F_stat, n1 - 1, n2 - 1),
     1 - pf(F_stat, n1 - 1, n2 - 1)
   )
-  tibble(series = label,
+  tibble::tibble(series = label,
          var_copom = v_copom, var_non_copom = v_non_copom,
          n_copom = n1, n_non_copom = n2,
          F_stat = F_stat, p_value = p_val)
 }
 
 if (exists("diag")) {
-  var_tests <- bind_rows(
+  var_tests <- dplyr::bind_rows(
     var_test_row(diag$e_di,   diag$copom_day, "e_DI"),
     var_test_row(diag$e_ibov, diag$copom_day, "e_Ibov"),
     var_test_row(diag$delta_di, diag$copom_day, "delta_DI (raw)"),
     var_test_row(diag$r_ibov,   diag$copom_day, "delta_Ibov (raw)")
   )
-  print(var_tests |> mutate(across(where(is.numeric), ~ signif(.x, 3))))
+  print(var_tests |> dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ signif(.x, 3))))
 } else {
   var_tests <- NULL
 }
@@ -187,15 +173,15 @@ if (exists("diag")) {
 # ---- 5. Report ---------------------------------------------
 
 res_tbl <- results |>
-  mutate(across(c(xi_mp, f_robust_mp, exog_f),
+  dplyr::mutate(dplyr::across(c(xi_mp, f_robust_mp, exog_f),
                 ~ sprintf("%.3f", .x)),
          beta_mp     = sprintf("%+.2e", beta_mp),
          se_mp       = sprintf("%.2e", se_mp),
          impact_y6m  = sprintf("%+.2e", impact_y6m),
          sign_y6m    = ifelse(sign_y6m > 0, "+",
                               ifelse(sign_y6m < 0, "-", "0")),
-         p_mp        = map_chr(p_mp, fmt_p),
-         exog_p      = map_chr(exog_p, fmt_p))
+         p_mp        = purrr::map_chr(p_mp, fmt_p),
+         exog_p      = purrr::map_chr(exog_p, fmt_p))
 
 hdr <- "| Variant | n | nonzero | ξ_mp | F robusto_mp | β̂_mp | SE(HC1) | p_mp | impacto y6m | sinal | Exog F | Exog p |"
 sep <- "|---|---|---|---|---|---|---|---|---|---|---|---|"
@@ -208,7 +194,7 @@ tbl_md <- paste(c(hdr, sep, rows), collapse = "\n")
 
 var_md <- if (!is.null(var_tests)) {
   v <- var_tests |>
-    mutate(across(where(is.numeric), ~ signif(.x, 3)))
+    dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ signif(.x, 3)))
   paste(c(
     "| Series | Var(Copom) | Var(non-Copom) | n_C | n_NC | F | p-value |",
     "|---|---|---|---|---|---|---|",
@@ -281,5 +267,5 @@ writeLines(report, "output/instrument/instrument_diagnostics_report.md")
 message("Report written to output/instrument/instrument_diagnostics_report.md")
 
 cat("\n========== VARIANT COMPARISON ==========\n")
-print(results |> mutate(across(where(is.numeric), ~ round(.x, 3))))
+print(results |> dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ round(.x, 3))))
 cat("========================================\n\n")

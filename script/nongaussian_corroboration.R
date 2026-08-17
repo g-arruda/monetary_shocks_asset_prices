@@ -21,13 +21,6 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(readr)
-  library(dplyr)
-  library(tidyr)
-  library(ggplot2)
-})
-
 source("R/identification/irf_coherence.R")
 source("R/modeling/production_spec.R")
 
@@ -131,7 +124,7 @@ for (sn in names(subsets)) {
     }
   }
 }
-summary_df <- bind_rows(summary_rows)
+summary_df <- dplyr::bind_rows(summary_rows)
 
 # Report the selection contrast from the same run.
 g_head <- subset(summary_df, subset == "headline_8" & cond == "incondicional" &
@@ -163,20 +156,20 @@ per_var <- lapply(seq_along(vn), function(i) {
                                    (cell$px$ci[["0.90"]]$upper[i, ] -
                                       cell$px$ci[["0.90"]]$lower[i, ]))
   )
-}) |> bind_rows()
-per_var <- left_join(per_var, ruler[, c("var", "group", "tier")], by = "var")
+}) |> dplyr::bind_rows()
+per_var <- dplyr::left_join(per_var, ruler[, c("var", "group", "tier")], by = "var")
 per_var$group[is.na(per_var$group)] <- "fora_do_ruler"
 
 per_block <- per_var |>
-  group_by(group) |>
-  summarise(n_var = n(),
+  dplyr::group_by(group) |>
+  dplyr::summarise(n_var = dplyr::n(),
             sig90_proxy = sum(sig90_proxy), sig90_gmr = sum(sig90_gmr),
             sign_agree_h0_12 = mean(sign_agree_h0_12),
             sign_agree_sig90 = mean(sign_agree_sig90, na.rm = TRUE),
             median_cor_path = stats::median(cor_path),
             median_band_ratio90 = stats::median(band_ratio90),
             .groups = "drop") |>
-  arrange(desc(sig90_proxy))
+  dplyr::arrange(dplyr::desc(sig90_proxy))
 
 # The cells where the proxy is significant and the GMR points the other way.
 # These belong in the report, not in a footnote: if they cluster in one block,
@@ -186,9 +179,9 @@ disagree <- if (nrow(w) > 0) data.frame(
   var = vn[w[, 1]], h = w[, 2] - 1L,
   proxy = Pp[sp90 & sign(Pg) != sign(Pp)],
   gmr = Pg[sp90 & sign(Pg) != sign(Pp)]) |>
-  left_join(ruler[, c("var", "group")], by = "var") |>
-  mutate(group = ifelse(is.na(group), "fora_do_ruler", group)) |>
-  arrange(h, var) else data.frame()
+  dplyr::left_join(ruler[, c("var", "group")], by = "var") |>
+  dplyr::mutate(group = ifelse(is.na(group), "fora_do_ruler", group)) |>
+  dplyr::arrange(h, var) else data.frame()
 
 # ------------------------------------------------------------------
 # 3. Where the GMR itself is significant
@@ -196,7 +189,7 @@ disagree <- if (nrow(w) > 0) data.frame(
 wg <- which(sg90, arr.ind = TRUE)
 gmr_sig <- if (nrow(wg) > 0) data.frame(
   var = vn[wg[, 1]], h = wg[, 2] - 1L,
-  gmr = Pg[sg90], proxy = Pp[sg90]) |> arrange(h, var) else data.frame()
+  gmr = Pg[sg90], proxy = Pp[sg90]) |> dplyr::arrange(h, var) else data.frame()
 
 # ------------------------------------------------------------------
 # 4. The runner-up column (pendencias.md: labelling gap is 0.012)
@@ -213,11 +206,11 @@ if (!is.null(cor_abs)) {
     source("R/modeling/factor_estimation.R")
     source("R/identification/nongaussian_labelling.R")
   })
-  raw <- read_csv(SPEC$data_path,
-                  show_col_types = FALSE) |> drop_na()
+  raw <- readr::read_csv(SPEC$data_path,
+                  show_col_types = FALSE) |> tidyr::drop_na()
   dates <- as.Date(raw$ref.date)
-  dat   <- raw |> select(-ref.date) |> as.matrix()
-  inst  <- read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
+  dat   <- raw |> dplyr::select(-ref.date) |> as.matrix()
+  inst  <- readr::read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
   stopifnot(identical(colnames(dat), vn))
 
   dfm <- estimate_dfm(dat, cell$r, cell$q, cell$p, dates = dates,
@@ -273,7 +266,7 @@ if (!is.null(cor_abs)) {
   runnerup <- data.frame(
     var = rep(vn, H + 1), h = rep(0:H, each = length(vn)),
     winner = as.vector(Pg), runnerup = as.vector(irf_up)) |>
-    arrange(var, h)
+    dplyr::arrange(var, h)
   attr(runnerup, "col_mp") <- col_mp; attr(runnerup, "col_up") <- col_up
 
   cat(sprintf("[runner-up] coluna %d vs %d | cor(|z|) %.3f vs %.3f\n",
@@ -292,16 +285,16 @@ if (!is.null(cor_abs)) {
 # ------------------------------------------------------------------
 # Outputs
 # ------------------------------------------------------------------
-write_csv(summary_df, file.path(OUT_DIR, "corroboration_summary.csv"))
-write_csv(per_var,    file.path(OUT_DIR, "corroboration_by_var.csv"))
-write_csv(per_block,  file.path(OUT_DIR, "corroboration_by_block.csv"))
-if (nrow(disagree)) write_csv(disagree, file.path(OUT_DIR, "corroboration_disagreements.csv"))
-if (nrow(gmr_sig))  write_csv(gmr_sig,  file.path(OUT_DIR, "corroboration_gmr_sig90.csv"))
-if (nrow(runnerup)) write_csv(runnerup, file.path(OUT_DIR, "corroboration_runnerup.csv"))
+readr::write_csv(summary_df, file.path(OUT_DIR, "corroboration_summary.csv"))
+readr::write_csv(per_var,    file.path(OUT_DIR, "corroboration_by_var.csv"))
+readr::write_csv(per_block,  file.path(OUT_DIR, "corroboration_by_block.csv"))
+if (nrow(disagree)) readr::write_csv(disagree, file.path(OUT_DIR, "corroboration_disagreements.csv"))
+if (nrow(gmr_sig))  readr::write_csv(gmr_sig,  file.path(OUT_DIR, "corroboration_gmr_sig90.csv"))
+if (nrow(runnerup)) readr::write_csv(runnerup, file.path(OUT_DIR, "corroboration_runnerup.csv"))
 
 plot_vars <- intersect(c(HEADLINE, "ind_transformacao", "credito_agro",
                          "price_core_ipca_ex0", "cds_5y"), vn)
-long <- bind_rows(
+long <- dplyr::bind_rows(
   data.frame(var = rep(vn, H + 1), h = rep(0:H, each = length(vn)),
              ident = "GMR", point = as.vector(Pg),
              lo = as.vector(cell$ng$ci[["0.90"]]$lower),
@@ -310,27 +303,27 @@ long <- bind_rows(
              ident = "proxy", point = as.vector(Pp),
              lo = as.vector(cell$px$ci[["0.90"]]$lower),
              hi = as.vector(cell$px$ci[["0.90"]]$upper))
-) |> filter(var %in% plot_vars)
+) |> dplyr::filter(var %in% plot_vars)
 
-p <- ggplot(long, aes(h, point, colour = ident, fill = ident)) +
-  geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey40") +
-  geom_ribbon(aes(ymin = lo, ymax = hi), alpha = 0.15, colour = NA) +
-  geom_line(linewidth = 0.6) +
-  facet_wrap(~var, scales = "free_y", ncol = 3) +
-  scale_colour_manual(values = c(GMR = "#b2182b", proxy = "#2166ac")) +
-  scale_fill_manual(values = c(GMR = "#b2182b", proxy = "#2166ac")) +
-  labs(x = "horizonte (meses)", y = NULL, colour = NULL, fill = NULL,
+p <- ggplot2::ggplot(long, ggplot2::aes(h, point, colour = ident, fill = ident)) +
+  ggplot2::geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey40") +
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = lo, ymax = hi), alpha = 0.15, colour = NA) +
+  ggplot2::geom_line(linewidth = 0.6) +
+  ggplot2::facet_wrap(~var, scales = "free_y", ncol = 3) +
+  ggplot2::scale_colour_manual(values = c(GMR = "#b2182b", proxy = "#2166ac")) +
+  ggplot2::scale_fill_manual(values = c(GMR = "#b2182b", proxy = "#2166ac")) +
+  ggplot2::labs(x = "horizonte (meses)", y = NULL, colour = NULL, fill = NULL,
        title = "GMR nao-gaussiano vs proxy-SVAR, bandas de 90%",
        subtitle = sprintf("r = %d, q = %d, nboot = %d", cell$r, cell$q, cell$nboot)) +
-  theme_bw(base_size = 9) + theme(legend.position = "top")
-ggsave(file.path(OUT_DIR, "corroboration_overlay.pdf"), p,
+  ggplot2::theme_bw(base_size = 9) + ggplot2::theme(legend.position = "top")
+ggplot2::ggsave(file.path(OUT_DIR, "corroboration_overlay.pdf"), p,
        width = 9, height = 8)
 
 # ------------------------------------------------------------------
 cat("\n== concordancia de sinal por recorte (h0 / h0-12 / h13-48) ==\n")
 show <- summary_df |>
-  filter(hwin %in% c("h0", "h0_12", "h13_24", "h25_48")) |>
-  select(subset, cond, hwin, n, sign_agree, coverage90) |>
+  dplyr::filter(hwin %in% c("h0", "h0_12", "h13_24", "h25_48")) |>
+  dplyr::select(subset, cond, hwin, n, sign_agree, coverage90) |>
   as.data.frame()
 print(show, row.names = FALSE, digits = 3)
 

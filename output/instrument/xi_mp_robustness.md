@@ -1,6 +1,6 @@
 # Robustez do ξ_mp — leave-one-month-out e HAC
 
-Gerado por `script/xi_mp_robustness.R` em 2026-08-13.
+Gerado por `script/xi_mp_robustness.R` em 2026-08-17.
 
 Especificação de produção: r = 5, q = 5, p = 6, direção de normalização = `yield_6m`. 5 instrumentos × 2 amostras.
 

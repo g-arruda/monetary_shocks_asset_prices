@@ -1,6 +1,6 @@
 # Varredura de especificações IRF — Etapa 1 (ponto-estimativa)
 
-Gerado por `script/irf_spec_sweep.R` em 2026-08-13.
+Gerado por `script/irf_spec_sweep.R` em 2026-08-17.
 
 Grid: 2 amostras x 5 combinações (r,q) x 8 instrumentos x 5 variáveis de política = 400 células; p = 6, h = 24, choque = 50bp.
 

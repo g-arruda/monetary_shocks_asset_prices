@@ -13,10 +13,6 @@
 
 rm(list = ls())
 
-library(readr)
-library(dplyr)
-library(tidyr)
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -58,12 +54,12 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Data ----------------------------------------------------------
 
-raw_data <- read_csv(DATA_PATH, show_col_types = FALSE) |> drop_na()
+raw_data <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
 dates    <- as.Date(raw_data$ref.date)
-data_mat <- raw_data |> select(-ref.date) |> as.matrix()
+data_mat <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
 tcode    <- infer_tcode_from_varnames(colnames(data_mat))
 
-inst_panel <- read_csv(INST_PATH, show_col_types = FALSE)
+inst_panel <- readr::read_csv(INST_PATH, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
 theory_tbl <- theory_sign_table()
@@ -158,11 +154,11 @@ for (sample_name in names(SAMPLES)) {
   }
 }
 
-cells <- bind_rows(cell_rows) |> classify_sweep_cells()
-irf_long <- bind_rows(resp_rows)
+cells <- dplyr::bind_rows(cell_rows) |> classify_sweep_cells()
+irf_long <- dplyr::bind_rows(resp_rows)
 
-write_csv(cells, file.path(OUT_DIR, "spec_sweep_cells.csv"))
-write_csv(irf_long, file.path(OUT_DIR, "spec_sweep_irf_long.csv"))
+readr::write_csv(cells, file.path(OUT_DIR, "spec_sweep_cells.csv"))
+readr::write_csv(irf_long, file.path(OUT_DIR, "spec_sweep_irf_long.csv"))
 cat(sprintf("\nWrote %d cell rows and %d response rows\n",
             nrow(cells), nrow(irf_long)))
 
@@ -170,22 +166,22 @@ cat(sprintf("\nWrote %d cell rows and %d response rows\n",
 # ---- Report --------------------------------------------------------
 
 eligible <- cells |>
-  filter(failure_class == "ok") |>
-  mutate(score_hard_frac = score_hard / n_hard_avail) |>
-  arrange(desc(score_hard_frac), desc(score_ext), desc(wald_mp))
+  dplyr::filter(failure_class == "ok") |>
+  dplyr::mutate(score_hard_frac = score_hard / n_hard_avail) |>
+  dplyr::arrange(dplyr::desc(score_hard_frac), dplyr::desc(score_ext), dplyr::desc(wald_mp))
 
 top10 <- eligible |>
-  slice_head(n = 10) |>
-  select(sample, r, q, instrument, mp_var, wald_mp, f_robust_mp,
+  dplyr::slice_head(n = 10) |>
+  dplyr::select(sample, r, q, instrument, mp_var, wald_mp, f_robust_mp,
          score_hard, n_hard_avail, score_ext, fx_channel, risk_channel,
          yield_ordering_ok, h0_ibov, h0_cambio)
 
 heat_of <- function(s, metric) {
   cells |>
-    filter(sample == s, mp_var == "yield_6m") |>
-    mutate(rq = sprintf("r%d_q%d", r, q)) |>
-    select(instrument, rq, dplyr::all_of(metric)) |>
-    pivot_wider(names_from = rq, values_from = dplyr::all_of(metric))
+    dplyr::filter(sample == s, mp_var == "yield_6m") |>
+    dplyr::mutate(rq = sprintf("r%d_q%d", r, q)) |>
+    dplyr::select(instrument, rq, dplyr::all_of(metric)) |>
+    tidyr::pivot_wider(names_from = rq, values_from = dplyr::all_of(metric))
 }
 
 heat_tables   <- lapply(names(SAMPLES), heat_of, metric = "wald_mp")
@@ -194,23 +190,23 @@ names(heat_tables)   <- names(SAMPLES)
 names(heat_tables_f) <- names(SAMPLES)
 
 taxonomy <- cells |>
-  count(sample, failure_class) |>
-  pivot_wider(names_from = sample, values_from = n, values_fill = 0)
+  dplyr::count(sample, failure_class) |>
+  tidyr::pivot_wider(names_from = sample, values_from = n, values_fill = 0)
 
 neg_control <- cells |>
-  filter(mp_var == "juros_selic") |>
-  summarise(n = n(),
+  dplyr::filter(mp_var == "juros_selic") |>
+  dplyr::summarise(n = dplyr::n(),
             f_robust_mp_max = max(f_robust_mp, na.rm = TRUE),
             f_robust_mp_median = median(f_robust_mp, na.rm = TRUE))
 
 channels <- eligible |>
-  count(fx_channel, risk_channel)
+  dplyr::count(fx_channel, risk_channel)
 
 baseline_cmp <- cells |>
-  filter(instrument == "z_jk_bs_purif", mp_var == "yield_6m") |>
-  select(sample, r, q, wald_mp, f_robust_mp, impact_mp_pre, denom_ratio,
+  dplyr::filter(instrument == "z_jk_bs_purif", mp_var == "yield_6m") |>
+  dplyr::select(sample, r, q, wald_mp, f_robust_mp, impact_mp_pre, denom_ratio,
          score_hard, n_hard_avail, score_ext, fx_channel, failure_class) |>
-  arrange(sample, r, q)
+  dplyr::arrange(sample, r, q)
 
 report <- c(
   "# Varredura de especificações IRF — Etapa 1 (ponto-estimativa)",

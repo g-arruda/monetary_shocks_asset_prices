@@ -19,13 +19,6 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(readr)
-  library(dplyr)
-  library(tidyr)
-  library(ggplot2)
-})
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/production_spec.R")
 source("R/identification/nongaussian_labelling.R")
@@ -53,11 +46,11 @@ cat(sprintf("== labelling sem instrumento: %s (nboot = %d) ==\n", CELL_RDS, cell
 # ------------------------------------------------------------------
 # 1. DFM and rawimp
 # ------------------------------------------------------------------
-raw   <- read_csv(SPEC$data_path,
-                  show_col_types = FALSE) |> drop_na()
+raw   <- readr::read_csv(SPEC$data_path,
+                  show_col_types = FALSE) |> tidyr::drop_na()
 dates <- as.Date(raw$ref.date)
-dat   <- raw |> select(-ref.date) |> as.matrix()
-inst  <- read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
+dat   <- raw |> dplyr::select(-ref.date) |> as.matrix()
+inst  <- readr::read_csv(SPEC$legacy_instrument_path, show_col_types = FALSE)
 stopifnot(identical(colnames(dat), vn))
 
 dfm    <- estimate_dfm(dat, cell$r, cell$q, cell$p, dates = dates,
@@ -166,7 +159,7 @@ profile <- lapply(seq_len(q), function(j) {
     agree_h0_12 = agree(M, mask_h(0:12)),
     agree_global = mean(sign(M) == sign(Pp)),
     razao_mediana_sig90 = stats::median(M[ok] / Pp[ok]))
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 cat("\n== o que cada coluna diz contra o proxy ==\n")
 print(profile, row.names = FALSE, digits = 3)
@@ -181,7 +174,7 @@ blocks <- lapply(seq_len(q), function(j) {
     data.frame(coluna = j, group = g$group[1], n_sig90 = sum(m),
                agree = if (sum(m)) agree(M, m) else NA_real_)
   }))
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 # ------------------------------------------------------------------
 # 5. Does the metric discriminate? Random-direction null.
@@ -254,7 +247,7 @@ melt_mat <- function(M, tipo, rowlab) data.frame(
   tipo = tipo, estatistica = rep(colnames(M), each = nrow(M)),
   linha = rep(rowlab, times = ncol(M)), valor = as.vector(M))
 
-null_df <- bind_rows(
+null_df <- dplyr::bind_rows(
   melt_mat(nq, "nulo", rownames(nq)),
   melt_mat(col_stats, "coluna", paste0("col", seq_len(q))),
   melt_mat(pv, "p_valor", paste0("col", seq_len(q))))
@@ -262,36 +255,36 @@ null_df <- bind_rows(
 # ------------------------------------------------------------------
 # Outputs
 # ------------------------------------------------------------------
-write_csv(rules_df, file.path(OUT_DIR, "labelling_rules.csv"))
-write_csv(profile,  file.path(OUT_DIR, "labelling_columns_profile.csv"))
-write_csv(blocks,   file.path(OUT_DIR, "labelling_by_block.csv"))
-write_csv(null_df,  file.path(OUT_DIR, "labelling_null.csv"))
+readr::write_csv(rules_df, file.path(OUT_DIR, "labelling_rules.csv"))
+readr::write_csv(profile,  file.path(OUT_DIR, "labelling_columns_profile.csv"))
+readr::write_csv(blocks,   file.path(OUT_DIR, "labelling_by_block.csv"))
+readr::write_csv(null_df,  file.path(OUT_DIR, "labelling_null.csv"))
 
 plot_vars <- intersect(c("yield_6m", "yield_2y", "yield_5y", "cambio_usd",
                          "cds_5y", "embi_perc", "price_ipca", "ind_transformacao",
                          "asset_ibov"), vn)
-long <- bind_rows(lapply(seq_len(q), function(j) {
+long <- dplyr::bind_rows(lapply(seq_len(q), function(j) {
   data.frame(var = rep(vn, H + 1), h = rep(0:H, each = length(vn)),
              serie = sprintf("coluna %d", j), point = as.vector(irf_col[[j]]))
 }))
-long <- bind_rows(long, data.frame(
+long <- dplyr::bind_rows(long, data.frame(
   var = rep(vn, H + 1), h = rep(0:H, each = length(vn)),
   serie = "proxy-SVAR", point = as.vector(Pp)))
-long <- filter(long, var %in% plot_vars)
+long <- dplyr::filter(long, var %in% plot_vars)
 
 pal <- c(setNames(grDevices::hcl.colors(q, "Set 2"), sprintf("coluna %d", seq_len(q))),
          `proxy-SVAR` = "black")
-p <- ggplot(long, aes(h, point, colour = serie)) +
-  geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey50") +
-  geom_line(aes(linewidth = serie == "proxy-SVAR")) +
-  scale_linewidth_manual(values = c(`FALSE` = 0.45, `TRUE` = 1.0), guide = "none") +
-  scale_colour_manual(values = pal) +
-  facet_wrap(~var, scales = "free_y", ncol = 3) +
-  labs(x = "horizonte (meses)", y = NULL, colour = NULL,
+p <- ggplot2::ggplot(long, ggplot2::aes(h, point, colour = serie)) +
+  ggplot2::geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey50") +
+  ggplot2::geom_line(ggplot2::aes(linewidth = serie == "proxy-SVAR")) +
+  ggplot2::scale_linewidth_manual(values = c(`FALSE` = 0.45, `TRUE` = 1.0), guide = "none") +
+  ggplot2::scale_colour_manual(values = pal) +
+  ggplot2::facet_wrap(~var, scales = "free_y", ncol = 3) +
+  ggplot2::labs(x = "horizonte (meses)", y = NULL, colour = NULL,
        title = "As seis colunas do ICA contra o proxy-SVAR",
        subtitle = sprintf("estimativas pontuais; regra vigente seleciona a coluna %d",
                           cell$ng$ng_point$col_mp)) +
-  theme_bw(base_size = 9) + theme(legend.position = "top")
-ggsave(file.path(OUT_DIR, "labelling_overlay.pdf"), p, width = 9.5, height = 7.5)
+  ggplot2::theme_bw(base_size = 9) + ggplot2::theme(legend.position = "top")
+ggplot2::ggsave(file.path(OUT_DIR, "labelling_overlay.pdf"), p, width = 9.5, height = 7.5)
 
 cat("\nescrito em", OUT_DIR, "\n")

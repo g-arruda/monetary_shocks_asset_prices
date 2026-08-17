@@ -15,15 +15,6 @@
 # and fred_dgs2.csv feed the audit variants).
 # ============================================================
 
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(lubridate)
-  library(tidyr)
-  library(readr)
-  library(purrr)
-  library(tibble)
-})
-
 source("R/instrument/di_surprise.R")
 source("R/instrument/build_variants.R")
 source("R/modeling/production_spec.R")
@@ -69,27 +60,27 @@ DEFAULT_VARIANT <- SPEC$instrument # legacy data/processed/instrument.csv
 
 di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
-ibov_daily <- read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
-  filter(!is.na(ibov))
+ibov_daily <- readr::read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
+  dplyr::filter(!is.na(ibov))
 
-ext_daily <- read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date),
+ext_daily <- readr::read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date),
             sp500 = as.numeric(sp500),
             vix   = as.numeric(vix),
             brent = as.numeric(brent))
 
-brl_daily <- read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date), brl = as.numeric(brl)) |>
-  filter(!is.na(brl))
+brl_daily <- readr::read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date), brl = as.numeric(brl)) |>
+  dplyr::filter(!is.na(brl))
 
-focus_daily <- read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date),
+focus_daily <- readr::read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date),
             focus_ipca12m  = as.numeric(focus_ipca12m),
             focus_selic_ny = as.numeric(focus_selic_ny))
 
-dgs2_daily <- read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
-  transmute(date = as.Date(date), ust2y = as.numeric(ust2y))
+dgs2_daily <- readr::read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
+  dplyr::transmute(date = as.Date(date), ust2y = as.numeric(ust2y))
 
 copom_wed <- load_copom_wednesdays(from = LOAD_START, to = SAMPLE_END)
 
@@ -126,12 +117,12 @@ message(sprintf("BS pre-event regression R2: delta_di %.3f | r_ibov %.3f (BS Tab
 
 dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
 
-write_csv(instrumentos, "data/processed/instrumentos_mensais.csv")
+readr::write_csv(instrumentos, "data/processed/instrumentos_mensais.csv")
 
 write_variant <- function(colname, filename) {
   instrumentos |>
-    transmute(month, shock = .data[[colname]]) |>
-    write_csv(filename)
+    dplyr::transmute(month, shock = .data[[colname]]) |>
+    readr::write_csv(filename)
 }
 write_variant("z_bruto",       "data/processed/instrument_bruto.csv")
 write_variant("z_bruto_purif", "data/processed/instrument_bruto_purif.csv")
@@ -147,21 +138,21 @@ write_variant(DEFAULT_VARIANT, "data/processed/instrument.csv")
 
 # Daily diagnostics panel (for scatterplot & variance F-test)
 valid |>
-  select(date, delta_di, r_ibov, e_di, e_ibov,
+  dplyr::select(date, delta_di, r_ibov, e_di, e_ibov,
          e_di_bs, e_ibov_bs, e_di_us, e_ibov_us,
          copom_day, fomc_coincide, jk_monetary, jk_monetary_raw,
          jk_monetary_bs, jk_monetary_us) |>
-  write_csv("data/processed/copom_event_diagnostics.csv")
+  readr::write_csv("data/processed/copom_event_diagnostics.csv")
 
 message(sprintf("Wrote 8 variants + combined CSV. Legacy instrument.csv = '%s'.",
                 DEFAULT_VARIANT))
 
 # ---- Console summary ---------------------------------------
 
-copom_days <- valid |> filter(copom_day)
+copom_days <- valid |> dplyr::filter(copom_day)
 wrong_signed <- copom_days |>
-  summarise(
-    n = n(),
+  dplyr::summarise(
+    n = dplyr::n(),
     wrong_signed = sum(sign(e_di) == sign(e_ibov) &
                        sign(e_di) != 0 & sign(e_ibov) != 0),
     pct = round(100 * wrong_signed / n, 1)

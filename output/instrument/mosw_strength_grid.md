@@ -1,6 +1,6 @@
 # Grade de força MOSW — ξ_mp e F robusto por (r,q) × amostra × instrumento
 
-Gerado por `script/mosw_strength_grid.R` em 2026-08-13.
+Gerado por `script/mosw_strength_grid.R` em 2026-08-17.
 
 Grid: r ∈ {5..8}, q ∈ {4..r} (14 combinações) × 2 amostras × 8 instrumentos = 224 células; p = 6; direção de normalização = `yield_6m`.
 
