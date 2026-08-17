@@ -393,21 +393,13 @@ infer_tcode_from_varnames <- function(var_names) {
 
 #' Impulse responses of the DFM, identified and with bootstrap bands
 #'
-#' The main entry point of the identification stage. Three branches, dispatched
-#' by an explicit 3-way `switch` so an unknown value aborts instead of silently
-#' routing into the proxy path:
-#'
-#' - `"proxy"` — external instrument (Gertler-Karadi / Alessi-Kerssenfischer),
-#'   the production branch;
-#' - `"het"` — Rigobon (2003) regime heteroskedasticity, inert in production
-#'   (modules archived 2026-07-26);
-#' - `"nongaussian"` — Gouriéroux-Monfort-Renne (2017) PML-ICA, where the
-#'   instrument only *labels* the monetary column.
+#' The main entry point of the identification stage. Identification is by
+#' external instrument (Gertler-Karadi / Alessi-Kerssenfischer) — the single
+#' branch since the heteroskedasticity and non-Gaussian routes were abandoned on
+#' 2026-08-17 (`arquivo/heterocedasticidade/`, `arquivo/nao_gaussiana/`).
 #'
 #' The point estimate uses the plain OLS companion; the wild bootstrap DGP uses
-#' the Kilian-corrected one. The bootstrap draws Rademacher multipliers on the
-#' proxy and het branches and resamples i.i.d. on the non-Gaussian branch, where
-#' Rademacher would zero the third moments the identification needs.
+#' the Kilian-corrected one, with Rademacher multipliers (Gonçalves-Kilian 2004).
 #'
 #' @param dfm_results List returned by `estimate_dfm()`.
 #' @param instrument Optional instrument data.frame; normally already embedded
@@ -424,12 +416,7 @@ infer_tcode_from_varnames <- function(var_names) {
 #' @param ci_levels Confidence levels for the bootstrap bands.
 #' @param diagnose When TRUE, attaches first-stage and factor-space diagnostics.
 #' @param var_names Character vector of panel column names.
-#' @param identification One of `"proxy"`, `"het"`, `"nongaussian"`.
-#' @param regime_labels Regime vector for the het branch.
-#' @param het_weight Weighting scheme for the het branch.
-#' @param ng_distri Non-Gaussian density specification.
-#' @param ng_starts Number of PML optimization starts on the point estimate.
-#' @param ng_boot_starts Number of PML starts inside each bootstrap draw.
+#' @param identification Identification branch; `"proxy"` is the only one.
 #'
 #' @return List with `irf_point_matrix` (vars x horizons), `ci` (one entry per
 #'   level, each with `lower`/`upper`), the raw bootstrap array and diagnostics.
@@ -439,10 +426,7 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                             tcode = NULL, ci_levels = c(0.90, 0.95),
                             diagnose = getOption("dfm.irf.diagnose", FALSE),
                             var_names = NULL,
-                            identification = c("proxy", "het", "nongaussian"),
-                            regime_labels = NULL, het_weight = "identity",
-                            ng_distri = NULL, ng_starts = 20L,
-                            ng_boot_starts = 3L) {
+                            identification = "proxy") {
 
   identification <- match.arg(identification)
   if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
@@ -460,43 +444,12 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   rp     <- nrow(A)
 
   # --- Resolver identificação ---
-  # Switch explícito de 3 vias: o antigo `else` era catch-all e um valor novo
-  # cairia silenciosamente no ramo proxy.
-  switch(identification,
-    "het" = {
-      if (!exists("ident_het_regimes")) {
-        stop("identification = 'het' requer source('R/identification/het_primary.R')")
-      }
-      n_resid <- nrow(dfm_results$var_residuals)
-      if (is.null(regime_labels) || length(regime_labels) != n_resid) {
-        stop("regime_labels deve ter comprimento ", n_resid,
-             " (linhas dos residuos do VAR); use build_monthly_regimes + align_regimes_to_eta")
-      }
-    },
-    "nongaussian" = {
-      if (!exists("ident_nongaussian")) {
-        stop("identification = 'nongaussian' requer source('R/identification/nongaussian_branch.R')")
-      }
-      # O instrumento aqui NÃO identifica: só rotula a coluna monetária. Ainda
-      # assim é obrigatório, porque sem ele não há como nomear a coluna.
-      if (is.null(instrument) && !is.null(dfm_results$instrument)) {
-        instrument <- dfm_results$instrument
-      }
-      if (is.null(instrument)) {
-        stop("identification = 'nongaussian' precisa do instrumento para ROTULAR ",
-             "a coluna monetaria (a identificacao vem da nao-gaussianidade)")
-      }
-    },
-    "proxy" = {
-      if (is.null(instrument) && !is.null(dfm_results$instrument)) {
-        instrument <- dfm_results$instrument
-      }
-      if (is.null(instrument)) {
-        stop("instrument deve ser fornecido diretamente ou via dfm_results$instrument")
-      }
-    },
-    stop("identification desconhecida: ", identification)
-  )
+  if (is.null(instrument) && !is.null(dfm_results$instrument)) {
+    instrument <- dfm_results$instrument
+  }
+  if (is.null(instrument)) {
+    stop("instrument deve ser fornecido diretamente ou via dfm_results$instrument")
+  }
 
   ci_levels <- sort(unique(as.numeric(ci_levels)))
   if (length(ci_levels) == 0 || any(is.na(ci_levels)) ||
@@ -511,37 +464,35 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     tcode <- rep(1L, n_vars)
   }
 
-  # --- Parsear instrumento (ramo proxy, e nongaussian para rotulagem) ---
+  # --- Parsear instrumento ---
   rsh_sel_ind <- NULL
   inst_sel    <- NULL
-  if (identification %in% c("proxy", "nongaussian")) {
-    if (is.data.frame(instrument)) {
-      if (!all(c("month", "shock") %in% names(instrument)))
-        stop("Instrument data.frame deve conter colunas 'month' e 'shock'")
+  if (is.data.frame(instrument)) {
+    if (!all(c("month", "shock") %in% names(instrument)))
+      stop("Instrument data.frame deve conter colunas 'month' e 'shock'")
 
-      dates_vec <- data_dates
-      if (is.null(dates_vec) && !is.null(dfm_results$dates))
-        dates_vec <- dfm_results$dates
-      if (is.null(dates_vec))
-        stop("data_dates ou dfm_results$dates necessario para alinhamento temporal")
+    dates_vec <- data_dates
+    if (is.null(dates_vec) && !is.null(dfm_results$dates))
+      dates_vec <- dfm_results$dates
+    if (is.null(dates_vec))
+      stop("data_dates ou dfm_results$dates necessario para alinhamento temporal")
 
-      dates_vec <- as.Date(dates_vec)
-      align     <- sel_ext_inst_sample(dates_vec, p, instrument)
-      rsh_sel_ind <- align$rsh_sel_ind
-      inst_sel    <- align$inst_sel
+    dates_vec <- as.Date(dates_vec)
+    align     <- sel_ext_inst_sample(dates_vec, p, instrument)
+    rsh_sel_ind <- align$rsh_sel_ind
+    inst_sel    <- align$inst_sel
 
-      if (sum(rsh_sel_ind) == 0)
-        stop("Nenhuma data comum entre instrumento e residuos do VAR")
-    } else if (is.numeric(instrument)) {
-      n_resid <- nrow(dfm_results$var_residuals)
-      if (length(instrument) != n_resid)
-        stop("Vetor de instrumento (", length(instrument),
-             ") deve ter mesmo comprimento que residuos do VAR (", n_resid, ")")
-      rsh_sel_ind <- rep(TRUE, n_resid)
-      inst_sel    <- instrument
-    } else {
-      stop("instrument deve ser vetor numerico ou data.frame com colunas 'month' e 'shock'")
-    }
+    if (sum(rsh_sel_ind) == 0)
+      stop("Nenhuma data comum entre instrumento e residuos do VAR")
+  } else if (is.numeric(instrument)) {
+    n_resid <- nrow(dfm_results$var_residuals)
+    if (length(instrument) != n_resid)
+      stop("Vetor de instrumento (", length(instrument),
+           ") deve ter mesmo comprimento que residuos do VAR (", n_resid, ")")
+    rsh_sel_ind <- rep(TRUE, n_resid)
+    inst_sel    <- instrument
+  } else {
+    stop("instrument deve ser vetor numerico ou data.frame com colunas 'month' e 'shock'")
   }
 
   # --- Matrizes B de propagação (companion OLS, sem Kilian) ---
@@ -573,37 +524,11 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   }
 
   # --- Identificação (estimativa pontual) ---
-  if (identification == "het") {
-    point_result <- ident_het_regimes(rawimp, eta, regime_labels, h,
-                                      mpind, normalize_value, tcode,
-                                      weight = het_weight,
-                                      diagnose = diagnose,
-                                      var_names = var_names)
-    b_point <- point_result$b
-  } else if (identification == "nongaussian") {
-    # A identificação usa TODAS as linhas de eta (a não-gaussianidade é a fonte);
-    # rsh_sel_ind só seleciona as linhas que casam com o instrumento, e serve
-    # apenas para rotular a coluna.
-    point_result <- ident_nongaussian(rawimp, eta, h,
-                                      mpind = mpind,
-                                      normalize_value = normalize_value,
-                                      tcode = tcode,
-                                      z = inst_sel, sel = rsh_sel_ind,
-                                      distri = ng_distri,
-                                      n_starts = ng_starts,
-                                      diagnose = diagnose,
-                                      var_names = var_names)
-    b_point  <- point_result$b
-    C_point  <- point_result$C
-    a_point  <- point_result$a
-    col_mp   <- point_result$col_mp
-  } else {
-    eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
-    point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
-                                    mpind, normalize_value, tcode,
-                                    diagnose = diagnose,
-                                    var_names = var_names)
-  }
+  eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
+  point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
+                                  mpind, normalize_value, tcode,
+                                  diagnose = diagnose,
+                                  var_names = var_names)
   irf_point <- point_result$irf_mp
 
   # --- Wild Bootstrap (Gertler & Karadi 2015 / DFMest_BLL_Boot.m) ---
@@ -626,38 +551,12 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
 
     irf_boot <- array(0, dim = c(n_vars, h + 1, nboot))
 
-    # Diagnósticos por draw do ramo het (sinal/identidade do choque):
-    # impacto pré-normalização na variável de política (denominador da
-    # normalização) e |cos| entre o b do draw e o b do ponto (label
-    # switching por cruzamento de autovalores). Ver plano het-primária.
-    het_boot_impact <- if (identification == "het") rep(NA_real_, nboot) else NULL
-    het_boot_cos    <- if (identification == "het") rep(NA_real_, nboot) else NULL
-    ng_boot_cos     <- if (identification == "nongaussian") rep(NA_real_, nboot) else NULL
-    ng_boot_switch  <- if (identification == "nongaussian") rep(NA, nboot) else NULL
-
     for (b in seq_len(nboot)) {
       tryCatch({
-        # Esquema de reamostragem por ramo.
-        #
-        # proxy/het: wild bootstrap Rademacher (Gonçalves-Kilian 2004).
-        #
-        # nongaussian: NÃO pode usar Rademacher. O multiplicador ±1 zera todos
-        # os terceiros momentos (E[u³r³] = E[u³]E[r³] = 0), e a assimetria é
-        # exatamente o que a Assumption A.5 do GMR exige para o máximo global
-        # ser único — o DGP do bootstrap viraria um mundo simetrizado onde o
-        # ICA é muito menos identificado. Usa-se reamostragem i.i.d. com
-        # reposição, que preserva a distribuição marginal dos resíduos; é o que
-        # o apêndice online do próprio GMR (§E) e `IdSS::nonparam.bootstrap`
-        # fazem.
+        # Wild bootstrap Rademacher (Gonçalves-Kilian 2004).
         n_resid <- nrow(boot_resids)
-        if (identification == "nongaussian") {
-          idx_boot   <- sample.int(n_resid, n_resid, replace = TRUE)
-          resid_boot <- boot_resids[idx_boot, , drop = FALSE]
-          rr <- NULL
-        } else {
-          rr <- 1 - 2 * (runif(n_resid) > 0.5)
-          resid_boot <- boot_resids * rr  # resíduos OLS * rr
-        }
+        rr <- 1 - 2 * (runif(n_resid) > 0.5)
+        resid_boot <- boot_resids * rr  # resíduos OLS * rr
 
         # Reconstruir fatores com coeficientes corrigidos e resíduos OLS
         F_boot <- matrix(0, nrow = nrow(dfm_results$static_factors), ncol = r)
@@ -715,41 +614,13 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
           eta_boot <- u_boot %*% K_boot %*% solve(M_boot)
         }
 
-        # Identificação bootstrapada
-        if (identification == "het") {
-          # Labels de regime fixos (calendário exógeno); o multiplicador
-          # Rademacher preserva os segundos momentos por observação, então
-          # a estrutura de covariância por regime sobrevive ao draw.
-          boot_result <- ident_het_regimes(rawimp_boot, eta_boot,
-                                           regime_labels, h,
-                                           mpind, normalize_value, tcode)
-          het_boot_impact[b] <- boot_result$impact_pre
-          het_boot_cos[b] <- abs(sum(boot_result$b * b_point)) /
-            sqrt(sum(boot_result$b^2) * sum(b_point^2))
-        } else if (identification == "nongaussian") {
-          # Warm start no ponto estimado: mantém o draw na mesma bacia do
-          # ótimo (o objetivo tem muitos ótimos locais) e barateia a busca.
-          # `C_ref` + `col_mp` fixam o rótulo, resolvendo o label switching.
-          boot_result <- ident_nongaussian(rawimp_boot, eta_boot, h,
-                                           mpind = mpind,
-                                           normalize_value = normalize_value,
-                                           tcode = tcode,
-                                           C_ref = C_point, col_mp = col_mp,
-                                           distri = ng_distri,
-                                           n_starts = ng_boot_starts,
-                                           a_init = a_point)
-          ng_boot_cos[b] <- abs(sum(boot_result$b * b_point)) /
-            sqrt(sum(boot_result$b^2) * sum(b_point^2))
-          ng_boot_switch[b] <- boot_result$col_mp != col_mp
-        } else {
-          # Wild bootstrap do instrumento (mesmo rr)
-          rr_sel <- rr[rsh_sel_ind]
-          inst_boot <- inst_sel * rr_sel
+        # Identificação bootstrapada — wild bootstrap do instrumento (mesmo rr)
+        rr_sel <- rr[rsh_sel_ind]
+        inst_boot <- inst_sel * rr_sel
 
-          eta_boot_sel <- eta_boot[rsh_sel_ind, , drop = FALSE]
-          boot_result <- ident_ext_instr(rawimp_boot, eta_boot_sel, inst_boot,
-                                         h, mpind, normalize_value, tcode)
-        }
+        eta_boot_sel <- eta_boot[rsh_sel_ind, , drop = FALSE]
+        boot_result <- ident_ext_instr(rawimp_boot, eta_boot_sel, inst_boot,
+                                       h, mpind, normalize_value, tcode)
         irf_boot[, , b] <- boot_result$irf_mp
 
       }, error = function(e) {
@@ -794,47 +665,6 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     ci_levels = ci_levels,
     identification = identification
   )
-
-  if (identification == "nongaussian") {
-    out$b_point  <- point_result$b
-    out$ng_point <- list(
-      C          = point_result$C,
-      a          = point_result$a,
-      col_mp     = point_result$col_mp,
-      impact_pre = point_result$impact_pre,
-      eps        = point_result$eps,
-      label      = point_result$label,
-      logLik     = point_result$fit$logLik,
-      n_at_best  = point_result$fit$n_at_best,
-      converged  = point_result$fit$converged,
-      all_C      = point_result$fit$all_C,
-      obj_by_start = point_result$fit$obj_by_start
-    )
-    if (nboot > 0) {
-      out$ng_boot <- list(
-        cos_theta      = ng_boot_cos,
-        label_switched = ng_boot_switch,
-        frac_low_cos   = mean(ng_boot_cos < 0.7, na.rm = TRUE),
-        median_cos     = stats::median(ng_boot_cos, na.rm = TRUE)
-      )
-    }
-  }
-
-  if (identification == "het") {
-    out$b_point     <- point_result$b
-    out$het_point   <- point_result[c("lambda_all", "rank1_share",
-                                      "impact_pre", "n_C", "n_NC", "md_fit")]
-    if (nboot > 0) {
-      out$het_boot <- list(
-        impact_pre      = het_boot_impact,
-        cos_theta       = het_boot_cos,
-        frac_small_den  = mean(abs(het_boot_impact) <
-                                 0.1 * abs(point_result$impact_pre),
-                               na.rm = TRUE),
-        frac_low_cos    = mean(het_boot_cos < 0.7, na.rm = TRUE)
-      )
-    }
-  }
 
   out
 }

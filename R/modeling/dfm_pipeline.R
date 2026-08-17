@@ -3,8 +3,7 @@
 # Encadeia estimate_dfm() (factor_estimation.R) e compute_irf_dfm()
 # (impulse_response.R) sob a especificação de produção.
 # Requer: R/modeling/factor_estimation.R, R/modeling/impulse_response.R,
-#         R/modeling/production_spec.R e, no ramo nongaussian,
-#         R/identification/nongaussian_branch.R.
+#         R/modeling/production_spec.R.
 # ===================================================================
 
 #' Estimate the DFM and its impulse responses
@@ -13,11 +12,9 @@
 #' monetary-policy column, estimates the factor model and returns the
 #' identified IRFs with wild-bootstrap bands.
 #'
-#' Only the `"proxy"` branch runs in production. The het branch was archived on
-#' 2026-07-26 (empirically rejected 2026-07-16); to revive it, source
-#' `arquivo/R/identification/het_{shock_extraction,primary}.R` first. The
-#' non-Gaussian branch (GMR 2017 PML-ICA) is live — see
-#' `script/model_nongaussian.R`.
+#' `"proxy"` (external instrument) is the only identification branch. The
+#' heteroskedasticity and non-Gaussian branches were abandoned on 2026-08-17 and
+#' live in `arquivo/heterocedasticidade/` and `arquivo/nao_gaussiana/`.
 #'
 #' @param spec Production specification; defaults to `production_spec()` and
 #'   supplies the default of every argument below.
@@ -35,11 +32,7 @@
 #' @param tcode Optional transformation-code vector; inferred from the column
 #'   names when NULL.
 #' @param ci_levels Confidence levels.
-#' @param identification Identification branch.
-#' @param het_weight Weighting scheme for the archived heteroskedastic branch.
-#' @param ng_distri Non-Gaussian density specification.
-#' @param ng_starts Number of non-Gaussian optimization starts.
-#' @param ng_boot_starts Number of starts in each non-Gaussian bootstrap draw.
+#' @param identification Identification branch; `"proxy"` is the only one.
 #'
 #' @return List with the fitted DFM, IRFs, panel, transformations, and
 #'   normalization.
@@ -55,18 +48,8 @@ main_sdfm <- function(spec = production_spec(),
                       bootstrap_seed = spec$bootstrap_seed,
                       mp_var = spec$mp_var, shock_size_bps = spec$shock_bps,
                       tcode = NULL, ci_levels = spec$ci_levels,
-                      identification = c("proxy", "het", "nongaussian"),
-                      het_weight = "optimal",
-                      ng_distri = NULL, ng_starts = 30L, ng_boot_starts = 3L) {
+                      identification = "proxy") {
 
-  # Ramo het (Rigobon 2003, regimes mensais Copom/nao-Copom sobre as
-  # inovacoes do factor-VAR): implementado e validado, mas REPROVADO
-  # pelos gates de viabilidade em todo o grid (2026-07-16) — o placebo
-  # de permutacao nao distingue os labels do calendario (p_perm
-  # 0.26-0.86) e a proporcionalidade Sigma_C ~ Sigma_NC nunca e
-  # rejeitada, e o mesmo para regimes de episodio (BPSS 2021). Codigo e
-  # artefatos arquivados em 2026-07-26; ver registro/historico_decisoes.md
-  # secao 1.2. Producao segue "proxy" (z_jk_bs_purif).
   identification <- match.arg(identification)
 
   # Load and prepare data (preservar ref.date para alinhamento)
@@ -105,26 +88,13 @@ main_sdfm <- function(spec = production_spec(),
   # 2026-05-07. See `registro/justificativa_uso_yield-6m.md`.
   normalize_value <- shock_size_bps / 10000
 
-  # Instrumento so no ramo proxy; no ramo het o painel fica integral
-  # (sem trimming de alinhamento) e a identificacao vem dos regimes.
-  # No ramo nongaussian o instrumento entra apenas como ROTULADOR da coluna
-  # monetária — a identificação vem da não-gaussianidade das inovações.
-  instrument <- NULL
-  if (identification %in% c("proxy", "nongaussian")) {
-    instrument <- readr::read_csv(instrument_path)
-  }
+  instrument <- readr::read_csv(instrument_path)
 
   # Estimate SDFM com datas e instrumento para alinhamento temporal
   # apply_kilian = TRUE: computa coeficientes corrigidos para o DGP do bootstrap
   # O ponto estimado usa VAR OLS (sem Kilian), fiel ao DFMest_BLL.m
   dfm_results <- estimate_dfm(data, r, q, p, dates = dates, instrument = instrument,
                               apply_kilian = TRUE)
-
-  regime_labels <- NULL
-  if (identification == "het") {
-    regimes <- build_monthly_regimes(month_range = range(dates))
-    regime_labels <- align_regimes_to_eta(dfm_results$dates, p, regimes)
-  }
 
   # Validate results
   validation <- validate_dfm_results(dfm_results)
@@ -143,12 +113,7 @@ main_sdfm <- function(spec = production_spec(),
     tcode = tcode,
     ci_levels = ci_levels,
     var_names = colnames(data),
-    identification = identification,
-    regime_labels = regime_labels,
-    het_weight = het_weight,
-    ng_distri = ng_distri,
-    ng_starts = ng_starts,
-    ng_boot_starts = ng_boot_starts
+    identification = identification
   )
 
   list(
