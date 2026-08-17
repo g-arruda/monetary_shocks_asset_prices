@@ -296,8 +296,13 @@ compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L) {
 
 #' Put raw IRFs into economic units according to tcode
 #'
-#' Equivalent to `cumimp.m`. Codes: 1 = level, 2 = first difference,
-#' 3 = second difference, 4 = log-level, 5 = first log-difference.
+#' Codes 1-5 are `cumimp.m`: 1 = level, 2 = first difference, 3 = second
+#' difference, 4 = log-level, 5 = first log-difference. Code **6 has no
+#' counterpart in AK** and is this project's: a monthly return put on the
+#' percent scale (`x * 100`) **without** accumulating. It exists because the
+#' asset block enters the panel as a monthly return and the `cumsum` of code 2
+#' was integrating the sampling error along with the signal — see
+#' `registro/pendencias.md`, Tema E.
 #' Note that **tcode 1 does not multiply by 100** — a trap documented in
 #' `.claude/rules/identification.md`.
 #'
@@ -321,9 +326,13 @@ cumimp_transform <- function(Imp, tcode = NULL) {
   seconddiff <- which(tcode == 3)
   loglevel <- which(tcode == 4)
   firstlogdiff <- which(tcode == 5)
+  pctnocum <- which(tcode == 6)
 
   if (length(notransf) > 0) {
     CC[notransf, ] <- Imp[notransf, ]
+  }
+  if (length(pctnocum) > 0) {
+    CC[pctnocum, ] <- Imp[pctnocum, , drop = FALSE] * 100
   }
   if (length(firstdiff) > 0) {
     CC[firstdiff, ] <- t(apply(Imp[firstdiff, , drop = FALSE], 1, cumsum)) * 100
@@ -351,7 +360,7 @@ cumimp_transform <- function(Imp, tcode = NULL) {
 # - credit* / credito_*   -> tcode = 4 (log-level)
 # - fin_inst_reserve_req  -> tcode = 4 (log-level)
 # - pib                   -> tcode = 4 (log-level)
-# - asset_*               -> tcode = 2 (retorno mensal; IRF cumulada p/ nível)
+# - asset_*               -> tcode = 6 (retorno mensal em %, sem acumular)
 # ===================================================================
 #' Assign transformation codes from panel variable names
 #'
@@ -369,9 +378,14 @@ infer_tcode_from_varnames <- function(var_names) {
   tcode[loglevel_idx] <- 4L
 
   # asset_* são retornos mensais (download.R: prod(1+r)-1), não níveis.
-  # tcode = 2 acumula a IRF (cumsum) para recuperar a resposta de nível de preço,
-  # que é o objeto teórico ("o mercado cai X%") e o que a janela de coerência pontua.
-  tcode[grepl("^asset_", var_names)] <- 2L
+  # Até 2026-08-17 usavam tcode = 2, que acumula a IRF para recuperar a resposta
+  # de NÍVEL de preço. O nível é o objeto teórico, mas o cumsum integrava o erro
+  # de estimação junto com o sinal: a razão de largura de banda h36/h0 chegava a
+  # 10,46 nos 8 índices e o Ibovespa ganhava um pico de +20,3% em h≈24 que é
+  # ruído acumulado. O código 6 põe a resposta na escala percentual sem acumular.
+  # Em h=0 o cumsum é no-op e o x100 é escalar positivo, de modo que ponto e
+  # bandas no impacto são INVARIANTES à troca.
+  tcode[grepl("^asset_", var_names)] <- 6L
 
   tcode
 }

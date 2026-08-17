@@ -74,10 +74,14 @@ LMS (2017) via `svars::id.ngml` is still open as the parametric-ML twin.
 - **The scale trap** (companion-spectrum mode decomposition). Deleting modes changes the
   normalization denominator: sign and extremum horizon are immune, **magnitude is not** and must be
   read on the common scale.
-- **tcode**: tcode 1 does **not** multiply by 100 (`impulse_response.R:273-274`), and
-  `coherence_var_table()` (`irf_coherence.R:31-33`) asks for a *sustained* negative sign over h0-6 —
-  a price-level property a per-month return response does not have. That is what drove the 1 → 2
-  migration.
+- **tcode**: tcode 1 does **not** multiply by 100 (the `notransf` branch of `cumimp_transform`),
+  which is why the asset block could not simply be moved back to it. Codes 1-5 are AK's `cumimp.m`;
+  **code 6 is this project's** — `x * 100` with no accumulation — and the `asset_*` rows carry it
+  since 2026-08-17, replacing the tcode-2 `cumsum`. `coherence_var_table()` still asks those rows for
+  a *sustained* negative sign over h0-6, a price-level property a per-month return response does not
+  have; the window was deliberately **not** retuned (author decision), and the cost is that four
+  indices dropped from `coerente_forte` to `parcial`. **h = 0 is invariant to the whole change**: the
+  `cumsum` is a no-op there and the ×100 is a positive scalar on point and both bounds.
 
 ## Before touching the VAR benchmark
 

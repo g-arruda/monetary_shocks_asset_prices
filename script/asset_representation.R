@@ -14,6 +14,11 @@
 #   * The `cumsum` is NOT in the data path. It is in `cumimp_transform`
 #     (impulse_response.R:277), applied to the IRF under tcode 2, in
 #     the point estimate AND inside each of the 800 replicas.
+#   * SINCE 2026-08-17 PRODUCTION NO LONGER USES tcode 2. The asset rows
+#     carry tcode 6 (x100, no accumulation). `prod` below is therefore
+#     the CURRENT production cell and `prod_cum` is the historical
+#     cumulated display. The pair is the same comparison it always was,
+#     with the labels following production; the verdict is unchanged.
 #   * `tcode` never enters the DFM (zero occurrences in
 #     factor_estimation.R). Changing tcode moves only the display map.
 #     Changing the PANEL moves factors, loadings, eta, H, xi_mp — all.
@@ -25,8 +30,9 @@
 #
 # FOUR CELLS, production spec throughout, panels built IN MEMORY:
 #
-#   prod        returns,               tcode 2  baseline (= production)
-#   prod_nocum  returns,               tcode 1  isolates the cumsum:
+#   prod        returns,               tcode 6  baseline (= production
+#                                               since 2026-08-17)
+#   prod_cum    returns,               tcode 2  isolates the cumsum:
 #                                               same model, same seed,
 #                                               only the transform differs
 #   loglevel    log(cumprod(1+r)),     tcode 4  the variant the item asks
@@ -49,7 +55,7 @@
 #     change there is attributable to the panel, never to the display
 #     transform.
 #   * The band blow-up (10.46) is attributed to the `cumsum` iff
-#     `prod_nocum` shows an h36/h0 ratio near the tcode-1 norm on the
+#     `prod_cum` shows an h36/h0 ratio far above the tcode-1 norm on the
 #     SAME model. Separate claim; does not move the h<=12 verdict.
 #   * INCONCLUSIVE, and reported as such, if xi_mp on the log-level
 #     panel falls below 3.84 — the comparison would then confound
@@ -157,9 +163,9 @@ build_panel <- function(tag) {
   M  <- PANEL
   tc <- infer_tcode_from_varnames(VAR_NAMES)   # called, never edited
   if (tag == "prod") {
-    tc[A_IDX] <- 2L                            # = what infer_ already returns
-  } else if (tag == "prod_nocum") {
-    tc[A_IDX] <- 1L
+    tc[A_IDX] <- 6L                            # = what infer_ now returns
+  } else if (tag == "prod_cum") {
+    tc[A_IDX] <- 2L                            # display cumulado, ate 2026-08-17
   } else if (tag == "loglevel") {
     for (v in ASSETS) M[, v] <- log(lvl_from_ret(PANEL[, v]))
     tc[A_IDX] <- 4L
@@ -170,14 +176,15 @@ build_panel <- function(tag) {
   list(M = M, tcode = tc)
 }
 
-TAGS   <- c("prod", "prod_nocum", "loglevel", "level")
+TAGS   <- c("prod", "prod_cum", "loglevel", "level")
 PANELS <- purrr::set_names(purrr::map(TAGS, build_panel), TAGS)
 
 # Multiplier that puts each variant's asset rows on the common "% deviation of
-# the index level" scale. tcode 2 and 4 already multiply by 100 inside
+# the index level" scale. tcodes 2, 4 and 6 already multiply by 100 inside
 # cumimp_transform; the raw-level variant uses the 100/mean convention of
-# fig_section5.R:49. `prod_nocum` is NOT a level response and is excluded from
-# every magnitude comparison — it exists only for the band decomposition.
+# fig_section5.R:49. `prod` is NOT a level response and is excluded from every
+# magnitude comparison against the level variants — the return/level contrast is
+# what `prod_cum` and `loglevel` carry.
 asset_scale <- function(tag) {
   if (tag == "level") 100 / colMeans(PANELS$level$M[, ASSETS, drop = FALSE])
   else purrr::set_names(rep(1, length(ASSETS)), ASSETS)
@@ -269,7 +276,7 @@ stopifnot(abs(xi_prod_full$wald_mp - XI_MP_REF[["full"]]) < 1e-6,
 
 cat("\n[4] guarda de forca do instrumento por representacao\n")
 
-# prod and prod_nocum share the panel, so they share the DFM: only the display
+# prod and prod_cum share the panel, so they share the DFM: only the display
 # transform differs. Compute the strength block once per distinct panel.
 STRENGTH <- list(
   prod     = list(full = xi_prod_full, pre_covid = xi_prod_pre),
@@ -278,7 +285,7 @@ STRENGTH <- list(
   level    = list(full = xi_of(PANELS$level$M, WIN_FULL),
                   pre_covid = xi_of(PANELS$level$M, WIN_PRE))
 )
-STRENGTH$prod_nocum <- STRENGTH$prod
+STRENGTH$prod_cum <- STRENGTH$prod
 
 strength_tbl <- purrr::imap_dfr(STRENGTH, function(s, tag) {
   purrr::imap_dfr(s, function(x, win) {
@@ -298,7 +305,7 @@ print(as.data.frame(strength_tbl), row.names = FALSE, digits = 4)
 cat("\n[5] estimacao das celulas (nboot =", N_BOOT, ")\n")
 
 cells <- list(prod = CELL)
-for (tag in c("prod_nocum", "loglevel", "level")) {
+for (tag in c("prod_cum", "loglevel", "level")) {
   t0 <- Sys.time()
   cells[[tag]] <- run_stage2_cell(
     PANELS[[tag]]$M, DATES, INST_PANEL, sample_window = WIN_FULL,
@@ -310,16 +317,17 @@ for (tag in c("prod_nocum", "loglevel", "level")) {
               as.numeric(Sys.time() - t0, units = "mins")))
 }
 
-# (6) Self-test that also IS the result: the point estimate of `prod` is the
-# cumulated `prod_nocum` exactly (same model, same draws — only the display
+# (6) Self-test that also IS the result: the point estimate of `prod_cum` is the
+# cumulated `prod` exactly (same model, same draws — only the display
 # map differs). The BANDS do not satisfy this identity, because the quantile
 # of a cumulative sum is not the cumulative sum of the quantile. That gap is
 # precisely what the band decomposition below measures.
-Pp <- cells$prod$irf$irf_point_matrix
-Pn <- cells$prod_nocum$irf$irf_point_matrix
-dev6 <- max(abs(t(apply(Pn[A_IDX, , drop = FALSE], 1, cumsum)) * 100 -
+Pp <- cells$prod_cum$irf$irf_point_matrix
+Pn <- cells$prod$irf$irf_point_matrix
+# tcode 6 already carries the x100, so the identity is the bare cumsum.
+dev6 <- max(abs(t(apply(Pn[A_IDX, , drop = FALSE], 1, cumsum)) -
                 Pp[A_IDX, , drop = FALSE]))
-cat(sprintf("    (6) cumsum(prod_nocum)*100 == prod nas %d series: desvio %.2e\n",
+cat(sprintf("    (6) cumsum(prod) == prod_cum nas %d series: desvio %.2e\n",
             length(ASSETS), dev6))
 stopifnot(dev6 < 1e-9)
 
@@ -337,7 +345,7 @@ band <- function(tag, lvl) {
 }
 
 # --- 6a. long IRF table for the equity indices + the non-equity guards, on the
-#         common % scale (prod_nocum excluded: not a level response)
+#         common % scale (prod excluded: not a level response)
 GUARD_VARS <- c("yield_2y", "yield_5y", "cambio_usd", "embi_perc", "cds_5y",
                 "price_ipca", "ibc_br")
 
@@ -541,10 +549,10 @@ cat("\n[8] gravando\n")
 
 cells_tbl <- strength_tbl |>
   dplyr::left_join(score, by = c("variante")) |>
-  dplyr::mutate(painel = dplyr::case_when(variante %in% c("prod", "prod_nocum") ~ "retorno mensal",
+  dplyr::mutate(painel = dplyr::case_when(variante %in% c("prod", "prod_cum") ~ "retorno mensal",
                             variante == "loglevel" ~ "log(cumprod(1+r))",
                             TRUE ~ "cumprod(1+r)"),
-         tcode_asset = c(prod = 2L, prod_nocum = 1L, loglevel = 4L,
+         tcode_asset = c(prod = 6L, prod_cum = 2L, loglevel = 4L,
                          level = 1L)[variante]) |>
   dplyr::relocate(variante, painel, tcode_asset, amostra)
 
@@ -606,7 +614,7 @@ md <- c(
   "- **Não confirmado** se o bloco seguir em 0 sig90 com as guardas de pé.",
   "- **h = 0 é o teste limpo da representação**: único horizonte em que as duas",
   "  medem o mesmo objeto e em que o `cumsum` é no-op.",
-  "- A inflação de banda é atribuída ao `cumsum` via `prod_nocum` — mesmo modelo,",
+  "- A inflação de banda é atribuída ao `cumsum` via `prod_cum` — mesmo modelo,",
   "  mesmo seed, só o transform muda. Afirmação **separada**.",
   "- **Inconclusivo** se ξ_mp do painel log-nível cair abaixo de 3,84.",
   "",
@@ -634,7 +642,7 @@ md <- c(
   "## Largura de banda h36/h0 por tcode",
   "",
   "Réplica de `diagnostics/06_bloco_ativos.R` §6.2 em cada representação. A",
-  "comparação `prod` × `prod_nocum` isola o `cumsum`: mesmo painel, mesmo seed,",
+  "comparação `prod` × `prod_cum` isola o `cumsum`: mesmo painel, mesmo seed,",
   "mesmo modelo — o ponto é idêntico após cumular (conferido a 1e-9), a banda não.",
   "",
   md_table(band_ratio),
@@ -700,7 +708,7 @@ md <- c(
   sprintf("4. Célula de produção vs `irf_coherence_h.csv`: desvio %.2e (< 1e-10).", dev4),
   sprintf("5. ξ_mp de produção vs `mosw_strength_grid.csv`: %.6f full, %.6f pré-COVID.",
           xi_prod_full$wald_mp, xi_prod_pre$wald_mp),
-  sprintf("6. `cumsum(prod_nocum)×100 == prod` nas 8 séries: desvio %.2e (< 1e-9).", dev6),
+  sprintf("6. `cumsum(prod) == prod_cum` nas %d séries: desvio %.2e (< 1e-9).", length(ASSETS), dev6),
   "")
 
 writeLines(md, file.path(OUT_DIR, "asset_representation.md"))

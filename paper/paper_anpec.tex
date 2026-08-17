@@ -605,7 +605,7 @@ Do ponto de vista de política econômica, nossos resultados indicam que, em eco
 \begin{ThreePartTable}
 \begin{TableNotes}
 \footnotesize
-\item[*] Código de transformação com que a série entra na extração de fatores e é recuperada em unidades econômicas na função de impulso-resposta. 1 = nível. 2 = retorno mensal, com a função de impulso-resposta acumulada para recuperar a resposta de nível de preço. 4 = log-nível. Os índices de mercado da B3 entram como retorno mensal. Os volumes nominais (base monetária, agregados, crédito, PIB e recolhimentos compulsórios) entram em logaritmo. As séries com sazonalidade detectada são ajustadas por X-13ARIMA-SEATS \cite{sax2018seasonal}. Todas as séries são padronizadas pelo desvio padrão da primeira diferença \cite{barigozzi2016non} antes da extração de fatores. As séries em nível não são diferenciadas, a não-estacionariedade é acomodada pela padronização.
+\item[*] Código de transformação com que a série entra na extração de fatores e é recuperada em unidades econômicas na função de impulso-resposta. 1 = nível. 4 = log-nível. 6 = retorno mensal, com a função de impulso-resposta em pontos percentuais do próprio retorno, sem acumulação. Os índices de mercado da B3 entram como retorno mensal. Os volumes nominais (base monetária, agregados, crédito, PIB e recolhimentos compulsórios) entram em logaritmo. As séries com sazonalidade detectada são ajustadas por X-13ARIMA-SEATS \cite{sax2018seasonal}. Todas as séries são padronizadas pelo desvio padrão da primeira diferença \cite{barigozzi2016non} antes da extração de fatores. As séries em nível não são diferenciadas, a não-estacionariedade é acomodada pela padronização.
 \end{TableNotes}
 
 \footnotesize
@@ -713,13 +713,13 @@ IPP & IPEA (IPP12\_IPPCG12) & Inflação & 1 \\
 Índice de commodities agropecuária & BCB (27575) & Commodities & 1 \\
 Índice de commodities metal & BCB (27576) & Commodities & 1 \\
 Índice de commodities energia & BCB (27577) & Commodities & 1 \\
-Ibovespa (retorno mensal) & B3 & Índices de mercado & 2 \\
-IDIV (retorno mensal) & B3 & Índices de mercado & 2 \\
-IFIX (retorno mensal) & B3 & Índices de mercado & 2 \\
-IFNC (retorno mensal) & B3 & Índices de mercado & 2 \\
-IMAT (retorno mensal) & B3 & Índices de mercado & 2 \\
-IMOB (retorno mensal) & B3 & Índices de mercado & 2 \\
-SMLL (retorno mensal) & B3 & Índices de mercado & 2 \\
+Ibovespa (retorno mensal) & B3 & Índices de mercado & 6 \\
+IDIV (retorno mensal) & B3 & Índices de mercado & 6 \\
+IFIX (retorno mensal) & B3 & Índices de mercado & 6 \\
+IFNC (retorno mensal) & B3 & Índices de mercado & 6 \\
+IMAT (retorno mensal) & B3 & Índices de mercado & 6 \\
+IMOB (retorno mensal) & B3 & Índices de mercado & 6 \\
+SMLL (retorno mensal) & B3 & Índices de mercado & 6 \\
 EMBI+ Brasil & JP Morgan & Risco e incerteza & 1 \\
 CDS soberano 5 anos & Investing.com & Risco e incerteza & 1 \\
 MSCI mercados emergentes & Investing.com & Risco e incerteza & 1 \\

@@ -81,9 +81,13 @@ cat(sprintf("== GMR non-Gaussian production run (nboot = %d) ==\n", NBOOT))
 # fresh estimation.
 CELL_RDS <- file.path(OUT_DIR, "gmr_cell.rds")
 cached <- if (file.exists(CELL_RDS)) readRDS(CELL_RDS) else NULL
+# tcode entra na chave: ele nao muda a estimacao, mas muda as IRFs guardadas
+# aqui, que ja saem transformadas. Sem ele, a troca de tcode 2 -> 6 no bloco
+# acionario (2026-08-17) reusava em silencio o caminho cumulado.
 reusable <- !is.null(cached) && identical(cached$nboot, NBOOT) &&
   identical(cached$r, R_PROD) && identical(cached$q, Q_PROD) &&
-  identical(cached$var_names, colnames(data))
+  identical(cached$var_names, colnames(data)) &&
+  identical(cached$tcode, tcode)
 
 if (reusable) {
   cat("[1/4] reusing cached estimation (", CELL_RDS, ")\n")
