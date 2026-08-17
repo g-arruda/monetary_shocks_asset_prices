@@ -76,43 +76,70 @@ Falta decidir com o usuário se entra nota de leitura com o mapa de renome.
 📌 **Custo real medido:** `model_alessi.R` roda em **13 s** com nboot=800, não "long" como o
 `CLAUDE.md` diz. A estimativa de custo dos chunks 5-6 provavelmente está superestimada.
 
-## Chunk 3 — duplicatas para domínio ⬜
-`R/reporting/markdown_tables.R` com `md_tbl` **verbatim** (≠ `md_table`, não substituir) e o `fmt`
-de 3 cópias idênticas · `on_date`/`mk_z` → `R/instrument/di_surprise.R` ·
-`rq_surface_table` → `R/identification/spec_sweep.R` · apagar `fmtn` e o `md_tbl` morto de
-`diagnostics/_common.R`
+## Chunk 3 — duplicatas para domínio ✅
+`R/reporting/markdown_report.R` novo, com `md_tbl` verbatim (≠ `md_table`) e o `fmt` das 3 cópias
+idênticas · `rq_surface_table` → `R/identification/spec_sweep.R` · apagados `fmtn` e o `md_tbl` morto
+de `_common.R`. `on_date`/`mk_z` ficaram para o chunk 5 (fechavam sobre estado do script).
 
-## Chunk 4 — namespacing `script/`, leva barata ⬜  (~250 sítios)
-`irf_coherence_check`, `irf_spec_sweep`, `irf_spec_stage2`, `nongaussian_{gate,corroboration,labelling}`,
-`mosw_strength_grid`, `xi_mp_robustness`, `instrument_diagnostics`, `instrument`, `fig_section5`,
-`panel_composition`
+## Chunk 4 — namespacing `script/`, leva barata ✅  (12 arquivos)
+Zero `.csv`/`.rds` alterado; 8 `paper/fig_*.pdf` comparados por renderização (pdftoppm+sha256).
+Removido o laço de `install.packages()` de `instrument_diagnostics.R` (mudança de comportamento
+deliberada, anunciada no commit).
 
-## Chunk 5 — namespacing `script/`, leva média ⬜  (~400 sítios, ~10 min)
-`jk_sovereign_confound`, `fomc_coincidence`, `factor_stationarity`, `het_robustness`
+## Chunk 5 — namespacing `script/`, leva média ✅  (4 arquivos) + on_date/mk_z
+`on_date` → `R/instrument/di_surprise.R`; `mk_z` → `build_monthly_z()` em `build_variants.R`,
+com `valid`/`monthly_grid` explícitos.
 
-## Chunk 6 — namespacing `script/`, leva cara ⬜  (~300 sítios, ~50 min)
-`asset_representation`, `instrument_construction_sweep`, `model_var`, `model_nongaussian`,
-`model_alessi`
+## Chunk 6 — namespacing `script/`, leva cara ✅  (5 arquivos)
++ chunk 6b: `library()` redundante removido das famílias `panel_composition_*` e `validate_*`.
 
-## Chunk 7 — `diagnostics/` de topo ⬜
-`_common.R` + `01`–`07`: ~180 sítios + limpezas. **Sem reordenar** (RNG). Diff dos 58 CSVs.
+## Chunk 7 — `diagnostics/` de topo ✅
+Os **58 CSVs saíram byte-idênticos**, inclusive `t7_2_irf_estado.csv` e todos os p-valores de
+bootstrap semeado — prova de que o stream do RNG não se moveu.
 
-## Chunk 8 — Python ⬜
-`download_di.py` sai de `R/` e passa a usar `pathlib`. Pinar o release fica como recomendação.
+## Chunk 8 — Python ✅
+`download_di.py` → `script/`, com `pathlib`. `R/` agora só tem `.R`.
+
+## Chunk 9 — `download.R` ✅
+Últimos 2 sítios bare + `options()` duplicado. **Único arquivo não verificado rodando** (rede).
 
 ---
 
-## Armadilhas (reler antes de cada chunk)
+## Estado final
 
-1. `md_tbl` **não** é `md_table` — `round()`+vetor vs `formatC(signif())`+string. Trocar
-   re-renderiza dígitos em `.md` commitados.
-2. `lag()` bare em `jk_sovereign_confound.R:234` e `fomc_coincidence.R:232-233` é **`stats::lag`**
-   de propósito (comentário no código). Idem cuidado com `filter`, `first`, `last`, `count`.
-3. `diagnostics/01` e `07`: `set.seed()` no topo + bootstrap de 2.000. Namespacing não desloca o
-   stream; **reordenar desloca**.
-4. `script/fig_section5.R:32` lê `diagnostics/output/t7_2_irf_estado.csv` — artefato de diagnóstico
-   virou dependência de figura do paper.
-5. `main_sdfm`, `run_benchmark`, `verdict_for`, `nw_hac_stata`, `wald_by_hand` são protegidos.
-6. Nunca escrever em `output/irf/irf_coherence_leitura.md`.
-7. O hook do git bloqueia `git checkout -- <path>`; artefatos re-gerados sem mudança de conteúdo
-   entram no commit em vez de serem descartados.
+- **0 chamadas bare** de pacote anexado em todo o `R/`, `script/` e `diagnostics/` (73 arquivos)
+- **149/149 funções de `R/` com roxygen**
+- **4 `library()` restantes, todos justificados e comentados**: `urca` em
+  `factor_stationarity.R` e `05_persistencia_fatores.R` (despacho S4 de `summary.ur.df`),
+  `patchwork` em `model_var.R` (operador `|`), `rb3` em `download.R` (não verificável sem rede)
+
+## As três armadilhas que o diff pegou — reler antes de mexer em namespacing de novo
+
+1. **`urca` precisa estar anexado.** `ur.df` é S4; `summary()` só despacha com o pacote no search
+   path. Sem isso o objeto sai sem `@teststat`, o `tryCatch` de `run_ur()` vira NA, e o ADF inteiro
+   virou "ambiguo" em `factor_unit_root.csv` **sem erro nenhum**. Só o diff pegou.
+2. **`patchwork` precisa estar anexado** onde a composição usa o operador `|` (`model_var.R:431,475`);
+   `+` com `wrap_plots`/`plot_annotation` namespaceados funciona só com o pacote carregado.
+3. O comentário "never `dplyr::lag()`" nos dois scripts de confound avisa contra usar lag para a
+   busca Qua→Qui, **não** contra o `dplyr::lag`. Os `lag()` reais ali são dplyr.
+
+## Achados pré-existentes, não causados pelo refactor
+
+- `output/assets/asset_guards.csv` e `asset_representation.md` estavam **stale**: rótulos "53 series
+  escoradas"/"45 nao-acionarias" contra 58/51 que o código de HEAD produz. Nenhum número mudou, só
+  os rótulos de tamanho de conjunto. Nenhum dos dois é citado em `notas/`, `registro/` ou `paper/`.
+- `output/var/var_benchmark.md` dizia "**Bloco de ações (8 índices)**" com `n = 7` na mesma linha;
+  o código produz "(7 índices)". Coerente com `asset_mlcx` ter saído na migração para 111 séries.
+- `CLAUDE.md` chama `model_alessi.R` de "long; bootstrap dominated" — roda em **13 s** com nboot=800.
+  Vários outros custos documentados também estão superestimados (`factor_stationarity` ~2 s, não
+  ~2 min).
+
+## Pendências para decidir com o usuário
+
+- **32 arquivos de `notas/`/`pareceres/`/`registro/` ainda citam `impulse_responde.R` e
+  `R/data_download/fomc_dates.R`.** Deixados verbatim por `.claude/rules/writing.md`. Falta decidir
+  se entra nota de leitura com o mapa de renome, e onde.
+- **`script/download_di.py` aponta para `releases/latest`** (alvo móvel) e **não valida nada do que
+  baixou**. É decisão de pesquisa, não de estilo — não mexi.
+- `md_table()` continua morando em `R/identification/spec_sweep.R`, que não é o domínio dele.
+  Mover custa 6 scripts de risco e não muda número nenhum; fica como dívida.
