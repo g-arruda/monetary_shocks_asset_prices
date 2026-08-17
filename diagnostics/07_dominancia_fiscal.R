@@ -20,7 +20,6 @@
 # ===================================================================
 
 source("diagnostics/_common.R")
-suppressMessages({ library(sandwich) })
 
 cat("\n=== TAREFA 7 — dominancia fiscal como hipotese testavel ===\n")
 
@@ -46,9 +45,9 @@ BASELINE_ALT <- "embi_ma12"
 BASELINE_SER <- "cds_5y"      # serie de estado do baseline, = state_series_of(BASELINE)
 
 z_all <- INST_PANEL |>
-  select(month, shock = all_of(SPEC$instrument)) |>
-  right_join(data.frame(month = DATES), by = "month") |>
-  arrange(month)
+  dplyr::select(month, shock = dplyr::all_of(SPEC$instrument)) |>
+  dplyr::right_join(data.frame(month = DATES), by = "month") |>
+  dplyr::arrange(month)
 Z <- z_all$shock
 Z[is.na(Z)] <- 0
 
@@ -164,8 +163,8 @@ t70 <- lapply(ALVOS, function(v) {
                dfm_sig90 = CELL$irf$ci[["0.90"]]$lower[i, h + 1] > 0 |
                  CELL$irf$ci[["0.90"]]$upper[i, h + 1] < 0,
                stringsAsFactors = FALSE)
-  }) |> bind_rows()
-}) |> bind_rows()
+  }) |> dplyr::bind_rows()
+}) |> dplyr::bind_rows()
 t70$razao_lp_dfm <- t70$lp / t70$dfm
 
 # ASSERTIVA: beta_0 de yield_6m tem que dar exatamente 0.005
@@ -174,8 +173,8 @@ cat(sprintf("  ASSERTIVA normalizacao: beta_0 de yield_6m = %.8f (esperado 0.005
 stopifnot(abs(b0 - 0.005) < 1e-10)
 
 cat("\n  LP-IV agregado vs DFM em h=0 e h=6:\n")
-print(as.data.frame(t70 |> filter(h %in% c(0, 6)) |>
-                      select(var, h, lp, lp_se, lp_t, dfm, dfm_sig90, razao_lp_dfm)),
+print(as.data.frame(t70 |> dplyr::filter(h %in% c(0, 6)) |>
+                      dplyr::select(var, h, lp, lp_se, lp_t, dfm, dfm_sig90, razao_lp_dfm)),
       row.names = FALSE, digits = 4)
 diag_write(t70, "t7_0_lpiv_vs_dfm.csv")
 
@@ -194,7 +193,7 @@ ma_back <- function(x, k) {
 DBGG_CACHE <- file.path(DIAG_OUT, "t7_1_dbgg_13762.csv")
 dbgg <- NULL
 if (file.exists(DBGG_CACHE)) {
-  dbgg <- read_csv(DBGG_CACHE, show_col_types = FALSE)
+  dbgg <- readr::read_csv(DBGG_CACHE, show_col_types = FALSE)
   cat("  DBGG/PIB lido do cache\n")
 } else {
   dbgg <- tryCatch({
@@ -203,7 +202,7 @@ if (file.exists(DBGG_CACHE)) {
                                       format.data = "wide", use.memoise = FALSE)
     names(d) <- c("ref.date", "dbgg")
     d <- as.data.frame(d)
-    write_csv(d, DBGG_CACHE)
+    readr::write_csv(d, DBGG_CACHE)
     cat("  DBGG/PIB baixado do SGS 13762 e cacheado\n")
     d
   }, error = function(e) { cat("  AVISO: download do SGS 13762 falhou:", conditionMessage(e), "\n"); NULL })
@@ -258,7 +257,7 @@ t71b <- lapply(names(states), function(nm) {
              n_corridas = length(r$lengths),
              corrida_mediana = median(r$lengths), corrida_max = max(r$lengths),
              stringsAsFactors = FALSE)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 cat("\n  indicadores e estrutura de corridas:\n")
 print(as.data.frame(t71b), row.names = FALSE, digits = 4)
 
@@ -283,7 +282,7 @@ t71c <- lapply(pares, function(p) {
   pe <- mean(a[ok]) * mean(b[ok]) + (1 - mean(a[ok])) * (1 - mean(b[ok]))
   data.frame(a = p[1], b = p[2], n = sum(ok), concordancia = po,
              kappa = (po - pe) / (1 - pe), stringsAsFactors = FALSE)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 cat("\n  concordancia par a par:\n")
 print(as.data.frame(t71c), row.names = FALSE, digits = 3)
 
@@ -299,8 +298,8 @@ t71e <- lapply(names(states), function(nm) {
                share_aperto = mean(dx[s] > 0, na.rm = TRUE),
                z_nao_nulo = sum(Z[s] != 0), share_covid = mean(covid[s]),
                stringsAsFactors = FALSE)
-  }) |> bind_rows()
-}) |> bind_rows()
+  }) |> dplyr::bind_rows()
+}) |> dplyr::bind_rows()
 cat("\n  balanco por regime (o regime e o ciclo monetario disfarcado?):\n")
 print(as.data.frame(t71e), row.names = FALSE, digits = 3)
 
@@ -413,19 +412,19 @@ run_state_lp <- function(v, h, ind, L = L_LAGS, keep = NULL) {
 }
 
 t72 <- lapply(VARS7, function(v) {
-  lapply(0:H_EST, function(h) run_state_lp(v, h, BASELINE)) |> bind_rows()
-}) |> bind_rows()
+  lapply(0:H_EST, function(h) run_state_lp(v, h, BASELINE)) |> dplyr::bind_rows()
+}) |> dplyr::bind_rows()
 
 cat(sprintf("\n  baseline (%s), h=0 e h=6:\n", BASELINE))
-print(as.data.frame(t72 |> filter(h %in% c(0, 6)) |>
-        mutate(t_alto = b_alto / se_alto, t_baixo = b_baixo / se_baixo) |>
-        select(var, h, b_alto, t_alto, b_baixo, t_baixo, dif, t_dif,
+print(as.data.frame(t72 |> dplyr::filter(h %in% c(0, 6)) |>
+        dplyr::mutate(t_alto = b_alto / se_alto, t_baixo = b_baixo / se_baixo) |>
+        dplyr::select(var, h, b_alto, t_alto, b_baixo, t_baixo, dif, t_dif,
                F_alto, F_baixo)),
       row.names = FALSE, digits = 3)
 
 cat("\n[7.3] primeiro estagio por regime (baseline):\n")
-print(as.data.frame(t72 |> filter(var == "cambio_usd") |>
-        select(h, n_alto, n_baixo, F_alto, flag_alto, F_baixo, flag_baixo)),
+print(as.data.frame(t72 |> dplyr::filter(var == "cambio_usd") |>
+        dplyr::select(h, n_alto, n_baixo, F_alto, flag_alto, F_baixo, flag_baixo)),
       row.names = FALSE, digits = 3)
 
 # --- 7.3b: a armadilha da interacao PARCIAL ---------------------------
@@ -452,7 +451,7 @@ t73b <- lapply(c(0, 4, 8), function(h) {
              F_baixo_parcial = partial_F("cambio_usd", h, BASELINE, 0),
              F_alto_completa = t72$F_alto[t72$var == "cambio_usd" & t72$h == h],
              F_baixo_completa = t72$F_baixo[t72$var == "cambio_usd" & t72$h == h])
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 print(as.data.frame(t73b), row.names = FALSE, digits = 3)
 cat("  A interacao parcial faz x*(1-I) ser mecanicamente zero em metade da\n")
 cat("  amostra e os controles nao-interagidos nao conseguem ajustar isso.\n")
@@ -462,31 +461,31 @@ cat("  Concluir 'o regime baixo nao e identificado' dali seria erro de spec.\n")
 cat("\n  sensibilidade ao indicador de corte (h=0):\n")
 t72b <- lapply(names(states), function(ind) {
   lapply(c("cambio_usd", "embi_perc", "asset_ifnc"), function(v) {
-    lapply(c(0, 4, 8), function(h) run_state_lp(v, h, ind)) |> bind_rows()
-  }) |> bind_rows()
-}) |> bind_rows()
-print(as.data.frame(t72b |> filter(h == 0) |>
-        select(var, indicador, b_alto, b_baixo, dif, t_dif, F_alto, F_baixo,
+    lapply(c(0, 4, 8), function(h) run_state_lp(v, h, ind)) |> dplyr::bind_rows()
+  }) |> dplyr::bind_rows()
+}) |> dplyr::bind_rows()
+print(as.data.frame(t72b |> dplyr::filter(h == 0) |>
+        dplyr::select(var, indicador, b_alto, b_baixo, dif, t_dif, F_alto, F_baixo,
                flag_alto, flag_baixo)),
       row.names = FALSE, digits = 3)
 
 cat("\n  sensibilidade ao numero de defasagens (h=0, baseline):\n")
 t72c <- lapply(1:3, function(L) {
   lapply(c("cambio_usd", "embi_perc", "asset_ifnc"), function(v) {
-    lapply(c(0, 4, 8), function(h) run_state_lp(v, h, BASELINE, L = L)) |> bind_rows()
-  }) |> bind_rows()
-}) |> bind_rows()
-print(as.data.frame(t72c |> filter(h == 0) |>
-        select(var, L, b_alto, b_baixo, dif, t_dif, F_alto, F_baixo)),
+    lapply(c(0, 4, 8), function(h) run_state_lp(v, h, BASELINE, L = L)) |> dplyr::bind_rows()
+  }) |> dplyr::bind_rows()
+}) |> dplyr::bind_rows()
+print(as.data.frame(t72c |> dplyr::filter(h == 0) |>
+        dplyr::select(var, L, b_alto, b_baixo, dif, t_dif, F_alto, F_baixo)),
       row.names = FALSE, digits = 3)
 
 cat("\n  robustez sem COVID (2020-03 a 2021-06 removidos):\n")
 keep_nc <- !covid
 t72d <- lapply(c("cambio_usd", "embi_perc", "asset_ifnc"), function(v) {
   lapply(c(0, 4, 8), function(h) run_state_lp(v, h, BASELINE, keep = keep_nc)) |>
-    bind_rows()
-}) |> bind_rows()
-print(as.data.frame(t72d |> select(var, h, b_alto, b_baixo, dif, t_dif,
+    dplyr::bind_rows()
+}) |> dplyr::bind_rows()
+print(as.data.frame(t72d |> dplyr::select(var, h, b_alto, b_baixo, dif, t_dif,
                                    F_alto, F_baixo, flag_alto)),
       row.names = FALSE, digits = 3)
 
@@ -494,7 +493,7 @@ diag_write(t72, "t7_2_irf_estado.csv")
 diag_write(t72b, "t7_2b_sensib_corte.csv")
 diag_write(t72c, "t7_2c_sensib_lags.csv")
 diag_write(t72d, "t7_2d_sem_covid.csv")
-diag_write(t72 |> select(var, indicador, h, n_alto, n_baixo, F_alto, F_baixo,
+diag_write(t72 |> dplyr::select(var, indicador, h, n_alto, n_baixo, F_alto, F_baixo,
                          flag_alto, flag_baixo), "t7_3_primeiro_estagio.csv")
 diag_write(t73b, "t7_3b_artefato_interacao.csv")
 
@@ -607,7 +606,7 @@ t74b <- lapply(VARS_TEST, function(v) {
              W_h02468 = js5$W,
              p_chi2_h02468 = pchisq(js5$W, 5, lower.tail = FALSE),
              stringsAsFactors = FALSE)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 cat(sprintf("  (%.1f s)\n", as.numeric(Sys.time() - t0, units = "secs")))
 cat("\n  teste conjunto h=0..8:\n")
@@ -615,10 +614,10 @@ print(as.data.frame(t74b), row.names = FALSE, digits = 3)
 
 # horizonte a horizonte, com Holm
 t74a <- t72 |>
-  filter(var %in% VARS_TEST, h <= H_TEST) |>
-  select(var, h, b_alto, b_baixo, dif, se_dif, t_dif, F_alto, F_baixo,
+  dplyr::filter(var %in% VARS_TEST, h <= H_TEST) |>
+  dplyr::select(var, h, b_alto, b_baixo, dif, se_dif, t_dif, F_alto, F_baixo,
          flag_alto, flag_baixo) |>
-  mutate(p_asym = 2 * pnorm(-abs(t_dif)))
+  dplyr::mutate(p_asym = 2 * pnorm(-abs(t_dif)))
 
 # p de bootstrap POR HORIZONTE, das mesmas replicas do teste conjunto. O t
 # assintotico nao e confiavel aqui — o conjunto mostrou que a nula bootstrap
@@ -632,15 +631,15 @@ for (v in names(BOOTS)) {
     if (any(sel)) t74a$p_boot[sel] <- mean(abs(Tm[k, ]) >= abs(t74a$t_dif[sel]))
   }
 }
-t74a <- t74a |> group_by(var) |>
-  mutate(p_holm_asym = p.adjust(p_asym, method = "holm"),
+t74a <- t74a |> dplyr::group_by(var) |>
+  dplyr::mutate(p_holm_asym = p.adjust(p_asym, method = "holm"),
          p_holm_boot = p.adjust(p_boot, method = "holm")) |>
-  ungroup()
+  dplyr::ungroup()
 
 cat("\n  teste horizonte a horizonte (menor p_boot por variavel):\n")
-print(as.data.frame(t74a |> group_by(var) |> slice_min(p_boot, n = 1, with_ties = FALSE) |>
-        ungroup() |>
-        select(var, h, b_alto, b_baixo, dif, t_dif, p_asym, p_holm_asym,
+print(as.data.frame(t74a |> dplyr::group_by(var) |> dplyr::slice_min(p_boot, n = 1, with_ties = FALSE) |>
+        dplyr::ungroup() |>
+        dplyr::select(var, h, b_alto, b_baixo, dif, t_dif, p_asym, p_holm_asym,
                p_boot, p_holm_boot)),
       row.names = FALSE, digits = 3)
 cat(sprintf("\n  rejeicoes a 5%% em h=0..8 (%d testes): assintotico %d, Holm-assint %d,\n",
@@ -659,7 +658,7 @@ t74d <- lapply(VARS_TEST, function(v) {
   js_a <- joint_stat(v, BASELINE_ALT)
   if (is.null(js_a)) return(NULL)
   bo_a <- boot_joint(v, BASELINE_ALT)
-  h0b <- t72 |> filter(var == v, h == 0)          # baseline (CDS), ja estimado
+  h0b <- t72 |> dplyr::filter(var == v, h == 0)          # baseline (CDS), ja estimado
   r_a <- run_state_lp(v, 0, BASELINE_ALT)
   data.frame(var = v,
              cds_b_alto = h0b$b_alto, cds_b_baixo = h0b$b_baixo,
@@ -668,8 +667,8 @@ t74d <- lapply(VARS_TEST, function(v) {
              embi_b_alto = r_a$b_alto, embi_b_baixo = r_a$b_baixo,
              embi_t_dif = r_a$t_dif, embi_p_boot = mean(bo_a$W >= js_a$W),
              stringsAsFactors = FALSE)
-}) |> bind_rows()
-print(as.data.frame(t74d |> select(var, cds_b_alto, cds_b_baixo, cds_p_boot,
+}) |> dplyr::bind_rows()
+print(as.data.frame(t74d |> dplyr::select(var, cds_b_alto, cds_b_baixo, cds_p_boot,
                                    cds_F_alto, cds_F_baixo,
                                    embi_b_alto, embi_b_baixo, embi_p_boot)),
       row.names = FALSE, digits = 3)
@@ -694,13 +693,13 @@ t74e <- lapply(c("cambio_usd", "embi_perc", "price_ipp"), function(v) {
                cds_F_alto = a$F_alto, cds_F_baixo = a$F_baixo,
                embi_alto = e$b_alto, embi_baixo = e$b_baixo, embi_t_dif = e$t_dif,
                stringsAsFactors = FALSE)
-  }) |> bind_rows()
-}) |> bind_rows()
-print(as.data.frame(t74e |> filter(var == "cambio_usd") |>
-        select(h, cds_alto, cds_baixo, cds_t_dif, embi_alto, embi_baixo, embi_t_dif)),
+  }) |> dplyr::bind_rows()
+}) |> dplyr::bind_rows()
+print(as.data.frame(t74e |> dplyr::filter(var == "cambio_usd") |>
+        dplyr::select(h, cds_alto, cds_baixo, cds_t_dif, embi_alto, embi_baixo, embi_t_dif)),
       row.names = FALSE, digits = 3)
-imp <- t74e |> filter(var == "cambio_usd", h <= 4)
-per <- t74e |> filter(var == "cambio_usd", h >= 6)
+imp <- t74e |> dplyr::filter(var == "cambio_usd", h <= 4)
+per <- t74e |> dplyr::filter(var == "cambio_usd", h >= 6)
 cat(sprintf("\n  cambio_usd, max |t_dif| sob CDS (baseline): impacto (h0-4) = %.2f | persistencia (h6-8) = %.2f\n",
             max(abs(imp$cds_t_dif)), max(abs(per$cds_t_dif))))
 cat(sprintf("  o mesmo sob EMBI (comparacao):             impacto = %.2f | persistencia = %.2f\n",
@@ -719,9 +718,9 @@ t74f <- lapply(list(c(BASELINE, "2"), c("cds_ma6", "2"), c(BASELINE, "1"),
     data.frame(indicador = cfg[1], L = as.integer(cfg[2]), h = h,
                b_alto = r$b_alto, b_baixo = r$b_baixo, t_dif = r$t_dif,
                F_alto = r$F_alto, flag_alto = r$flag_alto, stringsAsFactors = FALSE)
-  }) |> bind_rows()
-}) |> bind_rows()
-print(as.data.frame(t74f |> filter(h == 7)), row.names = FALSE, digits = 3)
+  }) |> dplyr::bind_rows()
+}) |> dplyr::bind_rows()
+print(as.data.frame(t74f |> dplyr::filter(h == 7)), row.names = FALSE, digits = 3)
 diag_write(t74e, "t7_4e_perfil_horizonte.csv")
 diag_write(t74f, "t7_4f_robustez_persistencia.csv")
 
@@ -740,7 +739,7 @@ t74g <- lapply(c(1L, 0L), function(g) {
              ar1_ols = coef(f)[2], se_ar1 = summary(f)$coef[2, 2],
              acf1 = a[1], acf2 = a[2], acf3 = a[3],
              soma_abs_acf1a8 = sum(abs(a)), stringsAsFactors = FALSE)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 print(as.data.frame(t74g), row.names = FALSE, digits = 3)
 dif_ar1 <- t74g$ar1_ols[1] - t74g$ar1_ols[2]
 se_ar1  <- sqrt(sum(t74g$se_ar1^2))
@@ -761,7 +760,7 @@ t74c <- lapply(VARS_TEST, function(v) {
              chi2_q95 = qchisq(0.95, length(HS)),
              razao_q95 = quantile(Wb, .95) / qchisq(0.95, length(HS)),
              stringsAsFactors = FALSE)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 cat("\n  quantis da distribuicao nula por bootstrap vs chi2 assintotico:\n")
 print(as.data.frame(t74c), row.names = FALSE, digits = 3)
 
@@ -781,12 +780,12 @@ cat("   - beta positivo simples a juros (NIM): nao-negativo nos DOIS regimes,\n"
 cat("     sem relacao com o estado de risco\n")
 
 t75 <- t72 |>
-  filter(var %in% c("asset_ifnc", "asset_ibov", "asset_imat",
+  dplyr::filter(var %in% c("asset_ifnc", "asset_ibov", "asset_imat",
                     "rel_ifnc_ibov", "rel_ifnc_imat"), h <= H_TEST) |>
-  mutate(t_alto = b_alto / se_alto, t_baixo = b_baixo / se_baixo) |>
-  select(var, h, b_alto, t_alto, b_baixo, t_baixo, dif, t_dif)
+  dplyr::mutate(t_alto = b_alto / se_alto, t_baixo = b_baixo / se_baixo) |>
+  dplyr::select(var, h, b_alto, t_alto, b_baixo, t_baixo, dif, t_dif)
 cat("\n  respostas brutas e relativas:\n")
-print(as.data.frame(t75 |> filter(h %in% c(0, 4, 6, 8))), row.names = FALSE, digits = 3)
+print(as.data.frame(t75 |> dplyr::filter(h %in% c(0, 4, 6, 8))), row.names = FALSE, digits = 3)
 
 # razoes livres de unidade, por regime
 razoes <- lapply(c(0, 4, 6, 8), function(h) {
@@ -796,7 +795,7 @@ razoes <- lapply(c(0, 4, 6, 8), function(h) {
              ifnc_por_embi_baixo = g("asset_ifnc", "b_baixo") / g("embi_perc", "b_baixo"),
              ifnc_por_yield_alto  = g("asset_ifnc", "b_alto")  / g("yield_6m", "b_alto"),
              ifnc_por_yield_baixo = g("asset_ifnc", "b_baixo") / g("yield_6m", "b_baixo"))
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 cat("\n  razoes livres de unidade (resposta do banco por unidade de risco/juro):\n")
 print(as.data.frame(razoes), row.names = FALSE, digits = 3)
 
@@ -809,10 +808,10 @@ diag_write(razoes, "t7_5b_razoes_ifnc.csv")
 # ===================================================================
 cat("\n===== VEREDITO TAREFA 7 =====\n")
 
-fx0 <- t72 |> filter(var == "cambio_usd", h == 0)
-mx <- t74a |> filter(var %in% c("cambio_usd", "embi_perc", "price_ipp",
+fx0 <- t72 |> dplyr::filter(var == "cambio_usd", h == 0)
+mx <- t74a |> dplyr::filter(var %in% c("cambio_usd", "embi_perc", "price_ipp",
                                 "price_core_ipca_ex0", "asset_ifnc")) |>
-  summarise(max_abs_t = max(abs(t_dif), na.rm = TRUE))
+  dplyr::summarise(max_abs_t = max(abs(t_dif), na.rm = TRUE))
 n_boot_rej <- sum(t74b$p_boot < 0.05, na.rm = TRUE)
 n_chi_rej  <- sum(t74b$p_chi2 < 0.05, na.rm = TRUE)
 
@@ -841,9 +840,7 @@ cat(sprintf("    %d por bootstrap, %d apos Holm-bootstrap.\n",
             sum(t74a$p_holm_boot < .05, na.rm = TRUE)))
 cat(sprintf("    |t_dif| maximo nas 5 variaveis do prompt (h=0..8): %.2f\n", mx$max_abs_t))
 
-fx_all <- t72b |> filter(var == "cambio_usd", h == 0)
-imp <- t74e |> filter(var == "cambio_usd", h <= 4)
-per <- t74e |> filter(var == "cambio_usd", h >= 6)
+fx_all <- t72b |> dplyr::filter(var == "cambio_usd", h == 0)
 cat(sprintf("7.4d ESCOLHA DO INDICADOR IMPORTA: CDS e EMBI concordam em %.0f%% dos meses\n",
             100 * conc_alt))
 cat(sprintf("     mas os conjuntos de rejeicao sao DISJUNTOS.\n"))

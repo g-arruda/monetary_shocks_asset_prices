@@ -31,7 +31,7 @@ t41 <- data.frame(
   e_um_F_de_1o_estagio = c("NAO", "SIM"),
   stringsAsFactors = FALSE
 )
-print(as.data.frame(t41 |> select(regua, e_um_F_de_1o_estagio, onde_no_codigo)),
+print(as.data.frame(t41 |> dplyr::select(regua, e_um_F_de_1o_estagio, onde_no_codigo)),
       row.names = FALSE)
 diag_write(t41, "t4_1_reguas.csv")
 
@@ -62,7 +62,7 @@ t42 <- lapply(names(windows), function(w) {
              AR_limitado = fs$wald_mp > 3.84,
              xi_mp_ge10 = fs$wald_mp >= 10,
              f_robust_mp_ge10 = fs$f_robust_mp >= 10)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 print(as.data.frame(t42), row.names = FALSE, digits = 4)
 diag_write(t42, "t4_2_valores.csv")
 
@@ -96,22 +96,22 @@ cat("\n[4.3] robustez do proprio xi_mp\n")
 
 rob_path <- "output/instrument/xi_mp_robustness.csv"
 if (file.exists(rob_path)) {
-  rob <- read_csv(rob_path, show_col_types = FALSE)
+  rob <- readr::read_csv(rob_path, show_col_types = FALSE)
   cat("  colunas:", paste(names(rob), collapse = ", "), "\n")
   loo <- rob |>
-    filter(exercise == "loo", instrument == SPEC$instrument)
+    dplyr::filter(exercise == "loo", instrument == SPEC$instrument)
   hac <- rob |>
-    filter(exercise == "hac", instrument == SPEC$instrument)
+    dplyr::filter(exercise == "hac", instrument == SPEC$instrument)
   print(utils::head(as.data.frame(rob), 8), row.names = FALSE, digits = 4)
 } else {
   stop("Missing required robustness artifact: ", rob_path)
 }
 
-loo_full <- loo |> filter(sample == "full")
-loo_pre <- loo |> filter(sample == "pre_covid")
+loo_full <- loo |> dplyr::filter(sample == "full")
+loo_pre <- loo |> dplyr::filter(sample == "pre_covid")
 hac_full_nw6 <- hac |>
-  filter(sample == "full", key == "6") |>
-  pull(wald_mp)
+  dplyr::filter(sample == "full", key == "6") |>
+  dplyr::pull(wald_mp)
 
 stopifnot(nrow(loo_full) == t42$n_obs[t42$janela == "full"],
           nrow(loo_pre) == t42$n_obs[t42$janela == "pre_covid"],

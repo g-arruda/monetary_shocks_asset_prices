@@ -50,7 +50,7 @@ t61 <- lapply(ASSETS, function(v) {
     sig90 = lo90[i, hcol(0:H_TRUNC)] > 0 | hi90[i, hcol(0:H_TRUNC)] < 0,
     stringsAsFactors = FALSE
   )
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 resumo61 <- lapply(ASSETS, function(v) {
   i <- match(v, CELL$var_names)
@@ -66,7 +66,7 @@ resumo61 <- lapply(ASSETS, function(v) {
     sinal_h48 = sign(P[i, hcol(48)]),
     stringsAsFactors = FALSE
   )
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 cat("\n  resumo por indice (valores em % acumulado):\n")
 print(as.data.frame(resumo61), row.names = FALSE, digits = 4)
@@ -85,7 +85,7 @@ disp <- lapply(c(0, 6, 12, 24, 36, 48), function(h) {
   x <- P[match(ASSETS, CELL$var_names), hcol(h)]
   data.frame(h = h, min = min(x), max = max(x), amplitude = max(x) - min(x),
              desvio_padrao = sd(x), n_negativos = sum(x < 0))
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 cat(sprintf("\n  dispersao da secao cruzada dos %d indices por horizonte:\n",
             length(ASSETS)))
 print(as.data.frame(disp), row.names = FALSE, digits = 4)
@@ -110,7 +110,7 @@ t62 <- lapply(ASSETS, function(v) {
              razao_h24_h0 = W[i, hcol(24)] / W[i, hcol(0)],
              razao_h36_h0 = W[i, hcol(36)] / W[i, hcol(0)],
              stringsAsFactors = FALSE)
-}) |> bind_rows() |> arrange(desc(razao_h36_h0))
+}) |> dplyr::bind_rows() |> dplyr::arrange(dplyr::desc(razao_h36_h0))
 
 print(as.data.frame(t62), row.names = FALSE, digits = 4)
 cat(sprintf("\n  razao h36/h0: mediana %.2f | min %.2f | max %.2f\n",
@@ -120,16 +120,15 @@ cat(sprintf("  razao h12/h0: mediana %.2f — o alargamento ja e %.0f%% do total
             100 * median(t62$razao_h12_h0) / median(t62$razao_h36_h0)))
 
 # contraste com o resto do painel, por tcode
-outros <- setdiff(CELL$var_names, ASSETS)
 razao_all <- W[, hcol(36)] / W[, hcol(0)]
 # yield_6m tem largura ZERO em h0 (a normalizacao fixa todas as reamostras em
 # 0.005), entao a razao e Inf. E confirmacao mecanica da normalizacao, nao bug.
 nao_finitos <- CELL$var_names[!is.finite(razao_all)]
 t62b <- data.frame(var = CELL$var_names, tcode = CELL$tcode,
                    razao_h36_h0 = razao_all) |>
-  filter(is.finite(razao_h36_h0)) |>
-  group_by(tcode) |>
-  summarise(n = n(), razao_mediana = median(razao_h36_h0),
+  dplyr::filter(is.finite(razao_h36_h0)) |>
+  dplyr::group_by(tcode) |>
+  dplyr::summarise(n = dplyr::n(), razao_mediana = median(razao_h36_h0),
             razao_min = min(razao_h36_h0), razao_max = max(razao_h36_h0),
             .groups = "drop")
 cat("\n  contraste com o painel inteiro, por tcode:\n")
@@ -207,16 +206,16 @@ betas <- lapply(ASSETS, function(v) {
              t_cambio = cf[["dfx"]] / se[3],
              R2 = summary(fit)$r.squared,
              stringsAsFactors = FALSE)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 t64 <- betas |>
-  mutate(irf_h0  = P[match(var, CELL$var_names), hcol(0)],
+  dplyr::mutate(irf_h0  = P[match(var, CELL$var_names), hcol(0)],
          irf_h12 = P[match(var, CELL$var_names), hcol(12)],
          irf_h48 = P[match(var, CELL$var_names), hcol(48)]) |>
-  arrange(beta_juros)
+  dplyr::arrange(beta_juros)
 
 cat("\n  ordenado por beta_juros (mais negativo = mais sensivel a alta de juros):\n")
-print(as.data.frame(t64 |> select(var, beta_juros, t_juros, beta_cambio,
+print(as.data.frame(t64 |> dplyr::select(var, beta_juros, t_juros, beta_cambio,
                                   t_cambio, R2, irf_h0, irf_h12, irf_h48)),
       row.names = FALSE, digits = 3)
 
@@ -239,7 +238,7 @@ cor_tab <- lapply(c(0, 6, 12, 24, 36, 48), function(h) {
              cor_beta_cambio = cor(t64$beta_cambio, y),
              cor_sp_juros = cor(t64$beta_juros, y, method = "spearman"),
              cor_sp_cambio = cor(t64$beta_cambio, y, method = "spearman"))
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 cat(sprintf("\n  correlacao (n=%d) entre caracteristica e resposta, por horizonte:\n",
             length(ASSETS)))
 print(as.data.frame(cor_tab), row.names = FALSE, digits = 3)

@@ -1,8 +1,8 @@
 # ===================================================================
 # TAREFA 2 — Unidades, normalizacao e sinal
 #
-# 1. Tabela de IRFs para todas as variaveis do painel de producao.
-#    yield_6m, a variavel de normalizacao).
+# 1. Tabela de IRFs para todas as variaveis do painel de producao
+#    (inclui yield_6m, a variavel de normalizacao).
 # 2. Tabela unidade | IRF h=0 | h=0 em bp | esperado, para o bloco de juros.
 # 3. Correlacao contemporanea nos dados BRUTOS entre as mesmas series.
 # 4. Rastreamento de sinal no codigo.
@@ -36,7 +36,7 @@ irf_all <- lapply(seq_along(vn), function(i) {
              sign = sign(P[i, ]),
              sig68 = lo68[i, ] > 0 | hi68[i, ] < 0,
              sig90 = lo90[i, ] > 0 | hi90[i, ] < 0)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 cat(sprintf("  yield_6m em h=0: %.6f  (variavel de normalizacao)\n",
             irf_all$point[irf_all$var == "yield_6m" & irf_all$h == 0]))
@@ -73,9 +73,9 @@ t22 <- lapply(JUROS, function(v) {
     pico_h = pk - 1, pico_bp = P[i, pk] * u$escala_bp,
     sig90_h0 = lo90[i, 1] > 0 | hi90[i, 1] < 0
   )
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
-print(as.data.frame(t22 |> select(var, irf_h0, h0_bp, h6_bp, h24_bp,
+print(as.data.frame(t22 |> dplyr::select(var, irf_h0, h0_bp, h6_bp, h24_bp,
                                   pico_h, pico_bp, sig90_h0)),
       row.names = FALSE, digits = 4)
 diag_write(t22, "t2_2_unidades_juros.csv")
@@ -94,8 +94,8 @@ cat("\n[2.3] correlacao contemporanea nos dados brutos (data/raw/raw_data.csv)\n
 
 JUROS_RAW <- intersect(c(JUROS, "juros_cdi"), names(PANEL_RAW))
 raw_w <- PANEL_RAW |>
-  filter(ref.date >= min(DATES), ref.date <= max(DATES)) |>
-  select(all_of(JUROS_RAW))
+  dplyr::filter(ref.date >= min(DATES), ref.date <= max(DATES)) |>
+  dplyr::select(dplyr::all_of(JUROS_RAW))
 C_lvl <- cor(raw_w, use = "pairwise.complete.obs")
 C_dif <- cor(diff(as.matrix(raw_w)), use = "pairwise.complete.obs")
 
@@ -103,10 +103,10 @@ cat("\n-- nivel --\n"); print(round(C_lvl, 4))
 cat("\n-- primeira diferenca (o que a padronizacao BLL usa) --\n"); print(round(C_dif, 4))
 
 t23 <- expand.grid(a = JUROS_RAW, b = JUROS_RAW, stringsAsFactors = FALSE) |>
-  filter(a < b) |>
-  mutate(cor_nivel = mapply(function(x, y) C_lvl[x, y], a, b),
+  dplyr::filter(a < b) |>
+  dplyr::mutate(cor_nivel = mapply(function(x, y) C_lvl[x, y], a, b),
          cor_diff  = mapply(function(x, y) C_dif[x, y], a, b)) |>
-  arrange(desc(cor_nivel))
+  dplyr::arrange(dplyr::desc(cor_nivel))
 diag_write(t23, "t2_3_correlacoes_juros_brutas.csv")
 
 

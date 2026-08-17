@@ -14,7 +14,6 @@
 # ===================================================================
 
 source("diagnostics/_common.R")
-suppressMessages({ library(sandwich); library(lmtest) })
 
 set.seed(20260728)
 NBOOT_P <- 2000L
@@ -127,7 +126,7 @@ robust_subset_test <- function(y, X_free, X_test, nboot = NBOOT_P, label = "",
 # -------------------------------------------------------------------
 z_df <- inst_df(SPEC$instrument)
 al   <- data.frame(month = DATES) |>
-  left_join(z_df, by = "month")
+  dplyr::left_join(z_df, by = "month")
 Z    <- al$shock
 stopifnot(length(Z) == nrow(PANEL))
 cat(sprintf("instrumento %s: %d meses, %d nao-nulos, sd = %.3f\n",
@@ -163,7 +162,7 @@ for (spec_lab in c("niveis", "retornos")) {
     }
   }
 }
-t11 <- bind_rows(t11)
+t11 <- dplyr::bind_rows(t11)
 print(as.data.frame(t11), row.names = FALSE, digits = 4)
 diag_write(t11, "t1_1_globais.csv")
 
@@ -210,7 +209,7 @@ for (L in c(3L, 6L)) {
     yL, XL, label = sprintf("eta_LEAD_L%d_conjunto", L))
 }
 
-t12 <- bind_rows(t12)
+t12 <- dplyr::bind_rows(t12)
 print(as.data.frame(t12), row.names = FALSE, digits = 4)
 diag_write(t12, "t1_2_fatores.csv")
 
@@ -227,16 +226,16 @@ t13_ar <- robust_joint_test(zc[7:length(zc)],
 lb <- lapply(c(1, 2, 3, 6, 12), function(k) {
   b <- Box.test(zc, lag = k, type = "Ljung-Box")
   data.frame(lag = k, Q = unname(b$statistic), p = b$p.value)
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 acf_z <- data.frame(lag = 1:12, acf = as.numeric(acf(zc, plot = FALSE, lag.max = 12)$acf)[-1])
 
 print(as.data.frame(t13_ar), row.names = FALSE, digits = 4)
 print(lb, row.names = FALSE, digits = 4)
 print(acf_z, row.names = FALSE, digits = 4)
-diag_write(bind_rows(t13_ar |> mutate(bloco = "wald"),
-                     lb |> transmute(teste = paste0("ljung_box_lag", lag),
+diag_write(dplyr::bind_rows(t13_ar |> dplyr::mutate(bloco = "wald"),
+                     lb |> dplyr::transmute(teste = paste0("ljung_box_lag", lag),
                                      F_rob = Q, p_asym = p, bloco = "ljung_box"),
-                     acf_z |> transmute(teste = paste0("acf_lag", lag),
+                     acf_z |> dplyr::transmute(teste = paste0("acf_lag", lag),
                                         R2 = acf, bloco = "acf")),
            "t1_3_autocorrelacao.csv")
 
@@ -257,7 +256,7 @@ lagcor <- function(z, x, kmax = 6) {
     data.frame(k = k, cor = if (sum(ok) > 5) cor(a[ok], b[ok]) else NA_real_,
                n = sum(ok))
   })
-  bind_rows(out)
+  dplyr::bind_rows(out)
 }
 
 t14 <- list()
@@ -266,18 +265,18 @@ for (v in CROSS) {
   x_ret <- c(NA, diff(log(x_lvl)))
   for (tp in c("nivel", "retorno")) {
     cc <- lagcor(Z, if (tp == "nivel") x_lvl else x_ret)
-    t14[[length(t14) + 1]] <- cc |> mutate(var = v, transf = tp, .before = 1)
+    t14[[length(t14) + 1]] <- cc |> dplyr::mutate(var = v, transf = tp, .before = 1)
   }
 }
-t14 <- bind_rows(t14)
+t14 <- dplyr::bind_rows(t14)
 cat("\n-- correlacao CONTEMPORANEA (k=0), em retorno --\n")
-print(as.data.frame(t14 |> filter(k == 0, transf == "retorno") |>
-                      select(var, cor, n) |> arrange(desc(abs(cor)))),
+print(as.data.frame(t14 |> dplyr::filter(k == 0, transf == "retorno") |>
+                      dplyr::select(var, cor, n) |> dplyr::arrange(dplyr::desc(abs(cor)))),
       row.names = FALSE, digits = 4)
 cat("\n-- maior |cor| em qualquer k, por variavel (retorno) --\n")
-print(as.data.frame(t14 |> filter(transf == "retorno") |> group_by(var) |>
-        slice_max(abs(cor), n = 1) |> ungroup() |>
-        select(var, k, cor) |> arrange(desc(abs(cor)))),
+print(as.data.frame(t14 |> dplyr::filter(transf == "retorno") |> dplyr::group_by(var) |>
+        dplyr::slice_max(abs(cor), n = 1) |> dplyr::ungroup() |>
+        dplyr::select(var, k, cor) |> dplyr::arrange(dplyr::desc(abs(cor)))),
       row.names = FALSE, digits = 4)
 diag_write(t14, "t1_45_correlacoes_cruzadas.csv")
 
@@ -327,7 +326,7 @@ t16 <- lapply(c("commodity_metal", "commodity_metal_usd",
              sig90_h0 = lo90[i, 1] > 0 | hi90[i, 1] < 0,
              n_sig90_h0a4 = sum(lo90[i, 1:5] > 0 | hi90[i, 1:5] < 0),
              n_sig90_h0a24 = sum(lo90[i, ] > 0 | hi90[i, ] < 0))
-}) |> bind_rows()
+}) |> dplyr::bind_rows()
 
 cat("\n-- IRF de impacto, painel aumentado (nboot=200) --\n")
 print(as.data.frame(t16), row.names = FALSE, digits = 4)
@@ -340,7 +339,7 @@ fs_cmp <- lapply(list(producao = PANEL, aumentado = aug), function(M) {
                                             match(SPEC$mp_var, colnames(M)))
   data.frame(n_series = ncol(M), max_eig = d$diagnostics$max_eigenvalue,
              xi_mp = fs$wald_mp, f_robust_mp = fs$f_robust_mp)
-}) |> bind_rows(.id = "painel")
+}) |> dplyr::bind_rows(.id = "painel")
 cat("\n-- espaco de fatores: producao vs aumentado --\n")
 print(as.data.frame(fs_cmp), row.names = FALSE, digits = 5)
 diag_write(fs_cmp, "t1_6_espaco_fatores.csv")
@@ -397,14 +396,14 @@ t17 <- lapply(c(6L, 3L), function(L) {
     robust_subset_test(y_all[, i], F_lags, Z_lags[, cols, drop = FALSE],
                        label = sprintf("granger_z_para_fator_L%d", L),
                        equacao = colnames(Fh)[i])
-  }) |> bind_rows()
-  out |> mutate(L = L, p_holm = p.adjust(p_boot, "holm"), .before = 1)
-}) |> bind_rows()
+  }) |> dplyr::bind_rows()
+  out |> dplyr::mutate(L = L, p_holm = p.adjust(p_boot, "holm"), .before = 1)
+}) |> dplyr::bind_rows()
 
 print(as.data.frame(t17), row.names = FALSE, digits = 4)
 diag_write(t17, "t1_7_invertibilidade_granger.csv")
 
-gc_dec <- t17 |> filter(L == P_LAG)
+gc_dec <- t17 |> dplyr::filter(L == P_LAG)
 cat(sprintf("\nVEREDITO (invertibilidade, L = %d, Holm sobre %d equacoes): %s\n",
             P_LAG, nrow(gc_dec),
             if (all(gc_dec$p_holm >= 0.05, na.rm = TRUE))
@@ -418,12 +417,12 @@ cat("  (nao-rejeicao nao estabelece invertibilidade; e teste de condicao necessa
 # Veredito da trava de parada
 # ===================================================================
 cat("\n===== TRAVA DE PARADA (previsibilidade significativa a 5%) =====\n")
-gate <- bind_rows(
-  t11 |> filter(grepl("retornos_L6_conjunto|retornos_L3_conjunto", teste)),
-  t12 |> filter(grepl("^fatores_L", teste))
-) |> select(teste, n, k, R2, F_rob, p_asym, p_boot)
+gate <- dplyr::bind_rows(
+  t11 |> dplyr::filter(grepl("retornos_L6_conjunto|retornos_L3_conjunto", teste)),
+  t12 |> dplyr::filter(grepl("^fatores_L", teste))
+) |> dplyr::select(teste, n, k, R2, F_rob, p_asym, p_boot)
 print(as.data.frame(gate), row.names = FALSE, digits = 4)
-fail <- gate |> filter(p_boot < 0.05)
+fail <- gate |> dplyr::filter(p_boot < 0.05)
 cat(if (nrow(fail) == 0)
       "\nVEREDITO: nenhuma previsibilidade significativa a 5% (p bootstrap). PROSSEGUIR.\n"
     else paste0("\nVEREDITO: PARAR — previsibilidade em: ",

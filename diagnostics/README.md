@@ -23,13 +23,13 @@ que este arquivo cobre.
 
 ## `diagnostics/output/` por tarefa
 
-57 CSVs no total, flat (sem subpastas — decisão de 2026-08-01: a Tarefa 7
+58 CSVs no total, flat (sem subpastas — decisão de 2026-08-01: a Tarefa 7
 sozinha teria 22 arquivos, mas o prefixo `t<N>_` já filtra bem por
 glob/grep).
 
 | tarefa | nº arquivos | tema |
 |---|---|---|
-| t1 | 7 | Exogeneidade do instrumento |
+| t1 | 8 | Exogeneidade do instrumento |
 | t2 | 4 | Unidades/sinal |
 | t3 | 6 | Composição do painel |
 | t4 | 5 | Estatísticas de instrumento fraco |

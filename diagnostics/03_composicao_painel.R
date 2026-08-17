@@ -13,7 +13,7 @@ source("diagnostics/_common.R")
 cat("\n=== TAREFA 3 — composicao do painel ===\n")
 
 raw_w <- PANEL_RAW |>
-  filter(ref.date >= min(DATES), ref.date <= max(DATES))
+  dplyr::filter(ref.date >= min(DATES), ref.date <= max(DATES))
 
 
 # ===================================================================
@@ -51,25 +51,25 @@ pairs_df <- data.frame(
   a = VAR_NAMES[ij[, 1]], b = VAR_NAMES[ij[, 2]],
   cor_nivel = C_lvl[ij], cor_diff = C_dif[ij]
 ) |>
-  mutate(grupo_a = var_group(a), grupo_b = var_group(b),
+  dplyr::mutate(grupo_a = var_group(a), grupo_b = var_group(b),
          mesmo_grupo = grupo_a == grupo_b)
 
 cat(sprintf("  pares avaliados: %d\n", nrow(pairs_df)))
 
-t32_lvl <- pairs_df |> filter(abs(cor_nivel) > 0.98) |> arrange(desc(abs(cor_nivel)))
-t32_dif <- pairs_df |> filter(abs(cor_diff)  > 0.98) |> arrange(desc(abs(cor_diff)))
+t32_lvl <- pairs_df |> dplyr::filter(abs(cor_nivel) > 0.98) |> dplyr::arrange(dplyr::desc(abs(cor_nivel)))
+t32_dif <- pairs_df |> dplyr::filter(abs(cor_diff)  > 0.98) |> dplyr::arrange(dplyr::desc(abs(cor_diff)))
 
 cat(sprintf("\n  |cor| > 0.98 em NIVEL: %d pares\n", nrow(t32_lvl)))
-print(as.data.frame(t32_lvl |> select(a, b, cor_nivel, cor_diff, mesmo_grupo)),
+print(as.data.frame(t32_lvl |> dplyr::select(a, b, cor_nivel, cor_diff, mesmo_grupo)),
       row.names = FALSE, digits = 5)
 
 cat(sprintf("\n  |cor| > 0.98 em PRIMEIRA DIFERENCA (o que a BLL usa): %d pares\n",
             nrow(t32_dif)))
-print(as.data.frame(t32_dif |> select(a, b, cor_nivel, cor_diff, mesmo_grupo)),
+print(as.data.frame(t32_dif |> dplyr::select(a, b, cor_nivel, cor_diff, mesmo_grupo)),
       row.names = FALSE, digits = 5)
 
-diag_write(bind_rows(t32_lvl |> mutate(criterio = "nivel"),
-                     t32_dif |> mutate(criterio = "diferenca")),
+diag_write(dplyr::bind_rows(t32_lvl |> dplyr::mutate(criterio = "nivel"),
+                     t32_dif |> dplyr::mutate(criterio = "diferenca")),
            "t3_2_pares_quase_duplicados.csv")
 
 
@@ -79,9 +79,9 @@ diag_write(bind_rows(t32_lvl |> mutate(criterio = "nivel"),
 cat("\n[3.3] tamanho de cada bloco\n")
 
 t33 <- data.frame(var = VAR_NAMES, grupo = var_group(VAR_NAMES)) |>
-  count(grupo, name = "n_series") |>
-  mutate(share = n_series / length(VAR_NAMES)) |>
-  arrange(desc(n_series))
+  dplyr::count(grupo, name = "n_series") |>
+  dplyr::mutate(share = n_series / length(VAR_NAMES)) |>
+  dplyr::arrange(dplyr::desc(n_series))
 print(as.data.frame(t33), row.names = FALSE, digits = 3)
 diag_write(t33, "t3_3_blocos.csv")
 
@@ -95,7 +95,7 @@ t33b <- lapply(unique(var_group(VAR_NAMES)), function(g) {
   data.frame(grupo = g, n = length(vs),
              pc1_share = ev[1] / sum(ev),
              pc2_share = ev[2] / sum(ev))
-}) |> bind_rows() |> arrange(desc(pc1_share))
+}) |> dplyr::bind_rows() |> dplyr::arrange(dplyr::desc(pc1_share))
 cat("\n  colinearidade interna (share do 1o PC do proprio bloco, em diferenca):\n")
 print(as.data.frame(t33b), row.names = FALSE, digits = 3)
 diag_write(t33b, "t3_3b_colinearidade_interna.csv")
@@ -137,7 +137,7 @@ run_and_extract <- function(M, tc, lab) {
       i <- match(v, vn)
       data.frame(painel = lab, var = v, h0 = P[i, 1], h6 = P[i, 7], h12 = P[i, 13],
                  h24 = P[i, 25])
-    }) |> bind_rows(),
+    }) |> dplyr::bind_rows(),
     forca = data.frame(painel = lab, n_series = ncol(M),
                        max_eig = d$diagnostics$max_eigenvalue,
                        xi_mp = fs$wald_mp, f_robust_mp = fs$f_robust_mp)
@@ -147,15 +147,15 @@ run_and_extract <- function(M, tc, lab) {
 r_full <- run_and_extract(PANEL, TCODE, sprintf("producao_%d", ncol(PANEL)))
 r_trim <- run_and_extract(PANEL_TRIM, tc_trim, sprintf("podado_%d", ncol(PANEL_TRIM)))
 
-t34_forca <- bind_rows(r_full$forca, r_trim$forca)
+t34_forca <- dplyr::bind_rows(r_full$forca, r_trim$forca)
 cat("\n-- forca e persistencia --\n")
 print(as.data.frame(t34_forca), row.names = FALSE, digits = 5)
 
-t34 <- bind_rows(r_full$irf, r_trim$irf) |>
-  pivot_longer(c(h0, h6, h12, h24), names_to = "h", values_to = "irf") |>
-  pivot_wider(names_from = painel, values_from = irf)
+t34 <- dplyr::bind_rows(r_full$irf, r_trim$irf) |>
+  tidyr::pivot_longer(c(h0, h6, h12, h24), names_to = "h", values_to = "irf") |>
+  tidyr::pivot_wider(names_from = painel, values_from = irf)
 names(t34)[3:4] <- c("producao", "podado")
-t34 <- t34 |> mutate(dif = podado - producao,
+t34 <- t34 |> dplyr::mutate(dif = podado - producao,
                      dif_rel = ifelse(producao != 0, dif / abs(producao), NA))
 cat("\n-- deslocamento das IRFs --\n")
 print(as.data.frame(t34), row.names = FALSE, digits = 4)

@@ -6,12 +6,6 @@
 # e grava suas tabelas em diagnostics/output/.
 # ===================================================================
 
-suppressMessages({
-  library(readr)
-  library(dplyr)
-  library(tidyr)
-})
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
@@ -31,24 +25,24 @@ SPEC <- c(PRODUCTION, list(
 ))
 
 # ---- Painel -------------------------------------------------------
-PANEL_RAW <- read_csv("data/raw/raw_data.csv", show_col_types = FALSE)
-panel_df  <- read_csv(SPEC$data_path,
-                      show_col_types = FALSE) |> drop_na()
+PANEL_RAW <- readr::read_csv("data/raw/raw_data.csv", show_col_types = FALSE)
+panel_df  <- readr::read_csv(SPEC$data_path,
+                      show_col_types = FALSE) |> tidyr::drop_na()
 DATES     <- as.Date(panel_df$ref.date)
-PANEL     <- panel_df |> select(-ref.date) |> as.matrix()
+PANEL     <- panel_df |> dplyr::select(-ref.date) |> as.matrix()
 VAR_NAMES <- colnames(PANEL)
 TCODE     <- infer_tcode_from_varnames(VAR_NAMES)
 
 # ---- Instrumento --------------------------------------------------
-INST_PANEL <- read_csv("data/processed/instrumentos_mensais.csv",
+INST_PANEL <- readr::read_csv("data/processed/instrumentos_mensais.csv",
                        show_col_types = FALSE) |>
-  mutate(month = as.Date(month))
+  dplyr::mutate(month = as.Date(month))
 
 #' Instrumento de producao alinhado ao painel, como data.frame month/shock
 inst_df <- function(variant = SPEC$instrument) {
   INST_PANEL |>
-    select(month, shock = all_of(variant)) |>
-    filter(!is.na(shock))
+    dplyr::select(month, shock = dplyr::all_of(variant)) |>
+    dplyr::filter(!is.na(shock))
 }
 
 # ---- Celula de producao ja estimada -------------------------------
@@ -127,7 +121,7 @@ var_group <- function(v = VAR_NAMES) {
 #' Grava csv em diagnostics/output/ e ecoa o caminho
 diag_write <- function(df, file) {
   path <- file.path(DIAG_OUT, file)
-  write_csv(df, path)
+  readr::write_csv(df, path)
   cat(sprintf("  -> %s (%d linhas)\n", path, nrow(df)))
   invisible(path)
 }
@@ -135,9 +129,9 @@ diag_write <- function(df, file) {
 #' Matriz de defasagens de x (lags 1..L), alinhada a x[(L+1):T]
 lag_matrix <- function(x, L, prefix = "x") {
   x <- as.matrix(x)
-  T <- nrow(x)
+  n_obs <- nrow(x)
   out <- lapply(seq_len(L), function(l) {
-    m <- x[(L + 1 - l):(T - l), , drop = FALSE]
+    m <- x[(L + 1 - l):(n_obs - l), , drop = FALSE]
     colnames(m) <- paste0(prefix, "_", colnames(x), "_l", l)
     m
   })
