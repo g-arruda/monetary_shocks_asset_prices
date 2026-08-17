@@ -24,8 +24,11 @@ SPEC <- production_spec()
 P_LAGS  <- SPEC$p
 MP_VAR  <- SPEC$mp_var
 
+# q desce ate 2 desde 2026-08-17: o criterio de Amengual-Watson na versao
+# admissivel (BLL) seleciona q = 2 neste painel, e a grade tinha de cobrir a
+# celula que ele indica para o item de selecao de q ser decidivel.
 RQ_GRID <- do.call(rbind, lapply(5:8, function(r)
-  data.frame(r = r, q = 4:r)))
+  data.frame(r = r, q = 2:r)))
 
 SAMPLES <- list(
   full = SPEC$sample,

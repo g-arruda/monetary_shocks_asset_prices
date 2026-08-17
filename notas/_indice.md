@@ -1,9 +1,9 @@
 # Índice das notas
 
-**Revisado em 2026-08-14.** A nota de produção corrente é
+**Revisado em 2026-08-17.** A nota de produção corrente é
 [`2026-08-13_migracao_producao_painel_111_r5q5`](2026-08-13_migracao_producao_painel_111_r5q5.md);
 a rodada mais recente é
-[`2026-08-14_exogeneidade_lead_lag_e_invertibilidade`](2026-08-14_exogeneidade_lead_lag_e_invertibilidade.md),
+[`2026-08-17_selecao_q_e_fidelidade_amengual_watson`](2026-08-17_selecao_q_e_fidelidade_amengual_watson.md),
 que não altera produção.
 Notas anteriores preservam decisões e diagnósticos que não dependem do painel,
 mas seus números do DFM não devem ser citados sem reestimação.
@@ -67,6 +67,7 @@ procedimento que incorpore a estimação fatorial.
 
 | nota | data | veredito | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-08-17_selecao_q_e_fidelidade_amengual_watson`](2026-08-17_selecao_q_e_fidelidade_amengual_watson.md) | 08-17 | **CURRENT** | painel 111, `r=5`, `p=6`, `z_jk_bs_purif` × `yield_6m`, amostra completa, 800 réplicas; `script/validate_amengual_watson.R` e `script/q_selection.R`, ambos novos | A tradução de `amengual_watson()` é **fiel**: casada a convenção de padronização, ela reproduz o MATLAB de SW com gap constante de `log(147/146)` = **0,0068259651** e dispersão **4,163e-16**. A discordância de `q` **não** é artefato de tradução — `apply_bll = TRUE` é o espaço fatorial da própria produção diferenciado (loadings idênticas a **2,165e-15**, `cor(PC_k(yy), diff(F_prod)_k)` = 1,000000 nos cinco), logo é o caminho admissível e ele diz **q = 2**; o `q = 5` que coincide com a produção vem do painel de níveis, onde Bai-Ng não vale, e **não é endosso**. Mas `(5,2)` e `(5,3)` têm ξ_mp **3,809** e **3,149**, abaixo de 3,84: AR ilimitado. ⚠ **Número inconveniente:** essas células dão impactos maiores e **recuperam o bloco acionário a 90%** — assinatura de instrumento fraco, com denominador de normalização 3,4× menor (8,426e-05 → 2,471e-05). Produção intocada; a decisão de `q` **continua aberta** |
 | [`2026-08-14_exogeneidade_lead_lag_e_invertibilidade`](2026-08-14_exogeneidade_lead_lag_e_invertibilidade.md) | 08-14 | **CURRENT** | painel 111, `(5,5,6)`, `z_jk_bs_purif`; `diagnostics/01_exogeneidade.R` §1.7, wild bootstrap sob H0 com 2.000 réplicas | A condição lead-lag é de Stock-Watson (Condição LP-IV iii), **não** de Braun-Brüggemann, que é bayesiano; e **não é exigida pelo SVAR-IV**, que paga em invertibilidade. A perna de leads testa invertibilidade, não exogeneidade. Teste de Granger de SW (Tabela 2) implementado e **não rejeita**: em `L=6` o menor `p_boot` é 0,324 e todos os Holm dão 1,000. Ressalvas que não somem: condição só necessária, potência baixa, sem simulação de tamanho, e `cambio_usd` defasado segue em `p_boot` 0,064 |
 | [`2026-08-13_migracao_producao_painel_111_r5q5`](2026-08-13_migracao_producao_painel_111_r5q5.md) | 08-13 | **CURRENT** | painel 111, `(5,5,6)`, `z_jk_bs_purif`, 800 bootstraps, semente 123 | Migração completa do default; `r=5` por Bai--Ng IC2, `q=5` provisório; `xi_mp/F_rob,mp=6,27085/10,12054` full e `10,99268/9,74746` pré-COVID; raiz pré-COVID 1,0002017; zero falhas e normalização exata |
 | [`2026-08-13_decisao_conjunta_painel_dimensoes`](2026-08-13_decisao_conjunta_painel_dimensoes.md) | 08-13 | **SUPERSEDED como decisão** | 64 painéis sem `juros_cdi`/`asset_mlcx`, 2.304 células full, 64 diagnósticos pré-COVID, 192 contrastes e quatro bootstraps de 800 réplicas | A grade e os bootstraps permanecem como proveniência; a recomendação de 123 séries `(4,3)` foi substituída pela produção de 111 séries `(5,5)` |
