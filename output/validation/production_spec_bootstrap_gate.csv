@@ -1,2 +1,2 @@
 panel,r,q,p,n_series,n_months,n_innovations,nboot,seed,bootstrap_failures,max_companion_root,stable,h0_yield_6m,finite_ordered_bands,elapsed_minutes,gate_pass
-drop_setor_externo__eua__credito__imoveis,5,5,6,111,153,147,800,123,0,0.9648576865195531,TRUE,0.005,TRUE,0.19778287808100384,TRUE
+drop_setor_externo__eua__credito__imoveis,5,5,6,111,153,147,800,123,0,0.9648576865195531,TRUE,0.005,TRUE,0.18575326204299927,TRUE

@@ -18,7 +18,7 @@ reporta **0 de 392** células sig90 nesse bloco — o tema do próprio título.
 - **Não confirmado** se o bloco seguir em 0 sig90 com as guardas de pé.
 - **h = 0 é o teste limpo da representação**: único horizonte em que as duas
   medem o mesmo objeto e em que o `cumsum` é no-op.
-- A inflação de banda é atribuída ao `cumsum` via `prod_nocum` — mesmo modelo,
+- A inflação de banda é atribuída ao `cumsum` via `prod_cum` — mesmo modelo,
   mesmo seed, só o transform muda. Afirmação **separada**.
 - **Inconclusivo** se ξ_mp do painel log-nível cair abaixo de 3,84.
 
@@ -28,10 +28,10 @@ reporta **0 de 392** células sig90 nesse bloco — o tema do próprio título.
 
 | variante | painel | tcode_asset | xi_mp | f_robust_mp | max_eig | n_sig90 | n_sig90_h12 | n_sig68 |
 |---|---|---|---|---|---|---|---|---|
-| prod | retorno mensal |     2 | 6.271 | 10.12 | 0.9649 |     4 |     4 |    20 |
+| prod | retorno mensal |     6 | 6.271 | 10.12 | 0.9649 |     2 |     2 |    20 |
 | loglevel | log(cumprod(1+r)) |     4 | 6.073 | 9.964 | 0.9729 |    49 |    49 |   105 |
 | level | cumprod(1+r) |     1 | 7.012 | 12.18 | 0.973 |    37 |    37 |    86 |
-| prod_nocum | retorno mensal |     1 | 6.271 | 10.12 | 0.9649 |    NA |    NA |    NA |
+| prod_cum | retorno mensal |     2 | 6.271 | 10.12 | 0.9649 |    NA |    NA |    NA |
 
 Força do instrumento nas duas janelas:
 
@@ -43,8 +43,8 @@ Força do instrumento nas duas janelas:
 | loglevel | pre_covid |    78 | 10.31 | 11.32 | TRUE | TRUE |
 | level | full |   147 | 7.012 | 12.18 | TRUE | FALSE |
 | level | pre_covid |    78 | 9.493 | 9.893 | TRUE | FALSE |
-| prod_nocum | full |   147 | 6.271 | 10.12 | TRUE | FALSE |
-| prod_nocum | pre_covid |    78 | 10.99 | 9.747 | TRUE | TRUE |
+| prod_cum | full |   147 | 6.271 | 10.12 | TRUE | FALSE |
+| prod_cum | pre_covid |    78 | 10.99 | 9.747 | TRUE | TRUE |
 
 ## h = 0 — o teste limpo da representação
 
@@ -63,16 +63,17 @@ Resposta em % do nível do índice no mês do impacto, com IC90.
 ## Largura de banda h36/h0 por tcode
 
 Réplica de `diagnostics/06_bloco_ativos.R` §6.2 em cada representação. A
-comparação `prod` × `prod_nocum` isola o `cumsum`: mesmo painel, mesmo seed,
+comparação `prod` × `prod_cum` isola o `cumsum`: mesmo painel, mesmo seed,
 mesmo modelo — o ponto é idêntico após cumular (conferido a 1e-9), a banda não.
 
 | variante | tcode | n | mediana | min | max |
 |---|---|---|---|---|---|
 | prod |     1 |    87 | 1.168 | 0.6801 | 17.37 |
-| prod |     2 |     7 |  27.8 |  26.6 | 28.17 |
 | prod |     4 |    16 | 2.661 | 0.8735 | 4.931 |
-| prod_nocum |     1 |    94 | 1.112 | 0.6801 | 17.37 |
-| prod_nocum |     4 |    16 | 2.661 | 0.8735 | 4.931 |
+| prod |     6 |     7 | 0.9391 | 0.8049 | 0.9738 |
+| prod_cum |     1 |    87 | 1.168 | 0.6801 | 17.37 |
+| prod_cum |     2 |     7 |  27.8 |  26.6 | 28.17 |
+| prod_cum |     4 |    16 | 2.661 | 0.8735 | 4.931 |
 | loglevel |     1 |    87 | 1.387 | 0.7101 | 15.19 |
 | loglevel |     4 |    23 | 2.233 | 0.8947 | 3.919 |
 | level |     1 |    94 | 1.347 | 0.7186 | 15.46 |
@@ -81,15 +82,15 @@ mesmo modelo — o ponto é idêntico após cumular (conferido a 1e-9), a banda 
 A mesma razão só nos 7 índices — sob `loglevel` eles migram para tcode 4 e a
 mediana do grupo acima passa a misturá-los com as 16 séries de crédito/base/PIB:
 
-| var | prod | prod_nocum | loglevel | level |
+| var | prod | prod_cum | loglevel | level |
 |---|---|---|---|---|
-| asset_ibov |  27.8 | 0.9391 | 0.8947 | 0.7349 |
-| asset_idiv | 28.17 | 0.9738 | 0.9346 | 0.7838 |
-| asset_ifix |  26.6 | 0.8049 | 1.367 | 0.9606 |
-| asset_ifnc | 28.14 | 0.9403 | 0.9364 | 0.7478 |
-| asset_imat | 27.47 | 0.9464 | 1.181 | 1.342 |
-| asset_imob |  27.9 | 0.9387 | 1.265 | 0.7891 |
-| asset_smll | 26.93 | 0.8989 | 0.9878 | 0.7902 |
+| asset_ibov | 0.9391 |  27.8 | 0.8947 | 0.7349 |
+| asset_idiv | 0.9738 | 28.17 | 0.9346 | 0.7838 |
+| asset_ifix | 0.8049 |  26.6 | 1.367 | 0.9606 |
+| asset_ifnc | 0.9403 | 28.14 | 0.9364 | 0.7478 |
+| asset_imat | 0.9464 | 27.47 | 1.181 | 1.342 |
+| asset_imob | 0.9387 |  27.9 | 1.265 | 0.7891 |
+| asset_smll | 0.8989 | 26.93 | 0.9878 | 0.7902 |
 
 ## Onde ficam as células sig90 do bloco
 
@@ -107,7 +108,7 @@ mediana do grupo acima passa a misturá-los com as 16 séries de crédito/base/P
 | loglevel | asset_ifnc |     7 |     0 |     6 | 0,1,2,3,4,5,6 |
 | loglevel | asset_imob |     8 |     0 |     7 | 0,1,2,3,4,5,6,7 |
 | loglevel | asset_smll |    10 |     0 |     9 | 0,1,2,3,4,5,6,7,8,9 |
-| prod | asset_ifix |     4 |     0 |     3 | 0,1,2,3 |
+| prod | asset_ifix |     2 |     0 |     1 | 0,1 |
 
 ## A deriva de médio prazo do Ibovespa
 
@@ -119,13 +120,13 @@ vez de explicá-lo depois.
 | h | lo68 | hi68 | sig90 | point_prod | point_loglevel | point_level | sig68_prod | sig68_loglevel | sig68_level |
 |---|---|---|---|---|---|---|---|---|---|
 |     0 | -5.042 | -0.6327 | FALSE | -1.723 |    NA |    NA | TRUE | NA | NA |
-|     1 | -7.657 | -0.9403 | FALSE | -3.228 |    NA |    NA | TRUE | NA | NA |
-|     6 | -11.56 | 8.314 | FALSE | -0.9125 |    NA |    NA | FALSE | NA | NA |
-|    12 | -9.165 | 27.21 | FALSE | 10.26 |    NA |    NA | FALSE | NA | NA |
-|    18 | -10.6 | 45.34 | FALSE | 16.95 |    NA |    NA | FALSE | NA | NA |
-|    24 | -16.37 | 61.18 | FALSE | 16.83 |    NA |    NA | FALSE | NA | NA |
-|    36 | -36.49 | 80.08 | FALSE | -0.8527 |    NA |    NA | FALSE | NA | NA |
-|    48 | -64.67 | 85.02 | FALSE | -28.9 |    NA |    NA | FALSE | NA | NA |
+|     1 | -3.509 | 0.2076 | FALSE | -1.505 |    NA |    NA | FALSE | NA | NA |
+|     6 | -0.6464 | 3.022 | FALSE | 1.185 |    NA |    NA | FALSE | NA | NA |
+|    12 | -0.03079 | 3.652 | FALSE | 1.897 |    NA |    NA | FALSE | NA | NA |
+|    18 | -0.7605 | 3.386 | FALSE | 0.6876 |    NA |    NA | FALSE | NA | NA |
+|    24 | -1.401 | 2.729 | FALSE | -0.4689 |    NA |    NA | FALSE | NA | NA |
+|    36 | -2.643 | 1.267 | FALSE | -2.15 |    NA |    NA | FALSE | NA | NA |
+|    48 | -2.615 | 0.351 | FALSE | -2.222 |    NA |    NA | FALSE | NA | NA |
 |     0 | -5.357 | -2.058 | TRUE |    NA | -2.796 |    NA | NA | TRUE | NA |
 |     1 | -7.488 | -3.807 | TRUE |    NA | -5.016 |    NA | NA | TRUE | NA |
 |     6 | -5.855 | -1.799 | TRUE |    NA | -3.926 |    NA | NA | TRUE | NA |
@@ -148,14 +149,14 @@ vez de explicá-lo depois.
 | h | level | loglevel | prod |
 |---|---|---|---|
 |     0 | 1.719 | 2.093 | 0.9677 |
-|     1 | 2.167 | 2.947 | 1.095 |
-|     3 | 2.138 | 2.935 | 0.6745 |
-|     6 | 1.531 | 2.004 | 0.4133 |
-|    12 | 0.05899 | 0.7344 | 0.4521 |
-|    18 | 0.3597 | 0.1562 | 0.5041 |
-|    24 | 0.4156 | 0.4222 | 0.3439 |
-|    36 | 0.7423 | 1.017 | 0.1094 |
-|    48 | 0.2792 | 0.818 | 0.4238 |
+|     1 | 2.167 | 2.947 | 0.9886 |
+|     3 | 2.138 | 2.935 | 0.503 |
+|     6 | 1.531 | 2.004 | 0.4427 |
+|    12 | 0.05899 | 0.7344 | 0.9302 |
+|    18 | 0.3597 | 0.1562 | 0.3316 |
+|    24 | 0.4156 | 0.4222 | 0.1799 |
+|    36 | 0.7423 | 1.017 | 1.052 |
+|    48 | 0.2792 | 0.818 | 1.468 |
 
 ## Seção cruzada
 
@@ -165,11 +166,11 @@ Correlação (n = 8) entre a sensibilidade a juros medida fora do modelo
 | variante | h | cor_beta_juros | cor_sp_juros | amplitude | n_neg |
 |---|---|---|---|---|---|
 | prod |     0 | 0.8634 | 0.8214 | 2.632 |     7 |
-| prod |     6 | 0.6283 | 0.5357 | 13.15 |     6 |
-| prod |    12 | 0.1572 | 0.3214 | 18.49 |     1 |
-| prod |    24 | -0.1882 | 0.03571 | 21.02 |     1 |
-| prod |    36 | 0.4537 | 0.3929 | 11.33 |     7 |
-| prod |    48 | 0.8089 | 0.8929 | 29.53 |     7 |
+| prod |     6 | 0.02131 | 0.3214 | 1.604 |     1 |
+| prod |    12 | -0.6264 | -0.3929 |  1.91 |     0 |
+| prod |    24 | 0.05026 | 0.03571 | 0.9761 |     7 |
+| prod |    36 | 0.5968 | 0.6429 | 2.316 |     7 |
+| prod |    48 | 0.6574 |   0.5 | 2.373 |     7 |
 | loglevel |     0 | 0.9782 | 0.9286 | 5.193 |     7 |
 | loglevel |     6 | 0.9888 | 0.9643 |  5.56 |     7 |
 | loglevel |    12 | 0.7847 | 0.8929 |  1.58 |     7 |
@@ -189,7 +190,7 @@ Sem isto a comparação não vale nada: mudar o painel re-estima tudo.
 
 | conjunto | n_sig90_prod | n_sig90_loglevel | sobrevivem_loglevel | n_sig90_level | sobrevivem_level |
 |---|---|---|---|---|---|
-| 58 series escoradas |   255 |   333 |   241 |   350 |   239 |
+| 58 series escoradas |   253 |   333 |   239 |   350 |   237 |
 | 51 nao-acionarias |   251 |   284 |   237 |   313 |   235 |
 
 | var | point_prod | point_loglevel | point_level | sig90_prod | sig90_loglevel | sig90_level |
@@ -222,5 +223,5 @@ Sem isto a comparação não vale nada: mudar o painel re-estima tudo.
 3. Smoke test do `CLAUDE.md` na célula de produção.
 4. Célula de produção vs `irf_coherence_h.csv`: desvio 4.55e-13 (< 1e-10).
 5. ξ_mp de produção vs `mosw_strength_grid.csv`: 6.270850 full, 10.992677 pré-COVID.
-6. `cumsum(prod_nocum)×100 == prod` nas 8 séries: desvio 0.00e+00 (< 1e-9).
+6. `cumsum(prod) == prod_cum` nas 7 séries: desvio 3.55e-15 (< 1e-9).
 

@@ -25,10 +25,10 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 |---|---|---|
 | ambiguous | ambigua |    14 |
 | placebo | placebo_ok |     3 |
-| scored | coerente_forte |    18 |
+| scored | coerente_forte |    14 |
 | scored | incoerente |     9 |
 | scored | coerente |     8 |
-| scored | parcial |     2 |
+| scored | parcial |     6 |
 | soft | soft_depreciacao_fiscal_dom |     2 |
 | soft | soft_risco_abre_fiscal_dom |     2 |
 
@@ -68,18 +68,18 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| asset_ibov | -1.723 | -3.118 | -0.9125 | 10.26 | 16.83 | -0.8527 | -28.9 |     1 | coerente_forte |
-| asset_smll | -2.611 | -6.884 | -6.841 | 2.429 | 9.161 | -6.408 | -32.61 |     1 | coerente_forte |
-| asset_idiv | -2.039 | -3.778 | -2.065 |  8.94 | 17.16 | -0.9166 | -31.06 |     1 | coerente_forte |
-| asset_imob | -2.557 | -6.201 | -5.31 | 5.138 | 8.466 | -12.19 | -41.25 |     1 | coerente_forte |
-| asset_ifix | -1.311 | -4.859 | -6.034 | -4.093 | -1.899 | -5.215 | -11.73 |     1 | coerente_forte |
+| asset_ibov | -1.723 | -0.8104 | 1.185 | 1.897 | -0.4689 | -2.15 | -2.222 | 0.5714 | parcial |
+| asset_smll | -2.611 | -1.847 | 0.5398 | 1.733 | -0.3575 | -1.952 | -2.122 | 0.5714 | parcial |
+| asset_idiv | -2.039 | -0.8982 |  1.01 | 1.957 | -0.3811 | -2.276 | -2.405 | 0.5714 | parcial |
+| asset_imob | -2.557 | -1.687 | 0.8394 | 1.792 | -0.7943 | -2.316 | -2.252 | 0.5714 | parcial |
+| asset_ifix | -1.311 | -1.306 | -0.1632 | 0.4408 | -0.04105 | -0.451 | -0.557 |     1 | coerente_forte |
 
 ### acoes_ambiguas
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| asset_ifnc | -2.701 | -5.389 | -3.766 | 9.256 | 19.12 | -2.879 | -39.56 |    NA | ambigua |
-| asset_imat | -0.06907 | 2.572 | 6.311 |  14.4 | 10.96 | -6.232 | -23.84 |    NA | ambigua |
+| asset_ifnc | -2.701 | -1.308 |  1.09 | 2.351 | -0.4698 | -2.767 | -2.93 |    NA | ambigua |
+| asset_imat | -0.06907 | 0.5772 | 1.441 | 1.046 | -1.017 | -1.619 | -1.215 |    NA | ambigua |
 
 ### risco_cambio_soft
 

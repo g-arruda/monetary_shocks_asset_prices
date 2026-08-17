@@ -139,7 +139,7 @@ Ortogonalizar so os **valores** ao bloco global e a forma do Teste C da rodada s
 
 ## 5 — IRFs no impacto (h = 0)
 
-`yield_6m` e mecanico: h=0 e o alvo da normalizacao, identico em toda variante. A comparacao de sinais roda nas outras quatro manchetes. Celulas sig90 por variante: z_jk_bs_glob 64, z_jk_bs_purif 61.
+`yield_6m` e mecanico: h=0 e o alvo da normalizacao, identico em toda variante. A comparacao de sinais roda nas outras quatro manchetes. Celulas sig90 por variante: z_jk_bs_glob 63, z_jk_bs_purif 61.
 
 | instrumento | variavel | ponto | lo68 | hi68 | lo90 | hi90 | sig90 |
 |---|---|---|---|---|---|---|---|

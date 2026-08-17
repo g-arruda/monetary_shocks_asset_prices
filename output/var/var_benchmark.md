@@ -31,20 +31,20 @@ Com a identificação mantida fixa, isto testa **DFM contra VAR pequeno**, não
 **Todas as respostas** (n = 17)
 
 - *mais forte no impacto*: **13 de 17** (razão mediana **1.85**).
-- *mais forte no pico de mesmo sinal*: **13 de 17** (razão mediana **1.26**).
-- *mais rápido* (pico de mesmo sinal): **7 de 17**.
+- *mais forte no pico de mesmo sinal*: **13 de 17** (razão mediana **1.25**).
+- *mais rápido* (pico de mesmo sinal): **8 de 17**.
 - banda de 68% do DFM mais **estreita** no impacto: 0 de 17 (razão mediana **2.82**).
-- mesmo sinal no impacto: 16 de 17. Células sig90: DFM **57**, VAR **282** (em h ≤ 12: 57 e 123).
-- *(pico bruto, a régua contaminada: forte 15 de 17, rápido 5 de 17 — mas o pico do DFM tem sinal **oposto** ao do impacto em 1 de 17)*
+- mesmo sinal no impacto: 16 de 17. Células sig90: DFM **55**, VAR **134** (em h ≤ 12: 55 e 62).
+- *(pico bruto, a régua contaminada: forte 14 de 17, rápido 6 de 17 — mas o pico do DFM tem sinal **oposto** ao do impacto em 2 de 17)*
 
 **Bloco de ações (7 índices)** (n = 7)
 
 - *mais forte no impacto*: **5 de 7** (razão mediana **3.38**).
-- *mais forte no pico de mesmo sinal*: **4 de 7** (razão mediana **1.06**).
-- *mais rápido* (pico de mesmo sinal): **4 de 7**.
-- banda de 68% do DFM mais **estreita** no impacto: 0 de 7 (razão mediana **3.22**).
-- mesmo sinal no impacto: 7 de 7. Células sig90: DFM **4**, VAR **153** (em h ≤ 12: 4 e 70).
-- *(pico bruto, a régua contaminada: forte 7 de 7, rápido 0 de 7 — mas o pico do DFM tem sinal **oposto** ao do impacto em 0 de 7)*
+- *mais forte no pico de mesmo sinal*: **4 de 7** (razão mediana **1.07**).
+- *mais rápido* (pico de mesmo sinal): **5 de 7**.
+- banda de 68% do DFM mais **estreita** no impacto: 0 de 7 (razão mediana **3.15**).
+- mesmo sinal no impacto: 7 de 7. Células sig90: DFM **2**, VAR **17** (em h ≤ 12: 2 e 10).
+- *(pico bruto, a régua contaminada: forte 6 de 7, rápido 1 de 7 — mas o pico do DFM tem sinal **oposto** ao do impacto em 1 de 7)*
 
 E há uma segunda razão para desconfiar do pico bruto: a nota de 2026-07-31
 sobre o espectro da companion mostra que o extremo de médio prazo do DFM *é*
@@ -56,35 +56,35 @@ pontuá-lo justamente onde aquela análise diz não haver evidência independent
 
 | var | grupo | h0_DFM | h0_VAR | razao_impacto | peak_ss_h_DFM | peak_ss_val_DFM | peak_ss_h_VAR | peak_ss_val_VAR | razao_pico_ss | razao_banda_h0 | n_sig90_DFM | n_sig90_VAR |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| asset_ibov | acoes | -1.7227 | -0.3262 | 5.2808 | 4 | -3.2572 | 9 | -4.1354 | 0.7876 | 3.2156 | 0 | 23 |
-| asset_idiv | acoes | -2.0392 | -0.3431 | 5.9441 | 4 | -4.0554 | 4 | -4.0893 | 0.9917 | 3.2468 | 0 | 9 |
-| asset_ifix | acoes | -1.3106 | -0.3873 | 3.3844 | 48 | -11.7272 | 4 | -2.3436 | 5.0039 | 3.0444 | 4 | 9 |
-| asset_ifnc | acoes | -2.7007 | -0.6205 | 4.3526 | 4 | -5.9123 | 4 | -3.7681 | 1.5690 | 2.9930 | 0 | 6 |
-| asset_imat | acoes | -0.0691 | -0.6323 | 0.1092 | 0 | -0.0691 | 25 | -8.4730 | 0.0082 | 2.3419 | 0 | 46 |
-| asset_imob | acoes | -2.5573 | -2.7179 | 0.9409 | 4 | -6.9932 | 9 | -5.8027 | 1.2052 | 3.2534 | 0 | 11 |
-| asset_smll | acoes | -2.6110 | -2.0068 | 1.3011 | 4 | -7.9005 | 16 | -7.4640 | 1.0585 | 3.3315 | 0 | 49 |
-| cambio_usd | cambio | 0.1579 | 0.0466 | 3.3904 | 1 | 0.1773 | 4 | 0.0955 | 1.8563 | 2.4648 | 7 | 5 |
+| asset_ibov | acoes | -1.7227 | -0.3262 | 5.2808 | 0 | -1.7227 | 1 | -2.1730 | 0.7928 | 3.2221 | 0 | 1 |
+| asset_idiv | acoes | -2.0392 | -0.3431 | 5.9441 | 0 | -2.0392 | 1 | -1.9038 | 1.0711 | 3.2002 | 0 | 1 |
+| asset_ifix | acoes | -1.3106 | -0.3873 | 3.3844 | 1 | -1.4257 | 1 | -1.1911 | 1.1969 | 3.1337 | 2 | 8 |
+| asset_ifnc | acoes | -2.7007 | -0.6205 | 4.3526 | 0 | -2.7007 | 1 | -2.2391 | 1.2062 | 3.1537 | 0 | 1 |
+| asset_imat | acoes | -0.0691 | -0.6323 | 0.1092 | 0 | -0.0691 | 1 | -1.6468 | 0.0419 | 2.3400 | 0 | 0 |
+| asset_imob | acoes | -2.5573 | -2.7179 | 0.9409 | 0 | -2.5573 | 0 | -2.7179 | 0.9409 | 3.1470 | 0 | 4 |
+| asset_smll | acoes | -2.6110 | -2.0068 | 1.3011 | 0 | -2.6110 | 1 | -2.0571 | 1.2692 | 3.3113 | 0 | 2 |
+| cambio_usd | cambio | 0.1579 | 0.0466 | 3.3904 | 1 | 0.1773 | 4 | 0.0955 | 1.8563 | 2.4359 | 7 | 5 |
 | cds_5y | risco | 32.5417 | 13.9982 | 2.3247 | 3 | 36.7956 | 1 | 14.8560 | 2.4768 | 2.8200 | 8 | 2 |
-| embi_perc | risco | 0.2620 | 0.1414 | 1.8524 | 3 | 0.2810 | 3 | 0.1695 | 1.6580 | 2.5340 | 8 | 4 |
-| ibc_br | extensao | -0.4605 | -0.2835 | 1.6242 | 0 | -0.4605 | 0 | -0.2835 | 1.6242 | 2.9202 | 1 | 1 |
-| price_core_ipca_ex0 | extensao | 0.0174 | 0.0304 | 0.5734 | 8 | 0.0958 | 5 | 0.0764 | 1.2536 | 2.2557 | 3 | 16 |
-| price_ipp | acoes | 0.4677 | 0.1850 | 2.5283 | 1 | 0.5725 | 1 | 0.2910 | 1.9673 | 2.3513 | 4 | 21 |
-| spread_icc_fisica | risco | 0.0039 | -0.0206 | 0.1879 | 0 | 0.0039 | 0 | -0.0206 | 0.1879 | 2.5870 | 0 | 15 |
-| spread_icc_juridica | risco | -0.0154 | -0.0145 | 1.0587 | 1 | -0.0257 | 1 | -0.0228 | 1.1274 | 2.5383 | 0 | 25 |
-| yield_10y | extensao | 0.0070 | 0.0027 | 2.5914 | 3 | 0.0097 | 6 | 0.0065 | 1.4836 | 2.6816 | 11 | 21 |
-| yield_2y | extensao | 0.0074 | 0.0058 | 1.2854 | 3 | 0.0117 | 6 | 0.0093 | 1.2558 | 2.9474 | 11 | 19 |
+| embi_perc | risco | 0.2620 | 0.1414 | 1.8524 | 3 | 0.2810 | 3 | 0.1695 | 1.6580 | 2.6732 | 8 | 4 |
+| ibc_br | extensao | -0.4605 | -0.2835 | 1.6242 | 0 | -0.4605 | 0 | -0.2835 | 1.6242 | 2.9413 | 1 | 1 |
+| price_core_ipca_ex0 | extensao | 0.0174 | 0.0304 | 0.5734 | 8 | 0.0958 | 5 | 0.0764 | 1.2536 | 2.2921 | 3 | 18 |
+| price_ipp | acoes | 0.4677 | 0.1850 | 2.5283 | 1 | 0.5725 | 1 | 0.2910 | 1.9673 | 2.3838 | 4 | 18 |
+| spread_icc_fisica | risco | 0.0039 | -0.0206 | 0.1879 | 0 | 0.0039 | 0 | -0.0206 | 0.1879 | 2.5998 | 0 | 12 |
+| spread_icc_juridica | risco | -0.0154 | -0.0145 | 1.0587 | 1 | -0.0257 | 1 | -0.0228 | 1.1274 | 2.5472 | 0 | 20 |
+| yield_10y | extensao | 0.0070 | 0.0027 | 2.5914 | 3 | 0.0097 | 6 | 0.0065 | 1.4836 | 2.7164 | 11 | 19 |
+| yield_2y | extensao | 0.0074 | 0.0058 | 1.2854 | 3 | 0.0117 | 6 | 0.0093 | 1.2558 | 2.9533 | 11 | 18 |
 
 Pico bruto (o extremo global), com a bandeira de sinal:
 
 | var | peak_h_DFM | peak_val_DFM | peak_sinal_igual_h0_DFM | peak_h_VAR | peak_val_VAR | peak_sinal_igual_h0_VAR | razao_pico |
 |---|---|---|---|---|---|---|---|
-| asset_ibov | 48 | -28.8996 | TRUE | 9 | -4.1354 | TRUE | 6.9884 |
-| asset_idiv | 48 | -31.0646 | TRUE | 4 | -4.0893 | TRUE | 7.5965 |
-| asset_ifix | 48 | -11.7272 | TRUE | 4 | -2.3436 | TRUE | 5.0039 |
-| asset_ifnc | 48 | -39.5630 | TRUE | 4 | -3.7681 | TRUE | 10.4995 |
-| asset_imat | 48 | -23.8439 | TRUE | 25 | -8.4730 | TRUE | 2.8141 |
-| asset_imob | 48 | -41.2534 | TRUE | 9 | -5.8027 | TRUE | 7.1093 |
-| asset_smll | 48 | -32.6064 | TRUE | 16 | -7.4640 | TRUE | 4.3685 |
+| asset_ibov | 42 | -2.4112 | TRUE | 1 | -2.1730 | TRUE | 1.1096 |
+| asset_idiv | 43 | -2.5948 | TRUE | 1 | -1.9038 | TRUE | 1.3629 |
+| asset_ifix | 1 | -1.4257 | TRUE | 1 | -1.1911 | TRUE | 1.1969 |
+| asset_ifnc | 43 | -3.1575 | TRUE | 1 | -2.2391 | TRUE | 1.4102 |
+| asset_imat | 2 | 1.8596 | FALSE | 1 | -1.6468 | TRUE | 1.1292 |
+| asset_imob | 0 | -2.5573 | TRUE | 0 | -2.7179 | TRUE | 0.9409 |
+| asset_smll | 0 | -2.6110 | TRUE | 1 | -2.0571 | TRUE | 1.2692 |
 | cambio_usd | 1 | 0.1773 | TRUE | 4 | 0.0955 | TRUE | 1.8563 |
 | cds_5y | 3 | 36.7956 | TRUE | 1 | 14.8560 | TRUE | 2.4768 |
 | embi_perc | 3 | 0.2810 | TRUE | 3 | 0.1695 | TRUE | 1.6580 |

@@ -166,7 +166,7 @@ Na janela pre-COVID a variante de mascara fica em 6,69 contra 10,99 da producao.
 
 ## IRFs no impacto (h = 0)
 
-Celulas sig90 por variante: z_jk_bs_norisk_mask 65, z_jk_bs_norisk_cds 61, z_jk_bs_purif 61.
+Celulas sig90 por variante: z_jk_bs_norisk_mask 62, z_jk_bs_norisk_cds 61, z_jk_bs_purif 61.
 
 | instrumento | variavel | ponto | lo68 | hi68 | lo90 | hi90 | sig90 |
 |---|---|---|---|---|---|---|---|

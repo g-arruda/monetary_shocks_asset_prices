@@ -85,9 +85,9 @@ Figura: [`irf_comparison.pdf`](irf_comparison.pdf). Série completa em
 | yield_2y | 0.007 | [-0.007, 0.021] | 0.007 | [0.006, 0.009] |
 | yield_5y | 0.006 | [-0.016, 0.030] | 0.008 | [0.006, 0.011] |
 | asset_ibov | 1.183 | [-46.631, 41.503] | -1.723 | [-6.910, 0.775] |
-| cambio_usd | 0.125 | [-0.776, 0.719] | 0.158 | [0.092, 0.249] |
-| price_ipca | 0.078 | [-1.732, 3.747] | -0.062 | [-0.276, 0.117] |
-| embi_perc | 0.119 | [-1.195, 1.492] | 0.262 | [0.172, 0.473] |
+| cambio_usd | 0.125 | [-0.776, 0.729] | 0.158 | [0.092, 0.249] |
+| price_ipca | 0.078 | [-1.734, 3.747] | -0.062 | [-0.276, 0.117] |
+| embi_perc | 0.119 | [-1.195, 1.495] | 0.262 | [0.172, 0.473] |
 | commodity_metal | 9.493 | [-21.493, 40.032] | 7.456 | [1.972, 11.154] |
 
 ## 5. Reconciliação: a Wald assintótica e o bootstrap discordam
@@ -95,8 +95,8 @@ Figura: [`irf_comparison.pdf`](irf_comparison.pdf). Série completa em
 As duas inferências deste ramo dão respostas opostas e é preciso escolher.
 
 - **Assintótica (Prop. 4):** rejeita a restrição do proxy com p = 0.0000.
-- **Bootstrap i.i.d. (800 draws):** cosseno mediano 0.709 entre a direção do
-  draw e a do ponto, com **0.484** dos draws abaixo de 0,7 — e as bandas de
+- **Bootstrap i.i.d. (800 draws):** cosseno mediano 0.710 entre a direção do
+  draw e a do ponto, com **0.482** dos draws abaixo de 0,7 — e as bandas de
   90% no impacto contêm zero em **todas** as variáveis exceto a normalizada.
 
 A simulação do bloco D de `validate_gmr_ica.R` alerta para a distorção: em T = 150 e n = 6 — dimensão próxima e ligeiramente maior que q = 5 da produção — o intervalo nominal de 95% da Prop. 4 cobre **0,79**. Os erros-padrão assintóticos são pequenos demais aqui, então a rejeição da restrição do proxy é **provavelmente espúria**.
@@ -110,11 +110,11 @@ A simulação do bloco D de `validate_gmr_ica.R` alerta para a distorção: em T
 
 ## 6. Estabilidade do bootstrap
 
-- Cosseno mediano entre a direção do draw e a do ponto: **0.7093**
-- Fração de draws com cosseno < 0,7: **0.484**
+- Cosseno mediano entre a direção do draw e a do ponto: **0.7100**
+- Fração de draws com cosseno < 0,7: **0.482**
 - Trocas de rótulo: 0 de 800
 
 O ramo GMR usa reamostragem **i.i.d. com reposição**, não o wild bootstrap Rademacher do proxy: o multiplicador ±1 zera os terceiros momentos e destrói a assimetria que a Assumption A.5 exige. É o que o apêndice online do próprio GMR (§E) faz.
 
-> **Ressalva.** Um cosseno mediano de 0.709 indica que a direção monetária estimada se move bastante entre reamostragens. As bandas abaixo já incorporam isso, e é a razão de elas serem largas.
+> **Ressalva.** Um cosseno mediano de 0.710 indica que a direção monetária estimada se move bastante entre reamostragens. As bandas abaixo já incorporam isso, e é a razão de elas serem largas.
 
