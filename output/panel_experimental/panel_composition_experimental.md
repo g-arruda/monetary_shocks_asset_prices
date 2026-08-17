@@ -1,6 +1,6 @@
 # Rodada experimental: composição do painel e dependência da curva
 
-> Gerado por `script/panel_composition_experimental.R` em 2026-08-13. Todos os artefatos desta rodada vivem em `output/panel_experimental/`; o painel canônico, a identificação e os outputs de produção não foram modificados.
+> Gerado por `script/panel_composition_experimental.R` em 2026-08-17. Todos os artefatos desta rodada vivem em `output/panel_experimental/`; o painel canônico, a identificação e os outputs de produção não foram modificados.
 
 ## Desenho fixado
 

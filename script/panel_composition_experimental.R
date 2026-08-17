@@ -4,12 +4,6 @@
 
 rm(list = ls())
 
-library(readr)
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(ggplot2)
-
 source("R/data_download/panel_candidates.R")
 source("R/preprocessing/panel_candidates.R")
 source("R/identification/experimental_panel.R")

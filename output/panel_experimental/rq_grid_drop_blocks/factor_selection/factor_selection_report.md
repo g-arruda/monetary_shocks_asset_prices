@@ -1,6 +1,6 @@
 # Seleção BLL de fatores na grade fatorial de remoção de blocos
 
-> Gerado por `script/panel_composition_factor_selection_drop_blocks.R` em 2026-08-13. Rodada experimental isolada; não estima ξ_mp, bootstrap ou IRFs.
+> Gerado por `script/panel_composition_factor_selection_drop_blocks.R` em 2026-08-17. Rodada experimental isolada; não estima ξ_mp, bootstrap ou IRFs.
 
 ## Regra aplicada
 

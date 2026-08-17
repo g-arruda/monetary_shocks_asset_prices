@@ -3,9 +3,6 @@
 
 rm(list = ls())
 
-library(readr)
-library(dplyr)
-
 source("R/data_download/panel_candidates.R")
 source("R/preprocessing/panel_candidates.R")
 source("R/modeling/factor_estimation.R")

@@ -21,11 +21,6 @@
 # (oil production), NWlags = 0.
 # ============================================================
 
-suppressPackageStartupMessages({
-  library(sandwich)
-  library(lmtest)
-})
-
 source("R/modeling/impulse_response.R")
 
 FIXTURE <- "output/validation/olea_oil_fixture.rds"

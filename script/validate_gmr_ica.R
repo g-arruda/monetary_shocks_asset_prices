@@ -27,10 +27,6 @@
 
 rm(list = ls())
 
-suppressPackageStartupMessages({
-  library(numDeriv)
-})
-
 source("R/identification/nongaussian_gmr.R")
 
 has_idss <- requireNamespace("IdSS", quietly = TRUE)

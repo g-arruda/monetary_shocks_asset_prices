@@ -2,9 +2,6 @@
 
 rm(list = ls())
 
-library(readr)
-library(dplyr)
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/identification/factor_space_diagnostics.R")
