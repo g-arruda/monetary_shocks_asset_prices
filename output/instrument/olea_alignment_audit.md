@@ -50,7 +50,7 @@ máxima 1,000202, portanto não sustenta uma leitura dinâmica alternativa.
 
 ## Implementação e consumidores
 
-- `R/modeling/impulse_responde.R` contém
+- `R/modeling/impulse_response.R` contém
   `compute_robust_first_stage_F()` e a rotina da Wald MOSW.
 - `R/identification/factor_space_diagnostics.R` constrói a direção de
   `yield_6m` e devolve `wald_mp` e `f_robust_mp`.

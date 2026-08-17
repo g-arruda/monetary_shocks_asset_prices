@@ -130,7 +130,7 @@ sinalizado no §6 abaixo).
   Gertler-Karadi (2015); no contexto DFM, Alessi-Kerssenfischer (2019).
 - Condições de relevância e exogeneidade; projeção do instrumento nas inovações
   fatoriais `H = (Z'η)/(Z'Z)` e alinhamento temporal (implementação:
-  `R/modeling/impulse_responde.R::ident_ext_instr` / `sel_ext_inst_sample`).
+  `R/modeling/impulse_response.R::ident_ext_instr` / `sel_ext_inst_sample`).
 - Normalização: choque de **+50bp no `yield_6m`** no impacto, em proporção
   decimal (+0.005). Justificar a escolha de `yield_6m` como variável de
   política: o Selic/CDI médio-mensal não embute a surpresa dentro do mês do

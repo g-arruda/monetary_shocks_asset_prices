@@ -673,6 +673,16 @@ seria artefato numérico, herdado dos `Re()` acrescentados no passado para
 contornar aparecimento de números complexos? **Auditado, e não.** Registrado
 aqui porque é caro re-derivar e a resposta é definitiva.
 
+> **Nota de leitura (2026-08-17).** Esta subseção é uma medição datada e seus
+> ponteiros de código valem para a árvore de 2026-07-31. Leia
+> `impulse_responde.R` como `R/modeling/impulse_response.R`
+> ([`mapa_renomeacoes.md`](mapa_renomeacoes.md)) e **não confie nos números de
+> linha**: o refactor de 2026-08-17 moveu `main_sdfm` para
+> `R/modeling/dfm_pipeline.R`, e a correção do teste de singularidade de
+> `kilian_correction` (mesma data) acrescentou `solve_or_pseudo()` acima dela em
+> `factor_estimation.R`. O achado — os `Re()` são no-ops e o Kilian não entra no
+> ponto — não depende de nenhuma dessas linhas.
+
 1. **Nada no caminho do ponto estimado é sequer complexo.** Medido objeto a
    objeto, `max|Im| = 0` em `static_factors`, `static_loadings`, `Z`, `bet`, nos
    resíduos `u` **antes** do `Re()`, na `companion`, em `K`, `M`, `A²⁴` e em
