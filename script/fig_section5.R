@@ -4,9 +4,9 @@
 # Reads the cached production estimation object and the Task 7 tables.
 # NOTHING is re-estimated here.
 #
-# Every IRF figure runs to h = 36 and carries both bands. Orange dots mark the
-# horizons where the 90% band excludes zero; the 68% band is read off the darker
-# ribbon. No shading.
+# Every IRF figure runs to h = 36 and carries both bands. The six figures in the
+# results section omit significance markers; the placebo figure retains them.
+# The 68% band is read off the darker ribbon.
 #
 # Output: paper/fig_*.pdf — where paper_anpec.tex reads them (bare
 # filenames, no subdirectory). Repointed 2026-08-05: this used to write into
@@ -40,9 +40,15 @@ vn    <- cell$var_names
 
 dir.create(IMG_DIR, showWarnings = FALSE, recursive = TRUE)
 
-# `scale` is a multiplicative constant, or "pct" to divide by the sample mean
-# of the raw series and express the response in percent.
-irf_panel <- function(v, lab, scale = 1) {
+#' Build one impulse-response panel
+#'
+#' @param v Variable name in the production cache.
+#' @param lab Label for the vertical axis.
+#' @param scale Multiplicative constant, or `"pct"` to divide by the sample mean.
+#' @param mark_sig90 Whether to mark horizons whose 90% band excludes zero.
+#'
+#' @return A ggplot object.
+irf_panel <- function(v, lab, scale = 1, mark_sig90 = TRUE) {
   i <- match(v, vn)
   stopifnot(!is.na(i))
   k <- if (identical(scale, "pct")) 100 / mean(panel[[v]], na.rm = TRUE) else scale
@@ -59,14 +65,24 @@ irf_panel <- function(v, lab, scale = 1) {
     sig  = ci90$lower[i, j] > 0 | ci90$upper[i, j] < 0
   )
 
+  sig_markers <- if (mark_sig90) {
+    ggplot2::geom_point(
+      data = subset(df, sig),
+      ggplot2::aes(y = irf),
+      shape = 21,
+      fill = "#d95f02",
+      colour = "black",
+      size = 1.9,
+      stroke = 0.45
+    )
+  }
+
   ggplot2::ggplot(df, ggplot2::aes(x = h)) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin = lo90, ymax = hi90), fill = "steelblue", alpha = 0.18) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin = lo68, ymax = hi68), fill = "steelblue", alpha = 0.36) +
     ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
     ggplot2::geom_line(ggplot2::aes(y = irf), colour = "black", linewidth = 0.8) +
-    # marcadores nos horizontes em que a banda de 90% exclui zero
-    ggplot2::geom_point(data = subset(df, sig), ggplot2::aes(y = irf), shape = 21,
-               fill = "#d95f02", colour = "black", size = 1.9, stroke = 0.45) +
+    sig_markers +
     ggplot2::scale_x_continuous(breaks = seq(0, H_MAX, 6), limits = c(0, H_MAX),
                        expand = c(0.01, 0)) +
     ggplot2::theme_classic(base_size = 11) +
@@ -76,13 +92,32 @@ irf_panel <- function(v, lab, scale = 1) {
           plot.margin  = ggplot2::margin(3, 5, 1, 2))
 }
 
+#' Save a paper figure
+#'
+#' @param file Output filename inside `paper/`.
+#' @param plot Plot object to save.
+#' @param w Width in inches.
+#' @param h Height in inches.
+#'
+#' @return The path is written as a side effect; no value is used.
 save_fig <- function(file, plot, w, h) {
   ggplot2::ggsave(file.path(IMG_DIR, file), plot, width = w, height = h, device = cairo_pdf)
   cat("->", file.path(IMG_DIR, file), "\n")
 }
 
-grid_of <- function(specs, ncol) {
-  patchwork::wrap_plots(lapply(specs, function(s) irf_panel(s[[1]], s[[2]], s[[3]])), ncol = ncol)
+#' Arrange impulse-response panels in a grid
+#'
+#' @param specs List of variable, label, and scale specifications.
+#' @param ncol Number of columns.
+#' @param mark_sig90 Whether panels should mark 90% exclusions of zero.
+#'
+#' @return A patchwork plot.
+grid_of <- function(specs, ncol, mark_sig90 = TRUE) {
+  panels <- lapply(
+    specs,
+    function(s) irf_panel(s[[1]], s[[2]], s[[3]], mark_sig90 = mark_sig90)
+  )
+  patchwork::wrap_plots(panels, ncol = ncol)
 }
 
 
@@ -95,7 +130,7 @@ save_fig("fig_curva.pdf", grid_of(list(
   list("yield_5y",  "DI 5 anos (p.b.)",   1e4),
   list("yield_10y", "DI 10 anos (p.b.)",  1e4),
   list("juros_selic", "Selic overnight (p.b.)", 100)
-), ncol = 4), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
 # --- 2. câmbio e risco soberano -------------------------------------
@@ -106,7 +141,7 @@ save_fig("fig_cambio_risco.pdf", grid_of(list(
   list("cds_5y",          "CDS 5 anos (p.b.)",    1),
   list("commodity_metal", "Commodities metal, R$ (%)", "pct"),
   list("commodity_agro",  "Commodities agro, R$ (%)",  "pct")
-), ncol = 3), 9.6, 5.8)
+), ncol = 3, mark_sig90 = FALSE), 9.6, 5.8)
 
 
 # --- 3. dependência de estado ---------------------------------------
@@ -161,7 +196,7 @@ save_fig("fig_atividade.pdf", grid_of(list(
   list("vendas_servicos",                "Vendas de serviços (%)", "pct"),
   list("capacidade_instalada_industria", "Utiliz. capacidade (p.p.)", 1),
   list("trab_hrs_trabalhadas_industria", "Horas na indústria (%)", "pct")
-), ncol = 4), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
 # --- 5. crédito ------------------------------------------------------
@@ -173,7 +208,7 @@ save_fig("fig_credito.pdf", grid_of(list(
   list("credito_comercio",      "Crédito comércio (%)",     1),
   list("credito_construcao",    "Crédito construção (%)",   1),
   list("credito_pessoa_fisica", "Crédito pessoa física (%)", 1)
-), ncol = 4), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
 # --- 6. preços -------------------------------------------------------
@@ -186,7 +221,7 @@ save_fig("fig_precos.pdf", grid_of(list(
   list("price_core_ipca_ex1", "Núcleo EX1 (p.p.)",        1),
   list("price_ipca_difusao",  "Difusão do IPCA (p.p.)",   1),
   list("price_inpc",          "INPC (p.p. ao mês)",       1)
-), ncol = 4), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
 # --- 7. ações --------------------------------------------------------
@@ -198,7 +233,7 @@ save_fig("fig_acoes.pdf", grid_of(list(
   list("asset_ifnc", "IFNC, bancos (%)",    1),
   list("asset_imat", "IMAT, materiais (%)", 1),
   list("asset_ifix", "IFIX, renda imob. (%)", 1)
-), ncol = 4), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
 # --- 8. placebos ------------------------------------------------------
