@@ -192,15 +192,13 @@ soberano, atividade, crédito, preços, ações) e a conclusão ainda falam de 1
 séries em `(7,6)`. A `tab:rq_sweep` foi removida e Anderson-Rubin não é mais
 mencionado. Checklist do que falta em `registro/pendencias.md`, Tema A.
 
-A **`§5 Robustez` existe desde 2026-08-09 com três
-subseções** — `sec:exogeneidade` (previsibilidade do instrumento mensal,
-Ljung-Box, `commodity_metal` em R$ contra US$, placebos nas duas barras) e
-`sec:confound` (o filtro de sinal seleciona risco soberano?, nas duas proxies
-diárias, com as três ressalvas no corpo), além de `sec:fomc` (coincidência com
-decisões do FOMC e decomposição entre valores e máscara). Faltam as quatro
-subseções da composição recomendada em
-`notas/2026-08-01_tier_list_robustez.md` §7, entre elas
-Limitações; a conclusão passou a ser a §6. Desde 2026-08-05
+A **`§5 Robustez` tem quatro subseções** — `sec:exogeneidade`
+(previsibilidade do instrumento mensal, Ljung-Box, `commodity_metal` em R$
+contra US$ e placebos nas duas bandas), `sec:invertibilidade` (diagnóstico de
+invertibilidade fundamentado em Stock e Watson, 2018), `sec:confound` (o filtro
+de sinal seleciona risco soberano?, nas duas proxies diárias e com a seleção de
+produção fixa) e `sec:fomc` (coincidência com decisões do FOMC, também
+condicionada à seleção de produção). A conclusão passou a ser a §6. Desde 2026-08-05
 `script/fig_section5.R` gera as **8** figuras direto aqui
 (`paper/fig_*.pdf`, nomes nus, que é como o `.tex` as inclui): o §4 usa
 6, a §5 usa `fig_placebos`, e `fig_estado` segue sem consumidor.
