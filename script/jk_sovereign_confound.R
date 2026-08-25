@@ -665,10 +665,10 @@ for (v in IRF_VARIANTS) {
 # wired exactly like production.
 Pref <- cells[["z_jk_bs_purif"]]$irf$irf_point_matrix
 smoke <- c(yield_6m = 0.005,
-           yield_2y = 0.007430059200891,
-           yield_5y = 0.007761146417651,
-           asset_ibov = -1.722676656446279,
-           cambio_usd = 0.157928065725129)
+           yield_2y = 0.00728187686052304,
+           yield_5y = 0.00748309266828703,
+           asset_ibov = -0.967984890593469,
+           cambio_usd = 0.153855051208318)
 got <- Pref[match(names(smoke), var_names), 1]
 cat("    smoke test h0: ")
 cat(paste(sprintf("%s %.6g", names(smoke), got), collapse = " | "), "\n")

@@ -118,14 +118,14 @@ CI_LEVELS  <- SPEC$ci_levels
 WIN_FULL   <- SPEC$sample
 WIN_PRE    <- SPEC$pre_covid_sample
 
-# Independent pre-migration gate values for the selected 111/(5,5) cell.
-XI_MP_REF <- c(full = 6.27084962152744, pre_covid = 10.99267698349354)
+# Independent migration gate values for the selected 111/(5,5,4) cell.
+XI_MP_REF <- c(full = 5.240158304905, pre_covid = 7.478324275893)
 SMOKE_REF <- c(
   yield_6m = 0.005,
-  yield_2y = 0.00743005920089100,
-  yield_5y = 0.00776114641765084,
-  asset_ibov = -1.72267665644627943,
-  cambio_usd = 0.15792806572512938
+  yield_2y = 0.00728187686052304,
+  yield_5y = 0.00748309266828703,
+  asset_ibov = -0.967984890593469,
+  cambio_usd = 0.153855051208318
 )
 
 hcol <- function(h) h + 1L

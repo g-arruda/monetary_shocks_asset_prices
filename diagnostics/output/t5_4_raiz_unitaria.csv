@@ -84,13 +84,13 @@ price_ipp,precos,1,TRUE,0.1,FALSE,I(0) — os dois concordam
 commodity_agro,commodity,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 commodity_metal,commodity,1,FALSE,0.01,TRUE,I(1) — os dois concordam
 commodity_energia,commodity,1,FALSE,0.01,TRUE,I(1) — os dois concordam
-asset_ibov,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
-asset_idiv,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
-asset_ifix,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
-asset_ifnc,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
-asset_imat,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
-asset_imob,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
-asset_smll,ativos,2,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_ibov,ativos,6,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_idiv,ativos,6,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_ifix,ativos,6,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_ifnc,ativos,6,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_imat,ativos,6,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_imob,ativos,6,TRUE,0.1,FALSE,I(0) — os dois concordam
+asset_smll,ativos,6,TRUE,0.1,FALSE,I(0) — os dois concordam
 embi_perc,risco_ext,1,FALSE,0.06272600981336285,FALSE,ambiguo
 cds_5y,risco_ext,1,FALSE,0.09942274001584975,FALSE,ambiguo
 msci,risco_ext,1,FALSE,0.01,TRUE,I(1) — os dois concordam

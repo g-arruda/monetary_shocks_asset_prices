@@ -38,7 +38,7 @@
 #'   normalization.
 #'
 #' @examples
-#' res <- main_sdfm(r = 5L, q = 5L, p = 6, shock_size_bps = 50,
+#' res <- main_sdfm(r = 5L, q = 5L, p = 4, shock_size_bps = 50,
 #'                  mp_var = "yield_6m", nboot = 0)
 main_sdfm <- function(spec = production_spec(),
                       data_path = spec$data_path,

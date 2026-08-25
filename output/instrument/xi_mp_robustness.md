@@ -1,8 +1,8 @@
 # Robustez do ξ_mp — leave-one-month-out e HAC
 
-Gerado por `script/xi_mp_robustness.R` em 2026-08-17.
+Gerado por `script/xi_mp_robustness.R` em 2026-08-25.
 
-Especificação de produção: r = 5, q = 5, p = 6, direção de normalização = `yield_6m`. 5 instrumentos × 2 amostras.
+Especificação de produção: r = 5, q = 5, p = 4, direção de normalização = `yield_6m`. 5 instrumentos × 2 amostras.
 
 O DFM entra **uma vez por amostra** e fica fixo; só o momento Γ é recomputado. `c_mp` também vem do DFM, então o exercício isola a influência que passa pelo **momento**, não pela estimação de fatores.
 
@@ -14,16 +14,16 @@ possivelmente ilimitado.
 
 | sample | instrument | n_obs | xi_mp |
 |---|---|---|---|
-| full | z_jk_bs_purif |   147 | 6.271 |
-| full | z_jk_raw |   147 | 6.494 |
-| full | z_jk_raw_purif |   147 | 6.343 |
-| full | z_jk_purif |   147 |  3.98 |
-| full | z_bruto |   147 | 5.271 |
-| pre_covid | z_jk_bs_purif |    78 | 10.99 |
-| pre_covid | z_jk_raw |    78 | 11.02 |
-| pre_covid | z_jk_raw_purif |    78 | 11.31 |
-| pre_covid | z_jk_purif |    78 | 7.552 |
-| pre_covid | z_bruto |    78 | 14.86 |
+| full | z_jk_bs_purif |   149 |  5.24 |
+| full | z_jk_raw |   149 | 5.384 |
+| full | z_jk_raw_purif |   149 | 5.285 |
+| full | z_jk_purif |   149 | 3.404 |
+| full | z_bruto |   149 | 4.255 |
+| pre_covid | z_jk_bs_purif |    80 | 7.478 |
+| pre_covid | z_jk_raw |    80 | 7.128 |
+| pre_covid | z_jk_raw_purif |    80 | 7.617 |
+| pre_covid | z_jk_purif |    80 | 5.874 |
+| pre_covid | z_bruto |    80 | 6.584 |
 
 ## 2. Leave-one-month-out
 
@@ -31,26 +31,26 @@ possivelmente ilimitado.
 
 | scope | sample | instrument | xi_mp | xi_min | xi_median | xi_max | swing_dn | swing_up | n_below10 | n_below384 | n_drops |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| todos os meses | full | z_bruto | 5.271 | 3.907 | 5.267 | 6.039 | 1.364 | 0.768 |   147 |     0 |   147 |
-| todos os meses | full | z_jk_bs_purif | 6.271 | 4.888 | 6.271 | 6.964 | 1.383 | 0.693 |   147 |     0 |   147 |
-| todos os meses | full | z_jk_purif |  3.98 | 2.569 | 3.975 | 4.584 | 1.411 | 0.604 |   147 |    20 |   147 |
-| todos os meses | full | z_jk_raw | 6.494 | 5.109 | 6.494 | 7.117 | 1.386 | 0.623 |   147 |     0 |   147 |
-| todos os meses | full | z_jk_raw_purif | 6.343 | 4.961 | 6.343 | 6.982 | 1.382 | 0.638 |   147 |     0 |   147 |
-| todos os meses | pre_covid | z_bruto | 14.86 | 10.33 | 14.75 |  16.7 | 4.531 | 1.837 |     0 |     0 |    78 |
-| todos os meses | pre_covid | z_jk_bs_purif | 10.99 | 7.812 | 10.99 | 14.72 | 3.181 | 3.726 |    14 |     0 |    78 |
-| todos os meses | pre_covid | z_jk_purif | 7.552 | 5.142 | 7.526 | 9.942 |  2.41 |  2.39 |    78 |     0 |    78 |
-| todos os meses | pre_covid | z_jk_raw | 11.02 | 7.189 | 10.96 | 14.07 | 3.836 | 3.045 |    10 |     0 |    78 |
-| todos os meses | pre_covid | z_jk_raw_purif | 11.31 | 7.313 | 11.24 | 14.13 | 3.998 | 2.818 |     8 |     0 |    78 |
-| meses com z != 0 | full | z_bruto | 5.271 | 3.907 | 5.263 | 6.039 | 1.364 | 0.768 |    87 |     0 |    87 |
-| meses com z != 0 | full | z_jk_bs_purif | 6.271 | 4.888 |  6.26 | 6.964 | 1.383 | 0.693 |    60 |     0 |    60 |
-| meses com z != 0 | full | z_jk_purif |  3.98 | 2.569 | 3.974 | 4.584 | 1.411 | 0.604 |    63 |    15 |    63 |
-| meses com z != 0 | full | z_jk_raw | 6.494 | 5.109 | 6.489 | 7.062 | 1.386 | 0.568 |    54 |     0 |    54 |
-| meses com z != 0 | full | z_jk_raw_purif | 6.343 | 4.961 | 6.333 | 6.925 | 1.382 | 0.582 |    54 |     0 |    54 |
-| meses com z != 0 | pre_covid | z_bruto | 14.86 | 10.33 | 14.64 |  16.7 | 4.531 | 1.837 |     0 |     0 |    46 |
-| meses com z != 0 | pre_covid | z_jk_bs_purif | 10.99 | 7.812 |    11 | 14.72 | 3.181 | 3.726 |     8 |     0 |    29 |
-| meses com z != 0 | pre_covid | z_jk_purif | 7.552 | 5.142 | 7.461 | 9.109 |  2.41 | 1.557 |    29 |     0 |    29 |
-| meses com z != 0 | pre_covid | z_jk_raw | 11.02 | 7.189 | 10.74 | 14.07 | 3.836 | 3.045 |     7 |     0 |    25 |
-| meses com z != 0 | pre_covid | z_jk_raw_purif | 11.31 | 7.313 | 11.04 | 14.13 | 3.998 | 2.818 |     6 |     0 |    25 |
+| todos os meses | full | z_bruto | 4.255 | 3.112 | 4.253 | 4.778 | 1.144 | 0.522 |   149 |     7 |   149 |
+| todos os meses | full | z_jk_bs_purif |  5.24 | 4.041 | 5.241 | 5.842 | 1.199 | 0.602 |   149 |     0 |   149 |
+| todos os meses | full | z_jk_purif | 3.404 | 2.278 | 3.404 | 3.969 | 1.126 | 0.564 |   149 |   146 |   149 |
+| todos os meses | full | z_jk_raw | 5.384 | 4.173 | 5.384 | 5.909 | 1.212 | 0.524 |   149 |     0 |   149 |
+| todos os meses | full | z_jk_raw_purif | 5.285 | 4.086 | 5.287 | 5.793 |   1.2 | 0.507 |   149 |     0 |   149 |
+| todos os meses | pre_covid | z_bruto | 6.584 | 4.233 | 6.593 | 9.785 | 2.351 | 3.201 |    80 |     0 |    80 |
+| todos os meses | pre_covid | z_jk_bs_purif | 7.478 | 5.176 | 7.499 | 8.801 | 2.303 | 1.322 |    80 |     0 |    80 |
+| todos os meses | pre_covid | z_jk_purif | 5.874 | 3.859 | 5.883 | 6.789 | 2.015 | 0.915 |    80 |     0 |    80 |
+| todos os meses | pre_covid | z_jk_raw | 7.128 | 4.695 | 7.146 | 8.194 | 2.434 | 1.066 |    80 |     0 |    80 |
+| todos os meses | pre_covid | z_jk_raw_purif | 7.617 | 5.116 | 7.641 | 8.615 | 2.501 | 0.999 |    80 |     0 |    80 |
+| meses com z != 0 | full | z_bruto | 4.255 | 3.112 | 4.248 | 4.778 | 1.144 | 0.522 |    87 |     7 |    87 |
+| meses com z != 0 | full | z_jk_bs_purif |  5.24 | 4.041 | 5.238 | 5.842 | 1.199 | 0.602 |    60 |     0 |    60 |
+| meses com z != 0 | full | z_jk_purif | 3.404 | 2.278 | 3.404 | 3.969 | 1.126 | 0.564 |    63 |    60 |    63 |
+| meses com z != 0 | full | z_jk_raw | 5.384 | 4.173 | 5.384 | 5.909 | 1.212 | 0.524 |    54 |     0 |    54 |
+| meses com z != 0 | full | z_jk_raw_purif | 5.285 | 4.086 | 5.286 | 5.793 |   1.2 | 0.507 |    54 |     0 |    54 |
+| meses com z != 0 | pre_covid | z_bruto | 6.584 | 4.233 | 6.568 | 9.785 | 2.351 | 3.201 |    46 |     0 |    46 |
+| meses com z != 0 | pre_covid | z_jk_bs_purif | 7.478 | 5.176 | 7.514 | 8.801 | 2.303 | 1.322 |    29 |     0 |    29 |
+| meses com z != 0 | pre_covid | z_jk_purif | 5.874 | 3.859 | 5.896 | 6.789 | 2.015 | 0.915 |    29 |     0 |    29 |
+| meses com z != 0 | pre_covid | z_jk_raw | 7.128 | 4.695 | 7.145 | 8.194 | 2.434 | 1.066 |    25 |     0 |    25 |
+| meses com z != 0 | pre_covid | z_jk_raw_purif | 7.617 | 5.116 | 7.636 | 8.615 | 2.501 | 0.999 |    25 |     0 |    25 |
 
 ### Meses mais influentes — instrumento de produção `z_jk_bs_purif`
 
@@ -58,26 +58,26 @@ possivelmente ilimitado.
 
 | sample | mes | xi_mp_sem_o_mes | delta |
 |---|---|---|---|
-| full | 2024-12 | 4.888 | -1.383 |
-| full | 2021-03 | 5.078 | -1.192 |
-| full | 2016-01 |  5.13 | -1.141 |
-| full | 2017-01 | 5.373 | -0.898 |
-| full | 2021-10 | 5.499 | -0.772 |
-| full | 2021-04 |   5.5 | -0.771 |
-| full | 2018-05 | 5.576 | -0.695 |
-| full | 2016-12 | 6.871 |   0.6 |
-| full | 2018-10 | 6.872 | 0.601 |
-| full | 2020-10 | 6.964 | 0.693 |
-| pre_covid | 2016-01 | 7.812 | -3.181 |
-| pre_covid | 2017-01 | 8.055 | -2.937 |
-| pre_covid | 2018-05 | 8.844 | -2.149 |
-| pre_covid | 2014-01 | 8.853 | -2.14 |
-| pre_covid | 2014-02 | 8.923 | -2.069 |
-| pre_covid | 2017-07 | 9.265 | -1.728 |
-| pre_covid | 2015-11 | 9.455 | -1.537 |
-| pre_covid | 2016-05 | 9.658 | -1.335 |
-| pre_covid | 2016-12 | 12.74 | 1.744 |
-| pre_covid | 2019-10 | 14.72 | 3.726 |
+| full | 2021-03 | 4.041 | -1.199 |
+| full | 2024-12 | 4.054 | -1.187 |
+| full | 2016-01 | 4.165 | -1.075 |
+| full | 2017-01 |  4.54 |  -0.7 |
+| full | 2018-05 | 4.591 | -0.649 |
+| full | 2020-12 | 4.676 | -0.564 |
+| full | 2020-05 | 4.714 | -0.526 |
+| full | 2024-09 | 4.778 | -0.462 |
+| full | 2016-12 | 5.732 | 0.492 |
+| full | 2022-03 | 5.842 | 0.602 |
+| pre_covid | 2016-01 | 5.176 | -2.303 |
+| pre_covid | 2017-01 | 5.206 | -2.273 |
+| pre_covid | 2017-07 | 5.883 | -1.595 |
+| pre_covid | 2014-01 | 5.913 | -1.566 |
+| pre_covid | 2014-02 | 5.979 | -1.499 |
+| pre_covid | 2018-05 | 6.169 | -1.309 |
+| pre_covid | 2016-05 | 6.509 | -0.969 |
+| pre_covid | 2013-05 |   8.4 | 0.922 |
+| pre_covid | 2016-12 | 8.422 | 0.944 |
+| pre_covid | 2019-10 | 8.801 | 1.322 |
 
 ## 3. HAC — ξ_mp por defasagem de Newey-West
 
@@ -85,14 +85,14 @@ NW(0) é Eicker-White, a convenção das aplicações oficiais (`OilSVARIV.m:50`
 
 | sample | instrument | NW(0) | NW(1) | NW(2) | NW(3) | NW(4) | NW(5) | NW(6) |
 |---|---|---|---|---|---|---|---|---|
-| full | z_jk_bs_purif |  6.27 |  6.29 |  6.54 |  6.96 |  7.45 |  7.92 |  8.05 |
-| full | z_jk_raw |  6.49 |  6.33 |  6.57 |  6.99 |  7.47 |  7.93 |  8.09 |
-| full | z_jk_raw_purif |  6.34 |  6.19 |   6.4 |  6.79 |  7.22 |  7.63 |  7.79 |
-| full | z_jk_purif |  3.98 |  3.95 |  4.09 |  4.31 |  4.59 |  4.81 |  4.87 |
-| full | z_bruto |  5.27 |  5.18 |  5.27 |  5.57 |  5.99 |  6.35 |  6.48 |
-| pre_covid | z_jk_bs_purif | 10.99 |  9.98 |  9.92 |  9.89 |  9.79 |  9.87 |   9.6 |
-| pre_covid | z_jk_raw | 11.02 | 10.18 | 10.02 |  9.87 |  9.74 |  9.74 |  9.47 |
-| pre_covid | z_jk_raw_purif | 11.31 | 10.27 |    10 |  9.82 |  9.63 |  9.61 |  9.33 |
-| pre_covid | z_jk_purif |  7.55 |  7.49 |   8.3 |  8.16 |  7.91 |  7.75 |  7.23 |
-| pre_covid | z_bruto | 14.86 | 13.81 | 14.96 | 14.83 | 14.45 | 14.38 | 13.62 |
+| full | z_jk_bs_purif |  5.24 |   5.2 |  5.34 |  5.53 |  5.82 |  6.36 |  6.85 |
+| full | z_jk_raw |  5.38 |  5.26 |   5.4 |  5.58 |  5.85 |  6.36 |  6.85 |
+| full | z_jk_raw_purif |  5.29 |  5.17 |   5.3 |  5.46 |  5.71 |  6.19 |  6.66 |
+| full | z_jk_purif |   3.4 |  3.33 |  3.41 |  3.51 |  3.67 |  3.96 |  4.23 |
+| full | z_bruto |  4.26 |  4.24 |  4.34 |  4.49 |  4.72 |  5.09 |  5.42 |
+| pre_covid | z_jk_bs_purif |  7.48 |  7.44 |  7.73 |  7.92 |  8.25 |  8.85 |  8.98 |
+| pre_covid | z_jk_raw |  7.13 |  7.16 |  7.37 |  7.54 |  7.85 |   8.4 |  8.56 |
+| pre_covid | z_jk_raw_purif |  7.62 |  7.55 |  7.74 |  7.89 |  8.21 |  8.81 |  8.99 |
+| pre_covid | z_jk_purif |  5.87 |  5.98 |  6.28 |  6.14 |  6.25 |  6.47 |  6.29 |
+| pre_covid | z_bruto |  6.58 |  6.28 |  6.56 |  6.67 |     7 |  7.65 |  7.73 |
 

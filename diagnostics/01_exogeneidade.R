@@ -365,8 +365,8 @@ diag_write(t16, "t1_6_placebo_brl_vs_usd.csv")
 # coeficientes das defasagens de z sao nulos em CADA equacao do VAR.
 #
 # Regra de veredito, fixada antes dos numeros:
-#   - L = p = 6 decide (casa com a ordem do proprio VAR de fatores); L = 3 e
-#     sensibilidade;
+#   - L = p decide (casa com a ordem do proprio VAR de fatores); L = 3 e
+#     sensibilidade, quando distinto;
 #   - p por wild bootstrap sob H0, nao assintotico, porque z e censurado em zero;
 #   - Holm sobre as r equacoes, dentro de cada L; rejeita se algum p ajustado
 #     ficar abaixo de 0,05.
@@ -390,7 +390,7 @@ stopifnot(isTRUE(all.equal(.chk_a$F_rob, .chk_b$F_rob)),
           isTRUE(all.equal(.chk_a$R2,    .chk_b$R2)))
 cat("  auto-teste robust_subset_test == robust_joint_test (X_free vazio): OK\n")
 
-t17 <- lapply(c(6L, 3L), function(L) {
+t17 <- lapply(unique(c(P_LAG, 3L)), function(L) {
   cols <- paste0("inst_z_l", seq_len(L))
   out <- lapply(seq_len(ncol(Fh)), function(i) {
     robust_subset_test(y_all[, i], F_lags, Z_lags[, cols, drop = FALSE],

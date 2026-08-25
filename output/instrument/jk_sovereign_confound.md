@@ -1,6 +1,6 @@
 # Confound soberano no filtro JK — teste diario
 
-*Gerado por `script/jk_sovereign_confound.R` em 2026-08-17. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-09_confound_soberano_cds.md` (rodada das duas proxies) e `2026-07-31_confound_soberano_jk.md` (rodada original, so EMBI).*
+*Gerado por `script/jk_sovereign_confound.R` em 2026-08-25. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-09_confound_soberano_cds.md` (rodada das duas proxies) e `2026-07-31_confound_soberano_jk.md` (rodada original, so EMBI).*
 
 ## A pergunta
 
@@ -147,56 +147,56 @@ Ortogonalizar so os **valores** deixa a **selecao** dos 62 dias intacta, contra 
 
 | amostra | instrumento | meses_nao_nulos | xi_mp | f_robust_mp | impacto_mp_pre | denom_vs_prod | ar_limitada | bandas_validas |
 |---|---|---|---|---|---|---|---|---|
-| full | z_jk_bs_purif |    62 | 6.271 | 10.12 | 8.426e-05 |     1 | TRUE | FALSE |
-| full | z_jk_bs_norisk |    60 | 6.619 | 10.29 | 8.302e-05 | 0.9853 | TRUE | FALSE |
-| full | z_jk_bs_norisk_cds |    60 | 7.576 |  13.1 | 9.231e-05 | 1.096 | TRUE | FALSE |
-| full | z_jk_bs_norisk_mask |    62 | 4.264 | 4.859 | 6.057e-05 | 0.7188 | TRUE | FALSE |
-| pre_covid | z_jk_bs_purif |    31 | 10.99 | 9.747 | 8.054e-05 |     1 | TRUE | TRUE |
-| pre_covid | z_jk_bs_norisk |    30 | 7.758 | 6.675 | 7.287e-05 | 0.9048 | TRUE | FALSE |
-| pre_covid | z_jk_bs_norisk_cds |    30 | 8.897 |  8.69 | 7.937e-05 | 0.9855 | TRUE | FALSE |
-| pre_covid | z_jk_bs_norisk_mask |    30 | 6.686 | 7.232 | 7.111e-05 | 0.8828 | TRUE | FALSE |
+| full | z_jk_bs_purif |    62 |  5.24 | 10.06 | 0.0001013 |     1 | TRUE | FALSE |
+| full | z_jk_bs_norisk |    60 | 5.804 | 10.83 | 0.0001018 | 1.005 | TRUE | FALSE |
+| full | z_jk_bs_norisk_cds |    60 | 6.486 | 13.64 | 0.0001122 | 1.108 | TRUE | FALSE |
+| full | z_jk_bs_norisk_mask |    62 | 3.438 |  4.22 | 6.641e-05 | 0.6554 | FALSE | FALSE |
+| pre_covid | z_jk_bs_purif |    31 | 7.478 | 11.87 | 0.0001036 |     1 | TRUE | FALSE |
+| pre_covid | z_jk_bs_norisk |    30 |  5.91 | 8.383 | 9.885e-05 | 0.954 | TRUE | FALSE |
+| pre_covid | z_jk_bs_norisk_cds |    30 | 6.652 |  11.1 | 0.0001073 | 1.036 | TRUE | FALSE |
+| pre_covid | z_jk_bs_norisk_mask |    30 | 5.581 | 7.478 | 8.974e-05 | 0.8661 | TRUE | FALSE |
 
 `ar_limitada` e ξ_mp > 3,84 (conjunto AR de 95% limitado); `bandas_validas` e ξ_mp ≥ 10.
 
-**Valores e selecao afetam a forca por canais distintos.** Ortogonalizar os **valores** ao risco contemporaneo leva ξ_mp de 6,27 na producao para 6,62 com EMBI e cambio e 7,58 com o CDS. Re-derivar a **mascara** sobre os mesmos residuos leva a estatistica para 4,26 na amostra cheia, uma queda de 2,01 contra a producao, porque o bloco de risco explica 15.4% de `e_di_bs` e 40.4% de `e_ibov_bs`, que e a outra perna da regra de sinal. O conjunto AR continua limitado, mas abaixo de 10 as bandas convencionais deixam de valer, entao a variante de mascara sustenta sinal e direcao, nao intervalo.
+**Valores e selecao afetam a forca por canais distintos.** Ortogonalizar os **valores** ao risco contemporaneo leva ξ_mp de 5,24 na producao para 5,80 com EMBI e cambio e 6,49 com o CDS. Re-derivar a **mascara** sobre os mesmos residuos leva a estatistica para 3,44 na amostra cheia, uma queda de 1,80 contra a producao, porque o bloco de risco explica 15.4% de `e_di_bs` e 40.4% de `e_ibov_bs`, que e a outra perna da regra de sinal. O conjunto AR continua limitado, mas abaixo de 10 as bandas convencionais deixam de valer, entao a variante de mascara sustenta sinal e direcao, nao intervalo.
 
-Na janela pre-COVID a variante de mascara fica em 6,69 contra 10,99 da producao. Pela referencia convencional de 10, somente a producao sustenta bandas convencionais.
+Na janela pre-COVID a variante de mascara fica em 5,58 contra 7,48 da producao. Pela referencia convencional de 10, somente a producao sustenta bandas convencionais.
 
 ⚠ **Por que uma variante ortogonalizada pode imprimir respostas MAIORES, e por que isso nao e evidencia a favor.** `impacto_mp_pre` e a resposta de `yield_6m` no impacto **antes** da normalizacao, isto e o denominador pelo qual cada IRF da celula e dividida, e `denom_vs_prod` o poe em razao da producao. Onde ele encolhe, toda a IRF da celula cresce por aritmetica, sem que nada de economico tenha mudado. E o mesmo mecanismo que a classe `unstable_normalization` da taxonomia do sweep monitora (`R/identification/spec_sweep.R`), e por isso a leitura de magnitude entre variantes so vale com essa coluna ao lado.
 
 ## IRFs no impacto (h = 0)
 
-Celulas sig90 por variante: z_jk_bs_norisk_mask 62, z_jk_bs_norisk_cds 61, z_jk_bs_purif 61.
+Celulas sig90 por variante: z_jk_bs_norisk_mask 88, z_jk_bs_norisk_cds 74, z_jk_bs_purif 73.
 
 | instrumento | variavel | ponto | lo68 | hi68 | lo90 | hi90 | sig90 |
 |---|---|---|---|---|---|---|---|
 | z_jk_bs_purif | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk_bs_purif | yield_2y | 0.00743 | 0.006551 | 0.008595 | 0.006076 | 0.009482 | TRUE |
-| z_jk_bs_purif | yield_5y | 0.007761 | 0.00663 | 0.009619 | 0.005791 | 0.01113 | TRUE |
-| z_jk_bs_purif | cambio_usd | 0.1579 | 0.1123 | 0.2033 | 0.09207 | 0.2493 | TRUE |
-| z_jk_bs_purif | embi_perc | 0.262 | 0.2074 | 0.3791 | 0.1719 | 0.473 | TRUE |
-| z_jk_bs_purif | cds_5y | 32.54 | 26.32 | 44.35 | 22.15 | 53.84 | TRUE |
-| z_jk_bs_purif | asset_ibov | -1.723 | -5.042 | -0.6327 | -6.91 | 0.7747 | FALSE |
-| z_jk_bs_purif | price_ipca | -0.06179 | -0.1831 | 0.04684 | -0.2758 | 0.117 | FALSE |
-| z_jk_bs_purif | price_ipp | 0.4677 | 0.3075 | 0.704 | 0.1856 | 0.8838 | TRUE |
+| z_jk_bs_purif | yield_2y | 0.007282 | 0.006361 | 0.008073 | 0.00579 | 0.008697 | TRUE |
+| z_jk_bs_purif | yield_5y | 0.007483 | 0.006081 | 0.008795 | 0.00535 | 0.009912 | TRUE |
+| z_jk_bs_purif | cambio_usd | 0.1539 | 0.1134 | 0.1878 | 0.09491 | 0.2166 | TRUE |
+| z_jk_bs_purif | embi_perc | 0.2448 | 0.1887 | 0.3256 | 0.1453 | 0.3919 | TRUE |
+| z_jk_bs_purif | cds_5y |  30.7 | 24.05 | 38.65 |  19.2 | 46.19 | TRUE |
+| z_jk_bs_purif | asset_ibov | -0.968 | -3.41 | 0.3081 | -5.033 | 1.563 | FALSE |
+| z_jk_bs_purif | price_ipca | -0.0549 | -0.1355 | 0.02865 | -0.2043 | 0.08431 | FALSE |
+| z_jk_bs_purif | price_ipp | 0.4262 | 0.2604 | 0.5979 | 0.1614 | 0.7167 | TRUE |
 | z_jk_bs_norisk_cds | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk_bs_norisk_cds | yield_2y | 0.007223 | 0.00641 | 0.008332 | 0.005922 | 0.009082 | TRUE |
-| z_jk_bs_norisk_cds | yield_5y | 0.007345 | 0.006372 | 0.009206 | 0.005608 | 0.01048 | TRUE |
-| z_jk_bs_norisk_cds | cambio_usd | 0.1554 | 0.1131 | 0.1946 | 0.09195 | 0.2346 | TRUE |
-| z_jk_bs_norisk_cds | embi_perc | 0.2326 | 0.1869 | 0.3504 | 0.1508 | 0.4234 | TRUE |
-| z_jk_bs_norisk_cds | cds_5y |  29.7 | 24.23 | 41.19 | 20.31 | 48.24 | TRUE |
-| z_jk_bs_norisk_cds | asset_ibov | -0.8056 | -4.088 | 0.009612 | -5.925 |  1.37 | FALSE |
-| z_jk_bs_norisk_cds | price_ipca | -0.07836 | -0.1814 | 0.03136 | -0.2851 | 0.09384 | FALSE |
-| z_jk_bs_norisk_cds | price_ipp | 0.4314 | 0.2781 | 0.6553 | 0.1671 | 0.8226 | TRUE |
+| z_jk_bs_norisk_cds | yield_2y | 0.007071 | 0.00623 | 0.007874 | 0.005676 | 0.008462 | TRUE |
+| z_jk_bs_norisk_cds | yield_5y | 0.007067 | 0.005839 | 0.008392 | 0.005131 | 0.009359 | TRUE |
+| z_jk_bs_norisk_cds | cambio_usd | 0.1475 | 0.1108 | 0.1804 | 0.09283 | 0.2072 | TRUE |
+| z_jk_bs_norisk_cds | embi_perc | 0.2162 | 0.1697 | 0.3002 | 0.1302 | 0.3613 | TRUE |
+| z_jk_bs_norisk_cds | cds_5y | 27.76 | 22.36 | 36.19 | 17.87 | 42.02 | TRUE |
+| z_jk_bs_norisk_cds | asset_ibov | -0.1489 | -2.613 | 0.9009 | -4.086 | 2.026 | FALSE |
+| z_jk_bs_norisk_cds | price_ipca | -0.05654 | -0.1266 | 0.02887 | -0.1884 | 0.07528 | FALSE |
+| z_jk_bs_norisk_cds | price_ipp | 0.3843 | 0.2361 | 0.5502 | 0.1393 | 0.6635 | TRUE |
 | z_jk_bs_norisk_mask | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk_bs_norisk_mask | yield_2y | 0.01082 | 0.009555 | 0.01364 | 0.008762 | 0.01746 | TRUE |
-| z_jk_bs_norisk_mask | yield_5y | 0.0136 | 0.01177 | 0.01845 | 0.01045 | 0.02647 | TRUE |
-| z_jk_bs_norisk_mask | cambio_usd | 0.2646 | 0.1955 | 0.3801 | 0.169 | 0.5796 | TRUE |
-| z_jk_bs_norisk_mask | embi_perc | 0.6075 | 0.4826 | 0.9498 | 0.409 |  1.49 | TRUE |
-| z_jk_bs_norisk_mask | cds_5y | 68.29 |  55.7 | 103.4 | 47.99 | 152.3 | TRUE |
-| z_jk_bs_norisk_mask | asset_ibov | -11.8 | -19.45 | -10.02 | -30.12 | -8.286 | TRUE |
-| z_jk_bs_norisk_mask | price_ipca | 0.08462 | -0.05508 | 0.2371 | -0.1666 | 0.3546 | FALSE |
-| z_jk_bs_norisk_mask | price_ipp | 1.177 | 0.907 | 1.746 | 0.7376 |  2.56 | TRUE |
+| z_jk_bs_norisk_mask | yield_2y | 0.01037 | 0.009157 | 0.01253 | 0.008308 | 0.0146 | TRUE |
+| z_jk_bs_norisk_mask | yield_5y | 0.01285 | 0.01094 | 0.01646 | 0.009705 | 0.02064 | TRUE |
+| z_jk_bs_norisk_mask | cambio_usd | 0.2464 | 0.1814 | 0.3355 | 0.1538 | 0.4783 | TRUE |
+| z_jk_bs_norisk_mask | embi_perc | 0.5691 | 0.4575 | 0.8294 | 0.3927 | 1.122 | TRUE |
+| z_jk_bs_norisk_mask | cds_5y | 63.91 |  52.2 | 89.86 | 45.09 | 123.1 | TRUE |
+| z_jk_bs_norisk_mask | asset_ibov | -10.2 | -16.05 | -8.334 | -21.23 | -6.817 | TRUE |
+| z_jk_bs_norisk_mask | price_ipca | 0.1026 | -0.006209 | 0.2219 | -0.09458 | 0.3264 | FALSE |
+| z_jk_bs_norisk_mask | price_ipp |  1.05 | 0.8086 | 1.478 | 0.6154 |  1.99 | TRUE |
 
 Trajetorias completas em `jk_sovereign_irf_overlay.pdf`; celulas em `jk_sovereign_confound.csv`.
 

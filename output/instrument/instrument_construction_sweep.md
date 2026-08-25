@@ -1,10 +1,10 @@
 # Robustez da construção do instrumento — vértice do DI e esquema de agregação
 
-Gerado por `script/instrument_construction_sweep.R` em 2026-08-17.
+Gerado por `script/instrument_construction_sweep.R` em 2026-08-25.
 
-Grid: 13 vértices × 2 esquemas de agregação × 5 variantes × 2 amostras = 260 células. Dimensão (r, q) = (5, 5), p = 6, direção de normalização = `yield_6m`. Um `estimate_dfm` por amostra.
+Grid: 13 vértices × 2 esquemas de agregação × 5 variantes × 2 amostras = 260 células. Dimensão (r, q) = (5, 5), p = 4, direção de normalização = `yield_6m`. Um `estimate_dfm` por amostra.
 
-**Incumbente:** vértice 126 du + soma JK + `z_jk_bs_purif` — ξ_mp = 6.26 full / 10.58 pré-COVID.
+**Incumbente:** vértice 126 du + soma JK + `z_jk_bs_purif` — ξ_mp = 5.37 full / 8.08 pré-COVID.
 
 Protocolo anti-screening de MOSW (nota 6): a grade inteira é reportada e nada é filtrado pela estatística.
 
@@ -34,21 +34,21 @@ Protocolo anti-screening de MOSW (nota 6): a grade inteira é reportada e nada �
 
 | instrument | 21du | 42du | 63du | 84du | 105du | 126du | 147du | 168du | 189du | 210du | 252du | 378du | 504du |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| z_jk_bs_purif |  5.22 |  8.85 |  5.62 |  7.04 |  4.33 |  6.26 |  5.85 |  3.94 |  3.54 |  3.81 |  4.29 |  4.55 |  5.01 |
-| z_jk_raw |  5.36 |  9.78 |  6.57 |  7.51 |  5.05 |  6.49 |  6.14 |  4.37 |  3.82 |  4.26 |  4.43 |  4.86 |  5.04 |
-| z_jk_raw_purif |  5.12 |  9.35 |  6.47 |  7.42 |  4.91 |  6.34 |  5.96 |  4.24 |  3.68 |  4.18 |  4.41 |  4.86 |     5 |
-| z_jk_purif |  2.95 |   6.4 |  2.99 |  4.91 |   3.1 |  3.98 |  4.23 |  3.05 |  2.71 |  2.56 |  3.17 |  3.41 |  3.14 |
-| z_bruto |  2.04 |  6.13 |  3.02 |  5.86 |  4.29 |  5.26 |   5.8 |  3.83 |   3.5 |  3.31 |  4.46 |  4.56 |   4.9 |
+| z_jk_bs_purif |  4.76 |     7 |  5.19 |  5.98 |  3.71 |  5.37 |  5.24 |  3.17 |  2.93 |  3.16 |  3.23 |  3.31 |  3.53 |
+| z_jk_raw |  4.86 |  7.35 |  5.63 |  6.18 |  4.19 |  5.41 |  5.32 |  3.52 |  3.17 |  3.47 |  3.35 |  3.54 |  3.57 |
+| z_jk_raw_purif |  4.64 |  7.12 |  5.58 |  6.14 |   4.1 |   5.3 |  5.24 |  3.44 |  3.09 |  3.41 |  3.34 |  3.53 |  3.51 |
+| z_jk_purif |  2.62 |  5.08 |  2.84 |  4.39 |   2.6 |  3.41 |  3.86 |  2.37 |   2.2 |  1.96 |  2.29 |  2.27 |  1.91 |
+| z_bruto |  2.06 |  4.94 |  2.95 |  4.88 |   3.4 |  4.28 |  4.86 |  2.89 |  2.77 |  2.54 |   3.1 |  2.89 |   2.8 |
 
 ### Pré-COVID
 
 | instrument | 21du | 42du | 63du | 84du | 105du | 126du | 147du | 168du | 189du | 210du | 252du | 378du | 504du |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| z_jk_bs_purif | 11.72 | 16.14 | 14.33 | 12.65 | 10.57 | 10.58 | 11.68 |   7.3 |  6.35 | 10.14 |  5.55 |  4.74 |  3.16 |
-| z_jk_raw | 11.48 | 15.18 | 13.68 | 13.15 | 10.93 | 11.02 |  12.2 |  9.07 |  8.12 | 11.17 |  7.88 |  6.78 |  5.74 |
-| z_jk_raw_purif | 11.22 | 15.02 | 13.59 | 13.31 | 11.05 | 11.32 | 12.76 |  9.82 |  8.37 | 11.95 |  8.61 |  7.97 |  7.01 |
-| z_jk_purif |  6.77 |  8.28 |  7.63 |   8.2 |  6.83 |  7.56 |  8.44 |  6.23 |  5.13 |  7.04 |  4.22 |  3.86 |     3 |
-| z_bruto | 11.36 | 16.17 | 14.53 | 14.94 | 14.62 | 14.86 | 16.45 | 12.67 | 11.16 | 15.62 | 10.68 | 11.88 |  9.85 |
+| z_jk_bs_purif |  8.39 |  9.36 |  9.23 |  9.76 |   8.1 |  8.08 |  8.23 |   6.4 |  6.18 |  7.28 |  5.56 |  4.79 |  3.87 |
+| z_jk_raw |  7.84 |  8.52 |  8.35 |  8.67 |  7.24 |  7.13 |   7.6 |  5.95 |   5.4 |  6.62 |  5.19 |  4.65 |  4.19 |
+| z_jk_raw_purif |  7.73 |  8.65 |  8.48 |  8.91 |  7.49 |  7.63 |  8.16 |  6.63 |  5.93 |   7.3 |   5.8 |  5.59 |  5.15 |
+| z_jk_purif |  5.17 |  5.56 |  5.63 |   6.6 |  5.38 |  5.89 |  6.14 |  4.79 |  4.58 |  5.17 |  4.14 |  3.81 |  3.25 |
+| z_bruto |  7.42 |   8.6 |  8.12 |  8.33 |  7.41 |  6.58 |  7.08 |  5.72 |  4.61 |  5.84 |  4.41 |  4.58 |  4.29 |
 
 ## 3. ξ_mp por vértice — agregação Gertler-Karadi (nota 11)
 
@@ -58,21 +58,21 @@ Lida em **NW(1)**: o esquema GK parte cada surpresa entre `t` e `t+1`, o que ind
 
 | instrument | 21du | 42du | 63du | 84du | 105du | 126du | 147du | 168du | 189du | 210du | 252du | 378du | 504du |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| z_jk_bs_purif |  1.01 |   0.8 |  0.01 |  0.02 |     0 |  0.13 |  0.08 |  0.08 |  0.02 |  0.02 |  0.05 |     0 |     0 |
-| z_jk_raw |  1.32 |  2.15 |  0.09 |  0.15 |  0.11 |  0.84 |  0.74 |  0.45 |  0.26 |  0.41 |  0.39 |  0.21 |  0.21 |
-| z_jk_raw_purif |  1.11 |  1.78 |   0.1 |  0.11 |  0.07 |  0.79 |  0.66 |  0.38 |   0.2 |   0.3 |  0.37 |   0.2 |  0.21 |
-| z_jk_purif |  0.38 |  0.41 |  0.41 |  0.16 |  0.35 |  0.04 |  0.03 |  0.07 |  0.15 |   0.5 |  0.02 |  0.16 |  0.35 |
-| z_bruto |  0.38 |  0.03 |  1.03 |  0.51 |  0.43 |  0.28 |     0 |  0.16 |  0.19 |  0.53 |  0.03 |  0.33 |  0.48 |
+| z_jk_bs_purif |     1 |  0.65 |  0.01 |     0 |  0.02 |  0.12 |  0.09 |     0 |  0.01 |     0 |  0.01 |  0.14 |  0.23 |
+| z_jk_raw |  1.32 |  1.63 |  0.17 |  0.27 |  0.06 |  0.66 |  0.67 |  0.17 |  0.08 |  0.16 |   0.1 |  0.01 |     0 |
+| z_jk_raw_purif |  1.07 |  1.31 |  0.16 |  0.19 |  0.03 |   0.6 |  0.63 |  0.14 |  0.06 |   0.1 |  0.09 |     0 |     0 |
+| z_jk_purif |  0.31 |  0.17 |  0.37 |  0.09 |  0.49 |  0.08 |  0.02 |  0.22 |  0.34 |  0.78 |  0.21 |  0.63 |  1.08 |
+| z_bruto |  0.39 |  0.04 |  0.69 |  0.32 |   0.5 |  0.24 |     0 |  0.33 |  0.33 |  0.69 |  0.17 |  0.87 |   1.3 |
 
 ### Pré-COVID
 
 | instrument | 21du | 42du | 63du | 84du | 105du | 126du | 147du | 168du | 189du | 210du | 252du | 378du | 504du |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| z_jk_bs_purif |  4.68 |  7.19 |  4.51 |  2.11 |  2.15 |  0.98 |  0.98 |  0.01 |  0.04 |  0.24 |     0 |  0.29 |  0.89 |
-| z_jk_raw |  5.08 |  8.45 |  5.65 |  4.99 |  4.56 |  5.34 |  5.55 |  2.29 |  2.35 |  4.68 |   1.8 |  0.72 |  0.15 |
-| z_jk_raw_purif |  4.64 |  7.85 |  5.17 |  4.47 |  3.96 |  5.08 |  5.34 |  2.28 |  2.04 |  4.39 |  1.83 |  0.98 |  0.33 |
-| z_jk_purif |  1.79 |  2.14 |   1.3 |  1.28 |  0.93 |  1.19 |  1.15 |  0.34 |  0.23 |  0.39 |  0.16 |  0.01 |  0.11 |
-| z_bruto |  5.52 |  6.71 |  6.14 |  4.87 |  5.91 |  3.49 |  4.39 |  2.45 |   1.7 |   2.6 |  1.51 |  1.04 |  0.19 |
+| z_jk_bs_purif |  3.02 |  2.69 |  2.08 |  1.78 |  1.37 |  0.78 |  1.09 |  0.37 |  0.36 |  0.62 |  0.23 |  0.01 |  0.08 |
+| z_jk_raw |  3.09 |  3.04 |  2.22 |  2.36 |  1.65 |  1.82 |  2.29 |  1.14 |  1.24 |  1.86 |  1.39 |  0.72 |  0.45 |
+| z_jk_raw_purif |  2.91 |  3.07 |   2.2 |  2.34 |  1.62 |  1.95 |  2.43 |  1.32 |  1.35 |  2.01 |  1.56 |  0.98 |  0.71 |
+| z_jk_purif |  1.93 |  1.53 |  1.21 |  1.76 |  1.13 |  1.38 |  1.73 |  0.88 |  0.85 |  1.09 |  1.14 |  0.93 |  0.56 |
+| z_bruto |  3.88 |   3.3 |  2.63 |   2.4 |   2.1 |  1.11 |   1.6 |  0.84 |  0.48 |   0.8 |  0.31 |  0.04 |  0.02 |
 
 ## 4. Células que batem o incumbente nas duas janelas e cruzam 10 nas duas
 
@@ -82,7 +82,7 @@ _Nenhuma._ O incumbente não é dominado por nenhuma célula da grade.
 
 A regra foi fixada **antes** de qualquer um destes números existir (plano de 2026-07-27). Uma célula substitui a construção de produção só se (i) bater o incumbente nas duas janelas, (ii) cruzar ξ_mp ≥ 10 nas duas, e (iii) vencer por margem maior que a dispersão leave-one-month-out do próprio ξ_mp do incumbente — uma vantagem menor do que o que um único mês move não é sinal.
 
-Limiar (iii), lido de `xi_mp_robustness.csv`: **1.38** pontos (maior desvio LOO de ξ_mp = 6.26 na amostra completa).
+Limiar (iii), lido de `xi_mp_robustness.csv`: **1.20** pontos (maior desvio LOO de ξ_mp = 5.37 na amostra completa).
 
 Maior margem observada: **0.00** (nenhuma célula elegível).
 
@@ -92,16 +92,16 @@ Maior margem observada: **0.00** (nenhuma célula elegível).
 
 | sample | instrument | n_vertices | xi_min | xi_median | xi_max | best_bd | n_ge10 | n_ge384 |
 |---|---|---|---|---|---|---|---|---|
-| full | z_jk_raw |    13 | 3.818 |  5.05 | 9.781 |    42 |     0 |    12 |
-| full | z_jk_bs_purif |    13 | 3.542 | 5.006 | 8.847 |    42 |     0 |    11 |
-| full | z_jk_raw_purif |    13 | 3.678 | 5.001 | 9.351 |    42 |     0 |    12 |
-| full | z_bruto |    13 | 2.045 | 4.461 | 6.134 |    42 |     0 |     8 |
-| full | z_jk_purif |    13 | 2.563 | 3.138 | 6.401 |    42 |     0 |     4 |
-| pre_covid | z_bruto |    13 | 9.847 | 14.53 | 16.44 |   147 |    12 |    13 |
-| pre_covid | z_jk_raw_purif |    13 | 7.008 | 11.22 | 15.02 |    42 |     8 |    13 |
-| pre_covid | z_jk_raw |    13 | 5.744 | 11.02 | 15.18 |    42 |     8 |    13 |
-| pre_covid | z_jk_bs_purif |    13 |  3.16 | 10.57 | 16.14 |    42 |     8 |    12 |
-| pre_covid | z_jk_purif |    13 | 3.003 | 6.831 | 8.444 |   147 |     0 |    12 |
+| full | z_jk_raw |    13 | 3.172 | 4.191 | 7.349 |    42 |     0 |     7 |
+| full | z_jk_raw_purif |    13 |  3.09 | 4.096 | 7.124 |    42 |     0 |     7 |
+| full | z_jk_bs_purif |    13 | 2.932 | 3.712 | 7.002 |    42 |     0 |     6 |
+| full | z_bruto |    13 | 2.059 | 2.949 | 4.943 |    42 |     0 |     4 |
+| full | z_jk_purif |    13 | 1.914 |   2.6 | 5.083 |    42 |     0 |     3 |
+| pre_covid | z_jk_bs_purif |    13 | 3.869 | 8.079 |  9.76 |    84 |     0 |    13 |
+| pre_covid | z_jk_raw_purif |    13 | 5.154 | 7.492 | 8.913 |    84 |     0 |    13 |
+| pre_covid | z_jk_raw |    13 | 4.187 | 7.128 | 8.665 |    84 |     0 |    13 |
+| pre_covid | z_bruto |    13 | 4.287 | 6.584 | 8.601 |    42 |     0 |    13 |
+| pre_covid | z_jk_purif |    13 | 3.248 |  5.17 | 6.596 |    84 |     0 |    11 |
 
 ## 6. Diagnóstico de construção por célula
 

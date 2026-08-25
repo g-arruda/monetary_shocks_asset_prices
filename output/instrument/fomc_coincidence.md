@@ -1,6 +1,6 @@
 # Coincidencia FOMC no instrumento Copom — teste diario e reestimacao
 
-*Gerado por `script/fomc_coincidence.R` em 2026-08-17. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-10_coincidencia_fomc.md`.*
+*Gerado por `script/fomc_coincidence.R` em 2026-08-25. **Corpo gerado: nao escreva prosa aqui.** A leitura interpretativa vive em `notas/2026-08-10_coincidencia_fomc.md`.*
 
 ## A pergunta
 
@@ -16,7 +16,7 @@ Ate 2026-08-10 o repositorio nao tinha como responder: `R/instrument/build_varia
 
 A regra tinha uma terceira perna, retirada em 2026-08-10 junto com o teste que a alimentava. A divisao dos 62 dias retidos em metades com e sem FOMC exigia que a metade sem-FOMC preservasse os sinais das manchetes com o ponto de producao dentro do CI90 dela, e na rodada daquele dia essa perna **passou** sem acionar a clausula de poder, enquanto a metade *com* FOMC saiu com conjunto AR ilimitado e portanto inutilizavel para citacao em qualquer direcao. Retirar uma perna satisfeita torna a regra estritamente mais permissiva, de modo que o veredito nao pode ter mudado por causa do corte. Os numeros das duas metades estao no historico do git e **nao sao reproduziveis por este script**. Registro em `registro/historico_decisoes.md`.
 
-**Veredito: CONFOUND FOMC NAO DETECTADO.**
+**Veredito: SINAL FRACO DE CONTAMINACAO FOMC.**
 
 ## 0 — Onde no calendario a noticia do Fed cai
 
@@ -124,14 +124,14 @@ Ortogonalizar so os **valores** ao bloco global e a forma do Teste C da rodada s
 
 | amostra | instrumento | meses_nao_nulos | xi_mp | f_robust_mp | impacto_mp_pre | denom_vs_prod | ar_limitada | bandas_validas |
 |---|---|---|---|---|---|---|---|---|
-| full | z_jk_bs_purif |    62 | 6.271 | 10.12 | 8.426e-05 |     1 | TRUE | FALSE |
-| full | z_jk_bs_noglob |    62 | 6.312 | 10.21 | 8.582e-05 | 1.018 | TRUE | FALSE |
-| full | z_jk_bs_glob |    61 | 4.175 | 5.798 | 6.786e-05 | 0.8053 | TRUE | FALSE |
-| full | z_jk_us |    62 | 3.926 | 5.295 | 6.134e-05 | 0.728 | TRUE | FALSE |
-| pre_covid | z_jk_bs_purif |    31 | 10.99 | 9.747 | 8.054e-05 |     1 | TRUE | TRUE |
-| pre_covid | z_jk_bs_noglob |    31 | 11.09 | 9.982 | 8.211e-05 | 1.019 | TRUE | TRUE |
-| pre_covid | z_jk_bs_glob |    30 | 7.784 | 8.113 | 7.871e-05 | 0.9773 | TRUE | FALSE |
-| pre_covid | z_jk_us |    31 | 7.579 | 8.454 | 7.727e-05 | 0.9593 | TRUE | FALSE |
+| full | z_jk_bs_purif |    62 |  5.24 | 10.06 | 0.0001013 |     1 | TRUE | FALSE |
+| full | z_jk_bs_noglob |    62 | 5.325 | 10.26 | 0.0001035 | 1.022 | TRUE | FALSE |
+| full | z_jk_bs_glob |    61 | 3.671 | 5.529 | 7.86e-05 | 0.7757 | FALSE | FALSE |
+| full | z_jk_us |    62 | 3.361 | 4.945 | 7.071e-05 | 0.6979 | FALSE | FALSE |
+| pre_covid | z_jk_bs_purif |    31 | 7.478 | 11.87 | 0.0001036 |     1 | TRUE | FALSE |
+| pre_covid | z_jk_bs_noglob |    31 | 7.634 | 12.57 | 0.0001063 | 1.026 | TRUE | FALSE |
+| pre_covid | z_jk_bs_glob |    30 | 6.154 | 9.216 | 9.888e-05 | 0.9544 | TRUE | FALSE |
+| pre_covid | z_jk_us |    31 | 5.873 | 9.406 | 9.635e-05 | 0.9299 | TRUE | FALSE |
 
 `ar_limitada` e ξ_mp > 3,84 (conjunto AR de 95% limitado); `bandas_validas` e ξ_mp ≥ 10. A distancia entre `z_jk_bs_noglob` e `z_jk_bs_glob` e a medida do canal de selecao: as duas ortogonalizam os mesmos valores no mesmo bloco e diferem so em re-derivar ou nao a mascara.
 
@@ -139,28 +139,28 @@ Ortogonalizar so os **valores** ao bloco global e a forma do Teste C da rodada s
 
 ## 5 — IRFs no impacto (h = 0)
 
-`yield_6m` e mecanico: h=0 e o alvo da normalizacao, identico em toda variante. A comparacao de sinais roda nas outras quatro manchetes. Celulas sig90 por variante: z_jk_bs_glob 63, z_jk_bs_purif 61.
+`yield_6m` e mecanico: h=0 e o alvo da normalizacao, identico em toda variante. A comparacao de sinais roda nas outras quatro manchetes. Celulas sig90 por variante: z_jk_bs_glob 81, z_jk_bs_purif 73.
 
 | instrumento | variavel | ponto | lo68 | hi68 | lo90 | hi90 | sig90 |
 |---|---|---|---|---|---|---|---|
 | z_jk_bs_purif | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk_bs_purif | yield_2y | 0.00743 | 0.006551 | 0.008595 | 0.006076 | 0.009482 | TRUE |
-| z_jk_bs_purif | yield_5y | 0.007761 | 0.00663 | 0.009619 | 0.005791 | 0.01113 | TRUE |
-| z_jk_bs_purif | cambio_usd | 0.1579 | 0.1123 | 0.2033 | 0.09207 | 0.2493 | TRUE |
-| z_jk_bs_purif | asset_ibov | -1.723 | -5.042 | -0.6327 | -6.91 | 0.7747 | FALSE |
-| z_jk_bs_purif | embi_perc | 0.262 | 0.2074 | 0.3791 | 0.1719 | 0.473 | TRUE |
-| z_jk_bs_purif | cds_5y | 32.54 | 26.32 | 44.35 | 22.15 | 53.84 | TRUE |
-| z_jk_bs_purif | price_ipca | -0.06179 | -0.1831 | 0.04684 | -0.2758 | 0.117 | FALSE |
-| z_jk_bs_purif | price_ipp | 0.4677 | 0.3075 | 0.704 | 0.1856 | 0.8838 | TRUE |
+| z_jk_bs_purif | yield_2y | 0.007282 | 0.006361 | 0.008073 | 0.00579 | 0.008697 | TRUE |
+| z_jk_bs_purif | yield_5y | 0.007483 | 0.006081 | 0.008795 | 0.00535 | 0.009912 | TRUE |
+| z_jk_bs_purif | cambio_usd | 0.1539 | 0.1134 | 0.1878 | 0.09491 | 0.2166 | TRUE |
+| z_jk_bs_purif | asset_ibov | -0.968 | -3.41 | 0.3081 | -5.033 | 1.563 | FALSE |
+| z_jk_bs_purif | embi_perc | 0.2448 | 0.1887 | 0.3256 | 0.1453 | 0.3919 | TRUE |
+| z_jk_bs_purif | cds_5y |  30.7 | 24.05 | 38.65 |  19.2 | 46.19 | TRUE |
+| z_jk_bs_purif | price_ipca | -0.0549 | -0.1355 | 0.02865 | -0.2043 | 0.08431 | FALSE |
+| z_jk_bs_purif | price_ipp | 0.4262 | 0.2604 | 0.5979 | 0.1614 | 0.7167 | TRUE |
 | z_jk_bs_glob | yield_6m | 0.005 | 0.005 | 0.005 | 0.005 | 0.005 | TRUE |
-| z_jk_bs_glob | yield_2y | 0.008228 | 0.007273 | 0.009787 | 0.006639 | 0.01104 | TRUE |
-| z_jk_bs_glob | yield_5y | 0.009155 | 0.007829 | 0.01183 | 0.006842 | 0.01452 | TRUE |
-| z_jk_bs_glob | cambio_usd | 0.1837 | 0.132 | 0.2488 | 0.1083 | 0.3235 | TRUE |
-| z_jk_bs_glob | asset_ibov | -3.926 | -8.58 | -2.678 | -11.51 | -0.8791 | TRUE |
-| z_jk_bs_glob | embi_perc | 0.347 | 0.2778 | 0.5205 | 0.231 | 0.7116 | TRUE |
-| z_jk_bs_glob | cds_5y | 41.27 | 33.33 | 58.23 | 28.08 | 78.01 | TRUE |
-| z_jk_bs_glob | price_ipca | -0.02108 | -0.152 | 0.1115 | -0.2788 | 0.1986 | FALSE |
-| z_jk_bs_glob | price_ipp | 0.6227 | 0.4258 | 0.9439 | 0.2953 | 1.234 | TRUE |
+| z_jk_bs_glob | yield_2y | 0.00804 | 0.007023 | 0.009063 | 0.006384 | 0.009979 | TRUE |
+| z_jk_bs_glob | yield_5y | 0.008875 | 0.007294 | 0.01057 | 0.006396 | 0.0124 | TRUE |
+| z_jk_bs_glob | cambio_usd | 0.1784 | 0.1315 | 0.226 | 0.1074 | 0.279 | TRUE |
+| z_jk_bs_glob | asset_ibov | -3.339 |  -6.5 | -1.708 | -8.644 | -0.5414 | TRUE |
+| z_jk_bs_glob | embi_perc | 0.3345 | 0.2659 | 0.4494 | 0.2105 | 0.5649 | TRUE |
+| z_jk_bs_glob | cds_5y | 39.92 | 31.99 | 50.91 | 25.94 | 64.32 | TRUE |
+| z_jk_bs_glob | price_ipca | -0.03021 | -0.1227 | 0.08195 | -0.2173 | 0.1335 | FALSE |
+| z_jk_bs_glob | price_ipp | 0.5734 | 0.3818 | 0.7952 | 0.275 | 0.9742 | TRUE |
 
 Mascara re-derivada: sinais preservados = TRUE; ponto de producao dentro do CI90 = TRUE.
 

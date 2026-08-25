@@ -1,13 +1,19 @@
 # O "price puzzle" do IPCA na IRF de produção: diagnóstico
 
-> **⚠️ SUPERADA — banner de 2026-07-26.** Escrita sob `z_jk_purif` × (6,5), vintage pré-refresh.
-> **A conclusão não se sustenta com os números atuais.** A nota fecha o diagnóstico afirmando que a
-> corcova do IPCA "nunca é significativa a 90%"; na rodada (7,6) o headline é **sig90 em h5**, o
-> núcleo ex0 é sig90 em h2 e h4-8 (e virou `incoerente`), e o DW é sig90 em h4-5 e h7.
-> **Sobrevive como hipótese, não como resultado:** o argumento de que a corcova é amostral
-> (composição 2021-22) depende da comparação cross-instrumento e do sumiço pre-COVID, que foram
-> construídos no vintage antigo e **não reproduzem**. Re-rodar sob (7,6) é item aberto em
-> `registro/pendencias.md`. Até lá o §5.5 não afirma que a corcova é amostral.
+> **⚠️ SUPERADA — banner de 2026-07-26, atualizado em 2026-08-18.** Escrita sob `z_jk_purif` × (6,5),
+> vintage pré-refresh. **A conclusão não se sustenta com os números atuais.** A nota fecha o
+> diagnóstico afirmando que a corcova do IPCA "nunca é significativa a 90%"; na rodada (7,6) o
+> headline é **sig90 em h5**, o núcleo ex0 é sig90 em h2 e h4-8 (e virou `incoerente`), e o DW é
+> sig90 em h4-5 e h7.
+>
+> **A rodada que a substitui é [`2026-08-18_precos_cross_instrumento`](2026-08-18_precos_cross_instrumento.md)**,
+> feita sob a produção de 111 séries `(5,5,6)` com uma escada de três instrumentos aninhados. Ela
+> **contradiz dois pontos** desta nota: (i) o §2 aqui afirma que o filtro JK não reduz a corcova —
+> ele **reduz**, em 8 de 8 séries de preço na amostra cheia, e a comparação original misturava a
+> camada de valores com a de seleção usando a purificação contemporânea `e_di`; (ii) o §3 aqui
+> afirma que o pré-COVID é negativo em todos os horizontes — em h24 o headline é **positivo** e a
+> régua declara as seis medidas pontuadas `incoerente`. **Nenhum número desta nota é citável.** O
+> que sobrevive é a leitura de literatura do §5 (Sims 1992; Ramey 2016; Minella 2003).
 
 
 **Data:** 2026-07-12

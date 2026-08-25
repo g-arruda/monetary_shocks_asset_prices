@@ -1,5 +1,5 @@
 # ===================================================================
-# Are the 7 static factors I(1)? Are they cointegrated? And is the
+# Are the production static factors I(1)? Are they cointegrated? And is the
 # medium-run reversal in the IRFs economics or arithmetic?
 #
 # Council review of 2026-07-31 (pareceres/council_2026-07-31.md:74).
@@ -14,16 +14,15 @@
 # WHAT ALREADY EXISTS, AND IS NOT REDONE HERE. Tarefa 5 of the
 # 2026-07-28 audit round (diagnostics/05_persistencia_fatores.R,
 # diagnostico_dfm.md:439-459) already reports the top-5 moduli of the
-# 42x42 companion and already concludes, in prose, "a corcova e
+# historical companion and already concludes, in prose, "a corcova e
 # mecanica". This script is the completion of that, not a repeat:
 #
 #   (i)   unit roots on the FACTORS. t5_4 tests the panel series,
 #         not the static factors, and those are two different objects.
 #   (ii)  Phillips-Perron. The repo has ADF and KPSS and nothing else.
 #   (iii) COINTEGRATION. ca.jo / vars appear nowhere in the repo.
-#   (iv)  the FULL 42-eigenvalue spectrum with arguments and implied
-#         periods persisted to CSV. t5_1 saves 5 moduli; the period of
-#         117.9 months is stated in the markdown and computed nowhere.
+#   (iv)  the full production companion spectrum with arguments and implied
+#         periods persisted to CSV.
 #
 # READING RULE, FIXED BEFORE THE NUMBERS EXIST (house convention;
 # cf. the vertex sweep and the sovereign-confound script):
@@ -97,13 +96,12 @@ P_LAGS    <- SPEC$p
 INSTRUMENT <- SPEC$instrument
 MP_VAR     <- SPEC$mp_var
 
-P_GRID <- c(1L, 4L, 6L)   # BIC/HQ pick 1, AIC picks 4, production is 6
+P_GRID <- unique(c(1L, SPEC$p, 6L))
 K_GRID <- c(2L, 4L, 6L)   # Johansen lag order; the rank is lag-sensitive
 
 DATA_PATH <- SPEC$data_path
 INST_PATH <- SPEC$instrument_path
 CELL_PATH <- SPEC$coherence_cell_path
-T51_PATH  <- "diagnostics/output/t5_1_autovalores.csv"
 T54_PATH  <- "diagnostics/output/t5_4_raiz_unitaria.csv"
 HCSV_PATH <- "output/irf/irf_coherence_h.csv"
 OUT_DIR   <- "output/factors"
@@ -186,7 +184,7 @@ for (pp in P_GRID) {
 spec <- dplyr::bind_rows(spec_rows)
 
 prod_ols <- spec |> dplyr::filter(matriz == "OLS", p == P_LAGS)
-cat("    production (OLS, p = 6), five largest:\n")
+cat(sprintf("    production (OLS, p = %d), five largest:\n", P_LAGS))
 print(as.data.frame(prod_ols |> dplyr::slice(1:5) |>
         dplyr::select(ordem, modulo, complexo, periodo_meses, quarto_ciclo,
                meia_volta_ciclo, meia_vida_meses)),
@@ -217,21 +215,7 @@ cat(sprintf("    -> %s/factor_companion_spectrum.csv (%d rows)\n",
             OUT_DIR, nrow(spec)))
 
 
-# --- Self-test 1: the five largest moduli must match Tarefa 5 -------
-if (file.exists(T51_PATH)) {
-  t51 <- readr::read_csv(T51_PATH, show_col_types = FALSE)
-  mine_ols <- prod_ols$modulo[1:5]
-  mine_kil <- (spec |> dplyr::filter(matriz == "Kilian", p == P_LAGS))$modulo[1:5]
-  d_ols <- max(abs(mine_ols - t51$modulo_OLS))
-  d_kil <- max(abs(mine_kil - t51$modulo_Kilian))
-  cat(sprintf("    self-test vs %s: max |diff| OLS %.3g, Kilian %.3g\n",
-              T51_PATH, d_ols, d_kil))
-  stopifnot(d_ols < 1e-10, d_kil < 1e-10)
-} else {
-  cat("    (t5_1_autovalores.csv absent - self-test skipped)\n")
-}
-
-# --- Self-test 2: max modulus against the DFM object and the cell ---
+# --- Self-test: max modulus against the DFM object and production cache ---
 stopifnot(abs(max(prod_ols$modulo) - dfm$diagnostics$max_eigenvalue) < 1e-12)
 if (file.exists(CELL_PATH)) {
   cell <- readRDS(CELL_PATH)
@@ -518,9 +502,8 @@ if (file.exists(HCSV_PATH) && DOM$complexo) {
 # trough is the damped oscillation of the dominant complex pair, it has
 # to MOVE when the pair moves. At p = 1 the dominant root is real (see
 # block 1: n_complexo = 4 of 7, dominant period NA), so a pure
-# oscillation cannot exist there; at p = 4 the dominant period is 94.4
-# months against 117.9 at p = 6, so the quarter cycle shifts from 29.5
-# to 23.6. Point estimates only, no bootstrap.
+# oscillation cannot exist there. The comparison across p is recomputed from
+# the current panel; no historical period is treated as a production target.
 cat("\n[6] does the medium-run trough follow the lag order?\n")
 
 lag_rows <- NULL
@@ -562,6 +545,14 @@ if (!is.null(rev_tbl)) {
   cat(sprintf("    -> %s/factor_lag_sensitivity_irf.csv (%d rows)\n",
               OUT_DIR, nrow(lag_rows)))
 } else {
+  readr::write_csv(
+    tibble::tibble(
+      p = integer(), var = character(), h_extremo_mp = integer(),
+      val_extremo_mp = double(), dominante_complexa = logical(),
+      quarto_ciclo = double()
+    ),
+    file.path(OUT_DIR, "factor_lag_sensitivity_irf.csv")
+  )
   cat("    (skipped: block 5 produced nothing)\n")
 }
 
@@ -713,6 +704,17 @@ if (!is.null(rev_tbl)) {
   cat(sprintf("    -> %s/factor_irf_mode_decomposition.csv (%d rows)\n",
               OUT_DIR, nrow(spec_rows7)))
 } else {
+  readr::write_csv(
+    tibble::tibble(
+      var = character(), h_mp_completo = integer(), val_mp_completo = double(),
+      h_mp_sem_par1 = integer(), val_mp_sem_par1 = double(),
+      h_mp_sem_par2 = integer(), val_mp_sem_par2 = double(),
+      razao_sem_par1 = double(), razao_sem_par2 = double(),
+      razao_sem_par1_defl = double(), razao_sem_par2_defl = double(),
+      inverte_sinal_sem_par1 = logical(), vale_sobrevive_sem_par1 = logical()
+    ),
+    file.path(OUT_DIR, "factor_irf_mode_decomposition.csv")
+  )
   cat("    (skipped: block 5 produced nothing)\n")
 }
 
@@ -732,7 +734,7 @@ md <- c(
           R_FACTORS, Q_DYNAMIC, P_LAGS, INSTRUMENT, nrow(PANEL), ncol(PANEL),
           format(min(DATES)), format(max(DATES))),
   "",
-  "## 1. Espectro da companion (produção: OLS, p = 6)",
+  sprintf("## 1. Espectro da companion (produção: OLS, p = %d)", P_LAGS),
   "",
   md_tbl(prod_ols |> dplyr::slice(1:8) |>
            dplyr::select(ordem, modulo, complexo, periodo_meses, quarto_ciclo,

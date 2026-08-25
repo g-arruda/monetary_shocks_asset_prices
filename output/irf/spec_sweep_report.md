@@ -1,8 +1,8 @@
 # Varredura de especificações IRF — Etapa 1 (ponto-estimativa)
 
-Gerado por `script/irf_spec_sweep.R` em 2026-08-17.
+Gerado por `script/irf_spec_sweep.R` em 2026-08-25.
 
-Grid: 2 amostras x 5 combinações (r,q) x 8 instrumentos x 5 variáveis de política = 400 células; p = 6, h = 24, choque = 50bp.
+Grid: 2 amostras x 5 combinações (r,q) x 8 instrumentos x 5 variáveis de política = 400 células; p = 4, h = 24, choque = 50bp.
 
 Sem bootstrap (`nboot = 0`): apenas sinais, magnitudes e força de primeiro estágio.
 A Etapa 2 (`script/irf_spec_stage2.R`) roda bootstrap completo nas células vencedoras.
@@ -42,16 +42,16 @@ A Etapa 2 (`script/irf_spec_stage2.R`) roda bootstrap completo nas células venc
 
 | sample | r | q | instrument | mp_var | wald_mp | f_robust_mp | score_hard | n_hard_avail | score_ext | fx_channel | risk_channel | yield_ordering_ok | h0_ibov | h0_cambio |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| pre_covid |     7 |     6 | z_bruto_purif | yield_6m | 22.24 | 13.54 |     3 |     3 |     3 | apreciacao | fiscal_dominance | FALSE | -2.754 | -0.02078 |
-| pre_covid |     7 |     6 | z_bruto | yield_6m | 21.76 |    13 |     3 |     3 |     3 | apreciacao | fiscal_dominance | FALSE | -2.774 | -0.02056 |
-| pre_covid |     7 |     6 | z_bruto_purif | yield_3m | 21.12 | 13.73 |     4 |     4 |     3 | apreciacao | fiscal_dominance | FALSE | -3.483 | -0.02628 |
-| pre_covid |     7 |     6 | z_bruto | yield_3m | 20.62 | 13.16 |     4 |     4 |     3 | apreciacao | fiscal_dominance | FALSE | -3.514 | -0.02604 |
-| pre_covid |     7 |     6 | z_bs_purif | yield_6m |  19.9 | 12.18 |     3 |     3 |     3 | apreciacao | fiscal_dominance | FALSE | -2.822 | -0.02881 |
-| pre_covid |     7 |     6 | z_bruto_purif | yield_1y | 19.86 | 9.579 |     4 |     4 |     3 | apreciacao | fiscal_dominance | FALSE | -2.473 | -0.01866 |
-| pre_covid |     7 |     6 | z_bruto | yield_1y | 19.58 | 9.273 |     4 |     4 |     3 | apreciacao | fiscal_dominance | FALSE | -2.488 | -0.01844 |
-| pre_covid |     7 |     6 | z_bs_purif | yield_3m | 19.06 | 12.41 |     4 |     4 |     3 | apreciacao | fiscal_dominance | FALSE | -3.58 | -0.03655 |
-| pre_covid |     7 |     6 | z_jk_bs_purif | yield_1y | 18.43 | 12.29 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -4.411 | 0.06465 |
-| pre_covid |     6 |     5 | z_bruto_purif | yield_3m | 18.07 | 11.84 |     4 |     4 |     3 | apreciacao | fiscal_dominance | FALSE | -10.6 | -0.01611 |
+| pre_covid |     7 |     6 | z_bruto_purif | yield_3m | 12.29 | 10.17 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -2.661 | 0.007061 |
+| pre_covid |     7 |     6 | z_bruto | yield_3m | 11.83 | 9.649 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -2.527 | 0.006014 |
+| pre_covid |     7 |     6 | z_bs_purif | yield_3m |  11.7 | 9.362 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -2.783 | 0.007776 |
+| pre_covid |     6 |     5 | z_jk_bs_purif | yield_3m | 11.54 | 13.46 |     4 |     4 |     3 | depreciacao | fiscal_dominance | FALSE | -10.7 | 0.08506 |
+| pre_covid |     6 |     5 | z_bruto_purif | yield_3m |  11.5 | 11.28 |     4 |     4 |     3 | apreciacao | fiscal_dominance | FALSE | -5.29 | -0.0272 |
+| pre_covid |     6 |     5 | z_jk_bs_purif | yield_6m | 11.35 | 13.86 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -8.193 | 0.06515 |
+| pre_covid |     7 |     6 | z_bruto_purif | yield_6m | 11.16 | 9.022 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -2.178 | 0.00578 |
+| pre_covid |     6 |     5 | z_bruto | yield_3m | 11.06 | 10.77 |     4 |     4 |     3 | apreciacao | fiscal_dominance | FALSE | -5.163 | -0.02757 |
+| pre_covid |     6 |     5 | z_bs_purif | yield_3m | 10.95 | 10.33 |     4 |     4 |     3 | apreciacao | fiscal_dominance | FALSE | -5.679 | -0.03173 |
+| pre_covid |     7 |     6 | z_bruto | yield_6m | 10.78 | 8.554 |     3 |     3 |     3 | depreciacao | fiscal_dominance | FALSE | -2.074 | 0.004936 |
 
 ## ξ_mp por instrumento x (r,q) — régua de decisão
 
@@ -64,27 +64,27 @@ Limiares MOSW: 3,84 (AR limitado) e 10 (bandas convencionais).
 
 | instrument | r5_q4 | r5_q5 | r6_q5 | r7_q6 | r8_q8 |
 |---|---|---|---|---|---|
-| z_bruto | 3.381 | 5.271 | 2.992 | 5.731 | 6.689 |
-| z_bruto_purif | 3.239 | 5.067 | 2.692 | 5.183 | 6.185 |
-| z_jk | 4.471 | 4.084 | 4.009 | 4.001 | 4.143 |
-| z_jk_purif | 4.357 |  3.98 | 3.781 | 3.707 | 3.941 |
-| z_jk_raw_purif | 4.608 | 6.343 | 4.858 | 8.246 | 10.73 |
-| z_jk_raw | 4.964 | 6.494 | 5.068 | 8.178 | 10.49 |
-| z_bs_purif | 2.865 | 4.368 | 2.123 | 4.358 | 4.804 |
-| z_jk_bs_purif | 4.807 | 6.271 | 4.715 | 7.796 | 10.53 |
+| z_bruto | 2.791 | 4.255 | 3.433 | 5.604 | 6.017 |
+| z_bruto_purif | 2.713 | 4.105 | 3.234 | 5.211 | 5.803 |
+| z_jk |  3.47 | 3.503 | 3.458 | 3.796 | 3.606 |
+| z_jk_purif | 3.394 | 3.404 | 3.307 | 3.547 | 3.456 |
+| z_jk_raw_purif | 4.313 | 5.285 | 4.779 | 6.564 | 7.089 |
+| z_jk_raw | 4.539 | 5.384 |  4.89 | 6.557 | 6.978 |
+| z_bs_purif | 2.293 | 3.563 |  2.66 | 4.739 | 5.171 |
+| z_jk_bs_purif | 4.357 |  5.24 | 4.606 | 6.276 | 7.046 |
 
 ### Amostra pre_covid (2013-2019)
 
 | instrument | r5_q4 | r5_q5 | r6_q5 | r7_q6 | r8_q8 |
 |---|---|---|---|---|---|
-| z_bruto | 13.04 | 14.86 | 17.41 | 21.76 | 9.687 |
-| z_bruto_purif | 13.25 | 15.13 | 17.92 | 22.24 | 9.568 |
-| z_jk | 9.171 | 7.425 | 11.34 | 16.96 | 4.941 |
-| z_jk_purif | 9.272 | 7.552 | 11.79 | 17.34 | 4.719 |
-| z_jk_raw_purif |  12.5 | 11.31 | 15.01 | 17.13 | 9.584 |
-| z_jk_raw | 12.26 | 11.02 | 14.49 | 16.67 | 9.303 |
-| z_bs_purif | 12.22 | 13.98 | 16.69 |  19.9 | 8.145 |
-| z_jk_bs_purif | 12.51 | 10.99 |  15.8 | 17.92 | 9.102 |
+| z_bruto | 6.501 | 6.584 | 10.34 | 10.78 | 8.943 |
+| z_bruto_purif |  6.73 | 6.843 |  10.7 | 11.16 |  9.27 |
+| z_jk | 6.275 | 5.521 | 8.718 | 10.15 |   6.2 |
+| z_jk_purif | 6.549 | 5.874 | 9.175 | 10.52 | 6.916 |
+| z_jk_raw_purif | 8.022 | 7.617 | 10.44 | 9.994 | 9.271 |
+| z_jk_raw | 7.604 | 7.128 |    10 | 9.551 | 8.655 |
+| z_bs_purif | 6.248 | 6.396 |  10.1 | 10.48 | 8.808 |
+| z_jk_bs_purif | 7.976 | 7.478 | 11.35 | 10.67 | 9.401 |
 
 ## F robusto por instrumento x (r,q)
 
@@ -96,36 +96,37 @@ As tabelas abaixo fixam mp_var = yield_6m.
 
 | instrument | r5_q4 | r5_q5 | r6_q5 | r7_q6 | r8_q8 |
 |---|---|---|---|---|---|
-| z_bruto | 3.294 | 5.611 | 2.532 | 4.714 | 4.911 |
-| z_bruto_purif | 3.123 | 5.278 | 2.251 |  4.18 | 4.471 |
-| z_jk | 6.173 | 5.772 |  4.02 |  3.95 | 3.798 |
-| z_jk_purif | 5.867 | 5.446 | 3.689 | 3.536 | 3.518 |
-| z_jk_raw_purif | 6.578 | 10.99 | 4.968 | 9.581 | 12.67 |
-| z_jk_raw | 7.229 | 11.27 |  5.16 | 9.287 | 11.94 |
-| z_bs_purif | 2.658 | 4.322 | 1.737 | 3.424 | 3.374 |
-| z_jk_bs_purif |  6.61 | 10.12 | 4.582 | 8.366 | 11.41 |
+| z_bruto | 3.224 | 5.485 | 4.083 | 6.587 | 7.249 |
+| z_bruto_purif | 3.097 | 5.172 | 3.747 | 5.924 | 6.764 |
+| z_jk | 5.172 | 5.431 | 4.871 | 5.276 | 5.027 |
+| z_jk_purif | 4.925 | 5.085 | 4.437 | 4.642 | 4.551 |
+| z_jk_raw_purif | 7.586 | 11.02 | 8.446 | 12.03 | 15.01 |
+| z_jk_raw | 8.119 | 11.28 | 8.698 | 11.85 | 14.32 |
+| z_bs_purif | 2.477 | 4.169 | 2.894 |  5.11 | 5.635 |
+| z_jk_bs_purif | 7.298 | 10.06 | 7.525 | 10.56 | 13.36 |
 
 ### Amostra pre_covid (2013-2019)
 
 | instrument | r5_q4 | r5_q5 | r6_q5 | r7_q6 | r8_q8 |
 |---|---|---|---|---|---|
-| z_bruto | 7.193 | 9.706 | 10.47 |    13 | 7.164 |
-| z_bruto_purif | 7.395 | 9.974 | 10.87 | 13.54 | 7.016 |
-| z_jk | 11.37 | 8.316 | 12.51 | 16.59 | 2.636 |
-| z_jk_purif | 11.23 | 8.371 | 13.08 | 18.13 | 2.676 |
-| z_jk_raw_purif | 13.14 | 11.83 | 11.85 | 13.91 |  5.29 |
-| z_jk_raw | 13.02 | 11.33 | 11.66 | 12.87 | 4.887 |
-| z_bs_purif | 6.738 | 9.098 | 10.24 | 12.18 | 5.759 |
-| z_jk_bs_purif | 11.48 | 9.747 |  11.1 | 12.63 | 4.978 |
+| z_bruto | 6.123 | 6.662 | 9.759 | 8.554 | 9.269 |
+| z_bruto_purif | 6.351 | 6.938 | 10.18 | 9.022 | 9.734 |
+| z_jk | 10.78 | 8.828 | 12.63 | 11.51 | 3.732 |
+| z_jk_purif | 11.05 | 9.358 | 13.63 | 12.77 | 4.316 |
+| z_jk_raw_purif | 15.48 | 14.61 | 14.32 | 11.48 | 6.272 |
+| z_jk_raw | 14.67 | 13.46 | 13.73 | 10.84 | 5.732 |
+| z_bs_purif | 5.647 | 6.162 | 9.312 | 8.222 | 9.126 |
+| z_jk_bs_purif | 13.14 | 11.87 | 13.86 | 10.86 | 5.834 |
 
 ## Taxonomia de falhas
 
 | failure_class | full | pre_covid |
 |---|---|---|
 | negative_control |    40 |    40 |
-| ok |     6 |   107 |
-| weak_xi_mp |   123 |    48 |
-| weak_xi_mp_severe |    31 |     5 |
+| weak_xi_mp |   112 |   128 |
+| weak_xi_mp_severe |    48 |     4 |
+| ok |     0 |    26 |
+| sign_puzzle |     0 |     2 |
 
 ## Controle negativo (juros_selic)
 
@@ -133,14 +134,14 @@ As tabelas abaixo fixam mp_var = yield_6m.
 
 | n | f_robust_mp_max | f_robust_mp_median |
 |---|---|---|
-|    80 |  16.4 | 2.736 |
+|    80 | 18.98 | 5.308 |
 
 ## Canais cambial e de risco nas células elegíveis
 
 | fx_channel | risk_channel | n |
 |---|---|---|
-| apreciacao | fiscal_dominance |    20 |
-| depreciacao | fiscal_dominance |    93 |
+| apreciacao | fiscal_dominance |     6 |
+| depreciacao | fiscal_dominance |    20 |
 
 ## Instrumento de produção (z_jk_bs_purif x yield_6m) através do grid
 
@@ -148,14 +149,14 @@ As tabelas abaixo fixam mp_var = yield_6m.
 
 | sample | r | q | wald_mp | f_robust_mp | impact_mp_pre | denom_ratio | score_hard | n_hard_avail | score_ext | fx_channel | failure_class |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| full |     5 |     4 | 4.807 |  6.61 | 5.443e-05 | 1.155 |     3 |     3 |     1 | depreciacao | weak_xi_mp |
-| full |     5 |     5 | 6.271 | 10.12 | 8.426e-05 | 1.788 |     3 |     3 |     2 | depreciacao | weak_xi_mp |
-| full |     6 |     5 | 4.715 | 4.582 | 4.898e-05 | 1.039 |     3 |     3 |     3 | depreciacao | weak_xi_mp |
-| full |     7 |     6 | 7.796 | 8.366 | 6.899e-05 | 1.464 |     3 |     3 |     3 | depreciacao | weak_xi_mp |
-| full |     8 |     8 | 10.53 | 11.41 | 7.902e-05 | 1.677 |     3 |     3 |     3 | depreciacao | ok |
-| pre_covid |     5 |     4 | 12.51 | 11.48 | 7.895e-05 | 1.198 |     3 |     3 |     0 | depreciacao | ok |
-| pre_covid |     5 |     5 | 10.99 | 9.747 | 8.054e-05 | 1.222 |     3 |     3 |     0 | depreciacao | ok |
-| pre_covid |     6 |     5 |  15.8 |  11.1 | 7.495e-05 | 1.137 |     3 |     3 |     3 | depreciacao | ok |
-| pre_covid |     7 |     6 | 17.92 | 12.63 | 7.272e-05 | 1.103 |     3 |     3 |     3 | depreciacao | ok |
-| pre_covid |     8 |     8 | 9.102 | 4.978 | 4.417e-05 | 0.6701 |     3 |     3 |     1 | depreciacao | weak_xi_mp |
+| full |     5 |     4 | 4.357 | 7.298 | 6.977e-05 | 0.9928 |     3 |     3 |     1 | depreciacao | weak_xi_mp |
+| full |     5 |     5 |  5.24 | 10.06 | 0.0001013 | 1.442 |     3 |     3 |     2 | depreciacao | weak_xi_mp |
+| full |     6 |     5 | 4.606 | 7.525 | 7.517e-05 |  1.07 |     2 |     3 |     3 | depreciacao | weak_xi_mp |
+| full |     7 |     6 | 6.276 | 10.56 | 0.0001052 | 1.497 |     3 |     3 |     3 | depreciacao | weak_xi_mp |
+| full |     8 |     8 | 7.046 | 13.36 | 0.0001219 | 1.735 |     3 |     3 |     3 | depreciacao | weak_xi_mp |
+| pre_covid |     5 |     4 | 7.976 | 13.14 | 0.0001049 | 1.359 |     3 |     3 |     1 | depreciacao | weak_xi_mp |
+| pre_covid |     5 |     5 | 7.478 | 11.87 | 0.0001036 | 1.342 |     3 |     3 |     1 | depreciacao | weak_xi_mp |
+| pre_covid |     6 |     5 | 11.35 | 13.86 | 0.0001008 | 1.306 |     3 |     3 |     3 | depreciacao | ok |
+| pre_covid |     7 |     6 | 10.67 | 10.86 | 8.572e-05 |  1.11 |     3 |     3 |     3 | depreciacao | ok |
+| pre_covid |     8 |     8 | 9.401 | 5.834 | 6.652e-05 | 0.8614 |     3 |     3 |     3 | depreciacao | weak_xi_mp |
 

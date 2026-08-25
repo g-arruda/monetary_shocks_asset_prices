@@ -366,7 +366,7 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
   A_kron_A <- kronecker(A, A)
   lyapunov_matrix <- I_kron - A_kron_A
   
-  # A matriz é (q*p)^2 x (q*p)^2 — 900x900 na produção (5,5) com p=6. O teste
+  # A matriz é (q*p)^2 x (q*p)^2 — 400x400 na produção (5,5) com p=4. O teste
   # antigo por det() dava 6,29e-19 contra um rcond de 1,7e-06, então o ramo da
   # pseudo-inversa era tomado em toda réplica de bootstrap sem necessidade.
   #

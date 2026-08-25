@@ -316,6 +316,81 @@ run_stage2_cell <- function(data_mat, dates, inst_panel, sample_window,
 }
 
 
+#' Contain each alternative-dimension path inside the production bands
+#'
+#' The Alessi-Kerssenfischer Figure A3 reading, applied mechanically: the
+#' production cell is the only one carrying bands, and every alternative is
+#' scored by how often its point falls inside them. The asymmetry is the
+#' design, not an omission. `cor_path` measures shape and is immune to scale;
+#' `denom_ratio` names the scale factor, so a gap can be attributed instead of
+#' merely observed.
+#'
+#' The verdict is computed from `share_in90` and `cor_path` ONLY. The rescaled
+#' columns are a post-hoc decomposition and are deliberately kept out of the
+#' rule, so that looking at them cannot flip a verdict fixed in advance.
+#'
+#' @param paths Long data.frame with `cell_key`, `variable`, `h`, `point` and
+#'   the four band columns `lo68`, `hi68`, `lo90`, `hi90`. Bands are only read
+#'   on the production rows.
+#' @param prod_key Value of `cell_key` identifying the production cell.
+#' @param denom_ratio Named numeric vector: each cell's pre-normalization impact
+#'   of the policy variable over production's. Names are `as.character(cell_key)`.
+#' @param h_max Last horizon entering the containment shares.
+#' @param h_short Short-run horizon bounding the `share_in90_h12` column.
+#' @param var_order Variable order for the returned rows.
+#'
+#' @return Data.frame, one row per (`cell_key`, `variable`), with the
+#'   containment shares, the shape and deviation metrics, the post-hoc
+#'   denominator decomposition and `veredito`.
+containment_vs_production <- function(paths, prod_key, denom_ratio,
+                                      h_max, h_short, var_order) {
+  prod <- paths |>
+    dplyr::filter(cell_key == prod_key) |>
+    dplyr::select(variable, h, prod_point = point, lo68, hi68, lo90, hi90)
+
+  paths |>
+    dplyr::filter(cell_key != prod_key) |>
+    dplyr::select(cell_key, variable, h, alt_point = point) |>
+    dplyr::inner_join(prod, by = c("variable", "h")) |>
+    dplyr::filter(h <= h_max) |>
+    # Rescaled path: the alternative's own raw column normalized by PRODUCTION's
+    # denominator instead of its own. Holding the normalization fixed is what
+    # separates "the estimated column moved" from "the divisor shrank".
+    dplyr::mutate(resc_point = alt_point * unname(denom_ratio[as.character(cell_key)]),
+                  in68 = alt_point >= lo68 & alt_point <= hi68,
+                  in90 = alt_point >= lo90 & alt_point <= hi90,
+                  in90_resc = resc_point >= lo90 & resc_point <= hi90,
+                  dev  = alt_point - prod_point) |>
+    dplyr::group_by(cell_key, variable) |>
+    dplyr::summarise(
+      share_in68       = mean(in68),
+      share_in90       = mean(in90),
+      share_in90_h12   = mean(in90[h <= h_short]),
+      first_out90_h    = if (all(in90)) NA_integer_ else min(h[!in90]),
+      cor_path         = cor(alt_point, prod_point),
+      max_abs_dev      = max(abs(dev)),
+      max_abs_dev_h    = h[which.max(abs(dev))],
+      rel_max_abs_dev  = max(abs(dev)) / max(abs(prod_point)),
+      sign_flip_h0     = sign(alt_point[h == 0]) != sign(prod_point[h == 0]),
+      # Post-hoc, not pre-registered: h0 gap split into the part the denominator
+      # explains and the part left over, which is the estimated column itself.
+      ratio_h0         = alt_point[h == 0] / prod_point[h == 0],
+      resto_coluna_h0  = resc_point[h == 0] / prod_point[h == 0],
+      share_in90_resc  = mean(in90_resc),
+      .groups = "drop"
+    ) |>
+    dplyr::mutate(
+      denom_ratio = unname(denom_ratio[as.character(cell_key)]),
+      veredito = dplyr::case_when(
+        share_in90 == 1 & cor_path > 0.95 ~ "imaterial",
+        share_in90 < 1 | sign_flip_h0     ~ "material",
+        TRUE                              ~ "parcial"
+      )
+    ) |>
+    dplyr::arrange(dplyr::desc(cell_key), match(variable, var_order))
+}
+
+
 #' Overlay IRF panels for an arbitrary set of stage-2 cells
 #'
 #' Generalizes `plot_overlay` from `script/irf_cross_instrument.R` to any
@@ -368,6 +443,52 @@ plot_overlay_cells <- function(cells, response_idx, horizon, palette, subtitle) 
       title = "IRFs das especificações vencedoras da varredura",
       subtitle = subtitle
     ) &
+    ggplot2::theme(legend.position = "bottom")
+}
+
+
+#' One page of the Figure A3 layout: production with bands, alternatives in point
+#'
+#' Production carries both ribbons and a solid line; the alternatives are
+#' point-only dashed lines. A band around a cell whose strength sits below the
+#' project's own ruler would suggest an inference that ruler does not license,
+#' which is why only `band_df` is ribboned.
+#'
+#' @param df Long data.frame with `variable`, `h`, `point` and the factor `cell`
+#'   used for colour and linetype.
+#' @param band_df Same shape restricted to the production cell, plus `lo68`,
+#'   `hi68`, `lo90`, `hi90`.
+#' @param vars Variables to draw, one panel each, in this order.
+#' @param palette,linetypes Named vectors keyed by the levels of `cell`.
+#' @param h_max Last horizon on the x axis (breaks every 6 months).
+#' @param ncol Panels per row.
+#' @param title,subtitle Page annotation.
+#'
+#' @return Patchwork object.
+plot_dimension_overlay <- function(df, band_df, vars, palette, linetypes,
+                                   h_max, ncol, title, subtitle) {
+  panels <- lapply(vars, function(v) {
+    ggplot2::ggplot(df[df$variable == v, ], ggplot2::aes(x = h)) +
+      ggplot2::geom_ribbon(data = band_df[band_df$variable == v, ],
+                           ggplot2::aes(ymin = lo90, ymax = hi90),
+                           fill = "steelblue", alpha = 0.18) +
+      ggplot2::geom_ribbon(data = band_df[band_df$variable == v, ],
+                           ggplot2::aes(ymin = lo68, ymax = hi68),
+                           fill = "steelblue", alpha = 0.36) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed",
+                          colour = "red", linewidth = 0.35) +
+      ggplot2::geom_line(ggplot2::aes(y = point, colour = cell, linetype = cell),
+                         linewidth = 0.7) +
+      ggplot2::scale_colour_manual(values = palette) +
+      ggplot2::scale_linetype_manual(values = linetypes) +
+      ggplot2::scale_x_continuous(breaks = seq(0, h_max, 6), expand = c(0.01, 0)) +
+      ggplot2::labs(title = v, x = NULL, y = NULL, colour = NULL, linetype = NULL) +
+      ggplot2::theme_classic(base_size = 10) +
+      ggplot2::theme(plot.title = ggplot2::element_text(size = 10, face = "bold"))
+  })
+
+  patchwork::wrap_plots(panels, ncol = ncol, guides = "collect") +
+    patchwork::plot_annotation(title = title, subtitle = subtitle) &
     ggplot2::theme(legend.position = "bottom")
 }
 

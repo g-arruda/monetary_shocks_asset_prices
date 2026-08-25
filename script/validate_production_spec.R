@@ -42,10 +42,11 @@ mpind <- match(spec$mp_var, colnames(data_mat))
 samples <- list(full = spec$sample, pre_covid = spec$pre_covid_sample)
 expected <- tibble::tibble(
   sample = c("full", "pre_covid"),
-  xi_mp = c(6.27084962152744, 10.99267698349354),
-  f_robust_mp = c(10.1205381384556, 9.7474580778344),
-  max_companion_root = c(0.964857686519553, 1.000201706763082),
-  stable = c(TRUE, FALSE)
+  n_innovations = c(149L, 80L),
+  xi_mp = c(5.240158304905, 7.478324275893),
+  f_robust_mp = c(10.060921519349, 11.874945340585),
+  max_companion_root = c(0.968126200394, 0.992482650750),
+  stable = c(TRUE, TRUE)
 )
 
 diagnostics <- lapply(names(samples), function(sample_name) {
@@ -82,7 +83,8 @@ diagnostics <- lapply(names(samples), function(sample_name) {
 
 comparison <- diagnostics |>
   dplyr::left_join(expected, by = "sample", suffix = c("", "_expected"))
-if (any(abs(comparison$xi_mp - comparison$xi_mp_expected) > 1e-8) ||
+if (any(comparison$n_innovations != comparison$n_innovations_expected) ||
+    any(abs(comparison$xi_mp - comparison$xi_mp_expected) > 1e-8) ||
     any(abs(comparison$f_robust_mp - comparison$f_robust_mp_expected) > 1e-8) ||
     any(abs(comparison$max_companion_root - comparison$max_companion_root_expected) > 1e-10) ||
     any(comparison$stable != comparison$stable_expected) ||
