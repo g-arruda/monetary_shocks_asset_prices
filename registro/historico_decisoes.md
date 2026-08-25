@@ -550,3 +550,138 @@ um procedimento de reamostragem/duas etapas que a reproduza e demonstre
 cobertura sob instrumentos fracos, acompanhado de um solucionador completo e
 tolerante à escala para todos os casos degenerados. A tarefa está adiada sem
 prazo e sem prioridade ativa.
+
+**Atualização de 2026-08-22.** `weak_iv_ar.R` e sua validação voltaram apenas
+para o VAR de observáveis, sem a interface que aceitava fatores ou loadings. O
+solucionador agora cobre os dez casos degenerados e a tradução reproduz o
+fixture oficial. Isso não satisfaz nem reabre a condição acima para o DFM.
+
+---
+
+## 8. Benchmark VAR pequeno em nível abandonado
+
+> **Nota de leitura.** A rejeição do VAR em séries não estacionárias permanece
+> vigente. A especificação substituta descrita abaixo — todas as séries em
+> diferença, respostas somadas e wild bootstrap — foi, por sua vez, substituída
+> pela Seção 9.
+
+**Decisão de 2026-08-22.** Todo benchmark VAR pequeno estimado nas séries em
+nível foi declarado inválido e retirado do material ativo. Ele não permanece
+como sensibilidade, comparação ou vintage alternativa. As notas que o
+documentavam foram preservadas apenas como história e receberam o banner
+“SUPERADA/INVÁLIDA — VAR estimado em séries não estacionárias”.
+
+O único benchmark corrente contém IBC-Br, IPCA, yield de 6 meses, câmbio e CDS.
+Ele é estimado nas primeiras diferenças com uma defasagem. As respostas
+pontuais e cada réplica do wild bootstrap são acumuladas antes do cálculo dos
+percentis. No caminho Anderson--Rubin/MOSW, as matrizes de resposta e suas
+derivadas são acumuladas antes da propagação da covariância e da inversão do
+teste.
+
+A decisão se apoia em três gates reproduzíveis. ADF e Phillips--Perron rejeitam
+raiz unitária a 5% nas cinco primeiras diferenças. AIC e BIC selecionam uma
+defasagem na célula principal em uma amostra comum de 140 observações. A
+implementação manual dos critérios coincide numericamente com
+`vars::VARselect`. Nas seis sensibilidades, HQ e BIC selecionam uma defasagem,
+enquanto o AIC seleciona duas ou três. A divergência fica reportada, mas não
+muda a ordem comum escolhida por HQ e BIC.
+
+A inferência Anderson--Rubin continua restrita ao VAR de observáveis. Esta
+decisão não reabre a aplicação ao DFM rejeitada na Seção 7. Os conjuntos do VAR
+não cobrem os pontos do DFM e a robustez weak-IV não valida a proxy usada pelos
+dois modelos. A nota dessa vintage é `notas/2026-08-22_var_estacionario.md`.
+
+---
+
+## 9. VAR em todas as diferenças, respostas somadas e wild bootstrap abandonado
+
+**Decisão de 2026-08-22.** A especificação `ibc5_cds_d1_p1` foi retirada por
+inteiro do caminho ativo. Ela diferenciava também o IPCA, somava pontos e
+derivadas entre horizontes e mantinha dois procedimentos de inferência, wild
+bootstrap e Anderson--Rubin. Os identificadores `d1`, os campos gerais de
+primeira diferença e acumulação, o motor Alessi `VARest`/`VARest_boot`, a
+correção de Kilian e o fallback para coeficientes OLS deixaram de fazer parte do
+VAR pequeno. Os artefatos exclusivos das bandas bootstrap foram apagados.
+
+O substituto é a tradução do caminho de Montiel Olea et al. O IPCA permanece em
+nível porque ADF e PP rejeitam raiz unitária; IBC-Br, yield, câmbio, CDS e EMBI
+entram em diferença. A divergência ADF/PP do EMBI em nível decide pela
+diferença. O BIC de `bicaic.m`, em amostra comum de 140 observações, seleciona
+`p=1` nas sete células com IBC-Br. A forma reduzida segue `RForm_VAR.m`, com
+constante na primeira coluna, OLS conjunto e `Sigma=eta eta'/T`.
+
+Há um único impacto `B_1=0,005 Gamma/Gamma_yield`. Os pontos publicados são
+`C_h B_1`, nunca a soma das respostas. A única inferência do VAR observável são
+conjuntos Anderson--Rubin/MOSW de 68% e 95% com NW(0). O CSV canônico preserva
+intervalos, vazios, semirretas, duas semirretas, singletons e a reta inteira.
+Essa mudança não toca o DFM, seu wild bootstrap nem a decisão da Seção 7.
+
+Nota corrente: `notas/2026-08-22_var_olea_estacionario.md`.
+
+---
+
+## 10. Sensibilidades do VAR pequeno e bandas AR de 95% abandonadas
+
+**Decisão de 2026-08-22.** As seis células de sensibilidade do VAR pequeno
+foram retiradas do caminho ativo e do apêndice. Elas precediam a seleção formal
+das transformações e da ordem do VAR e não permanecem como análise de robustez
+da especificação estacionária escolhida. O benchmark ativo é somente
+`ibc5_fx_cds_stat_p1`.
+
+Os conjuntos Anderson--Rubin/MOSW publicados para esse benchmark passam de
+68%/95% para 68%/90%, os mesmos dois níveis exibidos na figura. A validação
+contra o fixture oficial continua a usar 68%/95%, pois esses são os níveis
+fornecidos pelo código de referência; isso valida o algoritmo, não determina os
+níveis de apresentação. A decisão não altera o DFM, sua inferência bootstrap ou
+a interpretação de que os conjuntos AR cobrem exclusivamente o VAR observável.
+
+Nota corrente: `notas/2026-08-22_var_producao_unica.md`.
+
+---
+
+## 11. Benchmark VAR estacionário substituído pelo VAR em níveis
+
+**Decisão de 2026-08-22.** O benchmark `ibc5_fx_cds_stat_p1` deixou de ser a
+produção do paper. O substituto `ibc5_fx_cds_level_trend_p2` estima IBC-Br,
+IPCA, yield de 6 meses, câmbio e CDS em nível, com constante e tendência linear
+em cada equação. AIC e BIC são calculados para `p=1,...,12` sobre uma amostra
+comum de 141 observações. O AIC seleciona `p=2`, o BIC seleciona `p=1`, e a
+produção segue o AIC por decisão do autor.
+
+A estimação final tem 151 resíduos alinhados ao instrumento, `xi_mp=6,797335`
+e maior raiz da companion igual a `0,965424`. O impacto continua normalizado em
++50 pontos-base no yield de 6 meses, os pontos continuam sendo `C_hB_1` e a
+inferência continua restrita ao VAR observável, com conjuntos AR/MOSW de 68% e
+90% sob NW(0). A mudança não toca o DFM, seu wild bootstrap ou a proibição de
+aplicar esta inversão AR ao espaço de fatores.
+
+Nota corrente: `notas/2026-08-22_var_niveis_aic_tendencia.md`.
+
+---
+
+## 12. Ordem `p=6` abandonada como produção do DFM
+
+**Decisão de 2026-08-24.** A produção DFM deixou de usar seis defasagens e
+passou a `(r,q,p)=(5,5,4)`. Em uma amostra comum de 141 observações, com
+constante e tendência linear, o AIC para `p=1,...,12` atinge o mínimo
+8,073207 em `p=4`; o BIC seleciona `p=2`. Duas implementações reproduzem toda
+a tabela com desvio máximo de `3,553e-15`. A produção segue o AIC e reporta a
+discordância do BIC.
+
+A tendência é exclusiva do exercício de seleção. O VAR efetivamente estimado
+sobre os fatores conserva apenas intercepto, e a correção de Kilian permanece
+restrita ao DGP do wild bootstrap. A migração não altera painel, amostra,
+`r=5`, `q=5`, instrumento, variável de normalização, horizonte ou número de
+réplicas.
+
+A nova célula cheia tem 149 inovações, `xi_mp/F_rob,mp =
+5,240158/10,060922` e raiz máxima 0,968126; a pré-COVID tem 80 inovações,
+`7,478324/11,874945` e raiz 0,992483. Ambas são estáveis. O gate canônico de
+800 réplicas terminou sem falhas. A decomposição espectral histórica do par
+complexo dominante em `p=6` não é transportada para a produção `p=4`, cuja
+raiz dominante é real.
+
+As grades históricas de painel, `(r,q)` e instrumento condicionadas a `p=6`
+não foram reestimadas. A comparação VAR(2) versus VAR(6) de observáveis também
+continua como vintage separada e não herda `production_spec()$p`. Nota
+corrente: `notas/2026-08-24_migracao_dfm_p4.md`.

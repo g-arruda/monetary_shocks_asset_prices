@@ -18,15 +18,26 @@ banners, and `pareceres/`, what outside reviewers sent in.
 
 ## Production spec — the invariant that costs most to get wrong
 
-**`z_jk_bs_purif` × `yield_6m` × (r=5, q=5, p=6), +50bp**, read from
+**`z_jk_bs_purif` × `yield_6m` × (r=5, q=5, p=4), +50bp**, read from
 `R/modeling/production_spec.R`. The production panel is the 111-series
 `drop_setor_externo__eua__credito__imoveis`; the 106-series base exists only
 for historical factor-grid reproduction. `r=5` is selected by BLL Bai--Ng IC2;
-`q=5` is provisional. The frozen production cell has **ξ_mp = 6.27085 full /
-10.99268 pre-COVID**; the pre-COVID companion is marginally unstable
-(1.000202). **ξ_mp is the strength ruler of record** — the
+`q=5` is provisional. `p=4` minimizes AIC (8.073207) on a common 141-observation
+sample with constant and trend; BIC selects `p=2`. The estimated factor VAR is
+still intercept-only. The frozen production cell has **ξ_mp = 5.24016 full /
+7.47832 pre-COVID**; both companion matrices are stable (0.968126 / 0.992483).
+**ξ_mp is the strength ruler of record** — the
 AR set is bounded iff ξ_mp > 3.84, conventional bands approximately valid at ξ_mp ≥ 10. Legacy
 first-stage F rulers still print but stopped deciding on 2026-07-26.
+
+The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p2`**. It
+uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
+with a constant and linear trend in every equation. AIC and BIC are computed
+on a common 141-observation sample; production uses `p=2`, selected by AIC.
+Published responses are
+horizon-specific `C_h B_1` estimates with VAR-only AR/MOSW sets at 68% and 90%
+under NW(0). Do not add sensitivity cells, sum responses across horizons, or
+restore bootstrap inference for this benchmark.
 
 ## Pipeline
 
@@ -44,7 +55,7 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
 `script/irf_coherence_check.R` runs the production spec once and writes
 `output/irf/irf_coherence_h.csv` — point + 68/90 bands + flags, **the source of §5** — plus
 `irf_coherence_cell.rds`, the cached estimation object follow-up analyses reuse instead of
-re-estimating. Catalog of the 33 scripts in `script/README.md`; repo map in `README.md`.
+re-estimating. Catalog of the 37 scripts in `script/README.md`; repo map in `README.md`.
 
 ## Completed rounds
 
@@ -52,12 +63,14 @@ Cite the note, never this table. Notes are under `notas/`.
 
 | round | script | note | verdict |
 |---|---|---|---|
-| Sovereign confound | `jk_sovereign_confound.R` | `2026-08-09_confound_soberano_cds` | not confirmed, both proxies |
-| FOMC coincidence | `fomc_coincidence.R` | `2026-08-10_coincidencia_fomc` | confound not detected |
-| ξ_mp robustness | `xi_mp_robustness.R` | `2026-07-27_robustez_xi_mp_e_construcao` | 24 of 147 LOO cells fall below 10 |
+| Sovereign confound | `jk_sovereign_confound.R` | `2026-08-24_migracao_dfm_p4` | daily selection not confirmed; re-derived mask lowers ξ_mp to 3.438 |
+| FOMC coincidence | `fomc_coincidence.R` | `2026-08-24_migracao_dfm_p4` | regressions null, but re-derived mask lowers ξ_mp to 3.671: weak contamination signal |
+| ξ_mp robustness | `xi_mp_robustness.R` | `2026-08-24_migracao_dfm_p4` | all 149 full-sample LOO cells remain below 10; none falls below 3.84 |
 | Construction sweep | `instrument_construction_sweep.R` | idem | vertex not identified; all give same IRF |
-| Factor stationarity | `factor_stationarity.R` | `2026-08-13_migracao_producao_painel_111_r5q5` | 3/5 I(1), no I(2), full-sample root 0.964858 |
-| VAR benchmark | `model_var.R` | `2026-07-31_benchmark_var_vs_dfm` | stronger yes, faster equity-only |
+| Preços cross-instrumento | `price_cross_instrument.R` | `2026-08-24_migracao_dfm_p4` | corcova comum aos 3 degraus; efeitos das camadas não são uniformes entre séries |
+| Varredura de `p` | `p_selection.R` | `2026-08-24_migracao_dfm_p4` | production `p=4`; historical `p=6` retained as an alternative cell |
+| Factor stationarity | `factor_stationarity.R` | `2026-08-24_migracao_dfm_p4` | 3/5 I(1), no I(2), full-sample root 0.968126 (real) |
+| Levels VAR and weak-IV | `model_var.R` | `2026-08-22_var_niveis_aic_tendencia` | constant and trend, AIC p=2, horizon-specific responses, AR 68%/90% |
 | Equity representation | `asset_representation.R` | `2026-07-31_acoes_representacao` | null is mechanical; log-level set aside |
 | DFM-IV audit (Tasks 0-7) | `diagnostics/` | `diagnostics/diagnostico_dfm.md` | H2 confirmed; state dependence split |
 
@@ -73,6 +86,13 @@ These govern what may be **said**, so they apply even when no file is open.
   Anderson–Rubin plug-in conditioned on estimated factors and loadings and lacked a theory covering
   those generated objects. Do not cite its numerical bands; any future implementation must first
   incorporate factor estimation or establish the required asymptotic justification.
+  **The small-VAR benchmark is a separate object and does carry AR/MOSW
+  confidence sets** (`R/identification/weak_iv_ar.R`, VAR-only by construction — it takes a
+  coordinate selector, not a loadings matrix, so it cannot be pointed at factor space). Those sets
+  are inference *for the VAR*, never for the DFM, and coincidence licenses only "the central
+  pattern is robust to weak-IV inference in an alternative lower-dimensional specification" —
+  **never** "the SVAR proves the SDFM right". Weak-IV robustness is **not** instrument validity:
+  both models use the same proxy, so a contaminated proxy fails in both.
 - **The medium-run reversal may not be cited as evidence separate from the dynamics that produce
   it** — it and the near-unit persistence of the factor VAR are the same object. `cambio_usd` is the
   one exception, so §4's exchange-rate persistence claim is untouched.
@@ -152,7 +172,9 @@ Rscript script/irf_coherence_check.R         # 53 vars scored point-by-point (fe
 Rscript script/fig_section5.R                # paper/fig_*.pdf from the cached .rds
 
 Rscript script/model_alessi.R                # main DFM (long; bootstrap dominated)
-Rscript script/model_var.R                   # small-VAR benchmark (~15 min)
+Rscript script/model_var.R                   # Olea small-VAR points, AR sets and diagnostics
+Rscript script/validate_mosw_ar.R            # AR module vs the authors' fixture + degenerate cases
+Rscript script/fig_weak_iv.R                  # canonical small-VAR AR figure
 Rscript script/factor_stationarity.R         # unit roots, cointegration, spectrum (~2 min)
 Rscript script/asset_representation.R        # returns vs log-level vs level (~12 min)
 ```
@@ -166,7 +188,7 @@ source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/modeling/dfm_pipeline.R")
-res <- main_sdfm(r = 5L, q = 5L, p = 6, shock_size_bps = 50, mp_var = "yield_6m", nboot = 0)
+res <- main_sdfm(r = 5L, q = 5L, p = 4, shock_size_bps = 50, mp_var = "yield_6m", nboot = 0)
 # note the field is `irfs`, not `irf`, and the names come from the data matrix
 P <- res$irfs$irf_point_matrix; vn <- colnames(res$data)
 P[match(c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd"), vn), 1]

@@ -1,6 +1,6 @@
 # `script/` — o que cada arquivo faz
 
-33 scripts, organizados por tema (não por subpasta — ver a decisão em
+39 scripts, organizados por tema (não por subpasta — ver a decisão em
 `registro/pendencias.md` sobre manter isto flat: mover para subpastas
 quebraria dezenas de referências de caminho no `CLAUDE.md`, no `run_all.R` e
 em notas). Cinco scripts que faziam parte de uma investigação já
@@ -31,13 +31,14 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | `download.R` | Único orquestrador das candidatas propostas em `notas/2026-08-13_blocos_ausentes_do_painel.md`: `--candidates-only` confirma metadados oficiais, baixa 17 séries mensais separadas em `data/raw/panel_candidates/` e escreve o inventário/relatório em `output/download/`, sem tocar no painel. Sem a flag, executa primeiro esse subestágio e depois puxa as séries canônicas do BCB, câmbio, breakeven, índices B3, risco e EPU, lê a curva fixa `data/raw/yields/yields_dia.csv` e escreve `data/raw/raw_data.csv`; as candidatas não entram nesse merge. |
 | `clean.R` | Filtra 2013-01–2025-09, aplica log e X-13, grava o painel-base histórico de 106 séries em `data_log_deseasonalized_base_106.csv` e monta o default de 111 séries no caminho canônico, usando o inventário e a preparação reutilizável de candidatas em `R/preprocessing/panel_candidates.R`. |
 | `instrument.R` | Constrói as 8 variantes mensais de instrumento (família GK/JK/BS) a partir das surpresas de DI em dia de Copom, via `R/instrument/{di_surprise,build_variants}.R` (`TARGET_BD=126`, variante padrão `z_jk_bs_purif`). Escreve `data/processed/instrumentos_mensais.csv`, os CSVs por variante e o legado `data/processed/instrument.csv`. |
-| `model_alessi.R` | Script de produção do DFM principal. Consome `production_spec()` e estima `(r=5, q=5, p=6, choque=+50bp em yield_6m, nboot=800)`. Escreve `output/irf/irf_model_alessi_r5q5.pdf`. |
+| `model_alessi.R` | Script de produção do DFM principal. Consome `production_spec()` e estima `(r=5, q=5, p=4, choque=+50bp em yield_6m, nboot=800)`. Escreve `output/irf/irf_model_alessi_r5q5.pdf`. |
 
 ## 2. Estimação / benchmarks (não entram no `run_all.R`)
 
 | script | o que faz |
 |---|---|
-| `model_var.R` | Tradução do `codigo_alessi-mark/MAIN_VARloop.m`: o benchmark de VAR pequeno de 4 variáveis (18 VARs), testando se o DFM é "mais forte/mais rápido" que um VAR pequeno. É o único script de `script/` com guarda `sys.nframe() == 0` própria (`run_benchmark()`), então pode ser `source()`ado com segurança. Lê o lado DFM do cache `output/irf/irf_coherence_cell.rds`. Escreve `output/var/var_benchmark_*.csv`, `var_benchmark.md`, 4 PDFs. |
+| `model_var.R` | Único driver do VAR pequeno observável. Estima as cinco séries em nível com constante e tendência linear, calcula AIC e BIC em amostra comum de 141 observações, seleciona `p=2` pelo AIC, alinha 151 resíduos ao instrumento, forma um único impacto de +50 pb e publica `C_h B_1` com conjuntos AR 68%/90% e NW(0). Escreve o CSV dos critérios e `svar_iv_weak_robust.{csv,md}` + diagnóstico. Não usa bootstrap, Kilian, soma por horizonte ou células de sensibilidade. |
+| `var_lag_comparison.R` | Relatório histórico, desacoplado de `SPEC$p`: compara VAR(2) e VAR(6) na vintage de 147 resíduos que motivou o diagnóstico de ordem. Mantém sua nota e seus artefatos como evidência datada; não representa a produção DFM corrente nem altera o benchmark VAR observável. |
 
 ## 3. Diagnóstico de força do instrumento
 
@@ -56,9 +57,12 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 |---|---|
 | `irf_spec_sweep.R` | Etapa 1: sweep só de ponto (rápido) sobre instrumento × mp_var × (r,q) × janela amostral, com um `estimate_dfm` em cache por (amostra,r,q); classifica cada célula por `failure_class` no ξ_mp. Escreve `output/irf/spec_sweep_{cells,irf_long}.csv`, `spec_sweep_report.md`. |
 | `irf_spec_stage2.R` | Etapa 2: bootstrap completo (nboot=800) nas células vencedoras da etapa 1, com a especificação de produção sempre incluída (force-append). Escreve `output/irf/irf_spec_<tag>.{rds,pdf}`, `irf_spec_stage2_overlay.pdf`, `spec_sweep_stage2.md`. |
-| `q_selection.R` | Põe as três células de `q` em `r = 5` lado a lado na amostra completa — produção `(5,5)`, `(5,3)` e `(5,2)`, esta a que o critério BLL de Amengual-Watson seleciona — com o gate de 800 réplicas, os cinco impactos obrigatórios, ξ_mp, o denominador de normalização e a raiz máxima. Não recomenda: entrega as colunas. Escreve `output/factors/q_selection.{csv,md}`. |
+| `q_selection.R` | Põe as **quatro** células de `q` em `r = 5` lado a lado na amostra completa — produção `(5,5)`, `(5,4)`, `(5,3)` e `(5,2)`, esta a que o critério BLL de Amengual-Watson seleciona — com o gate de 800 réplicas, ξ_mp, o denominador de normalização e a raiz máxima. Além dos impactos, roda a **checagem de robustez de `q` no desenho da Figura A3 de Alessi-Kerssenfischer**: trajetórias `h = 0..48`, contenção de cada alternativa nas bandas 68/90 **da produção** sob regra de leitura pré-registrada, e a decomposição pós-hoc que separa o denominador de normalização da coluna estimada. Não recomenda: entrega as colunas. Escreve `output/factors/q_selection.{csv,md}`, `q_selection_paths.{csv,pdf}` e `q_selection_containment.csv`. |
+| `p_selection.R` | Põe as **quatro** células de `p` em `(r,q) = (5,5)` lado a lado — produção `p=4`, histórico `p=6`, `p=3` e `p=2` — com 800 réplicas, ξ_mp, denominador de normalização, `n_obs=153-p` e raiz máxima. A seleção usa `var_lag_criteria(..., deterministic="trend")` em amostra comum de 141 observações e confere AIC/BIC contra `vars::VARselect(type="both")` a `1e-12`: AIC seleciona `p=4` (8,073207) e BIC `p=2`. A tendência pertence somente à seleção; as células de IRF mantêm o VAR fatorial com intercepto. Escreve `output/factors/p_selection.{csv,md}`, `p_selection_paths.{csv,pdf}`, `p_selection_containment.csv` e `p_selection_lag_criteria.csv`. |
 | `irf_coherence_check.R` | Roda a especificação de produção uma vez e pontua 53 variáveis do painel ponto-a-ponto em cada horizonte contra janelas de teoria (`R/identification/irf_coherence.R`). É o script que alimenta a §5 do paper. Escreve `output/irf/irf_coherence_{h,summary}.csv`, `irf_coherence_report.md` (reescrito por inteiro a cada rodada — nunca editar à mão), `irf_coherence_plots.pdf`, e o cache `irf_coherence_cell.rds` (lido por muitos scripts a jusante). |
+| `price_cross_instrument.R` | Compara o **bloco de preços inteiro** pela escada `z_bruto` → `z_bs_purif` → `z_jk_bs_purif` sob `(5,5,4)` nas duas janelas, com ponto e uma célula pré-COVID de 800 réplicas. Confere a produção contra coerência, força e normalização; um sweep de outra ordem é tratado como vintage histórica, não como alvo de não-regressão. Escreve `output/irf/price_cross_instrument.{csv,md}`, bandas/cache pré-COVID e PDF. |
 | `fig_section5.R` | Pós-processamento puro: lê o `irf_coherence_cell.rds` em cache + as tabelas da Tarefa 7, não reestima nada, escreve as 8 figuras `paper/fig_*.pdf` (todas até h=36), que é de onde `paper_anpec.tex` as inclui. Repontado em 2026-08-05: antes escrevia em `arquivo/tex/img/`, de modo que regenerar as figuras nunca alcançava o paper canônico. |
+| `fig_weak_iv.R` | Pós-processamento puro do CSV canônico da inferência robusta no VAR. Escreve somente `paper/fig_weak_iv_main.pdf`, com ponto, zero e conjunto AR de 95% nas cinco respostas da produção até `h=36`, em grade 3×2. IBC-Br e câmbio entram em porcentagem da média amostral, yield e CDS em pontos-base e IPCA em pontos percentuais. Exige 185 pares variável-horizonte. |
 
 ## 5. Robustez estrutural do DFM (respostas ao council review de 2026-07-31)
 
@@ -75,6 +79,7 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 | script | o que faz |
 |---|---|
 | `validate_hac_kernel.R` | Valida a opção Newey-West de `compute_factor_space_wald` de duas formas: (A) transcrição literal de `NW_hac_STATA.m` vs. o kernel embutido nos lags 0-8 em dado sintético; (B) fim-a-fim contra o fixture oficial `TaxSVARIV.m` (NWlags=8). Só console, com `stopifnot`; degrada com "SKIPPED" se o fixture faltar. |
+| `validate_mosw_ar.R` | Valida o caminho inteiro do VAR observável. Contra `olea_oil_fixture.rds`, reproduz `AL`, `eta`, `Sigma`, `Gamma`, `WHat`, MA, pontos SVAR-IV e conjuntos AR de 68%/95%. Em separado, exige os dez casos degenerados do oráculo e compara AIC/BIC da célula brasileira com uma implementação independente e `vars::VARselect(type="both")`; o AIC seleciona `p=2` e o BIC, `p=1`. Falha se qualquer fixture ou dado exigido faltar. |
 | `validate_olea_kilian.R` | Reproduz os números publicados de Montiel Olea-Stock-Watson (2021) no caso Kilian-oil (ξ₁=4.4, F robusto=9.4) a partir do fixture `output/validation/olea_oil_fixture.rds`. Confere de quebra que o VAR reestimado aqui bate com o `RForm` dos autores. Apontava para `codigo_olea/Data/Oil/` e estava **quebrado** desde a migração do código de referência para `codigos_externos/` (repontado em 2026-08-10). Só console, com `stopifnot`. |
 | `validate_candidate_downloads.R` | Reconfirma nomes, códigos, unidades e frequências SGS/FRED nas fontes oficiais e exige, para as 17 candidatas e os 2 insumos reutilizados, exatamente 153 meses sem duplicatas, `NA` ou valores não finitos entre 2013-01 e 2025-09. Só console, com falha imediata. |
 | `validate_amengual_watson.R` | Valida a tradução de `amengual_watson()` contra `amengual_watson.m`, `factor_estimation_ls.m` e `bai_ng.m` de Stock-Watson, transcritos literalmente (não há MATLAB/Octave aqui — a transcrição *é* o instrumento), contra a fixture commitada `output/validation/amengual_watson_fixture.csv`. Mede em separado o que `apply_bll = TRUE` faz: é o espaço fatorial da produção diferenciado, não uma variante rival. Escreve `output/validation/amengual_watson_validation.md` e falha alto se `q_hat` divergir ou se o gap deixar de ser a constante `log(n/(n-1))`. |
@@ -83,5 +88,4 @@ o orquestrador), depois os 5 do grupo 1 na ordem em que aparecem.
 ## Notas cruzadas
 
 - **`rm(list=ls())`**: a maioria dos entry points limpa o ambiente; os scripts que não o fazem são pensados para rodar em processo `Rscript` próprio, não para ser `source()`ados numa sessão existente.
-- **Guarda `sys.nframe() == 0`**: só `model_var.R` (via `run_benchmark()`).
 - Nenhum script deste diretório é chamado por outro script deste diretório, exceto através de `run_all.R` (estágios) ou de `source()` de módulos em `R/`.

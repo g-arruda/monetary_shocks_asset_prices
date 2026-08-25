@@ -13,9 +13,59 @@
 > robusta a heterocedasticidade (wild bootstrap de Gonçalves-Kilian, HAC do
 > primeiro estágio) e a citação de `goncalves2025`, que é evidência alheia.
 
-## Status (2026-08-13, produção migrada para 111 séries e `(5,5)`)
+## Status (2026-08-24, produção DFM migrada para `p=4`)
 
-> A especificação corrente é centralizada em
+> A produção usa o painel de 111 séries, 153 meses, `(r,q,p)=(5,5,4)`,
+> `z_jk_bs_purif`, normalização de +50 pb em `yield_6m`, horizonte 0--48 e
+> wild bootstrap de 800 réplicas com semente 123. A escolha de `p=4` vem do
+> AIC mínimo, 8,073207, calculado para `p=1,...,12` em amostra comum de
+> `T=141`, com constante e tendência linear; o BIC seleciona `p=2` e é
+> reportado. A tendência pertence somente ao exercício de seleção: o VAR
+> efetivamente estimado nos fatores conserva apenas intercepto.
+>
+> A amostra cheia produz 149 inovações, `xi_mp/F_rob,mp =
+> 5,240158/10,060922` e raiz máxima 0,968126. A pré-COVID produz 80
+> inovações, `7,478324/11,874945` e raiz 0,992483. As duas companions são
+> estáveis. O gate de 800 réplicas teve zero falhas, bandas 68%/90% finitas e
+> ordenadas e normalização exata em 0,005. Nota:
+> `notas/2026-08-24_migracao_dfm_p4.md`.
+
+## Status (2026-08-25, texto e diagnósticos sincronizados em `p=4`)
+
+> As Seções 3--5 do paper e `output/irf/irf_section.md` foram conferidas contra
+> `irf_coherence_h.csv`, os gates de produção e os diagnósticos regenerados. No
+> impacto, a curva sobe 38,9, 50,0, 62,9, 72,8, 74,8 e 67,6 pb nos vértices de
+> 3 meses, 6 meses, 1 ano, 2 anos, 5 anos e 10 anos, e a Selic sobe 24,1 pb.
+> Câmbio, EMBI+ e CDS mantêm 3,74%, 24,5 pb e 30,7 pb; o Ibovespa cai 0,97%,
+> enquanto apenas o IFIX exclui zero a 90% no impacto entre os índices.
+>
+> Os diagnósticos de validade também usam a célula corrente. No exercício
+> soberano, `xi_mp` segue 5,24 -> 5,80 -> 6,49 quando apenas os valores são
+> ortogonalizados e cai a 3,44 quando a máscara é rederivada. No exercício FOMC,
+> a sequência é 5,24 -> 5,33 nos valores e 3,67 na máscara rederivada. O
+> veredito corrente é sinal fraco de contaminação FOMC, e nenhum desses testes
+> absolve a proxy. Por decisão editorial de 2026-08-25, o paper expõe somente
+> as variantes que mantêm fixa a máscara de produção; os resultados de máscara
+> rederivada permanecem neste registro e nos artefatos. A rodada foi
+> exclusivamente textual e não reestimou modelos.
+
+## Status (2026-08-22, benchmark VAR em níveis)
+
+> O único benchmark VAR pequeno ativo é `ibc5_fx_cds_level_trend_p2`, com
+> IBC-Br, IPCA, yield de 6 meses, câmbio e CDS em nível. Cada equação inclui
+> constante e tendência linear. AIC e BIC são calculados para `p=1,...,12`
+> sobre as mesmas `T=141` observações; o AIC seleciona `p=2`, enquanto o BIC
+> seleciona `p=1`, e a produção segue o AIC. A forma reduzida estende
+> `RForm_VAR.m` com o termo de tendência, o impacto é
+> `B_1=0,005 Gamma/Gamma_yield` e cada ponto é `C_h B_1`, sem soma por
+> horizonte. A única inferência do VAR observável são conjuntos
+> Anderson--Rubin/MOSW de 68% e 90% com NW(0). Não há wild bootstrap, correção
+> de Kilian ou fallback OLS nesse benchmark. A inferência do DFM permanece
+> intocada. Nota: `notas/2026-08-22_var_niveis_aic_tendencia.md`.
+
+## Status histórico (2026-08-13, produção migrada para 111 séries e `(5,5,6)`)
+
+> A especificação daquela rodada foi centralizada em
 > `R/modeling/production_spec.R`: painel
 > `drop_setor_externo__eua__credito__imoveis` com 111 séries, 153 meses e 147
 > inovações; `r=5`, `q=5`, `p=6`; `z_jk_bs_purif`; choque de +50 pb em

@@ -79,15 +79,18 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   sazonal X-13, e `panel_candidates.R`, a preparação reutilizável das séries
   candidatas usada por `script/clean.R` e pelas auditorias históricas.
 - **`modeling/`** (4 arquivos) — `production_spec.R`, a especificação única do
-  painel de 111 séries `(5,5,6)`, e os motores `factor_estimation.R`
+  painel de 111 séries `(5,5,4)`, e os motores `factor_estimation.R`
   (estimação BLL do DFM, seleção de r/q), `impulse_response.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
   `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
-  benchmark VAR pequeno, extraído de `script/model_var.R`). O órfão
+  benchmark VAR pequeno observável, com as traduções de `RForm_VAR.m` e
+  `bicaic.m` de Montiel Olea et al.). O órfão
   `svensson_model.R` foi para `arquivo/R/modeling/` em 2026-08-05.
 - **`identification/`** — a máquina de diagnóstico em torno do proxy-SVAR:
   `spec_sweep.R`, `validation_tests.R`, `factor_space_diagnostics.R`,
-  `irf_coherence.R` (pontuação de coerência teórica) e `experimental_panel.R`.
+  `irf_coherence.R` (pontuação de coerência teórica), `experimental_panel.R` e
+  `weak_iv_ar.R` (MA, SVAR-IV, covariância e inversão AR, somente para VAR de
+  observáveis).
   Os ramos het e não-gaussiano saíram em 2026-08-17 para
   `arquivo/{heterocedasticidade,nao_gaussiana}/R/identification/`.
 - **`instrument/`** (3 arquivos) — `build_variants.R` (a cadeia de construção
@@ -111,7 +114,9 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
   `jk_sovereign_confound`, `fomc_coincidence`).
 - **`factors/`** — rodada de estacionariedade/cointegração/espectro da
   companion matrix dos fatores (2026-07-31).
-- **`var/`** — o benchmark de VAR pequeno (2026-07-31).
+- **`var/`** — o benchmark VAR em níveis e sua inferência AR corrente
+  (2026-08-22): cinco séries, constante e tendência linear, AIC e BIC em
+  amostra comum, `p=2` pelo AIC, NW(0) e respostas `C_h B_1`.
 - **`assets/`** — o teste de representação do bloco de ações (2026-07-31).
 - **`validation/`** — artefatos de replicação Olea-Stock-Watson (Kilian-oil,
   aplicação de imposto), usados para validar o Wald ξ_mp e o kernel HAC. O
@@ -185,31 +190,32 @@ O paper canônico desde **2026-08-02** (`paper_anpec.tex`, classe
 `elsarticle`, submissão ANPEC, título "Uncovered Interest Parity,
 Inverted...").
 
-⚠ **O arquivo está partido entre duas vintages desde 2026-08-14.** A §3, a §5 e
-a `tab:lista_variaveis` do apêndice falam da produção de 111 séries `(5,5)`; o
-resumo, a §1, a §2, a §4 (seis subseções: estrutura a termo, câmbio e risco
-soberano, atividade, crédito, preços, ações) e a conclusão ainda falam de 106
-séries em `(7,6)`. A `tab:rq_sweep` foi removida e Anderson-Rubin não é mais
-mencionado. Checklist do que falta em `registro/pendencias.md`, Tema A.
+O arquivo foi integralmente sincronizado em 2026-08-25 com a produção de 111
+séries `(r,q,p)=(5,5,4)`: resumo, introdução, metodologia, resultados,
+robustez, conclusão e apêndice usam a mesma vintage. A `tab:rq_sweep` foi
+removida. Anderson--Rubin aparece somente para o VAR observável, nunca para o
+DFM; o título permanece enquanto a decomposição do wedge de UIP está aberta.
 
-A **`§5 Robustez` tem quatro subseções** — `sec:exogeneidade`
+A **`§5 Robustez` tem cinco subseções** — `sec:exogeneidade`
 (previsibilidade do instrumento mensal, Ljung-Box, `commodity_metal` em R$
 contra US$ e placebos nas duas bandas), `sec:invertibilidade` (diagnóstico de
-invertibilidade fundamentado em Stock e Watson, 2018), `sec:confound` (o filtro
-de sinal seleciona risco soberano?, nas duas proxies diárias e com a seleção de
-produção fixa) e `sec:fomc` (coincidência com decisões do FOMC, também
-condicionada à seleção de produção). A conclusão passou a ser a §6. Desde 2026-08-05
+invertibilidade fundamentado em Stock e Watson, 2018), `sec:weak_iv`
+(conjuntos Anderson--Rubin no VAR de observáveis sob instrumento fraco),
+`sec:confound` (o filtro de sinal seleciona risco soberano?, nas duas proxies
+diárias e com a seleção de produção fixa) e `sec:fomc` (coincidência com
+decisões do FOMC, também condicionada à seleção de produção). Por decisão
+editorial, as duas últimas omitem a rederivação da máscara, preservada apenas
+nos diagnósticos e registros. A conclusão
+passou a ser a §6. Desde 2026-08-05
 `script/fig_section5.R` gera as **8** figuras direto aqui
 (`paper/fig_*.pdf`, nomes nus, que é como o `.tex` as inclui): o §4 usa
 6, a §5 usa `fig_placebos`, e `fig_estado` segue sem consumidor.
 
 O draft abntex2 anterior (`main.tex`, "Choques monetários nos preços dos
 ativos") foi **arquivado em `arquivo/tex/`** nessa mesma data — não por
-vintage ou bug, o conteúdo era corrente, mas porque `paper/` passou a
-ser o documento de trabalho. Preservado porque sua `§5 Robustez` ainda é a
-fonte de prosa para as subseções que `paper/` não tem — Limitações e
-dependência de estado; exogeneidade e placebos já subiram, reescritos, em
-2026-08-09. Ver `arquivo/README.md`.
+vintage ou bug, mas porque `paper/` passou a ser o documento de trabalho. É
+apenas fonte histórica de prosa; nenhum caminho ativo o consome. Ver
+`arquivo/README.md`.
 
 ## `artigos/` — literatura citada
 

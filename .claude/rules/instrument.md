@@ -6,7 +6,7 @@ paths:
   - "script/fomc_coincidence.R"
   - "script/mosw_strength_grid.R"
   - "script/xi_mp_robustness.R"
-  - "script/ar_bands.R"
+  - "script/model_var_weak_iv.R"
   - "script/validate_*.R"
 ---
 
@@ -36,6 +36,10 @@ leg is half the sign rule.
 `compute_factor_space_wald` (`R/modeling/impulse_response.R`) — the MOSW Wald in the
 `yield_6m`-impact direction, validated against the authors' official code. The 95% AR set is a
 bounded interval **iff ξ_mp > 3.84**; conventional bands are approximately valid at ξ_mp ≥ 10.
+Since 2026-08-18 that boundedness prediction is no longer only a flag: `mosw_ar_bounds`
+(`R/identification/weak_iv_ar.R`) actually constructs the set for the **small VAR**, and its
+`ahat > 0` test is the same inequality — `script/model_var_weak_iv.R` asserts the two agree. It
+stays a prediction for the DFM, where no AR set is built.
 `nw_lags` defaults to 0 (Eicker-White), so every published number is unchanged; the Bartlett kernel
 is only needed for a GK-aggregated instrument, which induces an MA(1). The legacy first-stage F
 rulers (`f_factor`, F (y6m AR)) are still computed and reported but **stopped deciding on

@@ -3,14 +3,16 @@
 > **ROTEIRO HISTÓRICO; NÚMEROS SUPERADOS.** O manuscrito corrente é
 > `paper/paper_anpec.tex`. As magnitudes e estatísticas abaixo antecedem a
 > migração canônica de 2026-08-13 e não devem ser transportadas ao paper.
-> A produção corrente está em
-> `notas/2026-08-13_migracao_producao_painel_111_r5q5.md`.
+> A produção corrente está em `notas/2026-08-24_migracao_dfm_p4.md`; a revisão
+> integral do manuscrito foi concluída em 2026-08-25. O restante deste arquivo
+> preserva o roteiro histórico e não deve ser usado como checklist vivo.
 >
 > **Três decisões de estrutura de 2026-08-14 contrariam este roteiro, e não é
 > divergência de número.** A `tab:rq_sweep` **saiu do paper**, porque a dimensão
 > passou a ser justificada pelo Bai--Ng IC2 e não por varredura de força, de modo
 > que toda a discussão de platô e de reotimização *ex post* abaixo perdeu objeto.
-> Anderson-Rubin **não é mais mencionado** no `.tex`. E a seleção `(r=7, q=6)`
+> Anderson--Rubin aparece somente para o VAR observável, nunca
+> como inferência do DFM. E a seleção `(r=7, q=6)`
 > sobre 106 séries foi substituída por `(5,5)` sobre 111. Não reintroduzir
 > nenhuma das três a partir deste arquivo.
 
@@ -460,27 +462,25 @@ Cobre o que o metodologista e o harsh-referee pediram por ângulos diferentes:
   a ressalva do §4 sobre o tier de 68% — a reversão e a persistência do VAR são o
   mesmo objeto, não dois fatos que se corroboram.
 
-### Apêndice E — Benchmark contra o VAR de menor dimensão *(novo, 2026-07-31)*
+### Apêndice E — Benchmark VAR em níveis *(revisto em 2026-08-22)*
 
-Fontes: `output/var/var_benchmark.{md,...}` (3 CSV + 4 PDF); leitura em
-`notas/2026-07-31_benchmark_var_vs_dfm.md`. É a tradução de
-`codigo_alessi-mark/MAIN_VARloop.m` — 18 VARs de 4 variáveis, mesmo instrumento e
-mesma spec do DFM. **Sustenta metade da frase da introdução e refuta a outra
-metade**, então precede a reescrita de `tex/main.tex:183`:
+Fontes: `output/var/var_benchmark_lag_criteria.csv`,
+`output/var/svar_iv_weak_robust*` e
+`notas/2026-08-22_var_niveis_aic_tendencia.md`. O único benchmark ativo contém
+IBC-Br, IPCA, yield de 6 meses, câmbio e CDS em nível, com constante e tendência
+linear em cada equação.
 
-- *mais forte* 16 de 18 (razão mediana 2,32 no impacto, 1,61 no pico de mesmo
-  sinal); *mais rápido* **só nas ações** (7 de 8, contra 9 de 18 no conjunto);
-- a contrapartida em precisão: banda de 68% do DFM nunca mais estreita (razão
-  mediana 4,35) e **37 células sig90 contra 266 do VAR** (nas ações, 0 contra
-  132);
-- o argumento mais forte pró-DFM é o diagnóstico core de AK
-  (`MAIN_plotfigs.m:49-71`): as respostas core do VAR pequeno variam entre
-  especificações **mais do que a própria magnitude**, e o VAR com `ibc_br` é
-  explosivo (1,008).
+- AIC e BIC são calculados em amostra comum de 141 observações. O AIC seleciona
+  `p=2`, o BIC seleciona `p=1`, e a produção segue o AIC.
+- A forma reduzida estende `RForm_VAR.m` com a tendência; há um único impacto de +50 pb e o ponto
+  no horizonte `h` é `C_h B_1`, sem soma por horizonte.
+- A única inferência do VAR observável são conjuntos AR 68%/90% com NW(0). Não
+  há wild bootstrap nem correção de Kilian nesse benchmark.
+- Os conjuntos cobrem somente as respostas do VAR. O contraste de pontos com o
+  DFM é descritivo e não testa a validade da proxy comum.
 
-Figura no formato do original: VAR à esquerda, DFM à direita, **eixo y
-compartilhado por linha** (`linkaxes`) — é o eixo comum que torna a comparação
-visível em vez de afirmada.
+A figura weak-IV apresenta as cinco respostas até 36 meses, com conjuntos AR
+de 68% e 90%.
 
 ### Apêndice C — Varredura de especificações e coerência
 - Desenho do grid de 480 células (12 instrumentos × 5 mp_vars × 4 (r,q) × 2

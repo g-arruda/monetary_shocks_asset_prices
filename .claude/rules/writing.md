@@ -12,25 +12,25 @@ paths:
 # Writing prose and reading the record
 
 The canonical paper is `paper/paper_anpec.tex` (class `elsarticle`). §4 Resultados has six
-subsections; §5 Robustez has `sec:exogeneidade`, `sec:confound` and `sec:fomc`; concluding remarks is
-§6. `script/fig_section5.R` writes all 8 figures directly into `paper/` as bare filenames.
+subsections; §5 Robustez includes `sec:exogeneidade`, `sec:invertibilidade`, `sec:weak_iv`,
+`sec:confound` and `sec:fomc`; concluding remarks is §6. `script/fig_section5.R` writes the
+general robustness figures, while `script/fig_weak_iv.R` writes the weak-IV figure.
 
-**The paper is split across two vintages since 2026-08-14, and that is the single most important
-thing to know before editing it.** §3, §5 and `tab:lista_variaveis` were migrated to the 111-series
-`(5,5)` production. §1, §2, §4 and the conclusion were **not**, by explicit scope decision, and still
-carry 106 séries, `(7,6)`, ξ_mp 7,65, 5,55%, 32,0/43,4/117,0 pb and the CDI. Do not treat a number in
-the untouched half as evidence that the migrated half is wrong, and do not fix one section of the
-untouched half in isolation without reading the checklist in `registro/pendencias.md` Tema A.
-`tab:rq_sweep` no longer exists, and Anderson-Rubin is no longer mentioned anywhere in the paper.
+**The paper was fully synchronized on 2026-08-25.** Abstract, §1--§5,
+conclusion and appendix use the 111-series `(r,q,p)=(5,5,4)` production.
+`tab:rq_sweep` no longer exists. Anderson--Rubin is reported only for the
+observable VAR in `sec:weak_iv`, never as inference for the DFM. Its current
+source is `notas/2026-08-22_var_niveis_aic_tendencia.md`. The sign-filter
+subsections report only exercises that hold the production mask fixed; the
+rederived-mask diagnostics remain in the generated outputs and living record.
 
-`arquivo/tex/main.tex` is the **previous** draft, kept because its §4/§5 are the fullest write-up of
-the production run that exists — **Limitações and `sec:estado` still exist only there** (open item).
-It is a prose source to draw from, **not a target to edit**.
+`arquivo/tex/main.tex` is the **previous** draft. It is a historical prose
+source, **not a target to edit** and not evidence for current magnitudes.
 
 ## Generated vs hand-written — the distinction that already cost this project once
 
 **These bodies are rewritten in full on every run. Never put prose in them:**
-`output/irf/irf_coherence_report.md`, `output/irf/ar_bands.md`,
+`output/irf/irf_coherence_report.md`, `output/var/svar_iv_weak_robust.md`,
 `output/factors/factor_stationarity.md`, `output/assets/asset_representation.md`,
 `output/var/var_benchmark.md`.
 
