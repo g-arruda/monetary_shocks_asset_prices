@@ -1,17 +1,18 @@
 # O DFM é mesmo "mais forte e mais rápido" que um VAR pequeno?
 
-> **NÚMEROS SUPERADOS EM 2026-08-12.** A conclusão qualitativa permanece, mas
+> **SUPERADA/INVÁLIDA — VAR estimado em séries não estacionárias.** A conclusão qualitativa permanece, mas
 > as magnitudes e estatísticas do DFM pertencem ao vintage defeituoso da curva.
 > Use `2026-08-12_correcao_fim_mes_curva.md` e os artefatos correntes.
 
-> **CURRENT.** Escrita em 2026-07-31 sob a produção corrente: `z_jk_bs_purif` ×
+> **HISTÓRICA.** Escrita em 2026-07-31 sob a produção corrente: `z_jk_bs_purif` ×
 > `yield_6m`, r=7, q=6, p=6, painel de 106 séries (vintage 07-24), 153 meses.
 > Corpo gerado e números em `output/var/var_benchmark.md` + três CSVs e quatro
 > PDFs, produzidos por `script/model_var.R`. **2026-08-02: `tex/main.tex` foi
 > arquivado em `arquivo/tex/main.tex`; `paper/paper_anpec.tex` é o
 > paper canônico e já não faz a afirmação que esta nota corrige (ver
 > `registro/pendencias.md`, Tema A).** Esta nota é escrita à mão e nenhum
-> script a toca.**
+> script a toca.** O benchmark corrente é `ibc5_cds_p4`; ver
+> `2026-08-20_weak_iv_ibc_br.md`.
 
 ## A acusação
 

@@ -1,0 +1,2 @@
+cell_id,cell,n,p,T_eff,hac_dim,lag_common_T,aic_selected,bic_selected,xi_var,ar_bounded_90,max_eig,gamma_yield,n_inst,n_inst_nonzero
+production,ibc5_fx_cds_level_trend_p2,5,2,151,90,141,2,1,6.7973352136980925,TRUE,0.9654236946217706,0.012380292126501845,151,61

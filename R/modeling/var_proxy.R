@@ -1,212 +1,138 @@
 # ===================================================================
-# Small-scale proxy-SVAR: the DFM's benchmark.
+# Reduced-form VAR for the observable SVAR-IV benchmark.
 #
-# Translation of the Alessi-Kerssenfischer VAR path:
-#   codigos_externos/codigo_alessi-mark/VARest.m       -> var_est_ols
-#   codigos_externos/codigo_alessi-mark/VARest_boot.m  -> the bootstrap block below
-#   codigos_externos/codigo_alessi-mark/MAIN_VARloop.m -> script/model_var.R (the driver)
+# Faithful translations of:
+#   codigos_externos/codigo_olea/functions/RForm/RForm_VAR.m
+#   codigos_externos/codigo_olea/functions/RForm/bicaic.m
 #
-# The identification is SHARED with the DFM, not re-implemented:
-# `sel_ext_inst_sample` and `ident_ext_instr` from impulse_response.R are
-# the same functions the factor model calls. The only difference between
-# the two paths is what gets projected on the instrument — here the
-# N-dimensional reduced-form residuals of the VAR, there the
-# q-dimensional dynamic-factor innovations eta = u K M^-1.
-#
-# Extracted from script/model_var.R on 2026-07-31, fixing on the way the
-# three errors that made that file unrunnable (the caller passed
-# `var_data`/`p_var`, absent from the signature; the body expected a
-# vars::VAR object but got the list from var_est_ols; and the driver
-# asked for a panel column that does not exist). `kilian_correction` is
-# now taken from factor_estimation.R rather than duplicated — the two
-# implementations were verified equal to 5.6e-17 before the local copy
-# was deleted.
-#
-# Requires: R/modeling/factor_estimation.R (kilian_correction)
-#           R/modeling/impulse_response.R  (sel_ext_inst_sample,
-#                                           ident_ext_instr)
+# The active small VAR uses these estimators directly. Identification and
+# Anderson--Rubin inference live in R/identification/weak_iv_ar.R.
 # ===================================================================
 
 
-#' Reduced-form VAR by OLS, with companion form and MA coefficients
+#' Estimate the Montiel Olea reduced-form VAR
 #'
-#' Faithful translation of `VARest.m`. Unchanged in the extraction.
+#' Translates `RForm_VAR.m` and optionally adds a linear trend after the
+#' constant. All equations are estimated jointly by OLS, and the residual
+#' covariance uses the authors' divisor `T`.
 #'
-#' @param X T x N data matrix (no date column).
-#' @param p Lag order.
-#' @param h IRF horizon.
+#' @param series Data matrix with observations in rows and variables in columns.
+#' @param p Positive lag order.
+#' @param deterministic Deterministic specification: `constant` or `trend`.
 #'
-#' @return List with `B` (N x N x h+1 reduced-form MA coefficients, the
-#'   `rawimp` that `ident_ext_instr` consumes), `u` (residuals),
-#'   `bet` ((N*p+1) x N coefficients, constant last) and `A` (companion).
-var_est_ols <- function(X, p, h) {
-  T_total <- nrow(X)
-  N <- ncol(X)
+#' @return List with deterministic coefficients, `AL`, `Sigma`, `eta`, `X`,
+#'   and `Y`, using the orientations of `RForm_VAR.m`. In particular, `eta` is
+#'   `n x T`.
+#'
+#' @examples
+#' fit <- olea_rform_var(matrix(stats::rnorm(200), ncol = 2), p = 1L)
+olea_rform_var <- function(series, p, deterministic = c("constant", "trend")) {
+  series <- as.matrix(series)
+  p <- as.integer(p)
+  deterministic <- match.arg(deterministic)
 
-  RHS <- matrix(NA, T_total - p, N * p)
-  for (i in seq_len(p)) {
-    RHS[, ((i - 1) * N + 1):(i * N)] <- X[(p + 1 - i):(T_total - i), ]
+  if (length(p) != 1L || is.na(p) || p < 1L) {
+    stop("p must be a positive integer")
   }
-  LHS <- X[(p + 1):T_total, ]
-
-  design <- cbind(RHS, 1)
-  bet <- solve(crossprod(design), crossprod(design, LHS))
-  u <- LHS - design %*% bet
-
-  Np <- N * p
-  A <- matrix(0, Np, Np)
-  A[1:N, ] <- t(bet[1:Np, ])
-  if (p > 1) {
-    A[(N + 1):Np, 1:((p - 1) * N)] <- diag((p - 1) * N)
+  if (nrow(series) <= p || ncol(series) < 1L || any(!is.finite(series))) {
+    stop("series must be finite and have more rows than p")
   }
 
-  Bfull <- array(0, dim = c(Np, Np, h + 1))
-  Bfull[, , 1] <- diag(Np)
-  Bfull[, , 2] <- A
-  for (i in 3:(h + 1)) Bfull[, , i] <- Bfull[, , i - 1] %*% A
+  n_total <- nrow(series)
+  lags <- do.call(
+    cbind,
+    lapply(seq_len(p), function(lag) {
+      series[(p + 1L - lag):(n_total - lag), , drop = FALSE]
+    })
+  )
+  Y <- series[(p + 1L):n_total, , drop = FALSE]
+  deterministic_terms <- if (deterministic == "constant") {
+    matrix(1, nrow(Y), 1L, dimnames = list(NULL, "constant"))
+  } else {
+    cbind(constant = 1, trend = (p + 1L):n_total)
+  }
+  X <- cbind(deterministic_terms, lags)
 
-  B <- array(0, dim = c(N, N, h + 1))
-  for (i in seq_len(h + 1)) B[, , i] <- Bfull[1:N, 1:N, i]
+  slope <- t(Y) %*% X %*% solve(crossprod(X))
+  n_deterministic <- ncol(deterministic_terms)
+  deterministic_coef <- slope[, seq_len(n_deterministic), drop = FALSE]
+  AL <- slope[, -(seq_len(n_deterministic)), drop = FALSE]
+  eta <- t(Y) - slope %*% t(X)
+  Sigma <- tcrossprod(eta) / ncol(eta)
 
-  list(B = B, u = u, bet = bet, A = A)
+  list(
+    deterministic = deterministic_coef,
+    mu = deterministic_coef[, 1L, drop = FALSE],
+    AL = AL,
+    Sigma = Sigma,
+    eta = eta,
+    X = X,
+    Y = Y
+  )
 }
 
 
-#' Proxy-SVAR IRFs for a small reduced-form VAR, with wild bootstrap
+#' Compute VAR lag-order criteria on a common sample
 #'
-#' Encapsulates `VARest.m` + `VARest_boot.m` + `IdentExtInstr.m` as
-#' `MAIN_VARloop.m` chains them. The bootstrap is Gonçalves-Kilian wild:
-#' the SAME Rademacher draw multiplies the residuals and the instrument
-#' (`sel_ext_inst_sample(..., rr = rr)`), the DGP uses Kilian-corrected
-#' coefficients while the point estimate uses plain OLS, and every
-#' replica re-estimates the VAR. That is the DFM's scheme too, which is
-#' what makes the two IRF sets comparable.
+#' For each candidate order, the input is shortened so that every VAR has
+#' `T = nrow(series) - pmax` residual observations. AIC and BIC penalise all
+#' coefficients, including the deterministic terms.
 #'
-#' @param X_mat T x N panel matrix for this VAR, columns in the order the
-#'   IRFs should come out.
-#' @param p Lag order.
-#' @param instrument Data.frame with `month` (Date) and `shock`.
-#' @param data_dates Dates aligned with the rows of `X_mat`.
-#' @param h IRF horizon.
-#' @param mpind Column index of the policy variable, used for the impact
-#'   normalization. `IdentExtInstr.m` resolves it by name against the
-#'   SUBSET of names in this VAR; here the caller passes the index.
-#' @param normalize_value Impact response of the policy variable in its
-#'   native units (`shock_bps/10000` for decimal yields — see
-#'   `norm_value_for` in R/identification/spec_sweep.R).
-#' @param tcode Transformation codes for the N columns of `X_mat`, in the
-#'   same order. Passed through to `ident_ext_instr`, which applies
-#'   `cumimp_transform` inside both the point estimate and each replica —
-#'   as `MAIN_VARloop.m:28` does with `X.tcode(varselind)`. Leaving this
-#'   NULL silently returns cumulative-return series uncumulated and makes
-#'   the IRFs incomparable with the DFM.
-#' @param nboot Wild-bootstrap replications.
-#' @param ci_levels Confidence levels for the bands.
-#' @param seed Optional seed, set before the bootstrap loop.
+#' @param series Data matrix with observations in rows and variables in columns.
+#' @param pmax Largest candidate lag order.
+#' @param deterministic Deterministic specification: `constant` or `trend`.
 #'
-#' @return List with `irf_point` (N x h+1), `ci` (named list per level,
-#'   each with `lower`/`upper`), `H`, `n_failed` and `n_inst`.
-compute_irf_var_proxy <- function(X_mat, p, instrument, data_dates,
-                                  h = 48, mpind = 1L,
-                                  normalize_value = 50 / 10000,
-                                  tcode = NULL, nboot = 800,
-                                  ci_levels = c(0.68, 0.90), seed = NULL) {
+#' @return Data frame with AIC and BIC for every candidate order.
+#'
+#' @examples
+#' criteria <- var_lag_criteria(matrix(stats::rnorm(400), ncol = 4), 12L)
+var_lag_criteria <- function(
+  series,
+  pmax = 12L,
+  deterministic = c("constant", "trend")
+) {
+  series <- as.matrix(series)
+  pmax <- as.integer(pmax)
+  deterministic <- match.arg(deterministic)
 
-  X_mat <- as.matrix(X_mat)
-  N <- ncol(X_mat)
-  T_total <- nrow(X_mat)
-  T_eff <- T_total - p
-  Np <- N * p
-
-  if (!is.null(tcode) && length(tcode) != N) {
-    stop("tcode tem ", length(tcode), " elementos para um VAR de ", N,
-         " variaveis")
+  if (length(pmax) != 1L || is.na(pmax) || pmax < 1L) {
+    stop("pmax must be a positive integer")
+  }
+  if (nrow(series) <= pmax || ncol(series) < 1L || any(!is.finite(series))) {
+    stop("series must be finite and have more rows than pmax")
   }
 
-  # --- Reduced form: one call gives rawimp, residuals, coefficients ---
-  m <- var_est_ols(X_mat, p, h)
-  rawimp <- m$B
-  u <- m$u
-  A <- m$A
-  bet <- m$bet
-
-  # --- Instrument alignment (selextinstsample.m) ---
-  align <- sel_ext_inst_sample(data_dates, p, instrument)
-  rsh_sel <- u[align$rsh_sel_ind, , drop = FALSE]
-  inst_sel <- align$inst_sel
-  if (length(inst_sel) == 0 || nrow(rsh_sel) == 0) {
-    stop("Nenhuma data comum entre instrumento e residuos do VAR")
-  }
-
-  # --- Point estimate (IdentExtInstr.m) ---
-  point_result <- ident_ext_instr(rawimp, rsh_sel, inst_sel, h,
-                                  mpind, normalize_value, tcode)
-  irf_point <- point_result$irf_mp
-
-  ci <- NULL
-  n_failed <- 0L
-
-  if (nboot > 0) {
-    if (!is.null(seed)) set.seed(seed)
-
-    # Kilian (1998) bias correction — DGP of the bootstrap only
-    SIGMA <- matrix(0, Np, Np)
-    SIGMA[1:N, 1:N] <- crossprod(u) / (T_eff - p * N - 1)
-    betbiasc <- bet
-    tryCatch({
-      biascorr <- kilian_correction(A, SIGMA, T_total, N, p)
-      betbiasc <- rbind(t(biascorr[1:N, ]), bet[Np + 1, ])
-    }, error = function(e) {
-      warning("Kilian correction failed, using uncorrected coefficients: ",
-              e$message)
-    })
-
-    res <- sweep(u, 2, colMeans(u))
-    irf_boot <- array(NA_real_, dim = c(N, h + 1, nboot))
-
-    for (b in seq_len(nboot)) {
-      ok <- tryCatch({
-        rr <- 1 - 2 * (runif(T_eff) > 0.5)
-        resb <- res * rr
-
-        X_boot <- matrix(0, T_total, N)
-        X_boot[1:p, ] <- X_mat[1:p, ]
-        for (t_idx in (p + 1):T_total) {
-          lvars <- as.vector(t(X_boot[(t_idx - 1):(t_idx - p), , drop = FALSE]))
-          X_boot[t_idx, ] <- lvars %*% betbiasc[1:Np, ] +
-            betbiasc[Np + 1, ] + resb[t_idx - p, ]
-        }
-
-        boot_var <- var_est_ols(X_boot, p, h)
-        align_b <- sel_ext_inst_sample(data_dates, p, instrument, rr = rr)
-        boot_result <- ident_ext_instr(
-          boot_var$B,
-          boot_var$u[align_b$rsh_sel_ind, , drop = FALSE],
-          align_b$inst_sel, h, mpind, normalize_value, tcode)
-        irf_boot[, , b] <- boot_result$irf_mp
-        TRUE
-      }, error = function(e) FALSE)
-      # Failed replicas fall back to the point estimate, which narrows the
-      # bands mechanically. Counted and returned rather than swallowed.
-      if (!ok) {
-        irf_boot[, , b] <- irf_point
-        n_failed <- n_failed + 1L
-      }
+  T_common <- nrow(series) - pmax
+  n <- ncol(series)
+  n_deterministic <- if (deterministic == "constant") 1L else 2L
+  rows <- lapply(seq_len(pmax), function(p) {
+    series_p <- series[(pmax - p + 1L):nrow(series), , drop = FALSE]
+    fit <- olea_rform_var(series_p, p, deterministic = deterministic)
+    if (ncol(fit$eta) != T_common) {
+      stop("The common-sample construction failed at p = ", p)
     }
 
-    ci <- lapply(ci_levels, function(L) {
-      a <- (1 - L) / 2
-      list(level = L,
-           lower = apply(irf_boot, c(1, 2), quantile, probs = a, na.rm = TRUE),
-           upper = apply(irf_boot, c(1, 2), quantile, probs = 1 - a,
-                         na.rm = TRUE))
-    })
-    # Same key format the DFM cell uses ("0.68", "0.90"), so callers can
-    # index both objects with the same string.
-    names(ci) <- sprintf("%.2f", ci_levels)
-  }
+    logdet <- determinant(fit$Sigma, logarithm = TRUE)
+    if (logdet$sign <= 0L) {
+      stop("Residual covariance is not positive definite at p = ", p)
+    }
 
-  list(irf_point = irf_point, ci = ci, ci_levels = ci_levels,
-       H = point_result$H, n_failed = n_failed, n_inst = length(inst_sel),
-       max_eig = max(Mod(eigen(A)$values)))
+    n_parameters <- n^2 * p + n * n_deterministic
+    data.frame(
+      p = p,
+      n = n,
+      T_common = T_common,
+      deterministic = deterministic,
+      logdet = as.numeric(logdet$modulus),
+      n_parameters = n_parameters,
+      aic = as.numeric(logdet$modulus) + 2 * n_parameters / T_common,
+      bic = as.numeric(logdet$modulus) +
+        log(T_common) * n_parameters / T_common
+    )
+  })
+
+  out <- dplyr::bind_rows(rows)
+  out$selected_aic <- out$p == out$p[which.min(out$aic)]
+  out$selected_bic <- out$p == out$p[which.min(out$bic)]
+  out
 }

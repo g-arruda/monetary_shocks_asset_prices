@@ -1,0 +1,556 @@
+cell_id,cell,reference_cell,comparison,var,h,point,reference_point,difference_vs_reference
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,0,-0.697745811684083,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,0,-0.018708014846702533,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,0,0.005,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,0,0.08050771084479456,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,0,18.85849674935322,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,1,-0.4784496978367283,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,1,0.02556118094441765,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,1,0.006330424985722701,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,1,0.11870501836484194,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,1,21.96556072481784,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,2,-0.32955401601671275,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,2,0.047565559424075116,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,2,0.006774077168744879,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,2,0.10683691598793219,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,2,21.14404108706679,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,3,-0.2519099076664081,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,3,0.053724853512254665,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,3,0.007009236323779014,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,3,0.08995997207943392,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,3,19.172913524077032,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,4,-0.2037843481700925,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,4,0.049430004049196,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,4,0.007171577170474071,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,4,0.07347567431793864,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,4,17.442663080998166,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,5,-0.17006562550607404,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,5,0.042946246572511844,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,5,0.007279832507892535,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,5,0.05932230732330805,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,5,16.034523079818022,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,6,-0.1438591761271041,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,6,0.03609718961589048,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,6,0.007333262905077553,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,6,0.04698164572846886,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,6,14.867867697206599,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,7,-0.12240732707184607,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,7,0.029672064968178744,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,7,0.00733253096608359,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,7,0.03602385510840597,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,7,13.857370273104943,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,8,-0.10434169834375308,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,8,0.02377662714819926,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,8,0.007280275302439219,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,8,0.02615945169186234,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,8,12.947021656870394,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,9,-0.0889283402265578,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,9,0.018375019175710244,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,9,0.007180147741531374,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,9,0.01722403869869079,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,9,12.102727654358773,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,10,-0.07571573073058446,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,10,0.013406750972680516,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,10,0.007036116927617263,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,10,0.009118701203977887,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,10,11.3035188859351,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,11,-0.06439088094335992,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,11,0.0088255807217558,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,11,0.006852210738276059,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,11,0.0017770597007291831,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,11,10.536163231360211,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,12,-0.05471415200359834,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,12,0.0046016622621428095,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,12,0.006632441287051518,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,12,-0.004850671482874415,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,12,9.792235240586864,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,13,-0.04648971649113206,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,13,7.164289211087451e-4,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,13,0.006380784679897141,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,13,-0.010804940312930835,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,13,9.066526678332863,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,14,-0.03955136756773148,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,14,-0.0028423445837184825,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,14,0.0061011669599587755,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,14,-0.016120350520393525,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,14,8.356092853468303,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,15,-0.033754885023893656,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,15,-0.0060837965241282745,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,15,0.0057974456980598894,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,15,-0.020827649196307307,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,15,7.659611187642585,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,16,-0.028973287032525254,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,16,-0.009015826631922576,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,16,0.005473388412980369,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,16,-0.024955057419782854,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,16,6.9769126626373374,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,17,-0.025093502054700376,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,17,-0.01164607880471307,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,17,0.005132650740975572,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,17,-0.028529238431435004,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,17,6.3086268547458815,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,18,-0.02201388497496381,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,18,-0.013982450059993181,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,18,0.004778756331694233,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,18,-0.03157600564857247,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,18,5.655911069107634,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,19,-0.01964232493624632,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,19,-0.01603335168089795,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,19,0.004415079355041899,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,19,-0.034120821142590047,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,19,5.020244851014427,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,20,-0.01789480296020049,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,20,-0.017807837904681732,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,20,0.004044829826592132,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,20,-0.03618912415860982,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,20,4.403275649166878,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,21,-0.016694297250788852,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,21,-0.019315658305451972,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,21,0.003671041643860731,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,21,-0.0378065258498289,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,21,3.806704171257386,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,22,-0.01596995436601741,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,22,-0.02056726178866581,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,22,0.0032965631184634827,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,22,-0.038998902289669124,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,22,3.2322002422607437,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,23,-0.01565646008334247,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,23,-0.02157376753232759,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,23,0.002924049775881242,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,23,-0.03979241254873215,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,23,2.681341950004846,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,24,-0.015693557664416446,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,24,-0.022346912604831914,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,24,0.002555959213712004,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,24,-0.04021346319032196,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,24,2.1555725208112513,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,25,-0.016025673259699384,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,25,-0.02289898323137933,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,25,0.0021945478339842964,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,25,-0.04028863569422375,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,25,1.656170699177001,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,26,-0.01660161809594543,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,26,-0.02324273504093957,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,26,0.0018418692861717708,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,26,-0.04004458934818535,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,26,1.1842314376138243,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,27,-0.017374344894059007,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,27,-0.023391306460470867,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,27,0.0014997744733156752,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,27,-0.039507949042825743,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,27,0.7406544853183332,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,28,-0.01830074194116874,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,28,-0.023358128515078538,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,28,0.0011699129849595184,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,28,-0.03870518503777278,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,28,0.32613905027498763,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,29,-0.019341452739591147,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,29,-0.023156833567662467,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,29,8.537358287224201e-4,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,29,-0.0376624899783817,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,29,-0.058816854385076445,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,30,-0.020460712511523052,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,30,-0.02280116495440648,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,30,5.524993383877561e-4,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,30,-0.036405657093610974,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,30,-0.4139134445949605,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,31,-0.02162619533170161,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,31,-0.022304889016807914,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,31,2.672701411588136e-4,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,31,-0.03495996248503292,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,31,-0.7390434034455147,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,32,-0.0228088675096879,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,32,-0.021681710672966606,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,32,-1.0689292251729468e-6,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,32,-0.033350053640150305,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,32,-1.0342839660820085,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,33,-0.02398284421407072,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,33,-0.02094519338946887,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,33,-2.5181208315264066e-4,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,33,-0.031599845707756695,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,33,-1.2998873589916677,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,34,-0.025125247345582736,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,34,-0.02010868419287935,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,34,-4.844230956954831e-4,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,34,-0.029732426613192392,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,34,-1.536269999167393,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,35,-0.026216063415693963,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,35,-0.019185244182708644,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,35,-6.985271996278343e-4,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,35,-0.027769971733376562,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,35,-1.7440007810542726,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,ibc_br,36,-0.027238000738826307,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,price_ipca,36,-0.01818758486512051,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,yield_6m,36,-8.939024498263751e-4,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cambio_usd,36,-0.025733668570686333,NA,NA
+p2_canonical,"VAR(2) canônico, 151 resíduos",NA,referência canônica,cds_5y,36,-1.9237887197180648,NA,NA
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,0,-0.5293217419340571,-0.697745811684083,0.16842406975002588
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,0,-0.021770640019378097,-0.018708014846702533,-0.003062625172675564
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,0,0.005,0.005,0
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,0,0.07385066727034836,0.08050771084479456,-0.0066570435744462
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,0,15.079590684412734,18.85849674935322,-3.778906064940484
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,1,-0.252294399458986,-0.4784496978367283,0.2261552983777423
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,1,0.0336420094821823,0.02556118094441765,0.00808082853776465
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,1,0.0064693816337407836,0.006330424985722701,1.3895664801808275e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,1,0.10223543572163696,0.11870501836484194,-0.016469582643204986
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,1,17.794677317896795,21.96556072481784,-4.170883406921046
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,2,-0.07904575224034009,-0.32955401601671275,0.25050826377637264
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,2,0.05416787643149354,0.047565559424075116,0.006602317007418423
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,2,0.007040935355332527,0.006774077168744879,2.6685818658764814e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,2,0.08939677298812929,0.10683691598793219,-0.0174401429998029
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,2,17.114927299680055,21.14404108706679,-4.029113787386734
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,3,-8.188739538152467e-4,-0.2519099076664081,0.25109103371259284
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,3,0.056509460552425755,0.053724853512254665,0.00278460704017109
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,3,0.007395038263445101,0.007009236323779014,3.85801939666087e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,3,0.073702440389673,0.08995997207943392,-0.01625753168976092
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,3,15.670321378661104,19.172913524077032,-3.502592145415928
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,4,0.03945857128421164,-0.2037843481700925,0.24324291945430415
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,4,0.04966322435352474,0.049430004049196,2.3322030432874202e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,4,0.007659274110403121,0.007171577170474071,4.876969399290505e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,4,0.059271209191639654,0.07347567431793864,-0.014204465126298985
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,4,14.48888311831288,17.442663080998166,-2.953779962685285
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,5,0.06368835857793313,-0.17006562550607404,0.23375398408400716
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,5,0.04189783866159604,0.042946246572511844,-0.0010484079109158023
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,5,0.007852981993100916,0.007279832507892535,5.731494852083806e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,5,0.04691234526601473,0.05932230732330805,-0.01240996205729332
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,5,13.559871207255812,16.034523079818022,-2.4746518725622106
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,6,0.08113370466155315,-0.1438591761271041,0.22499288078865726
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,6,0.03461945131208061,0.03609718961589048,-0.0014777383038098724
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,6,0.00797911328746002,0.007333262905077553,6.458503823824676e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,6,0.03590231982625928,0.04698164572846886,-0.011079325902209579
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,6,12.779393991509483,14.867867697206599,-2.0884737056971154
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,7,0.09501375801185004,-0.12240732707184607,0.21742108508369612
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,7,0.028153410463676837,0.029672064968178744,-0.0015186545045019068
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,7,0.008041875234729044,0.00733253096608359,7.093442686454537e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,7,0.02584232352994511,0.03602385510840597,-0.010181531578460863
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,7,12.075477237862296,13.857370273104943,-1.7818930352426463
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,8,0.10658872977819459,-0.10434169834375308,0.21093042812194768
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,8,0.02233767946499511,0.02377662714819926,-0.001438947683204149
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,8,0.008046149972380753,0.007280275302439219,7.658746699415343e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,8,0.016548751506264413,0.02615945169186234,-0.009610700185597926
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,8,11.410386348327703,12.947021656870394,-1.5366353085426905
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,9,0.11637254504434538,-0.0889283402265578,0.20530088527090318
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,9,0.01701067576971902,0.018375019175710244,-0.0013643434059912238
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,9,0.007996724662633448,0.007180147741531374,8.165769211020742e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,9,0.007948905550752339,0.01722403869869079,-0.009275133147938451
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,9,10.765267292179486,12.102727654358773,-1.3374603621792875
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,10,0.12461634746782907,-0.07571573073058446,0.20033207819841353
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,10,0.012069021490490876,0.013406750972680516,-0.00133772948218964
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,10,0.007898050082967952,0.007036116927617263,8.619331553506894e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,10,9.747826676360775e-6,0.009118701203977887,-0.009108953377301526
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,10,10.129896078907814,11.3035188859351,-1.1736228070272858
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,11,0.13147476731075589,-0.06439088094335992,0.1958656482541158
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,11,0.007460325477686515,0.0088255807217558,-0.0013652552440692857
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,11,0.00775433098689301,0.006852210738276059,9.02120248616951e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,11,-0.007290428067361853,0.0017770597007291831,-0.009067487768091036
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,11,9.498370871907328,10.536163231360211,-1.037792359452883
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,12,0.1370633411174701,-0.05471415200359834,0.19177749312106843
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,12,0.003162013831699827,0.0046016622621428095,-0.0014396484304429824
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,12,0.007569647460729459,0.006632441287051518,9.372061736779404e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,12,-0.01397017554869901,-0.004850671482874415,-0.009119504065824595
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,12,8.867392873204542,9.792235240586864,-0.9248423673823218
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,13,0.14147769491602502,-0.04648971649113206,0.1879674114071571
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,13,-8.342257274994071e-4,7.164289211087451e-4,-0.0015506546486081523
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,13,0.007348025364911082,0.006380784679897141,9.672406850139408e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,13,-0.020046685352404794,-0.010804940312930835,-0.00924174503947396
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,13,8.235539802312578,9.066526678332863,-0.830986876020285
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,14,0.14480041765156454,-0.03955136756773148,0.18435178521929602
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,14,-0.00453103047567196,-0.0028423445837184825,-0.0016886858919534778
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,14,0.0070934571106321094,0.0061011669599587755,9.922901506733339e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,14,-0.02553610612701962,-0.016120350520393525,-0.009415755606626094
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,14,7.602826018665429,8.356092853468303,-0.7532668348028739
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,15,0.14710454642720056,-0.033754885023893656,0.1808594314510942
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,15,-0.007929492508788888,-0.0060837965241282745,-0.001845695984660613
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,15,0.006809893062950687,0.0057974456980598894,0.0010124473648907978
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,15,-0.030453882337578217,-0.020827649196307307,-0.00962623314127091
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,15,6.970346914025484,7.659611187642585,-0.6892642736171011
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,16,0.14845612906998262,-0.028973287032525254,0.17742941610250787
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,16,-0.01103092926556129,-0.009015826631922576,-0.002015102633638714
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,16,0.0065012203016362805,0.005473388412980369,0.0010278318886559118
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,16,-0.03481524925259796,-0.024955057419782854,-0.00986019183281511
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,16,6.339968905690415,6.9769126626373374,-0.6369437569469225
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,17,0.14891636243349396,-0.025093502054700376,0.17400986448819433
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,17,-0.013837580991029155,-0.01164607880471307,-0.0021915021863160855
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,17,0.006171238232743755,0.005132650740975572,0.0010385874917681831
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,17,-0.038635755219218276,-0.028529238431435004,-0.010106516787783272
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,17,5.714066921486927,6.3086268547458815,-0.5945599332589548
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,18,0.14854331428223494,-0.02201388497496381,0.17055719925719875
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,18,-0.01635286238589585,-0.013982450059993181,-0.0023704123259026683
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,18,0.005823635379024647,0.004778756331694233,0.0010448790473304142
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,18,-0.041931698836557174,-0.03157600564857247,-0.010355693187984703
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,18,5.09531205583,5.655911069107634,-0.560599013277634
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,19,0.14739320836150221,-0.01964232493624632,0.16703553329774853
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,19,-0.018581438364940916,-0.01603335168089795,-0.002548086684042966
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,19,0.005461968889409747,0.004415079355041899,0.0010468895343678473
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,19,-0.04472043537110324,-0.034120821142590047,-0.010599614228513195
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,19,4.486506307038323,5.020244851014427,-0.5337385439761038
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,20,0.14552130371333136,-0.01789480296020049,0.16341610667353185
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,20,-0.020529226311666492,-0.017807837904681732,-0.00272138840698476
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,20,0.005089647074618633,0.004044829826592132,0.0010448172480265012
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,20,-0.04702055230343284,-0.03618912415860982,-0.010831428144823019
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,20,3.8904576508442643,4.403275649166878,-0.512817998322614
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,21,0.14298243465283622,-0.016694297250788852,0.15967673190362508
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,21,-0.022203360172612985,-0.019315658305451972,-0.0028877018671610126
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,21,0.004709914832884652,0.003671041643860731,0.0010388731890239207
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,21,-0.0488519343030038,-0.0378065258498289,-0.0110454084531749
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,21,3.309887761886567,3.806704171257386,-0.49681640937081895
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,22,0.13983128712801873,-0.01596995436601741,0.15580124149403615
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,22,-0.02361212878223347,-0.02056726178866581,-0.003044866993567659
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,22,0.004325841721730759,0.0032965631184634827,0.0010292786032672762
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,22,-0.05023574284312258,-0.038998902289669124,-0.011236840553453455
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,22,2.7473653295907425,3.2322002422607437,-0.4848349126700011
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,23,0.13612248086275902,-0.01565646008334247,0.1517789409461015
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,23,-0.02476489441471462,-0.02157376753232759,-0.0031911268823870305
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,23,0.003940312438255633,0.002924049775881242,0.001016262662374391
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,23,-0.05119433357272659,-0.03979241254873215,-0.01140192102399444
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,23,2.2052591285288674,2.681341950004846,-0.4760828214759787
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,24,0.13191051446677102,-0.015693557664416446,0.14760407213118745
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,24,-0.025671996199464895,-0.022346912604831914,-0.0033250835946329813
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,24,0.003556019502297214,0.002555959213712004,0.00100006028858521
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,24,-0.05175113031155084,-0.04021346319032196,-0.011537667121228883
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,24,1.6857062515990724,2.1555725208112513,-0.4698662692121789
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,25,0.12724961804020998,-0.016025673259699384,0.14327529129990937
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,25,-0.02634464268347585,-0.02289898323137933,-0.00344565945209652
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,25,0.003175457965396332,0.0021945478339842964,9.809101314120355e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,25,-0.05193047028716189,-0.04028863569422375,-0.01164183459293814
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,25,1.1905919811846504,1.656170699177001,-0.46557871799235073
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,26,0.12219354691319645,-0.01660161809594543,0.13879516500914188
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,26,-0.026794797420444036,-0.02324273504093957,-0.0035520623795044642
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,26,0.0028009219882605824,0.0018418692861717708,9.590527020888115e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,26,-0.05175743169601402,-0.04004458934818535,-0.01171284234782867
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,26,0.7215386140483623,1.1842314376138243,-0.46269282356546204
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,27,0.11679534152819972,-0.017374344894059007,0.13416968642225874
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,27,-0.027035060913464148,-0.023391306460470867,-0.003643754452993281
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,27,0.0024345031420002087,0.0014997744733156752,9.347286686845334e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,27,-0.051257651929258255,-0.039507949042825743,-0.011749702886432511
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,27,0.2799011940140192,0.7406544853183332,-0.46075329130431403
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,28,0.11110707187811784,-0.01830074194116874,0.1294078138192866
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,28,-0.02707855163943283,-0.023358128515078538,-0.0037204231243542912
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,28,0.0020780902963742336,0.0011699129849595184,9.081773114147152e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,28,-0.05045714273268044,-0.03870518503777278,-0.01175195769490766
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,28,-0.13323141573130257,0.32613905027498763,-0.45937046600629017
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,29,0.10517957994654908,-0.019341452739591147,0.12452103268614023
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,29,-0.026938788327034585,-0.023156833567662467,-0.003781954759372118
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,29,0.0017333709636427315,8.537358287224201e-4,8.796351349203114e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,29,-0.04938210701093649,-0.0376624899783817,-0.011719617032554787
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,29,-0.517031332167694,-0.058816854385076445,-0.4582144777826176
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,30,0.09906222986769407,-0.020460712511523052,0.11952294237921712
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,30,-0.026629575185325827,-0.02280116495440648,-0.003828410230919347
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,30,0.0014018339706194753,5.524993383877561e-4,8.493346322317192e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,30,-0.04805876080515825,-0.036405657093610974,-0.011653103711547277
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,30,-0.8709232681154471,-0.4139134445949605,-0.4570098235204866
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,31,0.09280267271674031,-0.02162619533170161,0.11442886804844192
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,31,-0.02616489139185802,-0.022304889016807914,-0.003860002375050107
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,31,0.0010847733348785299,2.672701411588136e-4,8.175031937197163e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,31,-0.046513163069451524,-0.03495996248503292,-0.011553200584418603
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,31,-1.194573707209505,-0.7390434034455147,-0.4555303037639904
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,32,0.08644663072076911,-0.0228088675096879,0.10925549823045701
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,32,-0.02555878583787871,-0.021681710672966606,-0.0038770751649121055
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,32,7.832932241950427e-4,-1.0689292251729468e-6,7.843621534202157e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,32,-0.044771055173407126,-0.033350053640150305,-0.01142100153325682
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,32,-1.4878782289152332,-1.0342839660820085,-0.4535942628332248
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,33,0.08003770407133891,-0.02398284421407072,0.10402054828540963
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,33,-0.02482527787903401,-0.02094519338946887,-0.0038800844895651374
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,33,4.983138814269425e-4,-2.5181208315264066e-4,7.501259645795832e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,33,-0.04285771151270132,-0.031599845707756695,-0.011257865804944624
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,33,-1.7509474580393238,-1.2998873589916677,-0.4510600990476561
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,34,0.0736172022956475,-0.025125247345582736,0.09874244964123023
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,34,-0.023978264639620193,-0.02010868419287935,-0.003869580446740843
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,34,2.3057840030590865e-4,-4.844230956954831e-4,7.150014960013917e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,34,-0.04079780218076695,-0.029732426613192392,-0.011065375567574559
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,34,-1.9840920237946813,-1.536269999167393,-0.4478220246272884
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,35,0.06722400120981904,-0.026216063415693963,0.093440064625513
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,35,-0.02303143525572937,-0.019185244182708644,-0.003846191073020727
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,35,-1.93397589182517e-5,-6.985271996278343e-4,6.791874407095827e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,35,-0.03861526831399879,-0.027769971733376562,-0.010845296580622232
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,35,-2.187806844152421,-1.7440007810542726,-0.4438060630981484
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,ibc_br,36,0.060894425765876246,-0.027238000738826307,0.08813242650470256
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,price_ipca,36,-0.02199819230911161,-0.01818758486512051,-0.0038106074439911014
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,yield_6m,36,-2.510286213035089e-4,-8.939024498263751e-4,6.428738285228662e-4
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cambio_usd,36,-0.03633321045075376,-0.025733668570686333,-0.010599541880067426
+p2_common,"VAR(2), amostra comum de 147 resíduos",p2_canonical,efeito de retirar os quatro primeiros resíduos,cds_5y,36,-2.3627549968975607,-1.9237887197180648,-0.438966277179496
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,0,-0.3954549752460265,-0.5293217419340571,0.1338667666880306
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,0,0.025745082645591437,-0.021770640019378097,0.047515722664969534
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,0,0.005,0.005,0
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,0,0.080416836618313,0.07385066727034836,0.00656616934796464
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,0,18.07157584991548,15.079590684412734,2.9919851655027454
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,1,-0.043785339360979975,-0.252294399458986,0.20850906009800604
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,1,0.08029055566024956,0.0336420094821823,0.04664854617806726
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,1,0.0059163380072104746,0.0064693816337407836,-5.53043626530309e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,1,0.1243199481189311,0.10223543572163696,0.022084512397294143
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,1,18.672146282079147,17.794677317896795,0.8774689641823521
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,2,0.08371977679840051,-0.07904575224034009,0.1627655290387406
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,2,0.1019055512188333,0.05416787643149354,0.04773767478733976
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,2,0.006734824759013376,0.007040935355332527,-3.0611059631915124e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,2,0.10474226197998207,0.08939677298812929,0.015345488991852785
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,2,11.52294994913547,17.114927299680055,-5.591977350544585
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,3,0.1514297583355865,-8.188739538152467e-4,0.15224863228940175
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,3,0.0358923216264764,0.056509460552425755,-0.020617138925949352
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,3,0.008410471491271295,0.007395038263445101,0.0010154332278261942
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,3,0.09631258841129947,0.073702440389673,0.022610148021626475
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,3,18.467800564081625,15.670321378661104,2.7974791854205208
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,4,0.21598519074610167,0.03945857128421164,0.17652661946189002
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,4,0.11382988094446445,0.04966322435352474,0.0641666565909397
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,4,0.008691621694450162,0.007659274110403121,0.001032347584047041
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,4,0.09204614789940986,0.059271209191639654,0.03277493870777021
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,4,17.917093015319345,14.48888311831288,3.4282098970064645
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,5,0.13947582385022492,0.06368835857793313,0.07578746527229178
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,5,0.14765157248415797,0.04189783866159604,0.10575373382256192
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,5,0.009002738591970415,0.007852981993100916,0.0011497565988694992
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,5,0.06230631117025532,0.04691234526601473,0.015393965904240588
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,5,15.629796253255837,13.559871207255812,2.0699250460000247
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,6,0.017614484376325124,0.08113370466155315,-0.06351922028522802
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,6,0.06934079871377637,0.03461945131208061,0.03472134740169576
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,6,0.009465976979332805,0.00797911328746002,0.0014868636918727845
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,6,0.05434716839013879,0.03590231982625928,0.018444848563879512
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,6,15.82547723103288,12.779393991509483,3.046083239523396
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,7,-0.05807435594028579,0.09501375801185004,-0.15308811395213584
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,7,0.05518944667617853,0.028153410463676837,0.027036036212501696
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,7,0.009641820005197909,0.008041875234729044,0.0015999447704688648
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,7,0.045373040829245634,0.02584232352994511,0.019530717299300525
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,7,15.220601136514706,12.075477237862296,3.1451238986524093
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,8,-0.1150820365252616,0.10658872977819459,-0.22167076630345617
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,8,0.03131899973148615,0.02233767946499511,0.008981320266491039
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,8,0.009684589134193407,0.008046149972380753,0.0016384391618126538
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,8,0.027882774376996686,0.016548751506264413,0.011334022870732274
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,8,15.510285555464574,11.410386348327703,4.09989920713687
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,9,-0.16148424206094536,0.11637254504434538,-0.2778567871052907
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,9,-0.0015698387147292485,0.01701067576971902,-0.01858051448444827
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,9,0.00976840739475244,0.007996724662633448,0.0017716827321189923
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,9,0.021937507478514865,0.007948905550752339,0.013988601927762526
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,9,14.180267947826117,10.765267292179486,3.4150006556466312
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,10,-0.1902953146767797,0.12461634746782907,-0.31491166214460875
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,10,-0.016737074239674486,0.012069021490490876,-0.028806095730165363
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,10,0.009841182563534827,0.007898050082967952,0.0019431324805668747
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,10,0.011454010137904865,9.747826676360775e-6,0.011444262311228505
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,10,14.34563966837425,10.129896078907814,4.215743589466436
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,11,-0.15875457397368475,0.13147476731075589,-0.29022934128444067
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,11,-0.02120898171750066,0.007460325477686515,-0.028669307195187177
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,11,0.009723719569285028,0.00775433098689301,0.0019693885823920173
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,11,1.7565466585140951e-4,-0.007290428067361853,0.007466082733213262
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,11,14.620931558112067,9.498370871907328,5.122560686204739
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,12,-0.10789768444137837,0.1370633411174701,-0.24496102555884847
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,12,-0.013388833870531037,0.003162013831699827,-0.016550847702230864
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,12,0.009538168082620656,0.007569647460729459,0.001968520621891198
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,12,-0.006476422459517867,-0.01397017554869901,0.007493753089181142
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,12,13.5717159258757,8.867392873204542,4.704323052671159
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,13,-0.06010619331724854,0.14147769491602502,-0.20158388823327356
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,13,-0.009389033799699619,-8.342257274994071e-4,-0.008554808072200212
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,13,0.009289727119407813,0.007348025364911082,0.0019417017544967313
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,13,-0.0166166215437319,-0.020046685352404794,0.003430063808672893
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,13,13.391577166350288,8.235539802312578,5.15603736403771
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,14,-0.021567361646808968,0.14480041765156454,-0.1663677792983735
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,14,-0.0018186162154576,-0.00453103047567196,0.0027124142602143603
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,14,0.008897841268760979,0.0070934571106321094,0.0018043841581288694
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,14,-0.024026986294141857,-0.02553610612701962,0.001509119832877763
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,14,12.175220173750976,7.602826018665429,4.572394155085547
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,15,0.017305379294450612,0.14710454642720056,-0.12979916713274994
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,15,0.0018423285684423286,-0.007929492508788888,0.009771821077231216
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,15,0.008427097756656178,0.006809893062950687,0.0016172046937054912
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,15,-0.03234366349195331,-0.030453882337578217,-0.0018897811543750961
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,15,10.836189590843961,6.970346914025484,3.8658426768184775
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,16,0.03967172093642661,0.14845612906998262,-0.10878440813355601
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,16,-4.1634815854265164e-4,-0.01103092926556129,0.010614581107018638
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,16,0.007865389732804477,0.0065012203016362805,0.0013641694311681968
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,16,-0.04110670085482428,-0.03481524925259796,-0.006291451602226314
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,16,9.5864963514767,6.339968905690415,3.2465274457862856
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,17,0.03113923855213751,0.14891636243349396,-0.11777712388135644
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,17,-0.0056256154212308,-0.013837580991029155,0.008211965569798356
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,17,0.0072457244976162445,0.006171238232743755,0.0010744862648724898
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,17,-0.04716489235646205,-0.038635755219218276,-0.008529137137243771
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,17,7.982264885291491,5.714066921486927,2.268197963804564
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,18,0.010014020532347359,0.14854331428223494,-0.1385292937498876
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,18,-0.015391096810910236,-0.01635286238589585,9.617655749856128e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,18,0.006585750651518647,0.005823635379024647,7.621152724939994e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,18,-0.05325966420512514,-0.041931698836557174,-0.011327965368567963
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,18,6.839712015256073,5.09531205583,1.7443999594260733
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,19,-0.014642748542650182,0.14739320836150221,-0.1620359569041524
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,19,-0.02464996587995736,-0.018581438364940916,-0.006068527515016443
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,19,0.00588419311398658,0.005461968889409747,4.222242245768334e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,19,-0.057499471822615174,-0.04472043537110324,-0.012779036451511933
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,19,5.6330159358994045,4.486506307038323,1.1465096288610814
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,20,-0.03885115144947089,0.14552130371333136,-0.18437245516280226
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,20,-0.03319420068976069,-0.020529226311666492,-0.0126649743780942
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,20,0.005177244332771631,0.005089647074618633,8.759725815299726e-5
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,20,-0.06070820872169017,-0.04702055230343284,-0.013687656418257331
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,20,4.567112352525894,3.8904576508442643,0.6766547016816293
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,21,-0.05703990131642388,0.14298243465283622,-0.2000223359692601
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,21,-0.03947040517936882,-0.022203360172612985,-0.017267045006755834
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,21,0.004465427453689483,0.004709914832884652,-2.44487379195169e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,21,-0.06293076379961095,-0.0488519343030038,-0.014078829496607145
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,21,3.713488957590557,3.309887761886567,0.40360119570399
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,22,-0.0661573774231497,0.13983128712801873,-0.20598866455116843
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,22,-0.0422166539497161,-0.02361212878223347,-0.01860452516748263
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,22,0.003753105473529306,0.004325841721730759,-5.727362482014528e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,22,-0.06356959519768277,-0.05023574284312258,-0.013333852354560187
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,22,2.8162385762357474,2.7473653295907425,0.06887324664500483
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,23,-0.06345078539257146,0.13612248086275902,-0.19957326625533048
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,23,-0.04280147303502669,-0.02476489441471462,-0.01803657862031207
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,23,0.003048334866331885,0.003940312438255633,-8.919775719237479e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,23,-0.06385857666975217,-0.05119433357272659,-0.01266424309702558
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,23,2.035814243510593,2.2052591285288674,-0.1694448850182746
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,24,-0.05461648171397252,0.13191051446677102,-0.18652699618074353
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,24,-0.04102869444441884,-0.025671996199464895,-0.015356698244953945
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,24,0.002350278440464151,0.003556019502297214,-0.0012057410618330627
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,24,-0.06329416888656697,-0.05175113031155084,-0.01154303857501613
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,24,1.196831251868453,1.6857062515990724,-0.48887499973061943
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,25,-0.04445313086975938,0.12724961804020998,-0.17170274890996937
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,25,-0.038230383681275806,-0.02634464268347585,-0.011885740997799956
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,25,0.0016633236797424207,0.003175457965396332,-0.0015121342856539112
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,25,-0.06227449755302375,-0.05193047028716189,-0.010344027265861859
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,25,0.33915323171555267,1.1905919811846504,-0.8514387494690977
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,26,-0.03566189150462603,0.12219354691319645,-0.15785543841782249
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,26,-0.035449120666658486,-0.026794797420444036,-0.00865432324621445
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,26,9.88019118362521e-4,0.0028009219882605824,-0.0018129028698980613
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,26,-0.06093751987286589,-0.05175743169601402,-0.009180088176851876
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,26,-0.505054327274011,0.7215386140483623,-1.2265929413223733
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,27,-0.03111098731868598,0.11679534152819972,-0.1479063288468857
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,27,-0.03321188502369696,-0.027035060913464148,-0.00617682411023281
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,27,3.3096746016153436e-4,0.0024345031420002087,-0.002103535681838674
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,27,-0.059057565528859435,-0.051257651929258255,-0.00779991359960118
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,27,-1.3694844565683626,0.2799011940140192,-1.6493856505823818
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,28,-0.0318915129585977,0.11110707187811784,-0.14299858483671554
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,28,-0.0319557361808824,-0.02707855163943283,-0.004877184541449569
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,28,-3.0030318744903473e-4,0.0020780902963742336,-0.0023783934838232683
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,28,-0.05689754547210015,-0.05045714273268044,-0.006440402739419711
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,28,-2.1666191586347536,-0.13323141573130257,-2.033387742903451
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,29,-0.03807920629761341,0.10517957994654908,-0.1432587862441625
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,29,-0.03142805215010468,-0.026938788327034585,-0.0044892638230700915
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,29,-8.997881122922397e-4,0.0017333709636427315,-0.0026331590759349714
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,29,-0.05420923620748949,-0.04938210701093649,-0.0048271291965530025
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,29,-2.908968473271462,-0.517031332167694,-2.3919371411037678
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,30,-0.04751993923887625,0.09906222986769407,-0.14658216910657032
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,30,-0.031451251912801494,-0.026629575185325827,-0.004821676727475667
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,30,-0.001459572337214415,0.0014018339706194753,-0.0028614063078338903
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,30,-0.05105763441248313,-0.04805876080515825,-0.002998873607324877
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,30,-3.5580099864933663,-0.8709232681154471,-2.6870867183779192
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,31,-0.057665695041166226,0.09280267271674031,-0.15046836775790653
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,31,-0.03151088567513566,-0.02616489139185802,-0.005345994283277637
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,31,-0.001974362169683044,0.0010847733348785299,-0.003059135504561574
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,31,-0.047490922776579625,-0.046513163069451524,-9.777597071281008e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,31,-4.09430882759424,-1.194573707209505,-2.899735120384735
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,32,-0.0668863048632453,0.08644663072076911,-0.1533329355840144
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,32,-0.031098583013240682,-0.02555878583787871,-0.0055397971753619706
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,32,-0.002439728115521463,7.832932241950427e-4,-0.0032230213397165058
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,32,-0.04347673421652054,-0.044771055173407126,0.0012943209568865854
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,32,-4.535333995264304,-1.4878782289152332,-3.047455766349071
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,33,-0.0737889725119848,0.08003770407133891,-0.15382667658332372
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,33,-0.029988649819074842,-0.02482527787903401,-0.005163371940040833
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,33,-0.002853299686937909,4.983138814269425e-4,-0.0033516135683648515
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,33,-0.03916821998380269,-0.04285771151270132,0.0036894915288986294
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,33,-4.87231718162803,-1.7509474580393238,-3.121369723588706
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,34,-0.07781423636111866,0.0736172022956475,-0.15143143865676617
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,34,-0.02804837287420109,-0.023978264639620193,-0.004070108234580896
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,34,-0.0032148957697841285,2.3057840030590865e-4,-0.003445474170090037
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,34,-0.03460754240838137,-0.04079780218076695,0.006190259772385583
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,34,-5.1289395748703095,-1.9840920237946813,-3.144847551075628
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,35,-0.0790912944981481,0.06722400120981904,-0.14631529570796714
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,35,-0.025397992467546194,-0.02303143525572937,-0.002366557211816823
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,35,-0.0035248123202541114,-1.93397589182517e-5,-0.0035054725613358597
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,35,-0.029919955910705377,-0.03861526831399879,0.008695312403293416
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,35,-5.315765158040184,-2.187806844152421,-3.1279583138877634
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,ibc_br,36,-0.07848136655479197,0.060894425765876246,-0.1393757923206682
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,price_ipca,36,-0.022250990946233142,-0.02199819230911161,-2.5279863712153114e-4
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,yield_6m,36,-0.003784437839538587,-2.510286213035089e-4,-0.003533409218235078
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cambio_usd,36,-0.025201887930378496,-0.03633321045075376,0.011131322520375263
+p6_common,"VAR(6), amostra comum de 147 resíduos",p2_common,efeito da ordem de defasagem na amostra comum,cds_5y,36,-5.442791663853139,-2.3627549968975607,-3.0800366669555785
