@@ -198,7 +198,7 @@ asset_scale <- function(tag) {
 cat("\n[2] auto-testes da reconstrucao\n")
 
 # (1) external check: the reconstructed IBOV level against the daily file
-ibov_d <- readr::read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE)
+ibov_d <- readr::read_csv("data/raw/ibov_daily.csv", show_col_types = FALSE)
 ibov_m <- ibov_d |>
   dplyr::mutate(month = as.Date(format(date, "%Y-%m-01"))) |>
   dplyr::group_by(month) |> dplyr::slice_tail(n = 1) |> dplyr::ungroup() |>

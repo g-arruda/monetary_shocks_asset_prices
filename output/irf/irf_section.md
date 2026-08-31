@@ -1,9 +1,10 @@
 # Resultados das IRFs na rodada canônica
 
-> **CURRENT em 2026-08-25.** Esta leitura substitui a produção DFM com `p=6`.
-> O texto canônico do artigo está sincronizado em `paper/paper_anpec.tex`. Os números abaixo
-> vêm de `irf_coherence_h.csv`, `irf_coherence_summary.csv` e dos diagnósticos
-> de força regenerados na mesma rodada.
+> **CURRENT em 2026-08-31.** Esta leitura usa a estimação canônica de 2026-08-25
+> e substitui a produção DFM com `p=6`. O texto canônico do artigo está
+> sincronizado em `paper/paper_anpec.tex`. Os números abaixo vêm de
+> `irf_coherence_h.csv`, `irf_coherence_summary.csv` e dos diagnósticos de força
+> regenerados na mesma rodada.
 
 ## Especificação
 
@@ -57,11 +58,52 @@ dominante não se aplica a esta ordem; seus CSVs vivos ficam vazios para impedir
 que a decomposição de `p=6` seja confundida com produção corrente. A reversão é
 descrição da dinâmica estimada, não confirmação independente do canal econômico.
 
+## Variáveis fiscais
+
+A DLSP cai 0,66 ponto percentual do PIB no impacto, atinge o vale de -0,80 em
+`h=4`, cruza zero em `h=22` e chega a 0,40 em `h=36`. A DBGG cai 0,13 ponto
+percentual no impacto, mas sua queda é mais defasada, com vale de -0,77 em
+`h=11`; ela cruza zero em `h=27` e alcança 0,42 em `h=36`.
+
+A NFSP primária é a NFSP do setor público consolidado, sem desvalorização
+cambial, no conceito primário: resultado nominal menos os juros nominais
+apropriados por competência. Valores positivos indicam necessidade de
+financiamento, isto é, déficit primário; valores negativos, superávit primário.
+A série cai R$ 2,78 bilhões no impacto e atinge o vale de -R$ 5,02 bilhões em
+`h=4`, o que representa menor necessidade de financiamento e, portanto, melhora
+do resultado primário. A resposta pontual cruza zero em `h=23` e chega a R$ 1,81
+bilhão em `h=36`, mas sua banda de 90% abrange zero em todo o horizonte.
+
+Essa cronologia não sustenta uma piora fiscal realizada contemporânea como
+origem da abertura inicial dos spreads soberanos: as variáveis realizadas
+melhoram inicialmente, enquanto o risco soberano aumenta, e sua deterioração
+aparece apenas depois de aproximadamente dois anos. As séries fiscais usam o
+vintage corrente e não reproduzem o conjunto de informações disponível em tempo
+real nas reuniões do Copom.
+
+## Expectativas Focus
+
+No impacto, a expectativa de IPCA para 12 meses sobe 0,114 ponto percentual e
+atinge 0,263 em `h=5`; cruza zero em `h=18` e alcança o vale de -0,195 em
+`h=34`. A expectativa da Selic para o ano seguinte aumenta 0,464 ponto
+percentual no impacto, chega a 0,740 em `h=6`, cruza zero em `h=22` e atinge
+-0,447 em `h=36`. A expectativa de PIB para o ano seguinte cai 0,187 ponto
+percentual no impacto, atinge o vale de -0,306 em `h=6`, cruza zero em `h=23` e
+chega a 0,179 em `h=36`.
+
+Para o câmbio do ano seguinte, a expectativa sobe R$ 0,092/US$ no impacto e
+alcança R$ 0,105/US$ em `h=1`; cruza zero em `h=12`, atinge o vale de
+-R$ 0,079/US$ em `h=25` e permanece em -R$ 0,052/US$ em `h=36`. As revisões
+iniciais persistem por 12 a 23 meses, conforme a variável, antes de uma reversão
+conjunta. Essas séries descrevem expectativas macroeconômicas, não expectativas
+fiscais. Por isso, são compatíveis com aumento do prêmio de risco, mas não
+demonstram piora percebida da sustentabilidade da dívida.
+
 ## Demais blocos
 
-Na atividade, o IBC-Br cai 0,44%, a indústria de transformação 1,38%, os bens
-duráveis 4,89%, os bens de capital 1,88%, o varejo 0,77% e as horas trabalhadas
-na indústria 0,77% no impacto. As vendas de serviços caem 0,34% e a utilização
+Na atividade, o IBC-Br cai 0,45%, a indústria de transformação 1,34%, os bens
+duráveis 4,17%, os bens de capital 2,01%, o varejo 0,78% e as horas trabalhadas
+na indústria 0,85% no impacto. As vendas de serviços caem 0,36% e a utilização
 da capacidade 0,13 ponto percentual, mas suas bandas de 90% contêm zero. No
 crédito, o saldo total sobe 0,56%, e as altas variam de 0,30% para pessoas
 físicas a 1,38% no transporte. Várias respostas revertem depois, o que gera

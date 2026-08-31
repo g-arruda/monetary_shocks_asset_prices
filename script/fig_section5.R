@@ -4,9 +4,10 @@
 # Reads the cached production estimation object and the Task 7 tables.
 # NOTHING is re-estimated here.
 #
-# Every IRF figure runs to h = 36 and carries both bands. The six figures in the
-# results section omit significance markers; the placebo figure retains them.
-# The 68% band is read off the darker ribbon.
+# Every IRF figure runs to h = 36 and carries both bands. The eight figures in
+# the results section omit significance markers; the placebo figure retains
+# them. The script writes ten figures in total. The 68% band is read off the
+# darker ribbon.
 #
 # Output: paper/fig_*.pdf — where paper_anpec.tex reads them (bare
 # filenames, no subdirectory). Repointed 2026-08-05: this used to write into
@@ -28,7 +29,9 @@ IMG_DIR   <- "paper"
 H_MAX <- 36L   # every IRF figure stops here
 
 cell <- readRDS(CELL_RDS)
-stopifnot(cell$instrument == SPEC$instrument, cell$r == SPEC$r, cell$q == SPEC$q)
+if (cell$instrument != SPEC$instrument || cell$r != SPEC$r || cell$q != SPEC$q) {
+  stop("The cached IRF cell does not match the production instrument or factor dimensions.")
+}
 
 panel <- readr::read_csv(PANEL_CSV, show_col_types = FALSE)
 hcsv  <- readr::read_csv(HCSV, show_col_types = FALSE)
@@ -50,7 +53,9 @@ dir.create(IMG_DIR, showWarnings = FALSE, recursive = TRUE)
 #' @return A ggplot object.
 irf_panel <- function(v, lab, scale = 1, mark_sig90 = TRUE) {
   i <- match(v, vn)
-  stopifnot(!is.na(i))
+  if (is.na(i)) {
+    stop(sprintf("Variable '%s' is missing from the production IRF cache.", v))
+  }
   k <- if (identical(scale, "pct")) 100 / mean(panel[[v]], na.rm = TRUE) else scale
   j <- 0:H_MAX + 1
 
@@ -102,7 +107,6 @@ irf_panel <- function(v, lab, scale = 1, mark_sig90 = TRUE) {
 #' @return The path is written as a side effect; no value is used.
 save_fig <- function(file, plot, w, h) {
   ggplot2::ggsave(file.path(IMG_DIR, file), plot, width = w, height = h, device = cairo_pdf)
-  cat("->", file.path(IMG_DIR, file), "\n")
 }
 
 #' Arrange impulse-response panels in a grid
@@ -133,18 +137,33 @@ save_fig("fig_curva.pdf", grid_of(list(
 ), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
-# --- 2. câmbio e risco soberano -------------------------------------
+# --- 2. Exchange rates and sovereign risk ---------------------------
 save_fig("fig_cambio_risco.pdf", grid_of(list(
   list("cambio_usd",      "Câmbio BRL/USD (%)",   "pct"),
   list("cambio_eur",      "Câmbio BRL/EUR (%)",   "pct"),
   list("embi_perc",       "EMBI+ Brasil (p.b.)",  100),
-  list("cds_5y",          "CDS 5 anos (p.b.)",    1),
-  list("commodity_metal", "Commodities metal, R$ (%)", "pct"),
-  list("commodity_agro",  "Commodities agro, R$ (%)",  "pct")
-), ncol = 3, mark_sig90 = FALSE), 9.6, 5.8)
+  list("cds_5y",          "CDS 5 anos (p.b.)",    1)
+), ncol = 2, mark_sig90 = FALSE), 9.6, 5.8)
 
 
-# --- 3. dependência de estado ---------------------------------------
+# --- 3. Fiscal variables --------------------------------------------
+save_fig("fig_fiscal.pdf", grid_of(list(
+  list("fiscal_dbgg",            "DBGG (p.p. do PIB)", 1),
+  list("fiscal_dlsp",            "DLSP (p.p. do PIB)", 1),
+  list("fiscal_primary_balance", "NFSP primária (R$ bi)", 1e-3)
+), ncol = 3, mark_sig90 = FALSE), 9.6, 3.1)
+
+
+# --- 4. Focus expectations ------------------------------------------
+save_fig("fig_expectativas.pdf", grid_of(list(
+  list("expect_focus_ipca12m",   "Focus IPCA 12 meses (p.p.)", 1),
+  list("expect_focus_selic_ny",  "Focus Selic ano seguinte (p.p.)", 1),
+  list("expect_focus_pib_ny",    "Focus PIB ano seguinte (p.p.)", 1),
+  list("expect_focus_cambio_ny", "Focus câmbio ano seguinte (R$/US$)", 1)
+), ncol = 2, mark_sig90 = FALSE), 9.6, 5.8)
+
+
+# --- 5. State dependence --------------------------------------------
 # Da Tarefa 7 (LP-IV com interação completa), não do DFM. Horizonte próprio: a
 # tabela vai até h = 24, e o sombreado em h > 8 marca a faixa estimada mas não
 # testada, porque o regime de risco baixo cai a ~59 observações em h = 12. É o
@@ -186,7 +205,7 @@ p_t <- ggplot2::ggplot(t7, ggplot2::aes(x = h, y = t_dif)) +
 save_fig("fig_estado.pdf", p_reg + p_t + patchwork::plot_layout(ncol = 2), 8.2, 3.4)
 
 
-# --- 4. atividade e trabalho ----------------------------------------
+# --- 6. Activity and labor ------------------------------------------
 save_fig("fig_atividade.pdf", grid_of(list(
   list("ibc_br",                         "IBC-Br (%)",             "pct"),
   list("ind_transformacao",              "Ind. transformação (%)", "pct"),
@@ -199,7 +218,7 @@ save_fig("fig_atividade.pdf", grid_of(list(
 ), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
-# --- 5. crédito ------------------------------------------------------
+# --- 7. Credit -------------------------------------------------------
 save_fig("fig_credito.pdf", grid_of(list(
   list("credit_outstanding",    "Saldo total (%)",          1),
   list("credito_agro",          "Crédito agropecuário (%)", 1),
@@ -211,7 +230,7 @@ save_fig("fig_credito.pdf", grid_of(list(
 ), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
-# --- 6. preços -------------------------------------------------------
+# --- 8. Prices -------------------------------------------------------
 save_fig("fig_precos.pdf", grid_of(list(
   list("price_ipp",           "IPP (p.p. ao mês)",        1),
   list("price_igp_m",         "IGP-M (p.p. ao mês)",      1),
@@ -224,7 +243,7 @@ save_fig("fig_precos.pdf", grid_of(list(
 ), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
-# --- 7. ações --------------------------------------------------------
+# --- 9. Equity indexes ----------------------------------------------
 save_fig("fig_acoes.pdf", grid_of(list(
   list("asset_ibov", "Ibovespa (%)",        1),
   list("asset_smll", "SMLL, small caps (%)", 1),
@@ -236,7 +255,7 @@ save_fig("fig_acoes.pdf", grid_of(list(
 ), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
-# --- 8. placebos ------------------------------------------------------
+# --- 10. Placebos ----------------------------------------------------
 save_fig("fig_placebos.pdf", grid_of(list(
   list("sp500_vix", "VIX",                     1),
   list("msci",      "MSCI emergentes",         1),
@@ -244,11 +263,13 @@ save_fig("fig_placebos.pdf", grid_of(list(
 ), ncol = 3), 9.6, 3.1)
 
 
-# --- auto-teste ------------------------------------------------------
-# Todo valor plotado em h=0 tem que bater com irf_coherence_h.csv.
+# --- Validation -----------------------------------------------------
+# Every scored plotted value and interval must match irf_coherence_h.csv.
 plotted <- c("yield_3m","yield_6m","yield_1y","yield_2y","yield_5y","yield_10y",
              "juros_selic","cambio_usd","cambio_eur","embi_perc",
-             "cds_5y","commodity_metal","commodity_agro","ind_transformacao",
+             "cds_5y","fiscal_dbgg","fiscal_dlsp","fiscal_primary_balance",
+             "expect_focus_ipca12m","expect_focus_selic_ny",
+             "expect_focus_pib_ny","expect_focus_cambio_ny","ind_transformacao",
              "ind_bens_duraveis","ind_bens_capital","vendas_varejo",
              "capacidade_instalada_industria","trab_hrs_trabalhadas_industria",
              "ibc_br","vendas_servicos",
@@ -260,20 +281,32 @@ plotted <- c("yield_3m","yield_6m","yield_1y","yield_2y","yield_5y","yield_10y",
              "price_inpc","asset_ibov","asset_smll","asset_idiv",
              "asset_imob","asset_ifnc","asset_imat","asset_ifix",
              "sp500_vix","msci","epu_us")
-n_chk <- 0L
 for (v in plotted) {
   i <- match(v, vn)
-  stopifnot(!is.na(i))
+  if (is.na(i)) {
+    stop(sprintf("Plotted variable '%s' is missing from the production IRF cache.", v))
+  }
   d <- hcsv[hcsv$var == v & hcsv$h <= H_MAX, ]
-  if (!nrow(d)) next                       # série do painel fora da régua de coerência
-  n_chk <- n_chk + 1L
+  if (!nrow(d)) {
+    next
+  }
   j <- d$h + 1
-  # ponto e flag de significância reconstruída batem com o CSV publicado
-  stopifnot(max(abs(point[i, j] - d$point)) < 1e-10)
-  stopifnot(identical(as.logical(ci90$lower[i, j] > 0 | ci90$upper[i, j] < 0),
-                      as.logical(d$sig90)))
+  cached <- data.frame(
+    point = point[i, j],
+    lo68 = ci68$lower[i, j],
+    hi68 = ci68$upper[i, j],
+    lo90 = ci90$lower[i, j],
+    hi90 = ci90$upper[i, j]
+  )
+  if (max(abs(as.matrix(cached) - as.matrix(d[names(cached)]))) >= 1e-10) {
+    stop(sprintf("IRF points or bands for '%s' do not match irf_coherence_h.csv.", v))
+  }
+  sig68 <- as.logical(ci68$lower[i, j] > 0 | ci68$upper[i, j] < 0)
+  if (!identical(sig68, as.logical(d$sig68))) {
+    stop(sprintf("The 68%% significance flags for '%s' do not match irf_coherence_h.csv.", v))
+  }
+  sig90 <- as.logical(ci90$lower[i, j] > 0 | ci90$upper[i, j] < 0)
+  if (!identical(sig90, as.logical(d$sig90))) {
+    stop(sprintf("The 90%% significance flags for '%s' do not match irf_coherence_h.csv.", v))
+  }
 }
-cat(sprintf("auto-teste contra irf_coherence_h.csv (ponto + sig90, h=0..%d): OK em %d de %d séries plotadas\n",
-            H_MAX, n_chk, length(plotted)))
-cat("sig90 em h>12 no painel escorado:", sum(hcsv$sig90[hcsv$h > 12]),
-    "| sig68 total:", sum(hcsv$sig68), "\n")
