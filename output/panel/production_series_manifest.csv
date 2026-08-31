@@ -1,0 +1,8 @@
+variable,block,transformation,tcode,n_months,first_month,last_month,is_seasonal,seasonal_status
+fiscal_dbgg,fiscal,level,1,153,2013-01-01,2025-09-01,FALSE,nao_sazonal
+fiscal_dlsp,fiscal,level,1,153,2013-01-01,2025-09-01,TRUE,ajustada_completo
+fiscal_primary_balance,fiscal,level,1,153,2013-01-01,2025-09-01,TRUE,ajustada_completo
+expect_focus_ipca12m,expectativas,level,1,153,2013-01-01,2025-09-01,FALSE,nao_sazonal
+expect_focus_selic_ny,expectativas,level,1,153,2013-01-01,2025-09-01,FALSE,nao_sazonal
+expect_focus_pib_ny,expectativas,level,1,153,2013-01-01,2025-09-01,TRUE,ajustada_completo
+expect_focus_cambio_ny,expectativas,level,1,153,2013-01-01,2025-09-01,FALSE,nao_sazonal

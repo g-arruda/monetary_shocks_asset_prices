@@ -1,11 +1,10 @@
 # Experimental panel-composition round. This script is intentionally isolated
-# from production: it reads the canonical panel and candidate inputs, builds
+# from production: it reads the canonical panel and experimental inputs, builds
 # every variant in memory, and writes only to output/panel_experimental/.
 
 rm(list = ls())
 
-source("R/data_download/panel_candidates.R")
-source("R/preprocessing/panel_candidates.R")
+source("R/preprocessing/experimental_extensions.R")
 source("R/identification/experimental_panel.R")
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
@@ -169,7 +168,7 @@ if (anyDuplicated(instrument_panel$month) || any(!is.finite(instrument_panel$sho
 }
 
 experimental <- build_experimental_panels(base_mat, EXPECTED_DATES, MP_VAR)
-candidate_inputs <- experimental$candidate_inputs
+experimental_inputs <- experimental$experimental_inputs
 variant_manifest <- experimental$variant_manifest
 panels <- experimental$panels
 manifest_detail <- purrr::imap_dfr(panels, function(panel, variant) {
@@ -188,7 +187,7 @@ if (!all(manifest_detail$dates == 153L)) {
 }
 
 readr::write_csv(variant_manifest |> dplyr::left_join(manifest_detail, by = "variant"), file.path(OUT_DIR, "variant_manifest.csv"))
-readr::write_csv(candidate_inputs$treatments, file.path(OUT_DIR, "candidate_treatments.csv"))
+readr::write_csv(experimental_inputs$treatments, file.path(OUT_DIR, "experimental_treatments.csv"))
 
 strength_rows <- list()
 composition_rows <- list()
@@ -334,7 +333,7 @@ report <- c(
   "## Arquivos",
   "",
   "- `variant_manifest.csv`: variantes, inclusões, exclusões e cobertura.",
-  "- `candidate_treatments.csv`: fontes, transformações e ajuste sazonal por candidata.",
+  "- `experimental_treatments.csv`: fontes, transformações e ajuste sazonal por série experimental.",
   "- `block_composition.csv` e `block_squared_loadings.csv`: dimensão efetiva, sobrepeso, cargas, participação no choque e comunalidade.",
   "- `strength_and_classification.csv`, `irfs_required_long.csv`, `cell_<variant>_<sample>.rds` e `irf_overlay_*.pdf`: resultados completos por célula."
 )

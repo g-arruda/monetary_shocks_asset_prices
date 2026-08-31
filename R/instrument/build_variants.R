@@ -259,7 +259,7 @@ build_instrument_variants <- function(inputs,
                   paste(sprintf("%s=%d", names(n_na_pre[n_na_pre > 0]),
                                 n_na_pre[n_na_pre > 0]), collapse = ", "))
     if (strict) {
-      stop(msg, ". Check daily input coverage / run R/data_download/focus_fred.R.")
+      stop(msg, ". Check daily input coverage or rerun script/download.R.")
     }
     valid <- valid |> tidyr::drop_na(dplyr::all_of(pre_cols))
   }

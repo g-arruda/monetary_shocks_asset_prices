@@ -11,8 +11,7 @@
 #    purification — regression on PRE-event predictors only
 #    (13-week financial trends + 4-week Focus revisions + trend),
 #    per Bauer-Swanson (2023) eq. 7 / Table 3.
-# Requires: Rscript R/data_download/focus_fred.R (focus_daily.csv
-# and fred_dgs2.csv feed the audit variants).
+# Requires the daily raw inputs written by `script/download.R`.
 # ============================================================
 
 source("R/instrument/di_surprise.R")
@@ -61,7 +60,7 @@ DEFAULT_VARIANT <- SPEC$instrument # legacy data/processed/instrument.csv
 
 di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
-ibov_daily <- readr::read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
+ibov_daily <- readr::read_csv("data/raw/ibov_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
   dplyr::filter(!is.na(ibov))
 
@@ -71,11 +70,11 @@ ext_daily <- readr::read_csv("data/raw/investing/external_factors_daily.csv", sh
             vix   = as.numeric(vix),
             brent = as.numeric(brent))
 
-brl_daily <- readr::read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
+brl_daily <- readr::read_csv("data/raw/brl_usd_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date), brl = as.numeric(brl)) |>
   dplyr::filter(!is.na(brl))
 
-focus_daily <- readr::read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
+focus_daily <- readr::read_csv("data/raw/focus_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date),
             focus_ipca12m  = as.numeric(focus_ipca12m),
             focus_selic_ny = as.numeric(focus_selic_ny))

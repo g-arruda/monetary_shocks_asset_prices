@@ -2,7 +2,7 @@
 
 rm(list = ls())
 
-source("R/data_download/panel_candidates.R")
+source("R/preprocessing/experimental_extensions.R")
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/identification/factor_space_diagnostics.R")
@@ -13,65 +13,11 @@ OUT_DIR <- "output/panel_experimental"
 MP_VAR <- "yield_6m"
 VARIANT <- "z_jk_bs_purif"
 
-
-#' Assert complete, unique, finite coverage for one monthly series
-#'
-#' @param data Data frame with monthly date and numeric value columns.
-#' @param id Identifier used in validation messages.
-#'
-#' @return Invisibly TRUE.
-assert_complete_monthly <- function(data, id) {
-  if (!all(c("ref.date", "value") %in% names(data))) {
-    stop(id, " must contain ref.date and value.")
-  }
-  dates <- as.Date(data$ref.date)
-  if (!identical(dates, EXPECTED_DATES) || anyDuplicated(dates) || anyNA(dates) ||
-      anyNA(data$value) || any(!is.finite(data$value))) {
-    stop(id, " does not have exactly 153 unique finite monthly observations.")
-  }
-  invisible(TRUE)
-}
-
-
-inventory <- panel_candidate_inventory()
-selected_ids <- c(
-  "13762", "4513", "4649", "23079", "22708", "22709", "3546",
-  "FOCUS_IPCA12M", "FOCUS_SELIC_NY", "FOCUS_PIB_NY", "FOCUS_CAMBIO_NY",
-  "DGS10", "FEDFUNDS", "DTWEXBGS", "21082", "20714", "21340"
-)
-for (id in selected_ids) {
-  path <- inventory$file[inventory$id == id]
-  if (length(path) != 1 || !file.exists(path)) {
-    stop("Missing candidate input for ", id, ".")
-  }
-  data <- readr::read_csv(path, show_col_types = FALSE) |>
-    dplyr::transmute(ref.date = as.Date(ref.date), value = as.numeric(value)) |>
-    dplyr::arrange(ref.date)
-  assert_complete_monthly(data, id)
-}
-
-dgs2 <- readr::read_csv("data/raw/fred_dgs2.csv", show_col_types = FALSE) |>
-  dplyr::transmute(date = as.Date(date), value = as.numeric(ust2y)) |>
-  last_observation_in_month() |>
-  dplyr::select(ref.date, value)
-assert_complete_monthly(dgs2, "DGS2")
-
-sp500 <- readr::read_csv("data/raw/investing/external_factors_daily.csv", show_col_types = FALSE) |>
-  dplyr::transmute(date = as.Date(date), value = as.numeric(sp500)) |>
-  dplyr::filter(!is.na(value), date >= as.Date("2012-12-01")) |>
-  dplyr::mutate(ref.date = as.Date(format(date, "%Y-%m-01"))) |>
-  dplyr::group_by(ref.date) |>
-  dplyr::slice_max(date, n = 1, with_ties = FALSE) |>
-  dplyr::ungroup() |>
-  dplyr::arrange(ref.date) |>
-  dplyr::mutate(value = c(NA_real_, diff(log(value)))) |>
-  dplyr::filter(ref.date >= min(EXPECTED_DATES), ref.date <= max(EXPECTED_DATES)) |>
-  dplyr::select(ref.date, value)
-assert_complete_monthly(sp500, "Yahoo ^GSPC monthly log return")
-
-forbidden <- c("SP500", "T10Y2Y", "22711", "22712", "22701", "22702", "22703", "22707", "22710")
-if (any(inventory$id[inventory$status == "novo download necessário"] %in% forbidden)) {
-  stop("An excluded identity or insufficient-coverage series entered the candidate inventory.")
+experimental_inputs <- build_experimental_inputs(EXPECTED_DATES)
+if (nrow(experimental_inputs$matrix) != 153L ||
+    ncol(experimental_inputs$matrix) != 19L ||
+    any(!is.finite(experimental_inputs$matrix))) {
+  stop("The historical experimental inputs are incomplete or non-finite.")
 }
 
 base <- readr::read_csv("data/processed/data_log_deseasonalized_base_106.csv", show_col_types = FALSE)
@@ -128,8 +74,12 @@ if (dir.exists(OUT_DIR)) {
   manifest_path <- file.path(OUT_DIR, "variant_manifest.csv")
   if (file.exists(manifest_path)) {
     manifest <- readr::read_csv(manifest_path, show_col_types = FALSE)
+    additions <- manifest$added[!is.na(manifest$added) & nzchar(manifest$added)] |>
+      strsplit(";", fixed = TRUE) |>
+      unlist(use.names = FALSE) |>
+      unique()
     if (nrow(manifest) != 9L || any(manifest$dates != 153L) ||
-        any(grepl(paste(forbidden, collapse = "|"), manifest$added))) {
+        length(setdiff(additions, colnames(experimental_inputs$matrix))) > 0L) {
       stop("Experimental manifest fails coverage or exclusion validation.")
     }
   }

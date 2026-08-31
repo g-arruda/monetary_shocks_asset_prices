@@ -49,14 +49,3 @@ download_brl_usd_daily <- function(from = "2012-01-01", to = "2026-02-01") {
     dplyr::rename(brl = close) |>
     dplyr::arrange(date)
 }
-
-if (sys.nframe() == 0) {
-  ext <- download_external_factors()
-  readr::write_csv(ext, "data/raw/investing/external_factors_daily.csv")
-  message(sprintf("Saved %d rows to data/raw/investing/external_factors_daily.csv", nrow(ext)))
-
-  brl <- download_brl_usd_daily()
-  dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
-  readr::write_csv(brl, "data/processed/brl_usd_daily.csv")
-  message(sprintf("Saved %d rows to data/processed/brl_usd_daily.csv", nrow(brl)))
-}

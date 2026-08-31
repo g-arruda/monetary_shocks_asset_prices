@@ -43,8 +43,9 @@ restore bootstrap inference for this benchmark.
 
 Three ordered stages plus estimation, one `Rscript` process each, orchestrated by `script/run_all.R`:
 
-1. **`script/download.R`** → `data/raw/raw_data.csv` (BCB, FX, yield curve, rb3 indices, EMBI/CDS/MSCI,
-   EPU, inflation). Auxiliary downloaders in `R/data_download/`.
+1. **`script/download.R`** → `data/raw/raw_data.csv` with 113 monthly series plus every reproducible
+   daily raw input (BCB, Focus, FRED, Yahoo, B3, FOMC, IPEA, SIDRA). Auxiliary functions in
+   `R/data_download/` never execute or write on source.
 2. **`script/clean.R`** → `data/processed/data_log_deseasonalized.csv` (log + X-13).
 3. **`script/instrument.R`** → 8 monthly variants via `R/instrument/build_variants.R`. Requires
    `data/raw/fomc_dates.csv` (hard).
@@ -55,7 +56,7 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
 `script/irf_coherence_check.R` runs the production spec once and writes
 `output/irf/irf_coherence_h.csv` — point + 68/90 bands + flags, **the source of §5** — plus
 `irf_coherence_cell.rds`, the cached estimation object follow-up analyses reuse instead of
-re-estimating. Catalog of the 37 scripts in `script/README.md`; repo map in `README.md`.
+re-estimating. Catalog of the 36 scripts in `script/README.md`; repo map in `README.md`.
 
 ## Completed rounds
 
@@ -151,9 +152,7 @@ Rscript script/run_all.R                     # full chain, network downloads inc
 Rscript script/run_all.R --from=clean        # skip the network stages
 
 # Full instrument rebuild + diagnostics
-Rscript R/data_download/external_factors.R   # SP500/VIX/Brent + BRL/USD daily
-Rscript R/data_download/focus_fred.R         # Focus medians (BCB olinda) + FRED DGS2
-Rscript script/fomc_dates.R         # FOMC decision dates (required by instrument.R)
+Rscript script/download.R                    # all reproducible monthly and daily raw inputs
 Rscript script/instrument.R                  # 8 GK-family variants
 Rscript script/instrument_diagnostics.R      # first-stage F + MOSW Wald block
 Rscript script/mosw_strength_grid.R          # ξ_mp over (r,q) × sample × instrument

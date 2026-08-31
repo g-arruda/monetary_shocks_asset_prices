@@ -1,10 +1,9 @@
-# Factor-grid sensitivity across every candidate-block-removal panel.
+# Factor-grid sensitivity across every experimental-block-removal panel.
 # This script estimates point DFMs only and writes exclusively to rq_grid_drop_blocks/.
 
 rm(list = ls())
 
-source("R/data_download/panel_candidates.R")
-source("R/preprocessing/panel_candidates.R")
+source("R/preprocessing/experimental_extensions.R")
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/identification/experimental_panel.R")
@@ -185,7 +184,7 @@ report <- c(
   "",
   "## Desenho fixado",
   "",
-  "Todos os painéis removem `juros_cdi` e `asset_mlcx`. Partindo das 123 séries restantes da união completa, a rodada remove cada combinação dos seis blocos candidatos (fiscal, setor externo, expectativas, EUA, crédito e imóveis): 64 variantes, de N=123 a N=104. Mantém amostras cheia e pré-COVID, 18 pares `(r,q)` com `q ≤ r`, `p=6`, instrumento `z_jk_bs_purif` e direção `yield_6m`.",
+  "Todos os painéis removem `juros_cdi` e `asset_mlcx`. Partindo das 123 séries restantes da união completa, a rodada remove cada combinação dos seis blocos experimentais (fiscal, setor externo, expectativas, EUA, crédito e imóveis): 64 variantes, de N=123 a N=104. Mantém amostras cheia e pré-COVID, 18 pares `(r,q)` com `q ≤ r`, `p=6`, instrumento `z_jk_bs_purif` e direção `yield_6m`.",
   "",
   "## Cobertura",
   "",

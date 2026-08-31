@@ -52,7 +52,15 @@ production_spec <- function() {
     ci_levels = c(0.68, 0.90),
     horizon = 48L,
     base_series_removed = c("juros_cdi", "asset_mlcx"),
-    candidate_blocks_kept = c("fiscal", "expectativas"),
+    production_series_added = c(
+      "fiscal_dbgg",
+      "fiscal_dlsp",
+      "fiscal_primary_balance",
+      "expect_focus_ipca12m",
+      "expect_focus_selic_ny",
+      "expect_focus_pib_ny",
+      "expect_focus_cambio_ny"
+    ),
     required_series = c(
       "yield_6m", "fiscal_dbgg", "fiscal_dlsp", "fiscal_primary_balance",
       "expect_focus_ipca12m", "expect_focus_selic_ny", "expect_focus_pib_ny",

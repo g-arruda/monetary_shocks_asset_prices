@@ -2,11 +2,8 @@
 # End-to-end pipeline orchestrator.
 #
 # Runs the ordered stages of the project, one OS process per stage. A
-# separate process is mandatory, not cosmetic: most stage scripts start
-# with `rm(list = ls())`, and the two downloader modules only execute
-# their top-level block under `if (sys.nframe() == 0)`. Sourcing them in
-# a shared session would either wipe the caller's environment or run
-# nothing at all.
+# separate process is mandatory because most stage scripts start with
+# `rm(list = ls())` and must not share mutable state.
 #
 # Usage (always from the repository root):
 #   Rscript script/run_all.R                     # full chain, network included
@@ -15,7 +12,7 @@
 #   Rscript script/run_all.R --from=clean        # from a stage to the end
 #   Rscript script/run_all.R --to=instrument     # from the start to a stage
 #   Rscript script/run_all.R --only=clean,instrument
-#   Rscript script/run_all.R --skip=di,ibov
+#   Rscript script/run_all.R --skip=download
 #   Rscript script/run_all.R --skip-existing     # skip stages whose outputs exist
 #   Rscript script/run_all.R --continue-on-error
 #
@@ -33,11 +30,7 @@
 RSCRIPT <- file.path(R.home("bin"), "Rscript")
 LOG_DIR <- "output/logs"
 source("R/modeling/production_spec.R")
-source("R/data_download/panel_candidates.R")
 SPEC <- production_spec()
-CANDIDATE_FILES <- panel_candidate_inventory() |>
-  dplyr::filter(status == "novo download necessário") |>
-  dplyr::pull(file)
 
 
 # ---- Stage table ---------------------------------------------------
@@ -47,54 +40,8 @@ CANDIDATE_FILES <- panel_candidate_inventory() |>
 
 STAGES <- list(
   list(
-    name     = "di",
-    desc     = "DI futures panel from the pyield-data release (python)",
-    interp   = "python3",
-    file     = "script/download_di.py",
-    network  = TRUE,
-    requires = character(),
-    produces = "data/raw/di.csv"
-  ),
-  list(
-    name     = "external_factors",
-    desc     = "SP500 / VIX / Brent and BRL-USD daily closes (Yahoo)",
-    interp   = "Rscript",
-    file     = "R/data_download/external_factors.R",
-    network  = TRUE,
-    requires = character(),
-    produces = c("data/raw/investing/external_factors_daily.csv",
-                 "data/processed/brl_usd_daily.csv")
-  ),
-  list(
-    name     = "focus_fred",
-    desc     = "Focus medians (BCB olinda) + UST 2y (FRED DGS2)",
-    interp   = "Rscript",
-    file     = "R/data_download/focus_fred.R",
-    network  = TRUE,
-    requires = character(),
-    produces = c("data/processed/focus_daily.csv", "data/raw/fred_dgs2.csv")
-  ),
-  list(
-    name     = "fomc",
-    desc     = "FOMC decision dates from the Fed's own calendar pages",
-    interp   = "Rscript",
-    file     = "script/fomc_dates.R",
-    network  = TRUE,
-    requires = character(),
-    produces = "data/raw/fomc_dates.csv"
-  ),
-  list(
-    name     = "ibov",
-    desc     = "IBOV daily index from B3 (rb3 cache)",
-    interp   = "Rscript",
-    file     = "R/data_download/ibov_daily.R",
-    network  = TRUE,
-    requires = character(),
-    produces = "data/processed/ibov_daily.csv"
-  ),
-  list(
     name     = "download",
-    desc     = "Merge BCB / FX / yields / assets / risk / EPU into the raw panel",
+    desc     = "Download and merge every reproducible raw input",
     interp   = "Rscript",
     file     = "script/download.R",
     network  = TRUE,
@@ -104,7 +51,15 @@ STAGES <- list(
                  "data/raw/investing/msci.csv",
                  "data/raw/investing/sp500_vix.csv",
                  "data/raw/epu/economic_policy_uncertainty.csv"),
-    produces = "data/raw/raw_data.csv"
+    produces = c(
+      "data/raw/raw_data.csv",
+      "data/raw/focus_daily.csv",
+      "data/raw/ibov_daily.csv",
+      "data/raw/brl_usd_daily.csv",
+      "data/raw/investing/external_factors_daily.csv",
+      "data/raw/fred_dgs2.csv",
+      "data/raw/fomc_dates.csv"
+    )
   ),
   list(
     name     = "clean",
@@ -112,30 +67,25 @@ STAGES <- list(
     interp   = "Rscript",
     file     = "script/clean.R",
     network  = FALSE,
-    requires = c(
-      "data/raw/raw_data.csv",
-      CANDIDATE_FILES,
-      "data/raw/fred_dgs2.csv",
-      "data/raw/investing/external_factors_daily.csv"
-    ),
+    requires = "data/raw/raw_data.csv",
     produces = c(
       SPEC$base_data_path,
       SPEC$data_path,
-      "output/panel/production_candidate_manifest.csv"
+      "output/panel/production_series_manifest.csv"
     )
   ),
   list(
     name     = "instrument",
-    desc     = "Copom-day DI surprises to 10 monthly GK-family variants",
+    desc     = "Copom-day DI surprises to eight monthly GK-family variants",
     interp   = "Rscript",
     file     = "script/instrument.R",
     network  = FALSE,
     requires = c("data/raw/di.csv", "data/raw/copom_historico.csv",
                  "data/raw/fomc_dates.csv",
-                 "data/processed/ibov_daily.csv",
+                 "data/raw/ibov_daily.csv",
                  "data/raw/investing/external_factors_daily.csv",
-                 "data/processed/brl_usd_daily.csv",
-                 "data/processed/focus_daily.csv",
+                 "data/raw/brl_usd_daily.csv",
+                 "data/raw/focus_daily.csv",
                  "data/raw/fred_dgs2.csv"),
     produces = c("data/processed/instrument.csv",
                  "data/processed/instrumentos_mensais.csv")

@@ -1,10 +1,9 @@
 # Índice do projeto
 
 Mapa de navegação do repositório: o que cada diretório/arquivo faz, em 1-3
-frases. Isto **não substitui** o `CLAUDE.md` (que é a fonte de verdade
-operacional — pipeline, comandos, decisões metodológicas e por que cada
-coisa é como é) nem os READMEs locais mais detalhados; este índice aponta
-para eles em vez de duplicá-los.
+frases. Isto **não substitui** o `AGENTS.md` (acordos de trabalho e
+invariantes), o `CLAUDE.md` (pipeline e comandos) nem os READMEs locais mais
+detalhados; este índice aponta para eles em vez de duplicá-los.
 
 ## Visão geral
 
@@ -17,6 +16,7 @@ futuro em dia de Copom), e IRFs de preços de ativos brasileiros. Ver
 ## Árvore de 1º nível
 
 ```
+AGENTS.md            — regras de trabalho, limites do repositório e invariantes
 CLAUDE.md            — invariantes, entry points, proibições (fonte operacional)
 HANDOFF.md           — estado corrente ao fim da última sessão
 README.md            — este arquivo
@@ -39,6 +39,7 @@ arquivo/             — código/docs fora do pipeline ativo; nada vivo lê ou e
 
 | procuro... | está em |
 |---|---|
+| quais regras seguir ao alterar o repositório | `AGENTS.md` |
 | por que a especificação é essa | `registro/metodo.md` |
 | o que falta fazer | `registro/pendencias.md` |
 | se um caminho já foi tentado | `registro/historico_decisoes.md` |
@@ -48,9 +49,9 @@ arquivo/             — código/docs fora do pipeline ativo; nada vivo lê ou e
 
 ## `script/`
 
-O pipeline ordenado (download → clean → instrument → estimate) mais ~20
-scripts de diagnóstico/robustez/sweep, orquestrado por `run_all.R`. 25
-arquivos ativos, organizados em 7 grupos temáticos — ver
+O pipeline ordenado (download → clean → instrument → model) mais os
+scripts de diagnóstico/robustez/sweep, orquestrado por `run_all.R`. São 36
+scripts R ativos, organizados em 6 grupos temáticos — ver
 **[`script/README.md`](script/README.md)** para o catálogo completo, arquivo
 por arquivo.
 
@@ -59,7 +60,7 @@ por arquivo.
 A rodada de auditoria DFM-IV de 2026-07-28: 7 scripts numerados (`01`-`07`)
 compartilhando `_common.R`, um por tarefa (exogeneidade, unidades/sinal,
 composição do painel, força do instrumento, persistência dos fatores, bloco
-de ativos, dominância fiscal), escrevendo 57 CSVs em `diagnostics/output/`.
+de ativos, dominância fiscal), escrevendo 58 CSVs em `diagnostics/output/`.
 Ver **[`diagnostics/README.md`](diagnostics/README.md)** para o catálogo por
 script e por tarefa, e `diagnostics/diagnostico_dfm.md` para o veredito.
 
@@ -68,18 +69,18 @@ script e por tarefa, e `diagnostics/diagnostico_dfm.md` para o veredito.
 Nunca importado por `script/` na direção contrária (nada em `R/` faz
 `source()` de `script/`).
 
-- **`data_download/`** (9 arquivos) — os downloaders: `bcb.R` (séries SGS do
-  Banco Central), `exchange.R` (câmbio), `external_factors.R` (SP500/VIX/Brent
-  + BRL/USD diário), `ibov_daily.R`, `anbima_breakeven.R`, `focus_fred.R`
-  (medianas do Focus + UST 2y do FRED), `fomc_dates.R` (datas de decisão do
-  FOMC, raspadas das páginas de calendário do Fed — 2026-08-10),
-  `download_di.py` (futuros de DI), e `panel_candidates.R` (inventário,
-  metadados, coleta e validação isolada das candidatas de 2026-08-13).
+- **`data_download/`** (8 arquivos) — funções sem execução automática:
+  `bcb.R` (SGS), `exchange.R` (câmbio), `external_factors.R` (Yahoo),
+  `focus.R` (Focus/Olinda), `fred.R` (FRED), `b3.R` (índices B3), `fomc.R`
+  (calendário do Fed) e `ipea.R` (Ipeadata). O único entry point que chama
+  essas funções e grava dados é `script/download.R`.
 - **`preprocessing/`** (2 arquivos) — `seasonality.R`, o wrapper de ajuste
-  sazonal X-13, e `panel_candidates.R`, a preparação reutilizável das séries
-  candidatas usada por `script/clean.R` e pelas auditorias históricas.
-- **`modeling/`** (4 arquivos) — `production_spec.R`, a especificação única do
-  painel de 111 séries `(5,5,4)`, e os motores `factor_estimation.R`
+  sazonal X-13, e `experimental_extensions.R`, que reconstrói os painéis
+  experimentais históricos a partir das sete séries já processadas e de 12
+  extensões locais que não pertencem ao download de produção.
+- **`modeling/`** (5 arquivos) — `production_spec.R`, a especificação única do
+  painel de 111 séries `(5,5,4)`; `dfm_pipeline.R`, a composição do fluxo
+  estimativo; e os motores `factor_estimation.R`
   (estimação BLL do DFM, seleção de r/q), `impulse_response.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
   `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
@@ -99,8 +100,10 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   datas de Copom e de FOMC) e `event_tests.R` (inferência das regressões
   diárias de janela de evento: `wild_coef_test` e `wild_wald_test`, ambos com
   wild bootstrap sob a nula restrita e semente por célula).
+- **`reporting/`** (1 arquivo) — `markdown_report.R`, com formatação estável
+  para tabelas e números dos relatórios Markdown gerados.
 
-## `output/` — artefatos de estimação (git-tracked, ~3 MB)
+## `output/` — artefatos de estimação versionados
 
 Tudo aqui é da rodada de produção de 2026-08-13 em diante, salvo artefatos
 explicitamente marcados como históricos. Ver "Data layout"
@@ -118,12 +121,16 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
   (2026-08-22): cinco séries, constante e tendência linear, AIC e BIC em
   amostra comum, `p=2` pelo AIC, NW(0) e respostas `C_h B_1`.
 - **`assets/`** — o teste de representação do bloco de ações (2026-07-31).
+- **`panel/`** — censo e diagnósticos de composição, além do manifesto das
+  sete séries adicionadas ao painel de produção.
+- **`panel_experimental/`** — artefatos históricos das extensões, das grades
+  `(r,q)` e das remoções fatoriais de blocos; não alimenta a produção.
 - **`validation/`** — artefatos de replicação Olea-Stock-Watson (Kilian-oil,
   aplicação de imposto), usados para validar o Wald ξ_mp e o kernel HAC. O
   `.rds` do petróleo existe porque `codigos_externos/` é gitignorado: sem ele
   `validate_olea_kilian.R` não rodaria num clone limpo.
-- **`download/`** — inventário e relatório de proveniência das séries candidatas
-  coletadas isoladamente; não é entrada da estimação.
+- **`download/`** — inventário e relatório histórico da coleta isolada de
+  séries feita em 2026-08-13; não é entrada da estimação corrente.
 - **`logs/`** (gitignored) — logs de execução por estágio do `run_all.R`.
 
 ## `data/` (gitignored)
@@ -132,17 +139,22 @@ Não versionados, dois níveis: **`raw/`** é o que sai do download, sem
 tratamento e nunca editado à mão; **`processed/`** é o que entra na estimação
 (séries limpas/derivadas, incl. as variantes de instrumento).
 
-Em `raw/`: `raw_data.csv`, `raw_data_30.csv`, `di.csv` (DI futuro diário,
-32 MB), `copom_historico.csv`, `fred_dgs2.csv`, `CDS 5y.xlsx` (CDS soberano
+Em `raw/`: `raw_data.csv` (106 séries históricas mais as sete adições de
+produção), `raw_data_30.csv`, `di.csv` (DI futuro
+diário, entrada externa fixa de 32 MB), `copom_historico.csv`,
+`focus_daily.csv`, `ibov_daily.csv`, `brl_usd_daily.csv`, `fred_dgs2.csv`,
+`CDS 5y.xlsx` (CDS soberano
 5a diário, export Bloomberg — entrada externa fixa, como a curva; lido por
 `jk_sovereign_confound.R`), `fomc_dates.csv` (datas de decisão do FOMC;
-**produzido** por `script/fomc_dates.R`, e requisito duro do estágio
+**produzido** por `script/download.R`, e requisito duro do estágio
 `instrument` desde 2026-08-10); mais `yields/` (curva de juros fornecida pelo
 orientador, `yields_dia.csv` — entrada externa fixa, sem produtor no
 repositório) e `curva_juros/`, `investing/`, `epu/`,
-`banco_central_rep_dominicana/` (downloads brutos por fonte), além de
-`panel_candidates/` (17 séries mensais isoladas, nunca incorporadas a
-`raw_data.csv`).
+`banco_central_rep_dominicana/` (downloads brutos por fonte). O painel
+processado retém 111 séries porque `clean.R` remove `juros_cdi` e
+`asset_mlcx`. As extensões
+rejeitadas que sustentam diagnósticos antigos vivem, quando disponíveis,
+em `experimental_extensions/`; o download de produção não as cria.
 
 ## `registro/` — a memória do projeto
 
@@ -163,7 +175,7 @@ fica riscado aqui, vai para `historico_decisoes.md`.
 
 ## `notas/` — o registro probatório
 
-~25 notas de pesquisa datadas, append-only: uma rodada por nota, com um
+51 notas de pesquisa datadas, append-only: uma rodada por nota, com um
 banner de veredito (CURRENT / superseded / contradicted) e a
 especificação/vintage sob a qual foi escrita. É delas que o paper puxa
 número — **confira o vintage antes de citar**. **Não catalogadas aqui uma a
@@ -197,8 +209,8 @@ removida. Anderson--Rubin aparece somente para o VAR observável, nunca para o
 DFM; o título permanece enquanto a decomposição do wedge de UIP está aberta.
 
 A **`§5 Robustez` tem cinco subseções** — `sec:exogeneidade`
-(previsibilidade do instrumento mensal, Ljung-Box, `commodity_metal` em R$
-contra US$ e placebos nas duas bandas), `sec:invertibilidade` (diagnóstico de
+(previsibilidade do instrumento mensal, Ljung-Box e placebos globais nas duas
+bandas), `sec:invertibilidade` (diagnóstico de
 invertibilidade fundamentado em Stock e Watson, 2018), `sec:weak_iv`
 (conjuntos Anderson--Rubin no VAR de observáveis sob instrumento fraco),
 `sec:confound` (o filtro de sinal seleciona risco soberano?, nas duas proxies
@@ -207,9 +219,9 @@ decisões do FOMC, também condicionada à seleção de produção). Por decisã
 editorial, as duas últimas omitem a rederivação da máscara, preservada apenas
 nos diagnósticos e registros. A conclusão
 passou a ser a §6. Desde 2026-08-05
-`script/fig_section5.R` gera as **8** figuras direto aqui
+`script/fig_section5.R` gera as **10** figuras direto aqui
 (`paper/fig_*.pdf`, nomes nus, que é como o `.tex` as inclui): o §4 usa
-6, a §5 usa `fig_placebos`, e `fig_estado` segue sem consumidor.
+8, a §5 usa `fig_placebos`, e `fig_estado` segue sem consumidor.
 
 O draft abntex2 anterior (`main.tex`, "Choques monetários nos preços dos
 ativos") foi **arquivado em `arquivo/tex/`** nessa mesma data — não por
@@ -219,7 +231,7 @@ apenas fonte histórica de prosa; nenhum caminho ativo o consome. Ver
 
 ## `artigos/` — literatura citada
 
-24 subpastas, uma por referência citada (Alessi-Kerssenfischer,
+37 subpastas, uma por referência ou conjunto de materiais (Alessi-Kerssenfischer,
 Jarociński-Karadi, Bauer-Swanson, Montiel Olea-Stock-Watson, Gonçalves-Kilian
 etc.). Cada uma tem o PDF original e uma extração em `.md` via `marker`, mais
 figuras extraídas por página. Não catalogadas individualmente aqui.
@@ -252,6 +264,8 @@ inventário de **[`arquivo/README.md`](arquivo/README.md)**.
 
 ## Arquivos soltos na raiz
 
+- **`AGENTS.md`** — acordos de trabalho, invariantes da especificação e
+  limites entre código, dados, registros e artefatos.
 - **`CLAUDE.md`** — a fonte de verdade operacional: pipeline, comandos,
   núcleo de identificação, convenções, layout de dados.
 - **`HANDOFF.md`** (privado) — log de handoff entre sessões.

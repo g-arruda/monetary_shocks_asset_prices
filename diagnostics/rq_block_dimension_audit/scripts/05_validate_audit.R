@@ -1,7 +1,6 @@
 # Independent boundary validation for the joint panel and dimension audit.
 
-source("R/data_download/panel_candidates.R")
-source("R/preprocessing/panel_candidates.R")
+source("R/preprocessing/experimental_extensions.R")
 source("R/modeling/impulse_response.R")
 source("R/identification/experimental_panel.R")
 

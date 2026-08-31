@@ -103,7 +103,7 @@ load_fomc_dates <- function(path = "data/raw/fomc_dates.csv",
                             from = as.Date("2012-06-01"),
                             to   = as.Date("2025-12-31")) {
   if (!file.exists(path)) {
-    stop(path, " not found. Run: Rscript script/fomc_dates.R")
+    stop(path, " not found. Run: Rscript script/download.R")
   }
   readr::read_csv(path, show_col_types = FALSE) |>
     dplyr::transmute(date = as.Date(date)) |>

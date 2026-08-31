@@ -9,7 +9,7 @@
 ## Desenho
 
 Os 64 painéis excluem `juros_cdi` e `asset_mlcx` e percorrem todas as
-combinações de presença dos seis blocos candidatos. Em cada painel, a amostra
+combinações de presença dos seis blocos experimentais. Em cada painel, a amostra
 completa é estimada nos 36 pares `r=1,...,8`, `q=1,...,r`. Células não finitas,
 instáveis ou com `xi_mp<=3,84` são inadmissíveis. As demais são ordenadas pela
 distância Manhattan ao mínimo BLL/AW full do painel, raiz da companion,

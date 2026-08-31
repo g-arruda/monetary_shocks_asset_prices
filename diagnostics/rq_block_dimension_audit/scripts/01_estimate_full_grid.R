@@ -14,8 +14,7 @@ if (is.na(shard_index) || is.na(shard_count) || shard_count < 1L ||
   stop("Invalid shard specification.")
 }
 
-source("R/data_download/panel_candidates.R")
-source("R/preprocessing/panel_candidates.R")
+source("R/preprocessing/experimental_extensions.R")
 source("R/modeling/factor_estimation.R")
 source("diagnostics/rq_block_dimension_audit/scripts/scalar_dynamic_factor_compat.R")
 source("R/modeling/impulse_response.R")
@@ -88,9 +87,9 @@ estimate_point_cell <- function(task) {
   var_names <- colnames(panel)
   mpind <- match("yield_6m", var_names)
   tcodes <- infer_tcode_from_varnames(var_names)
-  candidate_index <- match(names(experimental$candidate_inputs$tcodes), var_names)
-  present <- !is.na(candidate_index)
-  tcodes[candidate_index[present]] <- experimental$candidate_inputs$tcodes[present]
+  experimental_index <- match(names(experimental$experimental_inputs$tcodes), var_names)
+  present <- !is.na(experimental_index)
+  tcodes[experimental_index[present]] <- experimental$experimental_inputs$tcodes[present]
 
   result <- tryCatch({
     dfm <- estimate_dfm(

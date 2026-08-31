@@ -142,7 +142,7 @@ cat("[1] rebuilding the daily event panel\n")
 
 di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
-ibov_daily <- readr::read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
+ibov_daily <- readr::read_csv("data/raw/ibov_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
   dplyr::filter(!is.na(ibov))
 
@@ -150,11 +150,11 @@ ext_daily <- readr::read_csv("data/raw/investing/external_factors_daily.csv", sh
   dplyr::transmute(date = as.Date(date), sp500 = as.numeric(sp500),
             vix = as.numeric(vix), brent = as.numeric(brent))
 
-brl_daily <- readr::read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
+brl_daily <- readr::read_csv("data/raw/brl_usd_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date), brl = as.numeric(brl)) |>
   dplyr::filter(!is.na(brl))
 
-focus_daily <- readr::read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
+focus_daily <- readr::read_csv("data/raw/focus_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date),
             focus_ipca12m  = as.numeric(focus_ipca12m),
             focus_selic_ny = as.numeric(focus_selic_ny))

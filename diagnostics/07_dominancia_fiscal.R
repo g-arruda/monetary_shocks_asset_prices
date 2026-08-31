@@ -189,29 +189,11 @@ ma_back <- function(x, k) {
   sapply(seq_along(x), function(t) if (t - k < 1) NA_real_ else mean(x[(t - k):(t - 1)]))
 }
 
-# --- DBGG/PIB (SGS 13762), com cache para o script rodar offline ------
-DBGG_CACHE <- file.path(DIAG_OUT, "t7_1_dbgg_13762.csv")
-dbgg <- NULL
-if (file.exists(DBGG_CACHE)) {
-  dbgg <- readr::read_csv(DBGG_CACHE, show_col_types = FALSE)
-  cat("  DBGG/PIB lido do cache\n")
-} else {
-  dbgg <- tryCatch({
-    d <- GetBCBData::gbcbd_get_series(id = 13762, first.date = "2011-01-01",
-                                      last.date = "2026-01-01",
-                                      format.data = "wide", use.memoise = FALSE)
-    names(d) <- c("ref.date", "dbgg")
-    d <- as.data.frame(d)
-    readr::write_csv(d, DBGG_CACHE)
-    cat("  DBGG/PIB baixado do SGS 13762 e cacheado\n")
-    d
-  }, error = function(e) { cat("  AVISO: download do SGS 13762 falhou:", conditionMessage(e), "\n"); NULL })
+# DBGG/PIB is part of the production panel and is downloaded only by download.R.
+if (!("fiscal_dbgg" %in% colnames(PANEL))) {
+  stop("The production panel does not contain fiscal_dbgg.")
 }
-
-dbgg_v <- rep(NA_real_, TN)
-if (!is.null(dbgg)) {
-  dbgg_v <- dbgg$dbgg[match(as.Date(DATES), as.Date(dbgg$ref.date))]
-}
+dbgg_v <- PANEL[, "fiscal_dbgg"]
 
 embi <- PANEL[, "embi_perc"]
 cds  <- PANEL[, "cds_5y"]

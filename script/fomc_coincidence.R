@@ -155,7 +155,7 @@ cat("[1] painel diario de quintas-feiras\n")
 
 di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
 
-ibov_daily <- readr::read_csv("data/processed/ibov_daily.csv", show_col_types = FALSE) |>
+ibov_daily <- readr::read_csv("data/raw/ibov_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>
   dplyr::filter(!is.na(ibov))
 
@@ -163,11 +163,11 @@ ext_daily <- readr::read_csv("data/raw/investing/external_factors_daily.csv", sh
   dplyr::transmute(date = as.Date(date), sp500 = as.numeric(sp500),
             vix = as.numeric(vix), brent = as.numeric(brent))
 
-brl_daily <- readr::read_csv("data/processed/brl_usd_daily.csv", show_col_types = FALSE) |>
+brl_daily <- readr::read_csv("data/raw/brl_usd_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date), brl = as.numeric(brl)) |>
   dplyr::filter(!is.na(brl))
 
-focus_daily <- readr::read_csv("data/processed/focus_daily.csv", show_col_types = FALSE) |>
+focus_daily <- readr::read_csv("data/raw/focus_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date),
             focus_ipca12m  = as.numeric(focus_ipca12m),
             focus_selic_ny = as.numeric(focus_selic_ny))
@@ -649,7 +649,7 @@ md <- c(
   "",
   "A surpresa de producao `e_di_bs` e residualizada so em regressores **predeterminados**, entao um choque realizado *dentro* da janela Qua->Qui e ortogonal a essa RHS por construcao e passa direto. Uma surpresa hawkish do Fed sobe o DI, derruba o Ibovespa — e o filtro JK **retem** o dia como \"politica\" — deprecia o BRL e abre EMBI/CDS. E o resultado central inteiro, sem canal domestico.",
   "",
-  sprintf("Ate 2026-08-10 o repositorio nao tinha como responder: `R/instrument/build_variants.R:244` computa `fomc_coincide`, mas `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caia num vetor vazio, entao a flag era **sempre FALSE**. As datas agora vem de `script/fomc_dates.R` (paginas de calendario do proprio Fed): **%d dos %d dias Copom** da amostra coincidem com decisao do FOMC.",
+  sprintf("Ate 2026-08-10 o repositorio nao tinha como responder: `R/instrument/build_variants.R:244` computa `fomc_coincide`, mas `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caia num vetor vazio, entao a flag era **sempre FALSE**. As datas agora vem de `script/download.R`, via `R/data_download/fomc.R` (paginas de calendario do proprio Fed): **%d dos %d dias Copom** da amostra coincidem com decisao do FOMC.",
           sum(days$fomc_coincide), nrow(days)),
   "",
   "## Regra de leitura, fixada antes de os numeros existirem",

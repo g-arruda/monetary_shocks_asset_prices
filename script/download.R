@@ -1,33 +1,108 @@
-# Getting auxiliary functions ----
 source("R/data_download/bcb.R")
 source("R/data_download/exchange.R")
-source("R/data_download/anbima_breakeven.R")
-source("R/data_download/focus_fred.R")
-source("R/data_download/panel_candidates.R")
-# svensson_model.R nao e mais sourceado: nenhuma funcao dele era chamada aqui.
-# A curva vem pronta de data/raw/yields/yields_dia.csv (insumo do orientador).
-# O modulo foi arquivado em arquivo/R/modeling/svensson_model.R em 2026-08-05.
+source("R/data_download/external_factors.R")
+source("R/data_download/focus.R")
+source("R/data_download/fred.R")
+source("R/data_download/b3.R")
+source("R/data_download/fomc.R")
+source("R/data_download/ipea.R")
 
-# rb3 cache directory must be set before calling ANBIMA fetch helpers.
-options(rb3.cachedir = "~/rb3-cache")
-
-args <- commandArgs(trailingOnly = TRUE)
-unknown_args <- setdiff(args, "--candidates-only")
-if (length(unknown_args) > 0) {
-  stop("Unknown argument(s): ", paste(unknown_args, collapse = ", "), ".")
+sample_start <- as.Date("2013-01-01")
+sample_end <- as.Date("2025-09-01")
+daily_start <- as.Date("2012-01-01")
+daily_end <- as.Date("2026-02-01")
+required_external_files <- c(
+  "data/raw/yields/yields_dia.csv",
+  "data/raw/banco_central_rep_dominicana/embi_brasil.csv",
+  "data/raw/investing/cds5y.csv",
+  "data/raw/investing/msci.csv",
+  "data/raw/investing/sp500_vix.csv",
+  "data/raw/epu/economic_policy_uncertainty.csv"
+)
+missing_external_files <- required_external_files[!file.exists(required_external_files)]
+if (length(missing_external_files) > 0L) {
+  stop(
+    "Required fixed external inputs are missing: ",
+    paste(missing_external_files, collapse = ", "),
+    "."
+  )
 }
 
-download_panel_candidates()
-if ("--candidates-only" %in% args) {
-  quit(save = "no", status = 0)
+# rb3 registers its download templates only when the package is attached.
+options(rb3.cachedir = file.path(tempdir(), "rb3-cache"))
+suppressPackageStartupMessages(library(rb3))
+
+arguments <- commandArgs(trailingOnly = TRUE)
+if (length(arguments) > 0L) {
+  stop("script/download.R does not accept arguments.")
 }
 
+focus <- download_focus_data(
+  from = daily_start,
+  to = as.Date("2025-12-31"),
+  sample_start = sample_start,
+  sample_end = sample_end
+)
+fred_dgs2 <- download_fred_series(
+  "DGS2",
+  from = daily_start,
+  to = as.Date("2025-12-31")
+) |>
+  dplyr::rename(ust2y = value)
+external_factors <- download_external_factors(daily_start, daily_end)
+brl_usd_daily <- download_brl_usd_daily(daily_start, daily_end)
+fomc_dates <- download_fomc_dates(daily_start, as.Date("2026-12-31"))
 
-# Taxa de cambio ----
+b3_symbols <- c("IBOV", "SMLL", "IDIV", "IFIX", "IFNC", "IMAT", "IMOB", "MLCX")
+b3_names <- c(
+  IBOV = "asset_ibov",
+  SMLL = "asset_smll",
+  IDIV = "asset_idiv",
+  IFIX = "asset_ifix",
+  IFNC = "asset_ifnc",
+  IMAT = "asset_imat",
+  IMOB = "asset_imob",
+  MLCX = "asset_mlcx"
+)
+b3_daily <- download_b3_indices(b3_symbols, daily_start, daily_end)
+ibov_daily <- b3_daily |>
+  dplyr::filter(symbol == "IBOV") |>
+  dplyr::transmute(date, ibov = price)
+if (anyDuplicated(ibov_daily$date) || anyNA(ibov_daily)) {
+  stop("Daily IBOV data are incomplete or duplicated.")
+}
+
+indices <- b3_daily |>
+  dplyr::mutate(asset = unname(b3_names[symbol])) |>
+  dplyr::group_by(asset) |>
+  dplyr::arrange(date, .by_group = TRUE) |>
+  dplyr::mutate(return = price / dplyr::lag(price) - 1) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(ref.date = lubridate::floor_date(date, "month")) |>
+  dplyr::group_by(asset, ref.date) |>
+  dplyr::summarise(return = prod(1 + return, na.rm = TRUE) - 1, .groups = "drop") |>
+  tidyr::pivot_wider(names_from = asset, values_from = return) |>
+  dplyr::select(
+    ref.date,
+    asset_ibov,
+    asset_idiv,
+    asset_ifix,
+    asset_ifnc,
+    asset_imat,
+    asset_imob,
+    asset_mlcx,
+    asset_smll
+  ) |>
+  tidyr::drop_na()
+
+if (anyDuplicated(indices$ref.date) || any(!is.finite(as.matrix(indices[, -1])))) {
+  stop("Monthly B3 index returns are incomplete, duplicated, or non-finite.")
+}
 
 moedas <- c("BRL", "EUR", "CNY", "ARS", "INR")
 
-cambio <- download_cambio(moedas, end_date = "2026-02-01") |> dplyr::rename(ref.date = date)
+cambio <- download_cambio(moedas, end_date = daily_end) |>
+  dplyr::rename(ref.date = date)
 
 
 # Dados do Banco Central do Brasil ----
@@ -43,9 +118,25 @@ vec_juros <- c(
 juros <- download_bcb_data(vec_juros, parallel = TRUE) |>
   dplyr::rename_with(~ paste0("juros_", .), -ref.date)
 
+vec_fiscal <- c(
+  fiscal_dbgg = 13762,
+  fiscal_dlsp = 4513,
+  fiscal_primary_balance = 4649
+)
+
+fiscal <- download_bcb_data(
+  vec_fiscal,
+  start_date = sample_start,
+  end_date = sample_end,
+  parallel = FALSE
+)
+
 
 # curva de juros ----
-yield_curve <- readr::read_csv("data/raw/yields/yields_dia.csv") |>
+yield_curve <- readr::read_csv(
+  "data/raw/yields/yields_dia.csv",
+  show_col_types = FALSE
+) |>
   janitor::clean_names() |>
   dplyr::mutate(
     data = lubridate::dmy(data)
@@ -75,16 +166,6 @@ if (anyDuplicated(monthly_yield_curve$ref.date)) {
 
 juros <- juros |>
   dplyr::left_join(monthly_yield_curve, by = "ref.date")
-
-
-# Break-even inflation (ANBIMA NTN-B vs PRE) ----
-# Used as response variable for the GRG (2025) Tab 4 benchmark; their
-# dependent is break-even, not realized IPCA. To populate the rb3 cache
-# the first time, run `fetch_anbima_reference_rates(from, to)` once;
-# `download_breakeven_curve` returns an empty tibble (with warning) when
-# the cache is missing, so the canonical panel composition remains unchanged.
-breakeven <- download_breakeven_curve(from = "2010-01-01", to = "2026-12-31")
-
 
 
 ## Monetary base ----
@@ -231,7 +312,10 @@ emprego <- download_bcb_data(vec_emprego, start_date = "2012-01-01", parallel = 
 
 ## Dados risco ----
 
-embi_daily <- readr::read_csv("data/raw/banco_central_rep_dominicana/embi_brasil.csv") |>
+embi_daily <- readr::read_csv(
+  "data/raw/banco_central_rep_dominicana/embi_brasil.csv",
+  show_col_types = FALSE
+) |>
   dplyr::mutate(data = lubridate::dmy(date))
 
 if (anyNA(embi_daily$data)) {
@@ -255,19 +339,31 @@ if (anyDuplicated(embi$ref.date)) {
 # tres series saia 100x errado. Corrigido em 2026-07-28.
 locale_br <- readr::locale(decimal_mark = ",", grouping_mark = ".")
 
-cds <- readr::read_csv("data/raw/investing/cds5y.csv", locale = locale_br) |>
+cds <- readr::read_csv(
+  "data/raw/investing/cds5y.csv",
+  locale = locale_br,
+  show_col_types = FALSE
+) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, cds_5y = ultimo)
 
 
-msci <- readr::read_csv("data/raw/investing/msci.csv", locale = locale_br) |>
+msci <- readr::read_csv(
+  "data/raw/investing/msci.csv",
+  locale = locale_br,
+  show_col_types = FALSE
+) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, msci = ultimo)
 
 
-sp500_vix <- readr::read_csv("data/raw/investing/sp500_vix.csv", locale = locale_br) |>
+sp500_vix <- readr::read_csv(
+  "data/raw/investing/sp500_vix.csv",
+  locale = locale_br,
+  show_col_types = FALSE
+) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, sp500_vix = ultimo)
@@ -284,7 +380,10 @@ risco <- embi |>
 
 ## economic_policy_uncertainty ----
 
-epu <- readr::read_csv("data/raw/epu/economic_policy_uncertainty.csv") |>
+epu <- readr::read_csv(
+  "data/raw/epu/economic_policy_uncertainty.csv",
+  show_col_types = FALSE
+) |>
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(date)) |>
   dplyr::select(-date) |>
@@ -307,7 +406,7 @@ vec_inflacao <- c(
   "inpc" = 188
 )
 
-ipp <- ipeadatar::ipeadata("IPP12_IPPCG12") |>
+ipp <- download_ipea_series("IPP12_IPPCG12") |>
   dplyr::select(ref.date = date, ipp = value)
 
 
@@ -393,79 +492,6 @@ resultado_mensal <- colunas_interpoladas |>
 emprego <- emprego |>
   dplyr::left_join(resultado_mensal, by = "ref.date")
 
-# Mercado financeiro ----
-
-# Definir a pasta de cache
-
-# Define os índices da B3 (CORRETOS)
-indices_b3 <- c("IBOV", "SMLL", "IDIV", "IFIX", "IFNC", "IMAT", "IMOB", "MLCX")
-
-
-library(rb3)
-# Baixar dados históricos dos índices
-rb3::fetch_marketdata(
-  "b3-indexes-historical-data",
-  index = indices_b3,
-  year = 2010:2026,
-  throttle = TRUE
-)
-
-# Baixar e processar dados de todos os índices
-indices <- indices_b3 |>
-  purrr::set_names(
-    c(
-      "asset_ibov", "asset_smll", "asset_idiv", "asset_ifix",
-      "asset_ifnc", "asset_imat", "asset_imob", "asset_mlcx"
-    )
-  ) |>
-  purrr::imap(~ {
-    rb3::indexes_historical_data_get() |>
-      dplyr::filter(
-        symbol == .x,
-        refdate >= "2010-01-01",
-        refdate <= "2026-01-01"
-      ) |>
-      dplyr::collect() |>
-      janitor::clean_names() |>
-      dplyr::select(ref.date = refdate, ultimo = value) |>
-      dplyr::rename(!!.y := ultimo)
-  }) |>
-  purrr::reduce(dplyr::left_join, by = "ref.date") |>
-  tidyr::pivot_longer(
-    cols = -ref.date,
-    names_to = "asset",
-    values_to = "price"
-  ) |>
-  dplyr::arrange(asset, ref.date) |>
-  dplyr::group_by(asset) |>
-  dplyr::mutate(
-    return = (price / dplyr::lag(price) - 1)
-  ) |>
-  dplyr::ungroup() |>
-  dplyr::select(-price) |>
-  dplyr::mutate(
-    ref.date = lubridate::floor_date(ref.date, "month")
-  ) |>
-  dplyr::group_by(asset, ref.date) |>
-  dplyr::summarise(
-    return = prod(1 + return, na.rm = TRUE) - 1,
-    .groups = "drop"
-  ) |>
-  tidyr::pivot_wider(names_from = asset, values_from = return) |>
-  tidyr::drop_na()
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Juntando tudo em apenas um df ----
 
 all_dfs <- list(
@@ -479,11 +505,12 @@ all_dfs <- list(
   ativ_economica = ativ_economica,
   emprego = emprego,
   inflacao = inflacao,
-  breakeven = breakeven,
   commodity = commodity,
   indices = indices,
   risco = risco,
-  epu = epu
+  epu = epu,
+  fiscal = fiscal,
+  focus = focus$monthly
 )
 
 
@@ -493,22 +520,49 @@ merged_df <- all_dfs |>
   purrr::reduce(dplyr::left_join, by = "ref.date") |>
   dplyr::arrange(ref.date)
 
+expected_dates <- seq(sample_start, sample_end, by = "month")
+production_sample <- merged_df |>
+  dplyr::filter(ref.date >= sample_start, ref.date <= sample_end)
+if (ncol(merged_df) - 1L != 113L || anyDuplicated(names(merged_df))) {
+  stop("The raw monthly panel must contain exactly 113 unique useful series.")
+}
+if (!identical(as.Date(production_sample$ref.date), expected_dates) ||
+    anyNA(production_sample) ||
+    any(!is.finite(as.matrix(production_sample[, -1])))) {
+  stop("The raw monthly panel must cover 2013-01 through 2025-09 without gaps or non-finite values.")
+}
 
-# Persistir o painel bruto ----
+daily_outputs <- list(
+  focus_daily = focus$daily,
+  ibov_daily = ibov_daily,
+  brl_usd_daily = brl_usd_daily,
+  external_factors = external_factors,
+  fred_dgs2 = fred_dgs2,
+  fomc_dates = fomc_dates
+)
+invalid_daily <- names(daily_outputs)[vapply(daily_outputs, function(data) {
+  date_column <- if ("date" %in% names(data)) "date" else names(data)[1]
+  dates <- as.Date(data[[date_column]])
+  values <- data[setdiff(names(data), date_column)]
+  all_missing <- any(vapply(values, function(value) all(is.na(value)), logical(1)))
+  non_finite <- any(vapply(values, function(value) {
+    is.numeric(value) && any(!is.finite(value[!is.na(value)]))
+  }, logical(1)))
+  anyNA(dates) || anyDuplicated(dates) || nrow(data) == 0L || all_missing || non_finite
+}, logical(1))]
+if (length(invalid_daily) > 0L) {
+  stop(
+    "Downloaded daily inputs are empty, incomplete, or duplicated: ",
+    paste(invalid_daily, collapse = ", "),
+    "."
+  )
+}
+
+dir.create("data/raw/investing", showWarnings = FALSE, recursive = TRUE)
 readr::write_csv(merged_df, "data/raw/raw_data.csv")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+readr::write_csv(focus$daily, "data/raw/focus_daily.csv")
+readr::write_csv(ibov_daily, "data/raw/ibov_daily.csv")
+readr::write_csv(brl_usd_daily, "data/raw/brl_usd_daily.csv")
+readr::write_csv(external_factors, "data/raw/investing/external_factors_daily.csv")
+readr::write_csv(fred_dgs2, "data/raw/fred_dgs2.csv")
+readr::write_csv(fomc_dates, "data/raw/fomc_dates.csv")
