@@ -526,7 +526,7 @@ de 68% e 90%.
 | `output/instrument/instrument_diagnostics_report.md`, `factor_space_F_grid.csv` | §3.6 + Apêndice B |
 | `output/instrument/mosw_strength_grid.{csv,md}`, `olea_alignment_audit.md` | §3.5, §3.6, §5.6 + Apêndice B |
 | `notas/2026-07-14_auditoria_fidelidade_jk_bs.md` | §3.4 + Apêndice B |
-| `R/data_download/focus_fred.R` → `data/processed/focus_daily.csv`, `data/raw/fred_dgs2.csv` | insumos do §3.4.2 (preditores pré-evento) |
+| `script/download.R`, via `R/data_download/focus.R` e `fred.R` → `data/raw/focus_daily.csv`, `data/raw/fred_dgs2.csv` | insumos do §3.4.2 (preditores pré-evento) |
 | `output/instrument/scatterplot_surpresas_copom.png` | Apêndice B |
 | `output/instrument/jk_sovereign_confound.{csv,md}` | **Apêndice B'** + §5.2 (confound soberano). ⚠ `jk_sovereign_days.csv` foi apagado em 2026-08-10 junto com o teste D |
 | `output/instrument/jk_sovereign_irf_overlay.pdf` | figura do §5 — uma página desde 2026-08-10 (produção vs. as duas variantes ortogonalizadas ao risco); **cortar de 9 para 4 painéis** (`cambio_usd`, `embi_perc`, `cds_5y`, `yield_2y`) |

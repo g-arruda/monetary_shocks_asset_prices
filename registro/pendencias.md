@@ -1,6 +1,7 @@
 # Pendências
 
-**Última revisão:** 2026-08-25 (paper integralmente sincronizado com a produção
+**Última revisão:** 2026-08-28 (abertas duas extensões de alta prioridade para
+tratar a coincidência Copom--FOMC; paper integralmente sincronizado com a produção
 DFM em `p=4`; benchmark VAR observável preservado em `p=2`; máscaras
 rederivadas mantidas nos diagnósticos, mas omitidas da exposição do paper por
 decisão editorial).
@@ -81,7 +82,9 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 
 | Tema | Item | Observação |
 |---|---|---|
-| B | Decomposição do wedge de UIP | prioridade alta, council 2026-08-10; só pós-processamento |
+| B | Reavaliar o argumento de transmissão via prêmio de risco | prioridade alta; nenhuma decomposição UIP ou IRF derivada será executada sem desenho diretamente respaldado pela literatura e aprovação do autor |
+| B | Purificar as duas pernas do filtro com surpresas intradiárias do FOMC | **prioridade alta**; mede diretamente o canal do Fed e rederiva a máscara JK; depende de localizar e validar fatores de alta frequência com timing compatível |
+| B | Sensibilidade sem superquarta | **prioridade alta**; zera as 24 coincidências retidas, diagnostica força e IRFs e permanece variante de sensibilidade, não candidata automática à produção |
 | B | Acrescentar um nível do S&P 500 à bateria de placebos | desmembrado em 2026-08-14; muda o painel de 111 para 112 e obriga a re-rodar a produção |
 | B | Decompor a curva entre expectativa e prêmio (diário vs. mensal) | blindspot 2026-08-12, prioridade alta; depende da correção do Tema E |
 | B | A amplificação 5a/6m é do choque ou de Λ? | blindspot 2026-08-12; teste discriminante do item acima |
@@ -390,34 +393,57 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 ## B. Robustez estatística a fazer
 
-- [ ] **Decomposição do wedge de UIP** — *aberto em 2026-08-10, prioridade
-  alta; todas as contas da vintage `(7,6)` estão superadas.* O paper afirma
-  que o prêmio soberano “domina” o diferencial de juros sem computar o wedge.
-  Refazer do zero com as IRFs e os 800 draws correntes; até lá, a palavra
-  “domina” deve sair do resumo, corpo e conclusão. **Entrega:** tabela de
-  decomposição com colunas T ∈ {6, 12, 24, 48}, linhas {Δs_T, −ΣΔi/12,
-  +ΣΔrp/12 (CDS e EMBI), resíduo}, bandas tiradas dos 800 draws já salvos em
-  `irf_coherence_cell.rds` — só pós-processamento, nada reestimado.
-  - **Conta de impacto corrente em espaço de curva:** o excesso do vértice de
-    5 anos sobre a normalização é **27,6 pb** (77,6 − 50,0) e o CDS de 5 anos
-    abre **32,5 pb**. É comparação de magnitude na mesma maturidade, não
-    identidade contábil nem prova de causalidade.
-    ⚠ CDS é denominado em dólar e a curva DI em real: é comparação de magnitude,
-    **não** identidade contábil.
-    ⚠ `epu_brazil` agora sobe no ponto de impacto, mas não exclui zero a 90%; não
-    usá-lo como confirmação do mecanismo fiscal.
-  - **Perna de expectativa que o item não tinha, acrescentada em 2026-08-18**
-    (`relatorio/checklist_problemas_sdfm_weak_iv.md` §23): `expect_focus_cambio_ny`
-    **está no painel de produção** e já sai estimada com bandas em
-    `output/irf/irf_coherence_h.csv` — impacto **+0,091** (IC90 [0,055; 0,136],
-    sig90) contra **+0,158** do `cambio_usd` à vista. Isso permite um wedge com
-    expectativa de survey de verdade, em vez de tratar CDS/EMBI como o prêmio.
-    A objeção do §23 é exatamente essa: sem `E_t[Δs]` medido, “prêmio de risco”
-    é rótulo, não decomposição.
-    ⚠ A série Focus é a **mediana para o ano-calendário seguinte**, de horizonte
-    móvel dentro do ano, e não mapeia exatamente em `E_t[Δs_{t+1}]`; a
-    diferença de horizonte tem de ser declarada, não absorvida.
-    **Destrava** a decisão sobre o título do paper (Tema A).
+- [ ] **Reavaliar o argumento de transmissão via prêmio de risco** — o co-movimento entre câmbio, CDS, EMBI+ e curva é compatível com o canal, mas não o identifica.
+  Não construir prêmio UIP nem derivar IRFs. Procurar apenas um desenho publicado diretamente comparável.
+  Sem esse desenho, manter “compatível com prêmio de risco” e reconsiderar o título do artigo.
+- [ ] **Purificar as duas pernas do filtro com surpresas intradiárias do FOMC** —
+  *aberto em 2026-08-28; **prioridade alta**.* Substituir as proxies diárias
+  ruidosas (`d_ust2`, `r_sp500`) por fatores de surpresa do FOMC medidos em
+  janela estreita e com timestamp compatível com o fechamento da quarta-feira:
+  no mínimo, surpresa de taxa e componente de *path/forward guidance*;
+  idealmente, uma decomposição que também separe choque monetário de notícia do
+  Fed. Primeiro documentar fonte, cobertura, timezone, janela, reuniões
+  agendadas/não agendadas e casamento exato com os 95 dias Copom; ausência ou
+  incompatibilidade temporal deve abortar, nunca virar zero.
+  **Entrega:** residualizar separadamente `e_di_bs` e `e_ibov_bs` nos fatores
+  intradiários, rederivar a máscara JK sobre os dois resíduos e construir uma
+  variante mensal exclusivamente diagnóstica. Comparar com
+  `z_jk_bs_purif`: dias que entram/saem, coincidências FOMC preservadas,
+  `xi_mp`, `F_robust_mp`, impacto não normalizado em `yield_6m`,
+  `denom_vs_prod` e IRFs de `yield_2y`, `yield_5y`, `cambio_usd`,
+  `asset_ibov`, `embi_perc` e `cds_5y`, nas amostras cheia e pré-COVID.
+  - ⚠ O objeto decisivo é a **seleção da máscara**, não apenas a correlação da
+    surpresa de DI com retornos americanos. Não basta acrescentar controles à
+    regressão diária mantendo `jk_bs` fixo.
+  - ⚠ A variante é diagnóstico até que fonte, timing, força e estabilidade
+    das IRFs sejam validados. Não alterar `DEFAULT_VARIANT` nem interpretar uma
+    IRF maior quando `denom_vs_prod` cai como efeito econômico maior.
+  - **Relação com o item seguinte:** este é o teste mais informativo sobre o
+    mecanismo de contaminação; a sensibilidade sem superquarta pode ser rodada
+    antes, mas não o substitui.
+- [ ] **Construir uma sensibilidade sem superquarta** — *aberto em 2026-08-28;
+  **prioridade alta**.* Criar uma variante diagnóstica que zere os dias retidos
+  em que Copom e FOMC coincidem e reestimar o DFM sem alterar o instrumento de
+  produção. O corte remove hoje **24 dos 62 dias retidos** e **35,5% de
+  `sum(abs(z))`**; em 2025, sete das oito reuniões coincidem, de modo que a
+  leitura deve separar contaminação, perda de força e mudança de composição
+  temporal.
+  **Entrega:** registrar datas e peso removidos; reportar meses não nulos,
+  `xi_mp`, `F_robust_mp`, impacto não normalizado em `yield_6m` e
+  `denom_vs_prod`; comparar pontos e bandas de `yield_2y`, `yield_5y`,
+  `cambio_usd`, `asset_ibov`, `embi_perc` e `cds_5y` em `h=0--48`, com destaque
+  para impacto, sinal e persistência. Rodar primeiro pontos e diagnósticos de
+  força; só então decidir se o custo do bootstrap completo é informativo.
+  - ⚠ É análise de sensibilidade, **não** candidato automático a instrumento
+    de produção: excluir superquartas pode selecionar um regime histórico
+    distinto e enfraquecer severamente a proxy.
+  - ⚠ Não restaurar nem citar o antigo Teste 4 dividido em metades, removido em
+    2026-08-10. Este é um exercício novo, pré-especificado, com artefatos e
+    diagnósticos próprios; não usar Anderson--Rubin do VAR para inferência do
+    DFM.
+  - **Relação com o item anterior:** pode funcionar como triagem de baixo custo
+    e indicar se vale adquirir os fatores intradiários, mas um resultado estável
+    não absolve o instrumento de contaminação pelo FOMC.
 - [ ] **Decompor o repasse da curva entre expectativa e prêmio pela diferença
   diário-vs-mensal** — *aberto em 2026-08-12, auditoria blindspot; **prioridade
   alta**, é o item com maior razão valor/custo do relatório.* Estudo de evento

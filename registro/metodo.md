@@ -72,7 +72,7 @@
 > `yield_6m`; 800 réplicas, semente 123, bandas 68%/90% e h=0--48. `r=5` é a
 > escolha do Bai--Ng IC2 BLL. `q=5` é provisório e continua como pendência.
 >
-> Saem `juros_cdi`, `asset_mlcx` e os blocos candidatos setor externo, EUA,
+> Saem `juros_cdi`, `asset_mlcx` e os blocos experimentais setor externo, EUA,
 > crédito e imóveis; permanecem as três séries fiscais e as quatro de
 > expectativas. O painel-base de 106 séries é preservado em caminho separado
 > apenas para auditorias fatoriais históricas.
@@ -113,7 +113,7 @@
 
 ## Status histórico (2026-08-10, coincidência FOMC testada — Etapa 1.4 finalmente executada, máscara absolvida)
 
-> **A Etapa 1.4 abaixo foi executada, treze anos de calendário depois de ter sido especificada, e o teste que ela viabiliza não encontra contaminação.** Achado mais grave do segundo council review sobre `paper/paper_anpec.tex` (4 críticos; relatório em `pareceres/council_2026-08-10.md`), **aberto e fechado no mesmo dia**. Código: `script/fomc_dates.R`, `R/instrument/event_tests.R`, `script/fomc_coincidence.R` → `output/instrument/fomc_coincidence.{csv,md}` + `fomc_coincidence_days.csv` + overlay; leitura em `notas/2026-08-10_coincidencia_fomc.md`. **Nada aqui mudou** — `DEFAULT_VARIANT`, vértice, esquema de agregação e a cadeia de `build_variants.R` seguem intocados, e as 8 colunas `z_*` saíram **bit-idênticas** depois de repopular a flag.
+> **A Etapa 1.4 abaixo foi executada, treze anos de calendário depois de ter sido especificada, e o teste que ela viabiliza não encontra contaminação.** Achado mais grave do segundo council review sobre `paper/paper_anpec.tex` (4 críticos; relatório em `pareceres/council_2026-08-10.md`), **aberto e fechado no mesmo dia**. Código: `R/data_download/fomc.R`, `script/download.R`, `R/instrument/event_tests.R`, `script/fomc_coincidence.R` → `output/instrument/fomc_coincidence.{csv,md}` + `fomc_coincidence_days.csv` + overlay; leitura em `notas/2026-08-10_coincidencia_fomc.md`. **Nada aqui mudou** — `DEFAULT_VARIANT`, vértice, esquema de agregação e a cadeia de `build_variants.R` seguem intocados, e as 8 colunas `z_*` saíram **bit-idênticas** depois de repopular a flag.
 > 1. **O defeito era um `else`, não o FOMC.** `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caía silenciosamente num vetor de datas vazio, então `fomc_coincide` era **identicamente FALSE desde que a flag foi escrita** — um fallback que torna "a coleta não foi feita" indistinguível de "a coleta deu vazio". Agora `load_fomc_dates()` (`R/instrument/di_surprise.R`) **aborta** com ponteiro para o downloader, e `script/run_all.R` declara o arquivo como requisito duro do estágio `instrument`.
 > 2. **A exposição era maior do que a crítica estimou.** Não 7 dos top-20 e ≈19% de Σ|z|, mas **8 dos top-20 (22,9%)** e **24 dos 62 dias retidos (38,7%), carregando 35,5% de Σ|z|**; 35 dos 95 dias Copom coincidem, e em 2025 foram 7 de 8 reuniões. A camada Bauer-Swanson de fato não remove um choque realizado *dentro* da janela Qua→Qui — isso continua verdade por construção.
 > 3. **Veredito: confound FOMC não detectado**, pela regra fixada antes dos números. O bloco americano contemporâneo (`d_ust2`, `r_sp500`) não explica a surpresa nos 62 dias retidos (F_rob 0,94, p_boot 0,458) e as duas interações são nulas (0,466 com `1(fomc_coincide)`, 0,511 com `1(jk_bs)`). **Os dois números que invertem o sinal da suspeita:** nos **35 dias em que Copom e FOMC caem no mesmo dia** o R² é **0,005**, o *menor* da tabela — se a coincidência injetasse notícia do Fed na surpresa seria o maior; e o maior (**0,108**) está nos **33 dias que o filtro rejeita**, ou seja o filtro descarta preferencialmente o dia carregado de notícia americana. É o mesmo padrão que o CDS mostrou em 08-09, agora com o regime nomeado.
@@ -139,7 +139,7 @@
 
 > Auditoria contra os artigos e códigos originais (`notas/2026-07-14_auditoria_fidelidade_jk_bs.md`) concluiu:
 > 1. **JK**: regra zero-out e agregação por soma mensal fiéis; mas o poor man's original classifica e agrega valores **brutos** — o default `z_jk_purif` usa resíduos em ambos. Adicionada a variante literal **`z_jk_raw`** (máscara bruta + valores brutos), completando a matriz 2×2 máscara × valores.
-> 2. **"Purificação Bauer-Swanson"**: o nome está impreciso — BS (2023, eq. 7/Table 3) regridem a surpresa em notícias **pré-anúncio** (releases macro + tendências financeiras de 13 semanas + trend), não em variações contemporâneas da janela. A regressão contemporânea SP500/VIX/Brent do projeto é uma limpeza de fator global (válida por exogeneidade de economia pequena, mas outro procedimento). Versão fiel adicionada: **`z_bs_purif`** / **`z_jk_bs_purif`** (preditores pré-evento: Δ65d de Ibov/SP500/VIX/Brent/BRL/inclinação DI + Δ20d Focus IPCA-12m e Selic + tendência; novos dados via `R/data_download/focus_fred.R`). Também testado `z_jk_purif_us` (contemporânea + UST 2y) — **inócuo** (cor 0.999 com o default), removido em 2026-08-05.
+> 2. **"Purificação Bauer-Swanson"**: o nome está impreciso — BS (2023, eq. 7/Table 3) regridem a surpresa em notícias **pré-anúncio** (releases macro + tendências financeiras de 13 semanas + trend), não em variações contemporâneas da janela. A regressão contemporânea SP500/VIX/Brent do projeto é uma limpeza de fator global (válida por exogeneidade de economia pequena, mas outro procedimento). Versão fiel adicionada: **`z_bs_purif`** / **`z_jk_bs_purif`** (preditores pré-evento: Δ65d de Ibov/SP500/VIX/Brent/BRL/inclinação DI + Δ20d Focus IPCA-12m e Selic + tendência; novos dados via `R/data_download/focus.R` e `R/data_download/fred.R`, orquestrados por `script/download.R`). Também testado `z_jk_purif_us` (contemporânea + UST 2y) — **inócuo** (cor 0.999 com o default), removido em 2026-08-05.
 > 3. **Força (ξ_mp, grid 392 células)**: a força vem da **máscara**, não dos valores purificados (cor ≥ 0.986 entre variantes de mesma máscara). Máscaras predeterminadas (bruta ou BS-pré-evento) excluem `2020-03-19` e dominam o default na amostra full em 14/14 células — full (6,5): `z_jk_raw` 7.05, `z_jk_bs_purif` 6.94 vs `z_jk_purif` 5.20; ambas cruzam ξ_mp ≥ 10 em 6/14 células full (default: 0). No pre_covid (6,5) o default segue líder (13.25; `z_jk_bs_purif` 12.49). **Default inalterado**; `z_jk_bs_purif` é o candidato metodologicamente mais limpo (BS fiel + máscara predeterminada + força competitiva nas duas amostras) — decisão de troca em aberto. *(Fechada em 2026-07-15: default trocado para `z_jk_bs_purif`, ver status acima.)*
 
 ## Status histórico (2026-07-11, pós-varredura de especificações)
@@ -230,7 +230,7 @@ Séries diárias, mesmo período, variação quarta → quinta:
 
 ### 1.4 Datas FOMC
 
-**Executada em 2026-08-10** (`script/fomc_dates.R` → `data/raw/fomc_dates.csv`; o caminho era `R/data_download/fomc_dates.R` até o refactor de 2026-08-17).
+**Executada em 2026-08-10** (`script/download.R`, via `R/data_download/fomc.R`, → `data/raw/fomc_dates.csv`).
 
 - Coletar datas de decisão do FOMC no período
 - Criar dummy `fomc_coincide = 1` para semanas com Copom e FOMC simultâneos (~32 ocorrências)
@@ -267,7 +267,7 @@ Estimar na **amostra completa** (todas as quintas-feiras):
 
 Produto: resíduos `e_DI_t` e `e_Ibov_t` — surpresas purificadas.
 
-> **2026-07-14 (auditoria):** esta regressão usa variações **contemporâneas** da mesma janela qua→qui — é uma limpeza de fator global (justificada pela exogeneidade de economia pequena), **não** a ortogonalização de Bauer-Swanson, que usa apenas preditores **pré-anúncio**. A versão fiel a BS (Δ65d financeiro + Δ20d Focus + tendência, tudo predeterminado na quarta) está implementada em `script/instrument.R` como `e_di_bs`/`e_ibov_bs` (variantes `z_bs_purif`, `z_jk_bs_purif`; insumos de `R/data_download/focus_fred.R`). Nunca incluir variáveis domésticas contemporâneas (BRL, EMBI, curva DI da janela) — bad control.
+> **2026-07-14 (auditoria):** esta regressão usa variações **contemporâneas** da mesma janela qua→qui — é uma limpeza de fator global (justificada pela exogeneidade de economia pequena), **não** a ortogonalização de Bauer-Swanson, que usa apenas preditores **pré-anúncio**. A versão fiel a BS (Δ65d financeiro + Δ20d Focus + tendência, tudo predeterminado na quarta) está implementada em `script/instrument.R` como `e_di_bs`/`e_ibov_bs` (variantes `z_bs_purif`, `z_jk_bs_purif`; insumos brutos produzidos por `script/download.R`). Nunca incluir variáveis domésticas contemporâneas (BRL, EMBI, curva DI da janela) — bad control.
 
 ---
 
