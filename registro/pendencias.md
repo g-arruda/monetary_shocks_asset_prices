@@ -1,6 +1,6 @@
 # Pendências
 
-**Última revisão:** 2026-08-28 (abertas duas extensões de alta prioridade para
+**Última revisão:** 2026-09-01 (abertas duas extensões de alta prioridade para
 tratar a coincidência Copom--FOMC; paper integralmente sincronizado com a produção
 DFM em `p=4`; benchmark VAR observável preservado em `p=2`; máscaras
 rederivadas mantidas nos diagnósticos, mas omitidas da exposição do paper por
@@ -146,6 +146,16 @@ contradiz o fato central** — as cinco moedas, a janela pré-COVID e a constela
 dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 ### Fechados (contexto)
+
+- [x] **Expectativas fiscais Focus — teste isolado concluído em 2026-09-01.**
+  Três previsões anuais para o ano seguinte (DLSP, resultado primário e
+  nominal), em nível, ampliam experimentalmente o painel de 111 para 114
+  séries sem alterar a produção. A célula fixa `(5,5,4)` permanece estável e
+  ξ_mp sobe de 5,24 para 5,81 (pré-COVID: 7,48 para 8,12), mas continua abaixo
+  de 10. DLSP esperada cai com banda de 90% sem zero em h=12, e o resultado
+  nominal esperado cai em h=0--6; portanto não há evidência de deterioração
+  fiscal esperada. Nota: `notas/2026-09-01_teste_expectativas_fiscais.md`;
+  artefatos: `output/fiscal_expectations/`.
 
 - [x] **Revisão integral do paper concluída em 2026-08-25.** Resumo, abstract,
   introdução, metodologia, resultados e conclusão usam 111 séries,

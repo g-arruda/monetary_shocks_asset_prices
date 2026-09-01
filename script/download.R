@@ -561,6 +561,7 @@ if (length(invalid_daily) > 0L) {
 dir.create("data/raw/investing", showWarnings = FALSE, recursive = TRUE)
 readr::write_csv(merged_df, "data/raw/raw_data.csv")
 readr::write_csv(focus$daily, "data/raw/focus_daily.csv")
+readr::write_csv(focus$fiscal_monthly, "data/raw/focus_fiscal_expectations.csv")
 readr::write_csv(ibov_daily, "data/raw/ibov_daily.csv")
 readr::write_csv(brl_usd_daily, "data/raw/brl_usd_daily.csv")
 readr::write_csv(external_factors, "data/raw/investing/external_factors_daily.csv")

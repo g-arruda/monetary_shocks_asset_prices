@@ -80,7 +80,8 @@ last_focus_value_in_month <- function(data, from, to) {
 #' @param sample_start First month included in the production panel.
 #' @param sample_end Last month included in the production panel.
 #'
-#' @return List with daily instrument predictors and four monthly production series.
+#' @return List with daily instrument predictors, four monthly production series,
+#'   and three monthly fiscal-expectations series for the isolated experiment.
 #'
 #' @examples
 #' focus <- download_focus_data(
@@ -142,6 +143,36 @@ download_focus_data <- function(from, to, sample_start, sample_end) {
       dplyr::distinct(date, .keep_all = TRUE)
   })
 
+  fiscal_indicators <- c(
+    expect_focus_fiscal_dlsp_ny = "Dívida líquida do setor público",
+    expect_focus_fiscal_primary_balance_ny = "Resultado primário",
+    expect_focus_fiscal_nominal_balance_ny = "Resultado nominal"
+  )
+  fiscal_annual <- purrr::map(fiscal_indicators, function(indicator) {
+    fetch_olinda(
+      endpoint = "ExpectativasMercadoAnuais",
+      filter = sprintf(
+        paste0(
+          "Indicador eq '%s' and baseCalculo eq 0 ",
+          "and Data ge '%s' and Data le '%s'"
+        ),
+        indicator,
+        from,
+        to
+      ),
+      select = "Indicador,Data,DataReferencia,Mediana"
+    ) |>
+      dplyr::filter(Indicador == indicator) |>
+      dplyr::transmute(
+        date = as.Date(Data),
+        reference_year = as.integer(DataReferencia),
+        value = as.numeric(Mediana)
+      ) |>
+      dplyr::filter(reference_year == lubridate::year(date) + 1L) |>
+      dplyr::arrange(date) |>
+      dplyr::distinct(date, .keep_all = TRUE)
+  })
+
   daily <- dplyr::full_join(
     ipca |>
       dplyr::rename(focus_ipca12m = value),
@@ -171,5 +202,16 @@ download_focus_data <- function(from, to, sample_start, sample_end) {
     stop("Monthly Focus production series are incomplete or duplicated.")
   }
 
-  list(daily = daily, monthly = monthly)
+  fiscal_monthly <- fiscal_annual |>
+    purrr::imap(function(data, variable) {
+      last_focus_value_in_month(data, sample_start, sample_end) |>
+        dplyr::rename(!!variable := value)
+    }) |>
+    purrr::reduce(dplyr::left_join, by = "ref.date") |>
+    dplyr::arrange(ref.date)
+  if (anyNA(fiscal_monthly) || anyDuplicated(fiscal_monthly$ref.date)) {
+    stop("Monthly Focus fiscal-expectations series are incomplete or duplicated.")
+  }
+
+  list(daily = daily, monthly = monthly, fiscal_monthly = fiscal_monthly)
 }

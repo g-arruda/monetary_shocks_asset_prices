@@ -1,0 +1,4 @@
+variable,source,indicator,horizon,unit,coverage,sign_convention
+expect_focus_fiscal_dlsp_ny,BCB Focus / ExpectativasMercadoAnuais,Dívida líquida do setor público,ano seguinte,% do PIB,2013-01 a 2025-09; última publicação mensal,mais alta = deterioração esperada
+expect_focus_fiscal_primary_balance_ny,BCB Focus / ExpectativasMercadoAnuais,Resultado primário,ano seguinte,% do PIB,2013-01 a 2025-09; última publicação mensal,mais negativo = deterioração esperada
+expect_focus_fiscal_nominal_balance_ny,BCB Focus / ExpectativasMercadoAnuais,Resultado nominal,ano seguinte,% do PIB,2013-01 a 2025-09; última publicação mensal,mais negativo = deterioração esperada

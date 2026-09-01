@@ -13,6 +13,11 @@ mas seus números do DFM não devem ser citados sem reestimação.
 IC2 BLL; `q=5` é provisório e permanece aberto. Ver `registro/pendencias.md`
 (o que está aberto) e `registro/historico_decisoes.md` (o que já foi tentado).
 
+**Teste experimental mais recente:**
+[`2026-09-01_teste_expectativas_fiscais`](2026-09-01_teste_expectativas_fiscais.md)
+acrescenta três expectativas fiscais Focus apenas em painel alternativo. Não
+altera a especificação de produção nem o paper.
+
 **Leitura dos rótulos históricos:** `CURRENT` em uma nota anterior descreve a
 validade da conclusão que a coluna final preserva, não a vintage de produção.
 Toda linha escrita sob `p=6`, `(5,5,6)`, `(7,6)` ou o painel de 106 séries é
