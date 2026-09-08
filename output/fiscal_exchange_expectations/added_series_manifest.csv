@@ -1,0 +1,5 @@
+variable,source_file,source_sheet,published_label,unit,coverage,transformation,tcode,sign_convention
+dlsp_exchange_adjustment,data/raw/DLSP/Evodlp.xlsx,Fluxos mensais,Ajuste cambial,R$ milhões,2013-01 a 2025-09,level; seasonal cascade: nao_sazonal,1,positivo = ajuste que eleva a DLSP
+expect_focus_fiscal_dlsp_ny,data/raw/focus_fiscal_expectations.csv,NA,Dívida líquida do setor público; ano seguinte,% do PIB,2013-01 a 2025-09,level,1,mais alta = deterioração esperada
+expect_focus_fiscal_primary_balance_ny,data/raw/focus_fiscal_expectations.csv,NA,Resultado primário; ano seguinte,% do PIB,2013-01 a 2025-09,level,1,mais negativo = deterioração esperada
+expect_focus_fiscal_nominal_balance_ny,data/raw/focus_fiscal_expectations.csv,NA,Resultado nominal; ano seguinte,% do PIB,2013-01 a 2025-09,level,1,mais negativo = deterioração esperada
