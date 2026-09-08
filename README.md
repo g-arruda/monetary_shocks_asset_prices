@@ -24,6 +24,7 @@ registro/            — a memória do projeto: o decidido, o aberto, o morto
 notas/               — registro probatório: nota datada por rodada, com vintage
 progress_logs/       — continuidade de sessão (efêmero, descartável)
 pareceres/           — o que foi recebido: /council, /referee2, /auditor-externo
+email/               — troca de email com o orientador sobre o projeto
 R/                   — módulos reutilizáveis, source()ados por script/
 script/              — pipeline ordenado + scripts de diagnóstico/robustez
 diagnostics/         — a rodada de auditoria DFM-IV de 2026-07-28
@@ -45,12 +46,13 @@ arquivo/             — código/docs fora do pipeline ativo; nada vivo lê ou e
 | se um caminho já foi tentado | `registro/historico_decisoes.md` |
 | o número que sustenta uma frase do paper | `notas/_indice.md` → a nota datada |
 | o que um revisor externo apontou | `pareceres/` |
+| o que foi discutido por email com o orientador | `email/` |
 | o que cada script faz | `script/README.md` |
 
 ## `script/`
 
 O pipeline ordenado (download → clean → instrument → model) mais os
-scripts de diagnóstico/robustez/sweep, orquestrado por `run_all.R`. São 36
+scripts de diagnóstico/robustez/sweep, orquestrado por `run_all.R`. São 40
 scripts R ativos, organizados em 6 grupos temáticos — ver
 **[`script/README.md`](script/README.md)** para o catálogo completo, arquivo
 por arquivo.
@@ -79,7 +81,8 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   experimentais históricos a partir das sete séries já processadas e de 12
   extensões locais que não pertencem ao download de produção.
 - **`modeling/`** (5 arquivos) — `production_spec.R`, a especificação única do
-  painel de 111 séries `(5,5,4)`; `dfm_pipeline.R`, a composição do fluxo
+  painel de 115 séries `(5,5,4)`, 2012-03--2025-12; `dfm_pipeline.R`, a
+  composição do fluxo
   estimativo; e os motores `factor_estimation.R`
   (estimação BLL do DFM, seleção de r/q), `impulse_response.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
@@ -92,8 +95,9 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   `irf_coherence.R` (pontuação de coerência teórica), `experimental_panel.R` e
   `weak_iv_ar.R` (MA, SVAR-IV, covariância e inversão AR, somente para VAR de
   observáveis).
-  Os ramos het e não-gaussiano saíram em 2026-08-17 para
-  `arquivo/{heterocedasticidade,nao_gaussiana}/R/identification/`.
+  Os ramos het e não-gaussiano saíram do código ativo em 2026-08-17. O código
+  dedicado à heterocedasticidade foi removido em 2026-09-01; seus artefatos e
+  vereditos permanecem em `arquivo/heterocedasticidade/`.
 - **`instrument/`** (3 arquivos) — `build_variants.R` (a cadeia de construção
   das 8 variantes de instrumento GK/JK/BS; eram 10 até 2026-08-05),
   `di_surprise.R` (helper de surpresa de futuro de DI, mais os carregadores de
@@ -151,7 +155,7 @@ diário, entrada externa fixa de 32 MB), `copom_historico.csv`,
 orientador, `yields_dia.csv` — entrada externa fixa, sem produtor no
 repositório) e `curva_juros/`, `investing/`, `epu/`,
 `banco_central_rep_dominicana/` (downloads brutos por fonte). O painel
-processado retém 111 séries porque `clean.R` remove `juros_cdi` e
+processado retém 115 séries porque `clean.R` remove `juros_cdi` e
 `asset_mlcx`. As extensões
 rejeitadas que sustentam diagnósticos antigos vivem, quando disponíveis,
 em `experimental_extensions/`; o download de produção não as cria.
@@ -195,6 +199,15 @@ Documentos de fora, mantidos como chegaram:
 - **`2026-07-15_auditoria_fidelidade_instrumento.md`** — a auditoria
   de fidelidade do instrumento (filtro JK / purificação BS) que motivou a
   troca para `z_jk_bs_purif`.
+
+## `email/` — troca com o orientador
+
+A correspondência por email com o orientador sobre o projeto, mantida como
+chegou/foi enviada. Nome: `email_{meu,professor}_DD-MM_HHhMM.md`, um arquivo
+por mensagem, em ordem cronológica pelo nome do arquivo. Diferente de
+`pareceres/` (revisão formal e pontual), aqui é a discussão corrente —
+dúvidas, decisões de especificação e justificativas trocadas com o
+orientador ao longo da pesquisa.
 
 ## `paper/`
 
@@ -252,13 +265,12 @@ editado.
 
 ## `arquivo/` — código e docs fora do pipeline ativo
 
-Nada aqui é executado pelo pipeline de produção nem citado pelo paper —
-preservado em vez de apagado porque documenta resultados negativos e
-decisões revertidas. Duas estratégias de identificação inteiras vivem aqui,
-cada uma em sua pasta e com README próprio:
+Nada aqui é executado pelo pipeline de produção. As evidências das duas
+estratégias abandonadas vivem em
 **[`arquivo/heterocedasticidade/`](arquivo/heterocedasticidade/README.md)** e
-**[`arquivo/nao_gaussiana/`](arquivo/nao_gaussiana/README.md)**, ambas
-abandonadas em 2026-08-17. O resto — scripts órfãos superados, a investigação de
+**[`arquivo/nao_gaussiana/`](arquivo/nao_gaussiana/README.md)**. Na primeira,
+o código dedicado foi removido em 2026-09-01 depois que o resultado negativo
+entrou no paper; os CSVs, a nota e o veredito foram preservados. O resto — scripts órfãos superados, a investigação de
 contaminação de IRF de 2026-07-15/16, o draft anterior em `tex/` — está no
 inventário de **[`arquivo/README.md`](arquivo/README.md)**.
 
