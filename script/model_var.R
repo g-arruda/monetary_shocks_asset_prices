@@ -28,6 +28,12 @@ if (length(missing_packages)) {
 
 SPEC <- production_spec()
 VAR_SPEC <- SPEC$var_benchmark
+if (!"--reestimate-current-instrument" %in% commandArgs(trailingOnly = TRUE)) {
+  stop(
+    "The observable VAR outputs are frozen at the 2013-01--2025-09 vintage. ",
+    "Use --reestimate-current-instrument only in its dedicated re-estimation round."
+  )
+}
 DATA_PATH <- SPEC$data_path
 INSTRUMENT_PATH <- SPEC$instrument_path
 OUT_DIR <- "output/var"
@@ -57,14 +63,17 @@ cat("[1] Loading levels and the external instrument\n")
 
 series_names <- VAR_SPEC$vars
 panel <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |>
-  dplyr::filter(ref.date >= SPEC$sample[1L], ref.date <= SPEC$sample[2L]) |>
+  dplyr::filter(
+    ref.date >= VAR_SPEC$sample[1L],
+    ref.date <= VAR_SPEC$sample[2L]
+  ) |>
   dplyr::select(ref.date, dplyr::all_of(series_names))
 
 if (
-  nrow(panel) != SPEC$n_months || anyNA(panel) ||
+  nrow(panel) != VAR_SPEC$n_months || anyNA(panel) ||
     !identical(
       as.Date(panel$ref.date),
-      seq(SPEC$sample[1L], SPEC$sample[2L], by = "month")
+      seq(VAR_SPEC$sample[1L], VAR_SPEC$sample[2L], by = "month")
     )
 ) {
   stop("The level panel does not match the declared 2013-01--2025-09 sample")

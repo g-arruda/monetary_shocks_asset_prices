@@ -23,7 +23,7 @@ source("R/modeling/production_spec.R")
 SPEC <- production_spec()
 SAMPLE_START <- SPEC$event_sample[1]
 SAMPLE_END   <- SPEC$event_sample[2]
-LOAD_START   <- as.Date("2012-06-01")   # earlier so Wed→Thu pairs at sample start work
+LOAD_START   <- SPEC$instrument_load_start
 TARGET_BD    <- 126                      # ~6 months in business days
 AGG_SCHEME   <- "sum"                    # Jarocinski-Karadi within-month sum
 DEFAULT_VARIANT <- SPEC$instrument # legacy data/processed/instrument.csv
@@ -37,9 +37,9 @@ DEFAULT_VARIANT <- SPEC$instrument # legacy data/processed/instrument.csv
 # variants — it predates z_jk_bs_purif entirely.
 # Supported variants: the 8 GK-family instruments built by this script.
 # The 4 heteroskedasticity-identified variants (z_het*) were archived on
-# 2026-07-26 and the whole route was abandoned on 2026-08-17 — code in
-# arquivo/heterocedasticidade/, verdict in registro/historico_decisoes.md
-# section 1.
+# 2026-07-26 and the whole route was abandoned on 2026-08-17. Its code was
+# removed on 2026-09-01; the verdict remains in registro/historico_decisoes.md
+# section 1 and the archived output remains under arquivo/heterocedasticidade/.
 #
 # 2026-08-05: z_jk_raw_purif_local (dominated) and z_jk_purif_us (redundant,
 # cor 0.999 with z_jk_purif) were dropped — both were already declared dead in
@@ -58,7 +58,7 @@ DEFAULT_VARIANT <- SPEC$instrument # legacy data/processed/instrument.csv
 
 # ---- Load data ---------------------------------------------
 
-di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END + 30)
+di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END)
 
 ibov_daily <- readr::read_csv("data/raw/ibov_daily.csv", show_col_types = FALSE) |>
   dplyr::transmute(date = as.Date(date), ibov = as.numeric(ibov)) |>

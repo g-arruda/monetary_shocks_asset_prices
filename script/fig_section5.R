@@ -51,7 +51,12 @@ dir.create(IMG_DIR, showWarnings = FALSE, recursive = TRUE)
 #' @param mark_sig90 Whether to mark horizons whose 90% band excludes zero.
 #'
 #' @return A ggplot object.
-irf_panel <- function(v, lab, scale = 1, mark_sig90 = TRUE) {
+irf_panel <- function(
+  v,
+  lab,
+  scale = 1,
+  mark_sig90 = TRUE
+) {
   i <- match(v, vn)
   if (is.na(i)) {
     stop(sprintf("Variable '%s' is missing from the production IRF cache.", v))
@@ -59,9 +64,9 @@ irf_panel <- function(v, lab, scale = 1, mark_sig90 = TRUE) {
   k <- if (identical(scale, "pct")) 100 / mean(panel[[v]], na.rm = TRUE) else scale
   j <- 0:H_MAX + 1
 
-  # Significância direto da banda de 90%, e não de irf_coherence_h.csv: aquele
-  # arquivo cobre só as 53 séries escoradas, e a figura plota séries do painel
-  # que não entram na régua de coerência (commodity_agro, por exemplo).
+    # Significância direto da banda de 90%, e não de irf_coherence_h.csv: aquele
+    # arquivo cobre só as 53 séries escoradas, e a figura plota séries do painel
+    # que não entram na régua de coerência (commodity_agro, por exemplo).
   df <- data.frame(
     h    = 0:H_MAX,
     irf  = k * point[i, j],
@@ -117,9 +122,14 @@ save_fig <- function(file, plot, w, h) {
 #'
 #' @return A patchwork plot.
 grid_of <- function(specs, ncol, mark_sig90 = TRUE) {
-  panels <- lapply(
+  panels <- purrr::map(
     specs,
-    function(s) irf_panel(s[[1]], s[[2]], s[[3]], mark_sig90 = mark_sig90)
+    function(s) irf_panel(
+      s[[1]],
+      s[[2]],
+      s[[3]],
+      mark_sig90 = mark_sig90
+    )
   )
   patchwork::wrap_plots(panels, ncol = ncol)
 }
@@ -148,19 +158,25 @@ save_fig("fig_cambio_risco.pdf", grid_of(list(
 
 # --- 3. Fiscal variables --------------------------------------------
 save_fig("fig_fiscal.pdf", grid_of(list(
-  list("fiscal_dbgg",            "DBGG (p.p. do PIB)", 1),
-  list("fiscal_dlsp",            "DLSP (p.p. do PIB)", 1),
-  list("fiscal_primary_balance", "NFSP primária (R$ bi)", 1e-3)
-), ncol = 3, mark_sig90 = FALSE), 9.6, 3.1)
+  list("fiscal_dbgg", "DBGG (p.p. do PIB)", 1),
+  list("fiscal_dlsp", "DLSP (p.p. do PIB)", 1),
+  list("fiscal_primary_balance", "NFSP primária (R$ bi)", 1e-3),
+  list("dlsp_exchange_adjustment", "Ajuste cambial (R$ bi)", 1e-3)
+), ncol = 2, mark_sig90 = FALSE), 9.6, 5.8)
 
 
 # --- 4. Focus expectations ------------------------------------------
 save_fig("fig_expectativas.pdf", grid_of(list(
-  list("expect_focus_ipca12m",   "Focus IPCA 12 meses (p.p.)", 1),
-  list("expect_focus_selic_ny",  "Focus Selic ano seguinte (p.p.)", 1),
-  list("expect_focus_pib_ny",    "Focus PIB ano seguinte (p.p.)", 1),
-  list("expect_focus_cambio_ny", "Focus câmbio ano seguinte (R$/US$)", 1)
-), ncol = 2, mark_sig90 = FALSE), 9.6, 5.8)
+  list("expect_focus_ipca12m", "Focus IPCA 12 meses (p.p.)", 1),
+  list("expect_focus_selic_ny", "Focus Selic (p.p.)", 1),
+  list("expect_focus_pib_ny", "Focus PIB (p.p.)", 1),
+  list("expect_focus_cambio_ny", "Focus câmbio (R$/US$)", 1),
+  list("expect_focus_fiscal_dlsp_ny", "Focus DLSP (p.p. do PIB)", 1),
+  list("expect_focus_fiscal_primary_balance_ny",
+       "Focus primário (p.p. do PIB)", 1),
+  list("expect_focus_fiscal_nominal_balance_ny",
+       "Focus nominal (p.p. do PIB)", 1)
+), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
 
 
 # --- 5. State dependence --------------------------------------------

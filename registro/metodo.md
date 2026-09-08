@@ -5,30 +5,31 @@
 > (GMR). O projeto tem **uma** identificação, o proxy externo `z_jk_bs_purif`.
 > Os blocos de *Status histórico* abaixo são registros datados e ficam
 > **verbatim**, inclusive onde citam `z_het*`, `script/instrument_het.R`,
-> `script/instrument_validation.R` e `script/irf_cross_instrument.R` — esses
-> arquivos hoje estão em `arquivo/heterocedasticidade/script/`. Vereditos em
-> `historico_decisoes.md` §0 e §1.
+> `script/instrument_validation.R` e `script/irf_cross_instrument.R`. Esses
+> caminhos são referências históricas: o código dedicado foi removido em
+> 2026-09-01, enquanto artefatos e vereditos permanecem em
+> `arquivo/heterocedasticidade/` e `historico_decisoes.md` §1.
 >
 > Duas coisas que **não** foram abandonadas e usam a mesma palavra: a inferência
 > robusta a heterocedasticidade (wild bootstrap de Gonçalves-Kilian, HAC do
 > primeiro estágio) e a citação de `goncalves2025`, que é evidência alheia.
 
-## Status (2026-08-24, produção DFM migrada para `p=4`)
+## Status (2026-09-02, produção ampliada para 2012-03)
 
-> A produção usa o painel de 111 séries, 153 meses, `(r,q,p)=(5,5,4)`,
+> A produção usa o painel de 115 séries, 166 meses entre 2012-03 e 2025-12,
+> `(r,q,p)=(5,5,4)`,
 > `z_jk_bs_purif`, normalização de +50 pb em `yield_6m`, horizonte 0--48 e
-> wild bootstrap de 800 réplicas com semente 123. A escolha de `p=4` vem do
-> AIC mínimo, 8,073207, calculado para `p=1,...,12` em amostra comum de
-> `T=141`, com constante e tendência linear; o BIC seleciona `p=2` e é
-> reportado. A tendência pertence somente ao exercício de seleção: o VAR
+> wild bootstrap de 800 réplicas com semente 123. Bai--Ng BLL seleciona
+> IC1=5, IC2=5 e IC3=20; `q=r=5` permanece a decisão operacional. `p=4` é
+> herdado da vintage anterior. Na amostra ampliada, a checagem separada em
+> amostra comum de `T=154` também seleciona `p=4` pelo AIC (8,231267), enquanto
+> o BIC seleciona `p=2`. A tendência pertence somente ao exercício de seleção: o VAR
 > efetivamente estimado nos fatores conserva apenas intercepto.
 >
-> A amostra cheia produz 149 inovações, `xi_mp/F_rob,mp =
-> 5,240158/10,060922` e raiz máxima 0,968126. A pré-COVID produz 80
-> inovações, `7,478324/11,874945` e raiz 0,992483. As duas companions são
-> estáveis. O gate de 800 réplicas teve zero falhas, bandas 68%/90% finitas e
-> ordenadas e normalização exata em 0,005. Nota:
-> `notas/2026-08-24_migracao_dfm_p4.md`.
+> A amostra cheia produz 162 inovações, `xi_mp/F_rob,mp =
+> 6,057014/9,625428` e raiz máxima 0,970090. A pré-COVID produz 90
+> inovações, `8,643436/13,809985` e raiz 0,993359. As duas companions são
+> estáveis. Nota: `notas/2026-09-02_producao_inicio_2012_03.md`.
 
 ## Status (2026-08-25, texto e diagnósticos sincronizados em `p=4`)
 
@@ -375,7 +376,8 @@ Duas variantes saíram em 2026-08-05, ambas já declaradas mortas em
 `z_jk_raw_purif_local` (dominada) e `z_jk_purif_us` (redundante, cor 0,999 com
 `z_jk_purif`). As quatro variantes por heterocedasticidade (`z_het*`) nunca
 foram produzidas por este script; foram arquivadas em 2026-07-26 e a rota inteira
-foi abandonada em 2026-08-17 — `arquivo/heterocedasticidade/`, resumo em
+foi abandonada em 2026-08-17; os artefatos permanecem em
+`arquivo/heterocedasticidade/`, resumo em
 `historico_decisoes.md` §1.
 
 > **2026-07-14 — ordem purificação ↔ JK:** constatou-se que o pipeline acima já é "purificação → JK" (a classificação da §5.2 usa os sinais dos *resíduos*). Duas variantes com a ordem inversa (máscara JK nos **sinais brutos** `delta_di` × `r_ibov`, purificação depois) foram adicionadas a `script/instrument.R`: `z_jk_raw_purif` (valores = `e_di` da regressão de painel completo) e `z_jk_raw_purif_local` (regressão re-estimada só nos dias selecionados). No grid MOSW, `z_jk_raw_purif` domina `z_jk_purif` em ξ_mp na amostra **full** (13/14 células; único GK a cruzar 10 em células full) — a máscara bruta exclui `2020-03-19` (pânico COVID classificado como monetário pela máscara residual) — mas perde no pre_covid (6,5) (10.80 vs 13.25); default inalterado, `z_jk_raw_purif` vira robustez full-sample e a `_local` foi descartada (dominada — e removida do código em 2026-08-05). Detalhes: `notas/2026-07-14_ordem_purificacao_jk.md`.
@@ -467,7 +469,7 @@ Horizonte: 0 a 24 meses. Bandas: 68% e 90%.
 - **Filtro JK:** Jarociński & Karadi (2020, AEJ:Macro) — classificação por co-movimento, restrições de sinal
 - **Purificação:** Bauer & Swanson (2023, AER) — controle por fatores pré-anúncio
 - **Recuperação do choque por GLS:** Mertens & Ravn (2013, *AER*) §II.B
-- **Contexto brasileiro:** Gonçalves, Rodrigues & Genta (2025, IMF WP/25/48) — janela Wed→Thu, dados de DI, testes de Rigobon. É a evidência *alheia* com que o paper dialoga; a rota het **deste** projeto foi abandonada (`arquivo/heterocedasticidade/`)
+- **Contexto brasileiro:** Gonçalves, Rodrigues & Genta (2025, IMF WP/25/48) — janela Wed→Thu, dados de DI, testes de Rigobon. É a evidência *alheia* com que o paper dialoga; a rota het **deste** projeto foi abandonada e seus artefatos permanecem em `arquivo/heterocedasticidade/`
 - **Teste de instrumento fraco:** Montiel Olea, Stock & Watson (2021, *JoE*) — estatística F robusta
 - **DFM + proxy-SVAR:** Alessi & Kerssenfischer (2019) — "The Response of Asset Prices to Monetary Policy Shocks: Stronger than Thought" — pipeline de estimação replicado neste projeto
 - **Wild bootstrap sob heterocedasticidade MD:** Gonçalves & Kilian (2004)

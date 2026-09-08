@@ -42,7 +42,7 @@ coherence_var_table <- function() {
         "trabalho", -1, "scored", 6, 36),
     row(c("credit_outstanding", "credito_pessoa_fisica"),
         "credito", -1, "scored", 6, 36),
-    row(c("spread_icc_juridica", "spread_icc_fisica"),
+    row(c("spread_credito_pj_total", "spread_credito_pf_total"),
         "credito", 1, "scored", 0, 12),
     row(c("credito_comercio", "credito_transporte", "credito_industria_total"),
         "credito_setorial", -1, "scored", 6, 36),

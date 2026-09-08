@@ -2,11 +2,11 @@ Following Gertler and Karadi (2015), Bauer and Swanson (2023), and Gonçalves, R
 
 ## Caveat de unit scaling (resolvido 2026-05-07)
 
-No painel `data/processed/data_log_deseasonalized.csv`, `yield_6m` é armazenado em **proporção decimal** (e.g., 0.0975 = 9.75%). A convenção anterior `normalize_value = SHOCK_BPS / 100 = 0.5` em `script/model_alessi.R` e em `script/irf_cross_instrument.R` forçava a IRF h=0 de `yield_6m` a +0.5 em **unidades nativas** — i.e., +0.5 em proporção = +50 percentage points = +5000bp, **não +50bp** como o nome do parâmetro sugeria. **Corrigido em 2026-05-07** (item LEVE 3): `normalize_value = SHOCK_BPS / 10000 = 0.005` em ambos os scripts. A IRF h=0 de `yield_6m` agora é +0.005 em proporção = +50bp como esperado.
+No painel `data/processed/data_log_deseasonalized.csv`, `yield_6m` é armazenado em **proporção decimal** (e.g., 0.0975 = 9.75%). A convenção anterior `normalize_value = SHOCK_BPS / 100 = 0.5` no caminho de produção e no antigo comparador cross-instrumento forçava a IRF h=0 de `yield_6m` a +0.5 em **unidades nativas** — i.e., +0.5 em proporção = +50 percentage points = +5000bp, **não +50bp** como o nome do parâmetro sugeria. **Corrigido em 2026-05-07**: `normalize_value = SHOCK_BPS / 10000 = 0.005`. A IRF h=0 de `yield_6m` agora é +0.005 em proporção = +50bp como esperado. O comparador dedicado foi removido em 2026-09-01 com a rota `z_het*`.
 
 Implicações:
 
-- `script/build_grg_benchmark.R::scale_to_grg_units` foi simplificado: a divisão por 100 que existia para reconciliar com GRG sumiu — `raw_value` já está per-+50bp em unidades nativas. Apenas `cambio_usd` segue convertido para `%` via `raw_value / brl_usd_baseline * 100`.
+- O benchmark GRG histórico passou a receber `raw_value` por +50 pb em unidades nativas; seu script dedicado foi removido em 2026-09-01 junto com os bundles `z_het*` que consumia.
 - A leitura ECONÔMICA das IRFs (sinais, persistência, term-structure pass-through, comparação cross-instrument) é **idêntica**: todas as respostas escalam pelo mesmo fator. Apenas a magnitude absoluta cai em 100×.
 - O default `normalize_value = 0.5` na função `ident_ext_instr` (`R/modeling/impulse_response.R`) foi mantido para compatibilidade com `script/model_var.R`, que hard-coda `juros_selic` em escala percentual. O docstring documenta a convenção.
 

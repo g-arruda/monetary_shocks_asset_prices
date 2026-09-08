@@ -34,7 +34,10 @@ if (length(missing_files)) {
 dfm <- readr::read_csv(DFM_PATH, show_col_types = FALSE)
 var <- readr::read_csv(VAR_PATH, show_col_types = FALSE)
 panel <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |>
-  dplyr::filter(ref.date >= SPEC$sample[1L], ref.date <= SPEC$sample[2L])
+  dplyr::filter(
+    ref.date >= VAR_SPEC$sample[1L],
+    ref.date <= VAR_SPEC$sample[2L]
+  )
 
 dfm_columns <- c("var", "h", "point", "lo68", "hi68", "lo90", "hi90")
 var_columns <- c("cell", "var", "h", "level", "point", "lo", "hi", "set_type")
@@ -58,7 +61,7 @@ series <- tibble::tibble(
   var_scale = c(100 / mean(panel$ibc_br), 1, 1e4, 100 / mean(panel$cambio_usd), 1)
 )
 if (
-  nrow(panel) != SPEC$n_months ||
+  nrow(panel) != VAR_SPEC$n_months ||
     !identical(series$var, VAR_SPEC$vars) ||
     !identical(H_MAX, VAR_SPEC$ar_horizon) ||
     !setequal(LEVELS, VAR_SPEC$ar_levels) ||

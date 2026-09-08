@@ -1,6 +1,6 @@
 # ===================================================================
-# The dynamic-factor dimension q at the production r = 5, full sample:
-# the production cell (5,5) against q = 4, 3 and 2.
+# The dynamic-factor dimension q at the production r = 4, full sample:
+# the production cell (4,4) against q = 3, 2 and 1.
 #
 # THE DESIGN IS ALESSI-KERSSENFISCHER'S OWN. Their footnote 4 justifies
 # q = r on evidence, not convenience:
@@ -59,7 +59,7 @@ source("R/identification/spec_sweep.R")
 # ---- Config --------------------------------------------------------
 
 SPEC     <- production_spec()
-Q_VALUES <- c(SPEC$q, 4L, 3L, 2L)
+Q_VALUES <- c(SPEC$q, 3L, 2L, 1L)
 
 # Tables carry the five mandatory impacts plus cds_5y. The headline figure
 # drops asset_ibov (author decision, 2026-08-18) and it returns on page 2.
@@ -238,7 +238,8 @@ stopifnot(max(abs(mp_h0 - SPEC$normalize_value)) < 1e-12)
 
 # 4. Non-regression only applies within the same factor-VAR order. During an
 # intentional p migration, the previous table is a historical comparison.
-if ("p" %in% names(prev_impacts) && all(prev_impacts$p == SPEC$p)) {
+if (all(c("r", "p") %in% names(prev_impacts)) &&
+    all(prev_impacts$r == SPEC$r) && all(prev_impacts$p == SPEC$p)) {
   chk4 <- tbl |>
     dplyr::select(q, variable, point) |>
     dplyr::inner_join(
@@ -250,8 +251,7 @@ if ("p" %in% names(prev_impacts) && all(prev_impacts$p == SPEC$p)) {
               nrow(chk4), d4))
   stopifnot(nrow(chk4) > 0, d4 < 1e-10)
 } else {
-  cat(sprintf("4. nao-regressao nao aplicavel: artefato anterior usa p=%s, producao usa p=%d\n",
-              paste(sort(unique(prev_impacts$p)), collapse = "/"), SPEC$p))
+  cat("4. nao-regressao nao aplicavel: o artefato anterior usa outra especificacao fatorial.\n")
 }
 
 cat("Todos os auto-testes passaram.\n")
@@ -305,7 +305,7 @@ n_imaterial <- sum(verdict$veredito == "imaterial")
 n_material  <- sum(verdict$veredito == "material")
 
 sections <- c(
-  "# Seleção de q em r = 5: a checagem da Figura A3 de Alessi-Kerssenfischer",
+  "# Seleção de q em r = 4: a checagem da Figura A3 de Alessi-Kerssenfischer",
   "",
   sprintf("Gerado por `script/q_selection.R` em %s.", format(Sys.Date(), "%Y-%m-%d")),
   "**Corpo gerado — não escrever prosa aqui.** A leitura vive na nota datada.",
@@ -323,7 +323,7 @@ sections <- c(
         "q = r for simplicity.\"* A Figura A3 do apêndice é o que sustenta isso —",
         "o benchmark `(p=6, r=8, q=8)` carrega ponto **e** bandas, e `q = 5, 6, 7`",
         "entram sobrepostos como linhas de **ponto apenas**. Esta rodada constrói",
-        "a mesma figura para `r = 5`."),
+        "a mesma figura para `r = 4`."),
   "",
   paste("**Critério de leitura, pré-registrado antes de olhar as trajetórias:**",
         "*imaterial* é `share_in90 = 1` **e** `cor_path > 0,95`; *material* é",

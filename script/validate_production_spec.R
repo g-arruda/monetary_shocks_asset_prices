@@ -1,10 +1,11 @@
-# Validate the canonical 111-series production panel and the (5,5) bootstrap gate.
+# Validate the canonical 115-series production panel and the (5,5) bootstrap gate.
 
 rm(list = ls())
 
 source("R/modeling/production_spec.R")
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
+source("R/modeling/var_proxy.R")
 source("R/identification/factor_space_diagnostics.R")
 
 spec <- production_spec()
@@ -14,6 +15,10 @@ dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 panel <- readr::read_csv(spec$data_path, show_col_types = FALSE)
 base <- readr::read_csv(spec$base_data_path, show_col_types = FALSE)
+manifest <- readr::read_csv(
+  "output/panel/production_series_manifest.csv",
+  show_col_types = FALSE
+)
 dates <- as.Date(panel$ref.date)
 data_mat <- panel |>
   dplyr::select(-ref.date) |>
@@ -24,28 +29,112 @@ base_mat <- base |>
 expected_dates <- seq(spec$sample[1], spec$sample[2], by = "month")
 if (!identical(dates, expected_dates) || nrow(data_mat) != spec$n_months ||
     ncol(data_mat) != spec$n_series || ncol(base_mat) != 106L ||
-    any(!is.finite(data_mat)) || any(!is.finite(base_mat)) ||
+    anyDuplicated(colnames(data_mat)) || any(!is.finite(data_mat)) ||
+    any(!is.finite(base_mat)) ||
     !all(spec$required_series %in% colnames(data_mat)) ||
     any(spec$excluded_series %in% colnames(data_mat))) {
   stop("The canonical and base panels do not satisfy the production composition invariants.")
 }
-
-bai_ng <- bai_ng_criteria(data_mat, max_r = 20L, apply_bll = TRUE)
-if (bai_ng$r_hat$IC2 != spec$r) {
-  stop("Bai-Ng IC2 did not select the production r.")
+if (nrow(manifest) != spec$n_series || anyDuplicated(manifest$variable) ||
+    !setequal(manifest$variable, colnames(data_mat)) ||
+    !identical(
+      manifest$source_id[match("spread_credito_pj_total", manifest$variable)],
+      "SGS 20784"
+    ) ||
+    !identical(
+      manifest$source_id[match("spread_credito_pf_total", manifest$variable)],
+      "SGS 20785"
+    ) ||
+    !all(spec$production_series_added %in% manifest$variable) ||
+    any(c("spread_icc_juridica", "spread_icc_fisica") %in% manifest$variable) ||
+    any(grepl("^SEM_AJUSTE", manifest$seasonal_status))) {
+  stop("The production manifest does not identify the 115-series composition and sources.")
 }
 
-instrument <- readr::read_csv(spec$instrument_path, show_col_types = FALSE) |>
+bai_ng <- bai_ng_criteria(data_mat, max_r = 20L, apply_bll = TRUE)
+bai_ng_surface <- tibble::tibble(
+  r = seq_len(20L),
+  IC1 = bai_ng$criteria$IC1,
+  IC2 = bai_ng$criteria$IC2,
+  IC3 = bai_ng$criteria$IC3
+)
+if (!identical(unname(unlist(bai_ng$r_hat)), c(5L, 5L, 20L)) ||
+    any(!is.finite(as.matrix(bai_ng_surface[, -1])))) {
+  stop("The BLL Bai-Ng surface must be finite and select IC1=5, IC2=5, IC3=20.")
+}
+if (file.exists(spec$bai_ng_output)) {
+  saved_bai_ng <- readr::read_csv(spec$bai_ng_output, show_col_types = FALSE)
+  if (!identical(names(saved_bai_ng), names(bai_ng_surface)) ||
+      nrow(saved_bai_ng) != nrow(bai_ng_surface) ||
+      max(abs(as.matrix(saved_bai_ng) - as.matrix(bai_ng_surface))) > 1e-12) {
+    stop("The saved production BLL Bai-Ng surface does not reproduce.")
+  }
+}
+
+instrument_wide <- readr::read_csv(spec$instrument_path, show_col_types = FALSE) |>
+  dplyr::mutate(month = as.Date(month))
+if (!identical(instrument_wide$month, expected_dates) ||
+    nrow(instrument_wide) != spec$n_months ||
+    anyDuplicated(instrument_wide$month) ||
+    any(!is.finite(as.matrix(instrument_wide[, -1])))) {
+  stop("The eight instrument variants must cover all 166 production months.")
+}
+first_instrument <- c(
+  -22.017543058626288, 0, -3.96538127126775, 0,
+  0, 7.955274952337614, 0, -2.465187498734114
+)
+if (max(abs(instrument_wide[[spec$instrument]][seq_along(first_instrument)] -
+    first_instrument)) > 1e-12) {
+  stop("The recalculated initial production-instrument values changed.")
+}
+event_diagnostics <- readr::read_csv(
+  "data/processed/copom_event_diagnostics.csv",
+  show_col_types = FALSE
+) |>
+  dplyr::mutate(month = lubridate::floor_date(as.Date(date), "month")) |>
+  dplyr::group_by(month) |>
+  dplyr::summarise(kept_events = sum(copom_day & jk_monetary_bs), .groups = "drop")
+zero_contract <- tibble::tibble(month = expected_dates) |>
+  dplyr::left_join(event_diagnostics, by = "month") |>
+  dplyr::mutate(kept_events = tidyr::replace_na(kept_events, 0L))
+if (sum(instrument_wide[[spec$instrument]] == 0) != 99L ||
+    !identical(
+      instrument_wide[[spec$instrument]] == 0,
+      zero_contract$kept_events == 0
+    )) {
+  stop("The JK monthly zeros do not match months without retained events.")
+}
+instrument <- instrument_wide |>
   dplyr::transmute(month = as.Date(month), shock = .data[[spec$instrument]]) |>
   dplyr::filter(!is.na(shock))
+
+factors <- estimate_static_factors(data_mat, spec$r)$factors
+lag_criteria <- var_lag_criteria(
+  factors,
+  pmax = spec$factor_var_lag_selection$max_lag,
+  deterministic = spec$factor_var_lag_selection$deterministic
+)
+if (unique(lag_criteria$T_common) != spec$factor_var_lag_selection$common_sample ||
+    lag_criteria$p[which.min(lag_criteria$aic)] !=
+      spec$factor_var_lag_selection$selected_aic ||
+    lag_criteria$p[which.min(lag_criteria$bic)] !=
+      spec$factor_var_lag_selection$selected_bic ||
+    abs(lag_criteria$aic[lag_criteria$p == spec$p] -
+      spec$factor_var_lag_selection$aic_at_production) > 1e-12) {
+  stop("The reported factor-lag criteria do not reproduce on the expanded sample.")
+}
+readr::write_csv(
+  lag_criteria,
+  file.path(out_dir, "production_factor_lag_criteria.csv")
+)
 mpind <- match(spec$mp_var, colnames(data_mat))
 samples <- list(full = spec$sample, pre_covid = spec$pre_covid_sample)
 expected <- tibble::tibble(
   sample = c("full", "pre_covid"),
-  n_innovations = c(149L, 80L),
-  xi_mp = c(5.240158304905, 7.478324275893),
-  f_robust_mp = c(10.060921519349, 11.874945340585),
-  max_companion_root = c(0.968126200394, 0.992482650750),
+  n_innovations = c(162L, 90L),
+  xi_mp = c(6.057014271403125, 8.643436347247281),
+  f_robust_mp = c(9.625427632173636, 13.809985106266108),
+  max_companion_root = c(0.9700904794964803, 0.9933587954932864),
   stable = c(TRUE, TRUE)
 )
 
@@ -92,6 +181,50 @@ if (any(comparison$n_innovations != comparison$n_innovations_expected) ||
   stop("The canonical production diagnostics do not reproduce the migration gate.")
 }
 readr::write_csv(diagnostics, file.path(out_dir, "production_spec_diagnostics.csv"))
+
+point_dfm <- estimate_dfm(
+  data_mat,
+  r = spec$r,
+  q = spec$q,
+  p = spec$p,
+  dates = dates,
+  apply_kilian = FALSE
+)
+point_irf <- compute_irf_dfm(
+  point_dfm,
+  instrument = instrument,
+  h = spec$horizon,
+  nboot = 0L,
+  mpind = mpind,
+  normalize_value = spec$normalize_value,
+  data_dates = dates,
+  tcode = infer_tcode_from_varnames(colnames(data_mat)),
+  ci_levels = spec$ci_levels,
+  var_names = colnames(data_mat),
+  identification = "proxy"
+)
+headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
+expected_impacts <- c(
+  0.005,
+  0.007026364233969990,
+  0.007245719448835893,
+  -0.9965048308800585,
+  0.1342419094791832
+)
+impact_smoke <- tibble::tibble(
+  variable = headline,
+  impact = point_irf$irf_point_matrix[match(headline, colnames(data_mat)), 1],
+  expected = expected_impacts
+)
+if (max(abs(impact_smoke$impact - impact_smoke$expected)) > 1e-12 ||
+    abs(impact_smoke$impact[impact_smoke$variable == spec$mp_var] -
+      spec$normalize_value) > 1e-12) {
+  stop("The five required impact responses do not reproduce the expanded-sample gate.")
+}
+readr::write_csv(
+  impact_smoke,
+  file.path(out_dir, "production_spec_impact_smoke.csv")
+)
 
 if (run_bootstrap) {
   tcodes <- infer_tcode_from_varnames(colnames(data_mat))
@@ -158,7 +291,6 @@ if (run_bootstrap) {
   if (!gate$gate_pass) {
     stop("The canonical production bootstrap gate failed.")
   }
-  headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
   headline_rows <- dplyr::bind_rows(lapply(headline, function(variable) {
     index <- match(variable, colnames(data_mat))
     tibble::tibble(
@@ -174,5 +306,3 @@ if (run_bootstrap) {
   readr::write_csv(gate, file.path(out_dir, "production_spec_bootstrap_gate.csv"))
   readr::write_csv(headline_rows, file.path(out_dir, "production_spec_headline_irf.csv"))
 }
-
-message("Production specification validation passed.")

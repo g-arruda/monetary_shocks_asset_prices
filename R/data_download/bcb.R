@@ -13,7 +13,7 @@
 #' @details
 #' - Uses the GetBCBData package for downloading
 #' - In parallel mode, uses half of the available cores
-#' - Temporary data cache is stored in temporary directory
+#' - Persistent data cache is stored under data/raw/cache/bcb
 #'
 #' @examples
 #' # Download IPCA series (code 433)
@@ -24,8 +24,11 @@
 download_bcb_data <- function(
     id,
     start_date = "2000-01-01",
-    end_date = "2026-01-01",
+    end_date = as.character(lubridate::floor_date(Sys.Date() - 1L, "month")),
     parallel = FALSE) {
+  cache_path <- file.path("data", "raw", "cache", "bcb")
+  dir.create(cache_path, showWarnings = FALSE, recursive = TRUE)
+
   if (parallel) {
     previous_plan <- future::plan()
     on.exit(future::plan(previous_plan), add = TRUE)
@@ -41,7 +44,7 @@ download_bcb_data <- function(
       format.data = "wide",
       do.parallel = parallel,
       use.memoise = TRUE,
-      cache.path = tempdir(),
+      cache.path = cache_path,
       be.quiet = TRUE
     ))
   }

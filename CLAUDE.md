@@ -14,7 +14,8 @@ Kilian (1998) bias correction. Canonical paper: `paper/paper_anpec.tex`.
 The record, in `registro/`: `metodo.md` (the live design — instrument construction and the
 identification chain), `pendencias.md` (what is open), `historico_decisoes.md` (what died and why —
 **read before proposing a methodological direction**); plus `notas/`, dated and carrying vintage
-banners, and `pareceres/`, what outside reviewers sent in.
+banners, `pareceres/`, what outside reviewers sent in, and `email/`, the running email exchange
+with the advisor.
 
 ## Production spec — the invariant that costs most to get wrong
 
@@ -107,8 +108,9 @@ These govern what may be **said**, so they apply even when no file is open.
   Ibovespa peak went from +17.71% at h=21 to +2.01% at h=8.
 - **The paper has one identification: the external proxy.** Heteroskedasticity and non-Gaussian
   (GMR) identification were abandoned on 2026-08-17 and may not be cited as corroboration, as a
-  robustness leg, or as an alternative estimate — see `arquivo/heterocedasticidade/` and
-  `arquivo/nao_gaussiana/`. `goncalves2025` stays cited: that is *other people's* daily
+  robustness leg, or as an alternative estimate. The negative frequency diagnostic and its
+  archived artefacts remain under `arquivo/heterocedasticidade/`, but the dedicated code was
+  removed on 2026-09-01. `goncalves2025` stays cited: that is *other people's* daily
   het-identified evidence the paper argues with, not this project's route.
 - **The VAR benchmark tests DFM-vs-small-VAR, not "vs the literature"**, which uses Cholesky.
 - **ξ_mp ≥ 10 is the Staiger-Stock rule of thumb** for the homoskedastic 2SLS first-stage F, **not an
@@ -193,21 +195,25 @@ P <- res$irfs$irf_point_matrix; vn <- colnames(res$data)
 P[match(c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd"), vn), 1]
 ```
 
-Expected h0 (matches `output/irf/irf_coherence_h.csv`): `yield_6m` 0.005,
-`yield_2y` 0.00743006, `yield_5y` 0.00776115, `asset_ibov` −1.7226767,
-`cambio_usd` 0.15792807. Full precision, for a bit-identical check:
-`0.0050000000000000001`, `0.0074300592008910019`, `0.0077611464176508358`,
-`-1.7226766564462794`, `0.15792806572512938`.
+Expected h0 (matches `output/validation/production_spec_impact_smoke.csv`):
+`yield_6m` 0.005, `yield_2y` 0.00702636, `yield_5y` 0.00724572,
+`asset_ibov` −0.9965048, `cambio_usd` 0.13424191. Full precision, for a
+bit-identical check: `0.0050000000000000001`, `0.0070263642339699903`,
+`0.0072457194488358932`, `-0.99650483088005848`,
+`0.13424190947918324`.
 
 ## Conventions
 
 - **Language:** English for code, identifiers and this file; Portuguese for prose in `registro/`,
-  `notas/`, `pareceres/` and `output/*.md`.
+  `notas/`, `pareceres/`, `email/` and `output/*.md`.
 - **Plots:** `ggplot2`, paper style — shaded 80% and 90% bands.
 - **Comments:** minimal, only at non-trivial technical steps.
 - **Record vs. session:** `notas/` is permanent and citable — a dated note per round, carrying a
   vintage banner, and it is what the paper pulls numbers from. `pareceres/` is what was *received*
-  (`/council`, `/referee2`, `/auditor-externo`) and is kept verbatim. `progress_logs/` is session
+  (`/council`, `/referee2`, `/auditor-externo`) and is kept verbatim. `email/` is the running
+  email exchange with the advisor about the project, one file per message
+  (`email_{meu,professor}_DD-MM_HHhMM.md`), kept verbatim like `pareceres/` but ongoing rather than
+  a single delivered document. `progress_logs/` is session
   continuity and is disposable. Nothing durable goes into `progress_logs/`, and no session log goes
   into `notas/`.
 - **Fail loud:** a missing input aborts with a pointer to the script that produces it. Never a

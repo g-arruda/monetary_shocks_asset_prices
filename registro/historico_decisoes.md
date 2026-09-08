@@ -30,16 +30,19 @@ Código, artefatos e notas em `arquivo/nao_gaussiana/`.
 
 **Veredito:** reprovada nas duas frentes. Como instrumento (`z_het*`,
 Rigobon-Sack 2003), abandonada em 2026-07-16. Como identificação primária
-(Rigobon 2003 nas inovações fatoriais), **zero das 252 células identificam** — a
+(Rigobon 2003 nas inovações fatoriais), **zero das 450 células válidas da
+reestimação de 2026-09-01 identificam** — a
 única heterocedasticidade do painel mensal é a da COVID, e ela é fator de escala
 comum, não separação de regimes.
 
 Corpo integral: `arquivo/heterocedasticidade/registro/historico_decisoes_secao1.md`.
-Código, artefatos e notas em `arquivo/heterocedasticidade/`.
+Os artefatos e a nota permanecem em `arquivo/heterocedasticidade/`. O código
+dedicado foi removido em 2026-09-01, depois que o contraste entre as frequências
+diária e mensal foi incorporado ao paper; o histórico Git preserva sua origem.
 
 **Não reabrir sem evidência nova.** A ponta solta declarada e nunca tentada —
 heterocedasticidade *condicional* (GARCH-SVAR, Lanne-Saikkonen 2007 /
-Normandin-Phaneuf 2004), que dispensa datas de regime — segue no arquivo.
+Normandin-Phaneuf 2004), que dispensa datas de regime — não foi implementada.
 
 ## 2. Construção do instrumento — o que a auditoria de fidelidade mudou
 
@@ -685,3 +688,18 @@ As grades históricas de painel, `(r,q)` e instrumento condicionadas a `p=6`
 não foram reestimadas. A comparação VAR(2) versus VAR(6) de observáveis também
 continua como vintage separada e não herda `production_spec()$p`. Nota
 corrente: `notas/2026-08-24_migracao_dfm_p4.md`.
+
+---
+
+## 13. Início produtivo ampliado para 2012-03
+
+**Decisão de 2026-09-02.** O painel de 115 séries passa a cobrir
+2012-03--2025-12, com 166 meses e 162 inovações no VAR(4). A cadeia do
+instrumento foi reestimada desde 2012-03 com antecedentes diários desde
+2011-09; isso recalcula toda a purificação BS, inclusive valores posteriores.
+
+Bai--Ng BLL seleciona IC1=5, IC2=5 e IC3=20, fixando `r=5`; a decisão usa
+`q=r=5`. `p=4` é herdado da vintage anterior, embora a checagem separada na
+amostra ampliada também selecione 4 pelo AIC e 2 pelo BIC. O benchmark VAR
+observável permanece em 2013-01--2025-09. Paper e figuras não foram migrados
+nesta rodada. Nota: `notas/2026-09-02_producao_inicio_2012_03.md`.

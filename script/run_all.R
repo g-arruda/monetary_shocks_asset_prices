@@ -50,10 +50,11 @@ STAGES <- list(
                  "data/raw/investing/cds5y.csv",
                  "data/raw/investing/msci.csv",
                  "data/raw/investing/sp500_vix.csv",
-                 "data/raw/epu/economic_policy_uncertainty.csv"),
+                 "data/raw/epu/economic_policy_uncertainty.xlsx"),
     produces = c(
       "data/raw/raw_data.csv",
       "data/raw/focus_daily.csv",
+      "data/raw/focus_fiscal_expectations.csv",
       "data/raw/ibov_daily.csv",
       "data/raw/brl_usd_daily.csv",
       "data/raw/investing/external_factors_daily.csv",
@@ -67,7 +68,11 @@ STAGES <- list(
     interp   = "Rscript",
     file     = "script/clean.R",
     network  = FALSE,
-    requires = "data/raw/raw_data.csv",
+    requires = c(
+      "data/raw/raw_data.csv",
+      "data/raw/focus_fiscal_expectations.csv",
+      "data/raw/DLSP/Evodlp.xlsx"
+    ),
     produces = c(
       SPEC$base_data_path,
       SPEC$data_path,
@@ -97,7 +102,7 @@ STAGES <- list(
     file     = "script/model_alessi.R",
     network  = FALSE,
     requires = c(SPEC$data_path, SPEC$legacy_instrument_path),
-    produces = SPEC$model_output
+    produces = c(SPEC$model_output, SPEC$bai_ng_output)
   )
 )
 

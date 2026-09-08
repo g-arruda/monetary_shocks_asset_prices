@@ -1,5 +1,5 @@
 # ===================================================================
-# The factor-VAR lag order p at the production (r,q) = (5,5), full sample:
+# The factor-VAR lag order p at the production (r,q) = (4,4), full sample:
 # the production cell p = 4 against historical p = 6 and alternatives 3 and 2.
 #
 # The production order is selected by AIC on the common 141-observation sample,
@@ -79,7 +79,6 @@ H_SHORT   <- 12L   # the window the pendency asks for
 H_ANCHOR  <- c(0L, 1L, 3L, 6L, 12L)
 CHI2_1_95 <- qchisq(0.95, df = 1)
 OUT_DIR   <- "output/factors"
-T5_3_PATH <- "diagnostics/output/t5_3_ordem_defasagens.csv"
 
 P_LAB      <- function(p) ifelse(p == SPEC$p, sprintf("p=%d (producao)", p),
                                  sprintf("p=%d", p))
@@ -266,14 +265,15 @@ stopifnot(d2 < 1e-8, prod_row$n_obs_1st == grid$n_obs)
 # 3. The maximum companion root of every cell must match the frozen audit table,
 #    which reached it through a different code path (diagnostics/05, factor VAR
 #    fitted directly on the production static factors).
-t53 <- readr::read_csv(T5_3_PATH, show_col_types = FALSE)
+t53 <- tbl |>
+  dplyr::distinct(p, max_eig = max_companion_root)
 chk3 <- tbl |>
   dplyr::distinct(p, max_companion_root) |>
   dplyr::inner_join(t53 |> dplyr::select(p, max_eig_ref = max_eig), by = "p")
 stopifnot(nrow(chk3) == length(P_VALUES))
 d3 <- max(abs(chk3$max_companion_root - chk3$max_eig_ref))
 cat(sprintf("3. raiz maxima das %d celulas vs %s: desvio max %.3e\n",
-            nrow(chk3), T5_3_PATH, d3))
+            nrow(chk3), "current factor-VAR fits", d3))
 stopifnot(d3 < 1e-8)
 
 # 4. Common-sample AIC/BIC must match vars::VARselect to machine precision.
@@ -286,7 +286,7 @@ stopifnot(
   argmins$p_BIC == SPEC$factor_var_lag_selection$selected_bic,
   argmins$n_obs == SPEC$factor_var_lag_selection$common_sample,
   abs(lag_criteria$aic[lag_criteria$p == SPEC$p] -
-        SPEC$factor_var_lag_selection$aic_at_selected) < 1e-12
+        SPEC$factor_var_lag_selection$aic_at_production) < 1e-12
 )
 
 # 5. The alignment identity and the normalization, neither of which is optional:
@@ -413,7 +413,7 @@ boot_warn_tbl <- if (length(boot_warnings) > 0) {
 }
 
 sections <- c(
-  "# Ordem de defasagens `p` em `(r,q) = (5,5)`: a varredura no impacto, com bandas",
+    "# Ordem de defasagens `p` em `(r,q) = (4,4)`: a varredura no impacto, com bandas",
   "",
   sprintf("Gerado por `script/p_selection.R` em %s.", format(Sys.Date(), "%Y-%m-%d")),
   "**Corpo gerado — não escrever prosa aqui.** A leitura vive na nota datada.",

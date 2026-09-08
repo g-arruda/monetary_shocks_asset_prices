@@ -131,7 +131,7 @@ make_aggregator <- function(scheme = c("sum", "gk")) {
 build_instrument_variants <- function(inputs,
                                       target_bd    = 126,
                                       agg          = "sum",
-                                      sample_start = as.Date("2013-01-01"),
+                                      sample_start = as.Date("2012-03-01"),
                                       sample_end   = as.Date("2025-12-31"),
                                       strict       = TRUE) {
 

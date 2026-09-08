@@ -46,9 +46,9 @@ existiu — não há estágio de estacionarização.
 com três níveis de fallback. É decomposição **aditiva** e, verificado nesta
 rodada, escala-equivariante nas séries afetadas.
 
-> **Nota de escopo.** `spread_icc_juridica` e `spread_icc_fisica` estão no vetor
-> `vec_credito` de `download.R:95-96`, mas **não** são logadas: o seletor
-> `contains("credit")` não casa com `spread_icc_*`. Estão em ponto percentual e
+> **Nota de escopo.** `spread_credito_pj_total` e `spread_credito_pf_total` estão
+> no vetor `vec_credito` de `download.R`, mas **não** são logadas: o seletor
+> `contains("credit")` não casa com `spread_*`. Estão em ponto percentual e
 > em nível. O `infer_tcode_from_varnames` é consistente com isso (`^credit`).
 
 ## 3. Padronização e despadronização
@@ -188,9 +188,9 @@ em pontos-base ela responde **menos** (13bp contra 50bp). O único guard-rail
 existente é o `norm_value_for()` da varredura, e ele só protege o caso em que
 `juros_selic` é a **variável de política**, não o caso em que ela é resposta.
 
-### 7.3 O grupo `spread_icc_*` está em p.p. dentro de um bloco logado
+### 7.3 O grupo `spread_credito_*` está em p.p. dentro de um bloco logado
 
-`spread_icc_juridica` e `spread_icc_fisica` convivem no bloco "crédito" com
+`spread_credito_pj_total` e `spread_credito_pf_total` convivem no bloco "crédito" com
 sete volumes logados (tcode 4, saída em %). Elas são tcode 1, em p.p. O
 tratamento está **correto** em ambos os lados, mas a saída do grupo mistura
 "variação percentual do volume" com "variação em p.p. do spread" sob o mesmo

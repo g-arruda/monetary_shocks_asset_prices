@@ -303,10 +303,11 @@ var_spec <- spec$var_benchmark
 panel <- read.csv(DATA_PATH, check.names = FALSE)
 panel$ref.date <- as.Date(panel$ref.date)
 panel <- panel[
-  panel$ref.date >= spec$sample[1L] & panel$ref.date <= spec$sample[2L],
+  panel$ref.date >= var_spec$sample[1L] &
+    panel$ref.date <= var_spec$sample[2L],
   c("ref.date", var_spec$vars)
 ]
-if (nrow(panel) != spec$n_months || anyNA(panel)) {
+if (nrow(panel) != var_spec$n_months || anyNA(panel)) {
   stop("The production panel is incomplete for the BIC validation")
 }
 

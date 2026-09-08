@@ -259,7 +259,7 @@ classify_sweep_cells <- function(cells) {
 #'
 #' Production path: the instrument is passed to `estimate_dfm` (temporal
 #' alignment happens there) and `compute_irf_dfm` resolves instrument and
-#' dates from the DFM object, mirroring `script/irf_cross_instrument.R`.
+#' dates from the DFM object, as in the shared stage-2 production path.
 #'
 #' @param data_mat Full panel matrix (no date column).
 #' @param dates Dates aligned with `data_mat` rows.
@@ -393,8 +393,7 @@ containment_vs_production <- function(paths, prod_key, denom_ratio,
 
 #' Overlay IRF panels for an arbitrary set of stage-2 cells
 #'
-#' Generalizes `plot_overlay` from `script/irf_cross_instrument.R` to any
-#' number of cells with a palette keyed by cell tag.
+#' Overlays any number of cells with a palette keyed by cell tag.
 #'
 #' @param cells Named list of stage-2 results (names used as legend labels).
 #' @param response_idx List of named indices (label = panel title).

@@ -10,8 +10,8 @@
 #'
 #' @return Tibble with date, expiration, ticker, bdays and close_rate.
 load_di_panel <- function(path = "data/raw/di.csv",
-                          from = as.Date("2012-06-01"),
-                          to   = as.Date("2026-02-01")) {
+                          from = as.Date("2011-09-01"),
+                          to   = as.Date("2025-12-31")) {
   readr::read_csv(path, show_col_types = FALSE) |>
     dplyr::transmute(
       date        = as.Date(TradeDate),
@@ -69,12 +69,12 @@ surprise_wed_to_thu <- function(di_panel, wed_date, thu_date,
 #' close in Brazil.
 #'
 #' @param path CSV path. Default `"data/raw/copom_historico.csv"`.
-#' @param from Earliest meeting date kept (default 2012-06-01).
+#' @param from Earliest meeting date kept (default 2012-03-01).
 #' @param to   Latest meeting date kept (default 2025-12-31).
 #'
 #' @return Date vector of Copom Wednesdays, sorted and unique.
 load_copom_wednesdays <- function(path = "data/raw/copom_historico.csv",
-                                  from = as.Date("2012-06-01"),
+                                  from = as.Date("2012-03-01"),
                                   to   = as.Date("2025-12-31")) {
   readr::read_csv(path, show_col_types = FALSE)[-1] |>
     dplyr::transmute(meeting_date = lubridate::dmy(data_reuniao)) |>
@@ -95,12 +95,12 @@ load_copom_wednesdays <- function(path = "data/raw/copom_historico.csv",
 #' found it — see pareceres/council_2026-08-10.md.
 #'
 #' @param path CSV path with a `date` column. Default `"data/raw/fomc_dates.csv"`.
-#' @param from Earliest decision date kept (default 2012-06-01).
+#' @param from Earliest decision date kept (default 2012-03-01).
 #' @param to   Latest decision date kept (default 2025-12-31).
 #'
 #' @return Date vector of FOMC decision dates, sorted and unique.
 load_fomc_dates <- function(path = "data/raw/fomc_dates.csv",
-                            from = as.Date("2012-06-01"),
+                            from = as.Date("2012-03-01"),
                             to   = as.Date("2025-12-31")) {
   if (!file.exists(path)) {
     stop(path, " not found. Run: Rscript script/download.R")

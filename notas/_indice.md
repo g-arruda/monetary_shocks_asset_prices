@@ -1,19 +1,38 @@
 # Índice das notas
 
-**Revisado em 2026-08-31.** A nota de produção DFM corrente é
-[`2026-08-24_migracao_dfm_p4`](2026-08-24_migracao_dfm_p4.md);
+**Revisado em 2026-09-02.** A nota de produção DFM corrente é
+[`2026-09-02_producao_inicio_2012_03`](2026-09-02_producao_inicio_2012_03.md);
 a rodada mais recente do benchmark é
 [`2026-08-22_var_niveis_aic_tendencia`](2026-08-22_var_niveis_aic_tendencia.md).
 Notas anteriores preservam decisões e diagnósticos que não dependem do painel,
 mas seus números do DFM não devem ser citados sem reestimação.
 
+**Diagnóstico por heterocedasticidade reestimado:**
+[`2026-09-01_heterocedasticidade_frequencia`](2026-09-01_heterocedasticidade_frequencia.md)
+registra a orientação do professor, a comparação diária/mensal e a grade
+mensal corrente de 115 séries. A condição de posto não é satisfeita na
+frequência mensal; a rota permanece fora da produção.
+
 **Produção corrente:** proxy-SVAR com `z_jk_bs_purif` × `yield_6m`, painel de
-111 séries `drop_setor_externo__eua__credito__imoveis`, `(r,q,p)=(5,5,4)`,
-`xi_mp=5,240158` full / `7,478324` pré-COVID. `r=5` foi decidido pelo Bai--Ng
-IC2 BLL; `q=5` é provisório e permanece aberto. Ver `registro/pendencias.md`
+115 séries `drop_setor_externo__eua__credito__imoveis_fiscal_expectations`,
+2012-03--2025-12, `(r,q,p)=(5,5,4)`, `xi_mp=6,057014` full / `8,643436`
+pré-COVID. Bai--Ng BLL seleciona IC1=5, IC2=5 e IC3=20; `q=r=5` e `p=4`
+é herdado da vintage anterior. Ver `registro/pendencias.md`
 (o que está aberto) e `registro/historico_decisoes.md` (o que já foi tentado).
 
-**Teste experimental mais recente:**
+**Teste experimental superado:**
+[`2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais`](2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais.md)
+reestima em conjunto a baseline e os painéis de 112, 114 e 115 séries. No
+painel final, o IC2 BLL seleciona `r=4`, `xi_mp/F_rob,mp =
+5,888198/11,936511` e a raiz é 0,970092; o ajuste cambial cai no impacto, mas
+só exclui zero na banda de 68%. Não altera a produção, e o paper apresenta as
+quatro novas respostas como exercício complementar explicitamente experimental.
+
+[`2026-09-01_decomposicao_contabil_dlsp`](2026-09-01_decomposicao_contabil_dlsp.md)
+audita a planilha de fluxos da DLSP e bloqueia a estimação: a identidade de
+sete fluxos omite a linha externa “outros ajustes”. Não altera a produção nem
+o paper.
+
 [`2026-09-01_teste_expectativas_fiscais`](2026-09-01_teste_expectativas_fiscais.md)
 acrescenta três expectativas fiscais Focus apenas em painel alternativo. Não
 altera a especificação de produção nem o paper.
@@ -22,7 +41,7 @@ altera a especificação de produção nem o paper.
 validade da conclusão que a coluna final preserva, não a vintage de produção.
 Toda linha escrita sob `p=6`, `(5,5,6)`, `(7,6)` ou o painel de 106 séries é
 histórica para números do DFM. A única produção DFM corrente é a linha
-`2026-08-24_migracao_dfm_p4`; a comparação VAR(2)/VAR(6) é uma sensibilidade
+`2026-09-02_producao_inicio_2012_03`; a comparação VAR(2)/VAR(6) é uma sensibilidade
 separada do benchmark observável.
 
 ## Convenção
@@ -90,9 +109,11 @@ AIC comum e publica `C_h B_1`, sem soma por horizonte. Ver
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-09-02_producao_inicio_2012_03`](2026-09-02_producao_inicio_2012_03.md) | 09-02 | **CURRENT — produção DFM** | painel 115, 2012-03--2025-12, `(5,5,4)`, `z_jk_bs_purif`, 800 bootstraps, semente 123 | IC1/IC2/IC3 BLL selecionam 5/5/20; 162 inovações, `xi_mp/F_rob=6,057014/9,625428`, raiz 0,970090; pré-COVID com 90 inovações. Zero falhas, bandas finitas/ordenadas e normalização exata. Paper e figuras seguem na vintage anterior. |
+| [`2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais`](2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais.md) | 09-01 | **CURRENT como experimento conjunto; não promocional** | painéis 111/112/114/115, `(5,5,4)`, 800 réplicas somente no painel 115 | IC2 BLL seleciona `r=4` no painel 115 cheio; `xi_mp/F_rob,mp=5,888198/11,936511`, raiz 0,970092. Ajuste cambial cai R$ 11,8 bilhões no impacto e exclui zero apenas a 68%; compatível com canal mecânico, sem decomposição completa. Expectativas fiscais têm resposta mista. A produção fica intacta, e o paper usa as quatro respostas como complemento experimental. |
 | [`2026-08-30_pitch_revisao_literatura`](2026-08-30_pitch_revisao_literatura.md) | 08-30 | **CURRENT como recomendação editorial** | produção `(5,5,4)` tomada como dada; leitura do paper, dos registros e da literatura; nenhuma estimação e nenhum `.tex` alterado | O canal de risco é o pitch principal; o mecanismo de Blanchard é a comparação brasileira direta; dominância fiscal permanece hipótese não identificada. A decomposição do wedge de UIP decide o título, e a decomposição da curva decide a atribuição ao prêmio de prazo. |
 | [`2026-08-25_sincronizacao_secoes_3_5_p4`](2026-08-25_sincronizacao_secoes_3_5_p4.md) | 08-25 | **CURRENT como registro textual** | conferência documental da produção `(5,5,4)`; nenhuma estimação | Fontes, números e limites editoriais usados para sincronizar as Seções 3--5, o relatório de IRFs e a documentação viva. |
-| [`2026-08-24_migracao_dfm_p4`](2026-08-24_migracao_dfm_p4.md) | 08-24 | **CURRENT — produção DFM** | painel 111, `(5,5,4)`, `z_jk_bs_purif`, 800 bootstraps, semente 123 | `p=4` pelo AIC 8,073207 em amostra comum `T=141`, com BIC em `p=2`; VAR fatorial estimado com intercepto apenas. 149 inovações, `xi_mp/F_rob=5,240158/10,060922`, raiz 0,968126; pré-COVID 80, `7,478324/11,874945`, raiz 0,992483. Zero falhas, bandas finitas e normalização exata. |
+| [`2026-08-24_migracao_dfm_p4`](2026-08-24_migracao_dfm_p4.md) | 08-24 | **HISTÓRICA — superada pela amostra 2012-03--2025-12** | painel 111, `(5,5,4)`, `z_jk_bs_purif`, 800 bootstraps, semente 123 | `p=4` pelo AIC 8,073207 em amostra comum `T=141`, com BIC em `p=2`; VAR fatorial estimado com intercepto apenas. 149 inovações, `xi_mp/F_rob=5,240158/10,060922`, raiz 0,968126; pré-COVID 80, `7,478324/11,874945`, raiz 0,992483. Zero falhas, bandas finitas e normalização exata. |
 | [`2026-08-24_var_p2_vs_p6`](2026-08-24_var_p2_vs_p6.md) | 08-24 | **CURRENT como sensibilidade; não altera a produção** | cinco séries em nível, constante e tendência linear, `z_jk_bs_purif`, +50 pb em `yield_6m`, `h=0,...,36`; VAR(2) canônico e VAR(2)/VAR(6) em 147 resíduos comuns; `script/var_lag_comparison.R` | Na amostra comum, o VAR(6) reduz o logdet (`-11,755` para `-12,981`), mas AIC/BIC preferem o VAR(2) e os parâmetros sobem de 60 para 160. Ambos são estáveis. Yield, câmbio e CDS preservam trajetórias próximas; IPCA e sobretudo IBC-Br são mais sensíveis. AR/MOSW é indisponível no VAR(6), pois `hac_dim=190 >= T=147`; nenhuma diferença pontual é tratada como significativa. |
 | [`2026-08-22_var_niveis_aic_tendencia`](2026-08-22_var_niveis_aic_tendencia.md) | 08-22 | **CURRENT** | cinco séries em nível, constante e tendência linear, `p=2` pelo AIC comum, pontos `C_h B_1`, AR 68%/90% com NW(0) | AIC seleciona `p=2`, BIC seleciona `p=1`; `xi_mp=6,797335`, raiz máxima `0,965424`. Validação contra implementação independente, `vars::VARselect` e fixture oficial. |
 | [`2026-08-22_var_producao_unica`](2026-08-22_var_producao_unica.md) | 08-22 | **SUPERADA** | célula de produção com IPCA em nível, demais séries em diferença; `p=1`; pontos `C_h B_1`; AR 68%/90% com NW(0) | Preserva a produção imediatamente anterior à decisão de migrar o benchmark para níveis, AIC e tendência linear. |

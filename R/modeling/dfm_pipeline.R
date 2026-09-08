@@ -13,8 +13,8 @@
 #' identified IRFs with wild-bootstrap bands.
 #'
 #' `"proxy"` (external instrument) is the only identification branch. The
-#' heteroskedasticity and non-Gaussian branches were abandoned on 2026-08-17 and
-#' live in `arquivo/heterocedasticidade/` and `arquivo/nao_gaussiana/`.
+#' heteroskedasticity and non-Gaussian branches were abandoned on 2026-08-17.
+#' Their negative results remain documented under `arquivo/`.
 #'
 #' @param spec Production specification; defaults to `production_spec()` and
 #'   supplies the default of every argument below.

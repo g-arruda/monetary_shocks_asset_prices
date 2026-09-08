@@ -1,7 +1,6 @@
 # ===================================================================
-# DFM principal: especificação de produção no painel de 111 séries, com
-# r decidido pelo Bai--Ng IC2 e q=5 mantido como escolha operacional
-# provisória. Instrumento: data/processed/instrument.csv = z_jk_bs_purif
+# DFM principal: especificação de produção no painel de 115 séries, com
+# r=q=5. Instrumento: data/processed/instrument.csv = z_jk_bs_purif
 # (default desde 2026-07-15; máscara JK em resíduos pré-evento BS).
 # Bootstrap wild nboot=800 (Gonçalves-Kilian), correção de viés Kilian só
 # no DGP do bootstrap.
@@ -16,6 +15,22 @@ source("R/modeling/production_spec.R")
 source("R/modeling/dfm_pipeline.R")
 
 SPEC <- production_spec()
+
+panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
+  dplyr::select(-ref.date) |>
+  as.matrix()
+bai_ng <- bai_ng_criteria(panel, max_r = 20L, apply_bll = TRUE)
+bai_ng_surface <- tibble::tibble(
+  r = seq_len(20L),
+  IC1 = bai_ng$criteria$IC1,
+  IC2 = bai_ng$criteria$IC2,
+  IC3 = bai_ng$criteria$IC3
+)
+if (!identical(unname(unlist(bai_ng$r_hat)), c(5L, 5L, 20L))) {
+  stop("The production BLL Bai-Ng surface must select IC1=5, IC2=5, and IC3=20.")
+}
+dir.create(dirname(SPEC$bai_ng_output), showWarnings = FALSE, recursive = TRUE)
+readr::write_csv(bai_ng_surface, SPEC$bai_ng_output)
 
 set.seed(SPEC$bootstrap_seed)
 
@@ -54,8 +69,6 @@ irf_plot <- plot_irf(sdfm_results$irfs,
   tcode = sdfm_results$tcode,
   ci_to_plot = c(0.68, 0.90)
 )
-
-print(irf_plot)
 
 ggplot2::ggsave(SPEC$model_output, irf_plot,
                 width = 11, height = 9, dpi = 200)

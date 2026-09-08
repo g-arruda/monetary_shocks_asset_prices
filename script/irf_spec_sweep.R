@@ -32,7 +32,7 @@ RQ_GRID <- list(
   c(SPEC$r, SPEC$q),
   c(6L, 5L),
   c(7L, 6L),   # spec where z_jk_purif crossed Stock-Yogo (F = 10.17)
-  c(8L, 8L)    # production spec of irf_cross_instrument.R
+  c(8L, 8L)    # historical high-dimensional benchmark
 )
 
 SAMPLES <- list(

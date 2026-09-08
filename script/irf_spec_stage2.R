@@ -45,7 +45,7 @@ BASELINE <- data.frame(sample = "full", r = SPEC$r, q = SPEC$q,
                        instrument = SPEC$instrument, mp_var = SPEC$mp_var,
                        stringsAsFactors = FALSE)
 
-# Same 3x3 panel as irf_cross_instrument.R, for comparability
+# Common 3x3 response panel for stage-2 comparisons.
 RESPONSE_VARS <- list(
   c("yield 6m"            = "yield_6m"),
   c("yield 2y"            = "yield_2y"),
@@ -55,7 +55,7 @@ RESPONSE_VARS <- list(
   c("CDS 5y"              = "cds_5y"),
   c("EMBI"                = "embi_perc"),
   c("IPCA (realized)"     = "price_ipca"),
-  c("ICC spread juridica" = "spread_icc_juridica")
+  c("Spread de credito PJ" = "spread_credito_pj_total")
 )
 
 PALETTE_BASE <- c("steelblue", "firebrick", "darkgreen", "goldenrod3",

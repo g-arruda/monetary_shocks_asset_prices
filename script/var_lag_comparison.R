@@ -67,14 +67,17 @@ if (
 cat("=== Sensitivity of the observable VAR to lag order ===\n\n")
 
 panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
-  dplyr::filter(ref.date >= SPEC$sample[1L], ref.date <= SPEC$sample[2L]) |>
+  dplyr::filter(
+    ref.date >= VAR_SPEC$sample[1L],
+    ref.date <= VAR_SPEC$sample[2L]
+  ) |>
   dplyr::select(ref.date, dplyr::all_of(VAR_SPEC$vars))
 
 if (
-  nrow(panel) != SPEC$n_months || anyNA(panel) ||
+  nrow(panel) != VAR_SPEC$n_months || anyNA(panel) ||
     !identical(
       as.Date(panel$ref.date),
-      seq(SPEC$sample[1L], SPEC$sample[2L], by = "month")
+      seq(VAR_SPEC$sample[1L], VAR_SPEC$sample[2L], by = "month")
     )
 ) {
   stop("The level panel does not match the declared 2013-01--2025-09 sample")

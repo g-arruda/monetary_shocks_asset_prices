@@ -6,18 +6,22 @@ source("R/data_download/fred.R")
 source("R/data_download/b3.R")
 source("R/data_download/fomc.R")
 source("R/data_download/ipea.R")
+source("R/modeling/production_spec.R")
 
-sample_start <- as.Date("2013-01-01")
-sample_end <- as.Date("2025-09-01")
-daily_start <- as.Date("2012-01-01")
-daily_end <- as.Date("2026-02-01")
+spec <- production_spec()
+production_sample_start <- spec$sample[1]
+production_sample_end <- spec$sample[2]
+extension_start <- as.Date("2010-01-01")
+vintage_end <- production_sample_end
+daily_start <- as.Date("2010-01-01")
+daily_end <- spec$event_sample[2]
 required_external_files <- c(
   "data/raw/yields/yields_dia.csv",
   "data/raw/banco_central_rep_dominicana/embi_brasil.csv",
   "data/raw/investing/cds5y.csv",
   "data/raw/investing/msci.csv",
   "data/raw/investing/sp500_vix.csv",
-  "data/raw/epu/economic_policy_uncertainty.csv"
+  "data/raw/epu/economic_policy_uncertainty.xlsx"
 )
 missing_external_files <- required_external_files[!file.exists(required_external_files)]
 if (length(missing_external_files) > 0L) {
@@ -29,7 +33,9 @@ if (length(missing_external_files) > 0L) {
 }
 
 # rb3 registers its download templates only when the package is attached.
-options(rb3.cachedir = file.path(tempdir(), "rb3-cache"))
+rb3_cache <- file.path("data", "raw", "cache", "rb3")
+dir.create(rb3_cache, showWarnings = FALSE, recursive = TRUE)
+options(rb3.cachedir = rb3_cache)
 suppressPackageStartupMessages(library(rb3))
 
 arguments <- commandArgs(trailingOnly = TRUE)
@@ -39,19 +45,19 @@ if (length(arguments) > 0L) {
 
 focus <- download_focus_data(
   from = daily_start,
-  to = as.Date("2025-12-31"),
-  sample_start = sample_start,
-  sample_end = sample_end
+  to = daily_end,
+  sample_start = extension_start,
+  sample_end = vintage_end
 )
 fred_dgs2 <- download_fred_series(
   "DGS2",
   from = daily_start,
-  to = as.Date("2025-12-31")
+  to = daily_end
 ) |>
   dplyr::rename(ust2y = value)
 external_factors <- download_external_factors(daily_start, daily_end)
 brl_usd_daily <- download_brl_usd_daily(daily_start, daily_end)
-fomc_dates <- download_fomc_dates(daily_start, as.Date("2026-12-31"))
+fomc_dates <- download_fomc_dates(daily_start, daily_end)
 
 b3_symbols <- c("IBOV", "SMLL", "IDIV", "IFIX", "IFNC", "IMAT", "IMOB", "MLCX")
 b3_names <- c(
@@ -115,7 +121,7 @@ vec_juros <- c(
   # "cdb_rdb" = 28618 # Taxa média acumulada no mês de instituições financeiras
 )
 
-juros <- download_bcb_data(vec_juros, parallel = TRUE) |>
+juros <- download_bcb_data(vec_juros, parallel = FALSE) |>
   dplyr::rename_with(~ paste0("juros_", .), -ref.date)
 
 vec_fiscal <- c(
@@ -126,8 +132,8 @@ vec_fiscal <- c(
 
 fiscal <- download_bcb_data(
   vec_fiscal,
-  start_date = sample_start,
-  end_date = sample_end,
+  start_date = extension_start,
+  end_date = vintage_end,
   parallel = FALSE
 )
 
@@ -179,7 +185,7 @@ vec_base_monetaria <- c(
   "m3" = 27813
 )
 
-base_monetaria <- download_bcb_data(vec_base_monetaria, parallel = TRUE) |>
+base_monetaria <- download_bcb_data(vec_base_monetaria, parallel = FALSE) |>
   dplyr::rename_with(~ paste0("base_", .), -ref.date)
 
 
@@ -193,13 +199,13 @@ vec_credito <- c(
   "credito_comercio" = 22036,
   "credito_transporte" = 22037,
   "credito_pessoa_fisica" = 22050,
-  "spread_icc_juridica" = 27444,
-  "spread_icc_fisica" = 27445,
+  "spread_credito_pj_total" = 20784,
+  "spread_credito_pf_total" = 20785,
   "credit_outstanding" = 20542,
   "fin_inst_reserve_req" = 17633
 )
 
-credito <- download_bcb_data(vec_credito, start_date = "2010-01-01", parallel = TRUE)
+credito <- download_bcb_data(vec_credito, start_date = "2010-01-01", parallel = FALSE)
 
 
 ## Consumo ----
@@ -220,7 +226,7 @@ vec_consumo <- c(
 consumo <- download_bcb_data(
   vec_consumo,
   start_date = "2010-01-01",
-  parallel = TRUE)
+  parallel = FALSE)
 
 
 
@@ -238,7 +244,7 @@ vec_ativ_economica <- c(
 ativ_economica <- download_bcb_data(
   vec_ativ_economica,
   start_date = "2010-01-01",
-  parallel = TRUE
+  parallel = FALSE
 )
 
 
@@ -263,7 +269,7 @@ vec_industria <- c(
 industria <- download_bcb_data(
   vec_industria,
   start_date = "2010-01-01",
-  parallel = TRUE
+  parallel = FALSE
 )
 
 
@@ -281,7 +287,7 @@ vec_energia <- c(
 energia <- download_bcb_data(
   vec_energia,
   start_date = "2010-01-01",
-  parallel = TRUE
+  parallel = FALSE
 )
 
 
@@ -303,7 +309,7 @@ vec_emprego <- c(
 )
 
 
-emprego <- download_bcb_data(vec_emprego, start_date = "2012-01-01", parallel = TRUE) |>
+emprego <- download_bcb_data(vec_emprego, start_date = "2012-01-01", parallel = FALSE) |>
   dplyr::rename_with(~ paste0("trab_", .), -ref.date)
  
 
@@ -380,14 +386,25 @@ risco <- embi |>
 
 ## economic_policy_uncertainty ----
 
-epu <- readr::read_csv(
-  "data/raw/epu/economic_policy_uncertainty.csv",
-  show_col_types = FALSE
+epu <- readxl::read_excel(
+  "data/raw/epu/economic_policy_uncertainty.xlsx",
 ) |>
-  janitor::clean_names() |>
-  dplyr::mutate(ref.date = lubridate::dmy(date)) |>
-  dplyr::select(-date) |>
-  dplyr::rename_with(~ paste0("epu_", .), -ref.date)
+  dplyr::transmute(
+    year = suppressWarnings(as.integer(Year)),
+    month = as.integer(Month),
+    Brazil,
+    Canada,
+    Chile,
+    China,
+    Germany,
+    India,
+    Russia,
+    US
+  ) |>
+  dplyr::filter(is.finite(year), is.finite(month)) |>
+  dplyr::mutate(ref.date = as.Date(sprintf("%04d-%02d-01", year, month))) |>
+  dplyr::select(-year, -month) |>
+  dplyr::rename_with(~ paste0("epu_", tolower(.)), -ref.date)
 
 
 
@@ -396,8 +413,8 @@ epu <- readr::read_csv(
 vec_inflacao <- c(
   "ipca" = 433,
   "ipca_difusao" = 21379,
-  "core_ipca_ex0" = 29677,
-  "core_ipca_ex1" = 29678,
+  "core_ipca_ex0" = 11427,
+  "core_ipca_ex1" = 16121,
   "core_ipca_dw" = 16122, 
   "igp_m" = 189,
   "ipc" = 191,
@@ -410,7 +427,7 @@ ipp <- download_ipea_series("IPP12_IPPCG12") |>
   dplyr::select(ref.date = date, ipp = value)
 
 
-inflacao <- download_bcb_data(vec_inflacao, parallel = TRUE) |>
+inflacao <- download_bcb_data(vec_inflacao, parallel = FALSE) |>
   dplyr::left_join(ipp, by = "ref.date") |>
   tidyr::drop_na() |>
   dplyr::rename_with(~ paste0("price_", .), -ref.date)
@@ -425,7 +442,7 @@ vec_commodity <- c(
   "commodity_energia" = 27577
 )
 
-commodity <- download_bcb_data(vec_commodity, parallel = TRUE)
+commodity <- download_bcb_data(vec_commodity, parallel = FALSE)
 
 
 
@@ -520,16 +537,16 @@ merged_df <- all_dfs |>
   purrr::reduce(dplyr::left_join, by = "ref.date") |>
   dplyr::arrange(ref.date)
 
-expected_dates <- seq(sample_start, sample_end, by = "month")
+expected_dates <- seq(production_sample_start, production_sample_end, by = "month")
 production_sample <- merged_df |>
-  dplyr::filter(ref.date >= sample_start, ref.date <= sample_end)
+  dplyr::filter(ref.date >= production_sample_start, ref.date <= production_sample_end)
 if (ncol(merged_df) - 1L != 113L || anyDuplicated(names(merged_df))) {
   stop("The raw monthly panel must contain exactly 113 unique useful series.")
 }
 if (!identical(as.Date(production_sample$ref.date), expected_dates) ||
     anyNA(production_sample) ||
     any(!is.finite(as.matrix(production_sample[, -1])))) {
-  stop("The raw monthly panel must cover 2013-01 through 2025-09 without gaps or non-finite values.")
+  stop("The raw monthly panel must cover 2012-03 through 2025-12 without gaps or non-finite values.")
 }
 
 daily_outputs <- list(

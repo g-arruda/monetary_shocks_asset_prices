@@ -396,7 +396,7 @@ infer_tcode_from_varnames <- function(var_names) {
 #' The main entry point of the identification stage. Identification is by
 #' external instrument (Gertler-Karadi / Alessi-Kerssenfischer) — the single
 #' branch since the heteroskedasticity and non-Gaussian routes were abandoned on
-#' 2026-08-17 (`arquivo/heterocedasticidade/`, `arquivo/nao_gaussiana/`).
+#' 2026-08-17. Their negative results remain documented under `arquivo/`.
 #'
 #' The point estimate uses the plain OLS companion; the wild bootstrap DGP uses
 #' the Kilian-corrected one, with Rademacher multipliers (Gonçalves-Kilian 2004).
