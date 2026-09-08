@@ -1,4 +1,6 @@
 month,design,regime
+2013-05-01,calendario,C
+2013-06-01,calendario,NC
 2013-07-01,calendario,C
 2013-08-01,calendario,C
 2013-09-01,calendario,NC
@@ -146,6 +148,8 @@ month,design,regime
 2025-07-01,calendario,C
 2025-08-01,calendario,NC
 2025-09-01,calendario,C
+2013-05-01,episodio_s2,NC
+2013-06-01,episodio_s2,NC
 2013-07-01,episodio_s2,NC
 2013-08-01,episodio_s2,NC
 2013-09-01,episodio_s2,NC
@@ -293,6 +297,8 @@ month,design,regime
 2025-07-01,episodio_s2,C
 2025-08-01,episodio_s2,C
 2025-09-01,episodio_s2,C
+2013-05-01,intensidade_z,NC
+2013-06-01,intensidade_z,NC
 2013-07-01,intensidade_z,C
 2013-08-01,intensidade_z,C
 2013-09-01,intensidade_z,NC
@@ -439,7 +445,9 @@ month,design,regime
 2025-06-01,intensidade_z,NC
 2025-07-01,intensidade_z,NC
 2025-08-01,intensidade_z,NC
-2025-09-01,intensidade_z,NC
+2025-09-01,intensidade_z,C
+2013-05-01,volatilidade_juros,NC
+2013-06-01,volatilidade_juros,NC
 2013-07-01,volatilidade_juros,NC
 2013-08-01,volatilidade_juros,NC
 2013-09-01,volatilidade_juros,NC
@@ -587,6 +595,8 @@ month,design,regime
 2025-07-01,volatilidade_juros,NC
 2025-08-01,volatilidade_juros,C
 2025-09-01,volatilidade_juros,C
+2013-05-01,quebra_livre,NC
+2013-06-01,quebra_livre,NC
 2013-07-01,quebra_livre,NC
 2013-08-01,quebra_livre,NC
 2013-09-01,quebra_livre,NC

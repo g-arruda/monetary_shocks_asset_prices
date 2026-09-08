@@ -1,14 +1,14 @@
 # `arquivo/heterocedasticidade/` — identificação por heterocedasticidade
 
-**Abandonada em 2026-08-17, por decisão do autor.** Nada aqui é executado pelo
-pipeline de produção nem citado pelo paper. A produção segue com uma única
-identificação: o **proxy externo** `z_jk_bs_purif`.
+**Abandonada em 2026-08-17, por decisão do autor.** A produção segue com uma
+única identificação, o **proxy externo** `z_jk_bs_purif`. O resultado negativo
+passou a ser reportado no paper em 2026-09-01, sem reativar a rota como
+especificação ou robustez.
 
-> ⚠️ **Não reproduz contra o painel atual.** Parte deste material é anterior ao
-> refresh de vintage de 2026-07-24 (106 séries) e à migração de 2026-08-13 para o
-> painel de 111 séries em `(5,5)`. Os artefatos de instrumento anteriores a
-> 2026-05-07 estão **100× fora de escala** pelo bug de unit scaling do
-> `yield_6m`. Trate os números como história, não como referência.
+> **Vintage corrente do diagnóstico mensal:** painel de 115 séries,
+> `(r,q,p)=(4,4,4)`, reestimado em 2026-09-01. Os artefatos anteriores a essa
+> rodada foram sobrescritos. A réplica diária preservada usa o sistema financeiro
+> de quatro variáveis e serve como contraste de frequência.
 
 ## Veredito
 
@@ -18,12 +18,10 @@ Reprovada em **duas frentes**, com dois anos de calendário de projeto entre ela
    **2026-07-16**. As quatro variantes `z_het*` nunca entraram na produção.
 2. **Como identificação primária** (Rigobon 2003 sobre as inovações do
    factor-VAR) — abandonada em **2026-08-01** no objeto mensal e definitivamente
-   em 2026-08-17. **Zero das 252 células identificam.** O placebo de permutação
-   não distingue os labels do calendário (p_perm 0,26–0,86) e a
-   proporcionalidade Σ_C ~ Σ_NC nunca é rejeitada. A única heterocedasticidade do
-   painel mensal é a da COVID/ciclo de aperto, e ela é **fator de escala comum**,
-   não separação de regimes — `volatilidade_juros` não rejeita proporcionalidade
-   em nenhuma das 56 células.
+   em 2026-08-17. Na reestimação de 2026-09-01, **zero das 450 células válidas
+   identificam**. No desenho de calendário, a célula corrente produz
+   `LR/p_boot=38,36/0,0559` na amostra completa e `13,34/0,2754` no pré-COVID;
+   nenhuma das 100 células sobrevive à correção de Holm.
 
 **A leitura que sobrevive:** a heterocedasticidade que identifica no diário
 (Rigobon-Sack) não sobrevive à agregação mensal. Sem coluna separável não há
@@ -34,21 +32,19 @@ IRF ali seria número sem identificação atrás.
 (GARCH-SVAR, Lanne-Saikkonen 2007 / Normandin-Phaneuf 2004), que dispensa datas
 de regime. É outro ramo, não Rigobon; `svars` não está instalado.
 
-## O que está aqui
+## O que permanece aqui
 
 | pasta | conteúdo |
 |---|---|
 | `registro/historico_decisoes_secao1.md` | corpo integral da antiga §1 de `registro/historico_decisoes.md` — a fonte detalhada |
-| `R/identification/` | `het_primary.R` (regimes mensais sobre η), `het_tests.R`, `het_shock_extraction.R` (bloco diário Rigobon-Sack) |
-| `script/` | `het_robustness.R` (gate de 252 células), `instrument_het.R`, `instrument_validation.R`, `het_primary_feasibility.R`, `het_episode_feasibility.R`, `validate_het_primary_sim.R` |
-| `output/het/` | 10 artefatos da última rodada — grade do gate, veredito por célula, datas de quebra, superfície |
+| `output/het/` | artefatos da reestimação de 2026-09-01 — grade do gate, veredito por célula, datas de quebra, superfície e relatório |
 | `notas/` | `2026-08-01_robustez_heterocedasticidade.md` — a nota citável da rodada mensal |
 | `_instrucoes/` | `Heteroscedasticidade.md`, `plano_reimplementacao_het.md` |
 
-**Contagens não são memorizáveis.** As células que passavam as duas condições em
-nível bruto eram 21 no painel de 106 séries e 24 no de 111 — leia sempre de
-`output/het/het_robustness.md`, nunca de memória. Nenhuma sobrevive à correção
-mais leniente.
+O código exclusivamente dedicado à rota foi removido do repositório em
+2026-09-01. Ele permanece recuperável pelo histórico Git. A correspondência
+externa e sua réplica Python ficaram intactas porque pertencem ao registro
+verbatim do parecer, não ao código ativo do projeto.
 
 ## Material relacionado que ficou fora desta pasta
 

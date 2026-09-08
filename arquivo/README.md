@@ -18,23 +18,17 @@ explica *por que* cada bloco foi arquivado. Este README só diz *o que* está aq
 
 ## `arquivo/script/` — scripts
 
-### Track de heterocedasticidade (abandonado em 2026-07-16)
+### Track de heterocedasticidade (removido em 2026-09-01)
 
-| script | o que fazia |
-|---|---|
-| `instrument_het.R` | Instrumento `z_het` (Rigobon-Sack 2003): SVAR diário sobre pares Qua→Qui, regimes Copom/não-Copom, projeção GLS Mertens-Ravn, agregação mensal. Produzia as 4 variantes + o bloco de robustez 3-var + a checagem A3 pré/pós-COVID |
-| `instrument_validation.R` | Suíte T1-T8 (placebo, máscara aleatória, sub-período, correlação, anti-JK, curva F(k), sensibilidade AR, QLR de Andrews) para `z_het_jk` |
-| `het_primary_feasibility.R` | Gates G1-G6 de viabilidade da het como identificação **primária** com regimes de calendário — 16 células, **todas reprovadas** |
-| `het_episode_feasibility.R` | Idem com regimes de **episódio** (BPSS 2021, pré/pós-2020) — **reprovado** |
-| `validate_het_primary_sim.R` | Harness de simulação (T1-T6) do módulo `het_primary.R`. Passava 100% — o método está correto; o que falhou foi o **dado mensal**, não o código |
+Os scripts e módulos exclusivamente dedicados à rota foram removidos depois da
+reestimação final no painel de 115 séries. Os nomes e a função de cada arquivo
+permanecem no histórico Git e em `arquivo/heterocedasticidade/README.md`; os
+artefatos que sustentam o resultado negativo foram preservados.
 
 ### Órfãos (superados por scripts vivos)
 
 | script | por que saiu |
 |---|---|
-| `instrument_audit.R` | Auditoria ancorada no instrumento het; as frentes GK foram absorvidas por `instrument_diagnostics.R` |
-| `irf_cross_instrument.R` | Overlay primário × robustez de 2026-05-08 (`z_jk_purif` vs `z_het_jk_3var`). Substituído por `irf_spec_stage2.R` |
-| `build_grg_benchmark.R` | Benchmark GRG lido de bundles RDS het de 2026-05-08, já apagados |
 | `instrument_grid.R` | Sweep vértice × amostra de purificação com só as 4 variantes legadas; anterior ao `z_jk_bs_purif` |
 
 ### Diagnóstico de contaminação de IRF (superado em 2026-07-24, arquivado em 2026-08-01)
@@ -68,17 +62,9 @@ destes scripts citam `arquivo/_instrucoes/irf_consistentes.md`, que não existe 
 
 ## `arquivo/R/identification/` — módulos
 
-| módulo | conteúdo |
-|---|---|
-| `het_shock_extraction.R` | Bloco diário Rigobon-Sack. **Partido em 2026-08-01**: a metade genérica de testes (`validate_variance_split`, `rigobon_proportionality_test`, `rank1_lr_test`, `bootstrap_rank1_share_ci`, `formal_rank_test_battery`, `classify_a2_verdict`) foi extraída para `R/identification/het_tests.R` e está viva; o que continua aqui é a **extração diária** (`build_daily_regimes`, `extract_di_change`, `extract_price_change`, `extract_shock_rigobon_sack`, `aggregate_shock_to_monthly`, `build_het_instrument`), fora de escopo desde a decisão do autor de 2026-08-01 de ficar no objeto mensal |
-| ~~`het_primary.R`~~ | **Desarquivado em 2026-08-01** para `R/identification/het_primary.R` — ver `script/het_robustness.R`. Os dois helpers espectrais que ele importava de `het_shock_extraction.R` (`mat_sym_sqrt`, `mat_sym_inv_sqrt`) foram inlinados nele, para que nada no caminho vivo dê `source()` em `arquivo/` |
-
-**O ramo `identification = "het"` de `compute_irf_dfm`/`main_sdfm` voltou a ter
-consumidor em 2026-08-01** (`script/het_robustness.R`), e o módulo que ele exige
-não está mais aqui: `source("R/identification/het_primary.R")`. A mensagem de
-`stop()` em `impulse_responde.R` foi atualizada. O ramo também serviu de molde
-para `identification = "nongaussian"` (GMR 2017), que consome `eta` e devolve
-IRFs no mesmo formato.
+Os três módulos de heterocedasticidade foram removidos em 2026-09-01. Nenhum
+caminho ativo fazia `source()` deles. O núcleo DFM permanece com o ramo único
+`identification = "proxy"`.
 
 ## `arquivo/relatorio/` — notas e correspondência
 
@@ -104,7 +90,7 @@ forma, já que os CSVs het de entrada foram apagados.
 | item | o que é |
 |---|---|
 | `irf_section_2026-07-12.md` | Versão anterior do §5, sob `z_jk_purif` × (6,5) e vintage antigo. É o único registro escrito daquela rodada. **Várias afirmações foram invertidas** pela rodada (7,6) — comparação em `historico_decisoes.md` §6 |
-| `instrument_audit_report.md`, `instrument_audit_grid.csv` | Saídas de `instrument_audit.R` (2026-04-26), anteriores ao fix de unit scaling |
+| `instrument_audit_report.md`, `instrument_audit_grid.csv` | Saídas históricas da auditoria de 2026-04-26, anteriores ao fix de unit scaling |
 | `instrument_grid_report.md`, `instrument_grid.csv` | Saídas de `instrument_grid.R` (2026-04-26), só variantes legadas |
 | `factor_space_F_grid.csv` | Saída de `diagnose_factor_space_F.R`, arquivada junto com ele em 2026-08-05. 8 variantes × q ∈ {2,3,4,6}, sendo 4 delas `z_het*` — régua legada, e metade do grid mede instrumentos que já não existem |
 
@@ -143,6 +129,11 @@ recuperar.
   `inst_report_*`, `irf_sample_diag_*`, `irf_rq_*`, `irf_spec_*` de julho/11 e
   julho/15, `irf_model_alessi_r6q5.pdf` — ~12 MB que não reproduzem contra as
   106 séries.
+- Em 2026-09-01, os nove arquivos sob
+  `arquivo/heterocedasticidade/{R/identification,script}/` e os três órfãos
+  `arquivo/script/{instrument_audit,irf_cross_instrument,build_grg_benchmark}.R`.
+  Todos eram exclusivos da rota `z_het*` ou dependiam de bundles dessa rota já
+  apagados; nenhum tinha consumidor no pipeline ativo.
 
 - `paper/img/` (6 PDFs, 2026-08-05): duplicata byte-idêntica das figuras
   na raiz de `paper/`. O `paper_anpec.fls` mostra que o compile sempre
