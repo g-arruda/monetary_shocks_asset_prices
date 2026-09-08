@@ -1,32 +1,21 @@
-# Handoff, 2026-08-25
+# Handoff — 2026-09-08 (zeramento das pendências abertas)
+SESSLOG:[2026-09-08 00:00]
+<!-- written by: session at 2026-09-08T00:00:00 -->
+*Project: monetary_shocks_asset_prices*
 
-## Tópico
-Integração da migração DFM para `p=4`, do benchmark VAR observável e da revisão
-integral do paper.
+## Session Topic
+Zerado todo o conteúdo aberto de `registro/pendencias.md` a pedido do autor (bola de neve, foco perdido).
 
-## Decisões ativas
-- O DFM usa `(r,q,p)=(5,5,4)`, `xi_mp=5,24` e bandas wild bootstrap; o
-  benchmark observável usa VAR(2) em níveis com tendência e conjuntos
-  Anderson--Rubin/MOSW.
-- A comparação VAR--DFM é descritiva e não isola exclusivamente o conjunto
-  informacional nem transfere cobertura entre os modelos.
-- O paper está sincronizado com 111 séries e reporta 3,74% para o câmbio, 24,5
-  pb para o EMBI+, 30,7 pb para o CDS e 74,8 pb para o DI de cinco anos no
-  impacto.
-- As subseções de risco soberano e FOMC mantêm fixa a máscara de produção; os
-  exercícios de rederivação permanecem apenas nos diagnósticos e registros.
+## Active Decisions
+- Nenhum item aberto foi marcado como feito — só removido do registro. Blocos `Fechados (contexto)` preservados.
+- Itens cortados não entraram em `historico_decisoes.md` (reservado a resultados negativos/decisões revertidas).
 
-## Arquivos-chave
-- `paper/paper_anpec.tex` e `paper/fig_weak_iv_main.pdf` — manuscrito e figura
-  comparativa correntes.
-- `output/irf/irf_coherence_h.csv` — pontos e bandas do DFM.
-- `output/var/svar_iv_weak_robust.csv` — pontos e conjuntos do VAR.
-- `registro/pendencias.md` — índice vivo dos itens que continuam abertos.
+## Key Files
+- /mnt/storage/Github/Modelo/monetary_shocks_asset_prices/registro/pendencias.md
 
-## Próximos passos
-- Decidir `q`, hoje mantido operacionalmente em 5 apesar do conflito entre o
-  critério admissível e a força da proxy.
-- Priorizar a decomposição do wedge de UIP e o repasse diário versus mensal da
-  curva antes de fortalecer a interpretação de mecanismo.
-- Implementar `paper_numbers.tex` como higiene preventiva; a divergência
-  textual corrente já foi eliminada manualmente.
+## Next Steps
+- [ ] Decidir se e quando commitar `registro/pendencias.md`
+- [ ] Se algum item cortado precisar ser reaberto, recuperar via `git log -p -- registro/pendencias.md`
+
+## Context
+`pendencias.md` está zerado (Temas B e E, 13 itens removidos); Temas A/C/D já não tinham itens abertos. Nada foi decidido metodologicamente — é reset de escopo, não veredito.

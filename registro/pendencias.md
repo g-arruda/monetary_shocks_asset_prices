@@ -1,10 +1,13 @@
 # Pendências
 
-**Última revisão:** 2026-09-01 (abertas duas extensões de alta prioridade para
-tratar a coincidência Copom--FOMC; paper integralmente sincronizado com a produção
-DFM em `p=4`; benchmark VAR observável preservado em `p=2`; máscaras
-rederivadas mantidas nos diagnósticos, mas omitidas da exposição do paper por
-decisão editorial).
+**Última revisão:** 2026-09-08 — **todos os itens abertos foram zerados por
+decisão do autor**, para conter o acúmulo que vinha tomando o foco do
+projeto. Nenhum foi marcado como feito: nenhum foi executado, testado ou
+decidido. O texto de cada item, incluindo as ressalvas `⚠`, some deste
+arquivo, mas continua recuperável no histórico do git (`git log -p --
+registro/pendencias.md`) para quem quiser reabri-lo com desenho próprio.
+Os blocos `Fechados (contexto)` de cada tema, que registram trabalho de fato
+concluído, foram preservados.
 Itens abertos organizados por tema (A-E);
 cada tema termina num bloco `### Fechados (contexto)` com o que já foi feito,
 resumido a poucas linhas — o detalhe completo mora no working-note ou output
@@ -50,10 +53,10 @@ consulte antes de propor um caminho novo.
 | Identificação | proxy-SVAR (instrumento externo), `H = (Z'η)/(Z'Z)` |
 | Instrumento | **`z_jk_bs_purif`** — surpresa DI Qua→Qui no vértice 126 du + ortogonalização Bauer-Swanson **pré-evento** + máscara JK em resíduos predeterminados |
 | Variável de política | `yield_6m`, choque +50bp no impacto (+0,005 em proporção decimal) |
-| Dimensão | **r = 5, q = 5**, VAR(p = 4) nos fatores; `r` por Bai--Ng IC2 BLL, `q` provisório; `p=4` pelo AIC com tendência em amostra comum (`T=141`), BIC seleciona `p=2` |
-| Painel | **111 séries**, variante `drop_setor_externo__eua__credito__imoveis`, 2013-01 a 2025-09 (153 observações alinhadas; 149 inovações fatoriais após p=4) |
+| Dimensão | **r = 5, q = 5**, VAR(p = 4) nos fatores; Bai--Ng BLL dá IC1=5, IC2=5 e IC3=20; `q=r=5`; `p=4` herdado, com nova checagem AIC/BIC separada em `T=154` |
+| Painel | **115 séries**, variante `drop_setor_externo__eua__credito__imoveis_fiscal_expectations`, 2012-03 a 2025-12 (166 observações alinhadas; 162 inovações fatoriais após p=4) |
 | Inferência | wild bootstrap Gonçalves-Kilian, Kilian (1998) só no DGP do bootstrap; nboot = 800, seed 123, bandas 68/90, h = 0-48 |
-| Força | ξ_mp/F_rob,mp = **5,240158/10,060922** full e **7,478324/11,874945** pré-COVID; raiz máxima 0,968126 full e 0,992483 pré-COVID; ambas estáveis |
+| Força | ξ_mp/F_rob,mp = **6,057014/9,625428** full e **8,643436/13,809985** pré-COVID; raiz máxima 0,970090 full e 0,993359 pré-COVID; ambas estáveis |
 | Benchmark VAR do paper | `{ibc_br, price_ipca, yield_6m, cambio_usd, cds_5y}` em nível, com constante e tendência linear; `p=2` pelo AIC em amostra comum de `T=141`; respostas `C_h B_1`; `xi_mp=6,797335`, raiz máxima `0,965424`; AR/MOSW 68%/90% com NW(0) |
 
 Esta tabela combina a produção vigente do DFM com a produção corrente do
@@ -71,7 +74,9 @@ FOMC**. Esta ressalva permanece no registro e nos artefatos, mas o paper reporta
 apenas os exercícios que mantêm fixa a máscara de produção, por decisão do
 autor em 2026-08-25.
 
-O paper e `output/irf/irf_section.md` usam a produção DFM `(5,5,4)`. Grades
+O paper, as figuras e `output/irf/irf_section.md` ainda usam a vintage DFM
+anterior. A sincronização editorial ficou explicitamente para uma rodada
+posterior. Grades
 históricas de painel, `(r,q)` e instrumento condicionadas a `p=6` permanecem
 evidência datada e não foram reestimadas. O benchmark VAR em níveis continua
 separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
@@ -80,25 +85,7 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 
 ## Índice de itens abertos
 
-| Tema | Item | Observação |
-|---|---|---|
-| B | Reavaliar o argumento de transmissão via prêmio de risco | prioridade alta; nenhuma decomposição UIP ou IRF derivada será executada sem desenho diretamente respaldado pela literatura e aprovação do autor |
-| B | Purificar as duas pernas do filtro com surpresas intradiárias do FOMC | **prioridade alta**; mede diretamente o canal do Fed e rederiva a máscara JK; depende de localizar e validar fatores de alta frequência com timing compatível |
-| B | Sensibilidade sem superquarta | **prioridade alta**; zera as 24 coincidências retidas, diagnostica força e IRFs e permanece variante de sensibilidade, não candidata automática à produção |
-| B | Acrescentar um nível do S&P 500 à bateria de placebos | desmembrado em 2026-08-14; muda o painel de 111 para 112 e obriga a re-rodar a produção |
-| B | Decompor a curva entre expectativa e prêmio (diário vs. mensal) | blindspot 2026-08-12, prioridade alta; depende da correção do Tema E |
-| B | A amplificação 5a/6m é do choque ou de Λ? | blindspot 2026-08-12; teste discriminante do item acima |
-| E | Decidir `q`: o critério admissível diz 2, a força diz que 2 não identifica | evidência completa em `notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md`; produção intocada |
-| E | O estágio `di` não reproduz mais a vintage do repo | asset renomeado, schema mudou, histórico começa em 2018, releases podadas; `data/raw/di.csv` virou insumo insubstituível |
-| E | Padronização do 2º estágio em `amengual_watson()` | única divergência de substância contra o MATLAB; mexer nela reescreve `q_hat` de 64 painéis × 2 amostras |
-| E | `output/panel_experimental/irfs_required_long.csv` com `asset_ibov` sob o tcode antigo | rodada histórica de 106 séries `(7,6)`; re-rodar quebraria o que ela documenta |
-| E | Remover o shim `scalar_dynamic_factor_compat.R` | o módulo já corrige `q=1<r`; espera a próxima re-rodada da auditoria congelada |
-| B | Leave-one-out e leave-cluster-out sobre a IRF | **prioridade 2**; o LOO existente é só sobre ξ_mp. Reabre a tabela reunião-a-reunião cortada em 2026-08-10 |
-| B | Tabela cross-instrumento do bloco-manchete | **prioridade 3**, quase pós-processamento: os pontos das 8 variantes já estão em `spec_sweep_irf_long.csv` |
-| B | Preditor fiscal predeterminado na RHS de Bauer-Swanson | 9ª variante de diagnóstico, nunca troca de produção; depende de dado Focus que `focus_fred.R` ainda não baixa |
-| E | Documentar o bootstrap e devolver a contagem de falhas | a suspeita de fatores fixos é falsa; o que sobra é `Idio` fixo e o fallback silencioso para o ponto |
-| E | `paper_numbers.tex` gerado pela pipeline | higiene preventiva; o paper já foi sincronizado manualmente, mas continua sujeito a nova divergência numérica |
-| E | Dois artefatos ainda documentam `asset_*` em tcode 2 | anteriores à correção de 2026-08-17; rótulo, não cálculo |
+*Nenhum item aberto — zerado em 2026-09-08 (ver nota de revisão acima).*
 
 ---
 
@@ -403,195 +390,13 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 ## B. Robustez estatística a fazer
 
-- [ ] **Reavaliar o argumento de transmissão via prêmio de risco** — o co-movimento entre câmbio, CDS, EMBI+ e curva é compatível com o canal, mas não o identifica.
-  Não construir prêmio UIP nem derivar IRFs. Procurar apenas um desenho publicado diretamente comparável.
-  Sem esse desenho, manter “compatível com prêmio de risco” e reconsiderar o título do artigo.
-- [ ] **Purificar as duas pernas do filtro com surpresas intradiárias do FOMC** —
-  *aberto em 2026-08-28; **prioridade alta**.* Substituir as proxies diárias
-  ruidosas (`d_ust2`, `r_sp500`) por fatores de surpresa do FOMC medidos em
-  janela estreita e com timestamp compatível com o fechamento da quarta-feira:
-  no mínimo, surpresa de taxa e componente de *path/forward guidance*;
-  idealmente, uma decomposição que também separe choque monetário de notícia do
-  Fed. Primeiro documentar fonte, cobertura, timezone, janela, reuniões
-  agendadas/não agendadas e casamento exato com os 95 dias Copom; ausência ou
-  incompatibilidade temporal deve abortar, nunca virar zero.
-  **Entrega:** residualizar separadamente `e_di_bs` e `e_ibov_bs` nos fatores
-  intradiários, rederivar a máscara JK sobre os dois resíduos e construir uma
-  variante mensal exclusivamente diagnóstica. Comparar com
-  `z_jk_bs_purif`: dias que entram/saem, coincidências FOMC preservadas,
-  `xi_mp`, `F_robust_mp`, impacto não normalizado em `yield_6m`,
-  `denom_vs_prod` e IRFs de `yield_2y`, `yield_5y`, `cambio_usd`,
-  `asset_ibov`, `embi_perc` e `cds_5y`, nas amostras cheia e pré-COVID.
-  - ⚠ O objeto decisivo é a **seleção da máscara**, não apenas a correlação da
-    surpresa de DI com retornos americanos. Não basta acrescentar controles à
-    regressão diária mantendo `jk_bs` fixo.
-  - ⚠ A variante é diagnóstico até que fonte, timing, força e estabilidade
-    das IRFs sejam validados. Não alterar `DEFAULT_VARIANT` nem interpretar uma
-    IRF maior quando `denom_vs_prod` cai como efeito econômico maior.
-  - **Relação com o item seguinte:** este é o teste mais informativo sobre o
-    mecanismo de contaminação; a sensibilidade sem superquarta pode ser rodada
-    antes, mas não o substitui.
-- [ ] **Construir uma sensibilidade sem superquarta** — *aberto em 2026-08-28;
-  **prioridade alta**.* Criar uma variante diagnóstica que zere os dias retidos
-  em que Copom e FOMC coincidem e reestimar o DFM sem alterar o instrumento de
-  produção. O corte remove hoje **24 dos 62 dias retidos** e **35,5% de
-  `sum(abs(z))`**; em 2025, sete das oito reuniões coincidem, de modo que a
-  leitura deve separar contaminação, perda de força e mudança de composição
-  temporal.
-  **Entrega:** registrar datas e peso removidos; reportar meses não nulos,
-  `xi_mp`, `F_robust_mp`, impacto não normalizado em `yield_6m` e
-  `denom_vs_prod`; comparar pontos e bandas de `yield_2y`, `yield_5y`,
-  `cambio_usd`, `asset_ibov`, `embi_perc` e `cds_5y` em `h=0--48`, com destaque
-  para impacto, sinal e persistência. Rodar primeiro pontos e diagnósticos de
-  força; só então decidir se o custo do bootstrap completo é informativo.
-  - ⚠ É análise de sensibilidade, **não** candidato automático a instrumento
-    de produção: excluir superquartas pode selecionar um regime histórico
-    distinto e enfraquecer severamente a proxy.
-  - ⚠ Não restaurar nem citar o antigo Teste 4 dividido em metades, removido em
-    2026-08-10. Este é um exercício novo, pré-especificado, com artefatos e
-    diagnósticos próprios; não usar Anderson--Rubin do VAR para inferência do
-    DFM.
-  - **Relação com o item anterior:** pode funcionar como triagem de baixo custo
-    e indicar se vale adquirir os fatores intradiários, mas um resultado estável
-    não absolve o instrumento de contaminação pelo FOMC.
-- [ ] **Decompor o repasse da curva entre expectativa e prêmio pela diferença
-  diário-vs-mensal** — *aberto em 2026-08-12, auditoria blindspot; **prioridade
-  alta**, é o item com maior razão valor/custo do relatório.* Estudo de evento
-  diário nos **mesmos 62 dias retidos**, com a **mesma surpresa ortogonalizada**
-  (`e_di_bs`) e sobre a **mesma curva que alimenta o painel**
-  (`data/raw/yields/yields_dia.csv`, n=60 após casar datas), normalizado a 1 no
-  vértice de 6 meses:
-
-  | vértice | DFM mensal h=0 | evento diário | razão |
-  |---|---|---|---|
-  | 3m  | 0,774 | 0,654 (t 14,4) | 1,2 |
-  | 1a  | 1,267 | 1,206 (t 17,0) | 1,1 |
-  | 2a  | 1,486 | 1,091 (t 9,6)  | 1,4 |
-  | 5a  | 1,552 | 0,631 (t 4,6)  | **2,5** |
-  | 10a | 1,406 | 0,375 (t 2,6)  | **3,7** |
-
-  A coluna mensal foi atualizada para `(5,5)`; a coluna diária ainda é cálculo
-  de auditoria não versionado. Não chamar nenhum dos arquivos de curva de
-  “ajuste Svensson do próprio projeto”: os yields são insumos externos fixos.
-  **A ponta curta bate entre as duas frequências;
-  a ponta longa não.** No dia do anúncio o repasse é corcova com pico em 1 ano e
-  **decai** — o padrão dos desenvolvidos com que o paper se compara. A monotonia
-  até 5 anos é fenômeno do mensal, e o excedente se acumula **ao longo do mês**,
-  o mesmo mês em que CDS e EMBI+ abrem com banda de 90%. Isso substitui a
-  comparação de `:334` com Gertler-Karadi — objetos diferentes (repasse a crédito
-  corporativo americano vs. amplificação de curva soberana) e bases diferentes
-  (50 pb vs. 100 pb), as duas já abertas no Tema A — por uma medição interna:
-  mesmo instrumento, mesma curva, sem dado novo e sem chave nova.
-  - ⚠ **A perna diária é de auditoria, não de script versionado.** Antes de
-    virar texto precisa de um `script/` próprio, validação de datas e
-    proveniência explícita do insumo externo.
-- [ ] **A amplificação 5a/6m é do choque ou de Λ?** — *aberto em 2026-08-12,
-  auditoria blindspot; é o teste discriminante do item acima e **não** foi
-  rodado.* Recalcular a IRF de impacto para direções alternativas no espaço das
-  q inovações, todas renormalizadas a +50 pb em `yield_6m`, e ver se a razão
-  5a/6m corrente, **1,55**, sobrevive. Se qualquer direção que levante o
-  vértice de 6 meses levantar o de 5 anos em aproximadamente a mesma proporção,
-  a amplificação é propriedade da estrutura de
-  fatores e não do choque identificado, e a §4.1 não pode lê-la como evidência de
-  transmissão. **Sinal preliminar disponível sem reestimar nada:** na célula
-  corrente `(5,5)`, amostra cheia, os 8 instrumentos de
-  `spec_sweep_irf_long.csv` dão 1,52 a 2,48 — inclusive a surpresa **bruta**,
-  sem ortogonalização e sem máscara, que dá **1,73**, acima da produção (1,55).
-  Corta nos dois sentidos: é robustez do
-  resultado e é ausência de poder discriminante da receita do instrumento. Os 8
-  são variantes da mesma surpresa, então isso **não** é o teste de invariância —
-  é o motivo de rodá-lo.
-  - ⚠ Toca o caminho de identificação: ler `.claude/rules/identification.md`
-    antes, e rodar como diagnóstico, sem alterar `model_alessi.R`.
-- [ ] **Acrescentar uma série de nível do S&P 500 à bateria de placebos** —
-  *desmembrado em 2026-08-14 do item do rótulo, que fechou no mesmo dia; a
-  origem é o council de 2026-08-10 (skeptic).* A bateria tem VIX, MSCI de
-  emergentes e EPU americano, e **nenhum nível do S&P 500**. A série diária
-  existe em `data/raw/investing/external_factors_daily.csv` de 2012-01 a
-  2026-01, então é questão de agregação, não de download. Vale a pena porque é
-  aí que o item de coincidência FOMC morde: um choque do Fed move o VIX
-  intraday, mas o VIX reverte à média e um pico de um dia se dissipa antes do
-  fim do mês, enquanto um movimento do BRL em um dia não.
-  ⚠ **Não é pós-processamento.** O placebo é lido da IRF de uma série do
-  painel, de modo que acrescentá-la leva a produção de 111 para 112 séries e
-  obriga a re-rodar a estimação — decisão de painel, não de figura.
-
-- [ ] **Leave-one-out e leave-cluster-out sobre a IRF, não só sobre ξ_mp** —
-  *aberto em 2026-08-18; procedência `checklist_problemas_sdfm_weak_iv.md`
-  §5.1-5.2; **prioridade 2**.* O leave-one-out que existe
-  (`script/xi_mp_robustness.R`) recomputa **apenas** `wald_joint` e mantém o
-  DFM fixo, de modo que ninguém sabe se uma reunião determina o impacto sobre
-  câmbio, CDS ou EMBI. Os números de força já estão medidos e não bastam:
-  full 6,271 com mínimo 4,888, **0 de 147** descartes abaixo de 3,84 e
-  **147 de 147** abaixo de 10. **Entrega:** distribuição do impacto `h=0` de
-  `cambio_usd`, `cds_5y` e `embi_perc` sob descarte de uma reunião por vez, e
-  sob descarte de blocos — COVID, ciclo eleitoral, transições de governo,
-  mudança de arcabouço fiscal —, que é mais informativo que “pré-COVID contra
-  amostra cheia”.
-  - **Reabre a tabela reunião-a-reunião cortada em 2026-08-10** (Teste D),
-    por decisão do autor em 2026-08-18. O corte foi por **falta de consumidor**
-    — a ressalva de concentração saiu do paper na mesma data — e não por
-    defeito; este item é o consumidor novo. O caminho barato é
-    `output/instrument/fomc_coincidence_days.csv`, que já traz as 95 reuniões
-    com surpresa, resíduo BS, máscara, perna de ações e bloco americano:
-    faltam as colunas de câmbio, EMBI e CDS.
-  - ⚠ **`CLAUDE.md` e `historico_decisoes.md` §2.4 declaram o Teste D
-    não-citável.** Enquanto a tabela nova não existir e não for validada, essa
-    proibição continua valendo; quando existir, os dois arquivos mudam **junto**
-    com a entrega, e a tabela nova é outra tabela, não a restauração daquela.
-  - ⚠ O `xi_mp_robustness.R` mantém o DFM fixo de propósito. Um LOO sobre a IRF
-    exige decidir se reestima o DFM a cada descarte, e o custo muda de segundos
-    para horas se reestimar com bootstrap. Rodar o ponto primeiro.
-
-- [ ] **Tabela cross-instrumento do bloco-manchete** — *aberto em 2026-08-18;
-  procedência `checklist_problemas_sdfm_weak_iv.md` §19; **prioridade 3**, e é
-  quase pós-processamento.* A escada de instrumentos foi feita para o bloco de
-  **preços** em 2026-08-18 (Tema D, fechado) e a `tab:first_stage` mostra as
-  três camadas em **força**, mas o resultado-manchete nunca foi mostrado por
-  variante. Os pontos já estão em `output/irf/spec_sweep_irf_long.csv`, e o que
-  eles dizem é favorável: na célula de produção (cheia, `r5q5`, `yield_6m`),
-  **as 8 variantes dão câmbio, CDS e EMBI positivos no impacto**, com a
-  produção sendo a **menor das oito** (0,158 / 32,5 / 0,262, contra 0,256 /
-  61,4 / 0,535 em `z_jk_purif`). **Entrega:** tabela de `h=0` por variante para
-  `cambio_usd`, `cds_5y`, `embi_perc` e os vértices, escrita na §5.
-  - ⚠ **O número inconveniente entra junto.** Nas células pré-COVID
-    bootstrapadas da etapa 2 (`output/irf/spec_sweep_stage2.md`), câmbio, CDS e
-    EMBI **não são sig90 em variante nenhuma**. A janela que tem força é a que
-    não tem significância — o mesmo padrão que a escada de preços encontrou.
-  - ⚠ As 8 são variantes da **mesma** surpresa de DI em dia de Copom. Isso
-    discrimina a construção do instrumento, **não** o esquema de identificação,
-    e a §4.5 já usa exatamente essa qualificação.
-  - ⚠ Comparar magnitudes entre variantes carrega o denominador da normalização
-    (`denom_vs_prod`): parte de uma resposta maior é aritmética, não economia.
-
-- [ ] **Preditor fiscal predeterminado na ortogonalização Bauer-Swanson** —
-  *aberto em 2026-08-18; procedência `checklist_problemas_sdfm_weak_iv.md`
-  §5.3.* A bateria de confundimento que existe
-  (`script/jk_sovereign_confound.R`) testa **realizações de preço de risco
-  soberano** na janela do evento, e absolve a máscara. Nenhum teste toca
-  notícia fiscal como tal, e a razão é de dado: `R/data_download/focus_fred.R`
-  baixa exatamente três séries — Focus IPCA 12 meses, Focus Selic ano seguinte
-  e FRED `DGS2` — de modo que a RHS pré-evento de `build_variants.R:301-307`
-  **não tem preditor fiscal nenhum**. As três séries fiscais do painel
-  (`fiscal_dbgg`, `fiscal_dlsp`, `fiscal_primary_balance`) são mensais e de
-  vintage corrente, e `script/panel_composition_experimental.R:331` já registra
-  que elas não constituem teste de informação disponível em tempo real.
-  **Entrega:** revisão do resultado Focus de resultado primário/dívida (mesmo
-  endpoint Olinda `ExpectativasMercadoAnuais` que já traz a Selic) entrando na
-  RHS pré-evento como **9ª variante de diagnóstico**, com ξ_mp e o impacto das
-  três manchetes ao lado da produção.
-  - ⚠ **Variante de diagnóstico, nunca troca de produção.**
-    `.claude/rules/identification.md` proíbe re-arquitetar o núcleo em silêncio,
-    e a produção se justifica por fidelidade a Bauer-Swanson + Jarociński-Karadi,
-    não por força — como a §3.6 já diz.
-  - ⚠ **A regra que governa é a do §5.3 do checklist:** só informação
-    **predeterminada** até o fechamento da quarta entra como controle. Notícia
-    fiscal que ocorre na quinta, depois do Copom, é pós-tratamento e não pode
-    ser “controlada” — ali a saída é estreitar janela, excluir evento ou fazer
-    análise narrativa, que é o item do leave-one-out acima.
-  - ⚠ Este item e o do SVAR-IV respondem a **referees diferentes** (§40): um à
-    acusação de proxy fraca, o outro à de proxy fiscal. Nenhum substitui o
-    outro.
+*Nenhum item aberto — zerado em 2026-09-08 (ver nota de revisão no topo do
+arquivo). Os itens que estavam aqui (reavaliação do canal de prêmio de risco,
+purificação FOMC intradiária, sensibilidade sem superquarta, placebo S&P 500,
+decomposição diário-vs-mensal da curva, discriminação choque-vs-Λ,
+leave-one-out sobre a IRF, tabela cross-instrumento do bloco-manchete,
+preditor fiscal em Bauer-Swanson) não foram executados, testados nem
+decididos — apenas removidos do registro. Recuperáveis no histórico do git.*
 
 ### Fechados (contexto)
 
@@ -735,15 +540,24 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 ## C. Identificação por momentos e por heterocedasticidade — ENCERRADO
 
 **Ambas as rotas foram abandonadas em 2026-08-17, por decisão do autor.** Não há
-item aberto neste tema. O código, os artefatos, as notas e os vereditos vivem em
-`arquivo/nao_gaussiana/` e `arquivo/heterocedasticidade/`, cada um com README
-próprio; o resumo está em `historico_decisoes.md` §0 e §1.
+item aberto neste tema. O código dedicado à heterocedasticidade foi removido em
+2026-09-01; seus artefatos, nota e veredito permanecem em
+`arquivo/heterocedasticidade/`. A rota não-gaussiana continua arquivada em
+`arquivo/nao_gaussiana/`; o resumo está em `historico_decisoes.md` §0 e §1.
 
 O núcleo de identificação foi colapsado para o ramo único `proxy` na mesma data
 (`R/modeling/{dfm_pipeline,impulse_response}.R`), com o smoke test de produção
 bit-idêntico como guard.
 
 ### Fechados (contexto)
+
+- [x] **Resultado negativo da identificação por heterocedasticidade incorporado
+  ao paper em 2026-09-01.** A §5 reporta o teste de proporcionalidade no diário
+  e na célula mensal corrente, e o apêndice apresenta as estatísticas lado a
+  lado. No painel de 115 séries, nenhuma das 450 células válidas identifica. O
+  código exclusivamente dedicado à rota foi removido; CSVs, nota e
+  correspondência que sustentam os números foram preservados. Fonte:
+  `arquivo/heterocedasticidade/README.md` e `paper/paper_anpec.tex`.
 
 - [x] **Enquadramento do GMR no paper — ENCERRADO SEM ENTRAR (2026-08-17).** A
   recomendação viva era usar o GMR como *teste*, não como estimativa concorrente,
@@ -861,178 +675,13 @@ bit-idêntico como guard.
 
 ## E. Código e higiene
 
-- [ ] **Decidir `q`: o critério admissível seleciona 2, e em 2 o instrumento não
-  identifica** — *aberto em 2026-08-13; reformulado em 2026-08-17, quando a
-  premissa que o sustentava caiu.* O item nasceu dizendo que a fidelidade da
-  tradução de `amengual_watson()` decidiria a discordância. **Não decide**, e a
-  razão é o inverso do que parecia: `apply_bll = TRUE` não é uma variante caseira
-  — é o espaço fatorial da produção **diferenciado**, que é o objeto estacionário
-  que Amengual-Watson exige. Medido: os autovetores de `cov(yy)` **são** o
-  `lambda` da produção (desvio 2,165e-15) e `cor(PC_k(yy), diff(F_prod)_k)` =
-  1,000000 nos cinco fatores.
-  - **Portanto `q = 2` vem do caminho admissível e discorda da produção**, e o
-    `q = 5` do caminho em níveis não conta a favor: ele roda Bai-Ng num painel
-    não-estacionário, que `.claude/rules/identification.md` exclui.
-  - **Mas `(5,2)` e `(5,3)` têm ξ_mp 3,809 e 3,149 na amostra completa, abaixo de
-    3,84** — conjunto de Anderson-Rubin ilimitado. Pela régua de força do próprio
-    projeto, a IRF dessas células é um número sem identificação atrás.
-  - ⚠ **O número inconveniente:** essas células dão impactos **maiores** e
-    **recuperam o bloco acionário a 90%**, que é o nulo que o paper hoje precisa
-    qualificar. É assinatura de instrumento fraco: o denominador de normalização
-    cai de 8,426e-05 para 2,471e-05, e `asset_ibov` vai de −1,72 a −22,43. Não
-    usar isso como argumento a favor de migrar, nem omiti-lo.
-  - **Saídas coerentes, e a escolha é do autor:** manter `q = 5` e declarar a
-    discordância como limitação na §3.5; migrar para `(5,2)` assumindo uma célula
-    que não passa na régua de força; ou procurar um critério de `q` que não
-    dependa de diferenciar o painel. A §3.5 hoje diz que `q = 5` é escolha
-    operacional e que a fundamentação segue aberta — o que continua **exato**.
-  - **Rodada de 2026-08-18 — a checagem no desenho do próprio AK, que faltava.**
-    A nota 4 de Alessi-Kerssenfischer justifica `q = r` por evidência ("results
-    are virtually identical whether or not `q < r`"), e a Figura A3 é o que a
-    sustenta: benchmark com bandas, alternativas em ponto. `script/q_selection.R`
-    passou a construir essa figura para `r = 5`, com `q = 5, 4, 3, 2` e regra de
-    leitura pré-registrada. **A afirmação não replica na escala normalizada:**
-    0 de 18 pares (variável × `q`) saem imateriais, 13 saem materiais.
-    - **Mas a razão está medida, e é o denominador.** `denom_ratio` cai para
-      0,646/0,293/0,319 em `q = 4/3/2`; mantida a normalização fixa no
-      denominador da produção, o resto do gap no impacto fica entre 0,59 e 1,17
-      em `yield_2y`, `yield_5y`, `cambio_usd` e `cds_5y`, e `cambio_usd` e
-      `cds_5y` voltam a `share_in90_resc` = 1,000 nas seis células. **As duas
-      células materiais em todas as variáveis são exatamente `q=3` e `q=2`, as
-      duas com ξ_mp abaixo de 3,84.** `q = 4` fica dentro da banda de 90% em
-      todos os 37 horizontes em 5 das 6 variáveis.
-    - ⚠ **Números inconvenientes:** `cambio_usd`, a variável-manchete da §4, sai
-      da banda já em `h = 0` mesmo sob `q = 4` (0,28481 contra
-      [0,09207 ; 0,24927]); e `asset_ibov` é a única variável cuja **coluna
-      estimada** muda de verdade, fator 3,8×/4,0× depois de descontado o
-      denominador. **E o contra-número:** esse fator de 4 reescalado ainda cabe
-      na banda de impacto da produção (−6,577 contra piso −6,910), porque a
-      banda do bloco acionário é ~4× o ponto.
-    - **O que isso muda na decisão:** a saída "manter `q = 5` e declarar" segue
-      viva, mas **não** pode ser escrita invocando AK — não se pode dizer que os
-      resultados são virtualmente idênticos, porque não são na escala
-      normalizada. O que se pode dizer é que as células alternativas divergem por
-      **força de instrumento** e que as duas que mais divergem não passam na
-      régua de AR. Nota: `notas/2026-08-18_q_checagem_figura_a3.md`.
-  - Números e as células lado a lado:
-    `notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md`,
-    `notas/2026-08-18_q_checagem_figura_a3.md`,
-    `output/factors/q_selection.{csv,md}`, `q_selection_paths.{csv,pdf}`,
-    `q_selection_containment.csv`, `output/instrument/mosw_strength_grid.csv`
-    (a grade agora cobre `q = 2:r`).
-- [ ] **O estágio `di` não reproduz mais a vintage do repo** — *aberto em
-  2026-08-17 ao fechar o item de `download_di.py`.* Verificado contra a API do
-  GitHub nessa data, o upstream `crdcj/pyield-data` mudou em quatro frentes, e
-  nenhuma se resolve editando o script: (i) o asset `b3_di.parquet` **não
-  existe mais** — a release publica `b3_futures.parquet`; (ii) o schema passou
-  aos nomes crus da B3 (`TradDt`, `TckrSymb`, `AdjstdQtTax`) e as colunas
-  `ExpirationDate`, `BDaysToExp` e `CloseRate`, que eram **derivadas**, sumiram;
-  (iii) o histórico do asset novo começa em **2018-01-02**, enquanto
-  `load_di_panel()` pede desde 2012-06-01, de modo que baixar hoje truncaria
-  metade da amostra de Copom; (iv) só as ~30 releases mais recentes são mantidas,
-  então `data-2026-02-10`, a vintage que produziu o `di.csv` local, já responde
-  404.
-  - ⚠ **Consequência que não pode ficar implícita:** `data/raw/di.csv`
-    (2026-02-09, **gitignored**) é hoje um insumo **insubstituível**, e dele saem
-    as 8 variantes do instrumento. Deve ser tratado como dado de arquivo, com
-    cópia fora do repo.
-  - **Caminho para fechar:** reconstruir as três colunas derivadas pelo pacote
-    `pyield` (instalado, 0.43.1), que traz o calendário de dias úteis da B3, e
-    achar fonte para 2012-2017. Antes de adotar, conferir a reconstrução contra o
-    `di.csv` atual no período em que se sobrepõem. É decisão de pesquisa.
-- [ ] **A padronização do 2º estágio de `amengual_watson()` diverge do original**
-  — *aberto em 2026-08-17 pela validação.* `factor_estimation_ls.m` padroniza a
-  matriz de resíduos coluna a coluna antes do PCA e do `ssr`; a versão do projeto
-  chama `bai_ng_criteria(resid_mat, standardize = FALSE)` e trabalha sobre os
-  resíduos crus. É a **única** divergência de substância que a validação
-  encontrou — casada a convenção, as duas implementações concordam a 4,163e-16.
-  Como é reescala **por coluna**, e não por constante comum, ela **pode** mover o
-  `argmin` em outro painel; neste não move.
-  - **Por que não foi corrigida junto:** ligar a flag reescreveria os `q_hat`
-    registrados em `notas/2026-08-13_selecao_fatores_blocos_fatoriais.md` para 64
-    painéis × 2 amostras. É mudança de critério, não de estilo.
-  - Fonte: `output/validation/amengual_watson_validation.md` §A3.
-- [ ] **`output/panel_experimental/irfs_required_long.csv` traz `asset_ibov` sob o
-  tcode antigo** — *aberto em 2026-08-17 ao fechar o `cumsum`.* A rodada é
-  histórica e reproduz de propósito a vintage de 106 séries `(7,6)` (o validador
-  confere ξ/F 7,65/11,53), então **re-rodar quebraria o que ela documenta**. As
-  linhas de `asset_ibov` em h ≥ 1 seguem cumuladas. Decidir entre congelar com
-  banner, re-rodar aceitando que a rodada passa a ser de outra vintage, ou
-  remover a coluna acionária do artefato.
-- [ ] **Remover o shim `scalar_dynamic_factor_compat.R`** — *aberto em 2026-08-17
-  ao fechar o `q=1<r`.* O módulo de produção já constrói `M` conforme, e o
-  override devolve os mesmos fatores. Ele sobrevive só porque divide por
-  `M[1, 1]` enquanto o módulo multiplica por `solve(M)`, e as duas formas diferem
-  na última casa (**4,4e-16**); a auditoria `rq_block_dimension_audit` está
-  congelada e seus CSVs são citados, então a remoção espera a próxima re-rodada
-  da grade. O docblock e o `README` da auditoria já dizem isso.
-
-- [ ] **Documentar o algoritmo do bootstrap e devolver a contagem de falhas** —
-  *aberto em 2026-08-18; procedência `relatorio/checklist_problemas_sdfm_weak_iv.md`
-  §22.* A suspeita do checklist — de que fatores e loadings ficariam fixos e as
-  bandas seriam *conditional-on-estimated-factors* — **não procede, e o
-  contrário é que precisa ser escrito**. `R/modeling/impulse_response.R:534-630`
-  reestima por réplica: PCA/BLL sobre `X_boot` (`:577`), `Lambda_boot`,
-  `sy_boot`, `K_boot`, `M_boot`, o VAR dos fatores, a identificação
-  `H = (Z'η)/(Z'Z)` com o instrumento também wild-bootstrapado pelo mesmo `rr`
-  (`:617-623`), e a normalização de +50 pb pelo denominador **da própria
-  réplica** (`:129-133`). É o *full re-estimation bootstrap* que o checklist
-  pede como ideal, e o paper não diz isso em lugar nenhum.
-  - ⚠ **O que de fato fica fixo é o idiossincrático.** `X_boot = Chi_boot + Idio`
-    com o mesmo `Idio` em todas as réplicas (`:549-550`). É fiel ao
-    `DFMest_BLL_Boot.m` de Alessi-Kerssenfischer, mas significa que a incerteza
-    idiossincrática **não está nas bandas** — declarar, não corrigir.
-    `r`, `q` e `p` também são fixos por réplica, sem reseleção.
-  - ⚠ **Réplica que falha vira a estimativa pontual em silêncio** (`:628`,
-    `irf_boot[, , b] <<- irf_point`), o que concentra massa no ponto e
-    **estreita** as bandas. `validate_bootstrap_results()` (`:863-885`) conta as
-    falhas e avisa acima de 10%, mas **o retorno é descartado** (`:633`, com
-    comentário no código dizendo exatamente isso). A célula de **produção está
-    protegida** — `script/validate_production_spec.R` captura os warnings e
-    exige `failure_count == 0` (`:135`, `:152`) —, então isto é higiene, não
-    defeito de manchete. O risco vive nas células **não-gated**: pré-COVID,
-    `irf_spec_stage2`, `q_selection` e os painéis experimentais.
-  - **Entrega:** a contagem devolvida no objeto de resultado e impressa nos
-    relatórios gerados, mais o parágrafo de algoritmo na §3 do paper. O
-    `var_proxy.R:147/193/210` já conta falhas e devolve `n_failed` — é o padrão a copiar, não a inventar.
-
-- [ ] **`paper_numbers.tex` gerado pela pipeline** — *aberto em 2026-08-18;
-  procedência `relatorio/checklist_problemas_sdfm_weak_iv.md` §28.* Não existe
-  **nenhum** `\newcommand` numérico em `paper/paper_anpec.tex`: os dois que há
-  são de layout (`\m`, `\mat`). Todo número do texto continua digitado à mão.
-  A revisão integral de 2026-08-25 eliminou a divergência então existente, mas
-  não eliminou sua causa mecânica. **Entrega:** um script de pós-processamento
-  que leia `output/irf/irf_coherence_h.csv` e os gates correntes de produção,
-  escreva os `\newcommand` das manchetes, do painel e da força e substitua as
-  transcrições manuais no `.tex`.
-  - **Estado da dependência:** o paper já está sincronizado e oferece os
-    primeiros consumidores. O item agora é higiene preventiva contra a próxima
-    migração, não bloqueador da redação corrente.
-  - ⚠ Só entram números que **vêm da estimação**. Contagens editoriais e valores
-    citados de terceiros (\cite{goncalves2025}, por exemplo) continuam
-    digitados, e misturar os dois anula a garantia.
-  - ⚠ O gerador escreve um arquivo **novo**; não pode editar `paper_anpec.tex`,
-    que é escrito à mão. Vale aqui a regra de `.claude/rules/writing.md` sobre
-    corpo gerado contra corpo manual.
-
-- [ ] **Dois artefatos ainda documentam `asset_*` sob o tcode antigo** — *aberto
-  em 2026-08-18; procedência `relatorio/checklist_problemas_sdfm_weak_iv.md`
-  §26, achado na auditoria de escala que ele motivou.* A correção de 2026-08-17
-  moveu as 7 séries `asset_*` de tcode 2 para tcode 6 em
-  `infer_tcode_from_varnames()`, mas dois lugares ficaram para trás:
-  `diagnostics/_common.R:75-77`, cujo `unit_table()` ainda rotula o bloco como
-  `"retorno mensal decimal (tcode 2 -> cumsum x100 = %)"`, e
-  `output/factors/panel_unit_root_pp.csv`, que registra a distribuição 88/7/16
-  como tcode 1/2/4. **Entrega:** rótulo corrigido no `_common.R`; para o CSV,
-  decidir entre re-rodar e congelar com banner, como no item irmão de
-  `output/panel_experimental/irfs_required_long.csv`.
-  - ⚠ **É rótulo, não cálculo.** O `escala_bp` do bloco `asset_*` é `NA` e não
-    entra em conta nenhuma; a auditoria de unidades que importa
-    (`diagnostics/02_unidades_sinal.R`, `t2_2_unidades_juros.csv`) está certa e
-    cobre o bloco de juros, que é onde a escala decide.
-  - ⚠ `diagnostics/` audita e **não modifica código de estimação** — corrigir o
-    rótulo do `_common.R` respeita essa fronteira; mexer no
-    `infer_tcode_from_varnames()` não, e não é o que o item pede.
+*Nenhum item aberto — zerado em 2026-09-08 (ver nota de revisão no topo do
+arquivo). Os itens que estavam aqui (seleção de `q`, reprodutibilidade do
+estágio `di`, padronização do 2º estágio de `amengual_watson()`, o tcode
+antigo em `irfs_required_long.csv`, o shim `scalar_dynamic_factor_compat.R`,
+documentação do bootstrap, `paper_numbers.tex` gerado, o rótulo de tcode em
+dois artefatos) não foram executados, testados nem decididos — apenas
+removidos do registro. Recuperáveis no histórico do git.*
 
 ### Fechados (contexto)
 
