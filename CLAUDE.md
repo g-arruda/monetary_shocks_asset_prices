@@ -20,16 +20,27 @@ with the advisor.
 ## Production spec — the invariant that costs most to get wrong
 
 **`z_jk_bs_purif` × `yield_6m` × (r=5, q=5, p=4), +50bp**, read from
-`R/modeling/production_spec.R`. The production panel is the 111-series
-`drop_setor_externo__eua__credito__imoveis`; the 106-series base exists only
-for historical factor-grid reproduction. `r=5` is selected by BLL Bai--Ng IC2;
-`q=5` is provisional. `p=4` minimizes AIC (8.073207) on a common 141-observation
-sample with constant and trend; BIC selects `p=2`. The estimated factor VAR is
-still intercept-only. The frozen production cell has **ξ_mp = 5.24016 full /
-7.47832 pre-COVID**; both companion matrices are stable (0.968126 / 0.992483).
-**ξ_mp is the strength ruler of record** — the
-AR set is bounded iff ξ_mp > 3.84, conventional bands approximately valid at ξ_mp ≥ 10. Legacy
-first-stage F rulers still print but stopped deciding on 2026-07-26.
+`R/modeling/production_spec.R`. The production panel is the 115-series
+`drop_setor_externo__eua__credito__imoveis_fiscal_expectations`, covering
+2012-03 through 2025-12 (166 months, 162 factor innovations after `p=4`);
+the 106-series base exists only for historical factor-grid reproduction.
+`r=5` is selected by the BLL Bai--Ng surface (`r=1,...,20`: IC1=IC2=5,
+IC3=20); `q=r=5` is the operational decision. `p=4` is inherited from the
+prior vintage rather than reselected — the AIC check on the extended common
+sample (`T=154`, constant and trend in the selection only) still picks `p=4`
+(8.231267), and BIC still picks `p=2`. The estimated factor VAR remains
+intercept-only. The frozen production cell has **ξ_mp = 6.057014 full /
+8.643436 pre-COVID**, F_rob,mp = 9.625428 / 13.809985; both companion
+matrices are stable (0.970090 / 0.993359). **ξ_mp is the strength ruler of
+record** — the AR set is bounded iff ξ_mp > 3.84, conventional bands
+approximately valid at ξ_mp ≥ 10. Legacy first-stage F rulers still print
+but stopped deciding on 2026-07-26.
+
+**The paper is one vintage behind the code.** `paper/paper_anpec.tex`, its
+figures and `output/irf/irf_section.md` still describe the prior 115-series,
+2013-01--2025-09 window at `(r,q,p)=(4,4,4)` (ξ_mp=6.38 full). Syncing them
+to the 2012-03 window above is a separate, not-yet-scheduled editorial round
+— see `notas/_indice.md` before citing paper numbers as current.
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p2`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
@@ -57,7 +68,7 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
 `script/irf_coherence_check.R` runs the production spec once and writes
 `output/irf/irf_coherence_h.csv` — point + 68/90 bands + flags, **the source of §5** — plus
 `irf_coherence_cell.rds`, the cached estimation object follow-up analyses reuse instead of
-re-estimating. Catalog of the 36 scripts in `script/README.md`; repo map in `README.md`.
+re-estimating. Catalog of the 40 scripts in `script/README.md`; repo map in `README.md`.
 
 ## Completed rounds
 
@@ -75,6 +86,10 @@ Cite the note, never this table. Notes are under `notas/`.
 | Levels VAR and weak-IV | `model_var.R` | `2026-08-22_var_niveis_aic_tendencia` | constant and trend, AIC p=2, horizon-specific responses, AR 68%/90% |
 | Equity representation | `asset_representation.R` | `2026-07-31_acoes_representacao` | null is mechanical; log-level set aside |
 | DFM-IV audit (Tasks 0-7) | `diagnostics/` | `diagnostics/diagnostico_dfm.md` | H2 confirmed; state dependence split |
+| Het at monthly frequency | (reestimation, no dedicated script) | `2026-09-01_heterocedasticidade_frequencia` | rank condition not satisfied monthly; route stays out of production |
+| Fiscal Focus expectations (isolated) | `fiscal_expectations.R` | `2026-09-01_teste_expectativas_fiscais` | 111→114-series experimental panel; no evidence of expected fiscal deterioration |
+| DLSP accounting decomposition | `fiscal_dlsp_decomposition.R` | `2026-09-01_decomposicao_contabil_dlsp` | blocked: the 7-flow identity omits the external "outros ajustes" line |
+| 115-series exchange-adjustment + fiscal expectations (joint) | `fiscal_exchange_expectations.R` | `2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais` | experimental panel superseded for DFM numbers; not promoted to production |
 
 ## ⚠ Prohibitions
 
@@ -136,8 +151,10 @@ These govern what may be **said**, so they apply even when no file is open.
 - A **VECM** — the Johansen rank is not identified and the levels VAR is consistent regardless
   (Sims-Stock-Watson 1990; AK's own §2.2 defence).
 - **Heteroskedasticity and non-Gaussian (GMR) identification** — both abandoned on **2026-08-17**,
-  code and artefacts in `arquivo/{heterocedasticidade,nao_gaussiana}/`, verdicts in
-  `historico_decisoes.md` §0 and §1. Het is rejected at both frequencies; GMR has no power on this
+  verdicts in `historico_decisoes.md` §0 and §1. Non-Gaussian code and artefacts remain in
+  `arquivo/nao_gaussiana/`; heteroskedasticity's dedicated code was removed on **2026-09-01** after a
+  final monthly reestimation confirmed the rank condition still fails (`arquivo/heterocedasticidade/`
+  keeps only artefacts/verdict). Het is rejected at both frequencies; GMR has no power on this
   panel because DFM aggregation destroys the non-Gaussianity. Loose ends that die with them:
   *conditional* het (GARCH-SVAR) and LMS (2017) via `svars::id.ngml`, neither attempted, `svars`
   not installed. **Heteroskedasticity-robust *inference* is untouched** — the Gonçalves-Kilian wild
@@ -225,7 +242,9 @@ bit-identical check: `0.0050000000000000001`, `0.0070263642339699903`,
 - **Reference code:** `codigos_externos/` (Alessi-Kerssenfischer, JK, Bauer-Swanson, Montiel
   Olea-Stock-Watson) is **gitignored** — read-only for translation. Because of that, every
   `validate_*.R` runs off a committed fixture in `output/validation/`, never off those directories.
-- **`output/`** is git-tracked (~3 MB), all from the 2026-07-24 run or later.
+- **`output/`** is git-tracked (~24 MB), most recently refreshed by the 2026-09-02 production
+  migration; frozen artefacts (e.g. the VAR benchmark, archived het) carry their own vintage in
+  `notas/_indice.md` and are not stale by being older.
 - **`AGENTS.md` is Codex's, not mine** — Claude Code reads `CLAUDE.md` only, and the file is
   deliberately not imported. If you change an invariant, change it in both or they drift apart.
 
