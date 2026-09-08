@@ -255,7 +255,7 @@ classify_sweep_cells <- function(cells) {
 }
 
 
-#' Run one winning cell through the full bootstrap IRF pipeline
+#' Run one winning cell through the full IRF pipeline
 #'
 #' Production path: the instrument is passed to `estimate_dfm` (temporal
 #' alignment happens there) and `compute_irf_dfm` resolves instrument and
@@ -273,13 +273,18 @@ classify_sweep_cells <- function(cells) {
 #' @param seed Bootstrap seed.
 #' @param shock_bps Shock size in basis points.
 #' @param tcode Transformation codes for the full panel.
-#' @param ci_levels Confidence levels for the bootstrap bands.
+#' @param ci_levels Confidence levels for the bands.
+#' @param inference Band construction, passed through to `compute_irf_dfm()`.
+#'   The sweep keeps the bootstrap; `script/irf_coherence_check.R` passes
+#'   `"ar"`, which is the production inference.
+#' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #'
 #' @return List with `irf`, `var_names`, `tcode`, `mpind`, `normalize_value`
 #'   and the cell keys.
 run_stage2_cell <- function(data_mat, dates, inst_panel, sample_window,
                             r, q, p, instrument, mp_var,
-                            h, nboot, seed, shock_bps, tcode, ci_levels) {
+                            h, nboot, seed, shock_bps, tcode, ci_levels,
+                            inference = "bootstrap", ar_nw_lags = 0L) {
   in_window <- dates >= sample_window[1] & dates <= sample_window[2]
   data_sub  <- data_mat[in_window, , drop = FALSE]
   dates_sub <- dates[in_window]
@@ -304,7 +309,9 @@ run_stage2_cell <- function(data_mat, dates, inst_panel, sample_window,
     mpind           = mpind,
     normalize_value = norm_val,
     tcode           = tcode,
-    ci_levels       = ci_levels
+    ci_levels       = ci_levels,
+    inference       = inference,
+    ar_nw_lags      = ar_nw_lags
   )
 
   list(

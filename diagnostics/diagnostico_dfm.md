@@ -1505,9 +1505,13 @@ Riscados os itens que esta segunda rodada fechou.
    2026-08-12: condicionava em fatores e loadings estimados sem fundamentar a
    cobertura para esses objetos gerados e tinha classificação incorreta nos
    casos degenerados. Reabrir apenas com uma derivação que incorpore a estimação
-   fatorial ou com um procedimento que a reproduza. Até lá, as bandas de 68% e
-   90% do wild bootstrap são a única inferência operacional do DFM. Histórico:
-   `registro/historico_decisoes.md` §7.
+   fatorial ou com um procedimento que a reproduza. Histórico:
+   `registro/historico_decisoes.md` §7. **Correção de 2026-09-08:** a frase
+   original terminava com "as bandas de 68% e 90% do wild bootstrap são a única
+   inferência operacional do DFM". Não são mais — por decisão do autor, os
+   conjuntos AR tomaram esse lugar naquela data, sem que a condição de
+   reabertura acima tivesse sido cumprida. Ver
+   `notas/2026-09-08_bandas_anderson_rubin_producao.md`.
 2. **Decomposição nível/inclinação/curvatura** da resposta da curva — testa H3,
    a única das três hipóteses de causa raiz ainda sem teste. Barato.
 3. **Completar o teste de H1** para `asset_ifix` e `price_core_ipca_ex0` por

@@ -2,8 +2,8 @@
 # DFM principal: especificação de produção no painel de 115 séries, com
 # r=q=5. Instrumento: data/processed/instrument.csv = z_jk_bs_purif
 # (default desde 2026-07-15; máscara JK em resíduos pré-evento BS).
-# Bootstrap wild nboot=800 (Gonçalves-Kilian), correção de viés Kilian só
-# no DGP do bootstrap.
+# Inferência: conjuntos Anderson-Rubin (`production_spec()$inference`), a
+# régua operacional do DFM desde 2026-09-08. Nenhuma réplica é sorteada aqui.
 # Saída: output/irf/irf_model_alessi_r5q5.pdf
 # ===================================================================
 
@@ -13,6 +13,7 @@ source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/modeling/dfm_pipeline.R")
+source("R/identification/weak_iv_ar.R")
 
 SPEC <- production_spec()
 
@@ -32,8 +33,6 @@ if (!identical(unname(unlist(bai_ng$r_hat)), c(5L, 5L, 20L))) {
 dir.create(dirname(SPEC$bai_ng_output), showWarnings = FALSE, recursive = TRUE)
 readr::write_csv(bai_ng_surface, SPEC$bai_ng_output)
 
-set.seed(SPEC$bootstrap_seed)
-
 sdfm_results <- main_sdfm(
   r = SPEC$r,
   q = SPEC$q,
@@ -41,7 +40,7 @@ sdfm_results <- main_sdfm(
   shock_size_bps = SPEC$shock_bps,
   mp_var = SPEC$mp_var,
   ci_levels = SPEC$ci_levels,
-  nboot = SPEC$nboot
+  nboot = 0L
 )
 
 # Generate IRF plots for key economic variables. Os indices abaixo foram

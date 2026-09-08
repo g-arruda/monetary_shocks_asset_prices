@@ -357,4 +357,50 @@ stopifnot(
   nrow(levels) - var_spec$max_lag == 141L
 )
 
-cat("\nVALIDATION PASSED: Olea reduced form, SVAR-IV, AR sets, AIC, and BIC.\n")
+
+cat("\nD. Load/Inner generalisation collapses onto MOSW\n\n")
+
+# The DFM path reaches `mosw_ar_bounds()` through `Load` and `Inner`. What keeps
+# section B a valid guard over that path is that the generalisation is the
+# identity map when `Load = Inner = I`: same code, same numbers, to the bit.
+deriv_explicit <- mosw_response_derivatives(fit$AL, p, h, covariance$Gamma,
+                                            Load = diag(n), Inner = diag(n))
+deviation_deriv <- max(abs(derivatives$C  - deriv_explicit$C),
+                       abs(derivatives$D1 - deriv_explicit$D1))
+
+ar_default <- mosw_ar_bounds(derivatives, covariance, fixture$norm,
+                             fixture$scale, 0.95)
+ar_explicit <- mosw_ar_bounds(deriv_explicit, covariance, fixture$norm,
+                              fixture$scale, 0.95)
+deviation_bounds <- max(
+  abs(ar_default$lo - ar_explicit$lo),
+  abs(ar_default$hi - ar_explicit$hi),
+  abs(ar_default$dm_se - ar_explicit$dm_se),
+  abs(ar_default$xi_den - ar_explicit$xi_den)
+)
+
+# `d0` is read off the impact slice. In a VAR of observables `C_0 = I`, so it
+# has to come back as the coordinate vector that MOSW hard-code.
+d0_gen <- derivatives$C[fixture$norm, , 1]
+e_norm <- numeric(n)
+e_norm[fixture$norm] <- 1
+deviation_d0 <- max(abs(d0_gen - e_norm))
+
+# The cumulative branch, which the transformation codes that accumulate need,
+# has to be the running sum of the per-horizon one.
+deviation_cum <- max(abs(derivatives$Ccum -
+                           aperm(apply(derivatives$C, c(1, 2), cumsum),
+                                 c(2, 3, 1))))
+
+cat(sprintf("  derivatives %.2e | bounds %.2e | d0 vs e_norm %.2e | cumulative %.2e\n",
+            deviation_deriv, deviation_bounds, deviation_d0, deviation_cum))
+
+stopifnot(
+  deviation_deriv == 0,
+  deviation_bounds == 0,
+  deviation_d0 == 0,
+  deviation_cum == 0
+)
+
+cat("\nVALIDATION PASSED: Olea reduced form, SVAR-IV, AR sets, AIC, BIC,\n")
+cat("and the Load/Inner reduction that the DFM path goes through.\n")

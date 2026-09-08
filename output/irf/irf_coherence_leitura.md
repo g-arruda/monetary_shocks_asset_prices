@@ -1,9 +1,14 @@
 # Coerência das IRFs
 
-> **CURRENT em 2026-08-13.** Leitura autoral do painel de 111 séries em
-> `(r,q,p)=(5,5,6)`. O corpo automático está em
+> **VINTAGE DE BOOTSTRAP — escrito em 2026-08-13.** Leitura autoral do painel de
+> 111 séries em `(r,q,p)=(5,5,6)`. O corpo automático está em
 > `irf_coherence_report.md`, e as fontes numéricas são
 > `irf_coherence_h.csv` e `irf_coherence_summary.csv`.
+>
+> ⚠ A régua mudou desde então: em 2026-09-08 a inferência do DFM passou a ser o
+> conjunto Anderson-Rubin, e significância virou "o conjunto exclui zero", lida
+> pela topologia. As contagens por classe abaixo são as da vintage de bootstrap.
+> Nota: `notas/2026-09-08_bandas_anderson_rubin_producao.md`.
 
 ## Resultado da régua
 

@@ -559,6 +559,40 @@ para o VAR de observáveis, sem a interface que aceitava fatores ou loadings. O
 solucionador agora cobre os dez casos degenerados e a tradução reproduz o
 fixture oficial. Isso não satisfaz nem reabre a condição acima para o DFM.
 
+**Decisão revertida em 2026-09-08 — o AR passa a ser a inferência operacional
+do DFM.** Por decisão do autor, a retirada de 2026-08-12 foi revertida e os
+conjuntos Anderson-Rubin entraram **no lugar** do wild bootstrap, não ao lado
+dele. Dos dois fundamentos da retirada, um foi resolvido e o outro foi
+sobrepujado por decisão:
+
+- **Resolvido.** O defeito da inversão não existe mais. `solve_quadratic_le_zero()`
+  resolve a desigualdade por completo, acerta os dez casos do oráculo da
+  auditoria e é validado a cada rodada por `script/validate_mosw_ar.R`.
+- **Sobrepujado por decisão.** A covariância plug-in continua condicionando em
+  `Λ`, `K`, `M` e `sy` estimados, e a condição de reabertura registrada acima —
+  derivação que incorpore a estimação fatorial, ou reamostragem com cobertura
+  demonstrada — **não foi cumprida**. O parecer
+  `pareceres/2026-08-12_auditoria_anderson_rubin_dfm.md` permanece verbatim e
+  seu Monte Carlo (cobertura de impacto 78,1%-83,4% com fatores estimados,
+  contra 86,7%-88,3% com fatores observados) continua sendo a melhor medida
+  disponível do que o condicionamento custa. O autor decidiu operar assim
+  mesmo; o registro guarda a decisão e o preço, não a justificativa que
+  faltava.
+
+O que voltou é a fusão dos dois módulos, não o código retirado: a generalização
+`Load`/`Inner`/`d0` foi reposta **sobre** o solucionador corrigido, com
+`Load = Inner = I` recaindo bit-a-bit no MOSW original (bloco D de
+`validate_mosw_ar.R`, desvio exatamente 0). O interruptor é
+`production_spec()$inference`; `compute_irf_dfm(inference=)` mantém o default
+`"bootstrap"` porque os cinco chamadores em `diagnostics/` não são editáveis.
+
+**Duas restrições numéricas nasceram com a troca**, e nenhuma delas é
+contornável: `mosw_rform_cov` exige `hac_dim < T`, o que barra `(r,q)=(8,8)` em
+`p=4` (336 ≥ 162) — a sugestão 4/5 do orientador — e **a janela pré-COVID
+inteira** em `p=4` (135 ≥ 90), que o wild bootstrap cobria. Sem pseudo-inversa,
+sem bootstrap substituto, sem fallback. Rodada e números:
+`notas/2026-09-08_bandas_anderson_rubin_producao.md`.
+
 ---
 
 ## 8. Benchmark VAR pequeno em nível abandonado

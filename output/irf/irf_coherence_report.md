@@ -1,17 +1,20 @@
 # Coerência ponto a ponto das IRFs — especificação de produção
 
-Gerado por `script/irf_coherence_check.R` em 2026-09-02.
+Gerado por `script/irf_coherence_check.R` em 2026-09-08.
 
 > **Arquivo gerado — sobrescrito por inteiro a cada rodada.** Não escreva
 > prosa aqui: ela se perde no próximo run. A leitura interpretativa vive em
 > [`irf_coherence_leitura.md`](irf_coherence_leitura.md), que nenhum script toca.
 
-Especificação: `z_jk_bs_purif` x `yield_6m`, r=5, q=5, p=4, full sample, choque +50bp, wild bootstrap nboot=800 (seed 123), bandas 68/90, h=0..48.
+Especificação: `z_jk_bs_purif` x `yield_6m`, r=5, q=5, p=4, full sample, choque +50bp, conjuntos Anderson--Rubin por inversão de teste, NW(0), ξ_mp = 6.0570 na direção de normalização, níveis 68/90, h=0..48.
+
+Topologia dos conjuntos: interval 5634, singleton 1 a 68%, interval 5634, singleton 1 a 90%. O coeficiente de λ² é `T·den² − κ·d0'W₂d0`, logo o conjunto é limitado em todos os horizontes se e somente se ξ_mp > κ.
 
 ## Método
 
 Para cada variável, cada horizonte h é checado quanto a sinal e significância
-(CI68/CI90) contra a janela teórica [w_lo, w_hi] definida em
+(o conjunto de confiança exclui zero, a 68% e a 90%) contra a janela teórica
+[w_lo, w_hi] definida em
 `R/identification/irf_coherence.R::coherence_var_table()`. Vereditos:
 `coerente_forte` (≥80% da janela com sinal certo + significância CI68),
 `coerente` (≥80% sem significância), `parcial` (50-80%, sem violação
@@ -25,10 +28,9 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 |---|---|---|
 | ambiguous | ambigua |    14 |
 | placebo | placebo_ok |     3 |
-| scored | coerente_forte |    25 |
-| scored | incoerente |     8 |
-| scored | coerente |     3 |
-| scored | parcial |     1 |
+| scored | coerente_forte |    28 |
+| scored | incoerente |     5 |
+| scored | parcial |     4 |
 | soft | soft_depreciacao_fiscal_dom |     2 |
 | soft | soft_risco_abre_fiscal_dom |     2 |
 
@@ -36,18 +38,15 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 
 | group | var | verdict | share_correct | wrong_sig90 | h0 | h12 | h24 |
 |---|---|---|---|---|---|---|---|
-| acoes | asset_ibov | incoerente | 0.2857 | FALSE | -0.9965 | 1.822 | -0.5235 |
-| acoes | asset_idiv | incoerente | 0.2857 | FALSE | -1.345 | 1.748 | -0.5995 |
+| acoes | asset_ibov | incoerente | 0.2857 | TRUE | -0.9965 | 1.822 | -0.5235 |
+| acoes | asset_idiv | incoerente | 0.2857 | TRUE | -1.345 | 1.748 | -0.5995 |
 | acoes | asset_imob | incoerente | 0.4286 | FALSE | -1.901 | 1.304 | -0.6954 |
 | risco_cambio_soft | cambio_usd | soft_depreciacao_fiscal_dom |     0 | TRUE | 0.1342 | -0.03822 | -0.09399 |
 | risco_cambio_soft | cambio_eur | soft_depreciacao_fiscal_dom |     0 | TRUE | 0.1135 | -0.06987 | -0.07925 |
 | risco_cambio_soft | embi_perc | soft_risco_abre_fiscal_dom |     0 | TRUE | 0.2433 | 0.001805 | -0.1312 |
 | risco_cambio_soft | cds_5y | soft_risco_abre_fiscal_dom |     0 | TRUE | 29.91 | 1.631 | -17.08 |
 | atividade | pib | incoerente | 0.09091 | FALSE | 0.1413 | 0.3598 | -0.07434 |
-| trabalho | trab_tx_desemprego | incoerente | 0.5161 | TRUE | -0.1164 | -0.1981 | 0.08587 |
-| trabalho | trab_pop_ocupada | incoerente | 0.4516 | TRUE | 267.5 | 627.4 | -84.92 |
-| credito | credit_outstanding | incoerente | 0.7097 | TRUE | 0.5142 | 0.1694 | -0.5655 |
-| credito | credito_pessoa_fisica | incoerente | 0.6452 | TRUE | 0.2747 | 0.2943 | -0.4179 |
+| trabalho | trab_pop_ocupada | incoerente | 0.4516 | FALSE | 267.5 | 627.4 | -84.92 |
 
 ## Trajetórias por grupo (unidades nativas; tcode aplicado)
 
@@ -93,21 +92,21 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| ibc_br | -0.6304 | -0.2082 | -0.2016 | -0.2947 | -0.4294 | -0.3864 | -0.2539 |     1 | coerente |
+| ibc_br | -0.6304 | -0.2082 | -0.2016 | -0.2947 | -0.4294 | -0.3864 | -0.2539 |     1 | coerente_forte |
 | pib | 0.1413 | 0.3883 | 0.4207 | 0.3598 | -0.07434 | -0.3969 | -0.4292 | 0.09091 | incoerente |
 | ind_transformacao | -2.014 | -1.136 | -1.479 | -1.87 | -1.318 | -0.3317 | 0.2355 |     1 | coerente_forte |
 | ind_bens_duraveis | -6.869 | -4.205 | -5.414 | -6.464 | -4.001 | -0.471 | 1.273 |     1 | coerente_forte |
 | ind_bens_capital | -3.065 | -1.781 | -2.505 | -3.383 | -2.498 | -0.6257 | 0.4973 |     1 | coerente_forte |
 | vendas_varejo | -1.145 | -0.7425 | -0.8634 | -1.051 | -0.7676 | -0.2145 | 0.1172 |     1 | coerente_forte |
-| vendas_servicos | -0.6196 | 0.05095 | 0.02988 | -0.2474 | -0.7697 | -0.8473 | -0.6059 | 0.8182 | coerente |
-| ind_automoveis | -6562 | -2430 | -3440 | -4471 | -3686 | -1873 | -588.4 |     1 | coerente |
+| vendas_servicos | -0.6196 | 0.05095 | 0.02988 | -0.2474 | -0.7697 | -0.8473 | -0.6059 | 0.8182 | coerente_forte |
+| ind_automoveis | -6562 | -2430 | -3440 | -4471 | -3686 | -1873 | -588.4 |     1 | coerente_forte |
 | capacidade_instalada_industria | -0.2188 | -0.123 | -0.2038 | -0.2934 | -0.2123 | -0.04067 | 0.05928 |     1 | coerente_forte |
 
 ### trabalho
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| trab_tx_desemprego | -0.1164 | -0.2127 | -0.251 | -0.1981 | 0.08587 | 0.2617 | 0.2547 | 0.5161 | incoerente |
+| trab_tx_desemprego | -0.1164 | -0.2127 | -0.251 | -0.1981 | 0.08587 | 0.2617 | 0.2547 | 0.5161 | parcial |
 | trab_pop_ocupada | 267.5 | 529.6 | 674.2 | 627.4 | -84.92 | -622.1 | -679.4 | 0.4516 | incoerente |
 | trab_hrs_trabalhadas_industria | -1.086 | -0.5828 | -0.7128 | -0.882 | -0.6849 | -0.2635 | 0.006553 |     1 | coerente_forte |
 
@@ -115,8 +114,8 @@ significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),
 
 | var | h0 | h3 | h6 | h12 | h24 | h36 | h48 | share_correct | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| credit_outstanding | 0.5142 | 0.7025 | 0.5882 | 0.1694 | -0.5655 | -0.7472 | -0.5287 | 0.7097 | incoerente |
-| credito_pessoa_fisica | 0.2747 | 0.5417 | 0.5535 | 0.2943 | -0.4179 | -0.723 | -0.601 | 0.6452 | incoerente |
+| credit_outstanding | 0.5142 | 0.7025 | 0.5882 | 0.1694 | -0.5655 | -0.7472 | -0.5287 | 0.7097 | parcial |
+| credito_pessoa_fisica | 0.2747 | 0.5417 | 0.5535 | 0.2943 | -0.4179 | -0.723 | -0.601 | 0.6452 | parcial |
 | spread_credito_pj_total | 0.006272 | 0.007782 | 0.01507 | 0.02568 | 0.01983 | 0.002088 | -0.008935 | 0.9231 | coerente_forte |
 | spread_credito_pf_total | -0.0008478 | 0.003044 | 0.00882 | 0.01456 | 0.007727 | -0.003877 | -0.009264 | 0.8462 | coerente_forte |
 

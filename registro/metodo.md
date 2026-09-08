@@ -10,16 +10,19 @@
 > 2026-09-01, enquanto artefatos e vereditos permanecem em
 > `arquivo/heterocedasticidade/` e `historico_decisoes.md` §1.
 >
-> Duas coisas que **não** foram abandonadas e usam a mesma palavra: a inferência
-> robusta a heterocedasticidade (wild bootstrap de Gonçalves-Kilian, HAC do
-> primeiro estágio) e a citação de `goncalves2025`, que é evidência alheia.
+> Duas coisas que **não** foram abandonadas e usam a mesma palavra: a robustez a
+> heterocedasticidade da inferência (hoje o `W` HAC dos conjuntos AR; antes o
+> wild bootstrap de Gonçalves-Kilian) e a citação de `goncalves2025`, que é
+> evidência alheia.
 
 ## Status (2026-09-02, produção ampliada para 2012-03)
 
 > A produção usa o painel de 115 séries, 166 meses entre 2012-03 e 2025-12,
 > `(r,q,p)=(5,5,4)`,
 > `z_jk_bs_purif`, normalização de +50 pb em `yield_6m`, horizonte 0--48 e
-> wild bootstrap de 800 réplicas com semente 123. Bai--Ng BLL seleciona
+> conjuntos Anderson-Rubin de 68% e 90% com NW(0) desde 2026-09-08 — o wild
+> bootstrap de 800 réplicas com semente 123 saiu da produção e ficou como
+> objeto de comparação. Bai--Ng BLL seleciona
 > IC1=5, IC2=5 e IC3=20; `q=r=5` permanece a decisão operacional. `p=4` é
 > herdado da vintage anterior. Na amostra ampliada, a checagem separada em
 > amostra comum de `T=154` também seleciona `p=4` pelo AIC (8,231267), enquanto
@@ -30,6 +33,11 @@
 > 6,057014/9,625428` e raiz máxima 0,970090. A pré-COVID produz 90
 > inovações, `8,643436/13,809985` e raiz 0,993359. As duas companions são
 > estáveis. Nota: `notas/2026-09-02_producao_inicio_2012_03.md`.
+>
+> ⚠ Desde 2026-09-08 a pré-COVID **não tem inferência**: com 90 inovações ela
+> não sustenta a covariância de MOSW em `p=4` (`hac_dim = 135 ≥ 90`). O `xi_mp`
+> pré-COVID acima continua sendo um diagnóstico de força válido; o que sumiu foi
+> a banda, que o wild bootstrap produzia e o conjunto AR não produz.
 
 ## Status (2026-08-25, texto e diagnósticos sincronizados em `p=4`)
 
@@ -61,8 +69,10 @@
 > `B_1=0,005 Gamma/Gamma_yield` e cada ponto é `C_h B_1`, sem soma por
 > horizonte. A única inferência do VAR observável são conjuntos
 > Anderson--Rubin/MOSW de 68% e 90% com NW(0). Não há wild bootstrap, correção
-> de Kilian ou fallback OLS nesse benchmark. A inferência do DFM permanece
-> intocada. Nota: `notas/2026-08-22_var_niveis_aic_tendencia.md`.
+> de Kilian ou fallback OLS nesse benchmark. A inferência do DFM era outra
+> quando isto foi escrito; desde 2026-09-08 os dois modelos usam conjuntos AR,
+> o que **não** os torna o mesmo objeto nem transfere cobertura de um para o
+> outro. Nota: `notas/2026-08-22_var_niveis_aic_tendencia.md`.
 
 ## Status histórico (2026-08-13, produção migrada para 111 séries e `(5,5,6)`)
 
@@ -402,16 +412,21 @@ fornecido por MOSW. Não se condiciona a apresentação das IRFs à aprovação 
 uma das estatísticas: o artigo reporta ambas e qualifica a inferência quando
 elas divergem ou ficam abaixo da referência.
 
-> **2026-08-12 — a implementação Anderson-Rubin de 2026-08-10 foi retirada.**
-> A régua de força corrente continua sendo ξ_mp, não o F acima, mas as bandas de
-> 68% e 90% do wild bootstrap voltam a ser a única inferência operacional do
-> DFM. A adaptação plug-in condicionava em fatores e loadings estimados sem uma
-> teoria de cobertura para esses objetos gerados e classificava incorretamente
-> casos degenerados. O tema fica adiado sem prazo e sem prioridade ativa, até
-> existir uma fundamentação teórica ou um procedimento que incorpore a estimação
-> fatorial. A rodada retirada permanece documentada como evidência histórica
-> superada em `notas/2026-08-10_bandas_anderson_rubin.md`; decisão em
-> `historico_decisoes.md` §7.
+> **2026-09-08 — os conjuntos Anderson-Rubin são a inferência operacional do
+> DFM.** A régua de força corrente continua sendo ξ_mp, não o F acima, e agora
+> ela decide duas coisas de uma vez: o conjunto AR de nível κ é limitado se e
+> somente se ξ_mp > κ. As bandas de 68% e 90% passam a ser conjuntos AR por
+> inversão de teste, **no lugar** do wild bootstrap, que continua computável e
+> serve de comparação em `script/ar_bands.R` mas não decide mais significância.
+> Significância é "o conjunto exclui zero", lida pela topologia
+> (`ar_excludes_zero()`), porque um conjunto AR não é necessariamente um
+> intervalo. Duas restrições vêm junto: a covariância plug-in condiciona em `Λ`,
+> `K`, `M` e `sy` estimados; e `hac_dim < T` barra `(8,8)` em `p=4` e a janela
+> pré-COVID inteira. Rodada: `notas/2026-09-08_bandas_anderson_rubin_producao.md`;
+> reversão da retirada de 2026-08-12 em `historico_decisoes.md` §7, que preserva
+> o parecer contrário e o custo medido de cobertura. A rodada de 2026-08-10
+> segue superada em `notas/2026-08-10_bandas_anderson_rubin.md` — outra vintage,
+> outra dimensão, números não portáveis.
 
 **Resultados correntes:** em `output/instrument/mosw_strength_grid.{csv,md}`
 (8 variantes × 14 células (r,q) × 2 janelas), a produção

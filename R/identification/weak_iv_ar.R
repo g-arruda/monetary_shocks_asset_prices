@@ -3,20 +3,35 @@
 # Anderson-Rubin confidence sets by test inversion
 # Montiel Olea, Stock & Watson (2021, J. Econometrics)
 #
-# *** SCOPE: VAR IN OBSERVABLES. DO NOT APPLY TO THE DFM. ***
+# *** SCOPE: THE OBSERVABLE VAR *AND* THE DFM. ***
 #
-# The Anderson--Rubin path was removed from the DFM on 2026-08-12 for two
-# reasons (registro/historico_decisoes.md section 7). The first remains: the
-# plug-in covariance conditioned on estimated factors, loadings, and scales,
-# without a theory covering those generated objects. That problem does not
-# exist in a VAR of observables. There are no generated regressors, and
-# (vec(A), Gamma) are the only estimated objects, exactly the pair WHat covers.
+# Author decision of 2026-09-08: the Anderson--Rubin sets withdrawn from the
+# DFM on 2026-08-12 are back, and they are now the **operational inference of
+# the DFM**, in place of the wild bootstrap. `registro/historico_decisoes.md`
+# section 7 carries the reversal. Of the two grounds for the 2026-08-12
+# withdrawal, one was fixed and one was overruled:
 #
-# This module therefore does not restore the Load/Inner/d0 generalisation from
-# the removed code, which allowed it to target factor space. Its interface
-# accepts a coordinate selector (`nvar`), making DFM misuse impossible by
-# construction rather than convention. See CLAUDE.md, "What the paper may not
-# claim".
+#   - the degenerate-case classifier was rebuilt as `solve_quadratic_le_zero()`
+#     and now solves all ten cases of the audit oracle;
+#   - the plug-in covariance still conditions on the estimated factors,
+#     loadings and scales. That is a declared property of the estimator here,
+#     not a blocker.
+#
+# The module therefore restores the Load/Inner/d0 generalisation, which lets
+# the same inversion target factor space. In a static DFM the dynamics are a
+# VAR in the r factors with a linear measurement equation attached, and the
+# identified response is again a ratio of two linear forms in Gamma:
+#
+#     lambda_{j,h} = scale * (e_j' C_h Gamma) / (d0' Gamma),
+#     C_h = diag(sy) Lambda B_h K K',   d0 = C_0' e_mp,
+#
+# with B_h the upper-left r x r block of the companion raised to h. Fieller's
+# logic carries over whole: the generalisation is to replace the coordinate
+# vector e_nvar (which picks one entry of Gamma) by the general vector d0
+# (which combines all of them), and the pair (Gamma, e_j) inside the Kronecker
+# by (Inner %*% Gamma, sy_j Lambda_j). With Load = Inner = I every function
+# below falls back **exactly** on the original MOSW, which is what keeps
+# `script/validate_mosw_ar.R` valid against the authors' oil application.
 #
 # Sources in the authors' official code (codigos_externos/codigo_olea/,
 # github.com/jm4474/SVARIV), read-only and gitignored:
@@ -30,7 +45,7 @@
 # Difference from MATLAB: `solve_quadratic_le_zero()`. The classifier at
 # MSWfunction.m:119-151 uses strict inequalities without a tolerance. Thus,
 # a=0 (linear), a=b=0 (constant), and Delta=0 all fall into the residual
-# "whole line" branch. The removed module had the same defect, which the
+# "whole line" branch. The withdrawn module had the same defect, which the
 # external audit classified as an API logic error
 # (pareceres/2026-08-12_auditoria_anderson_rubin_dfm.md, section 7). This
 # implementation solves every branch with a tolerance relative to coefficient
@@ -218,47 +233,76 @@ mosw_svar_iv <- function(AL, Sigma, Gamma, h, scale, norm) {
 #' with `P_j = (A_c^j J')'`, and the product actually needed collapses through
 #' `(x' %x% y')(P %x% Q) = (x'P) %x% (y'Q)`:
 #'
-#'   `d1_{j,h} = sum_{m=0}^{h-1} (Gamma' P_{h-1-m}) %x% (e_j' C_m)`
+#'   `d1_{j,h} = sum_{m=0}^{h-1} (gamma' P_{h-1-m}) %x% (a_j' B_m)`
 #'
-#' which avoids the `AJaux` array of the MATLAB (hundreds of MB here).
+#' which avoids the `AJaux` array of the MATLAB (hundreds of MB here). Here
+#' `gamma = Inner %*% Gamma` and `a_j` is row `j` of `Load`; with
+#' `Load = Inner = I` this is MOSW's own expression with `a_j' B_m = e_j' C_m`.
 #'
-#' @param AL `n x (n*p)` reduced-form coefficients.
+#' `Load` and `Inner` are what lets the same inversion target a DFM: the
+#' identified response of observable `j` is `sy_j Lambda_j' B_h K K' Gamma`, so
+#' `Load = diag(sy) Lambda` carries the measurement equation and `Inner = K K'`
+#' the projection onto the dynamic-shock space. When `q = r`, `K K' = I` and
+#' `Inner` drops out.
+#'
+#' @param AL `n x (n*p)` reduced-form coefficients of the *state* VAR.
 #' @param p Lag order.
 #' @param h Maximum horizon.
-#' @param Gamma Length-`n` vector `E[z_t eta_t]`.
+#' @param Gamma Length-`n_inn` vector `E[z_t eta_t]`.
+#' @param Load `n_out x n` measurement matrix; `diag(n)` by default (VAR case).
+#' @param Inner `n x n_inn` projection; `diag(n)` by default (VAR case).
 #'
-#' @return List with `C` (`n x n x (h+1)`) and `D1`
-#'   (`n x (n^2*p) x (h+1)`). `D1[, , 1] = 0`: at impact `C_0 = I` does not
-#'   depend on `A`.
-mosw_response_derivatives <- function(AL, p, h, Gamma) {
+#' @return List with `C` (`n_out x n_inn x (h+1)`), `D1`
+#'   (`n_out x (n^2*p) x (h+1)`) and their horizon-cumulated twins `Ccum` and
+#'   `D1cum`, needed by transformation codes that accumulate. `D1[, , 1] = 0`:
+#'   at impact `B_0 = I` does not depend on `A`.
+mosw_response_derivatives <- function(AL, p, h, Gamma, Load = NULL, Inner = NULL) {
   AL <- as.matrix(AL)
   n  <- nrow(AL)
   if (ncol(AL) != n * p) stop("AL must be n x (n*p)")
-  if (length(Gamma) != n) stop("Gamma must have length ", n)
+
+  if (is.null(Load))  Load  <- diag(n)
+  if (is.null(Inner)) Inner <- diag(n)
+  Load  <- as.matrix(Load)
+  Inner <- as.matrix(Inner)
+
+  n_out <- nrow(Load)
+  n_inn <- ncol(Inner)
+  if (ncol(Load) != n || nrow(Inner) != n) {
+    stop("Load must be n_out x n and Inner, n x n_inn")
+  }
+  if (length(Gamma) != n_inn) stop("Gamma must have length ", n_inn)
 
   companion <- if (p == 1) AL else {
     rbind(AL, cbind(diag(n * (p - 1)), matrix(0, n * (p - 1), n)))
   }
 
-  C    <- array(0, dim = c(n, n, h + 1))
+  B    <- vector("list", h + 1)
   P    <- vector("list", h + 1)
   Apow <- diag(n * p)
   for (i in seq_len(h + 1)) {
-    C[, , i] <- Apow[seq_len(n), seq_len(n), drop = FALSE]
-    P[[i]]   <- t(Apow[, seq_len(n), drop = FALSE])   # n x (n*p)
-    Apow     <- Apow %*% companion
+    B[[i]] <- Apow[seq_len(n), seq_len(n), drop = FALSE]
+    P[[i]] <- t(Apow[, seq_len(n), drop = FALSE])      # n x (n*p)
+    Apow   <- Apow %*% companion
   }
 
-  gP <- lapply(P, function(Pj) matrix(drop(crossprod(Gamma, Pj)), nrow = 1))
+  gamma_st <- drop(Inner %*% Gamma)
+  gP <- lapply(P, function(Pj) matrix(drop(crossprod(gamma_st, Pj)), nrow = 1))
+  LB <- lapply(B, function(Bm) Load %*% Bm)            # n_out x n
 
-  D1 <- array(0, dim = c(n, n * n * p, h + 1))
+  C  <- array(0, dim = c(n_out, n_inn,     h + 1))
+  D1 <- array(0, dim = c(n_out, n * n * p, h + 1))
   for (i in seq_len(h + 1)) {
+    C[, , i] <- LB[[i]] %*% Inner
     for (m in seq_len(i - 1)) {
-      D1[, , i] <- D1[, , i] + kronecker(gP[[i - m]], C[, , m, drop = TRUE])
+      D1[, , i] <- D1[, , i] + kronecker(gP[[i - m]], LB[[m]])
     }
   }
 
-  list(C = C, D1 = D1)
+  list(C     = C,
+       D1    = D1,
+       Ccum  = aperm(apply(C,  c(1, 2), cumsum), c(2, 3, 1)),
+       D1cum = aperm(apply(D1, c(1, 2), cumsum), c(2, 3, 1)))
 }
 
 
@@ -388,25 +432,37 @@ mosw_rform_cov <- function(X, Z, eta, p, nw_lags = 0L) {
 #' solution with `solve_quadratic_le_zero()` — not with MOSW's strict-inequality
 #' cascade, which mishandles every degenerate branch.
 #'
-#' `ahat = T den^2 - critval W2[nvar, nvar]` does not vary across cells, so the
+#' `ahat = T den^2 - critval d0' W2 d0` does not vary across cells, so the
 #' set is bounded **iff** the Wald in the normalisation direction (the project's
 #' xi_mp) exceeds `critval`. That is the `ar_bounded` flag already tabulated in
 #' `output/instrument/mosw_strength_grid.csv`.
 #'
+#' The normalisation direction is read off the impact slice,
+#' `d0 = deriv$C[nvar, , 1]`. In a VAR of observables `C_0 = I` and this is
+#' exactly the coordinate vector `e_nvar` of MOSW; in a DFM it is the loadings
+#' row of the policy variable, projected onto the dynamic-shock space. No
+#' argument distinguishes the two cases.
+#'
 #' @param deriv List returned by `mosw_response_derivatives()`.
 #' @param cov List returned by `mosw_rform_cov()`.
-#' @param nvar Index of the normalisation variable.
+#' @param nvar Row index of the normalisation variable in `deriv$C`.
 #' @param scale Impact response imposed on `nvar`, in its native units.
 #' @param confidence Confidence level, e.g. 0.95.
+#' @param cumulative Invert the test on the horizon-cumulated response
+#'   (`deriv$Ccum` / `deriv$D1cum`) instead of the per-horizon one. Required by
+#'   transformation codes that accumulate; accumulating the bounds of a
+#'   non-cumulative set afterwards would be wrong.
 #'
-#' @return List of `n x (h+1)` matrices `point`, `ahat`, `bhat`, `chat`,
+#' @return List of `n_out x (h+1)` matrices `point`, `ahat`, `bhat`, `chat`,
 #'   `Delta`, `casedummy`, `set_type`, `lo`, `hi`, `dm_lo`, `dm_hi`, `dm_se`,
 #'   plus scalars `critval`, `den`, `xi_den`.
-mosw_ar_bounds <- function(deriv, cov, nvar, scale, confidence) {
-  C <- deriv$C
-  D1 <- deriv$D1
+mosw_ar_bounds <- function(deriv, cov, nvar, scale, confidence,
+                           cumulative = FALSE) {
+  C  <- if (cumulative) deriv$Ccum  else deriv$C
+  D1 <- if (cumulative) deriv$D1cum else deriv$D1
 
   n_out <- dim(C)[1]
+  n_inn <- dim(C)[2]
   n_h   <- dim(C)[3]
   n_a   <- dim(D1)[2]
 
@@ -415,17 +471,27 @@ mosw_ar_bounds <- function(deriv, cov, nvar, scale, confidence) {
   critval <- qnorm(1 - (1 - confidence) / 2)^2
 
   if (nvar < 1L || nvar > n_out) stop("nvar is out of range")
+  if (length(Gamma) != n_inn) {
+    stop("Gamma has length ", length(Gamma), " but the response array expects ",
+         n_inn, ": the covariance and the derivatives disagree")
+  }
 
-  den   <- Gamma[nvar]
-  w_den <- cov$W2[nvar, nvar]
+  # Normalisation direction: the impact row of the policy variable. `C_0 = I`
+  # in the VAR case makes this the coordinate vector `e_nvar`.
+  d0    <- deriv$C[nvar, , 1]
+  den   <- sum(d0 * Gamma)
+  w_den <- drop(t(d0) %*% cov$W2 %*% d0)
+  if (!is.finite(den) || den == 0) {
+    stop("The normalising covariance d0'Gamma must be finite and nonzero")
+  }
 
   # Stack the n_out*(h+1) cells as rows so every quadratic form is one pass.
-  Dg <- scale * matrix(aperm(C,  c(1, 3, 2)), nrow = n_out * n_h, ncol = n_out)
+  Dg <- scale * matrix(aperm(C,  c(1, 3, 2)), nrow = n_out * n_h, ncol = n_inn)
   Da <- scale * matrix(aperm(D1, c(1, 3, 2)), nrow = n_out * n_h, ncol = n_a)
 
   num   <- drop(Dg %*% Gamma)
-  W2d0  <- cov$W2[, nvar]
-  W12d0 <- cov$W12[, nvar]
+  W2d0  <- drop(cov$W2  %*% d0)
+  W12d0 <- drop(cov$W12 %*% d0)
 
   q_aa <- rowSums((Da %*% cov$W1)  * Da)
   q_ag <- rowSums((Da %*% cov$W12) * Dg)
@@ -446,10 +512,8 @@ mosw_ar_bounds <- function(deriv, cov, nvar, scale, confidence) {
   sol$hi[nvar] <- scale
   sol$casedummy[nvar] <- 5L
 
-  # Delta method (MSWfunction.m section 6): d = [d1, dGamma - lambda*e_nvar].
-  e_nvar <- numeric(n_out)
-  e_nvar[nvar] <- 1
-  Dd     <- cbind(Da, Dg - outer(point, e_nvar))
+  # Delta method (MSWfunction.m section 6): d = [d1, dGamma - lambda*d0].
+  Dd     <- cbind(Da, Dg - outer(point, d0))
   dm_var <- rowSums((Dd %*% cov$WHat) * Dd)
   dm_se  <- sqrt(pmax(dm_var, 0)) / (sqrt(T_eff) * abs(den))
 
@@ -473,20 +537,157 @@ mosw_ar_bounds <- function(deriv, cov, nvar, scale, confidence) {
 }
 
 
-#' Does the AR set reject `H0: IRF <= 0`?
+#' Does the AR set exclude zero?
 #'
-#' One-sided reading of the two-sided set: `H0` is rejected when the whole set
-#' lies in the open positive half-line. Sets that contain `-Inf` — `two_rays`,
-#' `real_line`, `half_line_left` — never reject, by construction. An `empty`
-#' set rejects every value of lambda, including the positive ones, so it is
-#' NOT evidence for a positive response and is reported as `NA`.
+#' The significance reading of an inverted test: `H0: IRF = 0` is rejected
+#' exactly when `0` is outside the confidence set. Unlike a bootstrap band, the
+#' set need not be an interval, so the answer is read off the topology and not
+#' off `lo`/`hi` alone. Note that `two_rays` — `(-Inf, lo] U [hi, Inf)` — CAN
+#' exclude zero, when zero falls in the open gap `(lo, hi)`; and `real_line`
+#' never can. An `empty` set rejects every value of lambda including zero, which
+#' is a misspecification signal rather than evidence of a response, and is
+#' reported as `NA`.
 #'
 #' @param set_type Character matrix from `mosw_ar_bounds()`.
-#' @param lo Lower-bound matrix from `mosw_ar_bounds()`.
+#' @param lo,hi Bound matrices from `mosw_ar_bounds()`.
 #'
 #' @return Logical matrix of the same shape, `NA` where the set is empty.
-ar_rejects_le_zero <- function(set_type, lo) {
-  out <- set_type %in% c("interval", "singleton", "half_line_right") & lo > 0
+ar_excludes_zero <- function(set_type, lo, hi) {
+  out <- rep(FALSE, length(set_type))
+  bounded <- set_type %in% c("interval", "singleton")
+  out[bounded] <- lo[bounded] > 0 | hi[bounded] < 0
+  rays <- set_type == "two_rays"
+  out[rays] <- lo[rays] < 0 & hi[rays] > 0
+  left  <- set_type == "half_line_left"
+  out[left] <- hi[left] < 0
+  right <- set_type == "half_line_right"
+  out[right] <- lo[right] > 0
   out[set_type == "empty"] <- NA
   matrix(out, nrow = nrow(set_type), ncol = ncol(set_type))
+}
+
+
+#' Anderson-Rubin confidence sets for the DFM, in published units
+#'
+#' The whole DFM wiring in one place: it rebuilds the factor-VAR regressor
+#' block, assembles `Load = diag(sy) Lambda` and `Inner = K K'`, and returns one
+#' `mosw_ar_bounds()` result per confidence level with the transformation codes
+#' already applied to the bounds. The proxy arrives already aligned to the
+#' factor innovations — `compute_irf_dfm()` owns that alignment, through
+#' `sel_ext_inst_sample()`, and is the only caller.
+#'
+#' **Transformation codes.** `cumimp_transform()` is monotone increasing in
+#' every code it implements, so set bounds map through it endpoint by endpoint:
+#' code 1 is the identity, code 6 is `x*100`, code 4 is `(exp(x)-1)*100`.
+#' Codes 2 and 5 accumulate, and those take the **cumulative** inversion
+#' (`cumulative = TRUE`); accumulating the bounds of a per-horizon set would be
+#' wrong. Code 3 accumulates twice and has no branch here — it aborts.
+#'
+#' @param dfm_results List returned by `estimate_dfm()`.
+#' @param rsh_sel_ind Logical index into the factor innovations, from
+#'   `sel_ext_inst_sample()`.
+#' @param inst_sel Instrument values aligned with `rsh_sel_ind`.
+#' @param mpind Column index of the policy variable.
+#' @param h Maximum horizon.
+#' @param scale Impact response imposed on the policy variable, native units.
+#' @param tcode Integer vector of transformation codes, one per variable.
+#' @param levels Confidence levels.
+#' @param nw_lags Newey-West truncation for the moment covariance.
+#'
+#' @return List with `by_level` (named by `sprintf("%.2f", levels)`, each a
+#'   `mosw_ar_bounds()` result in published units), plus `Gamma`, `d0`,
+#'   `xi_den`, `T_eff`, `hac_dim` and `n_par`.
+ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
+                         scale, tcode, levels, nw_lags = 0L) {
+  if (!all(tcode %in% c(1L, 2L, 4L, 5L, 6L))) {
+    stop("ar_dfm_bands: transformation codes ",
+         paste(sort(unique(setdiff(tcode, c(1L, 2L, 4L, 5L, 6L)))), collapse = ", "),
+         " have no monotone bound map here (code 3 accumulates twice)")
+  }
+
+  p  <- dfm_results$p
+  r  <- dfm_results$r
+  Lambda <- dfm_results$static_loadings
+  K      <- dfm_results$dynamic_loadings
+  sy     <- dfm_results$data_sd
+  u      <- dfm_results$var_residuals
+  F_stat <- dfm_results$static_factors
+  AL     <- dfm_results$companion_matrix[seq_len(r), , drop = FALSE]
+
+  # The project's response is `diag(sy) Lambda B_h K M H` with
+  # `H = M^-1 K' Gamma_eta`, so `M` cancels and the projection is `K K'`. When
+  # q = r that projection is the identity, and estimate_dynamic_factors()
+  # collapses K and M to the scalar 1 anyway.
+  Inner <- if (dfm_results$q < r) K %*% t(K) else diag(r)
+  Load  <- sweep(Lambda, 1, sy, "*")
+
+  # Factor-VAR regressors, deterministic column FIRST: that is the order of
+  # RForm_VAR.m, which the Shat of CovAhat_Sigmahat_Gamma.m depends on. The
+  # factor VAR of this project is intercept-only.
+  T_f  <- nrow(F_stat)
+  lags <- do.call(cbind, lapply(seq_len(p), function(i)
+    F_stat[(p + 1 - i):(T_f - i), , drop = FALSE]))
+  X_reg <- cbind(1, lags)
+
+  sel   <- rsh_sel_ind
+  z     <- as.numeric(inst_sel)
+  X_sel <- X_reg[sel, , drop = FALSE]
+  T_eff <- length(z)
+  if (nrow(X_sel) != T_eff) {
+    stop("ar_dfm_bands: ", nrow(X_sel), " selected regressor rows against ",
+         T_eff, " instrument values")
+  }
+
+  # Demeaned exactly as ident_ext_instr() does, so Gamma points in the same
+  # direction as the production impact vector H. With a constant in the VAR and
+  # the full innovation sample selected, this is a no-op.
+  u_sel <- u[sel, , drop = FALSE]
+  u_sel <- sweep(u_sel, 2, colMeans(u_sel))
+
+  hac_dim <- (ncol(X_sel) + r + 1L) * r
+  if (hac_dim >= T_eff) {
+    stop("ar_dfm_bands: HAC moment dimension is ", hac_dim, " >= T = ", T_eff,
+         ": WHat is singular at r = ", r, ", p = ", p,
+         ". No pseudo-inverse and no fallback — reduce r or p.")
+  }
+
+  cov <- mosw_rform_cov(X_sel, z, t(u_sel), p, nw_lags = nw_lags)
+  deriv <- mosw_response_derivatives(AL, p, h, cov$Gamma,
+                                     Load = Load, Inner = Inner)
+
+  cum_rows <- tcode %in% c(2L, 5L)
+  exp_rows <- tcode %in% c(4L, 5L)
+  pct_rows <- tcode %in% c(2L, 4L, 5L, 6L)
+
+  by_level <- lapply(levels, function(lvl) {
+    nc <- mosw_ar_bounds(deriv, cov, mpind, scale, lvl)
+    cu <- if (any(cum_rows)) {
+      mosw_ar_bounds(deriv, cov, mpind, scale, lvl, cumulative = TRUE)
+    } else NULL
+
+    for (field in c("point", "lo", "hi", "dm_lo", "dm_hi")) {
+      v <- nc[[field]]
+      if (any(cum_rows)) v[cum_rows, ] <- cu[[field]][cum_rows, , drop = FALSE]
+      v[exp_rows, ] <- exp(v[exp_rows, , drop = FALSE]) - 1
+      v[pct_rows, ] <- v[pct_rows, , drop = FALSE] * 100
+      nc[[field]] <- v
+    }
+    for (field in c("set_type", "casedummy", "ahat", "bhat", "chat", "Delta")) {
+      if (any(cum_rows)) {
+        nc[[field]][cum_rows, ] <- cu[[field]][cum_rows, , drop = FALSE]
+      }
+    }
+    nc
+  })
+  names(by_level) <- sprintf("%.2f", levels)
+
+  d0 <- deriv$C[mpind, , 1]
+  list(by_level = by_level,
+       Gamma    = cov$Gamma,
+       d0       = d0,
+       den      = sum(d0 * cov$Gamma),
+       xi_den   = by_level[[1L]]$xi_den,
+       T_eff    = T_eff,
+       hac_dim  = cov$hac_dim,
+       n_par    = ncol(cov$WHat))
 }

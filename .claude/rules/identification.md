@@ -30,10 +30,20 @@ live callers pass `identification = "proxy"` explicitly, five of them under `dia
 not editable. The collapse was validated by the `CLAUDE.md` smoke test reproducing **bit-identically**
 — that is the guard any future change to this file must clear.
 
+**One inference, since 2026-09-08.** `compute_irf_dfm(inference=)` fills `ci` from the
+Anderson-Rubin sets (`ar_dfm_bands()` in `R/identification/weak_iv_ar.R`) whenever the caller asks
+for `"ar"`, which is what `production_spec()$inference` says and what every production caller passes.
+The **argument itself defaults to `"bootstrap"`**, deliberately: five live callers live under
+`diagnostics/`, which is not editable, and they must keep the bands they were written against. The
+AR branch hard-stops if its re-derived point deviates from `ident_ext_instr()` by more than 1e-10 —
+the two paths must agree about the identification, not merely about the bands. `irf_point_matrix`
+is untouched by the switch, so the `CLAUDE.md` smoke test stays the guard it was.
+
 **Estimation details.** The bootstrap uses Kilian-corrected coefficients for the DGP but the **point
 estimate uses plain OLS** (faithful to `DFMest_BLL.m`); `apply_kilian = TRUE` only affects the
-bootstrap. `R/modeling/factor_estimation.R` implements BLL standardization, Bai-Ng IC for `r`,
-Amengual-Watson for `q`, plus `infer_tcode_from_varnames()` and `validate_dfm_results()`.
+bootstrap. The AR sets read the plain OLS companion, so they are consistent with the point estimate
+and untouched by Kilian. `R/modeling/factor_estimation.R` implements BLL standardization, Bai-Ng IC
+for `r`, Amengual-Watson for `q`, plus `infer_tcode_from_varnames()` and `validate_dfm_results()`.
 
 **Factor selection:** use the BLL-standardized Bai-Ng / Amengual-Watson variants. **Plain Bai-Ng
 (2002) requires stationarity and is the wrong tool here** — the panel is non-stationary by design.

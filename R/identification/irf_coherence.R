@@ -75,21 +75,44 @@ coherence_var_table <- function() {
 
 #' Evaluate one IRF path point-by-point against its theory spec
 #'
+#' Significance is "the confidence set excludes zero". Under the wild bootstrap
+#' the set is always an interval and that reduces to `lo > 0 | hi < 0`. Under
+#' the Anderson-Rubin inversion — the operational inference since 2026-09-08 —
+#' it need not be, so when the set topologies are supplied they decide, through
+#' `ar_excludes_zero()`. A `two_rays` set excludes zero when zero sits in its
+#' gap; a `real_line` set never does; an `empty` set gives `NA`.
+#'
 #' @param path Numeric vector, IRF point estimate at h = 0..H.
 #' @param lo68,hi68,lo90,hi90 CI bounds, same length as `path`.
 #' @param spec One row of `coherence_var_table()`.
+#' @param set_type68,set_type90 Optional character vectors of AR set
+#'   topologies. NULL means interval bands (bootstrap).
 #'
 #' @return List with `perh` (data.frame h x metrics) and `summary` (one row).
-evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec) {
+evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
+                              set_type68 = NULL, set_type90 = NULL) {
   H <- length(path) - 1
   h <- 0:H
-  sgn   <- sign(path)
-  sig68 <- lo68 > 0 | hi68 < 0
-  sig90 <- lo90 > 0 | hi90 < 0
+  sgn <- sign(path)
+
+  excludes_zero <- function(set_type, lo, hi) {
+    if (is.null(set_type)) return(lo > 0 | hi < 0)
+    drop(ar_excludes_zero(matrix(set_type, ncol = 1),
+                          matrix(lo, ncol = 1), matrix(hi, ncol = 1)))
+  }
+  sig68 <- excludes_zero(set_type68, lo68, hi68)
+  sig90 <- excludes_zero(set_type90, lo90, hi90)
+  if (anyNA(sig68) || anyNA(sig90)) {
+    stop("Empty Anderson-Rubin set in '", spec$var, "': the inversion rejects ",
+         "every value of the response, which scoring cannot read as a sign. ",
+         "Inspect output/irf/ar_bands.csv before coercing it to a verdict.")
+  }
 
   perh <- data.frame(
     var = spec$var, h = h, point = path,
     lo68 = lo68, hi68 = hi68, lo90 = lo90, hi90 = hi90,
+    set_type68 = if (is.null(set_type68)) NA_character_ else set_type68,
+    set_type90 = if (is.null(set_type90)) NA_character_ else set_type90,
     sign = sgn, sig68 = sig68, sig90 = sig90,
     stringsAsFactors = FALSE
   )

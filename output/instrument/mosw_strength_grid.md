@@ -1,6 +1,6 @@
 # Grade de força MOSW — ξ_mp e F robusto por (r,q) × amostra × instrumento
 
-Gerado por `script/mosw_strength_grid.R` em 2026-09-02.
+Gerado por `script/mosw_strength_grid.R` em 2026-09-08.
 
 Grid: r ∈ {4..8}, q ∈ {2..r} (25 combinações) × 2 amostras × 3 instrumentos = 150 células; p = 4; direção de normalização = `yield_6m`.
 
@@ -12,8 +12,8 @@ Todas as células passaram os gates de estabilidade, finitude e `n_obs`.
 Réguas de leitura:
 
 - **10** é uma referência convencional para ξ_mp e F robusto_mp, não um valor crítico fornecido por MOSW.
-- **3,84 < ξ_mp < 10** exige qualificação do bootstrap; a inferência Anderson--Rubin do DFM permanece adiada.
-- **ξ_mp ≤ 3,84** indica que um futuro conjunto AR 95% pode ser ilimitado.
+- **`ar_bounded` deixou de ser previsão em 2026-09-08**: os conjuntos Anderson--Rubin do DFM passaram a ser a inferência operacional e são construídos em `script/ar_bands.R`. A coluna continua sendo o mesmo teste `ξ_mp > 3,84` que o sinal de `ahat` implementa a 95%.
+- **ξ_mp ≤ 3,84** significa conjunto AR 95% ilimitado — semirretas ou toda a reta, não intervalo.
 - **F robusto_mp** é o primeiro estágio HC1 na mesma direção de normalização de ξ_mp.
 
 ## Resumo por instrumento (contagem de células por faixa de ξ_mp)

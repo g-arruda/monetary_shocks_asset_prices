@@ -13,11 +13,26 @@
 # filenames, no subdirectory). Repointed 2026-08-05: this used to write into
 # arquivo/tex/img/, so regenerating the figures never reached the canonical
 # paper and the PDFs beside it were stale manual copies.
+#
+# FROZEN since 2026-09-08. The cached estimation object it reads now carries
+# Anderson-Rubin sets, not wild-bootstrap bands, while the captions and the
+# prose in paper_anpec.tex still describe the bootstrap. Running this without
+# the flag would repaint the paper's figures with an inference the paper does
+# not announce. The flag belongs to the editorial round that syncs the two.
 # ===================================================================
 
 rm(list = ls())
 
 source("R/modeling/production_spec.R")
+
+if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
+  stop(
+    "The results-section figures are frozen at the wild-bootstrap vintage. ",
+    "output/irf/irf_coherence_cell.rds now carries Anderson-Rubin sets, and ",
+    "paper_anpec.tex still says 'wild bootstrap'. Use ",
+    "--repaint-paper-figures only in the editorial round that syncs the two."
+  )
+}
 SPEC <- production_spec()
 
 CELL_RDS  <- SPEC$coherence_cell_path

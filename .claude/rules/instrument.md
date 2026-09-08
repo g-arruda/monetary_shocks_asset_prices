@@ -38,8 +38,13 @@ leg is half the sign rule.
 bounded interval **iff ξ_mp > 3.84**; conventional bands are approximately valid at ξ_mp ≥ 10.
 Since 2026-08-18 that boundedness prediction is no longer only a flag: `mosw_ar_bounds`
 (`R/identification/weak_iv_ar.R`) actually constructs the set for the **small VAR**, and its
-`ahat > 0` test is the same inequality — `script/model_var_weak_iv.R` asserts the two agree. It
-stays a prediction for the DFM, where no AR set is built.
+`ahat > 0` test is the same inequality. **Since 2026-09-08 the same holds for the DFM**: the sets
+are production inference, `script/irf_coherence_check.R` asserts `ahat > 0` agrees with
+`xi_den > critval` on every run, and `xi_den` reproduces the grid's `wald_mp` to 7.5e-12 by an
+independent route — the MOSW `W2` block instead of `compute_factor_space_wald`. What the grid does
+**not** tell you is whether a cell can be estimated at all: `mosw_rform_cov` needs
+`hac_dim = (1 + r*p + r + 1)*r < T`, so `(8,8)` at `p=4` (336 ≥ 162) and the pre-COVID window at
+`p=4` (135 ≥ 90) carry an `ar_bounded` flag for a set that cannot be built.
 `nw_lags` defaults to 0 (Eicker-White), so every published number is unchanged; the Bartlett kernel
 is only needed for a GK-aggregated instrument, which induces an MA(1). The legacy first-stage F
 rulers (`f_factor`, F (y6m AR)) are still computed and reported but **stopped deciding on

@@ -8,8 +8,9 @@ Area-specific detail lives in `.claude/rules/` and loads when you touch that are
 
 Independent paper replicating Alessi & Kerssenfischer (2019) for Brazil: large-scale non-stationary
 Dynamic Factor Model, monetary shocks identified by an external instrument (Copom-day DI futures
-surprises), IRFs of Brazilian asset prices. Inference: wild bootstrap (Gonçalves & Kilian 2004) with
-Kilian (1998) bias correction. Canonical paper: `paper/paper_anpec.tex`.
+surprises), IRFs of Brazilian asset prices. Inference: Anderson–Rubin sets by test inversion
+(Montiel Olea, Stock & Watson 2021) since 2026-09-08, replacing the wild bootstrap (Gonçalves &
+Kilian 2004) with Kilian (1998) bias correction. Canonical paper: `paper/paper_anpec.tex`.
 
 The record, in `registro/`: `metodo.md` (the live design — instrument construction and the
 identification chain), `pendencias.md` (what is open), `historico_decisoes.md` (what died and why —
@@ -33,14 +34,21 @@ intercept-only. The frozen production cell has **ξ_mp = 6.057014 full /
 8.643436 pre-COVID**, F_rob,mp = 9.625428 / 13.809985; both companion
 matrices are stable (0.970090 / 0.993359). **ξ_mp is the strength ruler of
 record** — the AR set is bounded iff ξ_mp > 3.84, conventional bands
-approximately valid at ξ_mp ≥ 10. Legacy first-stage F rulers still print
-but stopped deciding on 2026-07-26.
+approximately valid at ξ_mp ≥ 10. Since 2026-09-08 that boundedness is no
+longer a prediction: `ar_dfm_bands()` builds the sets, its `xi_den` reproduces
+6.057014 through the MOSW covariance, and all 5635 production cells come back
+`interval` at 68/90/95%. Legacy first-stage F rulers still print but stopped
+deciding on 2026-07-26.
 
-**The paper is one vintage behind the code.** `paper/paper_anpec.tex`, its
-figures and `output/irf/irf_section.md` still describe the prior 115-series,
-2013-01--2025-09 window at `(r,q,p)=(4,4,4)` (ξ_mp=6.38 full). Syncing them
-to the 2012-03 window above is a separate, not-yet-scheduled editorial round
-— see `notas/_indice.md` before citing paper numbers as current.
+**The paper is one vintage behind the code, and now behind it in inference
+too.** `paper/paper_anpec.tex`, its figures and `output/irf/irf_section.md`
+still describe the prior 115-series, 2013-01--2025-09 window at
+`(r,q,p)=(4,4,4)` (ξ_mp=6.38 full) **with wild-bootstrap bands**. Production
+publishes Anderson–Rubin sets on the 2012-03 window. Both gaps close in the
+same not-yet-scheduled editorial round; until then `script/fig_section5.R` and
+`script/fig_weak_iv.R` abort without `--repaint-paper-figures`, so a stray
+re-run cannot repaint the paper's figures with an inference its captions do
+not announce. See `notas/_indice.md` before citing paper numbers as current.
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p2`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
@@ -66,9 +74,12 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
    **benchmark**; it does not use the factors).
 
 `script/irf_coherence_check.R` runs the production spec once and writes
-`output/irf/irf_coherence_h.csv` — point + 68/90 bands + flags, **the source of §5** — plus
-`irf_coherence_cell.rds`, the cached estimation object follow-up analyses reuse instead of
-re-estimating. Catalog of the 40 scripts in `script/README.md`; repo map in `README.md`.
+`output/irf/irf_coherence_h.csv` — point + 68/90 Anderson–Rubin sets + `set_type` + flags, **the
+source of §5** — plus `irf_coherence_cell.rds`, the cached estimation object follow-up analyses
+reuse instead of re-estimating. `script/ar_bands.R` is the round that documents the inference
+swap: it puts AR, delta-method and wild bootstrap side by side on the production cell, contrasts
+`(5,2)`, and records the cells the `hac_dim < T` gate blocks. Catalog of the scripts in
+`script/README.md`; repo map in `README.md`.
 
 ## Completed rounds
 
@@ -90,6 +101,7 @@ Cite the note, never this table. Notes are under `notas/`.
 | Fiscal Focus expectations (isolated) | `fiscal_expectations.R` | `2026-09-01_teste_expectativas_fiscais` | 111→114-series experimental panel; no evidence of expected fiscal deterioration |
 | DLSP accounting decomposition | `fiscal_dlsp_decomposition.R` | `2026-09-01_decomposicao_contabil_dlsp` | blocked: the 7-flow identity omits the external "outros ajustes" line |
 | 115-series exchange-adjustment + fiscal expectations (joint) | `fiscal_exchange_expectations.R` | `2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais` | experimental panel superseded for DFM numbers; not promoted to production |
+| Anderson–Rubin as the DFM's operational inference | `ar_bands.R` | `2026-09-08_bandas_anderson_rubin_producao` | swap done; all 5635 production cells bounded, weak-IV premium 1.38× at 90%; `(5,2)` unbounded; `(8,8)` and pre-COVID blocked by `hac_dim < T` |
 
 ## ⚠ Prohibitions
 
@@ -99,17 +111,27 @@ These govern what may be **said**, so they apply even when no file is open.
 
 - **68% bands are never "significant".** Two-tier rule: 90% band excluding zero → *significativo*;
   68% only → **direction and magnitude**, labelled as such.
-- **The 68%/90% wild bootstrap is the sole operational inference for the DFM.** The withdrawn
-  Anderson–Rubin plug-in conditioned on estimated factors and loadings and lacked a theory covering
-  those generated objects. Do not cite its numerical bands; any future implementation must first
-  incorporate factor estimation or establish the required asymptotic justification.
-  **The small-VAR benchmark is a separate object and does carry AR/MOSW
-  confidence sets** (`R/identification/weak_iv_ar.R`, VAR-only by construction — it takes a
-  coordinate selector, not a loadings matrix, so it cannot be pointed at factor space). Those sets
-  are inference *for the VAR*, never for the DFM, and coincidence licenses only "the central
-  pattern is robust to weak-IV inference in an alternative lower-dimensional specification" —
-  **never** "the SVAR proves the SDFM right". Weak-IV robustness is **not** instrument validity:
-  both models use the same proxy, so a contaminated proxy fails in both.
+- **The 68%/90% Anderson–Rubin sets are the sole operational inference for the DFM** since
+  **2026-09-08** (author decision; it reverses the 2026-08-12 withdrawal, `historico_decisoes.md`
+  §7). `production_spec()$inference` is the single authority, `compute_irf_dfm(inference=)` the
+  single switch. The wild bootstrap is still computable and still the object `ar_bands.R` compares
+  against, but it no longer decides significance. Two things must be said with the sets, not
+  around them: the plug-in covariance conditions on the estimated `Λ`, `K`, `M` and `sy`; and
+  `mosw_rform_cov` needs `hac_dim < T`, which **blocks** `(r,q)=(8,8)` at `p=4` (336 ≥ 162) and
+  the **whole pre-COVID window** at `p=4` (135 ≥ 90). No pseudo-inverse, no substitute bootstrap,
+  no fallback — a blocked cell is reported blocked.
+- **Significance is "the set excludes zero", read off the topology.** An AR set need not be an
+  interval: `two_rays` excludes zero only when zero falls in its gap, `real_line` never does, and
+  `empty` is a misspecification signal that scoring must not read as a sign. `ar_excludes_zero()`
+  is the only place that rule lives. The set is bounded at level κ **iff ξ_mp > κ**, which is why
+  `(5,2)` — ξ_mp = 2.339 — is unbounded at 90% and 95% and bounded only at 68%.
+  **The small-VAR benchmark keeps its own AR/MOSW sets** (`R/identification/weak_iv_ar.R`, now the
+  shared module: `Load`/`Inner` default to the identity and the VAR path is bit-identical, guarded
+  by `validate_mosw_ar.R`). Those sets are inference *for the VAR*, never for the DFM, and
+  coincidence licenses only "the central pattern is robust to weak-IV inference in an alternative
+  lower-dimensional specification" — **never** "the SVAR proves the SDFM right". Weak-IV
+  robustness is **not** instrument validity: both models use the same proxy, so a contaminated
+  proxy fails in both.
 - **The medium-run reversal may not be cited as evidence separate from the dynamics that produce
   it** — it and the near-unit persistence of the factor VAR are the same object. `cambio_usd` is the
   one exception, so §4's exchange-rate persistence claim is untouched.
@@ -186,7 +208,8 @@ Rscript script/fomc_coincidence.R            # FOMC spillover: US block + re-der
 # IRF specification sweep
 Rscript script/irf_spec_sweep.R              # stage 1: point estimates (~seconds)
 Rscript script/irf_spec_stage2.R             # stage 2: bootstrap on winning cells (~2 min)
-Rscript script/irf_coherence_check.R         # 53 vars scored point-by-point (feeds §5)
+Rscript script/ar_bands.R                    # AR vs delta vs bootstrap; (5,2); células barradas
+Rscript script/irf_coherence_check.R         # 58 vars scored point-by-point (feeds §5)
 Rscript script/fig_section5.R                # paper/fig_*.pdf from the cached .rds
 
 Rscript script/model_alessi.R                # main DFM (long; bootstrap dominated)

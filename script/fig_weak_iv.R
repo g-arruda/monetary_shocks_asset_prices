@@ -1,13 +1,29 @@
 # ===================================================================
 # DFM and observable-SVAR impulse responses under weak instruments.
 #
-# Pure post-processing: DFM wild-bootstrap bands and VAR AR/MOSW sets.
+# Pure post-processing: DFM bands and VAR AR/MOSW sets.
 # Output: paper/fig_weak_iv_main.pdf
+#
+# FROZEN since 2026-09-08. The whole point of this figure was that the two
+# models carried different inference — wild bootstrap on the left, AR/MOSW on
+# the right — and the caption in paper_anpec.tex says so. Since the DFM moved
+# to Anderson-Rubin, output/irf/irf_coherence_h.csv no longer holds bootstrap
+# bands and the contrast the caption announces no longer exists. Repainting is
+# an editorial decision, not a re-run.
 # ===================================================================
 
 rm(list = ls())
 
 source("R/modeling/production_spec.R")
+
+if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
+  stop(
+    "fig_weak_iv_main.pdf is frozen at the wild-bootstrap vintage of the DFM. ",
+    "Its caption contrasts bootstrap bands against AR sets, and both sides are ",
+    "AR now. Use --repaint-paper-figures only in the editorial round that ",
+    "rewrites the caption."
+  )
+}
 
 SPEC <- production_spec()
 VAR_SPEC <- SPEC$var_benchmark

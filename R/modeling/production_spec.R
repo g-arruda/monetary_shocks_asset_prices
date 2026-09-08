@@ -46,6 +46,14 @@ production_spec <- function() {
     mp_var = "yield_6m",
     shock_bps = 50,
     normalize_value = 0.005,
+    # Operational inference of the DFM since 2026-09-08: Anderson-Rubin sets by
+    # test inversion, in place of the wild bootstrap. `nboot` and
+    # `bootstrap_seed` below stay in the spec because the bootstrap remains a
+    # computable comparison object (script/ar_bands.R, irf_spec_stage2.R).
+    inference = "ar",
+    ar_levels = c(0.68, 0.90),
+    ar_nw_lags = 0L,
+    ar_bands_path = "output/irf/ar_bands.csv",
     sample = as.Date(c("2012-03-01", "2025-12-01")),
     pre_covid_sample = as.Date(c("2012-03-01", "2019-12-01")),
     event_sample = as.Date(c("2012-03-01", "2025-12-31")),

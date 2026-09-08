@@ -417,18 +417,33 @@ infer_tcode_from_varnames <- function(var_names) {
 #' @param diagnose When TRUE, attaches first-stage and factor-space diagnostics.
 #' @param var_names Character vector of panel column names.
 #' @param identification Identification branch; `"proxy"` is the only one.
+#' @param inference Which bands fill `ci`: `"ar"` inverts the Anderson-Rubin
+#'   test (`ar_dfm_bands()`, the operational inference of the DFM since
+#'   2026-09-08 and what `production_spec()$inference` selects), `"bootstrap"`
+#'   takes the wild-bootstrap quantiles. The argument defaults to
+#'   `"bootstrap"` so that callers under `diagnostics/`, which are not
+#'   editable, keep the bands they were written against; every production
+#'   caller passes `"ar"` explicitly.
+#' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #'
 #' @return List with `irf_point_matrix` (vars x horizons), `ci` (one entry per
-#'   level, each with `lower`/`upper`), the raw bootstrap array and diagnostics.
+#'   level, each with `lower`/`upper`), `inference`, and `ar` — the full
+#'   `ar_dfm_bands()` result with set topologies, or NULL under bootstrap.
 compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                             bootstrap_seed = NULL, mpind = NULL,
                             normalize_value = 0.5, data_dates = NULL,
                             tcode = NULL, ci_levels = c(0.90, 0.95),
                             diagnose = getOption("dfm.irf.diagnose", FALSE),
                             var_names = NULL,
-                            identification = "proxy") {
+                            identification = "proxy",
+                            inference = c("bootstrap", "ar"),
+                            ar_nw_lags = 0L) {
 
   identification <- match.arg(identification)
+  inference <- match.arg(inference)
+  if (inference == "ar" && !exists("ar_dfm_bands", mode = "function")) {
+    stop("inference = 'ar' requires R/identification/weak_iv_ar.R to be sourced")
+  }
   if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
 
   # --- Extrair componentes do DFM (OLS, sem Kilian — para ponto estimado) ---
@@ -531,8 +546,34 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                                   var_names = var_names)
   irf_point <- point_result$irf_mp
 
-  # --- Wild Bootstrap (Gertler & Karadi 2015 / DFMest_BLL_Boot.m) ---
-  if (nboot > 0) {
+  # --- Anderson-Rubin sets (operational inference since 2026-09-08) ---
+  ar <- NULL
+  if (inference == "ar") {
+    if (is.null(mpind)) {
+      stop("inference = 'ar' requires mpind: the sets are normalized on it")
+    }
+    ar <- ar_dfm_bands(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
+                       normalize_value, tcode, ci_levels, nw_lags = ar_nw_lags)
+
+    # The inversion re-derives the point response from its own moment vector.
+    # It has to land on the production point, or the two paths disagree about
+    # the identification itself.
+    dev_point <- max(abs(ar$by_level[[1L]]$point - irf_point))
+    if (!is.finite(dev_point) || dev_point > 1e-10) {
+      stop("The Anderson-Rubin point deviates from ident_ext_instr by ",
+           format(dev_point, digits = 3), " (tolerance 1e-10)")
+    }
+
+    ci <- list()
+    for (lvl in ci_levels) {
+      name <- sprintf("%.2f", lvl)
+      ci[[name]] <- list(
+        level = lvl,
+        lower = ar$by_level[[name]]$lo,
+        upper = ar$by_level[[name]]$hi
+      )
+    }
+  } else if (nboot > 0) {
     # Componentes para bootstrap DGP (Kilian-corrigidos, se disponíveis)
     # Seguindo DFMest_BLL_Boot.m: DGP usa coeficientes corrigidos + resíduos OLS
     boot_coeffs <- dfm_results$var_coefficients_corrected
@@ -663,14 +704,16 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     irf_point_matrix = irf_point,
     ci = ci,
     ci_levels = ci_levels,
-    identification = identification
+    identification = identification,
+    inference = inference,
+    ar = ar
   )
 
   out
 }
 
 
-#' Plot IRFs with shaded bootstrap bands, paper style
+#' Plot IRFs with shaded confidence bands, paper style
 #'
 #' @param irf_results Full list returned by `compute_irf_dfm()`.
 #' @param response_vars List of named variables (or indices) to draw.

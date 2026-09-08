@@ -11,8 +11,9 @@
 > divergência de número.** A `tab:rq_sweep` **saiu do paper**, porque a dimensão
 > passou a ser justificada pelo Bai--Ng IC2 e não por varredura de força, de modo
 > que toda a discussão de platô e de reotimização *ex post* abaixo perdeu objeto.
-> Anderson--Rubin aparece somente para o VAR observável, nunca
-> como inferência do DFM. E a seleção `(r=7, q=6)`
+> Anderson--Rubin aparecia somente para o VAR observável e nunca como
+> inferência do DFM; **desde 2026-09-08 é a inferência do DFM também**, e o
+> paper ainda não foi reescrito para isso. E a seleção `(r=7, q=6)`
 > sobre 106 séries foi substituída por `(5,5)` sobre 111. Não reintroduzir
 > nenhuma das três a partir deste arquivo.
 
@@ -213,11 +214,19 @@ sinalizado no §6 abaixo).
   (fontes: `output/instrument/instrument_diagnostics_report.md` §1-1.1,
   `factor_space_F_grid.csv`, `mosw_strength_grid.csv`,
   `olea_alignment_audit.md`).
-- **Bandas AR** *(adiadas sem prazo em 2026-08-12)*: não entram na §3.6 nem na
-  §5 enquanto não houver fundamentação teórica ou procedimento que incorpore a
-  estimação dos fatores e loadings. A implementação plug-in de 2026-08-10 foi
-  retirada; sua nota permanece apenas como registro histórico superado. Até
-  nova decisão, o paper reporta somente as bandas wild-bootstrap de 68% e 90%.
+- **Bandas AR** *(reabertas por decisão do autor em 2026-09-08, depois de
+  adiadas em 2026-08-12)*: passaram a ser a **inferência operacional do DFM**,
+  no lugar do wild bootstrap, sem que a condição de reabertura registrada em
+  `historico_decisoes.md` §7 tivesse sido cumprida — o condicionamento em
+  fatores e loadings estimados permanece, e o custo de cobertura medido pelo
+  parecer de 08-12 permanece com ele. O paper **ainda não foi reescrito**: §3.6,
+  §4, §5 e as legendas continuam descrevendo bandas de bootstrap, e a §5.3
+  (`sec:weak_iv`) contrasta bootstrap-no-DFM contra AR-no-VAR, contraste que
+  deixou de existir. A implementação plug-in de 2026-08-10 segue superada como
+  registro histórico; a rodada corrente é
+  `notas/2026-09-08_bandas_anderson_rubin_producao.md`. ⚠ Ao reescrever: a
+  janela pré-COVID **não tem banda AR** (`hac_dim` 135 ≥ 90), então nenhuma
+  afirmação de significância pré-COVID pode ser feita com a inferência corrente.
 - A identificação segue mais forte na janela pre-COVID do que na completa
   (12,22 vs 10,43), mas **as duas cruzam o limiar** — a leitura antiga de que as
   observações pós-2020 só adicionavam ruído era em parte artefato do bloco
@@ -558,12 +567,14 @@ regeneráveis apagados — ver `arquivo/README.md` e `registro/historico_decisoe
    **deixa de ser necessário** — as magnitudes agora batem com os event studies
    brasileiros. Falta converter o §5 para o tex.
 2. **Bandas Anderson-Rubin — adiadas sem prazo e sem prioridade ativa em
-   2026-08-12.** A tentativa plug-in de 2026-08-10 foi retirada por não
-   incorporar a incerteza da estimação fatorial e por falhar em casos
-   degenerados. Reabrir apenas com fundamentação teórica ou procedimento que
-   incorpore fatores e loadings estimados. O bootstrap de 68%/90% permanece a
-   única inferência operacional; a nota de 2026-08-10 é registro histórico
-   marcado como superado.
+   2026-08-12, e REABERTA por decisão do autor em 2026-09-08.** A tentativa
+   plug-in de 2026-08-10 foi retirada por não incorporar a incerteza da
+   estimação fatorial e por falhar em casos degenerados. O segundo defeito foi
+   corrigido; o primeiro **não**, e a rota voltou assim mesmo: desde 2026-09-08
+   os conjuntos AR de 68%/90% são a única inferência operacional do DFM, no
+   lugar do bootstrap. A nota de 2026-08-10 continua sendo registro histórico
+   superado — outra vintage, números não portáveis. Rodada corrente:
+   `notas/2026-09-08_bandas_anderson_rubin_producao.md`.
 3. ~~**Placebo `commodity_metal` violado**~~ — **RESOLVIDO em 2026-07-28, e a
    inversão é completa.** Não é falha de exogeneidade: o IC-Br do BCB é
    **denominado em R$**, logo é preço doméstico que herda mecanicamente a

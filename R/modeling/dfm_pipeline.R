@@ -33,6 +33,9 @@
 #'   names when NULL.
 #' @param ci_levels Confidence levels.
 #' @param identification Identification branch; `"proxy"` is the only one.
+#' @param inference Band construction; `production_spec()$inference` (`"ar"`)
+#'   by default. See `compute_irf_dfm()`.
+#' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #'
 #' @return List with the fitted DFM, IRFs, panel, transformations, and
 #'   normalization.
@@ -48,7 +51,9 @@ main_sdfm <- function(spec = production_spec(),
                       bootstrap_seed = spec$bootstrap_seed,
                       mp_var = spec$mp_var, shock_size_bps = spec$shock_bps,
                       tcode = NULL, ci_levels = spec$ci_levels,
-                      identification = "proxy") {
+                      identification = "proxy",
+                      inference = spec$inference,
+                      ar_nw_lags = spec$ar_nw_lags) {
 
   identification <- match.arg(identification)
 
@@ -113,7 +118,9 @@ main_sdfm <- function(spec = production_spec(),
     tcode = tcode,
     ci_levels = ci_levels,
     var_names = colnames(data),
-    identification = identification
+    identification = identification,
+    inference = inference,
+    ar_nw_lags = ar_nw_lags
   )
 
   list(

@@ -16,13 +16,23 @@ subsections; §5 Robustez includes `sec:exogeneidade`, `sec:invertibilidade`, `s
 `sec:confound` and `sec:fomc`; concluding remarks is §6. `script/fig_section5.R` writes the
 general robustness figures, while `script/fig_weak_iv.R` writes the weak-IV figure.
 
-**The paper was fully synchronized on 2026-08-25.** Abstract, §1--§5,
-conclusion and appendix use the 111-series `(r,q,p)=(5,5,4)` production.
-`tab:rq_sweep` no longer exists. Anderson--Rubin is reported only for the
-observable VAR in `sec:weak_iv`, never as inference for the DFM. Its current
-source is `notas/2026-08-22_var_niveis_aic_tendencia.md`. The sign-filter
-subsections report only exercises that hold the production mask fixed; the
-rederived-mask diagnostics remain in the generated outputs and living record.
+**The paper was fully synchronized on 2026-08-25**, and has since fallen
+behind twice. Abstract, §1--§5, conclusion and appendix use the 111-series
+`(r,q,p)=(5,5,4)` production and describe **wild-bootstrap** bands for the DFM.
+`tab:rq_sweep` no longer exists. The sign-filter subsections report only
+exercises that hold the production mask fixed; the rederived-mask diagnostics
+remain in the generated outputs and living record.
+
+**Two gaps are open against production, and both close in the same editorial
+round.** (i) the window moved to 2012-03--2025-12; (ii) **on 2026-09-08 the
+DFM's operational inference became the Anderson--Rubin sets**, so §3.7, §4,
+§5 and every figure caption that says *wild bootstrap* now describes an
+inference the code no longer publishes. `sec:weak_iv` is the sharpest case:
+its whole contrast was bootstrap-on-the-DFM against AR-on-the-VAR, and both
+sides are AR now. Until that round runs, `script/fig_section5.R` and
+`script/fig_weak_iv.R` abort without `--repaint-paper-figures`. Do not quote a
+paper band as current inference; quote `output/irf/irf_coherence_h.csv`, whose
+`set_type68`/`set_type90` columns say what kind of set each band is.
 
 `arquivo/tex/main.tex` is the **previous** draft. It is a historical prose
 source, **not a target to edit** and not evidence for current magnitudes.
@@ -30,9 +40,9 @@ source, **not a target to edit** and not evidence for current magnitudes.
 ## Generated vs hand-written — the distinction that already cost this project once
 
 **These bodies are rewritten in full on every run. Never put prose in them:**
-`output/irf/irf_coherence_report.md`, `output/var/svar_iv_weak_robust.md`,
-`output/factors/factor_stationarity.md`, `output/assets/asset_representation.md`,
-`output/var/var_benchmark.md`.
+`output/irf/irf_coherence_report.md`, `output/irf/ar_bands.md`,
+`output/var/svar_iv_weak_robust.md`, `output/factors/factor_stationarity.md`,
+`output/assets/asset_representation.md`, `output/var/var_benchmark.md`.
 
 Their hand-written counterpart is **`output/irf/irf_coherence_leitura.md`, which no script may
 touch** — a previous one was silently destroyed by a re-run of the check, which is why the split
@@ -49,6 +59,42 @@ tcode correction moved the asset block; anything written before it is out of sca
 `registro/pendencias.md` holds only what is open; `registro/historico_decisoes.md` holds
 negative results and reversed decisions. Keep that split — a closed item moves, it does not get
 duplicated.
+
+## Maintaining `registro/pendencias.md`
+
+- **New item** enters as `- [ ]` inside the matching theme A-E — never loose at the end of the
+  file. If it fits none of the five, that's a new theme: create `F.`, `G.`, etc., don't force it
+  into "Código e higiene" as a generic drawer.
+- **Closed item** flips `[ ]` to `[x]` and **moves** — out of the section's top and into that
+  theme's `### Fechados (contexto)` block, compressed to **2-4 lines**: what was done, the
+  verdict, the 1-3 numbers that matter most, and the pointer (`Nota:`/`output/...`) for whoever
+  wants the full detail. Never leave the long narrative in the open item's place.
+- **A `⚠` caveat with no other record in the repo** cannot be cut during compression — it becomes
+  one of the summary's lines, not a lost note.
+- **Work that surfaces only while closing an item** ("this stays open: X") becomes its **own**
+  `- [ ]` in the right theme — never a loose sentence inside the closed item. That pattern is what
+  hid two items during the 2026-08 reorganization.
+- **Dependency between items** is declared both ways — the blocker says what it unblocks, the
+  dependent says what it depends on — and shows up in the `Índice de itens abertos` table.
+- **Índice de itens abertos** updates on every open/close; it's the only place meant to give, at a
+  glance, the full list of what's left.
+- `Especificação corrente` and `Rota metodológica decidida` are living reference: **edit in
+  place** when they change (instrument swap, r/q, etc.), never duplicate a new block next to the
+  old one.
+
+## Branch convention
+
+**`main` is the always-reproducible state** — `CLAUDE.md`'s smoke test has to pass on any commit
+of it.
+
+- **One branch per methodological bet that could be rejected.** The heteroskedasticity route is
+  the example: isolated, it would have been discarded whole instead of leaving residue spread
+  across six scripts.
+- **Writing goes straight to `main`**, in small commits: §5 for the tex, abstract, introduction,
+  conclusion, literature review. It isn't an experiment, it can't "fail", and it only touches
+  `paper/` (the old `tex/` has been archived under `arquivo/tex/` since 2026-08-02 and takes no
+  more writes).
+- **Hygiene and diagnostic re-runs go straight to `main`** too.
 
 ## Where a document belongs
 

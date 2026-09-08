@@ -1,8 +1,11 @@
 # ===================================================================
 # Point-by-point theory-coherence check of the production IRFs across
-# ~40 key panel variables under the centralized production specification,
-# wild bootstrap nboot=800). For each variable, every horizon h = 0..48
-# is checked for sign and CI68/CI90 significance against the theory
+# ~40 key panel variables under the centralized production specification.
+# Bands are the Anderson-Rubin sets of `production_spec()$inference`, the
+# operational inference of the DFM since 2026-09-08; the wild bootstrap is
+# no longer run here, and the side-by-side comparison of the two lives in
+# script/ar_bands.R. For each variable, every horizon h = 0..48 is checked
+# for sign and for exclusion of zero at 68% and 90% against the theory
 # window defined in R/identification/irf_coherence.R.
 # Outputs: output/irf/irf_coherence_h.csv, irf_coherence_summary.csv,
 #          irf_coherence_report.md, irf_coherence_plots.pdf,
@@ -23,6 +26,7 @@ source("R/identification/factor_space_diagnostics.R")
 source("R/identification/validation_tests.R")
 source("R/identification/spec_sweep.R")
 source("R/identification/irf_coherence.R")
+source("R/identification/weak_iv_ar.R")
 
 
 # ---- Config (production spec) --------------------------------------
@@ -34,11 +38,15 @@ P_LAGS     <- SPEC$p
 INSTRUMENT <- SPEC$instrument
 MP_VAR     <- SPEC$mp_var
 HORIZON    <- SPEC$horizon
-N_BOOT     <- SPEC$nboot
+INFERENCE  <- SPEC$inference
+AR_NW_LAGS <- SPEC$ar_nw_lags
 BOOT_SEED  <- SPEC$bootstrap_seed
 SHOCK_BPS  <- SPEC$shock_bps
 CI_LEVELS  <- SPEC$ci_levels
 WINDOW     <- SPEC$sample
+
+# The Anderson-Rubin sets are analytic: no replication is drawn here.
+N_BOOT <- if (INFERENCE == "ar") 0L else SPEC$nboot
 
 DATA_PATH <- SPEC$data_path
 INST_PATH <- SPEC$instrument_path
@@ -65,8 +73,8 @@ if (length(missing) > 0) {
        paste(missing, collapse = ", "))
 }
 
-cat(sprintf("Estimating production spec: %s x %s, r=%d q=%d p=%d, nboot=%d\n",
-            INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, P_LAGS, N_BOOT))
+cat(sprintf("Estimating production spec: %s x %s, r=%d q=%d p=%d, inference=%s\n",
+            INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, P_LAGS, INFERENCE))
 t0 <- Sys.time()
 cell <- run_stage2_cell(
   data_mat, dates, inst_panel,
@@ -74,7 +82,8 @@ cell <- run_stage2_cell(
   r = R_FACTORS, q = Q_DYNAMIC, p = P_LAGS,
   instrument = INSTRUMENT, mp_var = MP_VAR,
   h = HORIZON, nboot = N_BOOT, seed = BOOT_SEED,
-  shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS
+  shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS,
+  inference = INFERENCE, ar_nw_lags = AR_NW_LAGS
 )
 cat(sprintf("  done in %.1f min\n", as.numeric(Sys.time() - t0, units = "mins")))
 saveRDS(cell, SPEC$coherence_cell_path)
@@ -82,6 +91,23 @@ saveRDS(cell, SPEC$coherence_cell_path)
 point <- cell$irf$irf_point_matrix
 ci68  <- cell$irf$ci[["0.68"]]
 ci90  <- cell$irf$ci[["0.90"]]
+ar    <- cell$irf$ar
+
+if (INFERENCE == "ar") {
+  cat(sprintf("  xi_mp in the normalization direction = %.6f (T = %d, W is %d x %d)\n",
+              ar$xi_den, ar$T_eff, ar$n_par, ar$n_par))
+  for (lvl in CI_LEVELS) {
+    b <- ar$by_level[[sprintf("%.2f", lvl)]]
+    bounded <- b$ahat[1L, 1L] > 0
+    if (bounded != (ar$xi_den > b$critval)) {
+      stop("Set boundedness disagrees with xi_mp > critval at level ", lvl)
+    }
+    cat(sprintf("  %.0f%%: critval %.4f, sets bounded = %s | %s\n",
+                100 * lvl, b$critval, bounded,
+                paste(sprintf("%s %d", names(table(b$set_type)),
+                              as.integer(table(b$set_type))), collapse = ", ")))
+  }
+}
 
 
 # ---- Evaluate every variable ---------------------------------------
@@ -93,7 +119,9 @@ for (i in seq_len(nrow(spec_tbl))) {
   idx  <- match(spec$var, var_names)
   res  <- evaluate_irf_path(
     point[idx, ], ci68$lower[idx, ], ci68$upper[idx, ],
-    ci90$lower[idx, ], ci90$upper[idx, ], spec
+    ci90$lower[idx, ], ci90$upper[idx, ], spec,
+    set_type68 = if (is.null(ar)) NULL else ar$by_level[["0.68"]]$set_type[idx, ],
+    set_type90 = if (is.null(ar)) NULL else ar$by_level[["0.90"]]$set_type[idx, ]
   )
   perh_rows[[i]] <- res$perh
   summ_rows[[i]] <- res$summary
@@ -119,8 +147,10 @@ for (g in unique(spec_tbl$group)) {
                   var_names = var_names, tcode = tcode, ci_to_plot = CI_LEVELS) +
       patchwork::plot_annotation(
         title = sprintf("Coerência IRF — grupo: %s", g),
-        subtitle = sprintf("%s x %s | r=%d q=%d | +%dbp | nboot=%d | bandas 68/90",
-                           INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, SHOCK_BPS, N_BOOT)
+        subtitle = sprintf("%s x %s | r=%d q=%d | +%dbp | %s | 68/90",
+                           INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, SHOCK_BPS,
+                           if (INFERENCE == "ar") "conjuntos Anderson-Rubin"
+                           else sprintf("wild bootstrap nboot=%d", N_BOOT))
       )
     print(p)
   }
@@ -153,14 +183,34 @@ report <- c(
   "> [`irf_coherence_leitura.md`](irf_coherence_leitura.md), que nenhum script toca.",
   "",
   sprintf(paste0("Especificação: `%s` x `%s`, r=%d, q=%d, p=%d, full sample, ",
-                 "choque +%dbp, wild bootstrap nboot=%d (seed %d), bandas 68/90, h=0..%d."),
-          INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, P_LAGS,
-          SHOCK_BPS, N_BOOT, BOOT_SEED, HORIZON),
+                 "choque +%dbp, %s, níveis 68/90, h=0..%d."),
+          INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, P_LAGS, SHOCK_BPS,
+          if (INFERENCE == "ar") {
+            sprintf(paste0("conjuntos Anderson--Rubin por inversão de teste, ",
+                           "NW(%d), ξ_mp = %.4f na direção de normalização"),
+                    AR_NW_LAGS, ar$xi_den)
+          } else {
+            sprintf("wild bootstrap nboot=%d (seed %d)", N_BOOT, BOOT_SEED)
+          },
+          HORIZON),
   "",
+  if (INFERENCE == "ar") {
+    c(sprintf(paste0("Topologia dos conjuntos: %s a 68%%, %s a 90%%. O coeficiente ",
+                     "de λ² é `T·den² − κ·d0'W₂d0`, logo o conjunto é limitado em ",
+                     "todos os horizontes se e somente se ξ_mp > κ."),
+              paste(sprintf("%s %d", names(table(ar$by_level[["0.68"]]$set_type)),
+                            as.integer(table(ar$by_level[["0.68"]]$set_type))),
+                    collapse = ", "),
+              paste(sprintf("%s %d", names(table(ar$by_level[["0.90"]]$set_type)),
+                            as.integer(table(ar$by_level[["0.90"]]$set_type))),
+                    collapse = ", ")),
+      "")
+  } else character(0),
   "## Método",
   "",
   "Para cada variável, cada horizonte h é checado quanto a sinal e significância",
-  "(CI68/CI90) contra a janela teórica [w_lo, w_hi] definida em",
+  "(o conjunto de confiança exclui zero, a 68% e a 90%) contra a janela teórica",
+  "[w_lo, w_hi] definida em",
   "`R/identification/irf_coherence.R::coherence_var_table()`. Vereditos:",
   "`coerente_forte` (≥80% da janela com sinal certo + significância CI68),",
   "`coerente` (≥80% sem significância), `parcial` (50-80%, sem violação",

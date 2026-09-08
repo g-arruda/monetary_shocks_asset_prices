@@ -1,9 +1,19 @@
 # Resultados das IRFs na rodada canônica
 
-> **CURRENT — 2026-09-01.** Produzido a partir de
-> `output/irf/irf_coherence_cell.rds` por
-> `script/irf_coherence_check.R`; os números de impacto abaixo são lidos desse
-> cache e as bandas são do *wild bootstrap* de 800 réplicas.
+> **VINTAGE DE BOOTSTRAP — escrito em 2026-09-01, defasado desde 2026-09-08.**
+> Produzido a partir de `output/irf/irf_coherence_cell.rds` por
+> `script/irf_coherence_check.R`; os números de impacto abaixo foram lidos desse
+> cache quando ele carregava bandas do *wild bootstrap* de 800 réplicas.
+>
+> **Duas defasagens contra a produção corrente, não uma.** (i) a janela: o corpo
+> descreve 2013-01--2025-09 em `(4,4,4)`; (ii) a inferência: desde 2026-09-08 a
+> produção publica **conjuntos Anderson-Rubin**, e o cache foi regenerado com
+> eles. Os pontos são estáveis à troca — ela não toca `irf_point_matrix` — mas
+> **toda banda e toda afirmação de significância abaixo pertencem à régua
+> anterior**. Fonte corrente: `output/irf/irf_coherence_h.csv`, cujas colunas
+> `set_type68`/`set_type90` dizem que tipo de conjunto é cada banda. Nota da
+> troca: `notas/2026-09-08_bandas_anderson_rubin_producao.md`. A sincronização é
+> item aberto no Tema A de `registro/pendencias.md`.
 
 ## Especificação
 

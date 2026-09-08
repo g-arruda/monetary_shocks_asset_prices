@@ -114,8 +114,10 @@ explicitamente marcados como históricos. Ver "Data layout"
 no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 
 - **`irf/`** — a rodada de coerência (`irf_coherence_*`, fonte de todo número
-  em `irf_section.md`/§5 do paper) e os artefatos do sweep de especificação
-  (`spec_sweep_*`, `irf_spec_*`).
+  em §5 do paper), a rodada de inferência (`ar_bands_*`, que documenta a troca
+  de 2026-09-08 do wild bootstrap pelos conjuntos Anderson-Rubin) e os
+  artefatos do sweep de especificação (`spec_sweep_*`, `irf_spec_*`).
+  `irf_section.md` é anterior à troca e carrega banner dizendo isso.
 - **`instrument/`** — réguas de força do instrumento (`mosw_strength_grid`,
   `instrument_diagnostics_report`, `instrument_construction_sweep`,
   `jk_sovereign_confound`, `fomc_coincidence`).
