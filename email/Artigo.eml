@@ -1,0 +1,1502 @@
+Delivered-To: g.arruda1996@gmail.com
+Received: by 2002:a05:6e04:4282:b0:400:eef7:1bcb with SMTP id ae2csp8420575imd;
+        Fri, 4 Sep 2026 12:42:51 -0700 (PDT)
+X-Received: by 2002:a17:902:d987:b0:2db:257c:9fd5 with SMTP id d9443c01a7336-2db257ca020mr36336725ad.16.1788550971495;
+        Fri, 04 Sep 2026 12:42:51 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1788550971; cv=pass;
+        d=google.com; s=arc-20260327;
+        b=bxFD0SE2opQ/sLaI5O6xzjKqBCxrk/LGFUzfVkfIlHCbGhATpBQd+gZ7oBVbMCSbFp
+         8VBUJCFw3ftaVjYXl3wzn5r5Zo9hPcqWpDOU39XFEdRHJCwk09U7CwI+nVe7MoRDCsH5
+         UWxlNXPF+rc6gKGKicJh/ORuMVVNVl42QQDz1uFM24OWpF6sr4mMip8/OvzXiw/gpCOc
+         oaiyNT/UTXTvbmjfzMRCBXg+oZTfxsILmBQ1n5jXBXxI7A5ABBDtmnWE1lI5g6bn6z1n
+         VDkP35EjHReomejbyLvcXp6SySDj6d6tpHmY6j8dK2ru9BFawQy2ryI9utj+qx/J3QIe
+         BWzw==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :dkim-signature;
+        bh=lYf89RIvNI6E9aqAhLYryTteS0XrAEDyT6VKwpYRNHA=;
+        fh=bEMAU97rDgYq9HjToGAtmWWuhHd90HrCT3grcaRtkDM=;
+        b=FEWIqgFN4x2/rylF/7Rrts5XhoPWZzPRSu5cH50xOE2Xo5Zta1PwOrQPME0RyxK14h
+         rDMHJSXngWPBvA8WsV8PuIUsZ3VgIEjEN0MAiQgZsDisq2mgKM1BEKmRt6/HZ7eAKj2M
+         RNHACs+qPntBN9Es6lpR90+UJREXh0oYHjYAmLsZVT12/TtWQU2Qiv8jXHN1s0EBNCsJ
+         yIqVRqftC6aml599KdZT6rh2Cm8HNATF2lMHmP2cpOF6e36n0b8xvGU3V5kPSpJVShpT
+         D1vm+ZaaU1i5sZGwqnR8me+ZB2stxoJDo1F/JCgTqErjvmle1yrfMqkaFCpDSfF00Sz9
+         cwSQ==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20251104 header.b=AibBzezx;
+       arc=pass (i=1);
+       spf=pass (google.com: domain of emaildocaldeira@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=emaildocaldeira@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+Return-Path: <emaildocaldeira@gmail.com>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id d9443c01a7336-2db148ebc57sor18892685ad.7.2026.09.04.12.42.51
+        for <g.arruda1996@gmail.com>
+        (Google Transport Security);
+        Fri, 04 Sep 2026 12:42:51 -0700 (PDT)
+Received-SPF: pass (google.com: domain of emaildocaldeira@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20251104 header.b=AibBzezx;
+       arc=pass (i=1);
+       spf=pass (google.com: domain of emaildocaldeira@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=emaildocaldeira@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+ARC-Seal: i=1; a=rsa-sha256; t=1788550971; cv=none;
+        d=google.com; s=arc-20260327;
+        b=lYFDQt9kK1IyzKr0jim6yDC0beqpC0AJR1QWJnf9fybCg4QqLyLV0J9npmWHDxxTSq
+         ZzYmuhwkROijWVd++cuBapCvFEniBST0Z8ad+aCqo91PDTjoR/274HjVtnvL5C4ejgs7
+         HaQjYwkLsmzvm6tWzr35rtKsxceU8ITjUvpOGzdulDYqlRMoj5v3cGRtiHIETC///+D6
+         bV22fSO2Dc45yHROHFzkBvF24T1C/K/UK5KMVCqhMpI7sQ4fMZBwS0ECdRjQnakK7TK4
+         bpRrWbIdnUgin2en193hU1dlaWk1/qIgGGyLJ0Zy6yRPVU5O9kw/3JB56efMFXoGGBR+
+         FFDg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :dkim-signature;
+        bh=lYf89RIvNI6E9aqAhLYryTteS0XrAEDyT6VKwpYRNHA=;
+        fh=bEMAU97rDgYq9HjToGAtmWWuhHd90HrCT3grcaRtkDM=;
+        b=UCKCQ5yj2fV0carlMOF8sdVHUBY6pX4h/A4i+urPrr3YiwCIKEZsuBFgT0OO8l4Jc5
+         9SCqrDlF6XUeaNOsjJaCNKilh0bnNdWCvxG32iySNN/qvn0EB1mR4TH2c5opXv5SCrJY
+         usutnb2sye445kdRAPaXgfOHLkqDZ+l/zcRaFOQBjRGsCA2YVE95yxLEdamqaUZHcmjh
+         njsdi/zcZgKOHWx2v3q0nv8Kv6CknEN7z/bI1Te3WSBPMMdNXnrpVbjhFgquAntIp0d+
+         TJSHNP4AzltB2cyvGhhDKUHaLb5rjOB30MCg9r9gMYzjP9HetbtvSn972FbpxD67cgsg
+         ag3g==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788550971; x=1789155771; dara=google.com;
+        h=content-type:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=lYf89RIvNI6E9aqAhLYryTteS0XrAEDyT6VKwpYRNHA=;
+        b=AibBzezx0RYe7GiIDfyHPsTrePeOjzE4L4dMAun9jsR1wGbJcarqP2LEiRS7exJnPd
+         DYsFjG7VCvvHUPzRjkxeMdEX/bTxNYHYM7uea/gIyQ7AkLymcO9ww6QGuzsfFGkhktSJ
+         9V4RK2av3mflvFPXTm5VI/p1fQZCQgr7jg0HuOgfe3ti4ghqnFaBViyh+h1WHOWSJYPC
+         ecm5FQcVbum0/7HOjOu8Fgz3f6qgH3M85Ua4s+wRoPd/2IevmjiKwY2J5mhWoaxio4Un
+         z7Yecamai2R1ClEm+0kGnVsAtjet6bfBjJRqA7C5wt+NuFGSBohoDAxDvCDkIcB463mZ
+         4zQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788550971; x=1789155771;
+        h=content-type:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=lYf89RIvNI6E9aqAhLYryTteS0XrAEDyT6VKwpYRNHA=;
+        b=dEhX5ca1h6B7PxIELXJreDFa3ywt66CQrYUc3kx/2Oixex2L0MDVvZLwz/Rgw86TkN
+         CRslysU7YZP2nmYy1SC48S4Wx5xAhW4zCi3bFcTEgERmFLoU9Cu8uJiLDtEmgGxt5ne1
+         ja+gmO+h6XEQYl0R3lk8PJ6uTt4Ub/0IsjWxoUGWkTJa7zS2Qd0lIKptA5jv0o8M8WIS
+         1ub/pj9BLPPThnYUHPmxCtWnP7CpoIm/mTtE9kFbpsJodWSIxlHv1MlPniSlFRsW5l9h
+         2pOGkAERu1sCdavBZcEk8tNjnSr6U5Y8YyShw5viqjk33bJKttGvXt3UXAmTHT8J2zGW
+         l6AA==
+X-Gm-Message-State: AFuF++l17DHKpSkxCZ1b4t8ujXJPzUf8ximGJaTe+maVxcj1WShpZS3R
+	fwJyYk2b2+fHw4RJixFVvnFx4qyS7iFgHBNk1DeF3hIjAWQvEgzWIDYmnvS2qlcqMinH0mseBUq
+	hcns098GEFn8cTK4SncsScKTIp9Q0kfyUCa29
+X-Gm-Gg: AYBFou0wtVpkm5FjMVnt0p4FiS8FtsLXzuKRjXNcR2ehmto3hZp+k4140K3EMFzvNAU
+	VXMEHcERjTNj80KwuGcaiwg8O64THTCHplnPqe9eL1lPVFv9+Lo+m0pQ6nb8sdf+4mIi9h2Pd9m
+	HlfwLeCjUZfWGD0Aq+g/TOVcvcFNQiNp74Hs6eMwzvU2ptVpKPUCVWiqJOoBNGWM8CtBQygoYpL
+	r96u+EJwBuSpO+BaV4OzdtAPe6FKVgGt/sP4G9hPMqzITm9MHoB12Di1/fPW8KPpw+DLTUWHfgE
+	Xx+R0rzTIFNUGdfEdnsdLF+7fN78K5Z4UMl9junw5enF5gnZqqtYU56dIIrSAyfJ8az3yjGIyIq
+	6Ew==
+X-Received: by 2002:a17:903:2ec5:b0:2cf:8131:75e8 with SMTP id
+ d9443c01a7336-2db125c412dmr141408135ad.13.1788550970698; Fri, 04 Sep 2026
+ 12:42:50 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAC8Oj0c8iWZ=kACWk0ELT8Y61ZLRaTYFn4jabXgt9cmwzZuV8g@mail.gmail.com>
+ <CAOg0py9UyX0WWCS4HiFQ9A4We065rrH8mbnD+HvUr2G7kN6a0w@mail.gmail.com>
+ <CAC8Oj0fOpW2rDZsmsCPphWtLTN9mOHVZZn8KVebaanvKjZCNYw@mail.gmail.com>
+ <CAOg0py_dSiZWtfjyza7i8yzK4S7sofb+PezJBfODocuyaaoZqw@mail.gmail.com>
+ <CAC8Oj0ejykxSdH3EcNjPtkeKOdp7FxueSnNQHmDsWFtirXnpLQ@mail.gmail.com>
+ <CAOg0py830o2apXxO528pfuc7+A-eO-ufhUuouoyh6YXEUhQHWA@mail.gmail.com> <CAOg0py_P3iv+YPbYydkcFerTreU7Ce655nW=tykE=KV6KG8e6w@mail.gmail.com>
+In-Reply-To: <CAOg0py_P3iv+YPbYydkcFerTreU7Ce655nW=tykE=KV6KG8e6w@mail.gmail.com>
+From: =?UTF-8?Q?Jo=C3=A3o_Caldeira?= <emaildocaldeira@gmail.com>
+Date: Fri, 4 Sep 2026 16:42:39 -0300
+X-Gm-Features: AcwNN1XDZUCy1kgDTdW0mhjL9FFwEkkvcEMRbmtNiPLx8ro2X6_j1vAbz3HoAfE
+Message-ID: <CAC8Oj0cZyS1C6GN_MSO-R+Dmgf9ND3kCXnv-SNcwvDE09t01vw@mail.gmail.com>
+Subject: Re: Artigo
+To: Gabriel Arruda <g.arruda1996@gmail.com>
+Content-Type: multipart/alternative; boundary="000000000000456f19065aad79ee"
+
+--000000000000456f19065aad79ee
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Boa tarde, Gabriel.
+
+Muito bom trabalho nessa investiga=C3=A7=C3=A3o, a sua hip=C3=B3tese sobre =
+a correla=C3=A7=C3=A3o
+dentro dos blocos subestimando r e q est=C3=A1 bem fundamentada, e a litera=
+tura
+j=C3=A1 documenta exatamente esse mecanismo. Vamos por partes.
+
+ Sobre a hip=C3=B3tese. Boivin & Ng (2006, *Journal of Econometrics* 132(1)=
+,
+169-194), Are More Data Always Better for Factor Analysis?, tratam
+precisamente desse cen=C3=A1rio, um bloco com muitas s=C3=A9ries altamente
+correlacionadas (oversampling data from particular groups, na frase deles)
+distorce a extra=C3=A7=C3=A3o de fatores, mesmo com um painel grande. A con=
+clus=C3=A3o
+central do artigo =C3=A9 que tamanho da amostra sozinho n=C3=A3o garante bo=
+as
+estimativas, a composi=C3=A7=C3=A3o importa tanto quanto o tamanho. Isso co=
+nfirma
+teoricamente a sua intui=C3=A7=C3=A3o.
+
+ Qual das duas op=C3=A7=C3=B5es seguir. Diante disso, eu iria com a sua op=
+=C3=A7=C3=A3o (1):
+reduzir as vari=C3=A1veis altamente correlacionadas, e n=C3=A3o a (2). Adic=
+ionar mais
+vari=C3=A1veis sem crit=C3=A9rio pode piorar exatamente o problema que voc=
+=C3=AA
+identificou, se as novas s=C3=A9ries tamb=C3=A9m forem correlacionadas com =
+blocos j=C3=A1
+superrepresentados. Sugiro um crit=C3=A9rio sistem=C3=A1tico, n=C3=A3o remo=
+=C3=A7=C3=A3o ad hoc:
+dentro de cada bloco, calcule a matriz de correla=C3=A7=C3=A3o par a par e,=
+ para
+grupos de s=C3=A9ries com correla=C3=A7=C3=A3o acima de um limiar (por exem=
+plo, 0,9),
+mantenha apenas uma s=C3=A9rie representativa do grupo (ou use a m=C3=A9dia=
+). Isso =C3=A9
+muito mais defens=C3=A1vel numa se=C3=A7=C3=A3o de dados do que uma poda in=
+formal.
+
+ Uma checagem direta da hip=C3=B3tese, para fortalecer o argumento. Al=C3=
+=A9m de
+Bai-Ng, rode pelo menos mais um estimador de r:
+
+1)  Ahn & Horenstein (2013, Econometrica 81(3), 1203-1227), *Eigenvalue
+Ratio Test for the Number of Factors,* baseado na raz=C3=A3o de autovalores
+adjacentes, com propriedades diferentes de Bai-Ng em amostra finita;
+2)  Alessi, Barigozzi & Capasso (2010,  Statistics and Probability Letters
+80, 1806-1813), *Improved Penalization for Determining the Number of
+Factors in Approximate Factor Models,* uma corre=C3=A7=C3=A3o expl=C3=ADcit=
+a do Bai-Ng
+para problemas de amostra finita, ainda mais diretamente relevante ao seu
+caso.
+
+Se esses dois derem r visivelmente maior que 5, isso vira evid=C3=AAncia di=
+reta
+de subestima=C3=A7=C3=A3o, bem mais forte no artigo do que s=C3=B3 mostrar =
+que o
+instrumento fica mais forte quando r,q aumentam.
+
+ Um ponto de cautela importante, antes de fechar a especifica=C3=A7=C3=A3o.=
+ Escolher
+(r,q) com base em qual combina=C3=A7=C3=A3o d=C3=A1 o instrumento mais fort=
+e se aproxima
+perigosamente de *specification search,* exatamente o tipo de pr=C3=A1tica =
+que a
+literatura de instrumento fraco critica. Para evitar essa leitura, sugiro
+estruturar assim:
+
+1)  Especifica=C3=A7=C3=A3o principal: r=3Dq=3D8. N=C3=A3o porque maximiza =
+a for=C3=A7a do
+instrumento, mas porque =C3=A9 exatamente o que Alessi & Kerssenfischer (20=
+19)
+usam no artigo de compara=C3=A7=C3=A3o direta, voc=C3=AA mesmo j=C3=A1 acho=
+u essa justificativa
+na nota de rodap=C3=A9 4 deles. Isso d=C3=A1 uma raz=C3=A3o limpa e pr=C3=
+=A9-especificada,
+garantindo compara=C3=A7=C3=A3o direta com o benchmark.
+2) Robustez: reporte a tabela de sensibilidade que voc=C3=AA j=C3=A1 fez, (=
+5,2),
+(7,5), (8,8), mas enquadrada como confirma=C3=A7=C3=A3o de que os sinais s=
+=C3=A3o est=C3=A1veis
+e s=C3=B3 a magnitude varia, n=C3=A3o como o processo de escolha da especif=
+ica=C3=A7=C3=A3o
+principal.
+3) Reporte explicitamente que (5,2) fica abaixo do m=C3=ADnimo para as band=
+as de
+Anderson-Rubin, isso refor=C3=A7a, por si s=C3=B3, por que n=C3=A3o usamos =
+a estimativa
+crua de Bai-Ng/Amengual-Watson como especifica=C3=A7=C3=A3o principal.
+
+Com essa estrutura, uma poss=C3=ADvel fragilidade (parece que escolhemos o =
+que
+funcionou melhor) vira um argumento honesto e bem amarrado: a literatura de
+compara=C3=A7=C3=A3o j=C3=A1 usa esse valor, nossos pr=C3=B3prios dados s=
+=C3=A3o consistentes com a
+hip=C3=B3tese de subestima=C3=A7=C3=A3o por correla=C3=A7=C3=A3o, e os resu=
+ltados s=C3=A3o robustos ao
+longo de todo o intervalo plaus=C3=ADvel.
+
+ Coordenadas para os pr=C3=B3ximos passos:
+1)  Rodar Ahn-Horenstein e Alessi-Barigozzi-Capasso para r, comparando com
+Bai-Ng.
+2)  Construir a matriz de correla=C3=A7=C3=A3o dentro de cada bloco e ident=
+ificar
+grupos de s=C3=A9ries redundantes (limiar sugerido: 0,9) para poda sistem=
+=C3=A1tica.
+3)  Refazer a sele=C3=A7=C3=A3o de r,q no painel podado e conferir se a div=
+erg=C3=AAncia
+em rela=C3=A7=C3=A3o a Bai-Ng diminui.
+4)  Adotar r=3Dq=3D8 como especifica=C3=A7=C3=A3o principal (com a justific=
+ativa do item
+1 da estrutura acima), mantendo a tabela de sensibilidade como robustez.
+5)  Continuar a implementa=C3=A7=C3=A3o das bandas de Anderson-Rubin para o=
+ DFM,
+assim que estiver pronta, aplique tanto =C3=A0 especifica=C3=A7=C3=A3o prin=
+cipal quanto =C3=A0
+(5,2), para deixar expl=C3=ADcito visualmente por que essa =C3=BAltima n=C3=
+=A3o =C3=A9 adequada.
+
+=C3=93timo progresso, a tabela de heterocedasticidade e a implementa=C3=A7=
+=C3=A3o das
+bandas AR para o DFM s=C3=A3o exatamente os pontos que hav=C3=ADamos identi=
+ficado
+como mais cr=C3=ADticos. Aguardo os resultados da poda e dos estimadores
+alternativos de r.
+
+Abrs.,
+Jo=C3=A3o
+
+Em qui., 3 de set. de 2026 =C3=A0s 17:27, Gabriel Arruda <g.arruda1996@gmai=
+l.com>
+escreveu:
+
+> Esqueci de comentar que Alessi e Kerssenfischer (2019) explicam no artigo
+> que foi usado r=3Dq=3D8 (nota de rodap=C3=A9 4), pois variando q nao teri=
+a uma
+> grande mudan=C3=A7a, assim adotaram r=3Dq por simplicidade, mesmo o teste=
+ de
+> amengual e watson falando outra coisa.
+>
+> On Thu, Sep 3, 2026 at 5:14=E2=80=AFPM Gabriel Arruda <g.arruda1996@gmail=
+.com>
+> wrote:
+>
+>> Ol=C3=A1 professor, tudo bem? Inclui as vari=C3=A1veis no modelo e tive =
+que rodar
+>> tudo novamente, mas uma coisa estava me incomodando que s=C3=A3o os valo=
+res para
+>> achar r (bai-ng) e q (amengual e watson) em que est=C3=A1 dando 5 e 2
+>> respectivamente. Achei os valores baixo ent=C3=A3o rodei um teste de
+>> sensibilidade gerando IRFs para r=3D5 e r=3D8, variando (parecido com o =
+que
+>> Alessi e Kerssenfischer fazem no artigo deles) apenas q  (fatore dinamic=
+o),
+>> e tamb=C3=A9m calculei novamente o valor das estat=C3=ADsticas do instru=
+mento.
+>>
+>> Notei 2 coisas:
+>> 1) O sinal dos impactos n=C3=A3o mudam, o que muda =C3=A9 a magnitude.
+>> 2) o instrumento fica mais forte =C3=A0 medida que r,q sobe, exemplo: ((=
+5,2),
+>> (7,5), (8,8)) =3D ((2.33), (7.08), (8.08)). Vale notar que r,q=3D5,2 tem=
+ valor
+>> abaixo do m=C3=ADnimo para as bandas de Anderson-Rubin.
+>>
+>> Minha hip=C3=B3tese =C3=A9 que embora o painel seja amplo, 115 vari=C3=
+=A1veis, creio que
+>> dentro de cada bloco muitas vari=C3=A1veis s=C3=A3o altamente correlacio=
+nadas
+>> subestimando o n=C3=BAmero de fatores est=C3=A1ticos, pois com a normali=
+za=C3=A7=C3=A3o cada
+>> vari=C3=A1vel teria peso igual na hora de extrair os fatores, fazendo co=
+m que o
+>> bloco com mais vari=C3=A1veis teria mais peso na contribui=C3=A7ao margi=
+nal.
+>>
+>> Minha d=C3=BAvida =C3=A9 como prosseguir. Devemos mudar a composi=C3=A7=
+=C3=A3o do painel?
+>> Penso em duas possibilidades:
+>> 1) reduzir o n=C3=BAmero de vari=C3=A1veis altamente correlacionadas.
+>> 2) Incluir mais vari=C3=A1veis fazendo com que o painel fique mais heter=
+og=C3=AAneo.
+>>
+>> Estou anexando as IRFs que incluem as novas vari=C3=A1veis, a tabela com=
+ o
+>> grid dos valores do instrumento e a tabela das variaveis de Alessi e
+>> Kerssenfischer (2019).
+>>
+>> Outra coisa que gostaria de informar =C3=A9 que a tabela sobre a identif=
+ica=C3=A7=C3=A3o
+>> por heterocedasticidade j=C3=A1 est=C3=A1 pronta e estou finalizando a i=
+mplementa=C3=A7=C3=A3o
+>> das bandas de Anderson-Rubin para o DFM.
+>>
+>>
+>> On Mon, Aug 31, 2026 at 8:12=E2=80=AFPM Jo=C3=A3o Caldeira <emaildocalde=
+ira@gmail.com>
+>> wrote:
+>>
+>>> Vou responder agora apenas aos pontos 3 e 4 que s=C3=A3o mais tranquilo=
+s, o
+>>> ponto 2, realmente o Kapetanios (o artigo resolve um problema de dimens=
+=C3=A3o
+>>> pelo lado do instrumento, muitos instrumentos candidatos, reduzidos via
+>>> fatores, n=C3=A3o o problema de o pr=C3=B3prio VAR ser constru=C3=ADdo =
+sobre estados
+>>> estimados) n=C3=A3o resolve nosso problema, vamos escrever um paragrafo=
+ a esse
+>>> respeito, explicando, e colocar no paper. Posso fazer isso amanh=C3=A3.
+>>>
+>>> Respostas aos itens 3 e 4 em verde no corpo do email:
+>>>
+>>> Em seg., 31 de ago. de 2026 =C3=A0s 19:52, Gabriel Arruda <
+>>> g.arruda1996@gmail.com> escreveu:
+>>>
+>>>> Professor, estou deixando minha resposta em vermelho.
+>>>>
+>>>>
+>>>> 2. Hoje n=C3=A3o se tem na literatura um mecanismo de infer=C3=AAncia =
+robusta a
+>>>> instrumento fraco aplicado aos modelos DFM. Montiel Olea et al. aplica=
+m a
+>>>> um modelo VAR pequeno e a aplica=C3=A7=C3=A3o disso a um modelo DFM re=
+quer uma
+>>>> engenharia matem=C3=A1tica que n=C3=A3o =C3=A9 trivial, e n=C3=A3o sei=
+ se tenho capacidade.
+>>>>
+>>>> Resp: N=C3=A3o sei se =C3=A9 vi=C3=A1vel e qu=C3=A3o complicado a impl=
+ementa=C3=A7=C3=A3o, mas h=C3=A1
+>>>> pelo menos duas refer=C3=AAncias que tratam desse ponto:
+>>>>
+>>>>     1) Kapetanios (2016, Journal of Applied Econometrics), Factor-Base=
+d
+>>>> Identification-Robust Inference in IV Regressions, combina exatamente
+>>>> redu=C3=A7=C3=A3o de dimens=C3=A3o via fatores com testes robustos a i=
+nstrumento fraco
+>>>> (incluindo Anderson-Rubin).
+>>>>     2) Al=C3=A9m disso, a literatura de proxy-SVAR com instrumento fra=
+co j=C3=A1
+>>>> cobre explicitamente o caso de um =C3=BAnico instrumento identificando=
+ um =C3=BAnico
+>>>> choque, que =C3=A9 exatamente a situa=C3=A7=C3=A3o que nos deparamos a=
+qui (o choque
+>>>> Copom), via Jentsch & Lunsford (2019, 2022), com bandas de confian=C3=
+=A7a grid
+>>>> moving-block-bootstrap Anderson-Rubin, generalizando Montiel Olea et a=
+l.
+>>>> (2021) para al=C3=A9m do VAR pequeno original.
+>>>>
+>>>>     O ponto t=C3=A9cnico chave: o dif=C3=ADcil n=C3=A3o =C3=A9 o taman=
+ho do painel (106
+>>>> s=C3=A9ries), =C3=A9 o VAR dos fatores (que tem dimens=C3=A3o pequena,=
+ tipo 4 a 8
+>>>> fatores). O Anderson-Rubin robusto se aplicaria a esse VAR de fatores,
+>>>> objeto pequeno, do mesmo tipo que Montiel Olea et al. j=C3=A1 tratam, =
+e depois a
+>>>> banda de confian=C3=A7a dos fatores se propaga pelas loadings (transfo=
+rma=C3=A7=C3=A3o
+>>>> linear, trivial) at=C3=A9 chegar nas s=C3=A9ries observ=C3=A1veis. Iss=
+o n=C3=A3o =C3=A9 zero
+>>>> trabalho, mas me parece bem menos engenharia matem=C3=A1tica n=C3=A3o =
+trivial do que
+>>>> voc=C3=AA est=C3=A1 enxergando, =C3=A9 mais trabalho de implementa=C3=
+=A7=C3=A3o computacional do que
+>>>> teoria nova.
+>>>>
+>>>>     - Minha sugest=C3=A3o, em ordem de esfor=C3=A7o:
+>>>>         1) M=C3=ADnimo (reenquadrar o que j=C3=A1 existe): a Se=C3=A7=
+=C3=A3o 5.1 j=C3=A1 reporta
+>>>> bandas AR-robustas para o VAR de benchmark. Em vez de deixar isso como=
+ s=C3=B3
+>>>> uma compara=C3=A7=C3=A3o de robustez, reposicionar explicitamente: n=
+=C3=A3o estendemos
+>>>> formalmente infer=C3=AAncia robusta a instrumento fraco ao DFM complet=
+o, mas
+>>>> confirmamos que um VAR menor com as vari=C3=A1veis-chave, sob infer=C3=
+=AAncia
+>>>> robusta, entrega conclus=C3=B5es qualitativamente semelhantes, e citar
+>>>> Kapetanios (2016) e Jentsch & Lunsford (2022) como a fronteira metodol=
+=C3=B3gica
+>>>> reconhecida. Isso =C3=A9 reescrita, n=C3=A3o pesquisa nova.
+>>>>
+>>>>         2) Se houver f=C3=B4lego: tentar a extens=C3=A3o real, mas apl=
+icada ao
+>>>> VAR dos fatores (dimens=C3=A3o pequena), n=C3=A3o ao painel inteiro, p=
+ode ser mais
+>>>> trat=C3=A1vel do que voc=C3=AA est=C3=A1 achando.
+>>>>
+>>>> Recomendo que voc=C3=AA pelo menos d=C3=AA uma olhada nesses dois pape=
+rs antes de
+>>>> descartar a ideia, isso pra ver o qu=C3=A3o complicado =C3=A9, eventua=
+lmente at=C3=A9 pode
+>>>> ter algum pacote pronto, tamb=C3=A9m n=C3=A3o tenho certeza de que a e=
+xtens=C3=A3o seja
+>>>> imediata sem ajustes.
+>>>>
+>>>> Resp: Vou ler com calma as duas literaturas sugeridas e tentar aplicar
+>>>> as bandas AR no VAR dos fatores. Minha d=C3=BAvida =C3=A9 que Montiel =
+Olea et al.
+>>>> provam o teorema para vari=C3=A1veis observ=C3=A1veis e n=C3=A3o estim=
+adas como os
+>>>> fatores, isso seria um problema ou algo defens=C3=A1vel?
+>>>>
+>>>>
+>>>> ----
+>>>> 3. DLSP, DBGG e NFSP prim=C3=A1ria caem no in=C3=ADcio e s=C3=B3 volta=
+m a subir depois
+>>>> de cerca de dois anos, enquanto as expectativas de infla=C3=A7=C3=A3o,=
+ Selic e c=C3=A2mbio
+>>>> sobem e a de PIB cai antes de uma revers=C3=A3o conjunta. S=C3=B3 que =
+a NFSP prim=C3=A1ria
+>>>> exclui juros e efeito cambial, e a DLSP incorpora ativos como reservas=
+,
+>>>> ent=C3=A3o parte do movimento pode vir da forma de contabiliza=C3=A7=
+=C3=A3o das s=C3=A9ries.
+>>>> Vou por no arquivo .tex para facilitar para o senhor o efeito do choqu=
+e e
+>>>> tamb=C3=A9m vou incluir as s=C3=A9ries de expectativa fiscal no painel=
+ para ver o
+>>>> efeito sobre a percep=C3=A7=C3=A3o de sustentabilidade da d=C3=ADvida.
+>>>>
+>>>> Resp: Na verdade, isso me parece um resultado bom, s=C3=B3 precisa de =
+mais
+>>>> uma camada de decomposi=C3=A7=C3=A3o antes de aparecer no texto. O que=
+ voc=C3=AA encontrou
+>>>> =C3=A9 interessante, n=C3=A3o problem=C3=A1tico: d=C3=ADvida caindo no=
+ in=C3=ADcio e revertendo s=C3=B3
+>>>> depois de ~2 anos, junto com expectativas de infla=C3=A7=C3=A3o/Selic/=
+c=C3=A2mbio subindo
+>>>> e PIB caindo antes da revers=C3=A3o conjunta. Duas coisas para fazer a=
+ntes de
+>>>> escrever isso no artigo:
+>>>>
+>>>>     1) A hip=C3=B3tese do efeito cambial =C3=A9 test=C3=A1vel diretame=
+nte, n=C3=A3o precisa
+>>>> ficar como especula=C3=A7=C3=A3o. O BCB publica mensalmente a decompos=
+i=C3=A7=C3=A3o da DLSP
+>>>> por fatores condicionantes (resultado prim=C3=A1rio, juros apropriados=
+, ajuste
+>>>> cambial sobre d=C3=ADvida e reservas indexadas, reconhecimento de d=C3=
+=ADvidas,
+>>>> outros ajustes), est=C3=A1 no SGS/IPEADATA. Como o real deprecia ~3,7%=
+ no
+>>>> impacto, e reservas internacionais em d=C3=B3lar entram l=C3=ADquidas =
+na DLSP, uma
+>>>> deprecia=C3=A7=C3=A3o mecanicamente reduz a DLSP (reservas em BRL vale=
+m mais) mesmo
+>>>> sem nenhuma melhora fiscal de fato. Voc=C3=AA pode rodar a mesma respo=
+sta ao
+>>>> impulso para essa s=C3=A9rie de ajuste cambial especificamente e ver s=
+e ela
+>>>> explica a queda inicial da DLSP. Isso transforma uma hip=C3=B3tese n=
+=C3=A3o testada
+>>>> em evid=C3=AAncia direta.
+>>>>     2) Aten=C3=A7=C3=A3o ao sinal do NFSP prim=C3=A1rio, cai pode sign=
+ificar d=C3=A9ficit
+>>>> menor (melhora) ou piora, dependendo de qual conven=C3=A7=C3=A3o de si=
+nal voc=C3=AA est=C3=A1
+>>>> usando na s=C3=A9rie do BCB. Vale confirmar  exatamente isso antes de
+>>>> interpretar qualquer coisa, porque a leitura econ=C3=B4mica se inverte
+>>>> dependendo disso.
+>>>>
+>>>>     A sua ideia de incluir as expectativas fiscais do Focus =C3=A9 a
+>>>> corre=C3=A7=C3=A3o certa, e mais importante que os itens acima: pr=C3=
+=AAmio de risco =C3=A9
+>>>> forward-looking, ent=C3=A3o o que expectativas de sustentabilidade fis=
+cal fazem
+>>>> importa mais para o mecanismo do que o estoque de d=C3=ADvida realizad=
+o (que =C3=A9
+>>>> mec=C3=A2nico e ruidoso). Eu priorizaria isso como o resultado central=
+ dessa
+>>>> se=C3=A7=C3=A3o, com a decomposi=C3=A7=C3=A3o cambial como apoio/robus=
+tez.
+>>>>
+>>>> Resp:
+>>>>      1) Apenas encontrei as s=C3=A9ries DLSP (real, dolar o %PIB)
+>>>> diferenciada entre setor e internet/externa, com granularidade entre: =
+gov,
+>>>> estao. Qual o senhor esta se referindo?
+>>>>      2) Creio que o sinal indica uma melhora, estou usando a s=C3=A9ri=
+e 4649
+>>>> do SGS/BCB
+>>>>      3) Vou incluir as s=C3=A9ries e retorno com o resultado
+>>>>
+>>> Resp:  1) A decomposi=C3=A7=C3=A3o que eu tinha em mente n=C3=A3o =C3=
+=A9 a s=C3=A9rie de estoque de
+>>> DLSP que voc=C3=AA encontrou (por setor/interna-externa), =C3=A9 uma ta=
+bela de
+>>> fluxo, publicada na Nota de Estat=C3=ADsticas Fiscais do BCB, historica=
+mente
+>>> a Tabela 6 "Evolu=C3=A7=C3=A3o da d=C3=ADvida l=C3=ADquida, Fatores con=
+dicionantes", com
+>>> linhas para necessidade de financiamento, ajuste cambial, reconheciment=
+o de
+>>> d=C3=ADvidas e outros ajustes metodol=C3=B3gicos. Procure por fatores c=
+ondicionantes
+>>> (n=C3=A3o DLSP) no SGS, ou v=C3=A1 direto =C3=A0 publica=C3=A7=C3=A3o p=
+eri=C3=B3dica do BCB (Estat=C3=ADsticas
+>>> =3D> Finan=C3=A7as P=C3=BAblicas =3D> Notas de Estat=C3=ADsticas Fiscai=
+s), pode ser que
+>>> venha como planilha da nota, n=C3=A3o necessariamente como s=C3=A9rie i=
+ndividual
+>>> codificada no SGS.
+>>>
+>>>    - 2) Confirmado: a s=C3=A9rie 4649 =C3=A9 literalmente NFSP sem desv=
+aloriza=C3=A7=C3=A3o
+>>>    cambial, resultado prim=C3=A1rio, e a defini=C3=A7=C3=A3o oficial do=
+ BCB =C3=A9 *Necessidades
+>>>    de Financiamento,* ou seja, =C3=A9 uma medida de necessidade de
+>>>    financiamento/d=C3=A9ficit, n=C3=A3o de super=C3=A1vit. Uma queda ne=
+ssa s=C3=A9rie significa
+>>>    menor necessidade de financiamento, isto =C3=A9, melhora fiscal. Sua=
+ leitura
+>>>    est=C3=A1 certa.
+>>>
+>>>
+>>>
+>>>>
+>>>>
+>>>> ----
+>>>> 4. Eu cheguei a tentar aplicar o exerc=C3=ADcio, mas n=C3=A3o deu cert=
+o, pois na
+>>>> agrega=C3=A7=C3=A3o dos dados mensais ocorre uma dilui=C3=A7=C3=A3o na=
+ vari=C3=A2ncia (minha
+>>>> hip=C3=B3tese), fazendo com que a condi=C3=A7=C3=A3o do posto desapare=
+cesse,
+>>>> impossibilitando a identifica=C3=A7=C3=A3o.
+>>>>
+>>>> Resp: O n=C3=A3o deu certo j=C3=A1 =C3=A9 a resposta, s=C3=B3 falta es=
+crever. A meu ver,
+>>>> isso =C3=A9 uma not=C3=ADcia melhor do que voc=C3=AA percebeu. A dilui=
+=C3=A7=C3=A3o de vari=C3=A2ncia que
+>>>> voc=C3=AA suspeita ao agregar para mensal =C3=A9 exatamente o motivo p=
+elo qual a
+>>>> literatura de identifica=C3=A7=C3=A3o por heterocedasticidade (Rigobon=
+ 2003; Rigobon
+>>>> & Sack 2004) insiste em janelas curtas/intradi=C3=A1rias ao redor do a=
+n=C3=BAncio, a
+>>>> agrega=C3=A7=C3=A3o temporal dilui a descontinuidade de vari=C3=A2ncia=
+ que a identifica=C3=A7=C3=A3o
+>>>> depende, e pode quebrar a condi=C3=A7=C3=A3o de posto. Isso =C3=A9 um =
+argumento causal
+>>>> melhor do que o par=C3=A1grafo especulativo que eu tinha sugerido, por=
+que =C3=A9
+>>>> evid=C3=AAncia direta, n=C3=A3o conjectura. Sugiro escrevermos um par=
+=C3=A1grafo curto (ou
+>>>> nota de rodap=C3=A9) relatando exatamente essa tentativa e esse diagn=
+=C3=B3stico, n=C3=A3o
+>>>> como n=C3=A3o conseguimos, mas como testamos diretamente e encontramos=
+ uma raz=C3=A3o
+>>>> mec=C3=A2nica pela qual a frequ=C3=AAncia da identifica=C3=A7=C3=A3o i=
+mporta. Isso fecha a
+>>>> obje=C3=A7=C3=A3o de um parecerista com muito mais for=C3=A7a do que e=
+u tinha
+>>>> originalmente proposto.
+>>>>
+>>>> Resp: Vou incluir o par=C3=A1grafo mais a tabela no ap=C3=AAndice.
+>>>>
+>>> Resp: S=C3=B3 uma sugest=C3=A3o adicional, se poss=C3=ADvel, reporte ta=
+mb=C3=A9m a
+>>> estat=C3=ADstica do teste de posto (ou o determinante da matriz relevan=
+te) antes
+>>> e depois da agrega=C3=A7=C3=A3o para mensal, lado a lado, isso torna o =
+argumento a
+>>> agrega=C3=A7=C3=A3o dilui a vari=C3=A2ncia e quebra a condi=C3=A7=C3=A3=
+o de posto visualmente
+>>> imediato para um parecerista, em vez de exigir que ele confie s=C3=B3 n=
+a
+>>> descri=C3=A7=C3=A3o textual.
+>>>
+>>>>
+>>>> On Mon, Aug 31, 2026 at 2:49=E2=80=AFPM Jo=C3=A3o Caldeira <
+>>>> emaildocaldeira@gmail.com> wrote:
+>>>>
+>>>>> Gabriel, vou responder no corpo do email, em azul, para ficar mais
+>>>>> f=C3=A1cil a conversa, blz?
+>>>>>
+>>>>> Em seg., 31 de ago. de 2026 =C3=A0s 14:10, Gabriel Arruda <
+>>>>> g.arruda1996@gmail.com> escreveu:
+>>>>>
+>>>>>> Ol=C3=A1, Professor. Vou responder =C3=A0s quest=C3=B5es na ordem:
+>>>>>>
+>>>>> 1. Esse =C3=A9 um problema de vers=C3=A3o, esqueci de atualizar essas=
+ se=C3=A7=C3=B5es
+>>>>> ap=C3=B3s a mudan=C3=A7a no modelo.
+>>>>> *Resp:* Est=C3=A1 bem, obrigado.
+>>>>> 2. Hoje n=C3=A3o se tem na literatura um mecanismo de infer=C3=AAncia=
+ robusta a
+>>>>> instrumento fraco aplicado aos modelos DFM. Montiel Olea et al. aplic=
+am a
+>>>>> um modelo VAR pequeno e a aplica=C3=A7=C3=A3o disso a um modelo DFM r=
+equer uma
+>>>>> engenharia matem=C3=A1tica que n=C3=A3o =C3=A9 trivial, e n=C3=A3o se=
+i se tenho
+>>>>> capacidade.
+>>>>> *Resp:* N=C3=A3o sei se =C3=A9 vi=C3=A1vel e qu=C3=A3o complicado a i=
+mplementa=C3=A7=C3=A3o, mas h=C3=A1
+>>>>> pelo menos duas refer=C3=AAncias que tratam desse ponto:
+>>>>>
+>>>>> 1) Kapetanios (2016, *Journal of Applied Econometrics*), Factor-Based
+>>>>> Identification-Robust Inference in IV Regressions, combina exatamente
+>>>>> redu=C3=A7=C3=A3o de dimens=C3=A3o via fatores com testes robustos a =
+instrumento fraco
+>>>>> (incluindo Anderson-Rubin).
+>>>>> 2) Al=C3=A9m disso, a literatura de proxy-SVAR com instrumento fraco =
+j=C3=A1
+>>>>> cobre explicitamente o caso de um =C3=BAnico instrumento identificand=
+o um
+>>>>> =C3=BAnico choque, que =C3=A9 exatamente a situa=C3=A7=C3=A3o que nos=
+ deparamos aqui (o
+>>>>> choque Copom), via Jentsch & Lunsford (2019, 2022), com bandas de con=
+fian=C3=A7a *grid
+>>>>> moving-block-bootstrap Anderson-Rubin*, generalizando Montiel Olea et
+>>>>> al. (2021) para al=C3=A9m do VAR pequeno original.
+>>>>>
+>>>>> O ponto t=C3=A9cnico chave: o dif=C3=ADcil n=C3=A3o =C3=A9 o tamanho =
+do painel (106
+>>>>> s=C3=A9ries), =C3=A9 o VAR dos fatores (que tem dimens=C3=A3o pequena=
+, tipo 4 a 8
+>>>>> fatores). O Anderson-Rubin robusto se aplicaria a esse VAR de fatores=
+,
+>>>>> objeto pequeno, do mesmo tipo que Montiel Olea et al. j=C3=A1 tratam,=
+ e depois a
+>>>>> banda de confian=C3=A7a dos fatores se propaga pelas *loadings*
+>>>>> (transforma=C3=A7=C3=A3o linear, trivial) at=C3=A9 chegar nas s=C3=A9=
+ries observ=C3=A1veis. Isso n=C3=A3o
+>>>>> =C3=A9 zero trabalho, mas me parece bem menos engenharia matem=C3=A1t=
+ica n=C3=A3o trivial
+>>>>> do que voc=C3=AA est=C3=A1 enxergando, =C3=A9 mais trabalho de implem=
+enta=C3=A7=C3=A3o computacional
+>>>>> do que teoria nova.
+>>>>>
+>>>>> Minha sugest=C3=A3o, em ordem de esfor=C3=A7o:
+>>>>>
+>>>>> 1) M=C3=ADnimo (reenquadrar o que j=C3=A1 existe): a Se=C3=A7=C3=A3o =
+5.1 j=C3=A1 reporta
+>>>>> bandas AR-robustas para o VAR de benchmark. Em vez de deixar isso com=
+o s=C3=B3
+>>>>> uma compara=C3=A7=C3=A3o de robustez, reposicionar explicitamente: n=
+=C3=A3o estendemos
+>>>>> formalmente infer=C3=AAncia robusta a instrumento fraco ao DFM comple=
+to, mas
+>>>>> confirmamos que um VAR menor com as vari=C3=A1veis-chave, sob infer=
+=C3=AAncia
+>>>>> robusta, entrega conclus=C3=B5es qualitativamente semelhantes, e cita=
+r
+>>>>> Kapetanios (2016) e Jentsch & Lunsford (2022) como a fronteira metodo=
+l=C3=B3gica
+>>>>> reconhecida. Isso =C3=A9 reescrita, n=C3=A3o pesquisa nova.
+>>>>>
+>>>>> 2) Se houver f=C3=B4lego: tentar a extens=C3=A3o real, mas aplicada a=
+o VAR dos
+>>>>> fatores (dimens=C3=A3o pequena), n=C3=A3o ao painel inteiro, pode ser=
+ mais
+>>>>> trat=C3=A1vel do que voc=C3=AA est=C3=A1 achando.
+>>>>>
+>>>>> Recomendo que voc=C3=AA pelo menos d=C3=AA uma olhada nesses dois pap=
+ers antes
+>>>>> de descartar a ideia, isso pra ver o qu=C3=A3o complicado =C3=A9, eve=
+ntualmente at=C3=A9
+>>>>> pode ter algum pacote pronto, tamb=C3=A9m n=C3=A3o tenho certeza de q=
+ue a extens=C3=A3o
+>>>>> seja imediata sem ajustes.
+>>>>>
+>>>>> 3. DLSP, DBGG e NFSP prim=C3=A1ria caem no in=C3=ADcio e s=C3=B3 volt=
+am a subir
+>>>>> depois de cerca de dois anos, enquanto as expectativas de infla=C3=A7=
+=C3=A3o, Selic e
+>>>>> c=C3=A2mbio sobem e a de PIB cai antes de uma revers=C3=A3o conjunta.=
+ S=C3=B3 que a NFSP
+>>>>> prim=C3=A1ria exclui juros e efeito cambial, e a DLSP incorpora ativo=
+s como
+>>>>> reservas, ent=C3=A3o parte do movimento pode vir da forma de contabil=
+iza=C3=A7=C3=A3o das
+>>>>> s=C3=A9ries. Vou por no arquivo .tex para facilitar para o senhor o e=
+feito do
+>>>>> choque e tamb=C3=A9m vou incluir as s=C3=A9ries de expectativa fiscal=
+ no painel para
+>>>>> ver o efeito sobre a percep=C3=A7=C3=A3o de sustentabilidade da d=C3=
+=ADvida.
+>>>>>
+>>>>> *Resp:* Na verdade, isso me parece um resultado bom, s=C3=B3 precisa =
+de
+>>>>> mais uma camada de decomposi=C3=A7=C3=A3o antes de aparecer no texto.=
+ O que
+>>>>> voc=C3=AA encontrou =C3=A9 interessante, n=C3=A3o problem=C3=A1tico: =
+d=C3=ADvida caindo no in=C3=ADcio e
+>>>>> revertendo s=C3=B3 depois de ~2 anos, junto com expectativas de
+>>>>> infla=C3=A7=C3=A3o/Selic/c=C3=A2mbio subindo e PIB caindo antes da re=
+vers=C3=A3o conjunta. Duas
+>>>>> coisas para fazer antes de escrever isso no artigo:
+>>>>>
+>>>>>    - 1) A hip=C3=B3tese do efeito cambial =C3=A9 test=C3=A1vel direta=
+mente, n=C3=A3o
+>>>>>    precisa ficar como especula=C3=A7=C3=A3o. O BCB publica mensalment=
+e a decomposi=C3=A7=C3=A3o da
+>>>>>    DLSP por fatores condicionantes (resultado prim=C3=A1rio, juros ap=
+ropriados,
+>>>>>    ajuste cambial sobre d=C3=ADvida e reservas indexadas, reconhecime=
+nto de
+>>>>>    d=C3=ADvidas, outros ajustes), est=C3=A1 no SGS/IPEADATA. Como o r=
+eal deprecia ~3,7%
+>>>>>    no impacto, e reservas internacionais em d=C3=B3lar entram l=C3=AD=
+quidas na DLSP, uma
+>>>>>    deprecia=C3=A7=C3=A3o mecanicamente reduz a DLSP (reservas em BRL =
+valem mais) mesmo
+>>>>>    sem nenhuma melhora fiscal de fato. Voc=C3=AA pode rodar a mesma r=
+esposta ao
+>>>>>    impulso para essa s=C3=A9rie de ajuste cambial especificamente e v=
+er se ela
+>>>>>    explica a queda inicial da DLSP. Isso transforma uma hip=C3=B3tese=
+ n=C3=A3o testada
+>>>>>    em evid=C3=AAncia direta.
+>>>>>    - 2) Aten=C3=A7=C3=A3o ao sinal do NFSP prim=C3=A1rio, cai pode si=
+gnificar
+>>>>>    d=C3=A9ficit menor (melhora) ou piora, dependendo de qual conven=
+=C3=A7=C3=A3o de sinal
+>>>>>    voc=C3=AA est=C3=A1 usando na s=C3=A9rie do BCB. Vale confirmar  e=
+xatamente isso antes de
+>>>>>    interpretar qualquer coisa, porque a leitura econ=C3=B4mica se inv=
+erte
+>>>>>    dependendo disso.
+>>>>>
+>>>>>
+>>>>>    - A sua ideia de incluir as expectativas fiscais do Focus =C3=A9 a
+>>>>>    corre=C3=A7=C3=A3o certa, e mais importante que os itens acima: pr=
+=C3=AAmio de risco =C3=A9
+>>>>>    *forward-looking*, ent=C3=A3o o que expectativas de sustentabilida=
+de
+>>>>>    fiscal fazem importa mais para o mecanismo do que o estoque de d=
+=C3=ADvida
+>>>>>    realizado (que =C3=A9 mec=C3=A2nico e ruidoso). Eu priorizaria iss=
+o como o resultado
+>>>>>    central dessa se=C3=A7=C3=A3o, com a decomposi=C3=A7=C3=A3o cambia=
+l como apoio/robustez.
+>>>>>    - 4. Eu cheguei a tentar aplicar o exerc=C3=ADcio, mas n=C3=A3o de=
+u certo,
+>>>>>    pois na agrega=C3=A7=C3=A3o dos dados mensais ocorre uma dilui=C3=
+=A7=C3=A3o na vari=C3=A2ncia (minha
+>>>>>    hip=C3=B3tese), fazendo com que a condi=C3=A7=C3=A3o do posto desa=
+parecesse,
+>>>>>    impossibilitando a identifica=C3=A7=C3=A3o.
+>>>>>    - *Resp: *O n=C3=A3o deu certo j=C3=A1 =C3=A9 a resposta, s=C3=B3 =
+falta escrever. A
+>>>>>    meu ver, isso =C3=A9 uma not=C3=ADcia melhor do que voc=C3=AA perc=
+ebeu. A dilui=C3=A7=C3=A3o de
+>>>>>    vari=C3=A2ncia que voc=C3=AA suspeita ao agregar para mensal =C3=
+=A9 exatamente o motivo
+>>>>>    pelo qual a literatura de identifica=C3=A7=C3=A3o por heterocedast=
+icidade (Rigobon
+>>>>>    2003; Rigobon & Sack 2004) insiste em janelas curtas/intradi=C3=A1=
+rias ao redor
+>>>>>    do an=C3=BAncio, a agrega=C3=A7=C3=A3o temporal dilui a descontinu=
+idade de vari=C3=A2ncia que a
+>>>>>    identifica=C3=A7=C3=A3o depende, e pode quebrar a condi=C3=A7=C3=
+=A3o de posto. Isso =C3=A9 um
+>>>>>    argumento causal *melhor* do que o par=C3=A1grafo especulativo que=
+ eu
+>>>>>    tinha sugerido, porque =C3=A9 evid=C3=AAncia direta, n=C3=A3o conj=
+ectura. Sugiro
+>>>>>    escrevermos um par=C3=A1grafo curto (ou nota de rodap=C3=A9) relat=
+ando exatamente
+>>>>>    essa tentativa e esse diagn=C3=B3stico, n=C3=A3o como n=C3=A3o con=
+seguimos, mas como
+>>>>>    testamos diretamente e encontramos uma raz=C3=A3o mec=C3=A2nica pe=
+la qual a
+>>>>>    frequ=C3=AAncia da identifica=C3=A7=C3=A3o importa. Isso fecha a o=
+bje=C3=A7=C3=A3o de um parecerista
+>>>>>    com muito mais for=C3=A7a do que eu tinha originalmente proposto.
+>>>>>    -
+>>>>>    - 5. Vou consertar o erro no LaTeX e rodar ambos os modelos com a
+>>>>>    mesma defasagem.
+>>>>>    - *Resp: *Est=C3=A1 bem.
+>>>>>    -
+>>>>>    - Em resumo, Gabriel, sobre o item 2, recomendo que voc=C3=AA pelo
+>>>>>    menos leia (ao menos d=C3=AA uma olhada) os dois papers antes de f=
+echar a porta,
+>>>>>    j=C3=A1 que o esfor=C3=A7o de reenquadrar o que j=C3=A1 existe =C3=
+=A9 baixo; item 4, ao menos
+>>>>>    escreva o par=C3=A1grafo, j=C3=A1 que o trabalho pesado j=C3=A1 fo=
+i feito; item 3, =C3=A9 a
+>>>>>    prioridade de maior retorno, porque voc=C3=AA j=C3=A1 tem o result=
+ado bruto, s=C3=B3 falta
+>>>>>    a decomposi=C3=A7=C3=A3o cambial (r=C3=A1pida, dado que =C3=A9 s=
+=C3=A9rie p=C3=BAblica do BCB) para
+>>>>>    transformar em evid=C3=AAncia defens=C3=A1vel.
+>>>>>
+>>>>>
+>>>>>>
+>>>>>> On Sun, Aug 30, 2026 at 8:36=E2=80=AFPM Jo=C3=A3o Caldeira <
+>>>>>> emaildocaldeira@gmail.com> wrote:
+>>>>>>
+>>>>>>> Gabriel, revisei o artigo e vou compartilhar contigo aqui alguns
+>>>>>>> pontos que me chamaram a aten=C3=A7=C3=A3o, al=C3=A9m da revis=C3=
+=A3o de literatura, que no
+>>>>>>> m=C3=ADnimo precisamos incluir o artigo do Eduardo Loyo e o do Blan=
+chard.  Vou
+>>>>>>> listar aqui os pontos que me preocupam:
+>>>>>>> 1. Erro factual que precisa ser corrigido: O abstract (PT e EN) e a
+>>>>>>> conclus=C3=A3o dizem que o BRL/USD deprecia 3,64% no impacto. Mas a=
+ Se=C3=A7=C3=A3o 4.2
+>>>>>>> diz 3,74%. S=C3=A3o n=C3=BAmeros diferentes para a mesma estimativa=
+. Isso =C3=A9 o tipo de
+>>>>>>> coisa que impacta a confian=C3=A7a do parecerista no resto do artig=
+o, precisa
+>>>>>>> achar qual dos dois est=C3=A1 certo e uniformizar em todo o texto (=
+abstract,
+>>>>>>> introdu=C3=A7=C3=A3o, se=C3=A7=C3=A3o 4, conclus=C3=A3o).
+>>>>>>>
+>>>>>>> 2. O ponto mais importante, tecnicamente: for=C3=A7a do instrumento=
+. Voc=C3=AA
+>>>>>>> destaca que Fmprob=3D10,06 supera a refer=C3=AAncia convencional s=
+=C3=B3
+>>>>>>> marginalmente, e =CE=BEmp=3D5,24 fica abaixo dela. Isso =C3=A9 uma =
+faca de dois
+>>>>>>> gumes: a transpar=C3=AAncia =C3=A9 =C3=B3tima (muita gente esconde =
+primeiro est=C3=A1gio
+>>>>>>> fraco), mas isso vai ser o primeiro alvo de qualquer parecerista, p=
+orque =C3=A9
+>>>>>>> hoje um dos temas mais escrutinados em identifica=C3=A7=C3=A3o por =
+instrumento
+>>>>>>> externo. Reparei uma inconsist=C3=AAncia: voc=C3=AA usa os conjunto=
+s Anderson=E2=80=93Rubin
+>>>>>>> robustos a instrumento fraco (Montiel Olea et al., 2021) s=C3=B3 na=
+ compara=C3=A7=C3=A3o
+>>>>>>> com o VAR de robustez (Se=C3=A7=C3=A3o 5.1, Figura 7), mas as figur=
+as principais
+>>>>>>> (1-6) usa apenas bandas de *wild bootstrap* convencionais. Se o
+>>>>>>> instrumento =C3=A9 reconhecidamente fraco/marginal, o resultado pri=
+ncipal do
+>>>>>>> artigo tamb=C3=A9m deveria ser acompanhado de infer=C3=AAncia robus=
+ta a instrumento
+>>>>>>> fraco, n=C3=A3o s=C3=B3 o benchmark de robustez. Isso fortalece mui=
+to o artigo porque
+>>>>>>> antecipa a obje=C3=A7=C3=A3o =C3=B3bvia.
+>>>>>>>
+>>>>>>> 3. A hist=C3=B3ria de risco soberano/domin=C3=A2ncia fiscal =C3=A9 =
+afirmada, mas
+>>>>>>> n=C3=A3o testada diretamente, e temos os dados para isso.
+>>>>>>> Voc=C3=AA incluiu no painel exatamente o bloco que permitiria testa=
+r
+>>>>>>> isso: d=C3=ADvida bruta, d=C3=ADvida l=C3=ADquida, resultado prim=
+=C3=A1rio, e expectativas
+>>>>>>> Focus para Selic/IPCA/c=C3=A2mbio/PIB. Mas a Se=C3=A7=C3=A3o 4 nunc=
+a reporta a resposta
+>>>>>>> desse bloco fiscal a um choque monet=C3=A1rio. Isso =C3=A9 uma lacu=
+na concreta e
+>>>>>>> f=C3=A1cil de preencher: se a hist=C3=B3ria =C3=A9 juros sobem =3D>=
+ percep=C3=A7=C3=A3o de
+>>>>>>> sustentabilidade da d=C3=ADvida piora =3D> pr=C3=AAmio de risco sob=
+e, mostrar a
+>>>>>>> resposta de d=C3=ADvida/resultado prim=C3=A1rio/expectativas fiscai=
+s Focus d=C3=A1
+>>>>>>> evid=C3=AAncia direta a favor (ou contra) do mecanismo, em vez de d=
+eix=C3=A1-lo como
+>>>>>>> interpreta=C3=A7=C3=A3o n=C3=A3o testada, que =C3=A9 exatamente o q=
+ue  admitimos no texto
+>>>>>>> (embora o objetivo deste artigo n=C3=A3o seja testar diretamente es=
+sa hip=C3=B3tese).
+>>>>>>> Isso tamb=C3=A9m ajudaria a distinguir o canal de domin=C3=A2ncia f=
+iscal do canal
+>>>>>>> alternativo que voc=C3=AA cita na introdu=C3=A7=C3=A3o (Dalgic & Oz=
+han, descasamento
+>>>>>>> cambial/dominant currency pricing), que =C3=A9 uma hist=C3=B3ria di=
+ferente e tamb=C3=A9m
+>>>>>>> compat=C3=ADvel com os sinais encontrados, mas que voc=C3=AA nunca =
+volta a discutir
+>>>>>>> depois da introdu=C3=A7=C3=A3o.
+>>>>>>>
+>>>>>>> 4. A reconcilia=C3=A7=C3=A3o com Gon=C3=A7alves et al. (2025) me pa=
+rece fraca
+>>>>>>> demais para o tamanho da contradi=C3=A7=C3=A3o.
+>>>>>>> N=C3=A3o =C3=A9 s=C3=B3 uma diferen=C3=A7a de magnitude, =C3=A9 uma=
+ invers=C3=A3o de sinal
+>>>>>>> (deprecia=C3=A7=C3=A3o vs. aprecia=C3=A7=C3=A3o) para essencialment=
+e a mesma pergunta no mesmo
+>>>>>>> pa=C3=ADs. Deixar isso como uma quest=C3=A3o em aberto para pesquis=
+a futura =C3=A9
+>>>>>>> honesto, mas um editor de campo vai querer mais. Sugest=C3=A3o m=C3=
+=ADnima: um
+>>>>>>> par=C3=A1grafo argumentando *por que* frequ=C3=AAncia di=C3=A1ria +
+>>>>>>> heterocedasticidade poderia mecanicamente favorecer o canal convenc=
+ional
+>>>>>>> (ex: heterocedasticidade em torno do an=C3=BAncio capta primariamen=
+te a surpresa
+>>>>>>> de curt=C3=ADssimo prazo, antes que o mercado precifique o efeito s=
+obre
+>>>>>>> sustentabilidade fiscal, que se manifesta com alguma defasagem), me=
+smo sem
+>>>>>>> rodar um novo exerc=C3=ADcio, um argumento causal expl=C3=ADcito =
+=C3=A9 bem mais
+>>>>>>> convincente que pode depender da frequ=C3=AAncia. (Aqui, se decidir=
+mos n=C3=A3o rodar
+>>>>>>> o novo exerc=C3=ADcio, eu posso escrever o argumento).
+>>>>>>>
+>>>>>>> 5. Problemas menores, mas que um editor vai notar na primeira
+>>>>>>> leitura:
+>>>>>>>
+>>>>>>> Se=C3=A7=C3=A3o 3.6 tem uma refer=C3=AAncia cruzada quebrada: (Tabl=
+e ??), sobrou do
+>>>>>>> LaTeX, precisa corrigir antes de qualquer submiss=C3=A3o.
+>>>>>>>
+>>>>>>> A compara=C3=A7=C3=A3o DFM vs. VAR (Se=C3=A7=C3=A3o 5.1) usa defasa=
+gens diferentes (4
+>>>>>>> vs. 2) selecionadas por AIC em cada modelo, voc=C3=AA mesmo admite =
+que isso
+>>>>>>> contamina a compara=C3=A7=C3=A3o. Vale rodar ao menos uma vers=C3=
+=A3o com defasagem casada
+>>>>>>> como checagem adicional, j=C3=A1 que =C3=A9 r=C3=A1pido de fazer e =
+fecha uma
+>>>>>>> obje=C3=A7=C3=A3o =C3=B3bvia.
+>>>>>>>
+>>>>>>> Veja a=C3=AD o que voc=C3=AA acha.
+>>>>>>>
+>>>>>>> Abrs.,
+>>>>>>>
+>>>>>>> Jo=C3=A3o
+>>>>>>>
+>>>>>>>
+>>>>>>>
+
+--000000000000456f19065aad79ee
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Boa tarde, Gabriel.<br><br>Muito bom trabalho nessa invest=
+iga=C3=A7=C3=A3o, a sua hip=C3=B3tese sobre a correla=C3=A7=C3=A3o dentro d=
+os blocos subestimando r e q est=C3=A1 bem fundamentada, e a literatura j=
+=C3=A1 documenta exatamente esse mecanismo. Vamos por partes.<br><br>=C2=A0=
+Sobre a hip=C3=B3tese. Boivin &amp; Ng (2006, <i>Journal of Econometrics</i=
+> 132(1), 169-194), Are More Data Always Better for Factor Analysis?, trata=
+m precisamente desse cen=C3=A1rio, um bloco com muitas s=C3=A9ries altament=
+e correlacionadas (oversampling data from particular groups, na frase deles=
+) distorce a extra=C3=A7=C3=A3o de fatores, mesmo com um painel grande. A c=
+onclus=C3=A3o central do artigo =C3=A9 que tamanho da amostra sozinho n=C3=
+=A3o garante boas estimativas, a composi=C3=A7=C3=A3o importa tanto quanto =
+o tamanho. Isso confirma teoricamente a sua intui=C3=A7=C3=A3o.<br><br>=C2=
+=A0Qual das duas op=C3=A7=C3=B5es seguir. Diante disso, eu iria com a sua o=
+p=C3=A7=C3=A3o (1): reduzir as vari=C3=A1veis altamente correlacionadas, e =
+n=C3=A3o a (2). Adicionar mais vari=C3=A1veis sem crit=C3=A9rio pode piorar=
+ exatamente o problema que voc=C3=AA identificou, se as novas s=C3=A9ries t=
+amb=C3=A9m forem correlacionadas com blocos j=C3=A1 superrepresentados. Sug=
+iro um crit=C3=A9rio sistem=C3=A1tico, n=C3=A3o remo=C3=A7=C3=A3o ad hoc: d=
+entro de cada bloco, calcule a matriz de correla=C3=A7=C3=A3o par a par e, =
+para grupos de s=C3=A9ries com correla=C3=A7=C3=A3o acima de um limiar (por=
+ exemplo, 0,9), mantenha apenas uma s=C3=A9rie representativa do grupo (ou =
+use a m=C3=A9dia). Isso =C3=A9 muito mais defens=C3=A1vel numa se=C3=A7=C3=
+=A3o de dados do que uma poda informal.<br><br>=C2=A0Uma checagem direta da=
+ hip=C3=B3tese, para fortalecer o argumento. Al=C3=A9m de Bai-Ng, rode pelo=
+ menos mais um estimador de r:<br><br>1)=C2=A0 Ahn &amp; Horenstein (2013, =
+Econometrica 81(3), 1203-1227), <i>Eigenvalue Ratio Test for the Number of =
+Factors,</i>=C2=A0baseado na raz=C3=A3o de autovalores adjacentes, com prop=
+riedades diferentes de Bai-Ng em amostra finita;<br>2)=C2=A0 Alessi, Barigo=
+zzi &amp; Capasso (2010,=C2=A0 Statistics and Probability Letters 80, 1806-=
+1813), <i>Improved Penalization for Determining the Number of Factors in Ap=
+proximate Factor Models,</i>=C2=A0uma corre=C3=A7=C3=A3o expl=C3=ADcita do =
+Bai-Ng para problemas de amostra finita, ainda mais diretamente relevante a=
+o seu caso.<br><br>Se esses dois derem r visivelmente maior que 5, isso vir=
+a evid=C3=AAncia direta de subestima=C3=A7=C3=A3o, bem mais forte no artigo=
+ do que s=C3=B3 mostrar que o instrumento fica mais forte quando r,q aument=
+am.<br><br>=C2=A0Um ponto de cautela importante, antes de fechar a especifi=
+ca=C3=A7=C3=A3o. Escolher (r,q) com base em qual combina=C3=A7=C3=A3o d=C3=
+=A1 o instrumento mais forte se aproxima perigosamente de <i>specification =
+search,</i>=C2=A0exatamente o tipo de pr=C3=A1tica que a literatura de inst=
+rumento fraco critica. Para evitar essa leitura, sugiro estruturar assim:<b=
+r><br>1)=C2=A0 Especifica=C3=A7=C3=A3o principal: r=3Dq=3D8. N=C3=A3o porqu=
+e maximiza a for=C3=A7a do instrumento, mas porque =C3=A9 exatamente o que =
+Alessi &amp; Kerssenfischer (2019) usam no artigo de compara=C3=A7=C3=A3o d=
+ireta, voc=C3=AA mesmo j=C3=A1 achou essa justificativa na nota de rodap=C3=
+=A9 4 deles. Isso d=C3=A1 uma raz=C3=A3o limpa e pr=C3=A9-especificada, gar=
+antindo compara=C3=A7=C3=A3o direta com o benchmark.<br>2) Robustez: report=
+e a tabela de sensibilidade que voc=C3=AA j=C3=A1 fez, (5,2), (7,5), (8,8),=
+ mas enquadrada como confirma=C3=A7=C3=A3o de que os sinais s=C3=A3o est=C3=
+=A1veis e s=C3=B3 a magnitude varia, n=C3=A3o como o processo de escolha da=
+ especifica=C3=A7=C3=A3o principal.<br>3) Reporte explicitamente que (5,2) =
+fica abaixo do m=C3=ADnimo para as bandas de Anderson-Rubin, isso refor=C3=
+=A7a, por si s=C3=B3, por que n=C3=A3o usamos a estimativa crua de Bai-Ng/A=
+mengual-Watson como especifica=C3=A7=C3=A3o principal.<br><br>Com essa estr=
+utura, uma poss=C3=ADvel fragilidade (parece que escolhemos o que funcionou=
+ melhor) vira um argumento honesto e bem amarrado: a literatura de compara=
+=C3=A7=C3=A3o j=C3=A1 usa esse valor, nossos pr=C3=B3prios dados s=C3=A3o c=
+onsistentes com a hip=C3=B3tese de subestima=C3=A7=C3=A3o por correla=C3=A7=
+=C3=A3o, e os resultados s=C3=A3o robustos ao longo de todo o intervalo pla=
+us=C3=ADvel.<br><br>=C2=A0Coordenadas para os pr=C3=B3ximos passos:<br>1)=
+=C2=A0 Rodar Ahn-Horenstein e Alessi-Barigozzi-Capasso para r, comparando c=
+om Bai-Ng.<br>2)=C2=A0 Construir a matriz de correla=C3=A7=C3=A3o dentro de=
+ cada bloco e identificar grupos de s=C3=A9ries redundantes (limiar sugerid=
+o: 0,9) para poda sistem=C3=A1tica.<br>3)=C2=A0 Refazer a sele=C3=A7=C3=A3o=
+ de r,q no painel podado e conferir se a diverg=C3=AAncia em rela=C3=A7=C3=
+=A3o a Bai-Ng diminui.<br>4)=C2=A0 Adotar r=3Dq=3D8 como especifica=C3=A7=
+=C3=A3o principal (com a justificativa do item 1 da estrutura acima), mante=
+ndo a tabela de sensibilidade como robustez.<br>5)=C2=A0 Continuar a implem=
+enta=C3=A7=C3=A3o das bandas de Anderson-Rubin para o DFM, assim que estive=
+r pronta, aplique tanto =C3=A0 especifica=C3=A7=C3=A3o principal quanto =C3=
+=A0 (5,2), para deixar expl=C3=ADcito visualmente por que essa =C3=BAltima =
+n=C3=A3o =C3=A9 adequada.<br><br>=C3=93timo progresso, a tabela de heteroce=
+dasticidade e a implementa=C3=A7=C3=A3o das bandas AR para o DFM s=C3=A3o e=
+xatamente os pontos que hav=C3=ADamos identificado como mais cr=C3=ADticos.=
+ Aguardo os resultados da poda e dos estimadores alternativos de r.<br><br>=
+Abrs.,<br>Jo=C3=A3o=C2=A0=C2=A0</div><br><div class=3D"gmail_quote gmail_qu=
+ote_container"><div dir=3D"ltr" class=3D"gmail_attr">Em qui., 3 de set. de =
+2026 =C3=A0s 17:27, Gabriel Arruda &lt;<a href=3D"mailto:g.arruda1996@gmail=
+.com">g.arruda1996@gmail.com</a>&gt; escreveu:<br></div><blockquote class=
+=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rg=
+b(204,204,204);padding-left:1ex"><div dir=3D"ltr">Esqueci de comentar que A=
+lessi e Kerssenfischer (2019)=C2=A0explicam no artigo que foi usado r=3Dq=
+=3D8 (nota de rodap=C3=A9 4), pois variando q nao teria uma grande mudan=C3=
+=A7a, assim adotaram r=3Dq por simplicidade, mesmo o teste de amengual e wa=
+tson falando outra coisa.</div><br><div class=3D"gmail_quote"><div dir=3D"l=
+tr" class=3D"gmail_attr">On Thu, Sep 3, 2026 at 5:14=E2=80=AFPM Gabriel Arr=
+uda &lt;<a href=3D"mailto:g.arruda1996@gmail.com" target=3D"_blank">g.arrud=
+a1996@gmail.com</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" s=
+tyle=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);pad=
+ding-left:1ex"><div dir=3D"ltr">Ol=C3=A1 professor, tudo bem? Inclui as var=
+i=C3=A1veis no modelo e tive que rodar tudo novamente, mas uma coisa estava=
+ me incomodando que s=C3=A3o os valores para achar r (bai-ng) e q (amengual=
+ e watson) em que est=C3=A1 dando 5 e 2 respectivamente. Achei os valores b=
+aixo ent=C3=A3o rodei um teste de sensibilidade gerando IRFs para r=3D5 e r=
+=3D8, variando (parecido com o que Alessi e Kerssenfischer fazem no artigo =
+deles) apenas q=C2=A0 (fatore dinamico), e tamb=C3=A9m calculei novamente o=
+ valor das estat=C3=ADsticas do instrumento. <br><br>Notei 2 coisas:<br>1) =
+O sinal dos impactos n=C3=A3o mudam, o que muda =C3=A9 a magnitude.<br>2) o=
+ instrumento fica mais forte =C3=A0 medida que r,q sobe, exemplo: ((5,2), (=
+7,5), (8,8)) =3D ((2.33), (7.08), (8.08)). Vale notar que r,q=3D5,2 tem val=
+or abaixo do m=C3=ADnimo para as bandas de Anderson-Rubin.<br><br>Minha hip=
+=C3=B3tese =C3=A9 que embora o painel seja amplo, 115 vari=C3=A1veis, creio=
+ que dentro de cada bloco muitas vari=C3=A1veis s=C3=A3o altamente correlac=
+ionadas subestimando o n=C3=BAmero de fatores est=C3=A1ticos, pois com a no=
+rmaliza=C3=A7=C3=A3o cada vari=C3=A1vel teria peso igual na hora de extrair=
+ os fatores, fazendo com que o bloco com mais vari=C3=A1veis teria mais pes=
+o na contribui=C3=A7ao marginal.<br><br>Minha d=C3=BAvida =C3=A9 como pross=
+eguir. Devemos mudar a composi=C3=A7=C3=A3o do painel? Penso em duas possib=
+ilidades:<br>1) reduzir o n=C3=BAmero de vari=C3=A1veis altamente correlaci=
+onadas.<br>2) Incluir mais vari=C3=A1veis fazendo com que o painel fique ma=
+is heterog=C3=AAneo.<br><br>Estou anexando as IRFs que incluem as novas var=
+i=C3=A1veis, a tabela com o grid dos valores do instrumento e a tabela das =
+variaveis de Alessi e Kerssenfischer (2019).<br><br>Outra coisa que gostari=
+a de informar =C3=A9 que a tabela sobre a identifica=C3=A7=C3=A3o por heter=
+ocedasticidade j=C3=A1 est=C3=A1 pronta e estou finalizando a implementa=C3=
+=A7=C3=A3o das bandas de Anderson-Rubin para o DFM.<br><br></div><br><div c=
+lass=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On Mon, Aug 31, =
+2026 at 8:12=E2=80=AFPM Jo=C3=A3o Caldeira &lt;<a href=3D"mailto:emaildocal=
+deira@gmail.com" target=3D"_blank">emaildocaldeira@gmail.com</a>&gt; wrote:=
+<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8=
+ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"><div dir=3D"ltr=
+"><div dir=3D"ltr">Vou responder agora apenas aos pontos 3 e 4 que s=C3=A3o=
+ mais tranquilos, o ponto 2, realmente o Kapetanios (o artigo resolve um pr=
+oblema de dimens=C3=A3o pelo lado do instrumento, muitos instrumentos candi=
+datos, reduzidos via fatores, n=C3=A3o o problema de o pr=C3=B3prio VAR ser=
+ constru=C3=ADdo sobre estados estimados) n=C3=A3o resolve nosso problema, =
+vamos escrever um paragrafo a esse respeito, explicando, e colocar no paper=
+. Posso fazer isso amanh=C3=A3.=C2=A0<div><br></div><div>Respostas aos iten=
+s 3 e 4 em verde no corpo do email:=C2=A0</div></div><br><div class=3D"gmai=
+l_quote"><div dir=3D"ltr" class=3D"gmail_attr">Em seg., 31 de ago. de 2026 =
+=C3=A0s 19:52, Gabriel Arruda &lt;<a href=3D"mailto:g.arruda1996@gmail.com"=
+ target=3D"_blank">g.arruda1996@gmail.com</a>&gt; escreveu:<br></div><block=
+quote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1=
+px solid rgb(204,204,204);padding-left:1ex"><div dir=3D"ltr">Professor, est=
+ou deixando minha resposta em vermelho.<br><br><br>2. Hoje n=C3=A3o se tem =
+na literatura um mecanismo de infer=C3=AAncia robusta a instrumento fraco a=
+plicado aos modelos DFM. Montiel Olea et al. aplicam a um modelo VAR pequen=
+o e a aplica=C3=A7=C3=A3o disso a um modelo DFM requer uma engenharia matem=
+=C3=A1tica que n=C3=A3o =C3=A9 trivial, e n=C3=A3o sei se tenho capacidade.=
+<br><br><font color=3D"#0000ff">Resp: N=C3=A3o sei se =C3=A9 vi=C3=A1vel e =
+qu=C3=A3o complicado a implementa=C3=A7=C3=A3o, mas h=C3=A1 pelo menos duas=
+ refer=C3=AAncias que tratam desse ponto: <br><br>=C2=A0 =C2=A0 1) Kapetani=
+os (2016, Journal of Applied Econometrics), Factor-Based Identification-Rob=
+ust Inference in IV Regressions, combina exatamente redu=C3=A7=C3=A3o de di=
+mens=C3=A3o via fatores com testes robustos a instrumento fraco (incluindo =
+Anderson-Rubin). <br>=C2=A0 =C2=A0 2) Al=C3=A9m disso, a literatura de prox=
+y-SVAR com instrumento fraco j=C3=A1 cobre explicitamente o caso de um =C3=
+=BAnico instrumento identificando um =C3=BAnico choque, que =C3=A9 exatamen=
+te a situa=C3=A7=C3=A3o que nos deparamos aqui (o choque Copom), via Jentsc=
+h &amp; Lunsford (2019, 2022), com bandas de confian=C3=A7a grid moving-blo=
+ck-bootstrap Anderson-Rubin, generalizando Montiel Olea et al. (2021) para =
+al=C3=A9m do VAR pequeno original.<br><br>=C2=A0 =C2=A0 O ponto t=C3=A9cnic=
+o chave: o dif=C3=ADcil n=C3=A3o =C3=A9 o tamanho do painel (106 s=C3=A9rie=
+s), =C3=A9 o VAR dos fatores (que tem dimens=C3=A3o pequena, tipo 4 a 8 fat=
+ores). O Anderson-Rubin robusto se aplicaria a esse VAR de fatores, objeto =
+pequeno, do mesmo tipo que Montiel Olea et al. j=C3=A1 tratam, e depois a b=
+anda de confian=C3=A7a dos fatores se propaga pelas loadings (transforma=C3=
+=A7=C3=A3o linear, trivial) at=C3=A9 chegar nas s=C3=A9ries observ=C3=A1vei=
+s. Isso n=C3=A3o =C3=A9 zero trabalho, mas me parece bem menos engenharia m=
+atem=C3=A1tica n=C3=A3o trivial do que voc=C3=AA est=C3=A1 enxergando, =C3=
+=A9 mais trabalho de implementa=C3=A7=C3=A3o computacional do que teoria no=
+va.<br><br>=C2=A0 =C2=A0 - Minha sugest=C3=A3o, em ordem de esfor=C3=A7o:<b=
+r>=C2=A0 =C2=A0 =C2=A0 =C2=A0 1) M=C3=ADnimo (reenquadrar o que j=C3=A1 exi=
+ste): a Se=C3=A7=C3=A3o 5.1 j=C3=A1 reporta bandas AR-robustas para o VAR d=
+e benchmark. Em vez de deixar isso como s=C3=B3 uma compara=C3=A7=C3=A3o de=
+ robustez, reposicionar explicitamente: n=C3=A3o estendemos formalmente inf=
+er=C3=AAncia robusta a instrumento fraco ao DFM completo, mas confirmamos q=
+ue um VAR menor com as vari=C3=A1veis-chave, sob infer=C3=AAncia robusta, e=
+ntrega conclus=C3=B5es qualitativamente semelhantes, e citar Kapetanios (20=
+16) e Jentsch &amp; Lunsford (2022) como a fronteira metodol=C3=B3gica reco=
+nhecida. Isso =C3=A9 reescrita, n=C3=A3o pesquisa nova.<br><br>=C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 2) Se houver f=C3=B4lego: tentar a extens=C3=A3o real, ma=
+s aplicada ao VAR dos fatores (dimens=C3=A3o pequena), n=C3=A3o ao painel i=
+nteiro, pode ser mais trat=C3=A1vel do que voc=C3=AA est=C3=A1 achando.<br>=
+<br>Recomendo que voc=C3=AA pelo menos d=C3=AA uma olhada nesses dois paper=
+s antes de descartar a ideia, isso pra ver o qu=C3=A3o complicado =C3=A9, e=
+ventualmente at=C3=A9 pode ter algum pacote pronto, tamb=C3=A9m n=C3=A3o te=
+nho certeza de que a extens=C3=A3o seja imediata sem ajustes. </font><br><b=
+r><font color=3D"#cc0000">Resp: Vou ler com calma as duas literaturas suger=
+idas e tentar aplicar as bandas AR no VAR dos fatores. Minha d=C3=BAvida =
+=C3=A9 que Montiel Olea et al. provam o teorema para vari=C3=A1veis observ=
+=C3=A1veis e n=C3=A3o estimadas como os fatores, isso seria um problema ou =
+algo defens=C3=A1vel?</font><br><br><br>----<br>3. DLSP, DBGG e NFSP prim=
+=C3=A1ria caem no in=C3=ADcio e s=C3=B3 voltam a subir depois de cerca de d=
+ois anos, enquanto as expectativas de infla=C3=A7=C3=A3o, Selic e c=C3=A2mb=
+io sobem e a de PIB cai antes de uma revers=C3=A3o conjunta. S=C3=B3 que a =
+NFSP prim=C3=A1ria exclui juros e efeito cambial, e a DLSP incorpora ativos=
+ como reservas, ent=C3=A3o parte do movimento pode vir da forma de contabil=
+iza=C3=A7=C3=A3o das s=C3=A9ries. Vou por no arquivo .tex para facilitar pa=
+ra o senhor o efeito do choque e tamb=C3=A9m vou incluir as s=C3=A9ries de =
+expectativa fiscal no painel para ver o efeito sobre a percep=C3=A7=C3=A3o =
+de sustentabilidade da d=C3=ADvida.<br><br><font color=3D"#0000ff">Resp: Na=
+ verdade, isso me parece um resultado bom, s=C3=B3 precisa de mais uma cama=
+da de decomposi=C3=A7=C3=A3o antes de aparecer no texto. O que voc=C3=AA en=
+controu =C3=A9 interessante, n=C3=A3o problem=C3=A1tico: d=C3=ADvida caindo=
+ no in=C3=ADcio e revertendo s=C3=B3 depois de ~2 anos, junto com expectati=
+vas de infla=C3=A7=C3=A3o/Selic/c=C3=A2mbio subindo e PIB caindo antes da r=
+evers=C3=A3o conjunta. Duas coisas para fazer antes de escrever isso no art=
+igo:<br><br>=C2=A0 =C2=A0 1) A hip=C3=B3tese do efeito cambial =C3=A9 test=
+=C3=A1vel diretamente, n=C3=A3o precisa ficar como especula=C3=A7=C3=A3o. O=
+ BCB publica mensalmente a decomposi=C3=A7=C3=A3o da DLSP por fatores condi=
+cionantes (resultado prim=C3=A1rio, juros apropriados, ajuste cambial sobre=
+ d=C3=ADvida e reservas indexadas, reconhecimento de d=C3=ADvidas, outros a=
+justes), est=C3=A1 no SGS/IPEADATA. Como o real deprecia ~3,7% no impacto, =
+e reservas internacionais em d=C3=B3lar entram l=C3=ADquidas na DLSP, uma d=
+eprecia=C3=A7=C3=A3o mecanicamente reduz a DLSP (reservas em BRL valem mais=
+) mesmo sem nenhuma melhora fiscal de fato. Voc=C3=AA pode rodar a mesma re=
+sposta ao impulso para essa s=C3=A9rie de ajuste cambial especificamente e =
+ver se ela explica a queda inicial da DLSP. Isso transforma uma hip=C3=B3te=
+se n=C3=A3o testada em evid=C3=AAncia direta.<br>=C2=A0 =C2=A0 2) Aten=C3=
+=A7=C3=A3o ao sinal do NFSP prim=C3=A1rio, cai pode significar d=C3=A9ficit=
+ menor (melhora) ou piora, dependendo de qual conven=C3=A7=C3=A3o de sinal =
+voc=C3=AA est=C3=A1 usando na s=C3=A9rie do BCB. Vale confirmar =C2=A0exata=
+mente isso antes de interpretar qualquer coisa, porque a leitura econ=C3=B4=
+mica se inverte dependendo disso.<br><br>=C2=A0 =C2=A0 A sua ideia de inclu=
+ir as expectativas fiscais do Focus =C3=A9 a corre=C3=A7=C3=A3o certa, e ma=
+is importante que os itens acima: pr=C3=AAmio de risco =C3=A9 forward-looki=
+ng, ent=C3=A3o o que expectativas de sustentabilidade fiscal fazem importa =
+mais para o mecanismo do que o estoque de d=C3=ADvida realizado (que =C3=A9=
+ mec=C3=A2nico e ruidoso). Eu priorizaria isso como o resultado central des=
+sa se=C3=A7=C3=A3o, com a decomposi=C3=A7=C3=A3o cambial como apoio/robuste=
+z.</font><br><font color=3D"#cc0000"><br>Resp:=C2=A0<br>=C2=A0 =C2=A0 =C2=
+=A01) Apenas encontrei as s=C3=A9ries DLSP (real, dolar o %PIB) diferenciad=
+a entre setor e internet/externa, com granularidade entre: gov, estao. Qual=
+ o senhor esta se referindo?</font><div><font color=3D"#cc0000">=C2=A0 =C2=
+=A0 =C2=A02) Creio que o sinal indica uma melhora, estou usando a s=C3=A9ri=
+e=C2=A04649 do SGS/BCB<br>=C2=A0 =C2=A0 =C2=A03) Vou incluir as s=C3=A9ries=
+ e retorno com o resultado</font></div></div></blockquote><div><font color=
+=3D"#38761d">Resp:=C2=A0 1)=C2=A0<span style=3D"background-color:transparen=
+t">A decomposi=C3=A7=C3=A3o que eu tinha em mente </span><span style=3D"bac=
+kground-color:transparent">n=C3=A3o =C3=A9</span><span style=3D"background-=
+color:transparent"> a s=C3=A9rie de estoque </span>de DLSP<span style=3D"ba=
+ckground-color:transparent"> que voc=C3=AA encontrou (por setor/interna-ext=
+erna), =C3=A9 uma tabela </span><span style=3D"background-color:transparent=
+">de fluxo</span><span style=3D"background-color:transparent">, publicada n=
+a </span><span style=3D"background-color:transparent">Nota de Estat=C3=ADst=
+icas Fiscais do BCB</span><span style=3D"background-color:transparent">, hi=
+storicamente a </span><span style=3D"background-color:transparent">Tabela 6=
+ &quot;Evolu=C3=A7=C3=A3o da d=C3=ADvida l=C3=ADquida, Fatores condicionant=
+es&quot;</span><span style=3D"background-color:transparent">, com linhas pa=
+ra necessidade de financiamento, ajuste cambial, reconhecimento de d=C3=ADv=
+idas e outros ajustes metodol=C3=B3gicos. Procure por fatores condicionante=
+s (n=C3=A3o DLSP) no SGS, ou v=C3=A1 direto =C3=A0 publica=C3=A7=C3=A3o per=
+i=C3=B3dica do BCB (Estat=C3=ADsticas =3D&gt;</span><span style=3D"backgrou=
+nd-color:transparent">=C2=A0Finan=C3=A7as P=C3=BAblicas =3D&gt;</span><span=
+ style=3D"background-color:transparent">=C2=A0Notas de Estat=C3=ADsticas Fi=
+scais), pode ser que venha como planilha da nota, n=C3=A3o necessariamente =
+como s=C3=A9rie individual codificada no SGS.</span></font></div>
+<ul><li><font color=3D"#38761d">2) Confirmado: a s=C3=A9rie 4649 =C3=A9 lit=
+eralmente NFSP sem desvaloriza=C3=A7=C3=A3o cambial, resultado prim=C3=A1ri=
+o, e a defini=C3=A7=C3=A3o oficial do BCB =C3=A9 <em>Necessidades de Financ=
+iamento,</em>=C2=A0ou seja, =C3=A9 uma medida de necessidade de financiamen=
+to/d=C3=A9ficit, n=C3=A3o de super=C3=A1vit. Uma queda nessa s=C3=A9rie sig=
+nifica menor necessidade de financiamento, isto =C3=A9, melhora fiscal. Sua=
+ leitura est=C3=A1 certa.</font></li></ul><div>=C2=A0</div><blockquote clas=
+s=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid r=
+gb(204,204,204);padding-left:1ex"><div dir=3D"ltr"><div><br><br>----<br>4. =
+Eu cheguei a tentar aplicar o exerc=C3=ADcio, mas n=C3=A3o deu certo, pois =
+na agrega=C3=A7=C3=A3o dos dados mensais ocorre uma dilui=C3=A7=C3=A3o na v=
+ari=C3=A2ncia (minha hip=C3=B3tese), fazendo com que a condi=C3=A7=C3=A3o d=
+o posto desaparecesse, impossibilitando a identifica=C3=A7=C3=A3o.<br><br><=
+font color=3D"#0000ff">Resp: O n=C3=A3o deu certo j=C3=A1 =C3=A9 a resposta=
+, s=C3=B3 falta escrever. A meu ver, isso =C3=A9 uma not=C3=ADcia melhor do=
+ que voc=C3=AA percebeu. A dilui=C3=A7=C3=A3o de vari=C3=A2ncia que voc=C3=
+=AA suspeita ao agregar para mensal =C3=A9 exatamente o motivo pelo qual a =
+literatura de identifica=C3=A7=C3=A3o por heterocedasticidade (Rigobon 2003=
+; Rigobon &amp; Sack 2004) insiste em janelas curtas/intradi=C3=A1rias ao r=
+edor do an=C3=BAncio, a agrega=C3=A7=C3=A3o temporal dilui a descontinuidad=
+e de vari=C3=A2ncia que a identifica=C3=A7=C3=A3o depende, e pode quebrar a=
+ condi=C3=A7=C3=A3o de posto. Isso =C3=A9 um argumento causal melhor do que=
+ o par=C3=A1grafo especulativo que eu tinha sugerido, porque =C3=A9 evid=C3=
+=AAncia direta, n=C3=A3o conjectura. Sugiro escrevermos um par=C3=A1grafo c=
+urto (ou nota de rodap=C3=A9) relatando exatamente essa tentativa e esse di=
+agn=C3=B3stico, n=C3=A3o como n=C3=A3o conseguimos, mas como testamos diret=
+amente e encontramos uma raz=C3=A3o mec=C3=A2nica pela qual a frequ=C3=AAnc=
+ia da identifica=C3=A7=C3=A3o importa. Isso fecha a obje=C3=A7=C3=A3o de um=
+ parecerista com muito mais for=C3=A7a do que eu tinha originalmente propos=
+to.</font><br></div><div><font color=3D"#0000ff"><br></font></div><div><fon=
+t color=3D"#cc0000">Resp: Vou incluir o par=C3=A1grafo mais a tabela no ap=
+=C3=AAndice.</font></div></div></blockquote><div><font color=3D"#38761d">Re=
+sp: S=C3=B3 uma sugest=C3=A3o adicional, se poss=C3=ADvel, reporte tamb=C3=
+=A9m a estat=C3=ADstica do teste de posto (ou o determinante da matriz rele=
+vante) antes e depois da agrega=C3=A7=C3=A3o para mensal, lado a lado, isso=
+ torna o argumento a agrega=C3=A7=C3=A3o dilui a vari=C3=A2ncia e quebra a =
+condi=C3=A7=C3=A3o de posto visualmente imediato para um parecerista, em ve=
+z de exigir que ele confie s=C3=B3 na descri=C3=A7=C3=A3o textual.=C2=A0</f=
+ont></div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8=
+ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"><br><div class=
+=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On Mon, Aug 31, 2026=
+ at 2:49=E2=80=AFPM Jo=C3=A3o Caldeira &lt;<a href=3D"mailto:emaildocaldeir=
+a@gmail.com" target=3D"_blank">emaildocaldeira@gmail.com</a>&gt; wrote:<br>=
+</div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;b=
+order-left:1px solid rgb(204,204,204);padding-left:1ex"><div dir=3D"ltr"><d=
+iv>Gabriel, vou responder no corpo do email, em azul, para ficar mais f=C3=
+=A1cil a conversa, blz?</div><br><div class=3D"gmail_quote"><div dir=3D"ltr=
+" class=3D"gmail_attr">Em seg., 31 de ago. de 2026 =C3=A0s 14:10, Gabriel A=
+rruda &lt;<a href=3D"mailto:g.arruda1996@gmail.com" target=3D"_blank">g.arr=
+uda1996@gmail.com</a>&gt; escreveu:<br></div><blockquote class=3D"gmail_quo=
+te" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204=
+);padding-left:1ex"><div dir=3D"ltr">Ol=C3=A1, Professor. Vou responder =C3=
+=A0s quest=C3=B5es na ordem:</div></blockquote><div>1.=C2=A0<span style=3D"=
+background-color:transparent">Esse =C3=A9 um problema de vers=C3=A3o, esque=
+ci de atualizar essas se=C3=A7=C3=B5es ap=C3=B3s a mudan=C3=A7a no modelo.<=
+/span></div><div><font color=3D"#0000ff"><b>Resp:</b> Est=C3=A1 bem, obriga=
+do.</font></div><div><span style=3D"background-color:transparent"><font col=
+or=3D"#000000">2.</font><font color=3D"#0000ff">=C2=A0</font>Hoje n=C3=A3o =
+se tem na literatura um mecanismo de infer=C3=AAncia robusta a instrumento =
+fraco aplicado aos modelos DFM. Montiel Olea et al. aplicam a um modelo VAR=
+ pequeno e a aplica=C3=A7=C3=A3o disso a um modelo DFM requer uma engenhari=
+a matem=C3=A1tica que=C2=A0</span><span style=3D"background-color:transpare=
+nt">n=C3=A3o =C3=A9 trivial, e n=C3=A3o sei se tenho capacidade.</span></di=
+v><div><b style=3D"background-color:transparent;color:rgb(0,0,255)">Resp:</=
+b><span style=3D"background-color:transparent;color:rgb(0,0,255)">=C2=A0N=
+=C3=A3o sei se =C3=A9 vi=C3=A1vel e qu=C3=A3o complicado a implementa=C3=A7=
+=C3=A3o, mas h=C3=A1 pelo menos duas refer=C3=AAncias que tratam desse pont=
+o:=C2=A0</span></div><div><span style=3D"background-color:transparent;color=
+:rgb(0,0,255)"><br></span></div><div><font color=3D"#0000ff"><span style=3D=
+"background-color:transparent">1) Kapetanios (2016, <em>Journal of Applied =
+Econometrics</em>), Factor-Based Identification-Robust Inference in IV Regr=
+essions,</span><span style=3D"background-color:transparent">=C2=A0combina e=
+xatamente redu=C3=A7=C3=A3o de dimens=C3=A3o via fatores com testes robusto=
+s a instrumento fraco (incluindo Anderson-Rubin).=C2=A0</span></font></div>=
+<div><font color=3D"#0000ff"><span style=3D"background-color:transparent">2=
+) Al=C3=A9m disso,=C2=A0</span><span style=3D"background-color:transparent"=
+>a literatura de proxy-SVAR com instrumento fraco j=C3=A1 cobre explicitame=
+nte o </span><span style=3D"background-color:transparent">caso de um =C3=BA=
+nico instrumento identificando um =C3=BAnico choque,</span><span style=3D"b=
+ackground-color:transparent">=C2=A0que =C3=A9 exatamente a situa=C3=A7=C3=
+=A3o que nos deparamos aqui (o choque Copom), via Jentsch &amp; Lunsford (2=
+019, 2022), com bandas de confian=C3=A7a </span><em style=3D"background-col=
+or:transparent">grid moving-block-bootstrap Anderson-Rubin</em><span style=
+=3D"background-color:transparent">, generalizando Montiel Olea et al. (2021=
+) para al=C3=A9m do VAR pequeno original.</span></font></div><div><span sty=
+le=3D"background-color:transparent"><font color=3D"#0000ff"><br></font></sp=
+an></div><div><font color=3D"#0000ff">O ponto t=C3=A9cnico chave: o dif=C3=
+=ADcil n=C3=A3o =C3=A9 o tamanho do painel (106 s=C3=A9ries), =C3=A9 o VAR =
+dos fatores (que tem dimens=C3=A3o pequena, tipo 4 a 8 fatores). O Anderson=
+-Rubin robusto se aplicaria a esse VAR de fatores, objeto pequeno, do mesmo=
+ tipo que Montiel Olea et al. j=C3=A1 tratam, e depois a banda de confian=
+=C3=A7a dos fatores se propaga pelas <em>loadings</em> (transforma=C3=A7=C3=
+=A3o linear, trivial) at=C3=A9 chegar nas s=C3=A9ries observ=C3=A1veis. Iss=
+o n=C3=A3o =C3=A9 zero trabalho, mas me parece bem menos engenharia matem=
+=C3=A1tica n=C3=A3o trivial do que voc=C3=AA est=C3=A1 enxergando, =C3=A9 m=
+ais trabalho de implementa=C3=A7=C3=A3o computacional do que teoria nova.</=
+font><span style=3D"background-color:transparent"></span></div><div><span s=
+tyle=3D"color:rgb(0,0,255);background-color:transparent"><br></span></div><=
+div><span style=3D"color:rgb(0,0,255);background-color:transparent">Minha s=
+ugest=C3=A3o, em ordem de esfor=C3=A7o:</span></div><div><p dir=3D"ltr"><fo=
+nt color=3D"#0000ff"><span style=3D"background-color:transparent">1)=C2=A0<=
+/span><span style=3D"background-color:transparent">M=C3=ADnimo (reenquadrar=
+ o que j=C3=A1 existe)</span><span style=3D"background-color:transparent">:=
+ a Se=C3=A7=C3=A3o 5.1 j=C3=A1 reporta bandas AR-robustas para o VAR de ben=
+chmark. Em vez de deixar isso como s=C3=B3 uma compara=C3=A7=C3=A3o de robu=
+stez, reposicionar explicitamente: n=C3=A3o estendemos formalmente infer=C3=
+=AAncia robusta a instrumento fraco ao DFM completo, mas confirmamos que um=
+ VAR menor com as vari=C3=A1veis-chave, sob infer=C3=AAncia robusta, entreg=
+a conclus=C3=B5es qualitativamente semelhantes, e citar Kapetanios (2016) e=
+ Jentsch &amp; Lunsford (2022) como a fronteira metodol=C3=B3gica reconheci=
+da. Isso =C3=A9 reescrita, n=C3=A3o pesquisa nova.</span></font></p><p dir=
+=3D"ltr"><font color=3D"#0000ff"><span style=3D"background-color:transparen=
+t">2)=C2=A0</span><span style=3D"background-color:transparent">Se houver f=
+=C3=B4lego</span><span style=3D"background-color:transparent">: tentar a ex=
+tens=C3=A3o real, mas aplicada ao </span><span style=3D"background-color:tr=
+ansparent">VAR dos fatores</span><span style=3D"background-color:transparen=
+t"> (dimens=C3=A3o pequena), n=C3=A3o ao painel inteiro, pode ser mais trat=
+=C3=A1vel do que voc=C3=AA est=C3=A1 achando.</span></font></p><p dir=3D"lt=
+r"><font color=3D"#0000ff">Recomendo que voc=C3=AA pelo menos d=C3=AA uma o=
+lhada nesses dois papers antes de descartar a ideia, isso pra ver o qu=C3=
+=A3o complicado =C3=A9, eventualmente at=C3=A9 pode ter algum pacote pronto=
+, tamb=C3=A9m=C2=A0n=C3=A3o tenho certeza de que a extens=C3=A3o seja imedi=
+ata sem ajustes.=C2=A0</font></p><p dir=3D"ltr"><span style=3D"background-c=
+olor:transparent"><font color=3D"#000000">3.=C2=A0</font>DLSP, DBGG e NFSP =
+prim=C3=A1ria caem no in=C3=ADcio e s=C3=B3 voltam a subir depois de cerca =
+de dois anos, enquanto as expectativas de infla=C3=A7=C3=A3o, Selic e c=C3=
+=A2mbio sobem e a de PIB cai antes de uma revers=C3=A3o conjunta. S=C3=B3 q=
+ue a NFSP prim=C3=A1ria exclui juros e efeito cambial, e a DLSP incorpora a=
+tivos como reservas, ent=C3=A3o parte do movimento pode vir da forma de con=
+tabiliza=C3=A7=C3=A3o das s=C3=A9ries. Vou por no arquivo .tex para facilit=
+ar para o senhor o efeito do choque e tamb=C3=A9m vou incluir as s=C3=A9rie=
+s de expectativa fiscal no painel para ver o efeito sobre a percep=C3=A7=C3=
+=A3o de sustentabilidade da d=C3=ADvida.</span></p><p dir=3D"ltr"><font col=
+or=3D"#0000ff"><b style=3D"background-color:transparent">Resp:</b><span sty=
+le=3D"background-color:transparent">=C2=A0N</span><span style=3D"background=
+-color:transparent">a verdade, isso me parece um resultado bom, s=C3=B3 pre=
+cisa de mais uma camada de decomposi=C3=A7=C3=A3o antes de aparecer no text=
+o.=C2=A0</span><span style=3D"background-color:transparent">O que voc=C3=AA=
+ encontrou =C3=A9 interessante, n=C3=A3o problem=C3=A1tico: d=C3=ADvida cai=
+ndo no in=C3=ADcio e revertendo s=C3=B3 depois de ~2 anos, junto com expect=
+ativas de infla=C3=A7=C3=A3o/Selic/c=C3=A2mbio subindo e PIB caindo antes d=
+a revers=C3=A3o conjunta. Duas coisas para fazer antes de escrever isso no =
+artigo:</span></font></p><ul><li><font color=3D"#0000ff">1) A hip=C3=B3tese=
+ do efeito cambial =C3=A9 test=C3=A1vel diretamente, n=C3=A3o precisa ficar=
+ como especula=C3=A7=C3=A3o. O BCB publica mensalmente a decomposi=C3=A7=C3=
+=A3o da DLSP por fatores condicionantes=C2=A0(resultado prim=C3=A1rio, juro=
+s apropriados, ajuste cambial sobre d=C3=ADvida e reservas indexadas, recon=
+hecimento de d=C3=ADvidas, outros ajustes), est=C3=A1 no SGS/IPEADATA. Como=
+ o real deprecia ~3,7% no impacto, e reservas internacionais em d=C3=B3lar =
+entram l=C3=ADquidas na DLSP, uma deprecia=C3=A7=C3=A3o mecanicamente reduz=
+ a DLSP (reservas em BRL valem mais) mesmo sem nenhuma melhora fiscal de fa=
+to. Voc=C3=AA pode rodar a mesma resposta ao impulso para essa s=C3=A9rie d=
+e ajuste cambial especificamente e ver se ela explica a queda inicial da DL=
+SP. Isso transforma uma hip=C3=B3tese n=C3=A3o testada em evid=C3=AAncia di=
+reta.</font></li><li><font color=3D"#0000ff">2) Aten=C3=A7=C3=A3o ao sinal =
+do NFSP prim=C3=A1rio, cai pode significar d=C3=A9ficit menor (melhora) ou =
+piora, dependendo de qual conven=C3=A7=C3=A3o de sinal voc=C3=AA est=C3=A1 =
+usando na s=C3=A9rie do BCB. Vale confirmar=C2=A0 exatamente isso antes de =
+interpretar qualquer coisa, porque a leitura econ=C3=B4mica se inverte depe=
+ndendo disso.</font></li></ul><p dir=3D"ltr">
+
+</p><ul><li><font color=3D"#0000ff">A sua ideia de incluir as expectativas =
+fiscais do Focus =C3=A9 a corre=C3=A7=C3=A3o certa, e mais importante que o=
+s itens acima: pr=C3=AAmio de risco =C3=A9 <em>forward-looking</em>, ent=C3=
+=A3o o que expectativas de sustentabilidade fiscal fazem importa mais para =
+o mecanismo do que o estoque de d=C3=ADvida realizado (que =C3=A9 mec=C3=A2=
+nico e ruidoso). Eu priorizaria isso como o resultado central dessa se=C3=
+=A7=C3=A3o, com a decomposi=C3=A7=C3=A3o cambial como apoio/robustez.</font=
+></li><li><font color=3D"#000000">4.=C2=A0</font>Eu cheguei a tentar aplica=
+r o exerc=C3=ADcio, mas n=C3=A3o deu certo, pois na agrega=C3=A7=C3=A3o dos=
+ dados mensais ocorre uma dilui=C3=A7=C3=A3o na vari=C3=A2ncia (minha hip=
+=C3=B3tese), fazendo com que a condi=C3=A7=C3=A3o do posto desaparecesse, i=
+mpossibilitando a identifica=C3=A7=C3=A3o.</li><li><b style=3D"color:rgb(0,=
+0,255);background-color:transparent">Resp: </b><font color=3D"#0000ff"><spa=
+n style=3D"background-color:transparent">O</span>=C2=A0n=C3=A3o deu certo j=
+=C3=A1 =C3=A9 a resposta, s=C3=B3 falta escrever. A meu ver, isso =C3=A9 um=
+a not=C3=ADcia melhor do que voc=C3=AA percebeu. A dilui=C3=A7=C3=A3o de va=
+ri=C3=A2ncia que voc=C3=AA suspeita ao agregar para mensal =C3=A9 exatament=
+e o motivo pelo qual a literatura de identifica=C3=A7=C3=A3o por heteroceda=
+sticidade (Rigobon 2003; Rigobon &amp; Sack 2004) insiste em janelas curtas=
+/intradi=C3=A1rias ao redor do an=C3=BAncio, a agrega=C3=A7=C3=A3o temporal=
+ dilui a descontinuidade de vari=C3=A2ncia que a identifica=C3=A7=C3=A3o de=
+pende, e pode quebrar a condi=C3=A7=C3=A3o de posto. Isso =C3=A9 um argumen=
+to causal <em>melhor</em> do que o par=C3=A1grafo especulativo que eu tinha=
+ sugerido, porque =C3=A9 evid=C3=AAncia direta, n=C3=A3o conjectura. Sugiro=
+ escrevermos um par=C3=A1grafo curto (ou nota de rodap=C3=A9) relatando exa=
+tamente essa tentativa e esse diagn=C3=B3stico, n=C3=A3o como n=C3=A3o cons=
+eguimos, mas como testamos diretamente e encontramos uma raz=C3=A3o mec=C3=
+=A2nica pela qual a frequ=C3=AAncia da identifica=C3=A7=C3=A3o importa. Iss=
+o fecha a obje=C3=A7=C3=A3o de um parecerista com muito mais for=C3=A7a do =
+que eu tinha originalmente proposto.</font></li><li><br></li><li><font colo=
+r=3D"#000000">5.=C2=A0</font>Vou consertar o erro no LaTeX e rodar ambos os=
+ modelos com a mesma defasagem.</li><li><b style=3D"background-color:transp=
+arent;color:rgb(0,0,255)">Resp: </b><span style=3D"background-color:transpa=
+rent;color:rgb(0,0,255)">Est=C3=A1 bem.=C2=A0</span></li><li><span style=3D=
+"background-color:transparent;color:rgb(0,0,255)"><br></span></li><li><font=
+ color=3D"#0000ff"><span style=3D"background-color:transparent">Em resumo, =
+Gabriel, sobre o item 2, recomendo que voc=C3=AA=C2=A0</span>pelo menos lei=
+a (ao menos d=C3=AA uma olhada) os dois papers antes de fechar a porta, j=
+=C3=A1 que o esfor=C3=A7o de reenquadrar o que j=C3=A1 existe =C3=A9 baixo;=
+ item 4, ao menos escreva o par=C3=A1grafo, j=C3=A1 que o trabalho pesado j=
+=C3=A1 foi feito; item 3, =C3=A9=C2=A0a prioridade de maior retorno, porque=
+ voc=C3=AA j=C3=A1 tem o resultado bruto, s=C3=B3 falta a decomposi=C3=A7=
+=C3=A3o cambial (r=C3=A1pida, dado que =C3=A9 s=C3=A9rie p=C3=BAblica do BC=
+B) para transformar em evid=C3=AAncia defens=C3=A1vel.</font></li></ul></di=
+v><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;borde=
+r-left:1px solid rgb(204,204,204);padding-left:1ex"><div dir=3D"ltr"><br></=
+div><br><div class=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On=
+ Sun, Aug 30, 2026 at 8:36=E2=80=AFPM Jo=C3=A3o Caldeira &lt;<a href=3D"mai=
+lto:emaildocaldeira@gmail.com" target=3D"_blank">emaildocaldeira@gmail.com<=
+/a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0=
+px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"><=
+div dir=3D"ltr">Gabriel, revisei o artigo e vou compartilhar contigo aqui a=
+lguns pontos que me chamaram a aten=C3=A7=C3=A3o, al=C3=A9m da revis=C3=A3o=
+ de literatura, que no m=C3=ADnimo precisamos incluir o artigo do Eduardo L=
+oyo e o do Blanchard.=C2=A0 Vou listar aqui os pontos que me preocupam:=C2=
+=A0<div>1. Erro factual que precisa ser corrigido:=C2=A0O abstract (PT e EN=
+) e a conclus=C3=A3o dizem que o BRL/USD deprecia 3,64% no impacto. Mas a S=
+e=C3=A7=C3=A3o 4.2 diz 3,74%. S=C3=A3o n=C3=BAmeros diferentes para a mesma=
+ estimativa. Isso =C3=A9 o tipo de coisa que impacta a confian=C3=A7a do pa=
+recerista no resto do artigo, precisa achar qual dos dois est=C3=A1 certo e=
+ uniformizar em todo o texto (abstract, introdu=C3=A7=C3=A3o, se=C3=A7=C3=
+=A3o 4, conclus=C3=A3o).</div><div><br></div><div>2. O ponto mais important=
+e, tecnicamente: for=C3=A7a do instrumento. Voc=C3=AA destaca que=C2=A0<spa=
+n role=3D"math"><span aria-hidden=3D"true"><span style=3D"height:1.2322em;v=
+ertical-align:-0.3831em"></span><span style=3D"margin-right:0.13889em">F</s=
+pan><span style=3D"height:0.8491em"><span style=3D"margin-right:0.05em"><sp=
+an style=3D"height:2.7em"></span>mp</span><span style=3D"margin-right:0.05e=
+m"><span style=3D"height:2.7em"></span>rob</span></span><span style=3D"heig=
+ht:0.3831em"></span><span style=3D"margin-right:0.2778em"></span>=3D<span s=
+tyle=3D"margin-right:0.2778em"></span><span style=3D"height:0.8389em;vertic=
+al-align:-0.1944em"></span>10,06</span></span> supera a refer=C3=AAncia con=
+vencional s=C3=B3 marginalmente, e <span role=3D"math"><span aria-hidden=3D=
+"true"><span style=3D"height:0.9805em;vertical-align:-0.2861em"></span><spa=
+n style=3D"margin-right:0.04601em">=CE=BE</span><span style=3D"height:0.151=
+4em"><span style=3D"margin-right:0.05em"><span style=3D"height:2.7em"></spa=
+n>mp</span></span><span style=3D"height:0.2861em"></span><span style=3D"mar=
+gin-right:0.2778em"></span>=3D<span style=3D"margin-right:0.2778em"></span>=
+<span style=3D"height:0.8389em;vertical-align:-0.1944em"></span>5,24</span>=
+</span> fica abaixo dela. Isso =C3=A9 uma faca de dois gumes: a transpar=C3=
+=AAncia =C3=A9 =C3=B3tima (muita gente esconde primeiro est=C3=A1gio fraco)=
+, mas isso vai ser o primeiro alvo de qualquer parecerista, porque =C3=A9 h=
+oje um dos temas mais escrutinados em identifica=C3=A7=C3=A3o por instrumen=
+to externo. Reparei uma inconsist=C3=AAncia: voc=C3=AA usa os conjuntos And=
+erson=E2=80=93Rubin robustos a instrumento fraco (Montiel Olea et al., 2021=
+) s=C3=B3 na compara=C3=A7=C3=A3o com o VAR de robustez (Se=C3=A7=C3=A3o 5.=
+1, Figura 7), mas as figuras principais (1-6) usa apenas bandas de <em>wild=
+ bootstrap</em> convencionais. Se o instrumento =C3=A9 reconhecidamente fra=
+co/marginal, o resultado principal do artigo tamb=C3=A9m deveria ser acompa=
+nhado de infer=C3=AAncia robusta a instrumento fraco, n=C3=A3o s=C3=B3 o be=
+nchmark de robustez. Isso fortalece muito o artigo porque antecipa a obje=
+=C3=A7=C3=A3o =C3=B3bvia.</div><div><br></div><div>3. A hist=C3=B3ria de ri=
+sco soberano/domin=C3=A2ncia fiscal =C3=A9 afirmada, mas n=C3=A3o testada d=
+iretamente, e temos os dados para isso.<br>
+Voc=C3=AA incluiu no painel exatamente o bloco que permitiria testar isso: =
+d=C3=ADvida bruta, d=C3=ADvida l=C3=ADquida, resultado prim=C3=A1rio, e exp=
+ectativas Focus para Selic/IPCA/c=C3=A2mbio/PIB. Mas a Se=C3=A7=C3=A3o 4 nu=
+nca reporta a resposta desse bloco fiscal a um choque monet=C3=A1rio. Isso =
+=C3=A9 uma lacuna concreta e f=C3=A1cil de preencher: se a hist=C3=B3ria =
+=C3=A9 juros sobem =3D&gt; percep=C3=A7=C3=A3o de sustentabilidade da d=C3=
+=ADvida piora =3D&gt; pr=C3=AAmio de risco sobe, mostrar a resposta de d=C3=
+=ADvida/resultado prim=C3=A1rio/expectativas fiscais Focus d=C3=A1 evid=C3=
+=AAncia direta a favor (ou contra) do mecanismo, em vez de deix=C3=A1-lo co=
+mo interpreta=C3=A7=C3=A3o n=C3=A3o testada, que =C3=A9 exatamente o que=C2=
+=A0 admitimos no texto (embora o objetivo deste artigo n=C3=A3o seja testar=
+ diretamente essa hip=C3=B3tese). Isso tamb=C3=A9m ajudaria a distinguir o =
+canal de domin=C3=A2ncia fiscal do canal alternativo que voc=C3=AA cita na =
+introdu=C3=A7=C3=A3o (Dalgic &amp; Ozhan, descasamento cambial/dominant cur=
+rency pricing), que =C3=A9 uma hist=C3=B3ria diferente e tamb=C3=A9m compat=
+=C3=ADvel com os sinais encontrados, mas que voc=C3=AA nunca volta a discut=
+ir depois da introdu=C3=A7=C3=A3o.</div><div><br></div><div>4. A reconcilia=
+=C3=A7=C3=A3o com Gon=C3=A7alves et al. (2025) me parece fraca demais para =
+o tamanho da contradi=C3=A7=C3=A3o.<br>
+N=C3=A3o =C3=A9 s=C3=B3 uma diferen=C3=A7a de magnitude, =C3=A9 uma invers=
+=C3=A3o de sinal (deprecia=C3=A7=C3=A3o vs. aprecia=C3=A7=C3=A3o) para esse=
+ncialmente a mesma pergunta no mesmo pa=C3=ADs. Deixar isso como uma quest=
+=C3=A3o em aberto para pesquisa futura =C3=A9 honesto, mas um editor de cam=
+po vai querer mais. Sugest=C3=A3o m=C3=ADnima: um par=C3=A1grafo argumentan=
+do <em>por que</em> frequ=C3=AAncia di=C3=A1ria + heterocedasticidade poder=
+ia mecanicamente favorecer o canal convencional (ex: heterocedasticidade em=
+ torno do an=C3=BAncio capta primariamente a surpresa de curt=C3=ADssimo pr=
+azo, antes que o mercado precifique o efeito sobre sustentabilidade fiscal,=
+ que se manifesta com alguma defasagem), mesmo sem rodar um novo exerc=C3=
+=ADcio, um argumento causal expl=C3=ADcito =C3=A9 bem mais convincente que =
+pode depender da frequ=C3=AAncia. (Aqui, se decidirmos n=C3=A3o rodar o nov=
+o exerc=C3=ADcio, eu posso escrever o argumento).</div><div><br></div><div>=
+<p dir=3D"ltr">5. Problemas menores, mas que um editor vai notar na primeir=
+a leitura:</p><p dir=3D"ltr"><span style=3D"background-color:transparent">S=
+e=C3=A7=C3=A3o 3.6 tem uma refer=C3=AAncia cruzada quebrada: (Table ??), so=
+brou do </span>LaTeX<span style=3D"background-color:transparent">, precisa =
+corrigir antes de qualquer submiss=C3=A3o.</span></p><p dir=3D"ltr"><span s=
+tyle=3D"background-color:transparent">A compara=C3=A7=C3=A3o DFM vs. VAR (S=
+e=C3=A7=C3=A3o 5.1) usa defasagens diferentes (4 vs. 2) selecionadas por AI=
+C em cada modelo, voc=C3=AA mesmo admite que isso contamina a compara=C3=A7=
+=C3=A3o. Vale rodar ao menos uma vers=C3=A3o com defasagem casada como chec=
+agem adicional, j=C3=A1 que =C3=A9 </span>r=C3=A1pido<span style=3D"backgro=
+und-color:transparent"> de fazer e fecha uma obje=C3=A7=C3=A3o =C3=B3bvia.<=
+/span></p><p>Veja a=C3=AD o que voc=C3=AA acha.</p><p>Abrs.,</p><p>Jo=C3=A3=
+o</p><div><br></div><div><br></div></div></div>
+</blockquote></div>
+</blockquote></div></div>
+</blockquote></div>
+</blockquote></div></div>
+</blockquote></div>
+</blockquote></div>
+</blockquote></div>
+
+--000000000000456f19065aad79ee--
