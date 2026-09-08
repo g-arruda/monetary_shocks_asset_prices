@@ -1,0 +1,765 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Journal of Business & Economic Statistics",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          170.54296875,
+          104.02734375
+        ],
+        [
+          481.23199462890625,
+          104.02734375
+        ],
+        [
+          481.23199462890625,
+          121.23797607421875
+        ],
+        [
+          170.54296875,
+          121.23797607421875
+        ]
+      ]
+    },
+    {
+      "title": "Consistent Estimation of the Number of Dynamic\nFactors in a Large N and T Panel",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          172.8000030517578,
+          155.84765625
+        ],
+        [
+          537.15234375,
+          155.84765625
+        ],
+        [
+          537.15234375,
+          191.637939453125
+        ],
+        [
+          172.8000030517578,
+          191.637939453125
+        ]
+      ]
+    },
+    {
+      "title": "PLEASE SCROLL DOWN FOR ARTICLE",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          20.8828125,
+          373.5703125
+        ],
+        [
+          209.44000244140625,
+          373.5703125
+        ],
+        [
+          209.44000244140625,
+          384.08770751953125
+        ],
+        [
+          20.8828125,
+          384.08770751953125
+        ]
+      ]
+    },
+    {
+      "title": "Consistent Estimation of the Number of Dynamic Factors in a Large N and T Panel",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          46.5,
+          20.109375
+        ],
+        [
+          563.25,
+          20.109375
+        ],
+        [
+          563.25,
+          69.75
+        ],
+        [
+          46.5,
+          69.75
+        ]
+      ]
+    },
+    {
+      "title": "Dante AMENGUAL",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          46.5,
+          93.5859375
+        ],
+        [
+          137.25,
+          93.5859375
+        ],
+        [
+          137.25,
+          103.5
+        ],
+        [
+          46.5,
+          103.5
+        ]
+      ]
+    },
+    {
+      "title": "Mark W. WATSON",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          46.40625,
+          129.0
+        ],
+        [
+          135.0,
+          129.0
+        ],
+        [
+          135.0,
+          138.0
+        ],
+        [
+          46.40625,
+          138.0
+        ]
+      ]
+    },
+    {
+      "title": "1. INTRODUCTION",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          125.25,
+          248.25
+        ],
+        [
+          221.25,
+          248.25
+        ],
+        [
+          221.25,
+          257.25
+        ],
+        [
+          125.25,
+          257.25
+        ]
+      ]
+    },
+    {
+      "title": "2. ASSUMPTIONS AND ASYMPTOTIC RESULTS",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          40.60546875,
+          264.75
+        ],
+        [
+          271.5,
+          264.75
+        ],
+        [
+          271.5,
+          274.5
+        ],
+        [
+          40.60546875,
+          274.5
+        ]
+      ]
+    },
+    {
+      "title": "Review of Existing Work With a Small Extension",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          31.32421875,
+          285.0
+        ],
+        [
+          267.75,
+          285.0
+        ],
+        [
+          267.75,
+          295.453125
+        ],
+        [
+          31.32421875,
+          295.453125
+        ]
+      ]
+    },
+    {
+      "title": "2.2 Consistent Estimation of the Number of \nDynamic Factors",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          45.24609375,
+          44.25
+        ],
+        [
+          246.0,
+          44.25
+        ],
+        [
+          246.0,
+          66.0
+        ],
+        [
+          45.24609375,
+          66.0
+        ]
+      ]
+    },
+    {
+      "title": "COMPARING THE ESTIMATORS USING \nSIMULATED DATA",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          335.28515625,
+          165.515625
+        ],
+        [
+          537.15234375,
+          165.515625
+        ],
+        [
+          537.15234375,
+          186.75
+        ],
+        [
+          335.28515625,
+          186.75
+        ]
+      ]
+    },
+    {
+      "title": "3.1 Experimental Design",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          310.921875,
+          196.06640625
+        ],
+        [
+          426.9375,
+          196.06640625
+        ],
+        [
+          426.9375,
+          206.12109375
+        ],
+        [
+          310.921875,
+          206.12109375
+        ]
+      ]
+    },
+    {
+      "title": "3.2 Results",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          30.75,
+          43.5
+        ],
+        [
+          89.25,
+          43.5
+        ],
+        [
+          89.25,
+          53.25
+        ],
+        [
+          30.75,
+          53.25
+        ]
+      ]
+    },
+    {
+      "title": "4. SUMMARY AND CONCLUDING REMARKS",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          65.548828125,
+          204.57421875
+        ],
+        [
+          280.5,
+          204.57421875
+        ],
+        [
+          280.5,
+          214.5
+        ],
+        [
+          65.548828125,
+          214.5
+        ]
+      ]
+    },
+    {
+      "title": "ACKNOWLEDGMENTS",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          118.5,
+          373.5
+        ],
+        [
+          226.5,
+          373.5
+        ],
+        [
+          226.5,
+          383.25
+        ],
+        [
+          118.5,
+          383.25
+        ]
+      ]
+    },
+    {
+      "title": "APPENDIX: PROOFS",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          121.5263671875,
+          471.0
+        ],
+        [
+          222.75,
+          471.0
+        ],
+        [
+          222.75,
+          480.69140625
+        ],
+        [
+          121.5263671875,
+          480.69140625
+        ]
+      ]
+    },
+    {
+      "title": "Proof of Lemma 1",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          46.5,
+          552.62109375
+        ],
+        [
+          126.75,
+          552.62109375
+        ],
+        [
+          126.75,
+          562.5
+        ],
+        [
+          46.5,
+          562.5
+        ]
+      ]
+    },
+    {
+      "title": "Proof of Lemma 2",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          46.40625,
+          620.68359375
+        ],
+        [
+          127.5,
+          620.68359375
+        ],
+        [
+          127.5,
+          631.5
+        ],
+        [
+          46.40625,
+          631.5
+        ]
+      ]
+    },
+    {
+      "title": "Proof of Theorem 1",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          309.75,
+          126.75
+        ],
+        [
+          396.0,
+          126.75
+        ],
+        [
+          396.0,
+          136.5
+        ],
+        [
+          309.75,
+          136.5
+        ]
+      ]
+    },
+    {
+      "title": "REFERENCES",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          385.5,
+          248.2734375
+        ],
+        [
+          455.25,
+          248.2734375
+        ],
+        [
+          455.25,
+          257.25
+        ],
+        [
+          385.5,
+          257.25
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          73
+        ],
+        [
+          "Line",
+          34
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "Picture",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          124
+        ],
+        [
+          "Line",
+          109
+        ],
+        [
+          "Text",
+          14
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "Equation",
+          3
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          259
+        ],
+        [
+          "Line",
+          103
+        ],
+        [
+          "Text",
+          15
+        ],
+        [
+          "ListItem",
+          9
+        ],
+        [
+          "PageHeader",
+          3
+        ],
+        [
+          "Equation",
+          3
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          293
+        ],
+        [
+          "Line",
+          133
+        ],
+        [
+          "Text",
+          13
+        ],
+        [
+          "ListItem",
+          5
+        ],
+        [
+          "PageHeader",
+          3
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "Equation",
+          3
+        ],
+        [
+          "ListGroup",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "TableCell",
+          885
+        ],
+        [
+          "Span",
+          68
+        ],
+        [
+          "Line",
+          33
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "PageHeader",
+          3
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Span",
+          154
+        ],
+        [
+          "Line",
+          104
+        ],
+        [
+          "Text",
+          16
+        ],
+        [
+          "SectionHeader",
+          6
+        ],
+        [
+          "Equation",
+          5
+        ],
+        [
+          "PageHeader",
+          3
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          108
+        ],
+        [
+          "Span",
+          88
+        ],
+        [
+          "Text",
+          23
+        ],
+        [
+          "Equation",
+          7
+        ],
+        [
+          "PageHeader",
+          3
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/Amengual, Watson - Consistent Estimation of the Number of DynamicFactors in a Large N and T Panel"
+}
