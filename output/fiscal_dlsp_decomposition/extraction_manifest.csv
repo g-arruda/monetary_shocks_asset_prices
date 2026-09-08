@@ -1,0 +1,8 @@
+variable,sheet_label,role,unit,sign_convention,source_file,source_sheet,coverage,transformation,tcode,is_seasonal,seasonal_status
+dlsp_monthly_change,Dívida líquida - variação mensal,lhs_identity,R$ milhões,positivo = aumento da DLSP,data/raw/DLSP/Evodlp.xlsx,Fluxos mensais,2013-01 a 2025-09,level; seasonal adjustment only when detected,1,TRUE,ajustada_completo
+dlsp_nfsp,NFSP,identity_component,R$ milhões,positivo = necessidade de financiamento,data/raw/DLSP/Evodlp.xlsx,Fluxos mensais,2013-01 a 2025-09,level; seasonal adjustment only when detected,1,TRUE,ajustada_completo
+dlsp_primary_result,Primário,nfsp_component,R$ milhões,positivo = resultado primário deficitário,data/raw/DLSP/Evodlp.xlsx,Fluxos mensais,2013-01 a 2025-09,level; seasonal adjustment only when detected,1,TRUE,ajustada_completo
+dlsp_nominal_interest,Juros nominais,nfsp_component,R$ milhões,positivo = juros que elevam a NFSP,data/raw/DLSP/Evodlp.xlsx,Fluxos mensais,2013-01 a 2025-09,level; seasonal adjustment only when detected,1,FALSE,nao_sazonal
+dlsp_exchange_adjustment,Ajuste cambial,identity_component,R$ milhões,positivo = ajuste que eleva a DLSP,data/raw/DLSP/Evodlp.xlsx,Fluxos mensais,2013-01 a 2025-09,level; seasonal adjustment only when detected,1,FALSE,nao_sazonal
+dlsp_debt_recognition,Reconhecimento de dívidas,identity_component,R$ milhões,positivo = reconhecimento que eleva a DLSP,data/raw/DLSP/Evodlp.xlsx,Fluxos mensais,2013-01 a 2025-09,level; seasonal adjustment only when detected,1,FALSE,nao_sazonal
+dlsp_privatizations,Privatizações,identity_component,R$ milhões,positivo = privatização que reduz a DLSP,data/raw/DLSP/Evodlp.xlsx,Fluxos mensais,2013-01 a 2025-09,level; seasonal adjustment only when detected,1,FALSE,nao_sazonal
