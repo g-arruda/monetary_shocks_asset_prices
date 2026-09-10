@@ -83,6 +83,7 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 | B | Refazer seleção de `(r,q)` no painel podado, comparar divergência com Bai-Ng | sugestão 3/5; depende dos dois itens acima |
 | B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ e desde 2026-09-08 `(8,8)` em `p=4` **não tem bandas AR** (`hac_dim` 336 ≥ 162) |
 | A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada |
+| A | Escrever o apêndice com as equações de MOSW que mudam na extensão AR ao DFM | aberto em 2026-09-10; entra na mesma rodada editorial da linha acima |
 
 ---
 
@@ -138,6 +139,17 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   rodada não acontece, `script/fig_section5.R` e `script/fig_weak_iv.R` abortam
   sem `--repaint-paper-figures`, de propósito. Depende da rodada de 2026-09-08
   fechada no Tema B.
+- [ ] **Abrir um apêndice com as equações de MOSW que mudam na extensão AR ao
+  DFM.** A inferência sobre observáveis (`ar_dfm_bands()`) é uma substituição:
+  o vetor canônico `e_i'` de MOSW dá lugar ao funcional linear estimado
+  `c_j' = sy_j·Λ_j'` (e `c_mp'` na normalização). Ela toca a eq. (2.6), onde a
+  resposta vira `λ(j,h) = c_j' C_h(A) Θ_{0,1}`; as eqs. (2.8)-(2.9), a
+  normalização, com `λ(mp,0) = δ` constante em `Γ`; a eq. (4.1), a razão de que
+  a estatística AR é construída; o gradiente de Kronecker, onde
+  `G_DFM = c_j'·G_fatores` e portanto `Ω_DFM = c_j'[G W G']c_j` — quadrática
+  nas loadings porque `H_T` é linear nelas; `Inner = K K'` quando `q < r`; e o
+  mapa de `tcode` na saída. (4.2), (4.3) e `W` ficam inalterados. Entra na
+  **mesma rodada editorial** do item acima.
 
 ### Fechados (contexto)
 
