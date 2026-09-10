@@ -119,7 +119,13 @@ These govern what may be **said**, so they apply even when no file is open.
   around them: the plug-in covariance conditions on the estimated `Λ`, `K`, `M` and `sy`; and
   `mosw_rform_cov` needs `hac_dim < T`, which **blocks** `(r,q)=(8,8)` at `p=4` (336 ≥ 162) and
   the **whole pre-COVID window** at `p=4` (135 ≥ 90). No pseudo-inverse, no substitute bootstrap,
-  no fallback — a blocked cell is reported blocked.
+  no fallback — a blocked cell is reported blocked. **`hac_dim < T` is this project's safeguard,
+  not the authors' condition**: `CovAhat_Sigmahat_Gamma.m:91-95` states `n²p + n(n+1)/2 + nk < T`
+  on the *parameter* dimension (120 in the production shape, against `hac_dim`'s 135), which is
+  the necessary one since `rank(WHat) ≤ min(par_dim, T−1)`. The moment-dimension gate is
+  sufficient and strictly stronger; both are checked since the 2026-09-08 fidelity audit, and
+  both bar exactly the same two cells (pre-COVID 120 ≥ 90, `(8,8)` 300 ≥ 162), so no published
+  number depends on which one binds.
 - **Significance is "the set excludes zero", read off the topology.** An AR set need not be an
   interval: `two_rays` excludes zero only when zero falls in its gap, `real_line` never does, and
   `empty` is a misspecification signal that scoring must not read as a sign. `ar_excludes_zero()`
@@ -228,6 +234,7 @@ There is no test suite, no linter, no build step. Iterate by running the relevan
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
+source("R/identification/weak_iv_ar.R")   # main_sdfm passa inference = "ar"
 source("R/modeling/dfm_pipeline.R")
 res <- main_sdfm(r = 5L, q = 5L, p = 4, shock_size_bps = 50, mp_var = "yield_6m", nboot = 0)
 # note the field is `irfs`, not `irf`, and the names come from the data matrix

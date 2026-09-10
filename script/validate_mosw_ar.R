@@ -402,5 +402,71 @@ stopifnot(
   deviation_cum == 0
 )
 
+cat("\nE. The DFM extension against a numerical Jacobian\n\n")
+
+# Section D proves the *reduction* to MOSW when Load = Inner = I. It says nothing
+# about the extension itself: the Kronecker collapse with a rectangular `Load`,
+# the `sy` row scaling, and `Inner = K K'` at q < r. Here `D1[, , i]` — which
+# already contracts Gamma through `gamma_st` — has to be the Jacobian of
+# `diag(sy) Lambda B_h K K' Gamma` with respect to vec(AL). Central differences.
+set.seed(20260908)
+r_dfm <- 2L
+p_dfm <- 2L
+n_out_dfm <- 3L
+q_dfm <- 1L
+h_dfm <- 3L
+
+AL_dfm     <- matrix(rnorm(r_dfm * r_dfm * p_dfm, sd = 0.2), r_dfm, r_dfm * p_dfm)
+K_dfm      <- matrix(rnorm(r_dfm * q_dfm), r_dfm, q_dfm)
+Lambda_dfm <- matrix(rnorm(n_out_dfm * r_dfm), n_out_dfm, r_dfm)
+sy_dfm     <- exp(rnorm(n_out_dfm))
+Load_dfm   <- sweep(Lambda_dfm, 1, sy_dfm, "*")
+Inner_dfm  <- K_dfm %*% t(K_dfm)
+Gamma_dfm  <- rnorm(r_dfm)
+
+deriv_dfm <- mosw_response_derivatives(AL_dfm, p_dfm, h_dfm, Gamma_dfm,
+                                       Load = Load_dfm, Inner = Inner_dfm)
+
+response_at <- function(AL_vec, i) {
+  AL_i <- matrix(AL_vec, nrow = r_dfm)
+  companion_i <- rbind(
+    AL_i,
+    cbind(diag(r_dfm * (p_dfm - 1L)), matrix(0, r_dfm * (p_dfm - 1L), r_dfm))
+  )
+  B_i <- diag(r_dfm * p_dfm)
+  for (step in seq_len(i - 1L)) B_i <- B_i %*% companion_i
+  drop(Load_dfm %*% B_i[seq_len(r_dfm), seq_len(r_dfm), drop = FALSE] %*%
+         Inner_dfm %*% Gamma_dfm)
+}
+
+eps <- 1e-6
+dev_jacobian <- 0
+dev_response <- 0
+for (i in seq_len(h_dfm + 1L)) {
+  jacobian <- vapply(seq_along(AL_dfm), function(k) {
+    up <- as.numeric(AL_dfm)
+    dn <- as.numeric(AL_dfm)
+    up[k] <- up[k] + eps
+    dn[k] <- dn[k] - eps
+    (response_at(up, i) - response_at(dn, i)) / (2 * eps)
+  }, numeric(n_out_dfm))
+  dev_jacobian <- max(dev_jacobian, max(abs(deriv_dfm$D1[, , i] - jacobian)))
+  dev_response <- max(dev_response,
+                      max(abs(drop(deriv_dfm$C[, , i] %*% Gamma_dfm) -
+                                response_at(as.numeric(AL_dfm), i))))
+}
+
+cat(sprintf(
+  "  Load %dx%d, Inner rank %d | response %.2e | D1 vs numerical Jacobian %.2e\n",
+  n_out_dfm, r_dfm, q_dfm, dev_response, dev_jacobian
+))
+
+stopifnot(
+  dev_response < 1e-12,
+  dev_jacobian < 1e-6
+)
+
+
 cat("\nVALIDATION PASSED: Olea reduced form, SVAR-IV, AR sets, AIC, BIC,\n")
-cat("and the Load/Inner reduction that the DFM path goes through.\n")
+cat("the Load/Inner reduction that the DFM path goes through, and the\n")
+cat("DFM extension itself against a numerical Jacobian.\n")

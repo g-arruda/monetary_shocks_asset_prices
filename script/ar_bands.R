@@ -224,9 +224,12 @@ dev_xi <- max(vapply(names(XI_MP_TARGET), function(cid)
 cat(sprintf("  1. xi_mp vs mosw_strength_grid.csv           : %.3e\n", dev_xi))
 
 # 2. limitação do conjunto <=> xi_mp > critval
+# `empty` (ahat > 0, Delta < 0) também é limitado: o predicado é sobre o sinal de
+# `ahat`, não sobre o conjunto ter pontos.
 bounded <- ar_tbl |>
   group_by(cell, level) |>
-  summarise(todos_limitados = all(set_type %in% c("interval", "singleton")),
+  summarise(todos_limitados = all(set_type %in% c("interval", "singleton",
+                                                  "empty")),
             xi_mp = first(xi_mp), critval = first(critval), .groups = "drop") |>
   mutate(coerente = todos_limitados == (xi_mp > critval))
 cat(sprintf("  2. limitado <=> xi_mp > critval              : %d de %d\n",
@@ -279,7 +282,7 @@ cat("  todos passaram.\n")
 summary_var <- ar_tbl |>
   group_by(cell, level, var) |>
   summarise(n_h = n(),
-            n_limitado = sum(set_type %in% c("interval", "singleton")),
+            n_limitado = sum(set_type %in% c("interval", "singleton", "empty")),
             n_ar_sig   = sum(ar_sig, na.rm = TRUE),
             n_dm_sig   = sum(dm_sig, na.rm = TRUE),
             n_boot_sig = sum(boot_sig, na.rm = TRUE),

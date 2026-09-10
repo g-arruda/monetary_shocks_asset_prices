@@ -350,10 +350,24 @@ mosw_rform_cov <- function(X, Z, eta, p, nw_lags = 0L) {
     lapply(seq_len(ncol(moment_data)), function(j) moment_data[, j] * eta_t)
   )
 
+  # Two conditions, and they do not coincide. The authors' one
+  # (CovAhat_Sigmahat_Gamma.m:91-95) is on the *parameter* dimension and is the
+  # necessary one, because rank(WHat) <= min(par_dim, T-1). The moment-dimension
+  # one is sufficient and strictly stronger — 135 against 120 in the production
+  # shape — and is this project's safeguard, not a result of the paper. Blocking
+  # on the stronger one is deliberate; both bar the same two cells.
+  par_dim <- n^2 * p + n * (n + 1L) / 2L + n * k
+  if (par_dim >= T_eff) {
+    stop("Parameter dimension is ", par_dim, " >= T = ", T_eff,
+         " (the authors' condition, CovAhat_Sigmahat_Gamma.m:91-95): ",
+         "WHat is singular. Reduce p or n.")
+  }
+
   hac_dim <- ncol(G_mom)
   if (hac_dim >= T_eff) {
     stop("HAC moment dimension is ", hac_dim, " >= T = ", T_eff,
-         ": WHat is singular. Reduce p or n.")
+         " (this project's safeguard, stricter than the authors' ",
+         par_dim, " < T): the HAC sum is rank-deficient. Reduce p or n.")
   }
 
   V <- sweep(G_mom, 2, colMeans(G_mom))
@@ -644,7 +658,32 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
   u_sel <- u[sel, , drop = FALSE]
   u_sel <- sweep(u_sel, 2, colMeans(u_sel))
 
-  hac_dim <- (ncol(X_sel) + r + 1L) * r
+  # MOSW run the covariance on the full VAR sample with `z` zero-padded outside
+  # the instrument's window (SVARIV.m:128, 166), which fixes T at the total
+  # number of innovations. Selecting rows instead moves T, and so Gamma and W.
+  # In production the two coincide because the instrument covers every month.
+  if (T_eff != nrow(u)) {
+    stop("ar_dfm_bands: the instrument covers ", T_eff, " of ", nrow(u),
+         " factor innovations. MOSW use the full sample with z zero-padded ",
+         "(SVARIV.m:128) and this path subsamples, which moves T, Gamma and W. ",
+         "Settle the convention before publishing the cell.")
+  }
+
+  # The regressor block above has to be the same estimating equation that
+  # produced `u`. estimate_var_ols() puts the constant last and this block puts
+  # it first, the order CovAhat_Sigmahat_Gamma.m:76 requires; OLS residuals are
+  # invariant to that, but only if the columns are otherwise the same ones.
+  # In-sample orthogonality is the cheap proof of it.
+  orth <- max(abs(crossprod(X_sel, u_sel)))
+  orth_scale <- max(abs(X_sel)) * max(abs(u_sel)) * T_eff
+  if (!is.finite(orth) || orth > 1e-8 * max(orth_scale, 1)) {
+    stop("ar_dfm_bands: the rebuilt regressors are not orthogonal to the ",
+         "factor-VAR residuals (max |X'u| = ", format(orth, digits = 3),
+         "). The X_reg rebuild diverged from estimate_var_ols().")
+  }
+
+  k_inst  <- if (is.matrix(inst_sel)) ncol(inst_sel) else 1L
+  hac_dim <- (ncol(X_sel) + r + k_inst) * r
   if (hac_dim >= T_eff) {
     stop("ar_dfm_bands: HAC moment dimension is ", hac_dim, " >= T = ", T_eff,
          ": WHat is singular at r = ", r, ", p = ", p,
