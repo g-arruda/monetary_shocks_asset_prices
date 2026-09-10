@@ -80,11 +80,13 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   sazonal X-13, e `experimental_extensions.R`, que reconstrói os painéis
   experimentais históricos a partir das sete séries já processadas e de 12
   extensões locais que não pertencem ao download de produção.
-- **`modeling/`** (5 arquivos) — `production_spec.R`, a especificação única do
+- **`modeling/`** (6 arquivos) — `production_spec.R`, a especificação única do
   painel de 115 séries `(5,5,4)`, 2012-03--2025-12; `dfm_pipeline.R`, a
   composição do fluxo
   estimativo; e os motores `factor_estimation.R`
-  (estimação BLL do DFM, seleção de r/q), `impulse_response.R` (núcleo de
+  (estimação BLL do DFM, seleção de r/q), `factor_selection.R` (ER/GR de
+  Ahn-Horenstein e ABC, estimadores alternativos de r usados só como
+  diagnóstico), `impulse_response.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
   `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
   benchmark VAR pequeno observável, com as traduções de `RForm_VAR.m` e

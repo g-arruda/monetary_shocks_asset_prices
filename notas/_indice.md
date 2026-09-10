@@ -20,6 +20,13 @@ pré-COVID. Bai--Ng BLL seleciona IC1=5, IC2=5 e IC3=20; `q=r=5` e `p=4`
 é herdado da vintage anterior. Ver `registro/pendencias.md`
 (o que está aberto) e `registro/historico_decisoes.md` (o que já foi tentado).
 
+**Seleção de `r` por estimadores alternativos (2026-09-10):**
+[`2026-09-10_selecao_fatores_ah_abc`](2026-09-10_selecao_fatores_ah_abc.md)
+roda Ahn-Horenstein (ER/GR) e Alessi-Barigozzi-Capasso na mesma base BLL da
+superfície Bai--Ng de produção. ER = GR = 2 e ABC-IC*₁ = 9, com pouca
+estabilidade; o veredito pré-registrado é misto. Audita o pacote
+`factorselect`, que diverge dos papers no GR e no ABC. Não altera a produção.
+
 **Teste experimental superado:**
 [`2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais`](2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais.md)
 reestima em conjunto a baseline e os painéis de 112, 114 e 115 séries. No

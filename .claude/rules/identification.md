@@ -47,6 +47,10 @@ for `r`, Amengual-Watson for `q`, plus `infer_tcode_from_varnames()` and `valida
 
 **Factor selection:** use the BLL-standardized Bai-Ng / Amengual-Watson variants. **Plain Bai-Ng
 (2002) requires stationarity and is the wrong tool here** — the panel is non-stationary by design.
+Ahn-Horenstein ER/GR and Alessi-Barigozzi-Capasso live in `R/modeling/factor_selection.R`
+(`script/factor_selection_alt.R`) as diagnostics on the same BLL object; they do not set production
+`r`. Do not substitute the `factorselect` package for them: its GR and ABC diverge from the papers
+(`notas/2026-09-10_selecao_fatores_ah_abc.md`).
 
 ## Traps
 

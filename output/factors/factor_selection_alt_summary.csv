@@ -1,0 +1,19 @@
+estimador,variante,k_grade,r_hat,no_veredito
+Bai-Ng IC1,produção (BLL),1..20,5,FALSE
+Bai-Ng IC2,produção (BLL),1..20,5,FALSE
+Bai-Ng IC3,produção (BLL),1..20,20,FALSE
+AH ER,Teorema 1,1..20,2,TRUE
+AH GR,Teorema 1,1..20,2,TRUE
+ABC IC*1,permutação principal,0..20,9,TRUE
+ABC IC*2,permutação principal,0..20,9,FALSE
+AH ER,Corolário 1 (k = 0 admitido),0..20,2,FALSE
+AH GR,Corolário 1 (k = 0 admitido),0..20,2,FALSE
+AH ER,kmax2 = 11,kmax2 = 11,2,FALSE
+AH GR,kmax2 = 11,kmax2 = 11,2,FALSE
+AH ER,duplamente centrado,1..20,2,FALSE
+AH GR,duplamente centrado,1..20,2,FALSE
+factorselect 'ahn_horenstein',pacote: é o GR divergente,1..20,1,FALSE
+factorselect ER,pacote,1..20,2,FALSE
+factorselect 'abc' (abc1),"pacote: moda sobre c em [0,1]",0..20,20,FALSE
+factorselect abc2,"pacote: moda sobre c em [0,1]",0..20,20,FALSE
+factorselect 'bai_ng' (IC1),pacote,0..20,5,FALSE

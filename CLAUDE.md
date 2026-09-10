@@ -102,6 +102,7 @@ Cite the note, never this table. Notes are under `notas/`.
 | DLSP accounting decomposition | `fiscal_dlsp_decomposition.R` | `2026-09-01_decomposicao_contabil_dlsp` | blocked: the 7-flow identity omits the external "outros ajustes" line |
 | 115-series exchange-adjustment + fiscal expectations (joint) | `fiscal_exchange_expectations.R` | `2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais` | experimental panel superseded for DFM numbers; not promoted to production |
 | Anderson–Rubin as the DFM's operational inference | `ar_bands.R` | `2026-09-08_bandas_anderson_rubin_producao` | swap done; all 5635 production cells bounded, weak-IV premium 1.38× at 90%; `(5,2)` unbounded; `(8,8)` and pre-COVID blocked by `hac_dim < T` |
+| Alternative `r` estimators (AH ER/GR, ABC) | `factor_selection_alt.R` | `2026-09-10_selecao_fatores_ah_abc` | mixed: ER = GR = 2, ABC-IC*₁ = 9 on a 2-point stability interval (5 in 39/100 column permutations); `factorselect` diverges from both papers in GR and ABC and is not used |
 
 ## ⚠ Prohibitions
 

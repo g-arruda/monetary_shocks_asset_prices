@@ -78,9 +78,8 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 
 | Tema | Item | Observação |
 |---|---|---|
-| B | Rodar Ahn-Horenstein (2013) e Alessi-Barigozzi-Capasso (2010) para `r`, contra Bai-Ng | sugestão 1/5 do orientador; destrava a leitura de divergência do item 3 |
-| B | Matriz de correlação par a par por bloco, limiar 0,9, poda sistemática | sugestão 2/5; precede a releitura de `(r,q)` no item 3 |
-| B | Refazer seleção de `(r,q)` no painel podado, comparar divergência com Bai-Ng | sugestão 3/5; depende dos dois itens acima |
+| B | Matriz de correlação par a par por bloco, limiar 0,9, poda sistemática | sugestão 2/5; precede a releitura de `(r,q)` no item seguinte |
+| B | Refazer seleção de `(r,q)` no painel podado, comparar divergência com Bai-Ng e AH/ABC | sugestão 3/5; depende da poda; a leitura AH/ABC no painel atual foi feita em 2026-09-10 (veredito misto) |
 | B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ e desde 2026-09-08 `(8,8)` em `p=4` **não tem bandas AR** (`hac_dim` 336 ≥ 162) |
 | A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada |
 | A | Escrever o apêndice com as equações de MOSW que mudam na extensão AR ao DFM | aberto em 2026-09-10; entra na mesma rodada editorial da linha acima |
@@ -287,8 +286,8 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 *Cinco itens transcritos em 2026-09-08 em ordem do último email do
 orientador (`email/email_professor_04-09_16h42.md`), que fundamenta a
 hipótese de que correlação intra-bloco subestima `r` e `q` em Boivin & Ng
-(2006, JE 132(1), 169-194). A sugestão 5/5 foi feita no mesmo dia e está
-fechada abaixo; as quatro primeiras seguem abertas. Os itens que estavam aqui antes da zeragem de
+(2006, JE 132(1), 169-194). A sugestão 5/5 foi feita no mesmo dia e a 1/5 em
+2026-09-10; ambas estão fechadas abaixo, e as três restantes seguem abertas. Os itens que estavam aqui antes da zeragem de
 2026-09-08 (reavaliação do canal de prêmio de risco, purificação FOMC
 intradiária, sensibilidade sem superquarta, placebo S&P 500, decomposição
 diário-vs-mensal da curva, discriminação choque-vs-Λ, leave-one-out sobre a
@@ -296,22 +295,16 @@ IRF, tabela cross-instrumento do bloco-manchete, preditor fiscal em
 Bauer-Swanson) não foram executados, testados nem decididos — apenas
 removidos do registro. Recuperáveis no histórico do git.*
 
-- [ ] **Rodar estimadores alternativos de `r`: Ahn-Horenstein (2013,
-  Econometrica 81(3), 1203-1227) e Alessi-Barigozzi-Capasso (2010, Statistics
-  and Probability Letters 80, 1806-1813), comparando com Bai-Ng.** Se ambos
-  derem `r` visivelmente maior que 5, vira evidência direta de subestimação
-  por correlação intra-bloco — mais forte no paper do que só mostrar que o
-  instrumento fica mais forte quando `r,q` aumentam. Sugestão 1/5 do
-  orientador. → destrava a leitura de divergência do item de releitura de
-  `(r,q)` abaixo.
 - [ ] **Matriz de correlação par a par dentro de cada bloco do painel;
   limiar 0,9; poda sistemática** — para grupos de séries acima do limiar,
   manter apenas uma série representativa (ou a média do grupo), como
   critério defensável de composição em vez de remoção ad hoc. Sugestão 2/5.
   → precede a releitura de `(r,q)` no item seguinte.
 - [ ] **Refazer a seleção de `(r,q)` no painel podado e conferir se a
-  divergência em relação a Bai-Ng diminui** — depende dos dois itens
-  acima. Sugestão 3/5.
+  divergência em relação a Bai-Ng diminui** — depende do item de poda
+  acima. Sugestão 3/5. A leitura de divergência no painel atual já existe
+  (AH/ABC, fechada em 2026-09-10): rodar `script/factor_selection_alt.R` no
+  painel podado é a comparação direta.
 - [ ] **Avaliar `r=q=8` como especificação principal**, não por maximizar a
   força do instrumento mas porque é o valor de Alessi & Kerssenfischer
   (2019, nota de rodapé 4), o que permite comparação direta com o
@@ -320,15 +313,23 @@ removidos do registro. Recuperáveis no histórico do git.*
   processo de escolha da especificação; e reportar explicitamente que
   `(5,2)` fica abaixo do mínimo para as bandas Anderson-Rubin. Sugestão 4/5.
   ⚠ Conflita com a especificação corrente (`r=5, q=5`, Bai-Ng BLL) tabelada
-  acima — não muda produção sem decisão do autor, e depende dos três itens
-  anteriores para ter a leitura de divergência que o orientador pede como
-  amarração. ⚠ **Restrição nova, medida em 2026-09-08:** a metade do pedido que
+  acima — não muda produção sem decisão do autor, e depende dos dois itens
+  anteriores (poda e releitura) para ter a leitura de divergência que o
+  orientador pede como amarração. ⚠ **A rodada AH/ABC de 2026-09-10 não
+  entrega essa amarração no painel atual:** ER = GR = 2 e ABC-IC*₁ = 9 com
+  pouca estabilidade, veredito misto. ⚠ **Restrição nova, medida em 2026-09-08:** a metade do pedido que
   trata de `(5,2)` foi entregue, mas `r=q=8` como principal é hoje incompatível
   com a inferência de produção — a covariância de MOSW exige `hac_dim < T` e em
   `(8,8)` com `p=4` dá 336 ≥ 162, sem pseudo-inversa nem fallback. Só cabe em
   `p=1` (144). Adotar `(8,8)` exige, junto, decidir a inferência daquela célula.
 
 ### Fechados (contexto)
+
+- [x] **`r` por Ahn-Horenstein e Alessi-Barigozzi-Capasso — FEITO em
+  2026-09-10** (sugestão 1/5). Base BLL, `k=1..20`: ER = GR = 2, ABC-IC*₁ = 9,
+  veredito pré-registrado **misto**. ⚠ O 9 vem de um intervalo de 2 pontos da
+  grade e dá 5 em 39/100 permutações; ⚠ o `factorselect` diverge no GR e no
+  ABC (reimplementado). Nota: `notas/2026-09-10_selecao_fatores_ah_abc.md`.
 
 - [x] **Bandas Anderson-Rubin do DFM — FEITAS em 2026-09-08, e promovidas a
   inferência operacional no lugar do wild bootstrap** (sugestão 5/5; decisão do
