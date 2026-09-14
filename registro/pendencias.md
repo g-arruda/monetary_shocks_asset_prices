@@ -79,6 +79,10 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 | Tema | Item | Observação |
 |---|---|---|
 | B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ e desde 2026-09-08 `(8,8)` em `p=4` **não tem bandas AR** (`hac_dim` 336 ≥ 162); ⚠ a poda de 2026-09-10 deu veredito contrário à hipótese de subestimação que o e-mail usava como amarração |
+| B | Verificar se `(5,5,4)` cruza o limiar mínimo de Anderson-Rubin e comunicar ao orientador | passo 1/4 do e-mail de 13-09; ⚠ a produção já responde isso (ξ_mp = 6,057014 > 3,84, 5.635 células `interval`) — falta formalizar e decidir se fecha o item acima |
+| B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; depende da rodada editorial do Tema A |
+| B | Implementar a correção de outliers de 2020 (Lenza-Primiceri 2022) e reavaliar a sensibilidade a `q` na amostra completa | passo 3/4 do e-mail de 13-09; item novo, artigo salvo em `artigos/` |
+| B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; depende do item anterior na janela completa; perna pré-COVID já existe |
 | A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada |
 | A | Escrever o apêndice com as equações de MOSW que mudam na extensão AR ao DFM | aberto em 2026-09-10; entra na mesma rodada editorial da linha acima |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
@@ -318,6 +322,40 @@ removidos do registro. Recuperáveis no histórico do git.*
   com a inferência de produção — a covariância de MOSW exige `hac_dim < T` e em
   `(8,8)` com `p=4` dá 336 ≥ 162, sem pseudo-inversa nem fallback. Só cabe em
   `p=1` (144). Adotar `(8,8)` exige, junto, decidir a inferência daquela célula.
+
+*Os quatro itens abaixo transcrevem, na ordem, os "próximos passos
+coordenados" do e-mail do orientador de 2026-09-13
+(`email/email_professor_13-09_10h45.md`), resposta às sugestões 1/5, 2/5 e
+3/5 acima (fechadas em 2026-09-10).*
+
+- [ ] **Verificar se a especificação `(5,5,4)` cruza o limiar mínimo de
+  Anderson-Rubin e comunicar ao orientador**, com a citação de Stock-Watson
+  (2016, §7.2) como justificativa pré-especificada de fixar `q = r` no teto
+  viável. Passo 1/4. ⚠ A produção já responde a pergunta central: ξ_mp =
+  6,057014 > 3,84, e as 5.635 células de produção saem `interval` a
+  68/90/95% (`notas/2026-09-08_bandas_anderson_rubin_producao.md`). Falta
+  formalizar essa resposta e decidir — **decisão do autor, não decidida
+  aqui** — se isso fecha o item `r=q=8` acima em favor de `(5,5,4)` como
+  especificação principal.
+- [ ] **Reportar o exercício de poda no paper como robustez que não
+  confirmou a hipótese de Boivin-Ng**, com a ressalva de que a queda do
+  Bai-Ng para `r=3` pode refletir perda de potência por N menor, não
+  confirmação do mecanismo. Passo 2/4. Depende da rodada editorial do
+  Tema A (paper ainda não sincronizado).
+- [ ] **Implementar a correção de outliers de 2020 na linha de
+  Lenza-Primiceri (2022, *Journal of Applied Econometrics*, 37(4), 688-699)
+  e reavaliar se a sensibilidade a `q` na amostra completa diminui.**
+  Passo 3/4; artigo salvo em
+  `artigos/Lenza - How to estimate a vector autoregression after March 2020/`.
+  Testa se a divergência entre amostra completa (sensível a `q`) e pré-COVID
+  (robusta, `notas/2026-09-10_truncamento_q.md`) é outlier de 2020, não
+  fragilidade do método. Item novo, nada executado ainda.
+- [ ] **Refazer a tabela de sensibilidade `q = 2,...,5` (`r = 5` fixo) nas
+  duas janelas — completa ajustada e pré-COVID — uma vez estabilizada a
+  especificação principal.** Passo 4/4; depende do item anterior para a
+  janela completa ajustada. A perna pré-COVID já existe
+  (`output/factors/q_narrative_r5p2_precovid.*`,
+  `notas/2026-09-10_truncamento_q.md`).
 
 ### Fechados (contexto)
 
