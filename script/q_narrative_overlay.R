@@ -3,9 +3,10 @@
 # variables that organize the paper's empirical narrative, including all
 # fiscal and expectation series.
 #
-# q = 5 is the production cell and carries its canonical 68/90% wild-
-# bootstrap bands. The q = 2, 3 and 4 cells are point estimates only,
-# following the Figure A3 design of Alessi and Kerssenfischer (2019).
+# q = 5 is the production cell and carries its canonical 68/90%
+# Anderson-Rubin sets (operational DFM inference since 2026-09-08). The
+# q = 2, 3 and 4 cells are point estimates only, following the Figure A3
+# design of Alessi and Kerssenfischer (2019).
 # ===================================================================
 
 source("R/modeling/factor_estimation.R")
@@ -166,7 +167,7 @@ writeLines(c(
   "As vinte variáveis cobrem a curva, câmbio e risco soberano, expectativas,",
   "atividade, preços, ações e todas as séries fiscais e de expectativa que",
   "estruturam a narrativa empírica do artigo. A linha q=5 é a produção.",
-  "Somente ela traz bandas wild-bootstrap de 68% e 90% (800 réplicas);",
+  "Somente ela traz conjuntos de Anderson-Rubin de 68% e 90%;",
   "q=2, q=3 e q=4 são sobreposições pontuais. Horizonte h = 0..48.",
   "",
   "Artefatos: `q_narrative_r5p4_paths.csv`, `q_narrative_r5p4_summary.csv`",
@@ -180,7 +181,7 @@ band_data <- plot_data |>
 
 title <- "Sensibilidade à dimensão dinâmica q: r = 5, p = 4"
 subtitle <- paste0(
-  "z_jk_bs_purif × yield_6m, choque de +50 pb; bandas 68/90% apenas para q=5 (nboot=800)"
+  "z_jk_bs_purif × yield_6m, choque de +50 pb; bandas Anderson-Rubin 68/90% apenas para q=5"
 )
 
 pdf(paste0(OUT_STEM, ".pdf"), width = 11, height = 7.5)
