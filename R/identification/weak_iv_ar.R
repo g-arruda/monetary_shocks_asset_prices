@@ -597,6 +597,11 @@ ar_excludes_zero <- function(set_type, lo, hi) {
 #' (`cumulative = TRUE`); accumulating the bounds of a per-horizon set would be
 #' wrong. Code 3 accumulates twice and has no branch here — it aborts.
 #'
+#' **COVID volatility.** Aborts when the factor VAR was estimated under
+#' `covid_volatility` (Lenza-Primiceri 2022): the `Shat` of `mosw_rform_cov()`
+#' is the OLS influence function, and the weighted-least-squares one is not
+#' derived.
+#'
 #' @param dfm_results List returned by `estimate_dfm()`.
 #' @param rsh_sel_ind Logical index into the factor innovations, from
 #'   `sel_ext_inst_sample()`.
@@ -617,6 +622,12 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
     stop("ar_dfm_bands: transformation codes ",
          paste(sort(unique(setdiff(tcode, c(1L, 2L, 4L, 5L, 6L)))), collapse = ", "),
          " have no monotone bound map here (code 3 accumulates twice)")
+  }
+  if (!is.null(dfm_results$covid_volatility)) {
+    stop("ar_dfm_bands: the factor VAR was estimated by weighted least squares ",
+         "under covid_volatility (Lenza-Primiceri 2022), and the Shat of ",
+         "mosw_rform_cov() is the OLS influence function. The treated covariance ",
+         "is not derived (notas/2026-09-14_volatilidade_covid_lenza_primiceri.md).")
   }
 
   p  <- dfm_results$p

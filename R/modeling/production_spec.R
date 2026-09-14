@@ -28,6 +28,10 @@ production_spec <- function() {
       selected_bic = 2L,
       aic_at_production = 8.231266782137459
     ),
+    # Lenza-Primiceri (2022) COVID volatility in the factor VAR: off. Turning it
+    # on takes list(covid_start, theta, innovations), every field an author
+    # decision still pending (notas/2026-09-14_volatilidade_covid_lenza_primiceri.md).
+    covid_volatility = NULL,
     var_benchmark = list(
       label = "ibc5_fx_cds_level_trend_p2",
       status = "frozen_2013-01_2025-09_vintage",

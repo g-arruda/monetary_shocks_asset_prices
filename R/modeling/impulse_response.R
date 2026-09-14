@@ -401,7 +401,10 @@ infer_tcode_from_varnames <- function(var_names) {
 #' The point estimate uses the plain OLS companion; the wild bootstrap DGP uses
 #' the Kilian-corrected one, with Rademacher multipliers (Gonçalves-Kilian 2004).
 #'
-#' @param dfm_results List returned by `estimate_dfm()`.
+#' @param dfm_results List returned by `estimate_dfm()`. When it carries
+#'   `covid_volatility` only the point path runs: the bootstrap aborts here and
+#'   the Anderson-Rubin sets abort in `ar_dfm_bands()`, since both assume an
+#'   OLS factor VAR with constant Sigma.
 #' @param instrument Optional instrument data.frame; normally already embedded
 #'   in `dfm_results` by the alignment stage.
 #' @param h Maximum horizon.
@@ -443,6 +446,11 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   inference <- match.arg(inference)
   if (inference == "ar" && !exists("ar_dfm_bands", mode = "function")) {
     stop("inference = 'ar' requires R/identification/weak_iv_ar.R to be sourced")
+  }
+  if (!is.null(dfm_results$covid_volatility) && inference == "bootstrap" && nboot > 0) {
+    stop("Bootstrap indisponivel sob covid_volatility: o DGP, a correcao de ",
+         "Kilian e a reestimacao supoem OLS com Sigma constante ",
+         "(notas/2026-09-14_volatilidade_covid_lenza_primiceri.md)")
   }
   if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
 

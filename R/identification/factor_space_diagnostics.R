@@ -15,6 +15,7 @@
 #'
 #' @param dfm_results Output of `estimate_dfm` containing `var_residuals`,
 #'   `dynamic_loadings`, `dynamic_scaling`, `static_loadings`, `data_sd`.
+#'   Aborts when it carries `covid_volatility`.
 #' @param instrument_df Data.frame with columns `month` (Date) and `shock` (numeric).
 #' @param dates Date vector aligned with the data panel rows.
 #' @param p VAR lag order used in `estimate_dfm`.
@@ -37,6 +38,12 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
                                                 dates, p, mp_var_idx,
                                                 nw_lags = 0L,
                                                 return_moment_inputs = FALSE) {
+  if (!is.null(dfm_results$covid_volatility)) {
+    stop("diagnose_instrument_in_factor_space: xi_mp residualizes z on the OLS ",
+         "factor-VAR regressors (the Shat correction), which is not the ",
+         "estimating equation under covid_volatility ",
+         "(notas/2026-09-14_volatilidade_covid_lenza_primiceri.md).")
+  }
   align     <- sel_ext_inst_sample(dates, p, instrument_df)
   inst_sel  <- align$inst_sel
   sel_ind   <- align$rsh_sel_ind

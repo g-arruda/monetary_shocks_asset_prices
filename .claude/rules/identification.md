@@ -39,6 +39,24 @@ AR branch hard-stops if its re-derived point deviates from `ident_ext_instr()` b
 the two paths must agree about the identification, not merely about the bands. `irf_point_matrix`
 is untouched by the switch, so the `CLAUDE.md` smoke test stays the guard it was.
 
+**COVID volatility (Lenza-Primiceri 2022), off by default since 2026-09-14.**
+`estimate_dfm(covid_volatility=)` and `main_sdfm(covid_volatility=)` put the common volatility scale
+`s_t` of LP's Appendix B into the factor VAR:
+- `covid_volatility_path()` builds `s_t`;
+- `estimate_var_ols(s=)` runs (B2) and returns (B4) and (B5).
+
+`production_spec()$covid_volatility` is NULL. With it NULL the whole `main_sdfm()` object is
+`identical()` to the untreated code, and the smoke test is still the guard.
+
+The list's three fields (`covid_start`, `theta`, `innovations`) are **author decisions with no
+default**. Under the treatment only the point path runs. `ar_dfm_bands()`,
+`diagnose_instrument_in_factor_space()`, the bootstrap and Kilian `stop()`, because each assumes an
+OLS factor VAR with constant Σ. `ident_ext_instr()` is untouched, but its centring stops being a
+no-op under WLS.
+
+This is reweighting of the estimation, **not** heteroskedasticity identification. Guard:
+`script/validate_covid_volatility.R`. Note: `notas/2026-09-14_volatilidade_covid_lenza_primiceri.md`.
+
 **Estimation details.** The bootstrap uses Kilian-corrected coefficients for the DGP but the **point
 estimate uses plain OLS** (faithful to `DFMest_BLL.m`); `apply_kilian = TRUE` only affects the
 bootstrap. The AR sets read the plain OLS companion, so they are consistent with the point estimate
