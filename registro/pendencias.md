@@ -81,7 +81,9 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 | B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ e desde 2026-09-08 `(8,8)` em `p=4` **não tem bandas AR** (`hac_dim` 336 ≥ 162); ⚠ a poda de 2026-09-10 deu veredito contrário à hipótese de subestimação que o e-mail usava como amarração |
 | B | Verificar se `(5,5,4)` cruza o limiar mínimo de Anderson-Rubin e comunicar ao orientador | passo 1/4 do e-mail de 13-09; ⚠ a produção já responde isso (ξ_mp = 6,057014 > 3,84, 5.635 células `interval`) — falta formalizar e decidir se fecha o item acima |
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; depende da rodada editorial do Tema A |
-| B | Implementar a correção de outliers de 2020 (Lenza-Primiceri 2022) e reavaliar a sensibilidade a `q` na amostra completa | passo 3/4 do e-mail de 13-09; item novo, artigo salvo em `artigos/` |
+| B | Implementar a correção de outliers de 2020 (Lenza-Primiceri 2022) e reavaliar a sensibilidade a `q` na amostra completa | passo 3/4 do e-mail de 13-09; ⚠ implementação feita em 2026-09-14 (branch `feature/volatilidade-covid-lp`, desligada por padrão, produção `identical()`); a reavaliação depende das duas linhas abaixo |
+| B | Decidir a parametrização do tratamento de volatilidade COVID (`t*`, θ, `innovations`, centragem, extração estática) | aberto em 2026-09-14; decisão do autor; bloqueia a reavaliação acima e a inferência abaixo |
+| B | Derivar a inferência sob o tratamento de volatilidade COVID (AR, ξ_mp, bootstrap e Kilian dão `stop()`) | aberto em 2026-09-14; depende da chave `innovations`; bloqueia a reavaliação (T1/T2 de `q_truncation.R`) |
 | B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; depende do item anterior na janela completa; perna pré-COVID já existe |
 | A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada |
 | A | Escrever o apêndice com as equações de MOSW que mudam na extensão AR ao DFM | aberto em 2026-09-10; entra na mesma rodada editorial da linha acima |
@@ -349,7 +351,33 @@ coordenados" do e-mail do orientador de 2026-09-13
   `artigos/Lenza - How to estimate a vector autoregression after March 2020/`.
   Testa se a divergência entre amostra completa (sensível a `q`) e pré-COVID
   (robusta, `notas/2026-09-10_truncamento_q.md`) é outlier de 2020, não
-  fragilidade do método. Item novo, nada executado ainda.
+  fragilidade do método. ⚠ **Implementação feita em 2026-09-14, sem
+  estimação** (branch `feature/volatilidade-covid-lp`, sem commit): escala
+  `s_t` de LP no VAR dos fatores, na versão de máxima verossimilhança do
+  Apêndice B, desligada por padrão. Com ela desligada, o objeto de produção
+  sai `identical()` ao de `main`. A reavaliação **depende dos dois itens
+  abaixo**: as decisões de parametrização e a inferência sob tratamento.
+  Nota: `notas/2026-09-14_volatilidade_covid_lenza_primiceri.md`.
+- [ ] **Decidir a parametrização do tratamento de volatilidade COVID.**
+  Decisão do autor; nenhuma foi tomada em 2026-09-14. Falta decidir:
+  - `t*`, o primeiro mês de volatilidade anormal no painel;
+  - θ = (s̄0, s̄1, s̄2, ρ), fixado ou estimado por (B5), com otimizador,
+    limites e valores iniciais;
+  - a chave `innovations`, `"raw"` ou `"standardized"`;
+  - a centragem de `ident_ext_instr()`, que deixa de ser no-op sob WLS;
+  - se o tratamento se estende à extração estática (`sy`, PCA).
+
+  **Bloqueia** a reavaliação acima e, pela chave `innovations`, o item de
+  inferência abaixo. Nota: idem, §7.1.
+- [ ] **Derivar a inferência sob o tratamento de volatilidade COVID.** AR,
+  ξ_mp com correção Shat, bootstrap e Kilian dão `stop()` sob
+  `covid_volatility`, porque supõem o VAR por OLS com Σ constante. Falta o
+  `Shat` de MOSW para o VAR por WLS, validado em θ neutro contra o AR de
+  produção. Com inovações padronizadas, o candidato natural é MOSW na
+  regressão transformada `(x̃_t, u_t/s_t)`, com a centragem movida para o
+  instrumento. **Depende** da chave `innovations` (item acima). **Bloqueia** a
+  reavaliação acima, porque `script/q_truncation.R` passa por
+  `diagnose_instrument_in_factor_space()` e pelas bandas AR. Nota: idem, §7.2.
 - [ ] **Refazer a tabela de sensibilidade `q = 2,...,5` (`r = 5` fixo) nas
   duas janelas — completa ajustada e pré-COVID — uma vez estabilizada a
   especificação principal.** Passo 4/4; depende do item anterior para a
