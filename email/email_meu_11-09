@@ -1,0 +1,14 @@
+Boa tarde, professor.
+
+Realizei os passos sugeridos e escrevo para te atualizar.
+
+1) Implementei os testes sugeridos de Ahn-Horenstein e Alessi-Barigozzi-Capasso e os valores apresentados foram r=2 e r=9 respectivamente: o r=2 é estável nas variantes testadas, mas o instrumento fica abaixo do limiar minimo para as bandas de AR, e o r=9 é instavel.
+
+2) Após isso, foi feito a poda em alguns séries dentro de alguns blocos e o bai-ng caiu para r=3, o oposto do que a hipótese de subestimação previa (a divergência com AH/ABC aumentou, não diminuiu). Mesmo com a poda, amengual e watson seleciona q=2.
+
+3) Consegui incluir com sucesso a inferencia robusta a weak-iv, implementando-a para DFM. Vale destacar que r=6 já se torna inviável (a conta é hac_dim = (1 + r*p + r + 1)*r < T) para o uso das bandas AR (o que inclui o r=q=8 que você sugeriu, que só caberia com p=1), a matriz dos coeficientes deixa de ser inversivel, parametros demais para uma amostra pequena. Entao o uso de r=5 é consistente.
+
+4) A escolha de q=2 segundo amengual e watson que é o problema, pois com r,q=5,2 o instrumento fica abaixo do limiar para uso das bandas AR. Uma coisa que vale notar é que fazendo a mesma analise de sensibilidade fixando r=5 e variando q=2,...,5, na janela pré-covid a irf se comporta quase que da mesma maneira em todos os casos, tanto sinal quanto magnitude e dinamica. A diferença está na janela completa, onde variando q a irf tbm muda em alguns casos, especialmente para q=2.
+
+    Enquanto o argumento de alessi e kerssenfischer para manter q=r era das IRF nao se alterar variando q (nao é o nosso caso para amostra completa, apenas pré-covid), stock e watson (2016) no handbook of macroeconomics falam a seguinte passagem: "The SDFM and FAVAR models require determining the number of dynamic factors. Although Table 2 (panel C) can be interpreted as suggesting fewer dynamic than static factors, we err on the side of over-specifying the space of innovations so that they span the space of the reduced number of shocks of interest, and therefore set the number of dynamic factors equal to the number of static factors, so in turn the dimension of η_t (the factor innovations) is eight.".
+    Nao sei se da para usar essa passagem para defender o uso de q=r.
