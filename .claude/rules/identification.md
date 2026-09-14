@@ -50,7 +50,9 @@ for `r`, Amengual-Watson for `q`, plus `infer_tcode_from_varnames()` and `valida
 Ahn-Horenstein ER/GR and Alessi-Barigozzi-Capasso live in `R/modeling/factor_selection.R`
 (`script/factor_selection_alt.R`) as diagnostics on the same BLL object; they do not set production
 `r`. Do not substitute the `factorselect` package for them: its GR and ABC diverge from the papers
-(`notas/2026-09-10_selecao_fatores_ah_abc.md`).
+(`notas/2026-09-10_selecao_fatores_ah_abc.md`). The correlation-pruned panels of `script/panel_pruning.R`
+feed `script/factor_selection_pruned.R`, which runs the same battery plus Amengual-Watson. They are
+diagnostics too and do not change the production panel (`notas/2026-09-10_poda_correlacao_painel.md`).
 
 ## Traps
 

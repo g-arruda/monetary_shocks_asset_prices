@@ -126,6 +126,11 @@ bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE, apply_bll = FALSE
 #'          Default is 4
 #' @param max_q An integer specifying the maximum number of dynamic factors to consider.
 #'              If NULL (default), it is set equal to r
+#' @param standardize_resid Logical: standardize the VAR residuals column by
+#'   column before the second-stage Bai-Ng, as Stock-Watson's
+#'   `factor_estimation_ls.m` does. `FALSE` (default) keeps every recorded
+#'   `q_hat`; the per-column rescaling can move the argmin in another panel
+#'   (notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md §2)
 #'
 #' @return A list containing two components:
 #' \itemize{
@@ -165,7 +170,8 @@ bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE, apply_bll = FALSE
 #' print(results$q_hat)
 #'
 #' @export
-amengual_watson <- function(X, r, p = 4, max_q = NULL, scale = TRUE, apply_bll = FALSE) {
+amengual_watson <- function(X, r, p = 4, max_q = NULL, scale = TRUE, apply_bll = FALSE,
+                            standardize_resid = FALSE) {
   X <- as.matrix(X)
 
   if (apply_bll) {
@@ -199,7 +205,7 @@ amengual_watson <- function(X, r, p = 4, max_q = NULL, scale = TRUE, apply_bll =
     resid_mat[, i] <- e
   }
 
-  bn <- bai_ng_criteria(resid_mat, max_r = max_q, standardize = FALSE)
+  bn <- bai_ng_criteria(resid_mat, max_r = max_q, standardize = standardize_resid)
   q_hat <- bn$r_hat$IC2
 
   list(
