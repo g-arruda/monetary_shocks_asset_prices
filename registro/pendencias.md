@@ -78,11 +78,10 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 
 | Tema | Item | Observação |
 |---|---|---|
-| B | Matriz de correlação par a par por bloco, limiar 0,9, poda sistemática | sugestão 2/5; precede a releitura de `(r,q)` no item seguinte |
-| B | Refazer seleção de `(r,q)` no painel podado, comparar divergência com Bai-Ng e AH/ABC | sugestão 3/5; depende da poda; a leitura AH/ABC no painel atual foi feita em 2026-09-10 (veredito misto) |
-| B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ e desde 2026-09-08 `(8,8)` em `p=4` **não tem bandas AR** (`hac_dim` 336 ≥ 162) |
+| B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ e desde 2026-09-08 `(8,8)` em `p=4` **não tem bandas AR** (`hac_dim` 336 ≥ 162); ⚠ a poda de 2026-09-10 deu veredito contrário à hipótese de subestimação que o e-mail usava como amarração |
 | A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada |
 | A | Escrever o apêndice com as equações de MOSW que mudam na extensão AR ao DFM | aberto em 2026-09-10; entra na mesma rodada editorial da linha acima |
+| E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
 
@@ -286,8 +285,8 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 *Cinco itens transcritos em 2026-09-08 em ordem do último email do
 orientador (`email/email_professor_04-09_16h42.md`), que fundamenta a
 hipótese de que correlação intra-bloco subestima `r` e `q` em Boivin & Ng
-(2006, JE 132(1), 169-194). A sugestão 5/5 foi feita no mesmo dia e a 1/5 em
-2026-09-10; ambas estão fechadas abaixo, e as três restantes seguem abertas. Os itens que estavam aqui antes da zeragem de
+(2006, JE 132(1), 169-194). A sugestão 5/5 foi feita no mesmo dia; a 1/5, a 2/5
+e a 3/5, em 2026-09-10. As quatro estão fechadas abaixo, e só a 4/5 segue aberta. Os itens que estavam aqui antes da zeragem de
 2026-09-08 (reavaliação do canal de prêmio de risco, purificação FOMC
 intradiária, sensibilidade sem superquarta, placebo S&P 500, decomposição
 diário-vs-mensal da curva, discriminação choque-vs-Λ, leave-one-out sobre a
@@ -295,16 +294,6 @@ IRF, tabela cross-instrumento do bloco-manchete, preditor fiscal em
 Bauer-Swanson) não foram executados, testados nem decididos — apenas
 removidos do registro. Recuperáveis no histórico do git.*
 
-- [ ] **Matriz de correlação par a par dentro de cada bloco do painel;
-  limiar 0,9; poda sistemática** — para grupos de séries acima do limiar,
-  manter apenas uma série representativa (ou a média do grupo), como
-  critério defensável de composição em vez de remoção ad hoc. Sugestão 2/5.
-  → precede a releitura de `(r,q)` no item seguinte.
-- [ ] **Refazer a seleção de `(r,q)` no painel podado e conferir se a
-  divergência em relação a Bai-Ng diminui** — depende do item de poda
-  acima. Sugestão 3/5. A leitura de divergência no painel atual já existe
-  (AH/ABC, fechada em 2026-09-10): rodar `script/factor_selection_alt.R` no
-  painel podado é a comparação direta.
 - [ ] **Avaliar `r=q=8` como especificação principal**, não por maximizar a
   força do instrumento mas porque é o valor de Alessi & Kerssenfischer
   (2019, nota de rodapé 4), o que permite comparação direta com o
@@ -313,17 +302,38 @@ removidos do registro. Recuperáveis no histórico do git.*
   processo de escolha da especificação; e reportar explicitamente que
   `(5,2)` fica abaixo do mínimo para as bandas Anderson-Rubin. Sugestão 4/5.
   ⚠ Conflita com a especificação corrente (`r=5, q=5`, Bai-Ng BLL) tabelada
-  acima — não muda produção sem decisão do autor, e depende dos dois itens
-  anteriores (poda e releitura) para ter a leitura de divergência que o
-  orientador pede como amarração. ⚠ **A rodada AH/ABC de 2026-09-10 não
-  entrega essa amarração no painel atual:** ER = GR = 2 e ABC-IC*₁ = 9 com
-  pouca estabilidade, veredito misto. ⚠ **Restrição nova, medida em 2026-09-08:** a metade do pedido que
+  acima — não muda produção sem decisão do autor. Dependia da poda e da
+  releitura de `(r,q)` para ter a leitura de divergência que o orientador pede
+  como amarração. ⚠ **As duas fecharam em 2026-09-10 sem entregá-la:** no
+  painel atual, AH/ABC dão veredito misto (ER = GR = 2, ABC-IC*₁ = 9
+  instável); no podado, Bai-Ng cai de 5 para 3 e o veredito pré-registrado é
+  *contrário* à subestimação. Amengual-Watson dá `q = 2` em `r = 8` (3 na
+  convenção do MATLAB). Resta a justificativa por comparabilidade com AK.
+  ⚠ **Desde 2026-09-10, `q = r` tem apoio próprio:** Stock-Watson (2016, §7.2)
+  fixam `q = r` mesmo com Amengual-Watson indicando menos choques, e o
+  truncamento `q < r` distorce na amostra cheia mas não na pré-COVID
+  (`notas/2026-09-10_truncamento_q.md`).
+  ⚠ **Restrição nova, medida em 2026-09-08:** a metade do pedido que
   trata de `(5,2)` foi entregue, mas `r=q=8` como principal é hoje incompatível
   com a inferência de produção — a covariância de MOSW exige `hac_dim < T` e em
   `(8,8)` com `p=4` dá 336 ≥ 162, sem pseudo-inversa nem fallback. Só cabe em
   `p=1` (144). Adotar `(8,8)` exige, junto, decidir a inferência daquela célula.
 
 ### Fechados (contexto)
+
+- [x] **Truncamento `q < r` testado — FEITO em 2026-09-10** (pedido do autor,
+  ligado à 4/5). Pré-COVID `p=2`: 115/115 séries *imateriais* em `q` = 3 e 4;
+  cheia: 0/115, e o instrumento está nas direções descartadas (T1 p 0,051 /
+  0,039 / 0,015). ⚠ Regras escritas depois da passada exploratória; bandas
+  pré-COVID só em `p = 2`. Nota: `notas/2026-09-10_truncamento_q.md`.
+- [x] **Poda por correlação — FEITA em 2026-09-10** (sugestão 2/5). Ligação
+  completa em |ρ| ≥ 0,90 nas primeiras diferenças: saem 9 de 115 séries, e
+  nenhum par entre blocos passa de 0,80. ⚠ Na pré-COVID, 3 dos 8 grupos não
+  passam inteiros. Nota: `notas/2026-09-10_poda_correlacao_painel.md`.
+- [x] **`(r,q)` no painel podado — FEITO em 2026-09-10** (sugestão 3/5). IC2
+  5 → 3, AH 2 → 1, ABC 9 → 11 (instável), AW `q = 2` em todo `r`. A divergência
+  **aumenta** (D 10 → 12) e a hipótese de subestimação sai **contrária**. ⚠ D cai
+  a 6 em 0,80/0,85. Nota: idem.
 
 - [x] **`r` por Ahn-Horenstein e Alessi-Barigozzi-Capasso — FEITO em
   2026-09-10** (sugestão 1/5). Base BLL, `k=1..20`: ER = GR = 2, ABC-IC*₁ = 9,
@@ -479,8 +489,15 @@ bit-idêntico como guard.
 
 ## E. Código e higiene
 
-*Nenhum item aberto — zerado em 2026-09-08 (ver nota de revisão no topo do
-arquivo). Os itens que estavam aqui (seleção de `q`, reprodutibilidade do
+- [ ] **Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa.**
+  A checagem é absoluta (1e-10, `R/modeling/impulse_response.R`) e disparou em
+  `(5,3)` com desvio de 1,16e-10, numa célula cujas respostas são da ordem de
+  10 (relativo de cerca de 1e-11). Não afeta a produção, e mudar exige o smoke
+  test bit-idêntico. Achado em `script/q_truncation.R`, que por isso só
+  constrói conjuntos AR nas referências `q = 5`.
+
+*Zerado em 2026-09-08 (ver nota de revisão no topo do arquivo); o item acima
+abriu em 2026-09-10. Os itens que estavam aqui antes (seleção de `q`, reprodutibilidade do
 estágio `di`, padronização do 2º estágio de `amengual_watson()`, o tcode
 antigo em `irfs_required_long.csv`, o shim `scalar_dynamic_factor_compat.R`,
 documentação do bootstrap, `paper_numbers.tex` gerado, o rótulo de tcode em

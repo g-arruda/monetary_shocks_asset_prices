@@ -27,6 +27,23 @@ superfície Bai--Ng de produção. ER = GR = 2 e ABC-IC*₁ = 9, com pouca
 estabilidade; o veredito pré-registrado é misto. Audita o pacote
 `factorselect`, que diverge dos papers no GR e no ABC. Não altera a produção.
 
+**Poda do painel por correlação (2026-09-10):**
+[`2026-09-10_poda_correlacao_painel`](2026-09-10_poda_correlacao_painel.md)
+poda o painel de produção por ligação completa em |ρ| ≥ 0,90 nas primeiras
+diferenças e refaz Bai--Ng, AH, ABC e Amengual--Watson. Saem 9 das 115 séries.
+Bai--Ng IC2 cai de 5 para 3 e o `q` fica em 2. Pelos vereditos pré-registrados,
+a divergência *aumenta* e a hipótese de subestimação sai *contrária*. Não
+altera a produção, e o painel podado não tem ξ_mp nem IRF.
+
+**Truncamento `q < r` (2026-09-10):**
+[`2026-09-10_truncamento_q`](2026-09-10_truncamento_q.md)
+testa se o truncamento `q < r` em `r = 5` descarta o choque monetário. Na
+pré-COVID, a invariância de Alessi-Kerssenfischer se reproduz: 115 das 115
+séries saem imateriais em `q` = 3 e 4, com bandas AR em `p = 2`. Na amostra
+cheia, nenhuma sai, e o instrumento está nas direções descartadas (p = 0,051,
+0,039 e 0,015). As regras foram escritas depois de uma passada exploratória.
+Não altera a produção.
+
 **Teste experimental superado:**
 [`2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais`](2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais.md)
 reestima em conjunto a baseline e os painéis de 112, 114 e 115 séries. No
