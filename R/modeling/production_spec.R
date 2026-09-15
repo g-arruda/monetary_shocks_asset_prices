@@ -28,10 +28,18 @@ production_spec <- function() {
       selected_bic = 2L,
       aic_at_production = 8.231266782137459
     ),
-    # Lenza-Primiceri (2022) COVID volatility in the factor VAR: off. Turning it
-    # on takes list(covid_start, theta, innovations), every field an author
-    # decision still pending (notas/2026-09-14_volatilidade_covid_lenza_primiceri.md).
+    # Lenza-Primiceri (2022) COVID volatility in the factor VAR: off in
+    # production until the inference under it exists (registro/pendencias.md,
+    # Tema B). The design holds the author's decisions of 2026-09-14: theta is
+    # estimated by (B5) within these bounds by estimate_covid_theta()
+    # (notas/2026-09-14_estimacao_theta_volatilidade_covid.md).
     covid_volatility = NULL,
+    covid_volatility_design = list(
+      covid_start = as.Date("2020-03-01"),
+      theta_lower = c(s0 = 1, s1 = 1, s2 = 1, rho = 0),
+      theta_upper = c(s0 = Inf, s1 = Inf, s2 = Inf, rho = 1),
+      innovations = "standardized"
+    ),
     var_benchmark = list(
       label = "ibc5_fx_cds_level_trend_p2",
       status = "frozen_2013-01_2025-09_vintage",

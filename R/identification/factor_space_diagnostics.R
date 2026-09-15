@@ -15,7 +15,9 @@
 #'
 #' @param dfm_results Output of `estimate_dfm` containing `var_residuals`,
 #'   `dynamic_loadings`, `dynamic_scaling`, `static_loadings`, `data_sd`.
-#'   Aborts when it carries `covid_volatility`.
+#'   Under `covid_volatility` with `innovations = "standardized"`, H is the
+#'   uncentered moment and z is residualized on the transformed regressors
+#'   `(1, lags) / s_t`, as in `ar_dfm_bands()`; `"raw"` aborts.
 #' @param instrument_df Data.frame with columns `month` (Date) and `shock` (numeric).
 #' @param dates Date vector aligned with the data panel rows.
 #' @param p VAR lag order used in `estimate_dfm`.
@@ -24,10 +26,13 @@
 #'   `compute_factor_space_wald`. Default 0 (Eicker-White) reproduces every
 #'   published number in this project.
 #' @param return_moment_inputs If TRUE, also return the aligned triple
-#'   (`eta_sel`, `Z_sel`, `ctrl_sel`), the direction `c_mp` and the aligned
-#'   month dates, so a caller can recompute the Gamma moment on a subsample
-#'   without re-estimating the DFM (leave-one-month-out). Off by default
-#'   because these are large and grid callers keep hundreds of cells in memory.
+#'   (`eta_sel`, `Z_sel`, `ctrl_sel`), the direction `c_mp`, the aligned
+#'   month dates and `intercept`, so a caller can recompute the Gamma moment
+#'   on a subsample without re-estimating the DFM (leave-one-month-out).
+#'   `intercept` is FALSE when `ctrl_sel` already carries the transformed
+#'   constant of the COVID volatility treatment, and goes on to
+#'   `compute_factor_space_wald()`. Off by default because these are large and
+#'   grid callers keep hundreds of cells in memory.
 #'
 #' @return List with `f_robust_mp`, `wald_mp`, `impact_mp`
 #'   (pre-normalization impact response of the policy variable), `sign_mp`,
@@ -38,11 +43,12 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
                                                 dates, p, mp_var_idx,
                                                 nw_lags = 0L,
                                                 return_moment_inputs = FALSE) {
-  if (!is.null(dfm_results$covid_volatility)) {
-    stop("diagnose_instrument_in_factor_space: xi_mp residualizes z on the OLS ",
-         "factor-VAR regressors (the Shat correction), which is not the ",
-         "estimating equation under covid_volatility ",
-         "(notas/2026-09-14_volatilidade_covid_lenza_primiceri.md).")
+  covid <- dfm_results$covid_volatility
+  if (!is.null(covid) && covid$innovations != "standardized") {
+    stop("diagnose_instrument_in_factor_space: under covid_volatility with ",
+         "innovations = \"raw\" the Shat correction mixes the transformed and ",
+         "the raw regressors and is not derived ",
+         "(notas/2026-09-14_inferencia_volatilidade_covid_q.md).")
   }
   align     <- sel_ext_inst_sample(dates, p, instrument_df)
   inst_sel  <- align$inst_sel
@@ -55,11 +61,15 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
 
   eta <- extract_dynamic_innovations(dfm_results)
 
-  eta_sel   <- eta[sel_ind, , drop = FALSE]
-  rsh_mean0 <- sweep(eta_sel, 2, colMeans(eta_sel))
-  Z_mat     <- as.matrix(inst_sel)
+  eta_sel <- eta[sel_ind, , drop = FALSE]
+  # Centered as ident_ext_instr() centers: not under the COVID volatility
+  rsh_id <- eta_sel
+  if (is.null(covid)) {
+    rsh_id <- sweep(eta_sel, 2, colMeans(eta_sel))
+  }
+  Z_mat <- as.matrix(inst_sel)
 
-  H <- drop(crossprod(Z_mat, rsh_mean0)) / drop(crossprod(Z_mat))
+  H <- drop(crossprod(Z_mat, rsh_id)) / drop(crossprod(Z_mat))
 
   # Impact response (h=0): rawimp[, , 1] = Lambda %*% K %*% M, scaled by sy
   if (!is.matrix(K) && !is.matrix(M)) {
@@ -83,6 +93,13 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
       F_stat[(p + 1 - i):(T_f - i), , drop = FALSE]
   }
   ctrl_sel <- ctrl[sel_ind, , drop = FALSE]
+  # Under the COVID volatility the estimating equation divides every row,
+  # constant included, by s_t: z is residualized on (1, lags) / s_t, which
+  # already carries the deterministic column
+  intercept <- is.null(covid)
+  if (!intercept) {
+    ctrl_sel <- (cbind(1, ctrl) / dfm_results$volatility_path)[sel_ind, , drop = FALSE]
+  }
 
   # Both MOSW diagnostics use the factor-implied innovation of the variable
   # that normalizes the structural shock.
@@ -90,20 +107,23 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
   eta_mp <- as.numeric(eta_sel %*% c_mp)
   wald_mp <- compute_factor_space_wald(eta_mp, Z_mat,
                                        controls = ctrl_sel,
-                                       nw_lags = nw_lags)$wald_joint
+                                       nw_lags = nw_lags,
+                                       intercept = intercept)$wald_joint
   first_stage <- compute_robust_first_stage_F(
     eta_mp,
     Z_mat,
     controls = ctrl_sel,
-    nw_lags = nw_lags
+    nw_lags = nw_lags,
+    intercept = intercept
   )
 
   moment_inputs <- if (isTRUE(return_moment_inputs)) {
-    list(eta_sel  = eta_sel,
-         Z_sel    = Z_mat,
-         ctrl_sel = ctrl_sel,
-         c_mp     = c_mp,
-         months   = dates[(p + 1):length(dates)][sel_ind])
+    list(eta_sel   = eta_sel,
+         Z_sel     = Z_mat,
+         ctrl_sel  = ctrl_sel,
+         c_mp      = c_mp,
+         months    = dates[(p + 1):length(dates)][sel_ind],
+         intercept = intercept)
   } else NULL
 
   list(

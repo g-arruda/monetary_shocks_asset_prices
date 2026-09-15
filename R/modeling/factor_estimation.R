@@ -606,6 +606,59 @@ estimate_var_ols <- function(data, p, s = NULL) {
 }
 
 
+#' Maximum-likelihood estimate of the Lenza-Primiceri COVID volatility scale
+#'
+#' Maximizes the concentrated log-likelihood (B5) of Lenza & Primiceri (2022,
+#' JAE, Appendix B) over `theta = (s0, s1, s2, rho)` by L-BFGS-B inside the box
+#' `[lower, upper]`. The floor is not cosmetic: with any scale free to approach
+#' zero, the WLS fits that month exactly and (B5) grows as `-n log s`, so the
+#' unrestricted maximum does not exist. The starting values are the authors'
+#' rule (`bvarGLP_covid.m:60-68`) on the factors: the cross-factor mean
+#' absolute change into `covid_start` and the two months after it, over the
+#' same mean before `covid_start`, and `rho = 0.8`, projected on the box.
+#'
+#' @param factors Numeric matrix of static factors (T x K).
+#' @param p Lag order of the factor VAR.
+#' @param residual_dates Date vector of the T - p residual months.
+#' @param covid_start First month of abnormal volatility (Date), one of
+#'   `residual_dates`.
+#' @param lower,upper Named vectors (`s0`, `s1`, `s2`, `rho`) bounding theta.
+#'
+#' @return List with `theta`, the maximized `loglik`, the `start` vector,
+#'   `optim`'s `convergence` code and `message`, and the path `s_t` at `theta`.
+estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
+                                 lower, upper) {
+  loglik_at <- function(theta) {
+    s <- covid_volatility_path(residual_dates, covid_start, theta)
+    estimate_var_ols(factors, p, s = s)$loglik
+  }
+
+  # Row i of abs_change is the change into residual month i + 1, on the VAR's
+  # left-hand side as in bvarGLP_covid.m
+  abs_change <- rowMeans(abs(diff(factors[(p + 1):nrow(factors), , drop = FALSE])))
+  t_star <- match(covid_start, residual_dates)
+  start <- c(abs_change[t_star - 1 + 0:2] / mean(abs_change[1:(t_star - 2)]), 0.8)
+  names(start) <- c("s0", "s1", "s2", "rho")
+  lower <- lower[names(start)]
+  upper <- upper[names(start)]
+  start <- pmin(pmax(start, lower), upper)
+
+  # factr = 1e3: the default 1e7 stops while the first-order conditions of s0
+  # and s1 are still 1e-3 away from closing in simulated data
+  fit <- optim(start, loglik_at, method = "L-BFGS-B", lower = lower,
+               upper = upper, control = list(fnscale = -1, factr = 1e3))
+
+  list(
+    theta = fit$par,
+    loglik = fit$value,
+    start = start,
+    convergence = fit$convergence,
+    message = fit$message,
+    path = covid_volatility_path(residual_dates, covid_start, fit$par)
+  )
+}
+
+
 #' Factor VAR with the Kilian bias-corrected companion matrix
 #'
 #' Same OLS fit as `estimate_var_ols()`, then `kilian_correction()` on the
@@ -727,10 +780,14 @@ estimate_corrected_var <- function(data, p) {
 #' @param var_residuals Matrix of factor-VAR residuals (T-p x r).
 #' @param q Number of dynamic factors.
 #' @param r Number of static factors.
+#' @param sigma_u Second-moment matrix whose leading eigenvectors give K; the
+#'   residual covariance by default. `estimate_dfm()` passes the uncentered
+#'   second moment under the COVID volatility treatment.
 #'
 #' @return List with eta, the eigenvector matrix K, the scaling matrix M, the
 #'   eigenvalues and diagnostics.
-estimate_dynamic_factors <- function(var_residuals, q, r) {
+estimate_dynamic_factors <- function(var_residuals, q, r,
+                                     sigma_u = cov(var_residuals)) {
   if (q == r) {
     # Caso especial: q = r (fatores dinâmicos = fatores estáticos)
     K <- 1
@@ -739,8 +796,6 @@ estimate_dynamic_factors <- function(var_residuals, q, r) {
     eigenvals <- rep(1, r)
   } else {
     # Caso geral: q < r
-    # Calcular matriz de covariância dos resíduos VAR
-    sigma_u <- cov(var_residuals)
     # CRÍTICO: Usar decomposição SVD ao invés de eigen para garantir determinismo
     svd_result <- svd(sigma_u)
     eigenvals_sorted <- sort(svd_result$d, decreasing = TRUE)
@@ -804,7 +859,11 @@ estimate_dynamic_factors <- function(var_residuals, q, r) {
 #'   `s1`, `s2`, `rho`) and `innovations` — `"raw"`, the residuals
 #'   `u_t = y_t - B'x_t`, or `"standardized"`, `u_t / s_t` — which decides what
 #'   K, M and eta read downstream. Every field is required, because each is an
-#'   author decision. Requires `dates`; incompatible with `apply_kilian`.
+#'   author decision; `production_spec()$covid_volatility_design` records the
+#'   ones taken, and `estimate_covid_theta()` estimates `theta`. Under it
+#'   nothing is centered: K comes from the uncentered second moment of the
+#'   selected innovations, (B4) for `"standardized"`. Requires `dates`;
+#'   incompatible with `apply_kilian`.
 #'
 #' @return List with the static factors, the factor VAR, the dynamic factors,
 #'   the aligned dates and instrument, and diagnostics. Under
@@ -897,7 +956,15 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
     innovations <- var_result$residuals_standardized
   }
 
-  dynamic_result <- estimate_dynamic_factors(innovations, q, r)
+  # Sob WLS nada é centrado: K lê o segundo momento não centrado das inovações,
+  # que com "standardized" é a (B4). Sem tratamento, o cov() de sempre.
+  if (is.null(covid_volatility)) {
+    dynamic_result <- estimate_dynamic_factors(innovations, q, r)
+  } else {
+    dynamic_result <- estimate_dynamic_factors(
+      innovations, q, r, sigma_u = crossprod(innovations) / nrow(innovations)
+    )
+  }
 
   max_eigenval <- max(abs(eigen(var_result$companion)$values))
   is_stable <- max_eigenval < 1
