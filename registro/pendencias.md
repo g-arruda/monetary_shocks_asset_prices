@@ -81,12 +81,12 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 | B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ e desde 2026-09-08 `(8,8)` em `p=4` **não tem bandas AR** (`hac_dim` 336 ≥ 162); ⚠ a poda de 2026-09-10 deu veredito contrário à hipótese de subestimação que o e-mail usava como amarração |
 | B | Verificar se `(5,5,4)` cruza o limiar mínimo de Anderson-Rubin e comunicar ao orientador | passo 1/4 do e-mail de 13-09; ⚠ a produção já responde isso (ξ_mp = 6,057014 > 3,84, 5.635 células `interval`) — falta formalizar e decidir se fecha o item acima |
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; depende da rodada editorial do Tema A |
-| B | Implementar a correção de outliers de 2020 (Lenza-Primiceri 2022) e reavaliar a sensibilidade a `q` na amostra completa | passo 3/4 do e-mail de 13-09; ⚠ implementação feita em 2026-09-14 (branch `feature/volatilidade-covid-lp`, desligada por padrão, produção `identical()`); a reavaliação depende das duas linhas abaixo |
-| B | Decidir a parametrização do tratamento de volatilidade COVID (`t*`, θ, `innovations`, centragem, extração estática) | aberto em 2026-09-14; decisão do autor; bloqueia a reavaliação acima e a inferência abaixo |
-| B | Derivar a inferência sob o tratamento de volatilidade COVID (AR, ξ_mp, bootstrap e Kilian dão `stop()`) | aberto em 2026-09-14; depende da chave `innovations`; bloqueia a reavaliação (T1/T2 de `q_truncation.R`) |
-| B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; depende do item anterior na janela completa; perna pré-COVID já existe |
+| B | Implementar a correção de outliers de 2020 (Lenza-Primiceri 2022) e reavaliar a sensibilidade a `q` na amostra completa | passo 3/4 do e-mail de 13-09; ⚠ cálculo feito em 2026-09-14 (célula `cheia_p4_lp` de `q_truncation.R`, branch `feature/volatilidade-covid-lp`, desligada na produção); falta a leitura do autor, a olho e sem regra pré-registrada; se o tratamento entrar no paper, destrava o apêndice de equações do Tema A |
+| B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; ⚠ perna da cheia tratada feita em 2026-09-14 (`q_narrative_r5p4_covid.*`), a pré-COVID já existia; falta a leitura do autor e o passo 1/4 |
+| B | Bootstrap e correção de Kilian sob o tratamento de volatilidade COVID | aberto em 2026-09-14, ao fechar a inferência AR sob o tratamento; seguem em `stop()`; não bloqueia nada, porque o AR é a inferência operacional |
 | A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada |
 | A | Escrever o apêndice com as equações de MOSW que mudam na extensão AR ao DFM | aberto em 2026-09-10; entra na mesma rodada editorial da linha acima |
+| A | Escrever o apêndice com as equações que o tratamento de volatilidade COVID (Lenza-Primiceri) muda no DFM | aberto em 2026-09-14; só vale se o tratamento entrar no paper, o que depende da leitura do autor no passo 3/4 (Tema B); mesma rodada editorial das duas linhas acima |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -154,6 +154,25 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   nas loadings porque `H_T` é linear nelas; `Inner = K K'` quando `q < r`; e o
   mapa de `tcode` na saída. (4.2), (4.3) e `W` ficam inalterados. Entra na
   **mesma rodada editorial** do item acima.
+- [ ] **Abrir no apêndice as equações que o tratamento de volatilidade COVID
+  (Lenza-Primiceri 2022) muda no DFM.** O VAR dos fatores ganha a escala comum
+  `s_t ε_t`, com a trajetória da eq. (1) de LP (θ = (s̄0, s̄1, s̄2, ρ),
+  `t*` = 2020-03). O OLS dá lugar ao WLS (B2), que é o OLS da regressão
+  transformada `ỹ_t = B'x̃_t + ε_t`, com `x̃_t = (1, lags_t)'/s_t`. K e M passam
+  a ler a (B4), o segundo momento de `ε̃_t = u_t/s_t`; H = `Z'ε̃/Z'Z` e K saem
+  sem centragem, o que só se afasta de AK (`IdentExtInstr.m`, `DFMest_BLL.m`)
+  sob WLS. θ̂ vem da (B5), com o jacobiano `−n Σ_t log s_t` e o piso s̄ ≥ 1,
+  ρ ∈ [0, 1], no lugar dos priors de LP (Pareto nos s̄, Beta em ρ). Na
+  inferência de MOSW, a função de influência de Γ̂ troca X por X̃
+  (`Q1 = X̃'X̃/T`, `Q2 = Z'X̃/T`), e o ξ_mp residualiza z em x̃ sem constante
+  adicional. Ficam inalterados a extração estática (PCA e `sy`, e por isso o
+  Bai-Ng), a forma da IRF, a normalização, `hac_dim` e `par_dim`; o texto tem
+  de dizer que tudo condiciona em θ̂. Só vale se o tratamento entrar no paper,
+  o que depende da leitura do autor no passo 3/4 (Tema B). Entra na **mesma
+  rodada editorial** dos dois itens acima. Notas:
+  `notas/2026-09-14_volatilidade_covid_lenza_primiceri.md` §2,
+  `notas/2026-09-14_estimacao_theta_volatilidade_covid.md` §3 e §5 e
+  `notas/2026-09-14_inferencia_volatilidade_covid_q.md` §2.1.
 
 ### Fechados (contexto)
 
@@ -351,42 +370,47 @@ coordenados" do e-mail do orientador de 2026-09-13
   `artigos/Lenza - How to estimate a vector autoregression after March 2020/`.
   Testa se a divergência entre amostra completa (sensível a `q`) e pré-COVID
   (robusta, `notas/2026-09-10_truncamento_q.md`) é outlier de 2020, não
-  fragilidade do método. ⚠ **Implementação feita em 2026-09-14, sem
-  estimação** (branch `feature/volatilidade-covid-lp`, sem commit): escala
-  `s_t` de LP no VAR dos fatores, na versão de máxima verossimilhança do
-  Apêndice B, desligada por padrão. Com ela desligada, o objeto de produção
-  sai `identical()` ao de `main`. A reavaliação **depende dos dois itens
-  abaixo**: as decisões de parametrização e a inferência sob tratamento.
-  Nota: `notas/2026-09-14_volatilidade_covid_lenza_primiceri.md`.
-- [ ] **Decidir a parametrização do tratamento de volatilidade COVID.**
-  Decisão do autor; nenhuma foi tomada em 2026-09-14. Falta decidir:
-  - `t*`, o primeiro mês de volatilidade anormal no painel;
-  - θ = (s̄0, s̄1, s̄2, ρ), fixado ou estimado por (B5), com otimizador,
-    limites e valores iniciais;
-  - a chave `innovations`, `"raw"` ou `"standardized"`;
-  - a centragem de `ident_ext_instr()`, que deixa de ser no-op sob WLS;
-  - se o tratamento se estende à extração estática (`sy`, PCA).
-
-  **Bloqueia** a reavaliação acima e, pela chave `innovations`, o item de
-  inferência abaixo. Nota: idem, §7.1.
-- [ ] **Derivar a inferência sob o tratamento de volatilidade COVID.** AR,
-  ξ_mp com correção Shat, bootstrap e Kilian dão `stop()` sob
-  `covid_volatility`, porque supõem o VAR por OLS com Σ constante. Falta o
-  `Shat` de MOSW para o VAR por WLS, validado em θ neutro contra o AR de
-  produção. Com inovações padronizadas, o candidato natural é MOSW na
-  regressão transformada `(x̃_t, u_t/s_t)`, com a centragem movida para o
-  instrumento. **Depende** da chave `innovations` (item acima). **Bloqueia** a
-  reavaliação acima, porque `script/q_truncation.R` passa por
-  `diagnose_instrument_in_factor_space()` e pelas bandas AR. Nota: idem, §7.2.
+  fragilidade do método. ⚠ **Implementação, parametrização, inferência e
+  cálculo feitos em 2026-09-14** (branch `feature/volatilidade-covid-lp`):
+  escala `s_t` de LP no VAR dos fatores, θ̂ por máxima verossimilhança, e T1
+  e T2 na célula `cheia_p4_lp` de `script/q_truncation.R`. O tratamento fica
+  desligado na produção, cujo objeto sai `identical()` ao de `main`. **Falta
+  a leitura do autor**, que decidiu ler as IRFs a olho, sem regra
+  pré-registrada. Se o tratamento entrar no paper, destrava o apêndice de
+  equações do Tema A. Notas:
+  `notas/2026-09-14_volatilidade_covid_lenza_primiceri.md`,
+  `notas/2026-09-14_estimacao_theta_volatilidade_covid.md` e
+  `notas/2026-09-14_inferencia_volatilidade_covid_q.md`.
 - [ ] **Refazer a tabela de sensibilidade `q = 2,...,5` (`r = 5` fixo) nas
   duas janelas — completa ajustada e pré-COVID — uma vez estabilizada a
-  especificação principal.** Passo 4/4; depende do item anterior para a
-  janela completa ajustada. A perna pré-COVID já existe
-  (`output/factors/q_narrative_r5p2_precovid.*`,
-  `notas/2026-09-10_truncamento_q.md`).
+  especificação principal.** Passo 4/4. ⚠ A perna da cheia ajustada foi
+  calculada em 2026-09-14 (`script/q_narrative_overlay_covid.R`,
+  `output/factors/q_narrative_r5p4_covid.*`); a pré-COVID já existia
+  (`output/factors/q_narrative_r5p2_precovid.*`, em `p = 2`). Falta a
+  leitura do autor e a especificação principal (passo 1/4). Nota:
+  `notas/2026-09-14_inferencia_volatilidade_covid_q.md`.
+- [ ] **Bootstrap e correção de Kilian sob o tratamento de volatilidade
+  COVID.** Seguem em `stop()`: o DGP do wild bootstrap, a reestimação por
+  réplica e a fórmula de Pope/Kilian supõem OLS com Σ constante. Surgiu ao
+  fechar a inferência AR sob o tratamento (Fechados, abaixo). Não bloqueia
+  nada, porque o AR é a inferência operacional. Nota:
+  `notas/2026-09-14_inferencia_volatilidade_covid_q.md`.
 
 ### Fechados (contexto)
 
+- [x] **Inferência AR e ξ_mp sob o tratamento de volatilidade COVID — FEITA
+  em 2026-09-14.** Com `"standardized"`, o WLS é o OLS da regressão
+  transformada, e `CovAhat_Sigmahat_Gamma.m` vale nela ao pé da letra, com θ̂
+  tratado como conhecido; `"raw"` segue em `stop()`. Em θ neutro, reproduz o
+  AR de produção a 1,5e-13; ξ_mp tratado de 6,848 em `(5,5,4)`. Bootstrap e
+  Kilian viraram item próprio. Nota:
+  `notas/2026-09-14_inferencia_volatilidade_covid_q.md`.
+- [x] **Parametrização da volatilidade COVID — DECIDIDA em 2026-09-14**
+  (autor): `t*` = 2020-03; θ por máxima verossimilhança (B5) com s̄ ≥ 1 e
+  ρ ∈ [0,1]; `innovations = "standardized"`; sem centragem sob WLS em H e K;
+  extração estática não estendida. θ̂ = (6,61; 12,47; 1,76; 0,944), com um
+  máximo local em ρ = 0 2,6 log-pontos abaixo. Nota:
+  `notas/2026-09-14_estimacao_theta_volatilidade_covid.md`.
 - [x] **Truncamento `q < r` testado — FEITO em 2026-09-10** (pedido do autor,
   ligado à 4/5). Pré-COVID `p=2`: 115/115 séries *imateriais* em `q` = 3 e 4;
   cheia: 0/115, e o instrumento está nas direções descartadas (T1 p 0,051 /

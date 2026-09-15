@@ -105,6 +105,7 @@ Cite the note, never this table. Notes are under `notas/`.
 | Alternative `r` estimators (AH ER/GR, ABC) | `factor_selection_alt.R` | `2026-09-10_selecao_fatores_ah_abc` | mixed: ER = GR = 2, ABC-IC*₁ = 9 on a 2-point stability interval (5 in 39/100 column permutations); `factorselect` diverges from both papers in GR and ABC and is not used |
 | Correlation pruning + `(r,q)` on the pruned panel | `panel_pruning.R`, `factor_selection_pruned.R` | `2026-09-10_poda_correlacao_painel` | complete linkage at \|ρ\| ≥ 0.90 drops 9/115 series; Bai-Ng IC2 5 → 3, AH 2 → 1, ABC 9 → 11 (unstable), AW `q = 2` at every `r`; divergence grows (D 10 → 12), underestimation hypothesis contradicted |
 | `q < r` truncation: subspace sufficiency + AK invariance by window | `q_truncation.R` | `2026-09-10_truncamento_q` | harmless before COVID, distorting after: pre-COVID `p=2` 115/115 series immaterial at `q=3,4`, full sample 0/115; the proxy's covariance sits in the discarded directions (T1 p 0.051/0.039/0.015 full, ≥ 0.22 pre-COVID); rules written after an exploratory pass |
+| COVID volatility (Lenza-Primiceri) in the factor VAR: θ̂ by ML, AR under WLS, steps 3/4 and 4/4 | `covid_volatility_theta.R`, `q_truncation.R` (cell `cheia_p4_lp`), `q_narrative_overlay_covid.R` | `2026-09-14_inferencia_volatilidade_covid_q` | no verdict — the author reads the IRFs by eye; off in production. θ̂ = (6.61, 12.47, 1.76, 0.944), with a second maximum at ρ = 0 2.6 log-points below; at `q=3` 23/115 series immaterial and 75 material, against 115/115 immaterial pre-COVID `p=2`; the sets condition on θ̂ |
 
 ## ⚠ Prohibitions
 
@@ -157,7 +158,9 @@ These govern what may be **said**, so they apply even when no file is open.
   robustness leg, or as an alternative estimate. The negative frequency diagnostic and its
   archived artefacts remain under `arquivo/heterocedasticidade/`, but the dedicated code was
   removed on 2026-09-01. `goncalves2025` stays cited: that is *other people's* daily
-  het-identified evidence the paper argues with, not this project's route.
+  het-identified evidence the paper argues with, not this project's route. The Lenza-Primiceri
+  COVID-volatility scale in the factor VAR (2026-09-14, off in production) is no exception: it
+  reweights the estimation, identifies nothing, and its treated sets condition on θ̂.
 - **The VAR benchmark tests DFM-vs-small-VAR, not "vs the literature"**, which uses Cholesky.
 - **ξ_mp ≥ 10 is the Staiger-Stock rule of thumb** for the homoskedastic 2SLS first-stage F, **not an
   MOSW result**. §3.6 states this correctly since 2026-08-14; the naming is deliberately generic

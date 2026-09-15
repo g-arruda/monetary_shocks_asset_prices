@@ -123,8 +123,13 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 - **`instrument/`** — réguas de força do instrumento (`mosw_strength_grid`,
   `instrument_diagnostics_report`, `instrument_construction_sweep`,
   `jk_sovereign_confound`, `fomc_coincidence`).
-- **`factors/`** — rodada de estacionariedade/cointegração/espectro da
-  companion matrix dos fatores (2026-07-31).
+- **`factors/`** — estacionariedade, cointegração e espectro da companion
+  matrix dos fatores (2026-07-31); as varreduras de `p` e de `q` e as
+  narrativas `q_narrative_*`; a seleção de `r` por estimadores alternativos
+  e no painel podado e o truncamento `q < r` (`q_truncation_*`), de
+  2026-09-10; e a volatilidade COVID de Lenza-Primiceri (2026-09-14): θ̂ e a
+  trajetória de `s_t` (`covid_volatility_*`), a célula `cheia_p4_lp` dentro
+  de `q_truncation_*` e a narrativa tratada `q_narrative_r5p4_covid.*`.
 - **`var/`** — o benchmark VAR em níveis e sua inferência AR corrente
   (2026-08-22): cinco séries, constante e tendência linear, AIC e BIC em
   amostra comum, `p=2` pelo AIC, NW(0) e respostas `C_h B_1`.
@@ -183,7 +188,7 @@ fica riscado aqui, vai para `historico_decisoes.md`.
 
 ## `notas/` — o registro probatório
 
-51 notas de pesquisa datadas, append-only: uma rodada por nota, com um
+64 notas de pesquisa datadas, append-only: uma rodada por nota, com um
 banner de veredito (CURRENT / superseded / contradicted) e a
 especificação/vintage sob a qual foi escrita. É delas que o paper puxa
 número — **confira o vintage antes de citar**. **Não catalogadas aqui uma a

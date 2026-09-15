@@ -2,9 +2,10 @@
 
 > **CURRENT — 2026-09-10.** Rodada feita sob a produção corrente:
 > - painel de 115 séries `drop_setor_externo__eua__credito__imoveis_fiscal_expectations`, `(r,q,p)=(5,5,4)`, `z_jk_bs_purif` × `yield_6m`, choque de +50 pb;
-> - branch `feature/poda-correlacao-painel`, sem commit;
+> - branch `feature/poda-correlacao-painel`, commit `7cd9511`, depois mergeada em `main`;
 > - código novo: `script/q_truncation.R`, que só chama funções que já existiam; nada em `R/` mudou;
-> - saídas geradas em `output/factors/`: `q_truncation.{md,pdf}` e `q_truncation_{cells,directions,paths,containment}.csv`.
+> - saídas geradas em `output/factors/`: `q_truncation.{md,pdf}` e `q_truncation_{cells,directions,paths,containment}.csv`;
+> - **em 2026-09-14** o script ganhou a janela-célula `cheia_p4_lp`, a cheia com a volatilidade COVID de Lenza-Primiceri. As linhas das três células desta nota saem idênticas nos CSVs, e a leitura conjunta daqui não muda. A célula nova está em `notas/2026-09-14_inferencia_volatilidade_covid_q.md`.
 >
 > **A produção não muda.** A rodada responde a uma pergunta de defesa da especificação: se `q = r = 5` se sustenta diante do `q = 2` de Amengual-Watson.
 

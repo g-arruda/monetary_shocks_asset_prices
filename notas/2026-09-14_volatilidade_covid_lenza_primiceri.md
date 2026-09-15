@@ -1,7 +1,13 @@
 # Volatilidade COVID de Lenza-Primiceri no VAR dos fatores: implementação
 
 > **CURRENT — 2026-09-14. Rodada de implementação: nada foi estimado.**
-> - branch `feature/volatilidade-covid-lp`, aberta de `main` em `e1d8a89`, **sem commit**;
+> - **As decisões da §7.1 saíram no mesmo dia**, e θ foi estimado na rodada seguinte
+>   (`notas/2026-09-14_estimacao_theta_volatilidade_covid.md`).
+> - Ela supera três passagens desta nota:
+>   - a centragem (§6, item 9): sob WLS, nem H nem K são mais centrados;
+>   - a §7.2, pelo mesmo motivo;
+>   - a frase "centrar z no lugar das inovações": dá o mesmo numerador.
+> - branch `feature/volatilidade-covid-lp`, aberta de `main` em `e1d8a89`, commits `ed316ad` e `815350a`;
 > - **produção inalterada:** com `covid_volatility = NULL`, que é o que `production_spec()` traz, o objeto inteiro de `main_sdfm()` sai `identical()` ao de `main` (modelo, IRF pontual e conjuntos AR de 68% e 90%), e o smoke test do `CLAUDE.md` sai bit-idêntico;
 > - nenhum θ foi escolhido e nenhuma verossimilhança foi maximizada: os números desta nota só checam código;
 > - painel de produção: 115 séries, 2012-03 a 2025-12, `(r,q,p) = (5,5,4)`, `z_jk_bs_purif` × `yield_6m`.
