@@ -83,8 +83,8 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; depende da rodada editorial do Tema A |
 | B | Implementar a correção de outliers de 2020 (Lenza-Primiceri 2022) e reavaliar a sensibilidade a `q` na amostra completa | passo 3/4 do e-mail de 13-09; item novo, artigo salvo em `artigos/` |
 | B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; depende do item anterior na janela completa; perna pré-COVID já existe |
-| A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada |
-| A | Escrever o apêndice com as equações de MOSW que mudam na extensão AR ao DFM | aberto em 2026-09-10; entra na mesma rodada editorial da linha acima |
+| A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada; ⚠ desde 2026-09-16 §3.5, §3.6 e a prosa da §5.2 já estão em AR, e sobram §4, as duas legendas que dizem *wild bootstrap*, as figuras, a janela e os números |
+| A | Escrever no paper as duas ressalvas que viajam com os conjuntos AR (condicionamento nas cargas e nos fatores estimados, `hac_dim < T` barrando `(8,8)` e a pré-COVID) | escritas na §3.6 e cortadas em 2026-09-16 por decisão do autor; só voltam a ser exigíveis quando a §4 publicar números de AR, na mesma rodada da linha acima |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -135,26 +135,37 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 - [ ] **Sincronizar paper, figuras e `output/irf/irf_section.md` com a produção
   corrente** — duas defasagens de uma vez: a janela (2012-03--2025-12, contra a
   2013-01--2025-09 que o texto descreve) e a **inferência** (conjuntos
-  Anderson-Rubin, contra o wild bootstrap que o texto, as legendas e a §5
-  anunciam). `sec:weak_iv` é o caso mais agudo: seu contraste inteiro era
-  bootstrap-no-DFM contra AR-no-VAR, e os dois lados são AR agora. Enquanto a
-  rodada não acontece, `script/fig_section5.R` e `script/fig_weak_iv.R` abortam
-  sem `--repaint-paper-figures`, de propósito. Depende da rodada de 2026-09-08
-  fechada no Tema B.
-- [ ] **Abrir um apêndice com as equações de MOSW que mudam na extensão AR ao
-  DFM.** A inferência sobre observáveis (`ar_dfm_bands()`) é uma substituição:
-  o vetor canônico `e_i'` de MOSW dá lugar ao funcional linear estimado
-  `c_j' = sy_j·Λ_j'` (e `c_mp'` na normalização). Ela toca a eq. (2.6), onde a
-  resposta vira `λ(j,h) = c_j' C_h(A) Θ_{0,1}`; as eqs. (2.8)-(2.9), a
-  normalização, com `λ(mp,0) = δ` constante em `Γ`; a eq. (4.1), a razão de que
-  a estatística AR é construída; o gradiente de Kronecker, onde
-  `G_DFM = c_j'·G_fatores` e portanto `Ω_DFM = c_j'[G W G']c_j` — quadrática
-  nas loadings porque `H_T` é linear nelas; `Inner = K K'` quando `q < r`; e o
-  mapa de `tcode` na saída. (4.2), (4.3) e `W` ficam inalterados. Entra na
-  **mesma rodada editorial** do item acima.
+  Anderson-Rubin, contra o wild bootstrap que as legendas e a §4 ainda
+  anunciam). Em 2026-09-16 a metade de inferência foi feita só na metodologia e
+  na prosa da §5.2: §3.5 perdeu a frase do bootstrap, §3.6 ganhou os conjuntos
+  AR com a equação mapeada, e `sec:weak_iv` deixou de contrastar
+  bootstrap-no-DFM com AR-no-VAR. Falta o resto. ⚠ Duas legendas seguem dizendo
+  *wild bootstrap* porque descrevem os PDFs realmente pintados (estrutura a
+  termo e `fig:weak_iv_main`), e com o corte na §3.5 esse método ficou sem
+  citação no texto, com `goncalveskilian2004` e `kilian1998small` fora do corpo.
+  Enquanto a rodada não acontece, `script/fig_section5.R` e
+  `script/fig_weak_iv.R` abortam sem `--repaint-paper-figures`, de propósito.
+  Depende da rodada de 2026-09-08 fechada no Tema B.
+- [ ] **Escrever no paper as duas ressalvas que o `CLAUDE.md` manda viajar
+  junto dos conjuntos AR**, antes que a §4 publique números de AR: a
+  covariância de plug-in condiciona nas cargas, nos fatores e nas escalas
+  estimados, e `hac_dim < T` barra `(r,q)=(8,8)` em `p=4` e a janela pré-COVID
+  inteira, células reportadas como barradas. Foram escritas na §3.6 em
+  2026-09-16 e cortadas no mesmo dia por decisão do autor, que as considerou
+  desnecessárias ali. Enquanto a §4 for de bootstrap, nada é publicado sem elas;
+  a partir da rodada editorial, sim. Mesma rodada do item acima.
 
 ### Fechados (contexto)
 
+- [x] **Apêndice das equações MOSW→DFM descartado, mapeamento no corpo —
+  2026-09-16.** Decisão do autor: a extensão é troca de vetor, não derivação
+  nova, e quem conhece MOSW reconstrói a adaptação sozinho. A §3.6 reporta em
+  prosa que só mudam os vetores da razão identificada (`c_j' = sy_j·Λ_j'` e
+  `c_mp'` no lugar dos coordenados), e a nota põe as duas equações lado a lado
+  (`e_i'C_h(A)Γ/e_1'Γ` contra `δ·c_i'B_hΓ/c_mp'Γ`, com `KK'=I` porque `q=r`).
+  Sem equação no corpo, também por decisão do autor: a razão é trivial para
+  quem conhece IRF de DFM. Nota:
+  `notas/2026-09-08_bandas_anderson_rubin_producao.md`.
 - [x] **Expectativas fiscais Focus — teste isolado, 2026-09-01.** DLSP e
   resultado primário/nominal em nível ampliam o painel para 114 séries sem
   tocar produção; ξ_mp sobe de 5,24 a 5,81 (ainda < 10); DLSP e nominal

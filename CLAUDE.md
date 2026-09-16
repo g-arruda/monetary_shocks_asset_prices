@@ -43,9 +43,16 @@ deciding on 2026-07-26.
 **The paper is one vintage behind the code, and now behind it in inference
 too.** `paper/paper_anpec.tex`, its figures and `output/irf/irf_section.md`
 still describe the prior 115-series, 2013-01--2025-09 window at
-`(r,q,p)=(4,4,4)` (ξ_mp=6.38 full) **with wild-bootstrap bands**. Production
-publishes Anderson–Rubin sets on the 2012-03 window. Both gaps close in the
-same not-yet-scheduled editorial round; until then `script/fig_section5.R` and
+`(r,q,p)=(4,4,4)` (ξ_mp=6.38 full). Production publishes Anderson–Rubin sets on
+the 2012-03 window. The inference half was closed **in the methodology prose
+only** on 2026-09-16: §3.5 dropped the wild bootstrap, §3.6 states the AR sets
+and, in prose, that only the vectors of the identified ratio change, with a
+footnote putting MOSW's equation beside the DFM's, and `sec:weak_iv` no longer
+contrasts the two inferences. The two caveats this file requires alongside the
+sets were cut from §3.6 by the author and are an open item for the round that
+publishes AR numbers in §4.
+§4 and the two *wild bootstrap* captions still describe the figures as painted.
+Both gaps close in the same not-yet-scheduled editorial round; until then `script/fig_section5.R` and
 `script/fig_weak_iv.R` abort without `--repaint-paper-figures`, so a stray
 re-run cannot repaint the paper's figures with an inference its captions do
 not announce. See `notas/_indice.md` before citing paper numbers as current.

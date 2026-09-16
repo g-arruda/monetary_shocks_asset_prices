@@ -18,21 +18,33 @@ general robustness figures, while `script/fig_weak_iv.R` writes the weak-IV figu
 
 **The paper was fully synchronized on 2026-08-25**, and has since fallen
 behind twice. Abstract, §1--§5, conclusion and appendix use the 111-series
-`(r,q,p)=(5,5,4)` production and describe **wild-bootstrap** bands for the DFM.
+`(r,q,p)=(5,5,4)` production and described **wild-bootstrap** bands for the
+DFM, which the next paragraph corrects.
 `tab:rq_sweep` no longer exists. The sign-filter subsections report only
 exercises that hold the production mask fixed; the rederived-mask diagnostics
 remain in the generated outputs and living record.
 
 **Two gaps are open against production, and both close in the same editorial
 round.** (i) the window moved to 2012-03--2025-12; (ii) **on 2026-09-08 the
-DFM's operational inference became the Anderson--Rubin sets**, so §3.7, §4,
-§5 and every figure caption that says *wild bootstrap* now describes an
-inference the code no longer publishes. `sec:weak_iv` is the sharpest case:
-its whole contrast was bootstrap-on-the-DFM against AR-on-the-VAR, and both
-sides are AR now. Until that round runs, `script/fig_section5.R` and
-`script/fig_weak_iv.R` abort without `--repaint-paper-figures`. Do not quote a
-paper band as current inference; quote `output/irf/irf_coherence_h.csv`, whose
-`set_type68`/`set_type90` columns say what kind of set each band is.
+DFM's operational inference became the Anderson--Rubin sets**. Half of (ii)
+landed on **2026-09-16**, prose only: §3.5 lost the wild-bootstrap sentence,
+§3.6 gained the AR sets, stating in prose that only the vectors of the
+identified ratio change (`c_j' = sy_j·Λ_j'`, `c_mp'`), with a footnote putting
+MOSW's equation beside the DFM's, and
+`sec:weak_iv` stopped contrasting bootstrap-on-the-DFM against AR-on-the-VAR.
+§4 and the two captions that still say *wild bootstrap* (term structure and
+`fig:weak_iv_main`) describe the figures as actually painted and stay until the
+repaint; with §3.5 cut, that method is now uncited in the body. Until that round
+runs, `script/fig_section5.R` and `script/fig_weak_iv.R` abort without
+`--repaint-paper-figures`. Do not quote a paper band as current inference;
+quote `output/irf/irf_coherence_h.csv`, whose `set_type68`/`set_type90` columns
+say what kind of set each band is.
+
+**An extension of a published method does not get an appendix.** Author
+decision of 2026-09-16, on the AR-to-DFM mapping: when the extension is the
+authors' derivation with vectors swapped, the body carries the mapped equation
+and a single footnote puts the authors' equation beside it, saying what
+replaces what. A self-contained appendix is for what is genuinely new.
 
 `arquivo/tex/main.tex` is the **previous** draft. It is a historical prose
 source, **not a target to edit** and not evidence for current magnitudes.
