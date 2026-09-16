@@ -278,13 +278,17 @@ classify_sweep_cells <- function(cells) {
 #'   The sweep keeps the bootstrap; `script/irf_coherence_check.R` passes
 #'   `"ar"`, which is the production inference.
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
+#' @param covid_volatility COVID volatility scale of the factor VAR, passed to
+#'   `estimate_dfm()`; NULL (off) by default. When on, the Kilian correction is
+#'   skipped, as in `main_sdfm()`.
 #'
 #' @return List with `irf`, `var_names`, `tcode`, `mpind`, `normalize_value`
 #'   and the cell keys.
 run_stage2_cell <- function(data_mat, dates, inst_panel, sample_window,
                             r, q, p, instrument, mp_var,
                             h, nboot, seed, shock_bps, tcode, ci_levels,
-                            inference = "bootstrap", ar_nw_lags = 0L) {
+                            inference = "bootstrap", ar_nw_lags = 0L,
+                            covid_volatility = NULL) {
   in_window <- dates >= sample_window[1] & dates <= sample_window[2]
   data_sub  <- data_mat[in_window, , drop = FALSE]
   dates_sub <- dates[in_window]
@@ -297,7 +301,8 @@ run_stage2_cell <- function(data_mat, dates, inst_panel, sample_window,
 
   dfm <- estimate_dfm(data_sub, r = r, q = q, p = p,
                       dates = dates_sub, instrument = inst_df,
-                      apply_kilian = TRUE)
+                      apply_kilian = is.null(covid_volatility),
+                      covid_volatility = covid_volatility)
 
   norm_val <- norm_value_for(mp_var, shock_bps)
 

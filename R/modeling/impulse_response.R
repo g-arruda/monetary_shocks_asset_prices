@@ -68,6 +68,11 @@ sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
 #'   Use only on the point estimate; never inside bootstrap loops.
 #' @param var_names Optional column names for printing the impact vector when
 #'   `diagnose` is TRUE.
+#' @param center If TRUE, demean the innovations before projecting, as
+#'   `IdentExtInstr.m:5` does; a no-op for OLS residuals with a constant. FALSE
+#'   keeps the uncentered moment of MOSW (`SVARIV.m:128`), which is what the
+#'   COVID volatility treatment uses: its WLS residuals are orthogonal to the
+#'   scaled constant `1/s_t`, not to 1.
 #'
 #' @return List with `irf_mp` (normalized + tcode-transformed IRFs),
 #'   `irf_mp_pre_tcode` (normalized but before `cumimp_transform`; the
@@ -76,12 +81,15 @@ sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
 ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
                             mpind = NULL, normalize_value = 0.5,
                             tcode = NULL, diagnose = FALSE,
-                            var_names = NULL) {
-  rsh_mean0 <- sweep(rsh_sel, 2, colMeans(rsh_sel))
+                            var_names = NULL, center = TRUE) {
+  rsh_id <- rsh_sel
+  if (center) {
+    rsh_id <- sweep(rsh_sel, 2, colMeans(rsh_sel))
+  }
 
   # Proxy-SVAR loadings: H = (Z' eta) / (Z'Z) — Stock-Watson (2018) eq. 4
   Z_mat <- as.matrix(Z_sel)
-  H <- drop(crossprod(Z_mat, rsh_mean0)) / drop(crossprod(Z_mat))
+  H <- drop(crossprod(Z_mat, rsh_id)) / drop(crossprod(Z_mat))
 
   n_vars <- dim(rawimp)[1]
   irf_mp <- matrix(0, n_vars, h + 1)
@@ -94,7 +102,7 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
   if (isTRUE(diagnose) && !is.null(mpind)) {
     impact_pre <- irf_mp[mpind, 1]
     c_mp       <- as.numeric(rawimp[mpind, , 1])
-    eta_mp     <- as.numeric(rsh_mean0 %*% c_mp)
+    eta_mp     <- as.numeric(rsh_id %*% c_mp)
     xi_mp      <- compute_factor_space_wald(eta_mp, Z_mat)$wald_joint
     f_robust_mp <- compute_robust_first_stage_F(eta_mp, Z_mat)$f_statistic
 
@@ -149,11 +157,15 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
 #' @param controls Optional matrix/data.frame of factor-VAR regressors. A
 #'   constant is added by the regression.
 #' @param nw_lags Newey-West truncation lag. Zero uses HC1.
+#' @param intercept Include an intercept. FALSE when `controls` already carry
+#'   the deterministic column, as the regressors of the COVID volatility
+#'   treatment do (divided by `s_t`, the constant becomes `1/s_t`).
 #'
 #' @return List with `f_statistic`, `beta`, `se`, `p_value`, `n_obs`, and
 #'   `nw_lags`.
 compute_robust_first_stage_F <- function(target_innovation, Z,
-                                         controls = NULL, nw_lags = 0L) {
+                                         controls = NULL, nw_lags = 0L,
+                                         intercept = TRUE) {
   if (!requireNamespace("sandwich", quietly = TRUE)) {
     stop("Package 'sandwich' is required for the robust first-stage F")
   }
@@ -183,7 +195,11 @@ compute_robust_first_stage_F <- function(target_innovation, Z,
     regression_data <- cbind(regression_data, controls)
   }
 
-  fit <- lm(y ~ ., data = regression_data)
+  if (intercept) {
+    fit <- lm(y ~ ., data = regression_data)
+  } else {
+    fit <- lm(y ~ 0 + ., data = regression_data)
+  }
   covariance <- if (nw_lags == 0L) {
     sandwich::vcovHC(fit, type = "HC1")
   } else {
@@ -241,18 +257,29 @@ compute_robust_first_stage_F <- function(target_innovation, Z,
 #'   Gertler-Karadi position-weighted monthly aggregation, which splits each
 #'   event surprise across t and t+1 and so induces an MA(1). The official
 #'   suite uses `NWlags = 8` in the tax application (`TaxSVARIV.m:52`).
+#' @param intercept Add a constant to `controls` before residualizing z, as
+#'   the OLS factor VAR carries one. FALSE when `controls` already hold the
+#'   deterministic column: under the COVID volatility treatment the regressors
+#'   are divided by `s_t` and the constant becomes `1/s_t`, the Shat correction
+#'   of `CovAhat_Sigmahat_Gamma.m` on the transformed regression. Unused
+#'   without `controls`.
 #'
 #' @return List with `wald_k` (length-q vector), `wald_joint`, `q`, `T_eff`,
 #'   and `nw_lags`. Vector-valued fields are internal inputs to scalar
 #'   projections and validation checks, not reported strength diagnostics.
-compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L) {
+compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L,
+                                      intercept = TRUE) {
   eta <- as.matrix(eta)
   Z   <- as.numeric(Z)
   T_eff <- length(Z)
   q     <- ncol(eta)
 
   if (!is.null(controls)) {
-    Z_use <- as.numeric(qr.resid(qr(cbind(1, as.matrix(controls))), Z))
+    regressors <- as.matrix(controls)
+    if (intercept) {
+      regressors <- cbind(1, regressors)
+    }
+    Z_use <- as.numeric(qr.resid(qr(regressors), Z))
   } else {
     Z_use <- Z - mean(Z)
   }
@@ -401,7 +428,11 @@ infer_tcode_from_varnames <- function(var_names) {
 #' The point estimate uses the plain OLS companion; the wild bootstrap DGP uses
 #' the Kilian-corrected one, with Rademacher multipliers (Gonçalves-Kilian 2004).
 #'
-#' @param dfm_results List returned by `estimate_dfm()`.
+#' @param dfm_results List returned by `estimate_dfm()`. When it carries
+#'   `covid_volatility`, the point projects on the uncentered moment, the
+#'   Anderson-Rubin sets run on the transformed regression for
+#'   `innovations = "standardized"` (`ar_dfm_bands()`), and the bootstrap
+#'   aborts here, since its DGP assumes an OLS factor VAR with constant Sigma.
 #' @param instrument Optional instrument data.frame; normally already embedded
 #'   in `dfm_results` by the alignment stage.
 #' @param h Maximum horizon.
@@ -443,6 +474,11 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   inference <- match.arg(inference)
   if (inference == "ar" && !exists("ar_dfm_bands", mode = "function")) {
     stop("inference = 'ar' requires R/identification/weak_iv_ar.R to be sourced")
+  }
+  if (!is.null(dfm_results$covid_volatility) && inference == "bootstrap" && nboot > 0) {
+    stop("Bootstrap indisponivel sob covid_volatility: o DGP, a correcao de ",
+         "Kilian e a reestimacao supoem OLS com Sigma constante ",
+         "(notas/2026-09-14_volatilidade_covid_lenza_primiceri.md)")
   }
   if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
 
@@ -540,10 +576,12 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
 
   # --- Identificação (estimativa pontual) ---
   eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
+  # Sob a volatilidade COVID, sem centragem: o Gamma de MOSW (SVARIV.m:128)
   point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
                                   mpind, normalize_value, tcode,
                                   diagnose = diagnose,
-                                  var_names = var_names)
+                                  var_names = var_names,
+                                  center = is.null(dfm_results$covid_volatility))
   irf_point <- point_result$irf_mp
 
   # --- Anderson-Rubin sets (operational inference since 2026-09-08) ---

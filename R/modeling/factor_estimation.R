@@ -492,17 +492,62 @@ kilian_correction <- function(A, SIGMA, t, q, p) {
 
 
 
-#' Plain OLS factor VAR, no bias correction
+#' Common volatility scale of the Lenza-Primiceri (2022) COVID treatment
 #'
-#' Direct equivalent of `DFMest_BLL.m` lines 29-50. This is what the point
-#' estimate uses; `estimate_corrected_var()` is only for the bootstrap DGP.
+#' Builds `s_t` of equation (1) in Lenza & Primiceri (2022, JAE): one before
+#' `covid_start`, `s0`, `s1` and `s2` in its first three months, and
+#' `1 + (s2 - 1) * rho^(j - 2)` from then on, `j` being calendar months since
+#' `covid_start`. It is the rule of `invweights` in the authors'
+#' `logMLVAR_formin_covid.m:35-40`. `theta` carries no bounds: the ones in
+#' `setpriors_covid.m` belong to the authors' Bayesian optimizer, and choosing
+#' `theta` is the author's decision.
+#'
+#' @param dates Date vector, one per residual row of the factor VAR.
+#' @param covid_start First month of abnormal volatility (Date).
+#' @param theta Named numeric vector with `s0`, `s1`, `s2` and `rho`.
+#'
+#' @return Numeric vector `s_t` aligned with `dates`.
+#'
+#' @examples
+#' # Neutral theta: s_t = 1 at every date, whatever covid_start and rho.
+#' s <- covid_volatility_path(dates, covid_start,
+#'                            c(s0 = 1, s1 = 1, s2 = 1, rho = 0))
+covid_volatility_path <- function(dates, covid_start, theta) {
+  j <- 12L * (lubridate::year(dates) - lubridate::year(covid_start)) +
+    lubridate::month(dates) - lubridate::month(covid_start)
+
+  s <- rep(1, length(dates))
+  s[j == 0] <- theta[["s0"]]
+  s[j == 1] <- theta[["s1"]]
+  s[j >= 2] <- 1 + (theta[["s2"]] - 1) * theta[["rho"]]^(j[j >= 2] - 2)
+  s
+}
+
+
+#' Factor VAR by least squares, optionally under the COVID volatility scale
+#'
+#' With `s = NULL` this is plain OLS, the direct equivalent of `DFMest_BLL.m`
+#' lines 29-50 and what the point estimate uses; `estimate_corrected_var()` is
+#' only for the bootstrap DGP.
+#'
+#' With `s`, the VAR is `F_t = c + A(L) F_{t-1} + s_t eps_t`,
+#' `eps_t ~ N(0, Sigma)`, the maximum-likelihood version of Lenza & Primiceri
+#' (2022, JAE, Appendix B) conditional on `s`: coefficients by (B2), the ML
+#' covariance by (B4) and the concentrated log-likelihood by (B5), constants
+#' included (the paper writes it up to proportionality). Nothing here chooses
+#' or optimizes `s`.
 #'
 #' @param data Numeric matrix of factors (T x K).
 #' @param p Lag order.
+#' @param s Optional volatility scale, one positive value per residual row
+#'   (length T - p), from `covid_volatility_path()`. NULL is plain OLS.
 #'
 #' @return List with coefficients, residuals, companion matrix and the residual
-#'   covariance matrix.
-estimate_var_ols <- function(data, p) {
+#'   covariance matrix. With `s`, `residuals` stay `u_t = y_t - B'x_t`, and the
+#'   list adds `residuals_standardized` (`u_t / s_t`), `sigma_mle` (B4) and
+#'   `loglik` (B5); `covariance_matrix` is then computed on `u_t / s_t` with
+#'   the same degrees-of-freedom divisor as the OLS branch.
+estimate_var_ols <- function(data, p, s = NULL) {
   T <- nrow(data)
   K <- ncol(data)
 
@@ -516,7 +561,12 @@ estimate_var_ols <- function(data, p) {
 
   LHS <- data[(p + 1):T, ]
 
-  bet <- solve(crossprod(RHS)) %*% crossprod(RHS, LHS)
+  if (is.null(s)) {
+    bet <- solve(crossprod(RHS)) %*% crossprod(RHS, LHS)
+  } else {
+    # (B2): least squares on every row divided by s_t, constant column included
+    bet <- solve(crossprod(RHS / s)) %*% crossprod(RHS / s, LHS / s)
+  }
   u <- LHS - RHS %*% bet
   u <- Re(as.matrix(u))
 
@@ -525,14 +575,87 @@ estimate_var_ols <- function(data, p) {
     cbind(diag((p - 1) * K), matrix(0, (p - 1) * K, K))
   )
 
-  SIGMA <- crossprod(u) / (T - p - p * K - 1)
+  if (is.null(s)) {
+    SIGMA <- crossprod(u) / (T - p - p * K - 1)
 
-  return(list(
+    return(list(
+      coefficients = bet,
+      residuals = u,
+      companion = coeffcompanion,
+      covariance_matrix = SIGMA
+    ))
+  }
+
+  # The constant covariance Sigma belongs to u_t / s_t. (B4) and (B5) divide by
+  # the T - p effective rows, the ML convention.
+  e <- u / s
+  n_eff <- T - p
+  sigma_mle <- crossprod(e) / n_eff
+  loglik <- -n_eff * K / 2 * (1 + log(2 * pi)) - K * sum(log(s)) -
+    n_eff / 2 * as.numeric(determinant(sigma_mle, logarithm = TRUE)$modulus)
+
+  list(
     coefficients = bet,
     residuals = u,
+    residuals_standardized = e,
     companion = coeffcompanion,
-    covariance_matrix = SIGMA
-  ))
+    covariance_matrix = crossprod(e) / (T - p - p * K - 1),
+    sigma_mle = sigma_mle,
+    loglik = loglik
+  )
+}
+
+
+#' Maximum-likelihood estimate of the Lenza-Primiceri COVID volatility scale
+#'
+#' Maximizes the concentrated log-likelihood (B5) of Lenza & Primiceri (2022,
+#' JAE, Appendix B) over `theta = (s0, s1, s2, rho)` by L-BFGS-B inside the box
+#' `[lower, upper]`. The floor is not cosmetic: with any scale free to approach
+#' zero, the WLS fits that month exactly and (B5) grows as `-n log s`, so the
+#' unrestricted maximum does not exist. The starting values are the authors'
+#' rule (`bvarGLP_covid.m:60-68`) on the factors: the cross-factor mean
+#' absolute change into `covid_start` and the two months after it, over the
+#' same mean before `covid_start`, and `rho = 0.8`, projected on the box.
+#'
+#' @param factors Numeric matrix of static factors (T x K).
+#' @param p Lag order of the factor VAR.
+#' @param residual_dates Date vector of the T - p residual months.
+#' @param covid_start First month of abnormal volatility (Date), one of
+#'   `residual_dates`.
+#' @param lower,upper Named vectors (`s0`, `s1`, `s2`, `rho`) bounding theta.
+#'
+#' @return List with `theta`, the maximized `loglik`, the `start` vector,
+#'   `optim`'s `convergence` code and `message`, and the path `s_t` at `theta`.
+estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
+                                 lower, upper) {
+  loglik_at <- function(theta) {
+    s <- covid_volatility_path(residual_dates, covid_start, theta)
+    estimate_var_ols(factors, p, s = s)$loglik
+  }
+
+  # Row i of abs_change is the change into residual month i + 1, on the VAR's
+  # left-hand side as in bvarGLP_covid.m
+  abs_change <- rowMeans(abs(diff(factors[(p + 1):nrow(factors), , drop = FALSE])))
+  t_star <- match(covid_start, residual_dates)
+  start <- c(abs_change[t_star - 1 + 0:2] / mean(abs_change[1:(t_star - 2)]), 0.8)
+  names(start) <- c("s0", "s1", "s2", "rho")
+  lower <- lower[names(start)]
+  upper <- upper[names(start)]
+  start <- pmin(pmax(start, lower), upper)
+
+  # factr = 1e3: the default 1e7 stops while the first-order conditions of s0
+  # and s1 are still 1e-3 away from closing in simulated data
+  fit <- optim(start, loglik_at, method = "L-BFGS-B", lower = lower,
+               upper = upper, control = list(fnscale = -1, factr = 1e3))
+
+  list(
+    theta = fit$par,
+    loglik = fit$value,
+    start = start,
+    convergence = fit$convergence,
+    message = fit$message,
+    path = covid_volatility_path(residual_dates, covid_start, fit$par)
+  )
 }
 
 
@@ -657,10 +780,14 @@ estimate_corrected_var <- function(data, p) {
 #' @param var_residuals Matrix of factor-VAR residuals (T-p x r).
 #' @param q Number of dynamic factors.
 #' @param r Number of static factors.
+#' @param sigma_u Second-moment matrix whose leading eigenvectors give K; the
+#'   residual covariance by default. `estimate_dfm()` passes the uncentered
+#'   second moment under the COVID volatility treatment.
 #'
 #' @return List with eta, the eigenvector matrix K, the scaling matrix M, the
 #'   eigenvalues and diagnostics.
-estimate_dynamic_factors <- function(var_residuals, q, r) {
+estimate_dynamic_factors <- function(var_residuals, q, r,
+                                     sigma_u = cov(var_residuals)) {
   if (q == r) {
     # Caso especial: q = r (fatores dinâmicos = fatores estáticos)
     K <- 1
@@ -669,8 +796,6 @@ estimate_dynamic_factors <- function(var_residuals, q, r) {
     eigenvals <- rep(1, r)
   } else {
     # Caso geral: q < r
-    # Calcular matriz de covariância dos resíduos VAR
-    sigma_u <- cov(var_residuals)
     # CRÍTICO: Usar decomposição SVD ao invés de eigen para garantir determinismo
     svd_result <- svd(sigma_u)
     eigenvals_sorted <- sort(svd_result$d, decreasing = TRUE)
@@ -728,11 +853,26 @@ estimate_dynamic_factors <- function(var_residuals, q, r) {
 #' @param apply_kilian When TRUE, also computes the Kilian (1998) bias-corrected
 #'   coefficients for the bootstrap DGP. The point estimate ALWAYS uses plain
 #'   OLS, faithful to `DFMest_BLL.m`.
+#' @param covid_volatility NULL (production) or a list that turns on the COVID
+#'   volatility scale of Lenza & Primiceri (2022) in the factor VAR:
+#'   `covid_start` (Date, one of the residual months), `theta` (named `s0`,
+#'   `s1`, `s2`, `rho`) and `innovations` — `"raw"`, the residuals
+#'   `u_t = y_t - B'x_t`, or `"standardized"`, `u_t / s_t` — which decides what
+#'   K, M and eta read downstream. Every field is required, because each is an
+#'   author decision; `production_spec()$covid_volatility_design` records the
+#'   ones taken, and `estimate_covid_theta()` estimates `theta`. Under it
+#'   nothing is centered: K comes from the uncentered second moment of the
+#'   selected innovations, (B4) for `"standardized"`. Requires `dates`;
+#'   incompatible with `apply_kilian`.
 #'
 #' @return List with the static factors, the factor VAR, the dynamic factors,
-#'   the aligned dates and instrument, and diagnostics.
+#'   the aligned dates and instrument, and diagnostics. Under
+#'   `covid_volatility`, `var_residuals` holds the innovations the switch
+#'   selected, and the list adds `covid_volatility`, `volatility_path`,
+#'   `var_residuals_raw`, `var_residuals_standardized`, `var_sigma_mle` and
+#'   `var_loglik`.
 estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
-                         apply_kilian = FALSE) {
+                         apply_kilian = FALSE, covid_volatility = NULL) {
   T_orig <- nrow(data)
 
   # --- Validação e alinhamento temporal via datas ---
@@ -770,13 +910,61 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
     }
   }
 
+  # --- Volatilidade COVID (Lenza-Primiceri 2022, Apêndice B) ---
+  # Todo campo é decisão do autor: nenhum tem default.
+  volatility_path <- NULL
+  if (!is.null(covid_volatility)) {
+    missing_fields <- c(
+      setdiff(c("covid_start", "theta", "innovations"), names(covid_volatility)),
+      setdiff(c("s0", "s1", "s2", "rho"), names(covid_volatility$theta))
+    )
+    if (length(missing_fields) > 0) {
+      stop("covid_volatility sem ", paste(missing_fields, collapse = ", "),
+           ": escolhas do autor, sem default ",
+           "(notas/2026-09-14_volatilidade_covid_lenza_primiceri.md)")
+    }
+    if (!isTRUE(covid_volatility$innovations %in% c("raw", "standardized"))) {
+      stop("covid_volatility$innovations deve ser 'raw' (u_t) ou ",
+           "'standardized' (u_t/s_t)")
+    }
+    if (apply_kilian) {
+      stop("A correcao de Kilian supoe OLS com Sigma constante e nao esta ",
+           "definida sob covid_volatility")
+    }
+    covid_start <- as.Date(covid_volatility$covid_start)
+    residual_dates <- dates[(p + 1):length(dates)]
+    if (!isTRUE(covid_start %in% residual_dates)) {
+      stop("covid_start (", format(covid_start), ") nao e um mes dos residuos ",
+           "do VAR (", format(residual_dates[1]), " a ",
+           format(residual_dates[length(residual_dates)]), ")")
+    }
+    volatility_path <- covid_volatility_path(residual_dates, covid_start,
+                                             covid_volatility$theta)
+  }
+
   # --- Estimação ---
   static_result <- estimate_static_factors(data, r)
 
-  # Ponto estimado: SEMPRE VAR OLS (sem Kilian), fiel ao DFMest_BLL.m
-  var_result <- estimate_var_ols(static_result$factors, p)
+  # Ponto estimado: SEMPRE VAR OLS (sem Kilian), fiel ao DFMest_BLL.m. Sob
+  # covid_volatility, mínimos quadrados nas linhas divididas por s_t (B2).
+  var_result <- estimate_var_ols(static_result$factors, p, s = volatility_path)
 
-  dynamic_result <- estimate_dynamic_factors(var_result$residuals, q, r)
+  # O que os passos seguintes, que supõem variância constante, leem como
+  # inovação: K, M e eta, e daí o H do proxy.
+  innovations <- var_result$residuals
+  if (!is.null(covid_volatility) && covid_volatility$innovations == "standardized") {
+    innovations <- var_result$residuals_standardized
+  }
+
+  # Sob WLS nada é centrado: K lê o segundo momento não centrado das inovações,
+  # que com "standardized" é a (B4). Sem tratamento, o cov() de sempre.
+  if (is.null(covid_volatility)) {
+    dynamic_result <- estimate_dynamic_factors(innovations, q, r)
+  } else {
+    dynamic_result <- estimate_dynamic_factors(
+      innovations, q, r, sigma_u = crossprod(innovations) / nrow(innovations)
+    )
+  }
 
   max_eigenval <- max(abs(eigen(var_result$companion)$values))
   is_stable <- max_eigenval < 1
@@ -787,7 +975,7 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
     kilian_result <- estimate_corrected_var(static_result$factors, p)
   }
 
-  return(list(
+  out <- list(
     # Static factors
     static_factors = static_result$factors,
     static_loadings = static_result$loadings,
@@ -795,7 +983,7 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
 
     # VAR on static factors (OLS, sem Kilian — para ponto estimado)
     var_coefficients = var_result$coefficients,
-    var_residuals = var_result$residuals,
+    var_residuals = innovations,
     companion_matrix = var_result$companion,
     var_covariance = var_result$covariance_matrix,
 
@@ -835,7 +1023,20 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
       max_eigenvalue = max_eigenval,
       is_stable = is_stable
     )
-  ))
+  )
+
+  if (!is.null(covid_volatility)) {
+    out <- c(out, list(
+      covid_volatility = covid_volatility,
+      volatility_path = volatility_path,
+      var_residuals_raw = var_result$residuals,
+      var_residuals_standardized = var_result$residuals_standardized,
+      var_sigma_mle = var_result$sigma_mle,
+      var_loglik = var_result$loglik
+    ))
+  }
+
+  out
 }
 #' Recover the dynamic-factor innovations from a fitted DFM
 #'

@@ -36,6 +36,10 @@
 #' @param inference Band construction; `production_spec()$inference` (`"ar"`)
 #'   by default. See `compute_irf_dfm()`.
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
+#' @param covid_volatility COVID volatility scale of the factor VAR, passed to
+#'   `estimate_dfm()`; `production_spec()` keeps it NULL (off). When on, the
+#'   Kilian correction is skipped and only the point IRF is available
+#'   (`inference = "bootstrap"`, `nboot = 0`).
 #'
 #' @return List with the fitted DFM, IRFs, panel, transformations, and
 #'   normalization.
@@ -53,7 +57,8 @@ main_sdfm <- function(spec = production_spec(),
                       tcode = NULL, ci_levels = spec$ci_levels,
                       identification = "proxy",
                       inference = spec$inference,
-                      ar_nw_lags = spec$ar_nw_lags) {
+                      ar_nw_lags = spec$ar_nw_lags,
+                      covid_volatility = spec$covid_volatility) {
 
   identification <- match.arg(identification)
 
@@ -96,10 +101,12 @@ main_sdfm <- function(spec = production_spec(),
   instrument <- readr::read_csv(instrument_path)
 
   # Estimate SDFM com datas e instrumento para alinhamento temporal
-  # apply_kilian = TRUE: computa coeficientes corrigidos para o DGP do bootstrap
+  # apply_kilian: computa coeficientes corrigidos para o DGP do bootstrap, que
+  # supõe OLS com Sigma constante e por isso não roda sob covid_volatility.
   # O ponto estimado usa VAR OLS (sem Kilian), fiel ao DFMest_BLL.m
   dfm_results <- estimate_dfm(data, r, q, p, dates = dates, instrument = instrument,
-                              apply_kilian = TRUE)
+                              apply_kilian = is.null(covid_volatility),
+                              covid_volatility = covid_volatility)
 
   # Validate results
   validation <- validate_dfm_results(dfm_results)

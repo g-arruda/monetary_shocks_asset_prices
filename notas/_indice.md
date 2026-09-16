@@ -44,6 +44,37 @@ cheia, nenhuma sai, e o instrumento está nas direções descartadas (p = 0,051,
 0,039 e 0,015). As regras foram escritas depois de uma passada exploratória.
 Não altera a produção.
 
+**Volatilidade COVID de Lenza-Primiceri (2026-09-14):**
+[`2026-09-14_volatilidade_covid_lenza_primiceri`](2026-09-14_volatilidade_covid_lenza_primiceri.md)
+implementa, sem estimar, a escala de volatilidade comum de Lenza-Primiceri
+(2022, Apêndice B) no VAR dos fatores. O tratamento vem desligado por padrão,
+e assim o objeto de produção sai `identical()` ao de `main`. Ligado, só o ponto
+roda: AR, ξ_mp, bootstrap e Kilian abortam. A nota registra as decisões fora do
+artigo e as de parametrização, todas pendentes com o autor. Não altera a
+produção.
+
+**Volatilidade COVID: decisões e θ por máxima verossimilhança (2026-09-14):**
+[`2026-09-14_estimacao_theta_volatilidade_covid`](2026-09-14_estimacao_theta_volatilidade_covid.md)
+registra as decisões do autor:
+- `t*` = 2020-03;
+- s̄ ≥ 1 e ρ ∈ [0,1];
+- inovações padronizadas;
+- sem centragem sob WLS, fiel ao Γ de MOSW.
+
+Sem o piso s̄ ≥ 1, a verossimilhança é ilimitada. θ̂ = (6,61; 12,47; 1,76; 0,944): a
+volatilidade excedente tem meia-vida de 12 meses, e cerca de 19 meses-equivalentes perdem
+peso. O perfil em ρ tem um segundo máximo em ρ = 0, 2,6 log-pontos abaixo. Nenhuma IRF
+tratada foi calculada, e a produção não muda.
+
+**Volatilidade COVID: inferência e sensibilidade a `q` na cheia ajustada (2026-09-14):**
+[`2026-09-14_inferencia_volatilidade_covid_q`](2026-09-14_inferencia_volatilidade_covid_q.md)
+deriva os conjuntos AR e o ξ_mp sob o tratamento. Com inovações padronizadas, o
+WLS é o OLS da regressão transformada, e a covariância de MOSW vale nela sem
+mudança, com θ̂ tratado como conhecido. Refaz T1 e T2 do truncamento `q < r`
+na cheia tratada (passo 3/4) e a tabela `q = 2,…,5` das 20 variáveis da
+narrativa (passo 4/4). Não há veredito: o autor lê as IRFs a olho. A produção
+não muda.
+
 **Teste experimental superado:**
 [`2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais`](2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais.md)
 reestima em conjunto a baseline e os painéis de 112, 114 e 115 séries. No
@@ -139,6 +170,9 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-09-14_inferencia_volatilidade_covid_q`](2026-09-14_inferencia_volatilidade_covid_q.md) | 09-14 | **CURRENT; sem veredito, leitura do autor pendente** | painel 115, 2012-03--2025-12, `(r,p) = (5,4)`, θ̂ da nota abaixo; branch `feature/volatilidade-covid-lp` | Sobrevivem a derivação da inferência AR e do ξ_mp sob WLS e sua validação: θ neutro reproduz a produção a 1,5e-13, e os sete mutantes foram pegos. Também os números de T1, T2 e da tabela `q = 2,…,5` na cheia tratada, que são descritivos. |
+| [`2026-09-14_estimacao_theta_volatilidade_covid`](2026-09-14_estimacao_theta_volatilidade_covid.md) | 09-14 | **CURRENT; θ estimado, nenhuma IRF tratada** | painel 115, 2012-03--2025-12, `(r,p) = (5,4)`; branch `feature/volatilidade-covid-lp` | Sobrevivem: as decisões do autor para `t*`, os limites de θ, `innovations` e a centragem; θ̂ por (B5), com o perfil em ρ; a prova de que sem o piso s̄ ≥ 1 não há máximo; o H e o K não centrados sob WLS; e a validação, com os quatro mutantes novos pegos. A inferência sob tratamento saiu na nota acima. |
+| [`2026-09-14_volatilidade_covid_lenza_primiceri`](2026-09-14_volatilidade_covid_lenza_primiceri.md) | 09-14 | **CURRENT como implementação; a centragem foi superada pela nota acima** | painel 115, 2012-03--2025-12, `(5,5,4)`; branch `feature/volatilidade-covid-lp`, commits `ed316ad` e `815350a` | Sobrevivem o código do tratamento (B2/B4/B5 no VAR dos fatores) e sua validação: θ neutro reproduz a produção bit a bit, e os nove mutantes foram pegos. Também as decisões fora do artigo e a lista do que falta. Não existe número de IRF tratada. |
 | [`2026-09-08_bandas_anderson_rubin_producao`](2026-09-08_bandas_anderson_rubin_producao.md) | 09-08 | **CURRENT — inferência do DFM** | painel 115, 2012-03--2025-12, `(5,5,4)`, `z_jk_bs_purif`; **paper e `irf_section.md` não tocados** | Tudo. Os conjuntos AR passam a ser a inferência operacional **no lugar** do wild bootstrap, por decisão do autor que reverte 08-12 sem cumprir a condição de reabertura. Produção: ξ_mp = 6,057014 por caminho independente (bloco `W2` de MOSW contra `compute_factor_space_wald`, desvio 7,5e-12), **5.635/5.635 células `interval`** a 68/90/95%, prêmio de IV fraco 1,101/1,382/1,751 sobre o delta-method. O fato central sobrevive no impacto a 90%: câmbio [0,073; 0,262], EMBI+ [0,096; 0,527], CDS [14,67; 60,76]; Ibovespa e IPCA não. `(5,2)` com ξ_mp = 2,339 é limitado **só a 68%** — a 90% saem 3.429 pares de semirretas e 2.205 retas, que é a demonstração pedida na sugestão 5/5 do orientador. Validação: `Load = Inner = I` recai no MOSW original com desvio **exatamente 0**; ponto AR bate com `ident_ext_instr` com parada dura em 1e-10. ⚠ **A troca não é uniforme e o agregado engana:** o conjunto AR é **mais largo** que a banda de bootstrap em toda faixa de horizonte (1,10 a 1,40), e a 90% h ≤ 12 perde significância (319 células contra 393); o ganho agregado vem de h > 12, onde o bootstrap não declara nada porque sua banda percentil **se desloca** do ponto — o AR contém o ponto por construção, o bootstrap a 68% o exclui em 37 células. **Não citar as células longas novas como evidência separada da reversão de médio prazo.** ⚠ Nas 58 séries pontuadas, sig90 em h ≤ 12 cai de 256 para 159 e sig68 sobe de 1.021 para 1.897; seis vereditos mudam, todos por afrouxamento de `wrong_sig90`. ⚠ **Três custos:** a janela pré-COVID perdeu a inferência (`hac_dim` 135 ≥ 90); `r=q=8` ficou incompatível com a inferência de produção em `p=4` (336 ≥ 162), o que atinge a sugestão 4/5 do orientador; e o condicionamento em fatores estimados continua, com o custo de cobertura que o parecer de 08-12 mediu. Sem pseudo-inversa e sem fallback: célula barrada é reportada barrada. `script/fig_section5.R` e `script/fig_weak_iv.R` foram congelados atrás de `--repaint-paper-figures`. Código: `R/identification/weak_iv_ar.R`, `script/ar_bands.R` → `output/irf/ar_bands.*` |
 | [`2026-09-02_producao_inicio_2012_03`](2026-09-02_producao_inicio_2012_03.md) | 09-02 | **CURRENT — produção DFM** | painel 115, 2012-03--2025-12, `(5,5,4)`, `z_jk_bs_purif`, 800 bootstraps, semente 123 | IC1/IC2/IC3 BLL selecionam 5/5/20; 162 inovações, `xi_mp/F_rob=6,057014/9,625428`, raiz 0,970090; pré-COVID com 90 inovações. Zero falhas, bandas finitas/ordenadas e normalização exata. Paper e figuras seguem na vintage anterior. |
 | [`2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais`](2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais.md) | 09-01 | **CURRENT como experimento conjunto; não promocional** | painéis 111/112/114/115, `(5,5,4)`, 800 réplicas somente no painel 115 | IC2 BLL seleciona `r=4` no painel 115 cheio; `xi_mp/F_rob,mp=5,888198/11,936511`, raiz 0,970092. Ajuste cambial cai R$ 11,8 bilhões no impacto e exclui zero apenas a 68%; compatível com canal mecânico, sem decomposição completa. Expectativas fiscais têm resposta mista. A produção fica intacta, e o paper usa as quatro respostas como complemento experimental. |

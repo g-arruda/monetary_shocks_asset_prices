@@ -597,6 +597,16 @@ ar_excludes_zero <- function(set_type, lo, hi) {
 #' (`cumulative = TRUE`); accumulating the bounds of a per-horizon set would be
 #' wrong. Code 3 accumulates twice and has no branch here — it aborts.
 #'
+#' **COVID volatility** (Lenza-Primiceri 2022). With `innovations =
+#' "standardized"` the weighted least squares of (B2) is OLS on the rows
+#' divided by `s_t`. Given the scale, its influence function is therefore
+#' `CovAhat_Sigmahat_Gamma.m` itself on the transformed regressors `x_t / s_t`
+#' (the constant becoming `1/s_t`), the innovations `u_t / s_t` and MOSW's
+#' uncentered Gamma (`SVARIV.m:128`). The sets condition on the estimated scale
+#' as they do on the loadings. `"raw"` mixes the transformed regressors (in A)
+#' with the raw ones (in Gamma), is not derived, and aborts
+#' (notas/2026-09-14_inferencia_volatilidade_covid_q.md).
+#'
 #' @param dfm_results List returned by `estimate_dfm()`.
 #' @param rsh_sel_ind Logical index into the factor innovations, from
 #'   `sel_ext_inst_sample()`.
@@ -617,6 +627,13 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
     stop("ar_dfm_bands: transformation codes ",
          paste(sort(unique(setdiff(tcode, c(1L, 2L, 4L, 5L, 6L)))), collapse = ", "),
          " have no monotone bound map here (code 3 accumulates twice)")
+  }
+  covid <- dfm_results$covid_volatility
+  if (!is.null(covid) && covid$innovations != "standardized") {
+    stop("ar_dfm_bands: under covid_volatility with innovations = \"raw\" the ",
+         "influence function mixes the transformed regressors (in A) with the ",
+         "raw ones (in Gamma) and is not derived; only \"standardized\" is ",
+         "(notas/2026-09-14_inferencia_volatilidade_covid_q.md).")
   }
 
   p  <- dfm_results$p
@@ -642,6 +659,11 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
   lags <- do.call(cbind, lapply(seq_len(p), function(i)
     F_stat[(p + 1 - i):(T_f - i), , drop = FALSE]))
   X_reg <- cbind(1, lags)
+  # Under the COVID volatility the estimating equation is (B2): every row,
+  # constant included, divided by s_t
+  if (!is.null(covid)) {
+    X_reg <- X_reg / dfm_results$volatility_path
+  }
 
   sel   <- rsh_sel_ind
   z     <- as.numeric(inst_sel)
@@ -654,9 +676,13 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
 
   # Demeaned exactly as ident_ext_instr() does, so Gamma points in the same
   # direction as the production impact vector H. With a constant in the VAR and
-  # the full innovation sample selected, this is a no-op.
+  # the full innovation sample selected, this is a no-op. Under the COVID
+  # volatility nothing is centered, as in ident_ext_instr(center = FALSE): the
+  # residuals are orthogonal to 1/s_t, not to 1.
   u_sel <- u[sel, , drop = FALSE]
-  u_sel <- sweep(u_sel, 2, colMeans(u_sel))
+  if (is.null(covid)) {
+    u_sel <- sweep(u_sel, 2, colMeans(u_sel))
+  }
 
   # MOSW run the covariance on the full VAR sample with `z` zero-padded outside
   # the instrument's window (SVARIV.m:128, 166), which fixes T at the total

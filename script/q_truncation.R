@@ -12,13 +12,18 @@
 # xi_mp < 3.84. The round asks whether the truncation is harmless, as in AK,
 # or whether it discards the directions the instrument identifies.
 #
-# THREE WINDOW-CELLS, r = 5, q = 2..5:
-#   cheia_p4  2012-03..2025-12, p = 4, Anderson-Rubin 68/90 on q = 5
-#             (production);
-#   pre_p4    2012-03..2019-12, p = 4, point only: the AR covariance is
-#             blocked there (hac_dim 135 >= T = 90, output/irf/ar_bands.md);
-#   pre_p2    2012-03..2019-12, p = 2, Anderson-Rubin 68/90 on q = 5
-#             (hac_dim 85).
+# FOUR WINDOW-CELLS, r = 5, q = 2..5:
+#   cheia_p4     2012-03..2025-12, p = 4, Anderson-Rubin 68/90 on q = 5
+#                (production);
+#   pre_p4       2012-03..2019-12, p = 4, point only: the AR covariance is
+#                blocked there (hac_dim 135 >= T = 90, output/irf/ar_bands.md);
+#   pre_p2       2012-03..2019-12, p = 2, Anderson-Rubin 68/90 on q = 5
+#                (hac_dim 85);
+#   cheia_p4_lp  cheia_p4 with the Lenza-Primiceri (2022) COVID volatility in
+#                the factor VAR, theta-hat by maximum likelihood under
+#                production_spec()$covid_volatility_design (step 3/4 of the
+#                advisor's 2026-09-13 e-mail); Anderson-Rubin 68/90 on q = 5,
+#                on the transformed regression.
 # Only the q = 5 reference gets AR sets: T2 reads only its bands, and an
 # alternative's set is bounded at level kappa iff its xi_mp > kappa. Asking
 # for the alternatives' sets also trips compute_irf_dfm()'s absolute 1e-10
@@ -26,7 +31,8 @@
 #
 # T1, SUFFICIENCY. With q shocks and a valid proxy, z is orthogonal to the
 # eigen-directions of cov(u) that the truncation discards
-# (estimate_dynamic_factors keeps the leading q). Joint Wald of z on the
+# (estimate_dynamic_factors keeps the leading q; under the COVID volatility it
+# reads the uncentered second moment instead). Joint Wald of z on the
 # discarded directions of the q = 5 innovations, chi2(5 - q), 5% level.
 # T2, INVARIANCE. containment_vs_production() over the 115 series against the
 # q = 5 cell of the same window, with its pre-registered rule, only where the
@@ -36,7 +42,9 @@
 #   (ii) at q = 3 and q = 4 most of the 115 series come out "imaterial" in
 #        pre_p2 and not in cheia_p4.
 # These rules were written AFTER an exploratory pass the same day
-# (2026-09-10); notas/2026-09-10_truncamento_q.md says so.
+# (2026-09-10); notas/2026-09-10_truncamento_q.md says so. They read the three
+# untreated cells only. cheia_p4_lp carries no verdict: the author reads its
+# IRFs by eye (notas/2026-09-14_inferencia_volatilidade_covid_q.md).
 #
 # The showcase (md tables, figure) is yield_6m, yield_2y, cambio_usd, cds_5y,
 # price_ipca and ibc_br, by author decision. asset_ibov stays in the paths CSV
@@ -70,10 +78,11 @@ SHOWCASE <- c("yield_6m", "yield_2y", "cambio_usd", "cds_5y", "price_ipca", "ibc
 OUT_STEM <- "output/factors/q_truncation"
 
 WINDOW_CELLS <- tibble::tribble(
-  ~window_cell, ~window,            ~p, ~ar_reference,
-  "cheia_p4",   "sample",           4L, TRUE,
-  "pre_p4",     "pre_covid_sample", 4L, FALSE,
-  "pre_p2",     "pre_covid_sample", 2L, TRUE
+  ~window_cell,  ~window,            ~p, ~ar_reference, ~covid,
+  "cheia_p4",    "sample",           4L, TRUE,          FALSE,
+  "pre_p4",      "pre_covid_sample", 4L, FALSE,         FALSE,
+  "pre_p2",      "pre_covid_sample", 2L, TRUE,          FALSE,
+  "cheia_p4_lp", "sample",           4L, TRUE,          TRUE
 )
 
 Q_LABEL    <- paste0("q=", Q_VALUES)
@@ -100,13 +109,30 @@ inst_df <- data.frame(month = inst_panel$month, shock = inst_panel[[SPEC$instrum
   tidyr::drop_na(shock)
 
 
+# ---- COVID volatility: theta-hat on the full-window factors ------------
+
+# theta depends on the static factors and on p, not on q: one estimate serves
+# every q of cheia_p4_lp
+design <- SPEC$covid_volatility_design
+in_full <- dates >= SPEC$sample[1] & dates <= SPEC$sample[2]
+theta_fit <- estimate_covid_theta(
+  estimate_static_factors(data_mat[in_full, ], SPEC$r)$factors, SPEC$p,
+  dates[in_full][(SPEC$p + 1):sum(in_full)], design$covid_start,
+  design$theta_lower, design$theta_upper
+)
+covid_lp <- list(covid_start = design$covid_start, theta = theta_fit$theta,
+                 innovations = design$innovations)
+
+
 # ---- Cells ---------------------------------------------------------
 
 runs <- tidyr::expand_grid(WINDOW_CELLS, q = Q_VALUES) |>
-  purrr::pmap(function(window_cell, window, p, ar_reference, q) {
+  purrr::pmap(function(window_cell, window, p, ar_reference, covid, q) {
     win <- SPEC[[window]]
     in_win <- dates >= win[1] & dates <= win[2]
-    dfm <- estimate_dfm(data_mat[in_win, ], r = SPEC$r, q = q, p = p, dates = dates[in_win])
+    covid_volatility <- if (covid) covid_lp else NULL
+    dfm <- estimate_dfm(data_mat[in_win, ], r = SPEC$r, q = q, p = p, dates = dates[in_win],
+                        covid_volatility = covid_volatility)
     diag_fs <- diagnose_instrument_in_factor_space(dfm, inst_df, dates[in_win], p, mp_idx,
                                                    return_moment_inputs = TRUE)
     stage2 <- run_stage2_cell(
@@ -115,7 +141,7 @@ runs <- tidyr::expand_grid(WINDOW_CELLS, q = Q_VALUES) |>
       h = H, nboot = 0L, seed = SPEC$bootstrap_seed, shock_bps = SPEC$shock_bps,
       tcode = tcode, ci_levels = SPEC$ar_levels,
       inference = if (ar_reference && q == SPEC$r) "ar" else "bootstrap",
-      ar_nw_lags = SPEC$ar_nw_lags
+      ar_nw_lags = SPEC$ar_nw_lags, covid_volatility = covid_volatility
     )
     list(window_cell = window_cell, p = p, q = q, dfm = dfm, diag = diag_fs,
          irf = stage2$irf, max_root = stage2$dfm_max_eig)
@@ -168,7 +194,10 @@ reference <- purrr::keep(runs, function(x) x$q == SPEC$r)
 by_window <- purrr::map(reference, function(x) {
   mi  <- x$diag$moment_inputs
   u   <- x$dfm$var_residuals
-  eig <- svd(cov(u))
+  # The matrix whose eigenvectors K takes: cov(u) under OLS, the uncentered
+  # second moment under the COVID volatility (estimate_dfm)
+  sigma_u <- if (is.null(x$dfm$covid_volatility)) cov(u) else crossprod(u) / nrow(u)
+  eig <- svd(sigma_u)
   V   <- eig$u
   # Shocks along each eigen-direction and the yield_6m innovation's weight on
   # each: eta_mp = S %*% a, and a truncation to q keeps S[, 1:q] %*% a[1:q].
@@ -177,7 +206,8 @@ by_window <- purrr::map(reference, function(x) {
 
   t1 <- purrr::map_dfr(2:(SPEC$r - 1L), function(q) {
     w <- compute_factor_space_wald(S[, (q + 1):SPEC$r, drop = FALSE], mi$Z_sel,
-                                   controls = mi$ctrl_sel)$wald_joint
+                                   controls = mi$ctrl_sel,
+                                   intercept = mi$intercept)$wald_joint
     tibble::tibble(window_cell = x$window_cell, q = q, t1_wald = w, t1_df = SPEC$r - q,
                    t1_p = pchisq(w, df = SPEC$r - q, lower.tail = FALSE))
   })
@@ -187,11 +217,13 @@ by_window <- purrr::map(reference, function(x) {
     q = 2:SPEC$r,
     xi_top_q = purrr::map_dbl(2:SPEC$r, function(q) {
       compute_factor_space_wald(S[, 1:q, drop = FALSE] %*% a[1:q], mi$Z_sel,
-                                controls = mi$ctrl_sel)$wald_joint
+                                controls = mi$ctrl_sel,
+                                intercept = mi$intercept)$wald_joint
     })
   )
 
-  z_res <- qr.resid(qr(cbind(1, mi$ctrl_sel)), as.numeric(mi$Z_sel))
+  ctrl <- if (mi$intercept) cbind(1, mi$ctrl_sel) else mi$ctrl_sel
+  z_res <- qr.resid(qr(ctrl), as.numeric(mi$Z_sel))
   cov_mp <- colMeans(z_res * S) * a
   u_dates <- x$dfm$dates[(x$p + 1):length(x$dfm$dates)]
   in_covid <- u_dates >= COVID[1] & u_dates <= COVID[2]
@@ -204,7 +236,8 @@ by_window <- purrr::map(reference, function(x) {
     window_cell    = x$window_cell,
     direction      = seq_len(SPEC$r),
     var_share      = eig$d / sum(eig$d),
-    wald_z         = compute_factor_space_wald(S, mi$Z_sel, controls = mi$ctrl_sel)$wald_k,
+    wald_z         = compute_factor_space_wald(S, mi$Z_sel, controls = mi$ctrl_sel,
+                                               intercept = mi$intercept)$wald_k,
     cov_mp_share   = cov_mp / sum(cov_mp),
     var_mp_share   = eig$d * a^2 / sum(eig$d * a^2),
     covid_ss_share = if (any(in_covid)) colSums(S_all[in_covid, , drop = FALSE]^2) / colSums(S_all^2) else NA_real_,
@@ -256,7 +289,8 @@ stopifnot(nrow(chk_c) == nrow(xi_top), max(abs(chk_c$xi_top_q - chk_c$xi_mp)) < 
 
 # (d) containment reads [lo, hi], which is the set for an interval and, at the
 # normalization point, for the singleton {normalize_value} every cell has there
-ref_sets <- dplyr::filter(paths, window_cell %in% c("cheia_p4", "pre_p2"), q == SPEC$q)
+ar_cells <- WINDOW_CELLS$window_cell[WINDOW_CELLS$ar_reference]
+ref_sets <- dplyr::filter(paths, window_cell %in% ar_cells, q == SPEC$q)
 at_norm <- ref_sets$variable == SPEC$mp_var & ref_sets$h == 0
 stopifnot(
   all(ref_sets$set_type68[!at_norm] == "interval"),
@@ -270,10 +304,20 @@ stopifnot(
 mp_h0 <- dplyr::filter(paths, variable == SPEC$mp_var, h == 0)$point
 stopifnot(max(abs(mp_h0 - SPEC$normalize_value)) < 1e-12)
 
+# (f) the treated cells run at the maximum-likelihood theta of
+# script/covid_volatility_theta.R, and their factor VAR is the one it maximized
+theta_ref <- readr::read_csv("output/factors/covid_volatility_theta.csv", show_col_types = FALSE)
+treated_loglik <- purrr::keep(runs, function(x) x$window_cell == "cheia_p4_lp") |>
+  purrr::map_dbl(function(x) x$dfm$var_loglik)
+stopifnot(
+  max(abs(theta_fit$theta / unlist(theta_ref[names(theta_fit$theta)]) - 1)) < 1e-8,
+  max(abs(treated_loglik - theta_fit$loglik)) < 1e-10 * abs(theta_fit$loglik)
+)
+
 
 # ---- T2: the Alessi-Kerssenfischer containment ----------------------
 
-containment <- purrr::map_dfr(c("cheia_p4", "pre_p2"), function(wc) {
+containment <- purrr::map_dfr(ar_cells, function(wc) {
   denom <- dplyr::filter(cells_tbl, window_cell == wc)
   denom_ratio <- setNames(denom$impact_mp_pre / denom$impact_mp_pre[denom$q == SPEC$q], denom$q)
   paths |>
@@ -299,7 +343,7 @@ verdict_counts <- containment |>
 
 # ---- Joint reading -------------------------------------------------
 
-cond_i <- all(t1_tbl$t1_p[t1_tbl$window_cell != "cheia_p4"] >= ALPHA) &&
+cond_i <- all(t1_tbl$t1_p[t1_tbl$window_cell %in% c("pre_p4", "pre_p2")] >= ALPHA) &&
   any(t1_tbl$t1_p[t1_tbl$window_cell == "cheia_p4"] < ALPHA)
 share_imaterial <- verdict_counts |>
   dplyr::filter(q %in% 3:4) |>
@@ -330,7 +374,8 @@ writeLines(c(
   "# Truncamento `q < r`: suficiência do subespaço retido e invariância à la Alessi-Kerssenfischer",
   "",
   sprintf("Gerado por `script/q_truncation.R` em %s.", Sys.Date()),
-  "**Corpo gerado — não escrever prosa aqui.** A leitura vive em `notas/2026-09-10_truncamento_q.md`.",
+  paste("**Corpo gerado — não escrever prosa aqui.** A leitura vive em `notas/2026-09-10_truncamento_q.md`;",
+        "a da célula `cheia_p4_lp`, em `notas/2026-09-14_inferencia_volatilidade_covid_q.md`."),
   "",
   "## Células",
   "",
@@ -338,6 +383,8 @@ writeLines(c(
         "em `yield_6m`. `cheia_p4`: 2012-03 a 2025-12, `p = 4`, conjuntos Anderson-Rubin 68/90.",
         "`pre_p4`: 2012-03 a 2019-12, `p = 4`, só pontual — o AR é bloqueado ali",
         "(`hac_dim` 135 >= T = 90, `output/irf/ar_bands.md`). `pre_p2`: mesma janela, `p = 2`, AR 68/90.",
+        "`cheia_p4_lp`: a `cheia_p4` com a volatilidade COVID de Lenza-Primiceri (2022) no VAR dos",
+        "fatores, AR 68/90 na regressão transformada (seção própria abaixo).",
         "Os conjuntos AR são construídos só na referência `q = 5`; `ar_bounded_κ` vem de ξ_mp > κ,",
         "a condição exata de limitação. `interval_68`/`interval_90`: fração dos conjuntos da",
         "referência (115 séries × 49 horizontes) que são intervalos; o único outro tipo é o singleton",
@@ -347,7 +394,8 @@ writeLines(c(
   "",
   "## T1 — o instrumento é ortogonal às direções que o truncamento descarta?",
   "",
-  paste("Wald conjunto de z contra as direções `q+1..5` dos autovetores de `cov(u)` da célula `q = 5`,",
+  paste("Wald conjunto de z contra as direções `q+1..5` dos autovetores de `cov(u)` da célula `q = 5`",
+        "(na `cheia_p4_lp`, do segundo momento não centrado de `u_t/s_t`, que é o que K lê ali),",
         sprintf("χ²(5 − q), nível %.0f%%. Com `q` choques e instrumento válido, a ortogonalidade vale.", 100 * ALPHA)),
   "",
   md_table(t1_tbl),
@@ -369,11 +417,26 @@ writeLines(c(
   paste("`var_share`: participação na variância das inovações. `wald_z`: Wald de z na direção.",
         "`cov_mp_share` e `var_mp_share`: participação em cov(z, inovação da `yield_6m`) e em sua variância.",
         "`covid_ss_share`: fração da soma de quadrados vinda de 2020-03 a 2020-12 (10 de 162 meses na cheia).",
-        "`curva_share` e `top_blocks`: pegada da direção no painel padronizado."),
+        "`curva_share` e `top_blocks`: pegada da direção no painel padronizado.",
+        "Na `cheia_p4_lp`, direções e somas de quadrados são as de `u_t/s_t`."),
   "",
   md_table(dirs_tbl),
   "",
+  "## Passo 3/4: a cheia com a volatilidade COVID (`cheia_p4_lp`)",
+  "",
+  paste("As linhas `cheia_p4_lp` das tabelas acima são a `cheia_p4` com a escala `s_t` de",
+        "Lenza-Primiceri (2022) no VAR dos fatores: mínimos quadrados ponderados, K e H lidos",
+        "sobre `u_t/s_t` sem centragem, T1 nas direções do segundo momento não centrado e AR na",
+        "regressão transformada, com θ̂ tratado como conhecido.",
+        chartr(".", ",", sprintf("θ̂ = (s̄0 %.3f; s̄1 %.3f; s̄2 %.3f; ρ %.4f)",
+                                 theta_fit$theta[["s0"]], theta_fit$theta[["s1"]],
+                                 theta_fit$theta[["s2"]], theta_fit$theta[["rho"]])),
+        "por máxima verossimilhança, o de `script/covid_volatility_theta.R`.",
+        "Sem regra de leitura: o autor lê as IRFs a olho (última página do PDF)."),
+  "",
   "## Leitura conjunta",
+  "",
+  "Só as três células sem tratamento entram nesta leitura.",
   "",
   sprintf("- (i) T1 não rejeita em nenhum `q` nas duas células pré-COVID e rejeita em algum `q` na cheia: **%s**.",
           if (cond_i) "cumprida" else "não cumprida"),
@@ -393,7 +456,8 @@ PAGES <- tibble::tribble(
   ~window_cell, ~title,
   "cheia_p4",   "Amostra cheia (2012-03 a 2025-12), p = 4: bandas AR 68/90% de q = 5",
   "pre_p2",     "Pré-COVID (2012-03 a 2019-12), p = 2: bandas AR 68/90% de q = 5",
-  "pre_p4",     "Pré-COVID (2012-03 a 2019-12), p = 4: só pontual, AR bloqueado (hac_dim 135 >= T = 90)"
+  "pre_p4",     "Pré-COVID (2012-03 a 2019-12), p = 4: só pontual, AR bloqueado (hac_dim 135 >= T = 90)",
+  "cheia_p4_lp", "Amostra cheia com a volatilidade COVID de Lenza-Primiceri, p = 4: bandas AR 68/90% de q = 5"
 )
 
 pdf(paste0(OUT_STEM, ".pdf"), width = 11, height = 7.5)

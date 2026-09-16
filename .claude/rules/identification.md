@@ -39,6 +39,47 @@ AR branch hard-stops if its re-derived point deviates from `ident_ext_instr()` b
 the two paths must agree about the identification, not merely about the bands. `irf_point_matrix`
 is untouched by the switch, so the `CLAUDE.md` smoke test stays the guard it was.
 
+**COVID volatility (Lenza-Primiceri 2022), off by default since 2026-09-14.**
+`estimate_dfm(covid_volatility=)` and `main_sdfm(covid_volatility=)` put the common volatility scale
+`s_t` of LP's Appendix B into the factor VAR:
+- `covid_volatility_path()` builds `s_t`;
+- `estimate_var_ols(s=)` runs (B2) and returns (B4) and (B5);
+- `estimate_covid_theta()` maximizes (B5) by L-BFGS-B inside the design's box.
+
+`production_spec()$covid_volatility` is NULL. With it NULL the whole `main_sdfm()` object is
+`identical()` to the untreated code, and the smoke test is still the guard.
+
+The list's three fields (`covid_start`, `theta`, `innovations`) take no default. The author's
+decisions of 2026-09-14 live in `production_spec()$covid_volatility_design`:
+- `t*` = 2020-03;
+- s̄ ≥ 1 and ρ ∈ [0,1], the floor being what makes the maximum likelihood exist;
+- `innovations = "standardized"`.
+
+**Under the treatment nothing is centred.** `ident_ext_instr(center = FALSE)` keeps MOSW's
+uncentered Γ (`SVARIV.m:128`), and K reads the uncentered second moment, which is (B4) for
+`"standardized"`. AK's demeaning (`IdentExtInstr.m:5`, `cov(u)`) stays on the OLS path, where it is a
+no-op.
+
+**Inference under the treatment, since 2026-09-14.** With `"standardized"` the WLS is OLS on the
+transformed regression. `ar_dfm_bands()` therefore feeds `mosw_rform_cov()` with:
+- the regressors `(1, lags)/s_t`, the transformed constant first;
+- the uncentered `u_t/s_t`;
+- MOSW's uncentered Γ.
+
+The sets condition on θ̂ as they do on Λ̂ and K̂. `diagnose_instrument_in_factor_space()` residualizes
+z on the same transformed regressors, so it calls `compute_factor_space_wald()` and
+`compute_robust_first_stage_F()` with `intercept = FALSE`. Its ξ_mp equals the `xi_den` of the AR sets.
+
+Three paths still `stop()`, because their influence function or DGP is not derived: `"raw"`, the
+bootstrap and Kilian. The treated runs are the `cheia_p4_lp` cell of `script/q_truncation.R` and
+`script/q_narrative_overlay_covid.R`.
+
+This is reweighting of the estimation, **not** heteroskedasticity identification. Guard:
+`script/validate_covid_volatility.R`. Notes:
+- `notas/2026-09-14_volatilidade_covid_lenza_primiceri.md` (implementation);
+- `notas/2026-09-14_estimacao_theta_volatilidade_covid.md` (decisions and θ̂);
+- `notas/2026-09-14_inferencia_volatilidade_covid_q.md` (inference, steps 3/4 and 4/4).
+
 **Estimation details.** The bootstrap uses Kilian-corrected coefficients for the DGP but the **point
 estimate uses plain OLS** (faithful to `DFMest_BLL.m`); `apply_kilian = TRUE` only affects the
 bootstrap. The AR sets read the plain OLS companion, so they are consistent with the point estimate
