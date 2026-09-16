@@ -78,13 +78,12 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 
 | Tema | Item | Observação |
 |---|---|---|
-| B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ e desde 2026-09-08 `(8,8)` em `p=4` **não tem bandas AR** (`hac_dim` 336 ≥ 162); ⚠ a poda de 2026-09-10 deu veredito contrário à hipótese de subestimação que o e-mail usava como amarração |
+| B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ a poda de 2026-09-10 deu veredito contrário à hipótese de subestimação que o e-mail usava como amarração |
 | B | Verificar se `(5,5,4)` cruza o limiar mínimo de Anderson-Rubin e comunicar ao orientador | passo 1/4 do e-mail de 13-09; ⚠ a produção já responde isso (ξ_mp = 6,057014 > 3,84, 5.635 células `interval`) — falta formalizar e decidir se fecha o item acima |
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; depende da rodada editorial do Tema A |
 | B | Implementar a correção de outliers de 2020 (Lenza-Primiceri 2022) e reavaliar a sensibilidade a `q` na amostra completa | passo 3/4 do e-mail de 13-09; item novo, artigo salvo em `artigos/` |
 | B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; depende do item anterior na janela completa; perna pré-COVID já existe |
 | A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada; ⚠ desde 2026-09-16 §3.5, §3.6 e a prosa da §5.2 já estão em AR, e sobram §4, as duas legendas que dizem *wild bootstrap*, as figuras, a janela e os números |
-| A | Escrever no paper as duas ressalvas que viajam com os conjuntos AR (condicionamento nas cargas e nos fatores estimados, `hac_dim < T` barrando `(8,8)` e a pré-COVID) | escritas na §3.6 e cortadas em 2026-09-16 por decisão do autor; só voltam a ser exigíveis quando a §4 publicar números de AR, na mesma rodada da linha acima |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -146,14 +145,6 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   Enquanto a rodada não acontece, `script/fig_section5.R` e
   `script/fig_weak_iv.R` abortam sem `--repaint-paper-figures`, de propósito.
   Depende da rodada de 2026-09-08 fechada no Tema B.
-- [ ] **Escrever no paper as duas ressalvas que o `CLAUDE.md` manda viajar
-  junto dos conjuntos AR**, antes que a §4 publique números de AR: a
-  covariância de plug-in condiciona nas cargas, nos fatores e nas escalas
-  estimados, e `hac_dim < T` barra `(r,q)=(8,8)` em `p=4` e a janela pré-COVID
-  inteira, células reportadas como barradas. Foram escritas na §3.6 em
-  2026-09-16 e cortadas no mesmo dia por decisão do autor, que as considerou
-  desnecessárias ali. Enquanto a §4 for de bootstrap, nada é publicado sem elas;
-  a partir da rodada editorial, sim. Mesma rodada do item acima.
 
 ### Fechados (contexto)
 
