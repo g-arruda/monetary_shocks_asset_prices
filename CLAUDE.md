@@ -62,23 +62,25 @@ scale** and stop by design (`factor_estimation.R:930-933`,
 stops for the same reason. This is reweighting of the estimation, **not**
 heteroskedasticity identification.
 
-**The paper is one vintage behind the code, and now behind it in inference
-too.** `paper/paper_anpec.tex`, its figures and `output/irf/irf_section.md`
-still describe the prior 115-series, 2013-01--2025-09 window at
-`(r,q,p)=(4,4,4)` (ξ_mp=6.38 full). Production publishes Anderson–Rubin sets on
-the 2012-03 window. The inference half was closed **in the methodology prose
-only** on 2026-09-16: §3.5 dropped the wild bootstrap, §3.6 states the AR sets
-and, in prose, that only the vectors of the identified ratio change, with a
-footnote putting MOSW's equation beside the DFM's, and `sec:weak_iv` no longer
-contrasts the two inferences. §4 and the two *wild bootstrap* captions still
-describe the figures as painted. The two caveats this file requires alongside
-the sets were written into §3.6 and cut from it by the author on the same day;
-they fall due again when §4 publishes AR numbers, and nothing tracks them in
-`registro/pendencias.md`.
-Both gaps close in the same not-yet-scheduled editorial round; until then `script/fig_section5.R` and
-`script/fig_weak_iv.R` abort without `--repaint-paper-figures`, so a stray
-re-run cannot repaint the paper's figures with an inference its captions do
-not announce. See `notas/_indice.md` before citing paper numbers as current.
+**§3 is current; §4 onward is one vintage behind, in window and in
+inference.** On **2026-09-17** §3 was reorganized into four subsections —
+`Modelo e estimação`, `Base de dados`, `Identificação e construção do
+instrumento`, `Relevância do instrumento e inferência` — and **fully migrated**
+to the production vintage: 2012-03--2025-12, 166 observations, 162 innovations,
+`(r,q,p)=(5,5,4)`, ξ_mp 6.85 full and 8.64 pre-COVID, `tab:first_stage` rebuilt
+from `mosw_strength_grid.md` and `instrument_diagnostics_report.md`, 102 Copom
+meetings, 67 monetary and 35 information, BS `R²` 0.022. Note:
+`2026-09-17_reorganizacao_secao_3`. Its §3.1 now carries the whole estimation
+chain in order, including the concentrated likelihood that estimates θ and the
+WLS that follows from it.
+
+**§4, §5 and `output/irf/irf_section.md` still describe the prior 2013-01--2025-09
+window, and the two *wild bootstrap* captions describe the figures as painted.**
+That gap closes in a not-yet-scheduled editorial round; until then
+`script/fig_section5.R` and `script/fig_weak_iv.R` abort without
+`--repaint-paper-figures`, so a stray re-run cannot repaint the paper's figures
+with an inference its captions do not announce. See `notas/_indice.md` before
+citing paper numbers as current.
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p2`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
@@ -150,11 +152,15 @@ These govern what may be **said**, so they apply even when no file is open.
   **2026-09-08** (author decision; it reverses the 2026-08-12 withdrawal, `historico_decisoes.md`
   §7). `production_spec()$inference` is the single authority, `compute_irf_dfm(inference=)` the
   single switch. The wild bootstrap is still computable and still the object `ar_bands.R` compares
-  against, but it no longer decides significance. Two things must be said with the sets, not
-  around them: the plug-in covariance conditions on the estimated `Λ`, `K`, `M` and `sy`; and
-  `mosw_rform_cov` needs `hac_dim < T`, which **blocks** `(r,q)=(8,8)` at `p=4` (336 ≥ 162) and
-  the **whole pre-COVID window** at `p=4` (135 ≥ 90). No pseudo-inverse, no substitute bootstrap,
-  no fallback — a blocked cell is reported blocked. **`hac_dim < T` is this project's safeguard,
+  against, but it no longer decides significance. Two things are true of the sets: the plug-in
+  covariance conditions on the estimated `Λ`, `K`, `M`, `sy` and `θ̂`; and `mosw_rform_cov` needs
+  `hac_dim < T`, which **blocks** `(r,q)=(8,8)` at `p=4` (336 ≥ 162) and the **whole pre-COVID
+  window** at `p=4` (135 ≥ 90). No pseudo-inverse, no substitute bootstrap, no fallback — a
+  blocked cell is reported blocked, in code, in `output/` and in the record. **The paper's prose
+  carries neither caveat**, by author decision of 2026-09-16 and again of 2026-09-17: a reader who
+  knows the treatment sits in the factor VAR infers the conditioning, and `(8,8)` is an abandoned
+  cell. Nothing in the paper may therefore *contradict* them — no pre-COVID band may be published,
+  and no `(8,8)` number may appear as inference. **`hac_dim < T` is this project's safeguard,
   not the authors' condition**: `CovAhat_Sigmahat_Gamma.m:91-95` states `n²p + n(n+1)/2 + nk < T`
   on the *parameter* dimension (120 in the production shape, against `hac_dim`'s 135), which is
   the necessary one since `rank(WHat) ≤ min(par_dim, T−1)`. The moment-dimension gate is

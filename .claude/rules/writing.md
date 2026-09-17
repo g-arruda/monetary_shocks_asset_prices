@@ -11,40 +11,54 @@ paths:
 
 # Writing prose and reading the record
 
-The canonical paper is `paper/paper_anpec.tex` (class `elsarticle`). §4 Resultados has six
-subsections; §5 Robustez includes `sec:exogeneidade`, `sec:invertibilidade`, `sec:weak_iv`,
+The canonical paper is `paper/paper_anpec.tex` (class `elsarticle`). §3 Metodologia has four
+subsections since 2026-09-17 — `Modelo e estimação`, `Base de dados`, `Identificação e construção
+do instrumento`, `Relevância do instrumento e inferência`; §4 Resultados has six subsections;
+§5 Robustez includes `sec:exogeneidade`, `sec:invertibilidade`, `sec:weak_iv`,
 `sec:confound` and `sec:fomc`; concluding remarks is §6. `script/fig_section5.R` writes the
 general robustness figures, while `script/fig_weak_iv.R` writes the weak-IV figure.
 
-**The paper was fully synchronized on 2026-08-25**, and has since fallen
-behind twice. Abstract, §1--§5, conclusion and appendix use the 111-series
-`(r,q,p)=(5,5,4)` production and described **wild-bootstrap** bands for the
-DFM, which the next paragraph corrects.
+**The paper was fully synchronized on 2026-08-25** and has since fallen behind
+twice, and §3 caught up on 2026-09-17. The abstract, §1, §2, §4, §5, the
+conclusion and the appendix still carry the 2013-01--2025-09 magnitudes and
+described **wild-bootstrap** bands for the DFM, which the next paragraph
+corrects.
 `tab:rq_sweep` no longer exists. The sign-filter subsections report only
 exercises that hold the production mask fixed; the rederived-mask diagnostics
 remain in the generated outputs and living record.
 
-**Two gaps are open against production, and both close in the same editorial
-round.** (i) the window moved to 2012-03--2025-12; (ii) **on 2026-09-08 the
-DFM's operational inference became the Anderson--Rubin sets**. Half of (ii)
-landed on **2026-09-16**, prose only: §3.5 lost the wild-bootstrap sentence,
-§3.6 gained the AR sets, stating in prose that only the vectors of the
-identified ratio change (`c_j' = sy_j·Λ_j'`, `c_mp'`), with a footnote putting
-MOSW's equation beside the DFM's, and
-`sec:weak_iv` stopped contrasting bootstrap-on-the-DFM against AR-on-the-VAR.
-§4 and the two captions that still say *wild bootstrap* (term structure and
+**Both gaps are closed in §3 and open from §4 on.** They were (i) the window,
+which moved to 2012-03--2025-12, and (ii) the operational inference, which
+became the Anderson--Rubin sets on **2026-09-08**. The 2026-09-16 round closed
+(ii) in the methodology prose only. The **2026-09-17 round closed both in §3**,
+which was reorganized into four subsections and migrated number by number to the
+production vintage, including `tab:first_stage`. Note:
+`2026-09-17_reorganizacao_secao_3`.
+
+§4, §5 and the two captions that still say *wild bootstrap* (term structure and
 `fig:weak_iv_main`) describe the figures as actually painted and stay until the
-repaint; with §3.5 cut, that method is now uncited in the body. Until that round
-runs, `script/fig_section5.R` and `script/fig_weak_iv.R` abort without
+repaint; that method is now uncited in the body. Until that round runs,
+`script/fig_section5.R` and `script/fig_weak_iv.R` abort without
 `--repaint-paper-figures`. Do not quote a paper band as current inference;
 quote `output/irf/irf_coherence_h.csv`, whose `set_type68`/`set_type90` columns
 say what kind of set each band is.
 
-**An extension of a published method does not get an appendix.** Author
-decision of 2026-09-16, on the AR-to-DFM mapping: when the extension is the
-authors' derivation with vectors swapped, the body carries the mapped equation
-and a single footnote puts the authors' equation beside it, saying what
-replaces what. A self-contained appendix is for what is genuinely new.
+**Engineering a reader of the field would deduce gets no comment at all, and an
+extension of a published method gets no appendix.** The 2026-09-16 decision on
+the AR-to-DFM mapping was narrowed by the author on **2026-09-17**. The test is
+now whether a reader who knows DFM impulse responses would picture the step
+unaided. If yes, it gets neither body prose nor footnote: the `c_j' = sy_j·Λ_j'`
+swap, the footnote putting MOSW's equation beside the DFM's, and the footnote
+mapping Lenza-Primiceri's `y_t` to `F_t` were all cut on that basis. If no, the
+body carries the mapped equation in the paper's own notation, and a footnote may
+put the authors' equation beside it. A self-contained appendix is for what is
+genuinely new.
+
+**The prose reports, it does not defend.** Same decision. A sentence whose work
+is to justify a design choice against an objection nobody raised comes out, even
+when the justification is correct. Caveats are not written around a result to
+pre-empt a referee. The replication test governs what stays: keep what a reader
+needs to re-run the estimator, cut what only argues it was the right one.
 
 `arquivo/tex/main.tex` is the **previous** draft. It is a historical prose
 source, **not a target to edit** and not evidence for current magnitudes.
