@@ -737,3 +737,37 @@ Bai--Ng BLL seleciona IC1=5, IC2=5 e IC3=20, fixando `r=5`; a decisão usa
 amostra ampliada também selecione 4 pelo AIC e 2 pelo BIC. O benchmark VAR
 observável permanece em 2013-01--2025-09. Paper e figuras não foram migrados
 nesta rodada. Nota: `notas/2026-09-02_producao_inicio_2012_03.md`.
+
+## 13. A volatilidade COVID sai de "desligada" e vira produção (2026-09-17)
+
+**Decisão do autor.** O tratamento de Lenza & Primiceri (2022, Apêndice B) estava implementado
+desde 2026-09-14 com `production_spec()$covid_volatility = NULL` e a justificativa "off in
+production until the inference under it exists". Essa condição já tinha caído: a inferência
+AR/MOSW sob WLS foi derivada e validada na mesma rodada de 09-14. Faltava veredito, e o
+registro dizia que o autor lia as IRFs a olho.
+
+**O que decidiu.** A escala passa a ser o estimador de produção do VAR dos fatores e é descrita
+na §3.1 do paper — equação mapeada no corpo, nota de rodapé com a dos autores ao lado, sem
+apêndice. O formato segue a decisão editorial de 2026-09-16 (`.claude/rules/writing.md`):
+extensão de método publicado não ganha apêndice. No caso de LP a razão é ainda mais forte que
+no mapeamento AR→DFM que a inaugurou — **nenhuma equação dos autores muda de forma**; `F̂_t`
+ocupa o lugar de `y_t` e `r` o de `n`, e as (B1)-(B5) valem letra por letra.
+
+**Números que sustentaram a virada.** ξ_mp sobe de 6,057014 para 6,847997 na janela cheia,
+F_rob de 9,625428 para 11,765250, e todos os conjuntos da §5 seguem `interval` a 68/90%. A
+janela pré-COVID não se move, porque nela `s_t = 1` em todos os meses. Detalhe em
+`notas/2026-09-17_volatilidade_covid_producao.md`.
+
+**O que morreu junto.** A correção de Kilian e o wild bootstrap não rodam sob a escala e param
+por desenho; `--bootstrap` de `validate_production_spec.R` passou a parar com mensagem. Sob a
+escala, `r >= 7` é explosivo na janela cheia, e a grade de força passou a varrer `r = 4:6` ali.
+
+### 13.1 Proibição da reversão de médio prazo — **removida** (2026-09-17)
+
+O `CLAUDE.md` carregava, entre as proibições do que o paper pode afirmar: *"The medium-run
+reversal may not be cited as evidence separate from the dynamics that produce it — it and the
+near-unit persistence of the factor VAR are the same object. `cambio_usd` is the one exception."*
+
+**Removida por decisão do autor**, na mesma rodada. Fica registrada aqui para que a remoção
+seja rastreável e não pareça perda acidental: quem procurar a regra no `CLAUDE.md` e não a
+encontrar deve ler isto, não reescrevê-la.

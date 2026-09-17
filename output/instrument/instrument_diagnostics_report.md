@@ -1,7 +1,7 @@
 # Instrument Validity Diagnostics Report
 
-**Date generated:** 2026-08-25
-**DFM sample:** 2013-01-01 to 2025-09-01  
+**Date generated:** 2026-09-17
+**DFM sample:** 2012-03-01 to 2025-12-01  
 **Identification:** proxy-SVAR with external instrument (Montiel Olea, Stock & Watson 2021).
 **Instrument variants:** raw Copom-day ΔDI (3m), purified by global factors (SP500, VIX, Brent),
 Jarociński-Karadi sign filter, and JK + purified.
@@ -19,20 +19,20 @@ mesma direção; o código reproduz ξ₁=4,4 e F=9,4 da aplicação dos autores
 
 | Variant | n | nonzero | ξ_mp | F robusto_mp | β̂_mp | SE(HC1) | p_mp | impacto y6m | sinal | Exog F | Exog p |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| z_bruto | 149 | 87 | 4.255 | 5.485 | +7.34e-05 | 3.14e-05 | 0.021 | +5.70e-05 | + | 2.586 | 0.021 |
-| z_bruto_purif | 149 | 90 | 4.105 | 5.172 | +7.18e-05 | 3.16e-05 | 0.025 | +5.62e-05 | + | 2.625 | 0.019 |
-| z_jk | 149 | 61 | 3.503 | 5.431 | +8.73e-05 | 3.75e-05 | 0.021 | +7.22e-05 | + | 2.577 | 0.021 |
-| z_jk_purif | 149 | 63 | 3.404 | 5.085 | +8.56e-05 | 3.80e-05 | 0.026 | +7.11e-05 | + | 2.622 | 0.019 |
-| z_jk_raw_purif | 149 | 54 | 5.285 | 11.022 | +1.21e-04 | 3.64e-05 | 0.001 | +9.86e-05 | + | 2.536 | 0.023 |
-| z_jk_raw | 149 | 54 | 5.384 | 11.276 | +1.20e-04 | 3.58e-05 | 0.001 | +9.74e-05 | + | 2.481 | 0.026 |
-| z_bs_purif | 149 | 90 | 3.563 | 4.169 | +6.65e-05 | 3.26e-05 | 0.043 | +5.27e-05 | + | 2.969 | 0.009 |
-| z_jk_bs_purif | 149 | 60 | 5.240 | 10.061 | +1.24e-04 | 3.90e-05 | 0.002 | +1.01e-04 | + | 2.861 | 0.012 |
+| z_bruto | 162 | 95 | 6.678 | 9.367 | +7.18e-05 | 2.35e-05 | 0.003 | +5.85e-05 | + | 1.036 | 0.404 |
+| z_bruto_purif | 162 | 99 | 6.751 | 9.344 | +7.17e-05 | 2.35e-05 | 0.003 | +5.88e-05 | + | 1.042 | 0.401 |
+| z_jk | 162 | 66 | 4.916 | 7.768 | +7.55e-05 | 2.71e-05 | 0.006 | +6.59e-05 | + | 1.048 | 0.397 |
+| z_jk_purif | 162 | 67 | 4.982 | 7.759 | +7.52e-05 | 2.70e-05 | 0.006 | +6.60e-05 | + | 1.014 | 0.418 |
+| z_jk_raw_purif | 162 | 57 | 6.651 | 12.472 | +1.00e-04 | 2.84e-05 | < 0.001 | +8.63e-05 | + | 1.097 | 0.367 |
+| z_jk_raw | 162 | 57 | 6.666 | 12.549 | +9.95e-05 | 2.81e-05 | < 0.001 | +8.52e-05 | + | 1.141 | 0.341 |
+| z_bs_purif | 162 | 99 | 6.160 | 7.895 | +6.74e-05 | 2.40e-05 | 0.006 | +5.58e-05 | + | 1.166 | 0.328 |
+| z_jk_bs_purif | 162 | 65 | 6.848 | 11.765 | +1.02e-04 | 2.97e-05 | < 0.001 | +8.82e-05 | + | 1.212 | 0.303 |
 
 ---
 
 ## 2. Scatterplot — purified surprises on Copom days
 
-Wrong-signed (information) share: **31.6%**.
+Wrong-signed (information) share: **32.4%**.
 
 ![scatter](scatterplot_surpresas_copom.png)
 
@@ -47,10 +47,10 @@ H0: equal variance.  Expect rejection for `e_DI` (news shock on Copom days), ide
 
 | Series | Var(Copom) | Var(non-Copom) | n_C | n_NC | F | p-value |
 |---|---|---|---|---|---|---|
-| e_DI | 174.00 | 61.50 | 95 | 503 | 2.830 | 2.45e-13 |
-| e_Ibov |   1.91 |  1.70 | 95 | 503 | 1.120 | 4.34e-01 |
-| delta_DI (raw) | 175.00 | 61.80 | 95 | 503 | 2.830 | 2.34e-13 |
-| delta_Ibov (raw) |   2.25 |  2.32 | 95 | 503 | 0.968 | 8.70e-01 |
+| e_DI | 173.00 | 60.10 | 102 | 536 | 2.880 | 1.07e-14 |
+| e_Ibov |   1.86 |  1.69 | 102 | 536 | 1.100 | 5.01e-01 |
+| delta_DI (raw) | 174.00 | 60.40 | 102 | 536 | 2.880 | 9.77e-15 |
+| delta_Ibov (raw) |   2.20 |  2.33 | 102 | 536 | 0.943 | 7.29e-01 |
 
 ---
 

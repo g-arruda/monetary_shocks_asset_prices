@@ -83,7 +83,10 @@ cell <- run_stage2_cell(
   instrument = INSTRUMENT, mp_var = MP_VAR,
   h = HORIZON, nboot = N_BOOT, seed = BOOT_SEED,
   shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS,
-  inference = INFERENCE, ar_nw_lags = AR_NW_LAGS
+  inference = INFERENCE, ar_nw_lags = AR_NW_LAGS,
+  # This is the production cell: it carries the Lenza-Primiceri scale, as the
+  # DFM of section 4 does. Section 5 is scored off this run.
+  covid_volatility = SPEC$covid_volatility
 )
 cat(sprintf("  done in %.1f min\n", as.numeric(Sys.time() - t0, units = "mins")))
 saveRDS(cell, SPEC$coherence_cell_path)

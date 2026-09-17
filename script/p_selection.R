@@ -158,7 +158,10 @@ for (p in P_VALUES) {
   t0 <- Sys.time()
 
   dfm <- estimate_dfm(data_sub, r = SPEC$r, q = SPEC$q, p = p,
-                      dates = dates_sub, apply_kilian = FALSE)
+                      dates = dates_sub, apply_kilian = FALSE,
+                      # Full window under the production Lenza-Primiceri scale, so xi_mp
+                      # here is the one of output/instrument/mosw_strength_grid.csv.
+                      covid_volatility = SPEC$covid_volatility)
   diag_fs <- diagnose_instrument_in_factor_space(dfm, inst_df, dates_sub,
                                                  p, mp_idx)
 
@@ -172,7 +175,11 @@ for (p in P_VALUES) {
       r = SPEC$r, q = SPEC$q, p = p,
       instrument = SPEC$instrument, mp_var = SPEC$mp_var,
       h = SPEC$horizon, nboot = SPEC$nboot, seed = SPEC$bootstrap_seed,
-      shock_bps = SPEC$shock_bps, tcode = tcode, ci_levels = SPEC$ci_levels
+      shock_bps = SPEC$shock_bps, tcode = tcode, ci_levels = SPEC$ci_levels,
+      # Full window under the production Lenza-Primiceri scale: this script
+      # self-tests its production cell against output/irf/irf_coherence_h.csv,
+      # so it has to run the estimator production runs.
+      covid_volatility = SPEC$covid_volatility
     ),
     warning = function(w) {
       boot_warnings <<- c(boot_warnings, sprintf("p=%d: %s", p, conditionMessage(w)))

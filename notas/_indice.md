@@ -74,6 +74,26 @@ mudança, com θ̂ tratado como conhecido. Refaz T1 e T2 do truncamento `q < r`
 na cheia tratada (passo 3/4) e a tabela `q = 2,…,5` das 20 variáveis da
 narrativa (passo 4/4). Não há veredito: o autor lê as IRFs a olho. A produção
 não muda.
+**A escala de volatilidade COVID entra em produção (2026-09-17):**
+[`2026-09-17_volatilidade_covid_producao`](2026-09-17_volatilidade_covid_producao.md)
+liga o tratamento de Lenza-Primiceri no VAR dos fatores e o descreve na §3.1 do
+paper. ξ_mp sobe de 6,057014 para 6,847997 na cheia, F_rob de 9,625428 para
+11,765250, e todos os conjuntos da §5 seguem `interval` a 68/90%. A pré-COVID
+**não muda**, porque nela `s_t = 1` em todo mês — os contrastes entre janelas
+seguem contrastes de janela, não de estimador. Sob a escala, `r >= 7` é
+explosivo na cheia. Supersede o "sem veredito" de 09-14.
+
+**Fidelidade a Lenza-Primiceri: o que o artigo autoriza (2026-09-16):**
+[`2026-09-16_fidelidade_lenza_primiceri`](2026-09-16_fidelidade_lenza_primiceri.md)
+audita a rodada de 09-14 contra o artigo, equação por equação, e classifica cada
+decisão em FIEL, EXTRAPOLAÇÃO, ENGENHARIA ou DIVERGÊNCIA. Implementado é o
+Apêndice B, e só ele: (B2) sem `Ω^{-1}`, (B4) com divisor `T − p`. **Nenhum item
+cai em DIVERGÊNCIA** — os doze de EXTRAPOLAÇÃO têm justificativa registrada. Os
+que mais pesam: a escala entra só no VAR dos fatores, e `Λ̂` e `sy` seguem
+estimados no painel sem tratamento; a inferência AR/MOSW é ancorada em MOSW,
+porque o artigo não cobre weak-IV; e o plug-in em θ̂ não tem o argumento de ordem
+menor disponível, já que θ̂ não é consistente. Rodada documental: nada foi
+estimado, nada foi rodado, a produção não muda.
 
 **Teste experimental superado:**
 [`2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais`](2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais.md)
@@ -170,6 +190,8 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-09-17_volatilidade_covid_producao`](2026-09-17_volatilidade_covid_producao.md) | 09-17 | **CURRENT — o tratamento é produção** | painel 115, 2012-03--2025-12, `(5,5,4)` sob a escala LP; branch `feature/lp-volatilidade-producao` | Sobrevivem: o veredito de viabilidade (ξ_mp 6,847997 cheia, F_rob 11,765250, raiz 0,983677, 2841/2842 conjuntos `interval` por nível); a prova de que a pré-COVID é idêntica tratada ou não, porque `s_t = 1` em todos os seus meses; o roteamento por argumento obrigatório em `run_stage2_cell()`; e a instabilidade de `r >= 7` na cheia (raiz 1,001362 e 1,001318). ⚠ **Viabilidade não é leitura**: a §4 do paper ficou fora por decisão do autor, e a leitura econômica das IRFs tratadas não foi feita. ⚠ O ótimo global de θ̂ segue não confirmado, e isso deixou de ser lacuna sobre um exercício para ser lacuna sobre o número publicado. ⚠ `ar_bands.R` e `irf_spec_stage2.R` ficam OLS de propósito; seus alvos não devem ser sincronizados com `mosw_strength_grid.csv`. |
+| [`2026-09-16_fidelidade_lenza_primiceri`](2026-09-16_fidelidade_lenza_primiceri.md) | 09-16 | **CURRENT — auditoria de fidelidade; nada estimado** | artigo em `artigos/Lenza - How to estimate a vector autoregression after March 2020/`; rodada auditada sob painel 115, 2012-03--2025-12, `(r,p) = (5,4)`; `main`, após `f858fe5` | Sobrevive o mapeamento equação-por-equação e a classificação nas quatro caixas mais a declarada (a★): 8 FIEL, 2 (a★), 12 EXTRAPOLAÇÃO, 8 ENGENHARIA, **0 DIVERGÊNCIA**. Sustentam-se: o ramo implementado é o Apêndice B, exclusivamente; a escala entra só no VAR dos fatores (`factor_estimation.R:946` contra `:950`), de modo que `Λ̂` e `sy` seguem sem tratamento e multiplicam toda IRF; θ̂ sai do objetivo da (B5) exatamente, mas numa caixa que o artigo não fixa, com piso `s̄ ≥ 1` idêntico ao `setpriors_covid.m:225-226` dos autores; e a forma estimada difere da do artigo — ŝ2 = 1,76 contra ≈20, ρ̂ = 0,944 contra ≲0,8, meia-vida 12,01 meses, 70 dos 162 meses com `s_t` ≠ 1 e 19,07 meses-equivalentes reponderados. ⚠ **Zero DIVERGÊNCIA afirma que a justificativa existe, não que esteja certa:** o plug-in em θ̂ não dispõe do argumento de ordem menor, porque θ̂ não é consistente (`…estimacao_theta…:90-104`), e nenhuma das três saídas — teoria limite com θ incidental, AR conjunto em (β,θ), ou integrar θ como o corpo do artigo — foi tentada. ⚠ A diferença do segundo máximo em ρ = 0 tem duas leituras legítimas: **2,6211** contra o máximo livre (a das notas) e **2,6088** contra o máximo da grade. ⚠ O segundo momento não centrado de `factor_estimation.R:964-966` é **inerte em `q = r`** (`:791-796`), logo não age na célula de referência. Não altera a produção e não supersede as três notas de 09-14. |
 | [`2026-09-14_inferencia_volatilidade_covid_q`](2026-09-14_inferencia_volatilidade_covid_q.md) | 09-14 | **CURRENT; sem veredito, leitura do autor pendente** | painel 115, 2012-03--2025-12, `(r,p) = (5,4)`, θ̂ da nota abaixo; branch `feature/volatilidade-covid-lp` | Sobrevivem a derivação da inferência AR e do ξ_mp sob WLS e sua validação: θ neutro reproduz a produção a 1,5e-13, e os sete mutantes foram pegos. Também os números de T1, T2 e da tabela `q = 2,…,5` na cheia tratada, que são descritivos. |
 | [`2026-09-14_estimacao_theta_volatilidade_covid`](2026-09-14_estimacao_theta_volatilidade_covid.md) | 09-14 | **CURRENT; θ estimado, nenhuma IRF tratada** | painel 115, 2012-03--2025-12, `(r,p) = (5,4)`; branch `feature/volatilidade-covid-lp` | Sobrevivem: as decisões do autor para `t*`, os limites de θ, `innovations` e a centragem; θ̂ por (B5), com o perfil em ρ; a prova de que sem o piso s̄ ≥ 1 não há máximo; o H e o K não centrados sob WLS; e a validação, com os quatro mutantes novos pegos. A inferência sob tratamento saiu na nota acima. |
 | [`2026-09-14_volatilidade_covid_lenza_primiceri`](2026-09-14_volatilidade_covid_lenza_primiceri.md) | 09-14 | **CURRENT como implementação; a centragem foi superada pela nota acima** | painel 115, 2012-03--2025-12, `(5,5,4)`; branch `feature/volatilidade-covid-lp`, commits `ed316ad` e `815350a` | Sobrevivem o código do tratamento (B2/B4/B5 no VAR dos fatores) e sua validação: θ neutro reproduz a produção bit a bit, e os nove mutantes foram pegos. Também as decisões fora do artigo e a lista do que falta. Não existe número de IRF tratada. |

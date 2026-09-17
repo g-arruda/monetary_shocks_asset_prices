@@ -30,15 +30,37 @@ IC3=20); `q=r=5` is the operational decision. `p=4` is inherited from the
 prior vintage rather than reselected — the AIC check on the extended common
 sample (`T=154`, constant and trend in the selection only) still picks `p=4`
 (8.231267), and BIC still picks `p=2`. The estimated factor VAR remains
-intercept-only. The frozen production cell has **ξ_mp = 6.057014 full /
-8.643436 pre-COVID**, F_rob,mp = 9.625428 / 13.809985; both companion
-matrices are stable (0.970090 / 0.993359). **ξ_mp is the strength ruler of
-record** — the AR set is bounded iff ξ_mp > 3.84, conventional bands
-approximately valid at ξ_mp ≥ 10. Since 2026-09-08 that boundedness is no
-longer a prediction: `ar_dfm_bands()` builds the sets, its `xi_den` reproduces
-6.057014 through the MOSW covariance, and all 5635 production cells come back
-`interval` at 68/90/95%. Legacy first-stage F rulers still print but stopped
-deciding on 2026-07-26.
+intercept-only. **Since 2026-09-17 the factor VAR carries the Lenza-Primiceri
+(2022) COVID volatility scale `s_t`** — `production_spec()$covid_volatility`,
+θ̂ = (6.611429, 12.468338, 1.760352, 0.943926) frozen as literals, `t*` =
+2020-03, `innovations = "standardized"`. The **full window** is therefore
+weighted least squares; the **pre-COVID window is not, and needs not be** —
+every month of it has `s_t = 1`, so the weighted fit *is* the unweighted one
+(proved bit-identical by N1/N2 of `script/validate_covid_volatility.R`), and
+`estimate_dfm()` rejects a `covid_start` outside its residual months. Contrasts
+between the two windows stay contrasts of window, not of estimator.
+
+The production cell has **ξ_mp = 6.847997 full / 8.643436 pre-COVID**,
+F_rob,mp = 11.765250 / 13.809985; both companion matrices are stable
+(0.983677 / 0.993359). The treatment **raised** ξ_mp (it was 6.057014 full,
+F_rob 9.625428, root 0.970090 untreated) and left the pre-COVID numbers
+untouched, as it must. **ξ_mp is the strength ruler of record** — the AR set is
+bounded iff ξ_mp > 3.84, conventional bands approximately valid at ξ_mp ≥ 10,
+which 6.85 still is not. Since 2026-09-08 that boundedness is no longer a
+prediction: `ar_dfm_bands()` builds the sets, its `xi_den` reproduces 6.847997
+through the MOSW covariance, and every set in `output/irf/irf_coherence_h.csv`
+comes back `interval` at 68 and 90% — 2841 of 2842 rows per level, the one
+exception being the `singleton` the normalization pins at h=0. Legacy
+first-stage F rulers still print but stopped deciding on 2026-07-26.
+
+**Under the scale, `r ≥ 7` is explosive on the full window** (max root 1.001362
+at r=7, 1.001318 at r=8, every q), so `script/mosw_strength_grid.R` sweeps
+r=4:6 there and keeps r=4:8 pre-COVID, where everything is stable. Production
+r=5 is far from that edge. **Kilian and the wild bootstrap do not run under the
+scale** and stop by design (`factor_estimation.R:930-933`,
+`impulse_response.R:478-482`); `--bootstrap` in `validate_production_spec.R`
+stops for the same reason. This is reweighting of the estimation, **not**
+heteroskedasticity identification.
 
 **The paper is one vintage behind the code, and now behind it in inference
 too.** `paper/paper_anpec.tex`, its figures and `output/irf/irf_section.md`
@@ -110,10 +132,11 @@ Cite the note, never this table. Notes are under `notas/`.
 | DLSP accounting decomposition | `fiscal_dlsp_decomposition.R` | `2026-09-01_decomposicao_contabil_dlsp` | blocked: the 7-flow identity omits the external "outros ajustes" line |
 | 115-series exchange-adjustment + fiscal expectations (joint) | `fiscal_exchange_expectations.R` | `2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais` | experimental panel superseded for DFM numbers; not promoted to production |
 | Anderson–Rubin as the DFM's operational inference | `ar_bands.R` | `2026-09-08_bandas_anderson_rubin_producao` | swap done; all 5635 production cells bounded, weak-IV premium 1.38× at 90%; `(5,2)` unbounded; `(8,8)` and pre-COVID blocked by `hac_dim < T` |
+| Lenza-Primiceri scale into production | `validate_production_spec.R`, `irf_coherence_check.R`, `mosw_strength_grid.R` | `2026-09-17_volatilidade_covid_producao` | switched on: ξ_mp 6.057014 → 6.847997, F_rob 9.625428 → 11.765250, root 0.970090 → 0.983677, every §5 set still `interval` at 68/90; pre-COVID unmoved (s_t ≡ 1); `r ≥ 7` explosive on the full window |
 | Alternative `r` estimators (AH ER/GR, ABC) | `factor_selection_alt.R` | `2026-09-10_selecao_fatores_ah_abc` | mixed: ER = GR = 2, ABC-IC*₁ = 9 on a 2-point stability interval (5 in 39/100 column permutations); `factorselect` diverges from both papers in GR and ABC and is not used |
 | Correlation pruning + `(r,q)` on the pruned panel | `panel_pruning.R`, `factor_selection_pruned.R` | `2026-09-10_poda_correlacao_painel` | complete linkage at \|ρ\| ≥ 0.90 drops 9/115 series; Bai-Ng IC2 5 → 3, AH 2 → 1, ABC 9 → 11 (unstable), AW `q = 2` at every `r`; divergence grows (D 10 → 12), underestimation hypothesis contradicted |
 | `q < r` truncation: subspace sufficiency + AK invariance by window | `q_truncation.R` | `2026-09-10_truncamento_q` | harmless before COVID, distorting after: pre-COVID `p=2` 115/115 series immaterial at `q=3,4`, full sample 0/115; the proxy's covariance sits in the discarded directions (T1 p 0.051/0.039/0.015 full, ≥ 0.22 pre-COVID); rules written after an exploratory pass |
-| COVID volatility (Lenza-Primiceri) in the factor VAR: θ̂ by ML, AR under WLS, steps 3/4 and 4/4 | `covid_volatility_theta.R`, `q_truncation.R` (cell `cheia_p4_lp`), `q_narrative_overlay_covid.R` | `2026-09-14_inferencia_volatilidade_covid_q` | no verdict — the author reads the IRFs by eye; off in production. θ̂ = (6.61, 12.47, 1.76, 0.944), with a second maximum at ρ = 0 2.6 log-points below; at `q=3` 23/115 series immaterial and 75 material, against 115/115 immaterial pre-COVID `p=2`; the sets condition on θ̂ |
+| COVID volatility (Lenza-Primiceri) in the factor VAR: θ̂ by ML, AR under WLS, steps 3/4 and 4/4 | `covid_volatility_theta.R`, `q_truncation.R` (cell `cheia_p4_lp`), `q_narrative_overlay_covid.R` | `2026-09-14_inferencia_volatilidade_covid_q` | **superseded on 2026-09-17: the treatment became production.** θ̂ = (6.61, 12.47, 1.76, 0.944), with a second maximum at ρ = 0 2.6 log-points below; at `q=3` 23/115 series immaterial and 75 material, against 115/115 immaterial pre-COVID `p=2`; the sets condition on θ̂ |
 
 ## ⚠ Prohibitions
 
@@ -150,9 +173,6 @@ These govern what may be **said**, so they apply even when no file is open.
   lower-dimensional specification" — **never** "the SVAR proves the SDFM right". Weak-IV
   robustness is **not** instrument validity: both models use the same proxy, so a contaminated
   proxy fails in both.
-- **The medium-run reversal may not be cited as evidence separate from the dynamics that produce
-  it** — it and the near-unit persistence of the factor VAR are the same object. `cambio_usd` is the
-  one exception, so §4's exchange-rate persistence claim is untouched.
 - **No text may credit the `cumsum` fix with recovering the asset block.** At h=0 the `cumsum` is a
   no-op and the ×100 is a positive scalar on point and both bounds, so **h=0 significance is
   invariant to tcode**. Only the panel representation recovers the block, and it was declined.
@@ -256,12 +276,14 @@ P <- res$irfs$irf_point_matrix; vn <- colnames(res$data)
 P[match(c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd"), vn), 1]
 ```
 
-Expected h0 (matches `output/validation/production_spec_impact_smoke.csv`):
-`yield_6m` 0.005, `yield_2y` 0.00702636, `yield_5y` 0.00724572,
-`asset_ibov` −0.9965048, `cambio_usd` 0.13424191. Full precision, for a
-bit-identical check: `0.0050000000000000001`, `0.0070263642339699903`,
-`0.0072457194488358932`, `-0.99650483088005848`,
-`0.13424190947918324`.
+Expected h0 (matches `output/validation/production_spec_impact_smoke.csv`),
+**under the Lenza-Primiceri scale since 2026-09-17**:
+`yield_6m` 0.005, `yield_2y` 0.00700903, `yield_5y` 0.00729005,
+`asset_ibov` −1.5020158, `cambio_usd` 0.12942167. Full precision, for a
+bit-identical check: `0.0050000000000000001`, `0.0070090326083686542`,
+`0.0072900543327283655`, `-1.5020158375666013`,
+`0.12942167379213612`. The untreated point (`covid_volatility = NULL`) is still
+pinned, as the degeneracy reference, in `script/validate_covid_volatility.R`.
 
 ## Conventions
 

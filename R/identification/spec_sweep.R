@@ -279,8 +279,15 @@ classify_sweep_cells <- function(cells) {
 #'   `"ar"`, which is the production inference.
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #' @param covid_volatility COVID volatility scale of the factor VAR, passed to
-#'   `estimate_dfm()`; NULL (off) by default. When on, the Kilian correction is
-#'   skipped, as in `main_sdfm()`.
+#'   `estimate_dfm()`. **Required, with no default**: since 2026-09-17 the
+#'   treatment is production (`production_spec()$covid_volatility`), and a
+#'   default either way would silently decide for the caller which estimator a
+#'   cell runs. A cell that publishes production numbers passes the spec field;
+#'   a cell that reproduces a closed round, or that runs a pre-COVID window,
+#'   passes NULL and says why. Pre-COVID cannot take it at all: every month of
+#'   that window has `s_t = 1`, so the weighted fit *is* the unweighted one, and
+#'   `estimate_dfm()` rejects a `covid_start` outside the residual months.
+#'   When on, the Kilian correction is skipped, as in `main_sdfm()`.
 #'
 #' @return List with `irf`, `var_names`, `tcode`, `mpind`, `normalize_value`
 #'   and the cell keys.
@@ -288,7 +295,13 @@ run_stage2_cell <- function(data_mat, dates, inst_panel, sample_window,
                             r, q, p, instrument, mp_var,
                             h, nboot, seed, shock_bps, tcode, ci_levels,
                             inference = "bootstrap", ar_nw_lags = 0L,
-                            covid_volatility = NULL) {
+                            covid_volatility) {
+  if (missing(covid_volatility)) {
+    stop("run_stage2_cell: covid_volatility has no default. Pass ",
+         "production_spec()$covid_volatility for a production cell, or NULL ",
+         "for a pre-COVID window or a closed round, and say why ",
+         "(notas/2026-09-17_volatilidade_covid_producao.md).")
+  }
   in_window <- dates >= sample_window[1] & dates <= sample_window[2]
   data_sub  <- data_mat[in_window, , drop = FALSE]
   dates_sub <- dates[in_window]

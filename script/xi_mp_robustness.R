@@ -114,8 +114,11 @@ for (sample_name in names(SAMPLES)) {
 
   cat(sprintf(">>> [%s] DFM r=%d q=%d p=%d (T=%d) ...\n",
               sample_name, R_PROD, Q_PROD, P_LAGS, nrow(data_sub)))
+  # Full window under the production scale; pre-COVID has s_t = 1 throughout.
   dfm <- estimate_dfm(data_sub, r = R_PROD, q = Q_PROD, p = P_LAGS,
-                      dates = dates_sub, apply_kilian = FALSE)
+                      dates = dates_sub, apply_kilian = FALSE,
+                      covid_volatility = if (sample_name == "full")
+                        SPEC$covid_volatility else NULL)
 
   for (v in VARIANTS) {
     inst_df <- data.frame(month = inst_panel$month, shock = inst_panel[[v]])

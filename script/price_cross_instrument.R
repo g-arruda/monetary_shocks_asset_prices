@@ -130,8 +130,12 @@ for (sample_name in names(SAMPLES)) {
 
   cat(sprintf("\n>>> [%s] estimando DFM (T=%d) ...\n", sample_name, nrow(data_sub)))
   t0  <- Sys.time()
+  # Full window under the production Lenza-Primiceri scale; the pre-COVID window
+  # has s_t = 1 in every month, so the weighted fit is the unweighted one.
   dfm <- estimate_dfm(data_sub, r = R_FACTORS, q = Q_DYNAMIC, p = P_LAGS,
-                      dates = dates_sub, apply_kilian = FALSE)
+                      dates = dates_sub, apply_kilian = FALSE,
+                      covid_volatility = if (sample_name == "full")
+                        SPEC$covid_volatility else NULL)
   cat(sprintf("    %.1fs, raiz maxima = %.6f\n",
               as.numeric(Sys.time() - t0, units = "secs"),
               dfm$diagnostics$max_eigenvalue))
@@ -198,7 +202,11 @@ pre_cell <- withCallingHandlers(
     r = R_FACTORS, q = Q_DYNAMIC, p = P_LAGS,
     instrument = SPEC$instrument, mp_var = MP_VAR,
     h = HORIZON, nboot = N_BOOT, seed = BOOT_SEED,
-    shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS
+    shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS,
+    # Full window under the production Lenza-Primiceri scale: this script
+    # self-tests its production cell against output/irf/irf_coherence_h.csv,
+    # so it has to run the estimator production runs.
+    covid_volatility = SPEC$covid_volatility
   ),
   warning = function(w) {
     boot_warnings <<- c(boot_warnings, conditionMessage(w))

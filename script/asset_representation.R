@@ -248,8 +248,12 @@ stopifnot(dev4 < 1e-10)
 # (5) xi_mp of production reproduces mosw_strength_grid.csv
 xi_of <- function(M, window) {
   keep <- DATES >= window[1] & DATES <= window[2]
+  # Full window under the production Lenza-Primiceri scale; pre-COVID has
+  # s_t = 1 throughout and takes NULL.
   dfm  <- estimate_dfm(M[keep, , drop = FALSE], r = R_FACTORS, q = Q_DYNAMIC,
                        p = P_LAGS, dates = DATES[keep],
+                       covid_volatility = if (identical(window, WIN_FULL))
+                         SPEC$covid_volatility else NULL,
                        instrument = INST_PANEL |>
                          dplyr::select(month, shock = dplyr::all_of(INSTRUMENT)) |>
                          dplyr::filter(!is.na(shock)),
@@ -312,7 +316,12 @@ for (tag in c("prod_cum", "loglevel", "level")) {
     r = R_FACTORS, q = Q_DYNAMIC, p = P_LAGS,
     instrument = INSTRUMENT, mp_var = MP_VAR,
     h = HORIZON, nboot = N_BOOT, seed = SEED, shock_bps = SHOCK_BPS,
-    tcode = PANELS[[tag]]$tcode, ci_levels = CI_LEVELS)
+    tcode = PANELS[[tag]]$tcode, ci_levels = CI_LEVELS,
+      # Full window under the production Lenza-Primiceri scale: this script
+      # self-tests its production cell against output/irf/irf_coherence_h.csv,
+      # so it has to run the estimator production runs.
+      covid_volatility = SPEC$covid_volatility
+    )
   cat(sprintf("    %-12s %.1f min\n", tag,
               as.numeric(Sys.time() - t0, units = "mins")))
 }

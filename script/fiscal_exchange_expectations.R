@@ -363,7 +363,10 @@ point_cells <- purrr::imap(panels, function(data_mat, panel_name) {
     spec$bootstrap_seed,
     spec$shock_bps,
     panel_tcodes[[panel_name]],
-    spec$ci_levels
+    spec$ci_levels,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+    covid_volatility = NULL
   )
 })
 canonical <- readRDS(spec$coherence_cell_path)$irf
@@ -419,7 +422,10 @@ final_cell <- withCallingHandlers(
     spec$bootstrap_seed,
     spec$shock_bps,
     panel_tcodes$exchange_expectations_115,
-    spec$ci_levels
+    spec$ci_levels,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+    covid_volatility = NULL
   ),
   warning = function(warning) {
     if (grepl("^Bootstrap iteracao", conditionMessage(warning))) {

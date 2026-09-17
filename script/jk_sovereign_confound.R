@@ -656,7 +656,11 @@ for (v in IRF_VARIANTS) {
     r = R_FACTORS, q = Q_DYNAMIC, p = P_LAGS,
     instrument = v, mp_var = MP_VAR,
     h = HORIZON, nboot = N_BOOT, seed = BOOT_SEED,
-    shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS)
+    shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+      covid_volatility = NULL
+    )
   cat(sprintf("    %-16s %.1f min\n", v, as.numeric(Sys.time() - t0, units = "mins")))
 }
 

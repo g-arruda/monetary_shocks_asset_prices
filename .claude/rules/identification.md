@@ -39,18 +39,32 @@ AR branch hard-stops if its re-derived point deviates from `ident_ext_instr()` b
 the two paths must agree about the identification, not merely about the bands. `irf_point_matrix`
 is untouched by the switch, so the `CLAUDE.md` smoke test stays the guard it was.
 
-**COVID volatility (Lenza-Primiceri 2022), off by default since 2026-09-14.**
+**COVID volatility (Lenza-Primiceri 2022), PRODUCTION since 2026-09-17.**
 `estimate_dfm(covid_volatility=)` and `main_sdfm(covid_volatility=)` put the common volatility scale
 `s_t` of LP's Appendix B into the factor VAR:
 - `covid_volatility_path()` builds `s_t`;
 - `estimate_var_ols(s=)` runs (B2) and returns (B4) and (B5);
 - `estimate_covid_theta()` maximizes (B5) by L-BFGS-B inside the design's box.
 
-`production_spec()$covid_volatility` is NULL. With it NULL the whole `main_sdfm()` object is
-`identical()` to the untreated code, and the smoke test is still the guard.
+`production_spec()$covid_volatility` carries θ̂ = (6.611429, 12.468338, 1.760352, 0.943926) as
+literals — the spec function reads no artefact, because `output/` does not ship with the
+replication package, and `script/validate_production_spec.R` re-derives θ̂ from `data/processed/`
+and stops if it moved. With the field set to NULL the whole `main_sdfm()` object is `identical()`
+to the untreated code, which is what the N1/N2 checks still pin; the smoke test now pins the
+**treated** point.
+
+**`covid_volatility` is a required argument of `run_stage2_cell()`**, with no default: the spec
+field is read in one place (`main_sdfm()`), and a default either way would silently decide which
+estimator a cell runs — that is how §4 and §5 would have ended up on different estimators. Cells
+that publish production numbers pass `production_spec()$covid_volatility`; pre-COVID windows and
+closed rounds pass NULL and say why at the call site. **The pre-COVID window cannot take it and
+does not need it**: every month of it has `s_t = 1`, so the weighted fit *is* the unweighted one,
+and window contrasts stay contrasts of window, not of estimator. Under the scale `r >= 7` is
+explosive on the full window, so `mosw_strength_grid.R` sweeps r=4:6 there.
 
 The list's three fields (`covid_start`, `theta`, `innovations`) take no default. The author's
-decisions of 2026-09-14 live in `production_spec()$covid_volatility_design`:
+decisions of 2026-09-14, which are how θ̂ is obtained, live in
+`production_spec()$covid_volatility_design`:
 - `t*` = 2020-03;
 - s̄ ≥ 1 and ρ ∈ [0,1], the floor being what makes the maximum likelihood exist;
 - `innovations = "standardized"`.
@@ -71,14 +85,17 @@ z on the same transformed regressors, so it calls `compute_factor_space_wald()` 
 `compute_robust_first_stage_F()` with `intercept = FALSE`. Its ξ_mp equals the `xi_den` of the AR sets.
 
 Three paths still `stop()`, because their influence function or DGP is not derived: `"raw"`, the
-bootstrap and Kilian. The treated runs are the `cheia_p4_lp` cell of `script/q_truncation.R` and
-`script/q_narrative_overlay_covid.R`.
+bootstrap and Kilian — and so does `--bootstrap` in `validate_production_spec.R`. Deliberately
+untreated, with the reason at the call site: `script/ar_bands.R` (it exists to put AR, delta and
+the bootstrap on one point estimate) and `script/irf_spec_stage2.R` (a bootstrap diagnostic).
 
 This is reweighting of the estimation, **not** heteroskedasticity identification. Guard:
 `script/validate_covid_volatility.R`. Notes:
 - `notas/2026-09-14_volatilidade_covid_lenza_primiceri.md` (implementation);
 - `notas/2026-09-14_estimacao_theta_volatilidade_covid.md` (decisions and θ̂);
-- `notas/2026-09-14_inferencia_volatilidade_covid_q.md` (inference, steps 3/4 and 4/4).
+- `notas/2026-09-14_inferencia_volatilidade_covid_q.md` (inference, steps 3/4 and 4/4);
+- `notas/2026-09-16_fidelidade_lenza_primiceri.md` (equation-by-equation fidelity audit);
+- `notas/2026-09-17_volatilidade_covid_producao.md` (the switch to production).
 
 **Estimation details.** The bootstrap uses Kilian-corrected coefficients for the DGP but the **point
 estimate uses plain OLS** (faithful to `DFMest_BLL.m`); `apply_kilian = TRUE` only affects the

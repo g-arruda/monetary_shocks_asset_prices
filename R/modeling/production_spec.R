@@ -28,12 +28,23 @@ production_spec <- function() {
       selected_bic = 2L,
       aic_at_production = 8.231266782137459
     ),
-    # Lenza-Primiceri (2022) COVID volatility in the factor VAR: off in
-    # production until the inference under it exists (registro/pendencias.md,
-    # Tema B). The design holds the author's decisions of 2026-09-14: theta is
-    # estimated by (B5) within these bounds by estimate_covid_theta()
+    # Lenza-Primiceri (2022) COVID volatility in the factor VAR: production
+    # since 2026-09-17 (author decision). `theta` is the maximizer of (B5) on
+    # the production panel at (r, p) = (5, 4), carried here as literals: this
+    # function reads no artefact, because `output/` does not ship with the
+    # replication package. `script/covid_volatility_theta.R` is what produced
+    # them and `output/factors/covid_volatility_theta.csv` is the provenance;
+    # `script/validate_production_spec.R` re-derives theta from
+    # `data/processed/` and stops if it moves.
+    covid_volatility = list(
+      covid_start = as.Date("2020-03-01"),
+      theta = c(s0 = 6.611428527060552, s1 = 12.468337921789994,
+                s2 = 1.760352430309222, rho = 0.9439261800636236),
+      innovations = "standardized"
+    ),
+    # How that theta is obtained: the author's decisions of 2026-09-14, with
+    # the floor s >= 1 being what makes the maximum exist
     # (notas/2026-09-14_estimacao_theta_volatilidade_covid.md).
-    covid_volatility = NULL,
     covid_volatility_design = list(
       covid_start = as.Date("2020-03-01"),
       theta_lower = c(s0 = 1, s1 = 1, s2 = 1, rho = 0),

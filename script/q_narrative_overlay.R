@@ -54,7 +54,10 @@ paths <- purrr::map_dfr(Q_VALUES, function(q) {
     r = SPEC$r, q = q, p = SPEC$p,
     instrument = SPEC$instrument, mp_var = SPEC$mp_var,
     h = SPEC$horizon, nboot = 0L, seed = SPEC$bootstrap_seed,
-    shock_bps = SPEC$shock_bps, tcode = tcode, ci_levels = SPEC$ci_levels
+    shock_bps = SPEC$shock_bps, tcode = tcode, ci_levels = SPEC$ci_levels,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+    covid_volatility = NULL
   )
   point <- cell$irf$irf_point_matrix
 

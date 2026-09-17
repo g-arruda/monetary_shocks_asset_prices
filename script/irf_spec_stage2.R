@@ -127,7 +127,12 @@ for (i in seq_len(nrow(winners))) {
     r = w$r, q = w$q, p = P_LAGS,
     instrument = w$instrument, mp_var = w$mp_var,
     h = HORIZON, nboot = N_BOOT, seed = BOOT_SEED,
-    shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS
+    shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS,
+    # NULL on every cell, both windows. Stage 2 of the sweep is a bootstrap
+    # diagnostic, and the bootstrap DGP is not defined under the Lenza-Primiceri
+    # scale (impulse_response.R:478-482). Production inference is the AR sets of
+    # script/irf_coherence_check.R, which is the cell that carries the scale.
+    covid_volatility = NULL
   )
   res$sample <- w$sample
   res$tag    <- w$tag

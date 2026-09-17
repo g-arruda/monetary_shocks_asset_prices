@@ -127,14 +127,35 @@ readr::write_csv(
   lag_criteria,
   file.path(out_dir, "production_factor_lag_criteria.csv")
 )
+# The production theta lives as literals in production_spec(), because that
+# function reads no artefact. Re-derive it here from data/processed/ and stop if
+# it moved: a panel, r or p change silently invalidates a frozen theta.
+theta_refit <- estimate_covid_theta(
+  factors, spec$p, dates[(spec$p + 1):length(dates)],
+  spec$covid_volatility_design$covid_start,
+  spec$covid_volatility_design$theta_lower,
+  spec$covid_volatility_design$theta_upper
+)
+theta_spec <- spec$covid_volatility$theta
+if (!setequal(names(theta_refit$theta), names(theta_spec)) ||
+    max(abs(theta_refit$theta / theta_spec[names(theta_refit$theta)] - 1)) > 1e-8) {
+  stop("The frozen production theta does not reproduce from the panel: refit is (",
+       paste(sprintf("%s = %.15g", names(theta_refit$theta), theta_refit$theta),
+             collapse = ", "), "). Re-run script/covid_volatility_theta.R and ",
+       "update production_spec()$covid_volatility$theta.")
+}
+
 mpind <- match(spec$mp_var, colnames(data_mat))
 samples <- list(full = spec$sample, pre_covid = spec$pre_covid_sample)
+# The full window runs the production Lenza-Primiceri scale since 2026-09-17;
+# the pre-COVID window has s_t = 1 in every month, so its numbers are the same
+# treated or not, and they did not move when the treatment was switched on.
 expected <- tibble::tibble(
   sample = c("full", "pre_covid"),
   n_innovations = c(162L, 90L),
-  xi_mp = c(6.057014271403125, 8.643436347247281),
-  f_robust_mp = c(9.625427632173636, 13.809985106266108),
-  max_companion_root = c(0.9700904794964803, 0.9933587954932864),
+  xi_mp = c(6.847996589177567, 8.643436347247281),
+  f_robust_mp = c(11.76524968812349, 13.809985106266108),
+  max_companion_root = c(0.9836766921623673, 0.9933587954932864),
   stable = c(TRUE, TRUE)
 )
 
@@ -147,7 +168,8 @@ diagnostics <- lapply(names(samples), function(sample_name) {
     q = spec$q,
     p = spec$p,
     dates = dates[keep],
-    apply_kilian = FALSE
+    apply_kilian = FALSE,
+    covid_volatility = if (sample_name == "full") spec$covid_volatility else NULL
   )
   strength <- diagnose_instrument_in_factor_space(
     dfm,
@@ -188,7 +210,8 @@ point_dfm <- estimate_dfm(
   q = spec$q,
   p = spec$p,
   dates = dates,
-  apply_kilian = FALSE
+  apply_kilian = FALSE,
+  covid_volatility = spec$covid_volatility
 )
 point_irf <- compute_irf_dfm(
   point_dfm,
@@ -204,12 +227,15 @@ point_irf <- compute_irf_dfm(
   identification = "proxy"
 )
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
+# Under the production Lenza-Primiceri scale since 2026-09-17. The previous,
+# untreated values were 0.007026364233969990, 0.007245719448835893,
+# -0.9965048308800585 and 0.1342419094791832.
 expected_impacts <- c(
   0.005,
-  0.007026364233969990,
-  0.007245719448835893,
-  -0.9965048308800585,
-  0.1342419094791832
+  0.007009032608368654,
+  0.007290054332728366,
+  -1.502015837566601,
+  0.1294216737921361
 )
 impact_smoke <- tibble::tibble(
   variable = headline,
@@ -227,6 +253,12 @@ readr::write_csv(
 )
 
 if (run_bootstrap) {
+  if (!is.null(spec$covid_volatility)) {
+    stop("--bootstrap is unavailable while the Lenza-Primiceri scale is ",
+         "production: the bootstrap DGP and the Kilian correction assume OLS ",
+         "with constant Sigma. Production inference is the Anderson-Rubin sets ",
+         "(production_spec()$inference).")
+  }
   tcodes <- infer_tcode_from_varnames(colnames(data_mat))
   dfm <- estimate_dfm(
     data_mat,

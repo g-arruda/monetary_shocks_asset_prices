@@ -86,13 +86,18 @@ if (!all(n2)) {
        "beyond 1e-12 in ", sum(!n2), " of ", length(n2), " cells")
 }
 
-# The impacts the CLAUDE.md smoke test pins, at full precision
+# The untreated reference, at full precision. These were the CLAUDE.md smoke
+# constants until 2026-09-17, when the Lenza-Primiceri scale became production;
+# `reference` is built with covid_volatility = NULL, so it is still exactly this
+# OLS point, and pinning it is what proves the treated branch degenerates to the
+# untreated one. The current production constants are the treated ones, in
+# output/validation/production_spec_impact_smoke.csv.
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
-smoke_h0 <- c(0.0050000000000000001, 0.0070263642339699903,
-              0.0072457194488358932, -0.99650483088005848,
-              0.13424190947918324)
-if (!identical(reference[["5"]][match(headline, colnames(data_mat)), 1], smoke_h0)) {
-  stop("N2: the production point no longer matches the CLAUDE.md smoke test")
+untreated_h0 <- c(0.0050000000000000001, 0.0070263642339699903,
+                  0.0072457194488358932, -0.99650483088005848,
+                  0.13424190947918324)
+if (!identical(reference[["5"]][match(headline, colnames(data_mat)), 1], untreated_h0)) {
+  stop("N2: the untreated reference point moved; it must stay the pre-2026-09-17 OLS point")
 }
 
 # N3 — (B5) at neutral theta against the Gaussian log-likelihood summed row by row

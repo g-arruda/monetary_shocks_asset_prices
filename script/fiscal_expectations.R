@@ -142,7 +142,10 @@ readr::write_csv(grid, file.path(out_dir, "strength_grid.csv"))
 smoke <- run_stage2_cell(
   expanded, dates, instrument, spec$sample, spec$r, spec$q, spec$p,
   spec$instrument, spec$mp_var, spec$horizon, 0L, spec$bootstrap_seed,
-  spec$shock_bps, tcodes$fiscal_114, spec$ci_levels
+  spec$shock_bps, tcodes$fiscal_114, spec$ci_levels,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+  covid_volatility = NULL
 )
 if (!isTRUE(all.equal(smoke$irf$irf_point_matrix[smoke$mpind, 1], spec$normalize_value,
                       tolerance = 1e-12))) {
@@ -155,7 +158,10 @@ if (run_bootstrap) {
     run_stage2_cell(
       expanded, dates, instrument, spec$sample, spec$r, spec$q, spec$p,
       spec$instrument, spec$mp_var, spec$horizon, spec$nboot, spec$bootstrap_seed,
-      spec$shock_bps, tcodes$fiscal_114, spec$ci_levels
+      spec$shock_bps, tcodes$fiscal_114, spec$ci_levels,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+      covid_volatility = NULL
     ),
     warning = function(warning) {
       if (grepl("^Bootstrap iteracao", conditionMessage(warning))) {

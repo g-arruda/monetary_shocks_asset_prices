@@ -34,8 +34,15 @@ SAMPLES <- list(
   pre_covid = SPEC$pre_covid_sample
 )
 
-RQ_GRID <- tidyr::expand_grid(r = 4:8, q = 2:8) |>
-  dplyr::filter(q <= r)
+# The full window runs the production Lenza-Primiceri scale, and under it the
+# factor VAR is explosive from r = 7 up at every q (max root 1.001362 at r = 7,
+# 1.001318 at r = 8, against 0.983677 at the production r = 5). Those cells
+# cannot be reported, so the full window sweeps r = 4:6; the pre-COVID window
+# has s_t = 1 in every month, is stable throughout, and keeps r = 4:8.
+RQ_GRID_BY_SAMPLE <- list(
+  full = dplyr::filter(tidyr::expand_grid(r = 4:6, q = 2:8), q <= r),
+  pre_covid = dplyr::filter(tidyr::expand_grid(r = 4:8, q = 2:8), q <= r)
+)
 
 KEYS <- c("sample", "r", "q", "instrument")
 EXPECTED_COLUMNS <- c(
@@ -51,8 +58,11 @@ REPORT_PATH <- file.path(OUT_DIR, "mosw_strength_grid.md")
 CHI2_1_95 <- qchisq(0.95, df = 1)
 
 # Independent smoke test for the production instrument (nota 2026-09-02).
+# Full window under the production Lenza-Primiceri scale since 2026-09-17; it
+# was 6.057014 / 9.625428 untreated. The pre-COVID window has s_t = 1 in every
+# month and did not move.
 PROD_SMOKE <- list(
-  full = c(wald_mp = 6.057014, f_robust_mp = 9.625428),
+  full = c(wald_mp = 6.847997, f_robust_mp = 11.765250),
   pre_covid = c(wald_mp = 8.643436, f_robust_mp = 13.809985)
 )
 
@@ -78,10 +88,12 @@ inst_panel$month <- as.Date(inst_panel$month)
 
 # ---- Grid ----------------------------------------------------------
 
-rows <- vector("list", length(SAMPLES) * nrow(RQ_GRID) * length(INSTRUMENTS))
+rows <- vector("list", sum(vapply(RQ_GRID_BY_SAMPLE, nrow, integer(1))) *
+                 length(INSTRUMENTS))
 ir <- 0L
 
 for (sample_name in names(SAMPLES)) {
+  RQ_GRID <- RQ_GRID_BY_SAMPLE[[sample_name]]
   win <- SAMPLES[[sample_name]]
   in_window <- dates >= win[1] & dates <= win[2]
   data_sub <- data_mat[in_window, , drop = FALSE]
@@ -99,7 +111,12 @@ for (sample_name in names(SAMPLES)) {
         q = q,
         p = P_LAGS,
         dates = dates_sub,
-        apply_kilian = FALSE
+        apply_kilian = FALSE,
+        # The full window runs the production Lenza-Primiceri scale, so xi_mp of
+        # record is the one the published IRFs are built on. The pre-COVID
+        # window has s_t = 1 in every month, so it is the same fit either way,
+        # and estimate_dfm() rejects a covid_start outside its residual months.
+        covid_volatility = if (sample_name == "full") SPEC$covid_volatility else NULL
       ),
       error = function(error) {
         stop(
@@ -170,7 +187,8 @@ for (sample_name in names(SAMPLES)) {
 
 grid <- dplyr::bind_rows(rows)
 
-expected_n_rows <- length(SAMPLES) * nrow(RQ_GRID) * length(INSTRUMENTS)
+expected_n_rows <- sum(vapply(RQ_GRID_BY_SAMPLE, nrow, integer(1))) *
+  length(INSTRUMENTS)
 if (nrow(grid) != expected_n_rows ||
     anyDuplicated(grid[KEYS]) ||
     any(grid$q > grid$r) ||
@@ -244,10 +262,14 @@ sections <- c(
   "",
   sprintf("Gerado por `script/mosw_strength_grid.R` em %s.", format(Sys.Date())),
   "",
-  sprintf(paste0("Grid: r ∈ {4..8}, q ∈ {2..r} (%d combinações) × %d amostras × ",
-                 "%d instrumentos = %d células; p = %d; direção de normalização = `%s`."),
-          nrow(RQ_GRID), length(SAMPLES), length(INSTRUMENTS), nrow(grid),
-          P_LAGS, MP_VAR),
+  sprintf(paste0("Grid: q ∈ {2..r}, com r ∈ {4..6} na amostra cheia (%d ",
+                 "combinações) e r ∈ {4..8} na pré-COVID (%d); × %d ",
+                 "instrumentos = %d células; p = %d; direção de normalização = ",
+                 "`%s`. A cheia para em r = 6 porque, sob a escala de ",
+                 "Lenza-Primiceri, o VAR dos fatores é explosivo de r = 7 em ",
+                 "diante (raiz máxima 1,001362 em r = 7 e 1,001318 em r = 8)."),
+          nrow(RQ_GRID_BY_SAMPLE$full), nrow(RQ_GRID_BY_SAMPLE$pre_covid),
+          length(INSTRUMENTS), nrow(grid), P_LAGS, MP_VAR),
   "",
   paste0("Instrumentos (camadas de construção do instrumento, ",
          "conforme `tab:first_stage`): ",

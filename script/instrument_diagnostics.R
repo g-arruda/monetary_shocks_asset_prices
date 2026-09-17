@@ -29,7 +29,11 @@ message(sprintf("Estimating production DFM (r=%d, q=%d, p=%d) ...",
 seed_inst <- readr::read_csv("data/processed/instrument_bruto.csv", show_col_types = FALSE)
 dfm <- estimate_dfm(X, r = SPEC$r, q = SPEC$q, p = SPEC$p,
                     dates = dates, instrument = seed_inst,
-                    apply_kilian = FALSE)
+                    apply_kilian = FALSE,
+                    # Production cell: carries the Lenza-Primiceri scale, so the
+                    # first stage and the MOSW Wald block describe the model the
+                    # published IRFs come from.
+                    covid_volatility = SPEC$covid_volatility)
 
 policy_residual <- dfm$var_residuals[, 1]
 p_lag           <- dfm$p

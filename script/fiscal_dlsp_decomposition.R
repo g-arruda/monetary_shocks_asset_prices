@@ -198,7 +198,10 @@ if (any(!fixed$stable) || any(!is.finite(as.matrix(fixed[, c("xi_mp", "f_robust_
 baseline_cell <- run_stage2_cell(
   baseline, expected_dates, instrument, spec$sample, spec$r, spec$q, spec$p,
   spec$instrument, spec$mp_var, spec$horizon, 0L, spec$bootstrap_seed,
-  spec$shock_bps, infer_tcode_from_varnames(colnames(baseline)), spec$ci_levels
+  spec$shock_bps, infer_tcode_from_varnames(colnames(baseline)), spec$ci_levels,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+  covid_volatility = NULL
 )
 baseline_reference <- readRDS(spec$coherence_cell_path)$irf
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
@@ -214,7 +217,10 @@ if (!all(baseline_smoke$pass)) {
 experimental_smoke <- run_stage2_cell(
   expanded, expected_dates, instrument, spec$sample, spec$r, spec$q, spec$p,
   spec$instrument, spec$mp_var, spec$horizon, 0L, spec$bootstrap_seed,
-  spec$shock_bps, tcodes, spec$ci_levels
+  spec$shock_bps, tcodes, spec$ci_levels,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+  covid_volatility = NULL
 )
 if (!isTRUE(all.equal(
   experimental_smoke$irf$irf_point_matrix[experimental_smoke$mpind, 1],
@@ -234,7 +240,10 @@ if (run_bootstrap) {
     run_stage2_cell(
       expanded, expected_dates, instrument, spec$sample, spec$r, spec$q, spec$p,
       spec$instrument, spec$mp_var, spec$horizon, spec$nboot, spec$bootstrap_seed,
-      spec$shock_bps, tcodes, spec$ci_levels
+      spec$shock_bps, tcodes, spec$ci_levels,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+      covid_volatility = NULL
     ),
     warning = function(warning) {
       if (grepl("^Bootstrap iteracao", conditionMessage(warning))) {

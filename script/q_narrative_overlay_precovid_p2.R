@@ -64,7 +64,10 @@ paths <- purrr::map_dfr(Q_VALUES, function(q) {
     shock_bps = SPEC$shock_bps, tcode = tcode,
     ci_levels = SPEC$ar_levels,
     inference = if (ar_ref) "ar" else "bootstrap",
-    ar_nw_lags = SPEC$ar_nw_lags
+    ar_nw_lags = SPEC$ar_nw_lags,
+    # Closed round: stays OLS so it keeps reproducing the numbers its
+    # note was written against (CLAUDE.md, completed rounds).
+    covid_volatility = NULL
   )
   point <- cell$irf$irf_point_matrix
   ci68 <- cell$irf$ci[["0.68"]]

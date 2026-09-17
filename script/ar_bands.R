@@ -84,7 +84,11 @@ PROBES <- list(
        window = SPEC$pre_covid_sample)
 )
 
-# Alvos publicados em output/instrument/mosw_strength_grid.csv
+# Alvos do modelo SEM tratamento, que é o que este script estima de ponta a
+# ponta (ver a chamada de run_stage2_cell abaixo). Desde 2026-09-17
+# output/instrument/mosw_strength_grid.csv traz a janela cheia sob a escala de
+# Lenza-Primiceri, onde a célula de produção vale 6.847996589177567: estes dois
+# números não são mais os de lá, e não devem ser sincronizados com ela.
 XI_MP_TARGET <- c(producao = 6.0570142714031245, r5q2 = 2.338951439606032)
 
 HEADLINE <- c("yield_6m", "yield_2y", "yield_5y", "cambio_usd",
@@ -121,7 +125,13 @@ for (cel in CELLS) {
     instrument = INSTRUMENT, mp_var = MP_VAR,
     h = HORIZON, nboot = 0L, seed = BOOT_SEED, shock_bps = SHOCK_BPS,
     tcode = tcode, ci_levels = LEVELS,
-    inference = "ar", ar_nw_lags = NW_LAGS
+    inference = "ar", ar_nw_lags = NW_LAGS,
+    # Untreated, and so is every other cell in this script. This round is the
+    # record of the 2026-09-08 inference swap, and its whole point is to put AR,
+    # delta and the wild bootstrap side by side on one point estimate. The
+    # bootstrap is undefined under the Lenza-Primiceri scale, so a treated
+    # re-run would lose the leg the comparison exists for.
+    covid_volatility = NULL
   )
   ar <- ar_cell$irf$ar
 
@@ -133,7 +143,7 @@ for (cel in CELLS) {
       instrument = INSTRUMENT, mp_var = MP_VAR,
       h = HORIZON, nboot = N_BOOT, seed = BOOT_SEED, shock_bps = SHOCK_BPS,
       tcode = tcode, ci_levels = LEVELS,
-      inference = "bootstrap"
+      inference = "bootstrap", covid_volatility = NULL
     )
     # As duas réguas têm de sair da mesma estimativa pontual, senão não são
     # comparáveis célula a célula.
@@ -202,7 +212,8 @@ probes <- lapply(PROBES, function(pr) {
       r = pr$r, q = pr$q, p = pr$p,
       instrument = INSTRUMENT, mp_var = MP_VAR,
       h = HORIZON, nboot = 0L, seed = BOOT_SEED, shock_bps = SHOCK_BPS,
-      tcode = tcode, ci_levels = LEVELS, inference = "ar", ar_nw_lags = NW_LAGS
+      tcode = tcode, ci_levels = LEVELS, inference = "ar", ar_nw_lags = NW_LAGS,
+      covid_volatility = NULL
     )
     "viável"
   }, error = function(e) conditionMessage(e))
@@ -216,9 +227,10 @@ probe_tbl <- bind_rows(probes)
 
 cat("\nAuto-testes:\n")
 
-# 1. xi_mp reproduz output/instrument/mosw_strength_grid.csv na janela cheia.
-#    A grade usa compute_factor_space_wald() com os lags residualizados; aqui o
-#    mesmo número sai do bloco W2 da covariância de MOSW, por outro caminho.
+# 1. xi_mp reproduz XI_MP_TARGET, o modelo sem tratamento, na janela cheia.
+#    A régua de produção usa compute_factor_space_wald() com os lags
+#    residualizados; aqui o mesmo número sai do bloco W2 da covariância de
+#    MOSW, por outro caminho. O alvo é o não tratado de propósito.
 dev_xi <- max(vapply(names(XI_MP_TARGET), function(cid)
   abs(diag_cell[[cid]]$xi_mp - XI_MP_TARGET[[cid]]), numeric(1)))
 cat(sprintf("  1. xi_mp vs mosw_strength_grid.csv           : %.3e\n", dev_xi))
