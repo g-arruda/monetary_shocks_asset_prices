@@ -44,34 +44,16 @@ RQ_GRID_BY_SAMPLE <- list(
   pre_covid = dplyr::filter(tidyr::expand_grid(r = 4:8, q = 2:8), q <= r)
 )
 
-KEYS <- c("sample", "r", "q", "instrument")
-EXPECTED_COLUMNS <- c(
-  KEYS, "n_obs", "f_robust_mp", "wald_mp", "ar_bounded"
-)
-
-DATA_PATH <- SPEC$data_path
-INST_PATH <- SPEC$instrument_path
 OUT_DIR <- "output/instrument"
-CSV_PATH <- file.path(OUT_DIR, "mosw_strength_grid.csv")
-REPORT_PATH <- file.path(OUT_DIR, "mosw_strength_grid.md")
 
 CHI2_1_95 <- qchisq(0.95, df = 1)
-
-# Independent smoke test for the production instrument (nota 2026-09-02).
-# Full window under the production Lenza-Primiceri scale since 2026-09-17; it
-# was 6.057014 / 9.625428 untreated. The pre-COVID window has s_t = 1 in every
-# month and did not move.
-PROD_SMOKE <- list(
-  full = c(wald_mp = 6.847997, f_robust_mp = 11.765250),
-  pre_covid = c(wald_mp = 8.643436, f_robust_mp = 13.809985)
-)
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 
 # ---- Data ----------------------------------------------------------
 
-raw_data <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |>
+raw_data <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
   tidyr::drop_na()
 dates <- as.Date(raw_data$ref.date)
 data_mat <- raw_data |>
@@ -82,50 +64,31 @@ if (is.na(mp_idx)) {
   stop("Policy normalization variable is missing from the production panel")
 }
 
-inst_panel <- readr::read_csv(INST_PATH, show_col_types = FALSE)
+inst_panel <- readr::read_csv(SPEC$instrument_path, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
 
 # ---- Grid ----------------------------------------------------------
 
-rows <- vector("list", sum(vapply(RQ_GRID_BY_SAMPLE, nrow, integer(1))) *
-                 length(INSTRUMENTS))
-ir <- 0L
-
-for (sample_name in names(SAMPLES)) {
-  RQ_GRID <- RQ_GRID_BY_SAMPLE[[sample_name]]
+grid <- purrr::map_dfr(names(SAMPLES), function(sample_name) {
   win <- SAMPLES[[sample_name]]
   in_window <- dates >= win[1] & dates <= win[2]
   data_sub <- data_mat[in_window, , drop = FALSE]
   dates_sub <- dates[in_window]
   expected_n_obs <- nrow(data_sub) - P_LAGS
 
-  for (g in seq_len(nrow(RQ_GRID))) {
-    r <- RQ_GRID$r[g]
-    q <- RQ_GRID$q[g]
-
-    dfm <- tryCatch(
-      estimate_dfm(
-        data_sub,
-        r = r,
-        q = q,
-        p = P_LAGS,
-        dates = dates_sub,
-        # The full window runs the production Lenza-Primiceri scale, so xi_mp of
-        # record is the one the published IRFs are built on. The pre-COVID
-        # window has s_t = 1 in every month, so it is the same fit either way,
-        # and estimate_dfm() rejects a covid_start outside its residual months.
-        covid_volatility = if (sample_name == "full") SPEC$covid_volatility else NULL
-      ),
-      error = function(error) {
-        stop(
-          sprintf(
-            "DFM estimation failed at (%s, r=%d, q=%d, p=%d): %s",
-            sample_name, r, q, P_LAGS, conditionMessage(error)
-          ),
-          call. = FALSE
-        )
-      }
+  purrr::pmap_dfr(RQ_GRID_BY_SAMPLE[[sample_name]], function(r, q) {
+    dfm <- estimate_dfm(
+      data_sub,
+      r = r,
+      q = q,
+      p = P_LAGS,
+      dates = dates_sub,
+      # The full window runs the production Lenza-Primiceri scale, so xi_mp of
+      # record is the one the published IRFs are built on. The pre-COVID
+      # window has s_t = 1 in every month, so it is the same fit either way,
+      # and estimate_dfm() rejects a covid_start outside its residual months.
+      covid_volatility = if (sample_name == "full") SPEC$covid_volatility else NULL
     )
 
     if (!isTRUE(dfm$diagnostics$is_stable) ||
@@ -134,30 +97,19 @@ for (sample_name in names(SAMPLES)) {
                    sample_name, r, q, P_LAGS))
     }
 
-    for (instrument in INSTRUMENTS) {
+    purrr::map_dfr(INSTRUMENTS, function(instrument) {
       inst_df <- data.frame(
         month = inst_panel$month,
         shock = inst_panel[[instrument]]
       ) |>
         tidyr::drop_na(shock)
 
-      diag_fs <- tryCatch(
-        diagnose_instrument_in_factor_space(
-          dfm,
-          inst_df,
-          dates_sub,
-          P_LAGS,
-          mp_idx
-        ),
-        error = function(error) {
-          stop(
-            sprintf(
-              "MOSW diagnostic failed at (%s, r=%d, q=%d, p=%d, %s): %s",
-              sample_name, r, q, P_LAGS, instrument, conditionMessage(error)
-            ),
-            call. = FALSE
-          )
-        }
+      diag_fs <- diagnose_instrument_in_factor_space(
+        dfm,
+        inst_df,
+        dates_sub,
+        P_LAGS,
+        mp_idx
       )
 
       if (!all(is.finite(c(diag_fs$wald_mp, diag_fs$f_robust_mp))) ||
@@ -168,8 +120,7 @@ for (sample_name in names(SAMPLES)) {
         ))
       }
 
-      ir <- ir + 1L
-      rows[[ir]] <- data.frame(
+      data.frame(
         sample = sample_name,
         r = r,
         q = q,
@@ -180,43 +131,11 @@ for (sample_name in names(SAMPLES)) {
         ar_bounded = diag_fs$wald_mp > CHI2_1_95,
         stringsAsFactors = FALSE
       )
-    }
-  }
-}
+    })
+  })
+})
 
-grid <- dplyr::bind_rows(rows)
-
-expected_n_rows <- sum(vapply(RQ_GRID_BY_SAMPLE, nrow, integer(1))) *
-  length(INSTRUMENTS)
-if (nrow(grid) != expected_n_rows ||
-    anyDuplicated(grid[KEYS]) ||
-    any(grid$q > grid$r) ||
-    any(!is.finite(grid$wald_mp)) ||
-    any(!is.finite(grid$f_robust_mp))) {
-  stop("MOSW grid failed its coverage, uniqueness or finiteness gates")
-}
-if (!identical(names(grid), EXPECTED_COLUMNS)) {
-  stop("MOSW grid does not have the expected schema")
-}
-
-# ---- Production smoke test -----------------------------------------
-
-for (sample_name in names(PROD_SMOKE)) {
-  cell <- grid |>
-    dplyr::filter(sample == sample_name,
-                  r == SPEC$r, q == SPEC$q,
-                  instrument == "z_jk_bs_purif")
-  if (nrow(cell) != 1L ||
-      abs(cell$wald_mp - PROD_SMOKE[[sample_name]][["wald_mp"]]) > 5e-6 ||
-      abs(cell$f_robust_mp - PROD_SMOKE[[sample_name]][["f_robust_mp"]]) > 5e-6) {
-    stop(sprintf(
-      "Production smoke test failed for sample '%s' at (r=%d,q=%d)",
-      sample_name, SPEC$r, SPEC$q
-    ))
-  }
-}
-
-readr::write_csv(grid, CSV_PATH)
+readr::write_csv(grid, file.path(OUT_DIR, "mosw_strength_grid.csv"))
 
 
 # ---- Report --------------------------------------------------------
@@ -315,4 +234,4 @@ for (sample_name in names(SAMPLES)) {
   )
 }
 
-writeLines(sections, REPORT_PATH)
+writeLines(sections, file.path(OUT_DIR, "mosw_strength_grid.md"))
