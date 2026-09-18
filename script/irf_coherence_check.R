@@ -1,6 +1,7 @@
 # ===================================================================
-# Point-by-point theory-coherence check of the production IRFs across
-# ~40 key panel variables under the centralized production specification.
+# Point-by-point theory-coherence check of the production IRFs for every
+# variable of coherence_var_table() under the centralized production
+# specification.
 # Bands are the Anderson-Rubin sets of `production_spec()$inference`, the
 # inference of the DFM since 2026-09-08. For each variable, every horizon
 # h = 0..48 is checked for sign and for exclusion of zero at 68% and 90%
@@ -38,10 +39,7 @@ HORIZON    <- SPEC$horizon
 AR_NW_LAGS <- SPEC$ar_nw_lags
 SHOCK_BPS  <- SPEC$shock_bps
 CI_LEVELS  <- SPEC$ci_levels
-WINDOW     <- SPEC$sample
 
-DATA_PATH <- SPEC$data_path
-INST_PATH <- SPEC$instrument_path
 OUT_DIR   <- "output/irf"
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
@@ -49,13 +47,16 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Data + estimation ---------------------------------------------
 
-raw_data <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |> tidyr::drop_na()
+raw_data <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
+  tidyr::drop_na()
 dates    <- as.Date(raw_data$ref.date)
-data_mat <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
+data_mat <- raw_data |>
+  dplyr::select(-ref.date) |>
+  as.matrix()
 tcode    <- infer_tcode_from_varnames(colnames(data_mat))
 var_names <- colnames(data_mat)
 
-inst_panel <- readr::read_csv(INST_PATH, show_col_types = FALSE)
+inst_panel <- readr::read_csv(SPEC$instrument_path, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
 spec_tbl <- coherence_var_table()
@@ -65,12 +66,9 @@ if (length(missing) > 0) {
        paste(missing, collapse = ", "))
 }
 
-cat(sprintf("Estimating production spec: %s x %s, r=%d q=%d p=%d\n",
-            INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, P_LAGS))
-t0 <- Sys.time()
 cell <- run_stage2_cell(
   data_mat, dates, inst_panel,
-  sample_window = WINDOW,
+  sample_window = SPEC$sample,
   r = R_FACTORS, q = Q_DYNAMIC, p = P_LAGS,
   instrument = INSTRUMENT, mp_var = MP_VAR,
   h = HORIZON, shock_bps = SHOCK_BPS, tcode = tcode, ci_levels = CI_LEVELS,
@@ -79,7 +77,6 @@ cell <- run_stage2_cell(
   # DFM of section 4 does. Section 5 is scored off this run.
   covid_volatility = SPEC$covid_volatility
 )
-cat(sprintf("  done in %.1f min\n", as.numeric(Sys.time() - t0, units = "mins")))
 saveRDS(cell, SPEC$coherence_cell_path)
 
 point <- cell$irf$irf_point_matrix
@@ -87,44 +84,31 @@ ci68  <- cell$irf$ci[["0.68"]]
 ci90  <- cell$irf$ci[["0.90"]]
 ar    <- cell$irf$ar
 
-cat(sprintf("  xi_mp in the normalization direction = %.6f (T = %d, W is %d x %d)\n",
-            ar$xi_den, ar$T_eff, ar$n_par, ar$n_par))
 for (lvl in CI_LEVELS) {
   b <- ar$by_level[[sprintf("%.2f", lvl)]]
-  bounded <- b$ahat[1L, 1L] > 0
-  if (bounded != (ar$xi_den > b$critval)) {
+  if ((b$ahat[1L, 1L] > 0) != (ar$xi_den > b$critval)) {
     stop("Set boundedness disagrees with xi_mp > critval at level ", lvl)
   }
-  cat(sprintf("  %.0f%%: critval %.4f, sets bounded = %s | %s\n",
-              100 * lvl, b$critval, bounded,
-              paste(sprintf("%s %d", names(table(b$set_type)),
-                            as.integer(table(b$set_type))), collapse = ", ")))
 }
 
 
 # ---- Evaluate every variable ---------------------------------------
 
-perh_rows <- list()
-summ_rows <- list()
-for (i in seq_len(nrow(spec_tbl))) {
+evaluations <- purrr::map(seq_len(nrow(spec_tbl)), function(i) {
   spec <- spec_tbl[i, ]
   idx  <- match(spec$var, var_names)
-  res  <- evaluate_irf_path(
+  evaluate_irf_path(
     point[idx, ], ci68$lower[idx, ], ci68$upper[idx, ],
     ci90$lower[idx, ], ci90$upper[idx, ], spec,
     set_type68 = ar$by_level[["0.68"]]$set_type[idx, ],
     set_type90 = ar$by_level[["0.90"]]$set_type[idx, ]
   )
-  perh_rows[[i]] <- res$perh
-  summ_rows[[i]] <- res$summary
-}
-perh <- dplyr::bind_rows(perh_rows)
-summ <- dplyr::bind_rows(summ_rows)
+})
+perh <- dplyr::bind_rows(purrr::map(evaluations, "perh"))
+summ <- dplyr::bind_rows(purrr::map(evaluations, "summary"))
 
 readr::write_csv(perh, file.path(OUT_DIR, "irf_coherence_h.csv"))
 readr::write_csv(summ, file.path(OUT_DIR, "irf_coherence_summary.csv"))
-cat(sprintf("Wrote %d per-horizon rows, %d summary rows\n",
-            nrow(perh), nrow(summ)))
 
 
 # ---- Plots (6 panels per page, grouped) ----------------------------
@@ -145,7 +129,7 @@ for (g in unique(spec_tbl$group)) {
     print(p)
   }
 }
-dev.off()
+invisible(dev.off())
 
 
 # ---- Report --------------------------------------------------------
@@ -154,14 +138,18 @@ traj_cols <- c("var", "h0", "h3", "h6", "h12", "h24", "h36", "h48",
                "share_correct", "verdict")
 
 group_sections <- unlist(lapply(unique(spec_tbl$group), function(g) {
-  tbl <- summ |> dplyr::filter(group == g) |> dplyr::select(dplyr::all_of(traj_cols))
+  tbl <- summ |>
+    dplyr::filter(group == g) |>
+    dplyr::select(dplyr::all_of(traj_cols))
   c(sprintf("### %s", g), "", md_table(tbl), "")
 }))
 
 violations <- summ |>
   dplyr::filter(verdict %in% c("incoerente", "placebo_viola") | wrong_sig90 %in% TRUE)
 
-verdict_count <- summ |> dplyr::count(tier, verdict) |> dplyr::arrange(tier, dplyr::desc(n))
+verdict_count <- summ |>
+  dplyr::count(tier, verdict) |>
+  dplyr::arrange(tier, dplyr::desc(n))
 
 report <- c(
   "# Coerência ponto a ponto das IRFs — especificação de produção",
@@ -219,18 +207,10 @@ report <- c(
   "",
   "## Canais soft (câmbio / risco soberano)",
   "",
-  md_table(summ |> dplyr::filter(tier == "soft") |>
+  md_table(summ |>
+             dplyr::filter(tier == "soft") |>
              dplyr::select(var, h0, h6, h12, h24, channel, right_sig90)),
   ""
 )
 
 writeLines(report, file.path(OUT_DIR, "irf_coherence_report.md"))
-cat(sprintf("Wrote %s\n", file.path(OUT_DIR, "irf_coherence_report.md")))
-
-cat("\n========== VERDICT COUNTS ==========\n")
-print(as.data.frame(verdict_count), row.names = FALSE)
-cat("\n========== VIOLATIONS ==========\n")
-if (nrow(violations) > 0) {
-  print(as.data.frame(violations |> dplyr::select(group, var, verdict, share_correct, wrong_sig90)),
-        row.names = FALSE)
-} else cat("none\n")
