@@ -14,8 +14,8 @@ source("R/modeling/production_spec.R")
 SPEC <- production_spec()
 SAMPLE_START <- SPEC$event_sample[1]
 SAMPLE_END   <- SPEC$event_sample[2]
-LOAD_START   <- SPEC$instrument_load_start
-TARGET_BD    <- 126                      # ~6 months in business days
+LOAD_START   <- as.Date("2011-09-01")   # daily antecedents of the 65-day pre-event trends
+TARGET_BD    <- 126                     # ~6 months in business days
 
 di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END)
 

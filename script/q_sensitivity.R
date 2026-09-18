@@ -89,7 +89,7 @@ cells <- purrr::map(Q_VALUES, function(q) {
     r = SPEC$r, q = q, p = CELL$p,
     instrument = SPEC$instrument, mp_var = SPEC$mp_var,
     h = SPEC$horizon, shock_bps = SPEC$shock_bps, tcode = tcode,
-    ci_levels = SPEC$ar_levels,
+    ci_levels = SPEC$ci_levels,
     inference = if (q == SPEC$q) "ar" else "none",
     ar_nw_lags = SPEC$ar_nw_lags,
     covid_volatility = CELL$covid_volatility

@@ -22,7 +22,9 @@ with the advisor.
 ## Production spec — the invariant that costs most to get wrong
 
 **`z_jk_bs_purif` × `yield_6m` × (r=5, q=5, p=4), +50bp**, read from
-`R/modeling/production_spec.R`. The production panel is the 115-series
+`R/modeling/production_spec.R`, which since 2026-09-18 carries only what two or more scripts read
+(single-reader values — the lag-selection record, the composition checks — live in
+`script/validation/validate_production_spec.R`). The production panel is the 115-series
 `drop_setor_externo__eua__credito__imoveis_fiscal_expectations`, covering
 2012-03 through 2025-12 (166 months, 162 factor innovations after `p=4`);
 the 106-series base exists only for historical factor-grid reproduction.

@@ -11,6 +11,27 @@ source("R/identification/factor_space_diagnostics.R")
 
 spec <- production_spec()
 out_dir <- "output/validation"
+
+# Read only here: the composition of the production panel and the record of
+# the factor-VAR lag choice (AIC on the common T = 154 sample, trend in the
+# selection only; p = 4 inherited from the 2013-01--2025-09 vintage)
+N_MONTHS <- 166L
+N_INNOVATIONS <- 162L
+REQUIRED_SERIES <- c(spec$mp_var, spec$production_series_added)
+EXCLUDED_SERIES <- c(
+  "juros_cdi", "asset_mlcx", "external_current_account_gdp",
+  "external_exports", "external_imports", "external_reserves", "us_dgs2",
+  "us_dgs10", "us_fedfunds", "us_dtwexbgs", "asset_sp500_yahoo",
+  "credit_default_rate", "credit_average_rate", "housing_ivgr"
+)
+LAG_SELECTION <- list(
+  deterministic = "trend",
+  max_lag = 12L,
+  common_sample = 154L,
+  selected_aic = 4L,
+  selected_bic = 2L,
+  aic_at_production = 8.231266782137459
+)
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 panel <- readr::read_csv(spec$data_path, show_col_types = FALSE)
@@ -27,12 +48,12 @@ base_mat <- base |>
   dplyr::select(-ref.date) |>
   as.matrix()
 expected_dates <- seq(spec$sample[1], spec$sample[2], by = "month")
-if (!identical(dates, expected_dates) || nrow(data_mat) != spec$n_months ||
+if (!identical(dates, expected_dates) || nrow(data_mat) != N_MONTHS ||
     ncol(data_mat) != spec$n_series || ncol(base_mat) != 106L ||
     anyDuplicated(colnames(data_mat)) || any(!is.finite(data_mat)) ||
     any(!is.finite(base_mat)) ||
-    !all(spec$required_series %in% colnames(data_mat)) ||
-    any(spec$excluded_series %in% colnames(data_mat))) {
+    !all(REQUIRED_SERIES %in% colnames(data_mat)) ||
+    any(EXCLUDED_SERIES %in% colnames(data_mat))) {
   stop("The canonical and base panels do not satisfy the production composition invariants.")
 }
 if (nrow(manifest) != spec$n_series || anyDuplicated(manifest$variable) ||
@@ -72,7 +93,7 @@ if (!identical(names(saved_bai_ng), names(bai_ng_surface)) ||
 instrument_wide <- readr::read_csv(spec$instrument_path, show_col_types = FALSE) |>
   dplyr::mutate(month = as.Date(month))
 if (!identical(instrument_wide$month, expected_dates) ||
-    nrow(instrument_wide) != spec$n_months ||
+    nrow(instrument_wide) != N_MONTHS ||
     anyDuplicated(instrument_wide$month) ||
     any(!is.finite(as.matrix(instrument_wide[, -1])))) {
   stop("The instrument variants must cover all 166 production months.")
@@ -109,16 +130,14 @@ instrument <- instrument_wide |>
 factors <- estimate_static_factors(data_mat, spec$r)$factors
 lag_criteria <- var_lag_criteria(
   factors,
-  pmax = spec$factor_var_lag_selection$max_lag,
-  deterministic = spec$factor_var_lag_selection$deterministic
+  pmax = LAG_SELECTION$max_lag,
+  deterministic = LAG_SELECTION$deterministic
 )
-if (unique(lag_criteria$T_common) != spec$factor_var_lag_selection$common_sample ||
-    lag_criteria$p[which.min(lag_criteria$aic)] !=
-      spec$factor_var_lag_selection$selected_aic ||
-    lag_criteria$p[which.min(lag_criteria$bic)] !=
-      spec$factor_var_lag_selection$selected_bic ||
+if (unique(lag_criteria$T_common) != LAG_SELECTION$common_sample ||
+    lag_criteria$p[which.min(lag_criteria$aic)] != LAG_SELECTION$selected_aic ||
+    lag_criteria$p[which.min(lag_criteria$bic)] != LAG_SELECTION$selected_bic ||
     abs(lag_criteria$aic[lag_criteria$p == spec$p] -
-      spec$factor_var_lag_selection$aic_at_production) > 1e-12) {
+      LAG_SELECTION$aic_at_production) > 1e-12) {
   stop("The reported factor-lag criteria do not reproduce on the expanded sample.")
 }
 readr::write_csv(
@@ -196,7 +215,7 @@ if (any(comparison$n_innovations != comparison$n_innovations_expected) ||
     any(abs(comparison$f_robust_mp - comparison$f_robust_mp_expected) > 1e-8) ||
     any(abs(comparison$max_companion_root - comparison$max_companion_root_expected) > 1e-10) ||
     any(comparison$stable != comparison$stable_expected) ||
-    diagnostics$n_innovations[diagnostics$sample == "full"] != spec$n_innovations) {
+    diagnostics$n_innovations[diagnostics$sample == "full"] != N_INNOVATIONS) {
   stop("The canonical production diagnostics do not reproduce the migration gate.")
 }
 readr::write_csv(diagnostics, file.path(out_dir, "production_spec_diagnostics.csv"))
