@@ -31,6 +31,7 @@ rm(list = ls())
 source("R/modeling/factor_estimation.R")
 source("R/modeling/production_spec.R")
 source("R/identification/spec_sweep.R")   # md_table
+source("R/reporting/markdown_report.R")   # fmt
 
 SPEC       <- production_spec()
 FIXTURE    <- "output/validation/amengual_watson_fixture.csv"
@@ -53,6 +54,15 @@ if (!file.exists(FIXTURE)) {
 # istart/iend window from smpl_HO) collapses to the identity here and is
 # kept only where it still has an effect.
 
+#' Least-squares factor estimation, transcribed from factor_estimation_ls.m
+#'
+#' @param est_data T x N balanced panel.
+#' @param nfac_u Number of unobserved factors.
+#' @param nt_min Minimum number of observations per series (SW default 20).
+#' @param tol Convergence tolerance on the SSR, scaled by T x N.
+#'
+#' @return List with the factors `fac`, loadings `lambda` in the units of the
+#'   data, `tss`, `ssr`, `r2vec`, `nobs`, `nt` and `ns`.
 factor_estimation_ls_matlab <- function(est_data, nfac_u, nt_min = NT_MIN, tol = TOL) {
   xdata <- est_data
   nt <- nrow(xdata)
@@ -113,6 +123,11 @@ factor_estimation_ls_matlab <- function(est_data, nfac_u, nt_min = NT_MIN, tol =
 
 # ---- Literal transcription of bai_ng.m -----------------------------
 
+#' IC2 penalty of Bai-Ng, transcribed from bai_ng.m
+#'
+#' @param lsout Output of `factor_estimation_ls_matlab()`.
+#'
+#' @return Scalar IC2 criterion for the number of factors in `lsout`.
 bai_ng_matlab <- function(lsout) {
   ssr <- lsout$ssr
   nobs <- lsout$nobs
@@ -126,6 +141,14 @@ bai_ng_matlab <- function(lsout) {
 
 # ---- Literal transcription of amengual_watson.m --------------------
 
+#' Amengual-Watson dynamic-factor count, transcribed from amengual_watson.m
+#'
+#' @param est_data T x N balanced panel.
+#' @param nfac_static Number of static factors r.
+#' @param nvar_lag Lag order p of the factor VAR.
+#'
+#' @return List with the IC2 criterion `aw` for q = 1..r, its `ssr`, and the
+#'   selected `q_hat`.
 amengual_watson_matlab <- function(est_data, nfac_static, nvar_lag) {
   lsout <- factor_estimation_ls_matlab(est_data, nfac_static)
   fac <- lsout$fac
@@ -162,28 +185,6 @@ amengual_watson_matlab <- function(est_data, nfac_static, nvar_lag) {
 }
 
 
-# ---- Mirror of the project's residual step --------------------------
-# Needed to isolate the one flag that separates the two implementations.
-# It is proved faithful below by reproducing amengual_watson()'s own aw
-# exactly before being reused with the flag flipped.
-
-project_aw_residuals <- function(X, r, p) {
-  X_std <- scale(X, center = TRUE, scale = TRUE)
-  n <- nrow(X_std)
-  pca <- prcomp(X_std, scale. = FALSE, center = FALSE)
-  F_hat <- pca$x[, 1:r, drop = FALSE]
-  lagged_factors <- stats::embed(F_hat, p + 1)
-  Z <- cbind(1, lagged_factors[, -(1:r), drop = FALSE])
-  resid_mat <- matrix(NA_real_, n - p, ncol(X_std))
-  for (i in 1:ncol(X_std)) {
-    y <- X_std[(p + 1):n, i]
-    z <- Z[1:length(y), , drop = FALSE]
-    resid_mat[, i] <- y - z %*% solve(crossprod(z), crossprod(z, y))
-  }
-  resid_mat
-}
-
-
 # ---- Fixture -------------------------------------------------------
 
 fixture <- readr::read_csv(FIXTURE, show_col_types = FALSE)
@@ -207,8 +208,17 @@ qhat_ok <- ref$q_hat == prj$q_hat
 # A2. Isolation. The mirror is proved faithful to amengual_watson() first,
 # then reused with the second-stage standardization switched on. If the
 # transcription is right, all that survives is the population-vs-sample sd
-# convention, a constant log(n/(n-1)) on every entry.
-resid_prj <- project_aw_residuals(X, r, p)
+# convention, a constant log(n/(n-1)) on every entry. The mirror regresses
+# column by column, as amengual_watson() does, so the check can be exact.
+X_std <- scale(X, center = TRUE, scale = TRUE)
+F_mirror <- prcomp(X_std, scale. = FALSE, center = FALSE)$x[, 1:r, drop = FALSE]
+lagged_factors <- embed(F_mirror, p + 1)
+Z_mirror <- cbind(1, lagged_factors[, -(1:r), drop = FALSE])
+resid_prj <- vapply(seq_len(ncol(X_std)), function(i) {
+  y_i <- X_std[(p + 1):nrow(X_std), i]
+  z_i <- Z_mirror[seq_along(y_i), , drop = FALSE]
+  drop(y_i - z_i %*% solve(crossprod(z_i), crossprod(z_i, y_i)))
+}, numeric(nrow(X_std) - p))
 aw_mirror <- bai_ng_criteria(resid_prj, max_r = r, standardize = FALSE)$criteria$IC2
 if (!isTRUE(all.equal(aw_mirror, prj$aw, tolerance = 0))) {
   stop("O espelho dos residuos nao reproduz amengual_watson(); a isolacao ",
@@ -260,8 +270,6 @@ cat(sprintf("B. q_hat sob apply_bll = TRUE: %d (producao usa q = %d)\n",
 
 # ---- Report --------------------------------------------------------
 
-fmt <- function(x) formatC(x, format = "f", digits = 6)
-
 sections <- c(
   "# Validação de `amengual_watson()` contra o MATLAB de Stock-Watson",
   "",
@@ -282,9 +290,9 @@ sections <- c(
   "",
   md_table(data.frame(
     q = 1:r,
-    aw_matlab = fmt(ref$aw),
-    aw_projeto = fmt(prj$aw),
-    aw_projeto_std = fmt(aw_std),
+    aw_matlab = fmt(ref$aw, 6),
+    aw_projeto = fmt(prj$aw, 6),
+    aw_projeto_std = fmt(aw_std, 6),
     stringsAsFactors = FALSE
   )),
   "",
@@ -340,7 +348,7 @@ sections <- c(
                 "(`estimate_static_factors`): desvio máximo em valor absoluto",
                 "**%.3e**."), loading_gap),
   sprintf(paste("- `cor(PC_k(yy), diff(F_prod)_k)` = %s nos %d fatores."),
-          paste(fmt(fac_cor), collapse = ", "), r),
+          paste(fmt(fac_cor, 6), collapse = ", "), r),
   "",
   paste("Isso importa para a leitura, não para a fidelidade. Amengual-Watson",
         "é um critério de Bai-Ng, que exige estacionariedade; o painel é",
