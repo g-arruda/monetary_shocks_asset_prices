@@ -11,10 +11,11 @@ paths:
 
 Inputs and intermediate files live under `data/` (gitignored), in two levels: **`data/raw/`** is
 what comes out of the downloads, untreated and never hand-edited; **`data/processed/`** is what
-goes into estimation. Sample: **2013-01 to 2025-09, monthly, 111 series** — the
-`drop_setor_externo__eua__credito__imoveis` panel, migrated 2026-08-13. It drops `juros_cdi` and
-`asset_mlcx` and adds the fiscal and Focus-expectations blocks; the 106-series base is kept in
-`data_log_deseasonalized_base_106.csv` only to reproduce historical factor grids. (Vintage refreshed
+goes into estimation. Sample: **2012-03 to 2025-12, monthly, 115 series** — the
+`drop_setor_externo__eua__credito__imoveis_fiscal_expectations` panel, in production since the
+2026-09-02 migration. It drops `juros_cdi` and `asset_mlcx` and adds the fiscal and
+Focus-expectations blocks; the 106-series base is kept in `data_log_deseasonalized_base_106.csv`
+only to reproduce historical factor grids. (Vintage refreshed
 2026-07-24: the duplicated tempo-de-procura block and the empty ANBIMA break-even columns were
 dropped, and `download.R` / `clean.R` now persist their outputs via `write_csv` — the old scripts
 computed but never wrote.)
@@ -26,6 +27,10 @@ from "the collection came back empty", and the error only surfaces months later,
 - `data/raw/raw_data.csv` — merged monthly panel from `download.R`.
 - `data/processed/data_log_deseasonalized.csv` — input to the DFM (drop `ref.date`, `drop_na`).
   Written by `clean.R`, which log-transforms and applies X-13 via `R/preprocessing/seasonality.R`.
+  **Its column order is part of the spec**: `clean.R` imposes the order every output was estimated
+  on, because the ABC selector subsamples the cross-section in column order (a permutation moved
+  the pruned panel's ABC from 11 to 7 and flipped R1 of the pruning round) and the PCA rounds
+  differently. Never let the order follow `download.R`.
   (The `source()` of `R/preprocessing/stationarity.R` is commented out — **that file never existed**;
   BLL standardization happens inside `factor_estimation.R`.)
 - `data/processed/instrument.csv` — single-column instrument consumed by both estimation scripts.
