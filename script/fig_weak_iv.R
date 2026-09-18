@@ -65,8 +65,7 @@ dfm_bands <- dfm |>
   dplyr::left_join(series, by = "var") |>
   dplyr::mutate(
     dplyr::across(c(point, lo, hi), ~ .x * dfm_scale),
-    model = "DFM",
-    level_label = paste0(round(100 * level), "%")
+    model = "DFM"
   )
 
 var_bands <- var |>
@@ -80,8 +79,7 @@ var_bands <- var |>
   dplyr::left_join(series, by = "var") |>
   dplyr::mutate(
     dplyr::across(c(point, lo, hi), ~ .x * var_scale),
-    model = "VAR observável",
-    level_label = paste0(round(100 * level), "%")
+    model = "VAR observável"
   )
 
 # A disconnected or unbounded set would be drawn as the band [lo, hi]
@@ -100,8 +98,7 @@ if (
 bands <- dplyr::bind_rows(dfm_bands, var_bands) |>
   dplyr::mutate(
     var = factor(var, levels = series$var),
-    model = factor(model, levels = c("DFM", "VAR observável")),
-    level_label = factor(level_label, levels = c("90%", "68%"))
+    model = factor(model, levels = c("DFM", "VAR observável"))
   )
 
 y_ranges <- bands |>
@@ -119,25 +116,19 @@ y_ranges <- bands |>
 #' @param model_name Model column.
 #' @param y_label Vertical-axis label.
 #'
-#' @return A ggplot object with the point response and 68%/90% bands.
+#' @return A ggplot object with the point response and the 68%/90% bands,
+#'   drawn as in `script/fig_section5.R`.
 response_panel <- function(variable, model_name, y_label) {
-  plot_data <- bands |>
-    dplyr::filter(var == variable, model == model_name) |>
-    dplyr::arrange(level)
+  band90 <- dplyr::filter(bands, var == variable, model == model_name, level == 0.90)
+  band68 <- dplyr::filter(bands, var == variable, model == model_name, level == 0.68)
   limits <- dplyr::filter(y_ranges, var == variable)
 
-  ggplot2::ggplot(plot_data, ggplot2::aes(x = h, y = point)) +
-    ggplot2::geom_ribbon(
-      ggplot2::aes(ymin = lo, ymax = hi, fill = level_label),
-      alpha = 0.65
-    ) +
-    ggplot2::geom_hline(
-      yintercept = 0,
-      linetype = "dashed",
-      colour = "#B22222",
-      linewidth = 0.3
-    ) +
-    ggplot2::geom_line(colour = "black", linewidth = 0.65) +
+  ggplot2::ggplot(band90, ggplot2::aes(x = h)) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo, ymax = hi), fill = "steelblue", alpha = 0.18) +
+    ggplot2::geom_ribbon(data = band68, ggplot2::aes(ymin = lo, ymax = hi),
+                         fill = "steelblue", alpha = 0.36) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
+    ggplot2::geom_line(ggplot2::aes(y = point), colour = "black", linewidth = 0.8) +
     ggplot2::scale_x_continuous(
       breaks = seq(0, H_MAX, 6),
       limits = c(0, H_MAX),
@@ -145,10 +136,6 @@ response_panel <- function(variable, model_name, y_label) {
     ) +
     ggplot2::scale_y_continuous(
       limits = c(limits$y_min - limits$padding, limits$y_max + limits$padding)
-    ) +
-    ggplot2::scale_fill_manual(
-      name = "Faixas",
-      values = c("90%" = "#9ecae1", "68%" = "#2171b5")
     ) +
     ggplot2::labs(
       title = if (variable == series$var[1L]) model_name else NULL,
@@ -171,9 +158,7 @@ plots <- unlist(lapply(seq_len(nrow(series)), function(i) {
   )
 }), recursive = FALSE)
 
-figure <- patchwork::wrap_plots(plots, ncol = 2L, byrow = TRUE) +
-  patchwork::plot_layout(guides = "collect") &
-  ggplot2::theme(legend.position = "bottom")
+figure <- patchwork::wrap_plots(plots, ncol = 2L, byrow = TRUE)
 
 ggplot2::ggsave(
   "paper/fig_weak_iv_main.pdf",
