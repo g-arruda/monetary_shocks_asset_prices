@@ -23,15 +23,7 @@
 
 source("R/modeling/impulse_response.R")
 
-FIXTURE <- "output/validation/olea_oil_fixture.rds"
-
-if (!file.exists(FIXTURE)) {
-  cat("SKIPPED — fixture ausente:", FIXTURE, "\n")
-  quit(save = "no", status = 0)
-}
-
-fx <- readRDS(FIXTURE)
-p  <- fx$p
+fx <- readRDS("output/validation/olea_oil_fixture.rds")
 Y  <- fx$Y                              # T x n, LHS do VAR (já sem as p defasagens)
 X  <- fx$X                              # T x (1 + n*p), constante na 1a coluna
 z  <- fx$z

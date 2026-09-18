@@ -35,6 +35,12 @@ TOL_MATLAB <- 1e-8
 
 # ---- Literal transcription of NW_hac_STATA.m ----------------
 
+#' Newey-West HAC covariance, transcribed line by line from NW_hac_STATA.m
+#'
+#' @param vars T x k matrix of (demeaned) moment series.
+#' @param lags Number of Bartlett lags.
+#'
+#' @return k x k long-run covariance matrix, normalized by T.
 nw_hac_stata <- function(vars, lags) {
   Tn     <- nrow(vars)
   Sigma0 <- (1 / Tn) * (t(vars) %*% vars)
@@ -49,34 +55,30 @@ nw_hac_stata <- function(vars, lags) {
   Sigma
 }
 
-# Rebuild what compute_factor_space_wald does internally, so the
-# comparison isolates the kernel.
-wald_by_hand <- function(eta, Z, controls, lags) {
-  Z_use <- as.numeric(qr.resid(qr(cbind(1, as.matrix(controls))), Z))
-  G     <- Z_use * eta
-  Gamma <- colMeans(G)
-  V     <- sweep(G, 2, Gamma)
-  W     <- nw_hac_stata(V, lags)
-  list(wald_k     = nrow(eta) * Gamma^2 / diag(W),
-       wald_joint = nrow(eta) * drop(t(Gamma) %*% solve(W, Gamma)))
-}
-
 # ---- A. Kernel check ----------------------------------------
 
 set.seed(42)
-T_sim <- 200L; q_sim <- 4L
+T_sim <- 200L
+q_sim <- 4L
 eta_s  <- matrix(rnorm(T_sim * q_sim), T_sim, q_sim)
 z_s    <- rnorm(T_sim)
 ctrl_s <- matrix(rnorm(T_sim * 5L), T_sim, 5L)
+
+# Rebuild what compute_factor_space_wald does internally, so the
+# comparison isolates the kernel.
+z_use   <- as.numeric(qr.resid(qr(cbind(1, ctrl_s)), z_s))
+G_s     <- z_use * eta_s
+Gamma_s <- colMeans(G_s)
+V_s     <- sweep(G_s, 2, Gamma_s)
 
 cat("A. Kernel vs literal NW_hac_STATA.m transcription\n")
 cat("   lag   max|dxi_k|    |dxi_joint|\n")
 max_dev_a <- 0
 for (L in 0:8) {
   got <- compute_factor_space_wald(eta_s, z_s, controls = ctrl_s, nw_lags = L)
-  exp <- wald_by_hand(eta_s, z_s, ctrl_s, L)
-  d_k <- max(abs(got$wald_k - exp$wald_k))
-  d_j <- abs(got$wald_joint - exp$wald_joint)
+  W   <- nw_hac_stata(V_s, L)
+  d_k <- max(abs(got$wald_k - T_sim * Gamma_s^2 / diag(W)))
+  d_j <- abs(got$wald_joint - T_sim * drop(t(Gamma_s) %*% solve(W, Gamma_s)))
   max_dev_a <- max(max_dev_a, d_k, d_j)
   cat(sprintf("   %3d   %.3e     %.3e\n", L, d_k, d_j))
 }
@@ -88,54 +90,40 @@ stopifnot(max(abs(w_ours - w_sand)) < TOL_KERNEL)
 
 # ---- B. End-to-end against the official tax WHat ------------
 
-fix <- file.path("output/validation",
-                 c("olea_tax_eta.csv", "olea_tax_z.csv",
-                   "olea_tax_X.csv", "olea_tax_WHat_gamma.csv"))
-
 cat("\nB. Official tax application (TaxSVARIV.m, n = 9, p = 2, NWlags = 8)\n")
 
-if (!all(file.exists(fix))) {
-  cat("   SKIPPED — fixture missing:",
-      paste(basename(fix[!file.exists(fix)]), collapse = ", "), "\n")
-  best_lag <- NA_integer_
-} else {
-  rd     <- function(f) as.matrix(read.csv(f, header = FALSE))
-  eta_t  <- rd(fix[1])
-  z_t    <- as.numeric(rd(fix[2]))
-  X_t    <- rd(fix[3])
-  Wg_off <- rd(fix[4])
+tax <- lapply(
+  c(eta = "olea_tax_eta.csv", z = "olea_tax_z.csv",
+    X = "olea_tax_X.csv", WHat_gamma = "olea_tax_WHat_gamma.csv"),
+  function(f) as.matrix(read.csv(file.path("output/validation", f), header = FALSE))
+)
 
-  # X already carries the constant, so residualize on X as-is.
-  z_res <- as.numeric(qr.resid(qr(X_t), z_t))
-  G_t   <- z_res * eta_t
-  V_t   <- sweep(G_t, 2, colMeans(G_t))
+# X already carries the constant, so residualize on X as-is.
+z_res <- as.numeric(qr.resid(qr(tax$X), as.numeric(tax$z)))
+G_t   <- z_res * tax$eta
+V_t   <- sweep(G_t, 2, colMeans(G_t))
 
-  cat("   lag   max rel. diff vs official WHat Gamma block\n")
-  devs <- setNames(numeric(0), character(0))
-  for (L in c(0L, 4L, 8L, 12L)) {
-    W   <- nw_hac_stata(V_t, L)
-    rel <- max(abs(W - Wg_off)) / max(abs(Wg_off))
-    devs[as.character(L)] <- rel
-    cat(sprintf("   %3d   %.3e%s\n", L, rel,
-                if (L == 8L) "   <- TaxSVARIV.m:52" else ""))
-  }
-  best_lag <- as.integer(names(which.min(devs)))
+cat("   lag   max rel. diff vs official WHat Gamma block\n")
+devs <- setNames(numeric(0), character(0))
+for (L in c(0L, 4L, 8L, 12L)) {
+  W   <- nw_hac_stata(V_t, L)
+  rel <- max(abs(W - tax$WHat_gamma)) / max(abs(tax$WHat_gamma))
+  devs[as.character(L)] <- rel
+  cat(sprintf("   %3d   %.3e%s\n", L, rel,
+              if (L == 8L) "   <- TaxSVARIV.m:52" else ""))
 }
+best_lag <- as.integer(names(which.min(devs)))
 
 # ---- Verdict -------------------------------------------------
 
 ok_a <- max_dev_a < TOL_KERNEL
-ok_b <- is.na(best_lag) || (best_lag == 8L && min(devs) < TOL_MATLAB)
+ok_b <- best_lag == 8L && min(devs) < TOL_MATLAB
 
 cat("\n")
 if (ok_a && ok_b) {
-  if (is.na(best_lag)) {
-    cat("VALIDATION PASSED (A only; B skipped for want of the fixture).\n")
-  } else {
-    cat(sprintf(paste0("VALIDATION PASSED: kernel exact to %.0e, and the tax ",
-                       "Gamma block\nmatches at NWlags = 8 (rel. %.1e) and at ",
-                       "no other lag.\n"), TOL_KERNEL, min(devs)))
-  }
+  cat(sprintf(paste0("VALIDATION PASSED: kernel exact to %.0e, and the tax ",
+                     "Gamma block\nmatches at NWlags = 8 (rel. %.1e) and at ",
+                     "no other lag.\n"), TOL_KERNEL, min(devs)))
 } else {
   stop("VALIDATION FAILED (A ok = ", ok_a, ", B ok = ", ok_b, ")")
 }
