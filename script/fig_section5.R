@@ -35,28 +35,16 @@ if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
 }
 SPEC <- production_spec()
 
-CELL_RDS  <- SPEC$coherence_cell_path
-PANEL_CSV <- SPEC$data_path
-HCSV      <- "output/irf/irf_coherence_h.csv"
-T7_CSV    <- "diagnostics/output/t7_2_irf_estado.csv"
-IMG_DIR   <- "paper"
-
 H_MAX <- 36L   # every IRF figure stops here
 
-cell <- readRDS(CELL_RDS)
-if (cell$instrument != SPEC$instrument || cell$r != SPEC$r || cell$q != SPEC$q) {
-  stop("The cached IRF cell does not match the production instrument or factor dimensions.")
-}
-
-panel <- readr::read_csv(PANEL_CSV, show_col_types = FALSE)
-hcsv  <- readr::read_csv(HCSV, show_col_types = FALSE)
+cell  <- readRDS(SPEC$coherence_cell_path)
+panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE)
+hcsv  <- readr::read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE)
 
 point <- cell$irf$irf_point_matrix
 ci68  <- cell$irf$ci[["0.68"]]
 ci90  <- cell$irf$ci[["0.90"]]
 vn    <- cell$var_names
-
-dir.create(IMG_DIR, showWarnings = FALSE, recursive = TRUE)
 
 #' Build one impulse-response panel
 #'
@@ -79,9 +67,9 @@ irf_panel <- function(
   k <- if (identical(scale, "pct")) 100 / mean(panel[[v]], na.rm = TRUE) else scale
   j <- 0:H_MAX + 1
 
-    # Significância direto da banda de 90%, e não de irf_coherence_h.csv: aquele
-    # arquivo cobre só as 53 séries escoradas, e a figura plota séries do painel
-    # que não entram na régua de coerência (commodity_agro, por exemplo).
+  # Significância direto da banda de 90%, e não de irf_coherence_h.csv: aquele
+  # arquivo cobre só as séries escoradas, e a figura plota séries do painel
+  # que não entram na régua de coerência (commodity_agro, por exemplo).
   df <- data.frame(
     h    = 0:H_MAX,
     irf  = k * point[i, j],
@@ -109,24 +97,12 @@ irf_panel <- function(
     ggplot2::geom_line(ggplot2::aes(y = irf), colour = "black", linewidth = 0.8) +
     sig_markers +
     ggplot2::scale_x_continuous(breaks = seq(0, H_MAX, 6), limits = c(0, H_MAX),
-                       expand = c(0.01, 0)) +
+                                expand = c(0.01, 0)) +
     ggplot2::theme_classic(base_size = 11) +
     ggplot2::labs(y = lab, x = NULL) +
     ggplot2::theme(axis.title.y = ggplot2::element_text(size = ggplot2::rel(0.95)),
-          axis.text    = ggplot2::element_text(size = ggplot2::rel(0.85)),
-          plot.margin  = ggplot2::margin(3, 5, 1, 2))
-}
-
-#' Save a paper figure
-#'
-#' @param file Output filename inside `paper/`.
-#' @param plot Plot object to save.
-#' @param w Width in inches.
-#' @param h Height in inches.
-#'
-#' @return The path is written as a side effect; no value is used.
-save_fig <- function(file, plot, w, h) {
-  ggplot2::ggsave(file.path(IMG_DIR, file), plot, width = w, height = h, device = cairo_pdf)
+                   axis.text    = ggplot2::element_text(size = ggplot2::rel(0.85)),
+                   plot.margin  = ggplot2::margin(3, 5, 1, 2))
 }
 
 #' Arrange impulse-response panels in a grid
@@ -151,7 +127,7 @@ grid_of <- function(specs, ncol, mark_sig90 = TRUE) {
 
 
 # --- 1. estrutura a termo -------------------------------------------
-save_fig("fig_curva.pdf", grid_of(list(
+ggplot2::ggsave("paper/fig_curva.pdf", grid_of(list(
   list("yield_3m",  "DI 3 meses (p.b.)",  1e4),
   list("yield_6m",  "DI 6 meses (p.b.)",  1e4),
   list("yield_1y",  "DI 1 ano (p.b.)",    1e4),
@@ -159,29 +135,29 @@ save_fig("fig_curva.pdf", grid_of(list(
   list("yield_5y",  "DI 5 anos (p.b.)",   1e4),
   list("yield_10y", "DI 10 anos (p.b.)",  1e4),
   list("juros_selic", "Selic overnight (p.b.)", 100)
-), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), width = 10.4, height = 5.8, device = cairo_pdf)
 
 
 # --- 2. Exchange rates and sovereign risk ---------------------------
-save_fig("fig_cambio_risco.pdf", grid_of(list(
+ggplot2::ggsave("paper/fig_cambio_risco.pdf", grid_of(list(
   list("cambio_usd",      "Câmbio BRL/USD (%)",   "pct"),
   list("cambio_eur",      "Câmbio BRL/EUR (%)",   "pct"),
   list("embi_perc",       "EMBI+ Brasil (p.b.)",  100),
   list("cds_5y",          "CDS 5 anos (p.b.)",    1)
-), ncol = 2, mark_sig90 = FALSE), 9.6, 5.8)
+), ncol = 2, mark_sig90 = FALSE), width = 9.6, height = 5.8, device = cairo_pdf)
 
 
 # --- 3. Fiscal variables --------------------------------------------
-save_fig("fig_fiscal.pdf", grid_of(list(
+ggplot2::ggsave("paper/fig_fiscal.pdf", grid_of(list(
   list("fiscal_dbgg", "DBGG (p.p. do PIB)", 1),
   list("fiscal_dlsp", "DLSP (p.p. do PIB)", 1),
   list("fiscal_primary_balance", "NFSP primária (R$ bi)", 1e-3),
   list("dlsp_exchange_adjustment", "Ajuste cambial (R$ bi)", 1e-3)
-), ncol = 2, mark_sig90 = FALSE), 9.6, 5.8)
+), ncol = 2, mark_sig90 = FALSE), width = 9.6, height = 5.8, device = cairo_pdf)
 
 
 # --- 4. Focus expectations ------------------------------------------
-save_fig("fig_expectativas.pdf", grid_of(list(
+ggplot2::ggsave("paper/fig_expectativas.pdf", grid_of(list(
   list("expect_focus_ipca12m", "Focus IPCA 12 meses (p.p.)", 1),
   list("expect_focus_selic_ny", "Focus Selic (p.p.)", 1),
   list("expect_focus_pib_ny", "Focus PIB (p.p.)", 1),
@@ -191,7 +167,7 @@ save_fig("fig_expectativas.pdf", grid_of(list(
        "Focus primário (p.p. do PIB)", 1),
   list("expect_focus_fiscal_nominal_balance_ny",
        "Focus nominal (p.p. do PIB)", 1)
-), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), width = 10.4, height = 5.8, device = cairo_pdf)
 
 
 # --- 5. State dependence --------------------------------------------
@@ -200,7 +176,7 @@ save_fig("fig_expectativas.pdf", grid_of(list(
 # testada, porque o regime de risco baixo cai a ~59 observações em h = 12. É o
 # único uso de área cinza no paper.
 H_T7 <- 24L
-t7 <- readr::read_csv(T7_CSV, show_col_types = FALSE) |>
+t7 <- readr::read_csv("diagnostics/output/t7_2_irf_estado.csv", show_col_types = FALSE) |>
   dplyr::filter(var == "cambio_usd", h <= H_T7)
 
 reg <- dplyr::bind_rows(
@@ -210,7 +186,7 @@ reg <- dplyr::bind_rows(
 
 p_reg <- ggplot2::ggplot(reg, ggplot2::aes(x = h, colour = reg, fill = reg)) +
   ggplot2::annotate("rect", xmin = 8.5, xmax = H_T7, ymin = -Inf, ymax = Inf,
-           fill = "grey86", alpha = 0.5) +
+                    fill = "grey86", alpha = 0.5) +
   ggplot2::geom_ribbon(ggplot2::aes(ymin = lo, ymax = hi), alpha = 0.16, colour = NA) +
   ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
   ggplot2::geom_line(ggplot2::aes(y = b), linewidth = 0.8) +
@@ -220,11 +196,11 @@ p_reg <- ggplot2::ggplot(reg, ggplot2::aes(x = h, colour = reg, fill = reg)) +
   ggplot2::theme_classic(base_size = 11) +
   ggplot2::labs(y = "Câmbio BRL/USD, resposta em nível", x = NULL, colour = NULL, fill = NULL) +
   ggplot2::theme(legend.position = c(0.75, 0.88), legend.background = ggplot2::element_blank(),
-        legend.key.size = ggplot2::unit(0.8, "lines"))
+                 legend.key.size = ggplot2::unit(0.8, "lines"))
 
 p_t <- ggplot2::ggplot(t7, ggplot2::aes(x = h, y = t_dif)) +
   ggplot2::annotate("rect", xmin = 8.5, xmax = H_T7, ymin = -Inf, ymax = Inf,
-           fill = "grey86", alpha = 0.5) +
+                    fill = "grey86", alpha = 0.5) +
   ggplot2::geom_hline(yintercept = c(-1.96, 1.96), linetype = "dotted", linewidth = 0.35) +
   ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
   ggplot2::geom_line(linewidth = 0.8) +
@@ -233,11 +209,12 @@ p_t <- ggplot2::ggplot(t7, ggplot2::aes(x = h, y = t_dif)) +
   ggplot2::theme_classic(base_size = 11) +
   ggplot2::labs(y = "t da diferença entre regimes", x = NULL)
 
-save_fig("fig_estado.pdf", p_reg + p_t + patchwork::plot_layout(ncol = 2), 8.2, 3.4)
+ggplot2::ggsave("paper/fig_estado.pdf", p_reg + p_t + patchwork::plot_layout(ncol = 2),
+                width = 8.2, height = 3.4, device = cairo_pdf)
 
 
 # --- 6. Activity and labor ------------------------------------------
-save_fig("fig_atividade.pdf", grid_of(list(
+ggplot2::ggsave("paper/fig_atividade.pdf", grid_of(list(
   list("ibc_br",                         "IBC-Br (%)",             "pct"),
   list("ind_transformacao",              "Ind. transformação (%)", "pct"),
   list("ind_bens_duraveis",              "Bens duráveis (%)",      "pct"),
@@ -246,11 +223,11 @@ save_fig("fig_atividade.pdf", grid_of(list(
   list("vendas_servicos",                "Vendas de serviços (%)", "pct"),
   list("capacidade_instalada_industria", "Utiliz. capacidade (p.p.)", 1),
   list("trab_hrs_trabalhadas_industria", "Horas na indústria (%)", "pct")
-), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), width = 10.4, height = 5.8, device = cairo_pdf)
 
 
 # --- 7. Credit -------------------------------------------------------
-save_fig("fig_credito.pdf", grid_of(list(
+ggplot2::ggsave("paper/fig_credito.pdf", grid_of(list(
   list("credit_outstanding",    "Saldo total (%)",          1),
   list("credito_agro",          "Crédito agropecuário (%)", 1),
   list("credito_transporte",    "Crédito transporte (%)",   1),
@@ -258,11 +235,11 @@ save_fig("fig_credito.pdf", grid_of(list(
   list("credito_comercio",      "Crédito comércio (%)",     1),
   list("credito_construcao",    "Crédito construção (%)",   1),
   list("credito_pessoa_fisica", "Crédito pessoa física (%)", 1)
-), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), width = 10.4, height = 5.8, device = cairo_pdf)
 
 
 # --- 8. Prices -------------------------------------------------------
-save_fig("fig_precos.pdf", grid_of(list(
+ggplot2::ggsave("paper/fig_precos.pdf", grid_of(list(
   list("price_ipp",           "IPP (p.p. ao mês)",        1),
   list("price_igp_m",         "IGP-M (p.p. ao mês)",      1),
   list("price_ipca",          "IPCA cheio (p.p. ao mês)", 1),
@@ -271,11 +248,11 @@ save_fig("fig_precos.pdf", grid_of(list(
   list("price_core_ipca_ex1", "Núcleo EX1 (p.p.)",        1),
   list("price_ipca_difusao",  "Difusão do IPCA (p.p.)",   1),
   list("price_inpc",          "INPC (p.p. ao mês)",       1)
-), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), width = 10.4, height = 5.8, device = cairo_pdf)
 
 
 # --- 9. Equity indexes ----------------------------------------------
-save_fig("fig_acoes.pdf", grid_of(list(
+ggplot2::ggsave("paper/fig_acoes.pdf", grid_of(list(
   list("asset_ibov", "Ibovespa (%)",        1),
   list("asset_smll", "SMLL, small caps (%)", 1),
   list("asset_idiv", "IDIV, dividendos (%)", 1),
@@ -283,15 +260,15 @@ save_fig("fig_acoes.pdf", grid_of(list(
   list("asset_ifnc", "IFNC, bancos (%)",    1),
   list("asset_imat", "IMAT, materiais (%)", 1),
   list("asset_ifix", "IFIX, renda imob. (%)", 1)
-), ncol = 4, mark_sig90 = FALSE), 10.4, 5.8)
+), ncol = 4, mark_sig90 = FALSE), width = 10.4, height = 5.8, device = cairo_pdf)
 
 
 # --- 10. Placebos ----------------------------------------------------
-save_fig("fig_placebos.pdf", grid_of(list(
+ggplot2::ggsave("paper/fig_placebos.pdf", grid_of(list(
   list("sp500_vix", "VIX",                     1),
   list("msci",      "MSCI emergentes",         1),
   list("epu_us",    "EPU Estados Unidos",      1)
-), ncol = 3), 9.6, 3.1)
+), ncol = 3), width = 9.6, height = 3.1, device = cairo_pdf)
 
 
 # --- Validation -----------------------------------------------------

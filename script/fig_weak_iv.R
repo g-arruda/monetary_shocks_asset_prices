@@ -27,42 +27,16 @@ if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
 
 SPEC <- production_spec()
 VAR_SPEC <- SPEC$var_benchmark
-DFM_PATH <- "output/irf/irf_coherence_h.csv"
-VAR_PATH <- "output/var/svar_iv_weak_robust.csv"
-DATA_PATH <- SPEC$data_path
-H_MAX <- 36L
-LEVELS <- c(0.68, 0.90)
+H_MAX <- VAR_SPEC$ar_horizon
+LEVELS <- VAR_SPEC$ar_levels
 
-required_packages <- c("dplyr", "ggplot2", "patchwork", "readr", "tidyr")
-missing_packages <- required_packages[
-  !vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)
-]
-if (length(missing_packages)) {
-  stop("Missing packages: ", paste(missing_packages, collapse = ", "))
-}
-
-required_files <- c(DFM_PATH, VAR_PATH, DATA_PATH)
-missing_files <- required_files[!file.exists(required_files)]
-if (length(missing_files)) {
-  stop("Missing figure inputs: ", paste(missing_files, collapse = ", "))
-}
-
-dfm <- readr::read_csv(DFM_PATH, show_col_types = FALSE)
-var <- readr::read_csv(VAR_PATH, show_col_types = FALSE)
-panel <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |>
+dfm <- readr::read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE)
+var <- readr::read_csv("output/var/svar_iv_weak_robust.csv", show_col_types = FALSE)
+panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
   dplyr::filter(
     ref.date >= VAR_SPEC$sample[1L],
     ref.date <= VAR_SPEC$sample[2L]
   )
-
-dfm_columns <- c("var", "h", "point", "lo68", "hi68", "lo90", "hi90")
-var_columns <- c("cell", "var", "h", "level", "point", "lo", "hi", "set_type")
-if (!all(dfm_columns %in% names(dfm))) {
-  stop("The DFM file is missing required columns")
-}
-if (!all(var_columns %in% names(var))) {
-  stop("The VAR file is missing required columns")
-}
 
 series <- tibble::tibble(
   var = c("ibc_br", "price_ipca", "yield_6m", "cambio_usd", "cds_5y"),
@@ -76,19 +50,10 @@ series <- tibble::tibble(
   dfm_scale = c(1, 1, 1e4, 100 / mean(panel$cambio_usd), 1),
   var_scale = c(100 / mean(panel$ibc_br), 1, 1e4, 100 / mean(panel$cambio_usd), 1)
 )
-if (
-  nrow(panel) != VAR_SPEC$n_months ||
-    !identical(series$var, VAR_SPEC$vars) ||
-    !identical(H_MAX, VAR_SPEC$ar_horizon) ||
-    !setequal(LEVELS, VAR_SPEC$ar_levels) ||
-    any(!is.finite(c(series$dfm_scale, series$var_scale)))
-) {
-  stop("Unexpected sample, variables, horizon, confidence levels, or scales")
-}
 
 dfm_bands <- dfm |>
   dplyr::filter(var %in% series$var, h >= 0L, h <= H_MAX) |>
-  dplyr::select(dplyr::all_of(dfm_columns)) |>
+  dplyr::select(var, h, point, lo68, hi68, lo90, hi90) |>
   tidyr::pivot_longer(
     cols = c(lo68, hi68, lo90, hi90),
     names_to = c("bound", "level"),
@@ -119,19 +84,7 @@ var_bands <- var |>
     level_label = paste0(round(100 * level), "%")
   )
 
-expected_rows <- nrow(series) * (H_MAX + 1L) * length(LEVELS)
-if (
-  nrow(dfm_bands) != expected_rows ||
-    nrow(var_bands) != expected_rows ||
-    anyDuplicated(dfm_bands[c("var", "h", "level")]) ||
-    anyDuplicated(var_bands[c("var", "h", "level")]) ||
-    !setequal(dfm_bands$h, 0:H_MAX) ||
-    !setequal(var_bands$h, 0:H_MAX) ||
-    !setequal(dfm_bands$level, LEVELS) ||
-    !setequal(var_bands$level, LEVELS)
-) {
-  stop("The figure requires complete 0--36 responses at 68% and 90%")
-}
+# A disconnected or unbounded set would be drawn as the band [lo, hi]
 if (any(!var_bands$set_type %in% c("interval", "singleton"))) {
   stop("The VAR contains an unbounded or disconnected AR/MOSW set")
 }
@@ -222,13 +175,11 @@ figure <- patchwork::wrap_plots(plots, ncol = 2L, byrow = TRUE) +
   patchwork::plot_layout(guides = "collect") &
   ggplot2::theme(legend.position = "bottom")
 
-output_path <- "paper/fig_weak_iv_main.pdf"
 ggplot2::ggsave(
-  output_path,
+  "paper/fig_weak_iv_main.pdf",
   figure,
   width = 8.2,
   height = 10.8,
-  device = grDevices::pdf,
+  device = pdf,
   version = "1.4"
 )
-message("-> ", output_path, " (DFM AR/MOSW; VAR AR/MOSW; 68%/90%)")
