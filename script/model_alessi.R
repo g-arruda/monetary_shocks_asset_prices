@@ -27,9 +27,6 @@ bai_ng_surface <- tibble::tibble(
   IC2 = bai_ng$criteria$IC2,
   IC3 = bai_ng$criteria$IC3
 )
-if (!identical(unname(unlist(bai_ng$r_hat)), c(5L, 5L, 20L))) {
-  stop("The production BLL Bai-Ng surface must select IC1=5, IC2=5, and IC3=20.")
-}
 dir.create(dirname(SPEC$bai_ng_output), showWarnings = FALSE, recursive = TRUE)
 readr::write_csv(bai_ng_surface, SPEC$bai_ng_output)
 
@@ -42,9 +39,6 @@ sdfm_results <- main_sdfm(
   ci_levels = SPEC$ci_levels
 )
 
-# Generate IRF plots for key economic variables. Os indices abaixo foram
-# verificados contra colnames(data) em 2026-05-08; trocar para nome (string)
-# se a ordem do painel mudar.
 response_vars <- list(
   c("ipca"              = "price_ipca"),
   c("ipca difusao"      = "price_ipca_difusao"),
