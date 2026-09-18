@@ -12,14 +12,6 @@ source("R/modeling/var_proxy.R")
 source("R/identification/weak_iv_ar.R")
 
 TOL <- 1e-8
-FIXTURE <- "output/validation/olea_oil_fixture.rds"
-DATA_PATH <- "data/processed/data_log_deseasonalized.csv"
-
-required_files <- c(FIXTURE, DATA_PATH)
-missing_files <- required_files[!file.exists(required_files)]
-if (length(missing_files)) {
-  stop("Missing validation inputs: ", paste(missing_files, collapse = ", "))
-}
 
 
 #' Literal translation of `MARep.m`
@@ -59,53 +51,6 @@ relative_deviation <- function(got, want) {
   keep <- is.finite(got) & is.finite(want)
   if (!any(keep)) return(0)
   max(abs(got[keep] - want[keep])) / max(1, max(abs(want[keep])))
-}
-
-
-#' Independently compute common-sample VAR lag criteria
-#'
-#' @param series Data matrix.
-#' @param pmax Largest candidate lag order.
-#' @param deterministic Deterministic specification: `constant` or `trend`.
-#'
-#' @return Data frame with AIC and BIC for every order.
-lag_criteria_literal <- function(series, pmax, deterministic) {
-  series <- as.matrix(series)
-  T_common <- nrow(series) - pmax
-  n <- ncol(series)
-  n_deterministic <- if (deterministic == "constant") 1L else 2L
-
-  rows <- lapply(seq_len(pmax), function(p) {
-    series_p <- series[(pmax - p + 1L):nrow(series), , drop = FALSE]
-    n_total <- nrow(series_p)
-    lags <- do.call(
-      cbind,
-      lapply(seq_len(p), function(lag) {
-        series_p[(p + 1L - lag):(n_total - lag), , drop = FALSE]
-      })
-    )
-    Y <- series_p[(p + 1L):n_total, , drop = FALSE]
-    deterministic_terms <- if (deterministic == "constant") {
-      matrix(1, nrow(Y), 1L)
-    } else {
-      cbind(1, (p + 1L):n_total)
-    }
-    X <- cbind(deterministic_terms, lags)
-    slope <- t(Y) %*% X %*% solve(crossprod(X))
-    eta <- t(Y) - slope %*% t(X)
-    Sigma <- tcrossprod(eta) / T_common
-    n_parameters <- n^2 * p + n * n_deterministic
-
-    data.frame(
-      p = p,
-      T_common = T_common,
-      aic = log(det(Sigma)) + 2 * n_parameters / T_common,
-      bic = log(det(Sigma)) +
-        log(T_common) * n_parameters / T_common
-    )
-  })
-
-  dplyr::bind_rows(rows)
 }
 
 
@@ -164,7 +109,7 @@ stopifnot(
 
 cat("\nB. Official oil fixture\n\n")
 
-fixture <- readRDS(FIXTURE)
+fixture <- readRDS("output/validation/olea_oil_fixture.rds")
 p <- fixture$p
 n <- fixture$n
 h <- fixture$horizons
@@ -300,36 +245,58 @@ cat("\nC. AIC and BIC in the Brazilian production cell\n\n")
 
 spec <- production_spec()
 var_spec <- spec$var_benchmark
-panel <- read.csv(DATA_PATH, check.names = FALSE)
-panel$ref.date <- as.Date(panel$ref.date)
-panel <- panel[
-  panel$ref.date >= var_spec$sample[1L] &
-    panel$ref.date <= var_spec$sample[2L],
-  c("ref.date", var_spec$vars)
-]
-if (nrow(panel) != var_spec$n_months || anyNA(panel)) {
-  stop("The production panel is incomplete for the BIC validation")
-}
-
-levels <- as.matrix(panel[, var_spec$vars])
+levels <- readr::read_csv(spec$data_path, show_col_types = FALSE) |>
+  dplyr::filter(
+    ref.date >= var_spec$sample[1L],
+    ref.date <= var_spec$sample[2L]
+  ) |>
+  dplyr::select(dplyr::all_of(var_spec$vars)) |>
+  as.matrix()
 translated <- var_lag_criteria(
   levels,
   var_spec$max_lag,
   deterministic = var_spec$deterministic
 )
-literal <- lag_criteria_literal(
-  levels,
-  var_spec$max_lag,
-  deterministic = var_spec$deterministic
-)
+
+# Independent common-sample lag criteria: every order is fitted on the same
+# last T_common observations
+T_common <- nrow(levels) - var_spec$max_lag
+n_levels <- ncol(levels)
+n_deterministic <- if (var_spec$deterministic == "constant") 1L else 2L
+literal <- dplyr::bind_rows(lapply(seq_len(var_spec$max_lag), function(p) {
+  series_p <- levels[(var_spec$max_lag - p + 1L):nrow(levels), , drop = FALSE]
+  n_total <- nrow(series_p)
+  lags <- do.call(
+    cbind,
+    lapply(seq_len(p), function(lag) {
+      series_p[(p + 1L - lag):(n_total - lag), , drop = FALSE]
+    })
+  )
+  Y <- series_p[(p + 1L):n_total, , drop = FALSE]
+  deterministic_terms <- if (var_spec$deterministic == "constant") {
+    matrix(1, nrow(Y), 1L)
+  } else {
+    cbind(1, (p + 1L):n_total)
+  }
+  X <- cbind(deterministic_terms, lags)
+  slope <- t(Y) %*% X %*% solve(crossprod(X))
+  eta <- t(Y) - slope %*% t(X)
+  Sigma <- tcrossprod(eta) / T_common
+  n_parameters <- n_levels^2 * p + n_levels * n_deterministic
+
+  data.frame(
+    p = p,
+    T_common = T_common,
+    aic = log(det(Sigma)) + 2 * n_parameters / T_common,
+    bic = log(det(Sigma)) +
+      log(T_common) * n_parameters / T_common
+  )
+}))
 literal_deviation <- max(
   abs(translated$aic - literal$aic),
   abs(translated$bic - literal$bic)
 )
 
-if (!requireNamespace("vars", quietly = TRUE)) {
-  stop("Missing package: vars")
-}
 vars_criteria <- vars::VARselect(
   levels,
   lag.max = var_spec$max_lag,
@@ -427,6 +394,12 @@ Gamma_dfm  <- rnorm(r_dfm)
 deriv_dfm <- mosw_response_derivatives(AL_dfm, p_dfm, h_dfm, Gamma_dfm,
                                        Load = Load_dfm, Inner = Inner_dfm)
 
+#' Response of the simulated DFM at horizon i - 1, recomputed from vec(AL)
+#'
+#' @param AL_vec Stacked reduced-form coefficients, vec(AL).
+#' @param i Horizon index, 1 for impact.
+#'
+#' @return Vector `Load B_{i-1} Inner Gamma` of length n_out_dfm.
 response_at <- function(AL_vec, i) {
   AL_i <- matrix(AL_vec, nrow = r_dfm)
   companion_i <- rbind(
@@ -440,9 +413,7 @@ response_at <- function(AL_vec, i) {
 }
 
 eps <- 1e-6
-dev_jacobian <- 0
-dev_response <- 0
-for (i in seq_len(h_dfm + 1L)) {
+deviations_dfm <- vapply(seq_len(h_dfm + 1L), function(i) {
   jacobian <- vapply(seq_along(AL_dfm), function(k) {
     up <- as.numeric(AL_dfm)
     dn <- as.numeric(AL_dfm)
@@ -450,11 +421,12 @@ for (i in seq_len(h_dfm + 1L)) {
     dn[k] <- dn[k] - eps
     (response_at(up, i) - response_at(dn, i)) / (2 * eps)
   }, numeric(n_out_dfm))
-  dev_jacobian <- max(dev_jacobian, max(abs(deriv_dfm$D1[, , i] - jacobian)))
-  dev_response <- max(dev_response,
-                      max(abs(drop(deriv_dfm$C[, , i] %*% Gamma_dfm) -
-                                response_at(as.numeric(AL_dfm), i))))
-}
+  c(jacobian = max(abs(deriv_dfm$D1[, , i] - jacobian)),
+    response = max(abs(drop(deriv_dfm$C[, , i] %*% Gamma_dfm) -
+                         response_at(as.numeric(AL_dfm), i))))
+}, numeric(2))
+dev_jacobian <- max(deviations_dfm["jacobian", ])
+dev_response <- max(deviations_dfm["response", ])
 
 cat(sprintf(
   "  Load %dx%d, Inner rank %d | response %.2e | D1 vs numerical Jacobian %.2e\n",
