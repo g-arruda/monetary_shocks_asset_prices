@@ -13,6 +13,31 @@ mantidos em lugar e já usam os caminhos correntes.
 
 ---
 
+## 2026-09-18 — limpeza pós-inspeção visual e fim do Codex
+
+Os motivos estão em `arquivo/README.md`. As saídas continuam em `output/`.
+
+| antes | agora |
+|---|---|
+| `script/q_truncation.R` | `arquivo/script/q_truncation.R` |
+| `containment_vs_production`, `plot_overlay_cells` em `R/identification/spec_sweep.R` | `arquivo/R/identification/spec_sweep.R` |
+| `bai_ng_criteria`, `amengual_watson` em `R/modeling/factor_estimation.R` | `R/modeling/factor_selection.R` |
+| `estimate_var_ols(data, p)` | `estimate_var_wls(data, p, s = 1)`, em `R/modeling/factor_estimation.R` |
+| `output/instrument/instrument_diagnostics_report.md` (colunas da `tab:first_stage`) | `output/instrument/instrument_diagnostics.csv`; o `.md` fica como registro |
+| `R/preprocessing/experimental_extensions.R` | `arquivo/R/preprocessing/experimental_extensions.R` |
+| `factorial_drop_block_manifest`, `build_factorial_drop_block_panels` em `R/identification/experimental_panel.R` | `arquivo/R/identification/experimental_panel.R` |
+| `diagnostics/rq_{block_dimension,dimension}_audit/scripts/` | `arquivo/diagnostics/rq_{block_dimension,dimension}_audit/scripts/`; README e `output/` ficam |
+| `AGENTS.md` | `arquivo/codex/AGENTS.md` |
+
+Apagado, não movido: `R/data_download/fred.R` e `fomc.R` (a purificação UST/FOMC
+do instrumento), `load_fomc_dates` e `on_date` de `R/instrument/di_surprise.R`,
+`build_monthly_z` e a varredura GK de `R/instrument/build_variants.R`,
+`validate_dfm_results` de `R/modeling/impulse_response.R`; e, sem citação em
+nota, `paper/fig_estado.pdf` e os `q_narrative_*.md`/`*_paths.csv`. Os CSVs por
+variante em `data/processed/` deixaram de ser escritos: as três variantes vivem
+em `instrumentos_mensais.csv`. Números de linha de todos os arquivos de `R/` e
+`script/` tocados nesta data mudaram.
+
 ## 2026-09-18 — saída do wild bootstrap e da correção de Kilian
 
 Os motivos estão em `arquivo/README.md`. As saídas continuam em `output/`.
@@ -134,8 +159,9 @@ acima.
 
 - **`data/raw/fomc_dates.csv`** — o council de 2026-08-10 verificou que o arquivo
   **não existia**, e essa verificação está correta para a árvore daquele dia. Ele
-  **passou a existir em 2026-08-10**, produzido pelo script hoje em
-  `script/fomc_dates.R`.
+  **passou a existir em 2026-08-10**. O download foi para `R/data_download/fomc.R`
+  e saiu do código em 2026-09-18 com a purificação UST/FOMC; a cópia local
+  continua em `data/raw/`, sem leitor.
 - **`data/raw/di.csv`** — continua existindo localmente (vintage 2026-02-09) e é
   gitignored, mas **deixou de ser reprodutível a partir do upstream**: em
   2026-08-17 o `pyield-data` já não publica `b3_di.parquet`, mudou o schema e
