@@ -29,6 +29,7 @@
 rm(list = ls())
 
 source("R/modeling/factor_estimation.R")
+source("R/modeling/factor_selection.R")
 source("R/modeling/production_spec.R")
 source("R/identification/spec_sweep.R")   # md_table
 source("R/reporting/markdown_report.R")   # fmt

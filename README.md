@@ -85,9 +85,10 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   painel de 115 séries `(5,5,4)`, 2012-03--2025-12; `dfm_pipeline.R`, a
   composição do fluxo
   estimativo; e os motores `factor_estimation.R`
-  (estimação BLL do DFM, seleção de r/q), `factor_selection.R` (ER/GR de
-  Ahn-Horenstein e ABC, estimadores alternativos de r usados só como
-  diagnóstico), `impulse_response.R` (núcleo de
+  (estimação BLL do DFM e do VAR dos fatores), `factor_selection.R` (todos os
+  seletores do número de fatores: Bai-Ng BLL para r e Amengual-Watson para q,
+  mais ER/GR de Ahn-Horenstein e ABC, usados só como diagnóstico),
+  `impulse_response.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
   `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
   benchmark VAR pequeno observável, com as traduções de `RForm_VAR.m` e

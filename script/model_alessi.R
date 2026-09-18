@@ -10,6 +10,7 @@
 rm(list = ls())
 
 source("R/modeling/factor_estimation.R")
+source("R/modeling/factor_selection.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/modeling/dfm_pipeline.R")

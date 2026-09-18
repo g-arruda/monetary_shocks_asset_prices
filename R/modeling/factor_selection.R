@@ -1,3 +1,112 @@
+#' Bai and Ng (2002) information criteria for the number of static factors
+#'
+#' IC1, IC2 and IC3 over `r = 1..max_r`, from the residual variance `V(r)` of
+#' the rank-`r` principal-components fit. With `apply_bll = TRUE` the panel is
+#' first put in the Barigozzi-Lippi-Luciani form the production PCA reads:
+#' first differences, centered and divided by their standard deviation.
+#' Plain Bai-Ng on the levels would require stationarity.
+#'
+#' @param X Numeric matrix T x N.
+#' @param max_r Largest number of factors considered.
+#' @param standardize Center and scale the columns when `apply_bll = FALSE`.
+#' @param apply_bll Use the BLL standardization of the first differences.
+#'
+#' @return List with `r_hat` (the argmin of each criterion), `criteria` (the
+#'   three surfaces over `r = 1..max_r`) and `pca` (the `prcomp` object).
+#'
+#' @examples
+#' bn <- bai_ng_criteria(panel, max_r = 20L, apply_bll = TRUE)
+bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE, apply_bll = FALSE) {
+  X <- as.matrix(X)
+
+  if (apply_bll) {
+    y <- diff(X)
+    sy <- apply(y, 2, sd)
+    y_centered <- sweep(y, 2, colMeans(y), "-")
+    X_std <- sweep(y_centered, 2, sy, "/")
+  } else if (standardize) {
+    X_std <- scale(X, center = TRUE, scale = TRUE)
+  } else {
+    X_std <- X
+  }
+
+  n_obs <- nrow(X_std)
+  n_ser <- ncol(X_std)
+  pca <- prcomp(X_std, scale. = FALSE, center = FALSE)
+
+  V <- vapply(seq_len(max_r), function(r) {
+    resid <- X_std - pca$x[, 1:r] %*% t(pca$rotation[, 1:r])
+    sum(resid^2) / (n_ser * n_obs)
+  }, numeric(1))
+
+  r <- seq_len(max_r)
+  e <- (n_ser + n_obs) / (n_ser * n_obs)
+  m <- min(n_ser, n_obs)
+  ic1 <- log(V) + r * e * log(1 / e)
+  ic2 <- log(V) + r * e * log(m)
+  ic3 <- log(V) + r * log(m) / m
+
+  list(
+    r_hat = list(IC1 = which.min(ic1), IC2 = which.min(ic2), IC3 = which.min(ic3)),
+    criteria = list(IC1 = ic1, IC2 = ic2, IC3 = ic3),
+    pca = pca
+  )
+}
+
+
+#' Amengual and Watson (2007) estimate of the number of dynamic factors
+#'
+#' Extracts `r` static factors by principal components, regresses every series
+#' on a constant and `p` lags of them, and applies the Bai-Ng IC2 to the
+#' residuals: `q_hat` is its argmin over `q = 1..max_q`.
+#'
+#' @param X Numeric matrix T x N.
+#' @param r Number of static factors.
+#' @param p Lags of the factors in the filtering regression.
+#' @param max_q Largest number of dynamic factors considered.
+#' @param scale Center and scale the columns when `apply_bll = FALSE`.
+#' @param apply_bll Use the BLL standardization of the first differences.
+#' @param standardize_resid Standardize the residuals column by column before
+#'   the second-stage Bai-Ng, as Stock-Watson's `factor_estimation_ls.m` does.
+#'   `FALSE` keeps every recorded `q_hat`
+#'   (notas/2026-08-17_selecao_q_e_fidelidade_amengual_watson.md §2).
+#'
+#' @return List with `aw` (the IC2 surface over `q = 1..max_q`) and `q_hat`.
+#'
+#' @examples
+#' aw <- amengual_watson(panel, r = 5L, p = 4L, apply_bll = TRUE)
+amengual_watson <- function(X, r, p = 4, max_q = r, scale = TRUE, apply_bll = FALSE,
+                            standardize_resid = FALSE) {
+  X <- as.matrix(X)
+
+  if (apply_bll) {
+    y <- diff(X)
+    sy <- apply(y, 2, sd)
+    y_centered <- sweep(y, 2, colMeans(y), "-")
+    X_std <- sweep(y_centered, 2, sy, "/")
+  } else if (scale) {
+    X_std <- scale(X, center = TRUE, scale = TRUE)
+  } else {
+    X_std <- X
+  }
+
+  F_hat <- prcomp(X_std, scale. = FALSE, center = FALSE)$x[, 1:r, drop = FALSE]
+  n_obs <- nrow(X_std)
+  Z <- cbind(1, stats::embed(F_hat, p + 1)[, -(1:r), drop = FALSE])
+
+  # Series by series: one matrix solve for every column differs in the last
+  # bits and would move the recorded surfaces
+  resid_mat <- vapply(seq_len(ncol(X_std)), function(i) {
+    y <- X_std[(p + 1):n_obs, i]
+    drop(y - Z %*% solve(crossprod(Z), crossprod(Z, y)))
+  }, numeric(n_obs - p))
+
+  bn <- bai_ng_criteria(resid_mat, max_r = max_q, standardize = standardize_resid)
+
+  list(aw = bn$criteria$IC2, q_hat = bn$r_hat$IC2)
+}
+
+
 #' Eigenvalues of X'X/(NT), the spectrum Ahn-Horenstein and ABC both read
 #'
 #' Ahn & Horenstein (2013, sec. 2) define `mu_k = psi_k[X'X/(NT)]`; the Bai-Ng

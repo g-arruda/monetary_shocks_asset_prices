@@ -102,8 +102,9 @@ This is reweighting of the estimation, **not** heteroskedasticity identification
 
 **Estimation details.** The point estimate uses plain OLS (faithful to `DFMest_BLL.m`), WLS under
 the COVID scale, and the AR sets read the same companion. `R/modeling/factor_estimation.R`
-implements BLL standardization, Bai-Ng IC for `r`, Amengual-Watson for `q`, plus
-`infer_tcode_from_varnames()` and `validate_dfm_results()`.
+implements BLL standardization and the factor VAR; since 2026-09-18 every selector of the number of
+factors lives in `R/modeling/factor_selection.R` — Bai-Ng IC for `r` and Amengual-Watson for `q`
+beside the diagnostics below. `infer_tcode_from_varnames()` lives in `impulse_response.R`.
 
 **Factor selection:** use the BLL-standardized Bai-Ng / Amengual-Watson variants. **Plain Bai-Ng
 (2002) requires stationarity and is the wrong tool here** — the panel is non-stationary by design.

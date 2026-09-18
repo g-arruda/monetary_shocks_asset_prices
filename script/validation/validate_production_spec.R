@@ -4,6 +4,7 @@ rm(list = ls())
 
 source("R/modeling/production_spec.R")
 source("R/modeling/factor_estimation.R")
+source("R/modeling/factor_selection.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/var_proxy.R")
 source("R/identification/factor_space_diagnostics.R")
