@@ -1,11 +1,12 @@
 # ===================================================================
 # Inference for daily event-window regressions on the Copom surprise.
 #
-# Extracted from script/jk_sovereign_confound.R on 2026-08-10, when
-# script/fomc_coincidence.R needed the same tests: the surprise is
-# zero-censored by the JK mask and the daily heteroskedasticity is
-# severe, so asymptotic p-values over-reject and every published
-# p-value in this project's daily tests is a wild-bootstrap one.
+# Extracted on 2026-08-10 from jk_sovereign_confound.R (in arquivo/script/
+# since 2026-09-17), when script/fomc_coincidence.R needed the same tests:
+# the surprise is zero-censored by the JK mask and the daily
+# heteroskedasticity is severe, so asymptotic p-values over-reject and
+# every published p-value in this project's daily tests is a
+# wild-bootstrap one.
 #
 # `wild_coef_test` is the single-coefficient test and is moved here
 # VERBATIM — the p_boot values in output/instrument/

@@ -1,5 +1,11 @@
 # Auditoria adversarial das bandas Anderson–Rubin do DFM-IV
 
+> **Nota de leitura (2026-09-17, ampliada em 2026-09-18).** Parecer mantido verbatim.
+> Desde 2026-09-17 os `script/validate_*.R` que ele cita estão em `script/validation/`,
+> com o mesmo nome de arquivo, e desde 2026-09-18 `script/ar_bands.R` está em
+> `arquivo/script/ar_bands.R`. Mapa em
+> [`registro/mapa_renomeacoes.md`](../registro/mapa_renomeacoes.md).
+
 ## 1. Veredito executivo
 
 **Classificação final: 4. Confiança: alta (0,90).** A classe 4 decorre da regra de decisão predefinida: a rotina genérica de inversão não resolve corretamente casos degenerados da quadrática. Ela transforma termos lineares, conjunto vazio e singleton tangente em toda a reta e é numericamente instável quando o coeficiente quadrático é quase nulo. Esse defeito é **Demonstrado** por comparação com a desigualdade original. Não atingiu as bandas publicadas: nas 31.158 células não normalizadas, os coeficientes estão no caso regular de intervalo limitado; as seis células de normalização são sobrescritas como singleton. Sem esse defeito, o estado substantivo seria classe 3.

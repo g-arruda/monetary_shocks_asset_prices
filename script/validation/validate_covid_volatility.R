@@ -62,8 +62,8 @@ if (!all(n1)) {
 # N2 — point pipeline through main_sdfm: q = r and q < r, both innovation
 # switches, covid_start at the first, middle and last residual month
 point_irf <- function(q, covid_volatility) {
-  res <- suppressMessages(main_sdfm(r = spec$r, q = q, p = spec$p, nboot = 0L,
-                                    inference = "bootstrap",
+  res <- suppressMessages(main_sdfm(r = spec$r, q = q, p = spec$p,
+                                    inference = "none",
                                     covid_volatility = covid_volatility))
   res$irfs$irf_point_matrix
 }
@@ -139,13 +139,8 @@ n4 <- c(
                  covid_volatility = modifyList(neutral, list(covid_start = dates[1]))))),
   no_dates = grepl("nao e um mes", error_message(
     estimate_dfm(data_mat, spec$r, spec$q, spec$p, covid_volatility = neutral))),
-  kilian = grepl("Kilian", error_message(
-    estimate_dfm(data_mat, spec$r, spec$q, spec$p, dates = dates,
-                 apply_kilian = TRUE, covid_volatility = neutral))),
-  bootstrap = grepl("Bootstrap indisponivel", error_message(
-    main_sdfm(nboot = 2L, inference = "bootstrap", covid_volatility = neutral))),
   anderson_rubin = grepl("ar_dfm_bands.*raw", error_message(
-    main_sdfm(nboot = 0L, inference = "ar", covid_volatility = neutral))),
+    main_sdfm(inference = "ar", covid_volatility = neutral))),
   xi_mp = grepl("diagnose_instrument_in_factor_space.*raw", error_message(
     diagnose_instrument_in_factor_space(treated_dfm, instrument, dates, spec$p,
                                         match(spec$mp_var, colnames(data_mat)))))
@@ -164,7 +159,7 @@ neutral_std <- modifyList(neutral, list(
   innovations = "standardized"
 ))
 ar_at <- function(covid_volatility) {
-  suppressMessages(main_sdfm(nboot = 0L, inference = "ar",
+  suppressMessages(main_sdfm(inference = "ar",
                              covid_volatility = covid_volatility))$irfs$ar
 }
 ar_production <- ar_at(NULL)
@@ -333,8 +328,8 @@ eta_sim <- dfm_sim$var_residuals %*% dfm_sim$dynamic_loadings %*%
 z_sim <- eta_sim[, 1] + rnorm(nrow(eta_sim), mean = 1)
 h_sim <- 3L
 irf_sim <- suppressMessages(compute_irf_dfm(dfm_sim, instrument = z_sim, h = h_sim,
-                                            nboot = 0L, mpind = 1L,
-                                            normalize_value = 1))$irf_point_matrix
+                                            mpind = 1L, normalize_value = 1,
+                                            inference = "none"))$irf_point_matrix
 powers <- Reduce(function(B, i) B %*% dfm_sim$companion_matrix, seq_len(h_sim),
                  accumulate = TRUE, init = diag(nrow(dfm_sim$companion_matrix)))
 manual_irf <- function(eta) {
@@ -416,8 +411,8 @@ sets_hand <- mosw_ar_bounds(deriv_hand, cov_hand, 1L, 1, 0.9)
 sets_sim <- ar_dfm_bands(dfm_sim, rep(TRUE, length(z_sim)), z_sim, 1L, h_sim,
                          1, rep(1L, ncol(X_sim)), 0.9)$by_level[["0.90"]]
 irf_ar_sim <- suppressMessages(compute_irf_dfm(dfm_sim, instrument = z_sim, h = h_sim,
-                                               nboot = 0L, mpind = 1L,
-                                               normalize_value = 1, ci_levels = 0.9,
+                                               mpind = 1L, normalize_value = 1,
+                                               ci_levels = 0.9,
                                                inference = "ar"))$ci[["0.90"]]
 diag_sim <- diagnose_instrument_in_factor_space(
   dfm_sim, data.frame(month = sim_residual_dates, shock = z_sim), sim_dates, p_sim, 1L

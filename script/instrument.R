@@ -29,7 +29,7 @@ AGG_SCHEME   <- "sum"                    # Jarocinski-Karadi within-month sum
 DEFAULT_VARIANT <- SPEC$instrument # legacy data/processed/instrument.csv
 #
 # 2026-07-27: both construction choices above were swept on the current
-# vintage under xi_mp — see script/instrument_construction_sweep.R and
+# vintage under xi_mp — see arquivo/script/instrument_construction_sweep.R and
 # output/instrument/instrument_construction_sweep.md. The old
 # "# best F in grid search" comment on TARGET_BD referred to
 # arquivo/output/instrument_grid.csv (2026-04-12), which used the legacy
@@ -44,8 +44,9 @@ DEFAULT_VARIANT <- SPEC$instrument # legacy data/processed/instrument.csv
 # 2026-08-05: z_jk_raw_purif_local (dominated) and z_jk_purif_us (redundant,
 # cor 0.999 with z_jk_purif) were dropped — both were already declared dead in
 # registro/historico_decisoes.md section 2 and neither was consumed by any
-# live sweep. The daily jk_us residuals/mask survive in build_variants.R
-# because script/jk_sovereign_confound.R uses that day set.
+# live sweep. The daily jk_us residuals/mask survive in build_variants.R and
+# in copom_event_diagnostics.csv, with no live consumer since
+# arquivo/script/fomc_coincidence.R was archived on 2026-09-18.
 #
 # 2026-07-15 update: DEFAULT_VARIANT switched from z_jk_purif to z_jk_bs_purif.
 # Reason: the fidelity audit (working-note 2026-07-14_auditoria_fidelidade_jk_bs.md)

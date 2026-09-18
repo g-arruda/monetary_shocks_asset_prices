@@ -3,10 +3,8 @@ paths:
   - "R/modeling/**"
   - "R/identification/**"
   - "script/model_*.R"
-  - "script/factor_stationarity.R"
-  - "script/asset_representation.R"
-  - "script/irf_spec_*.R"
   - "script/irf_coherence_check.R"
+  - "script/validation/*.R"
 ---
 
 # Identification core — do not silently re-architect
@@ -30,14 +28,20 @@ live callers pass `identification = "proxy"` explicitly, five of them under `dia
 not editable. The collapse was validated by the `CLAUDE.md` smoke test reproducing **bit-identically**
 — that is the guard any future change to this file must clear.
 
-**One inference, since 2026-09-08.** `compute_irf_dfm(inference=)` fills `ci` from the
-Anderson-Rubin sets (`ar_dfm_bands()` in `R/identification/weak_iv_ar.R`) whenever the caller asks
-for `"ar"`, which is what `production_spec()$inference` says and what every production caller passes.
-The **argument itself defaults to `"bootstrap"`**, deliberately: five live callers live under
-`diagnostics/`, which is not editable, and they must keep the bands they were written against. The
-AR branch hard-stops if its re-derived point deviates from `ident_ext_instr()` by more than 1e-10 —
-the two paths must agree about the identification, not merely about the bands. `irf_point_matrix`
-is untouched by the switch, so the `CLAUDE.md` smoke test stays the guard it was.
+**One inference, since 2026-09-08.** `compute_irf_dfm(inference=)` takes `"ar"` or `"none"` and
+has no default. `"ar"` fills `ci` from the Anderson-Rubin sets (`ar_dfm_bands()` in
+`R/identification/weak_iv_ar.R`), which is what `production_spec()$inference` says; `"none"` returns
+the point alone, for cells compared point by point (`q_truncation.R`, `q_sensitivity.R`). The AR
+branch hard-stops if its re-derived point deviates from `ident_ext_instr()` by more than 1e-10 — the
+two paths must agree about the identification, not merely about the bands. `irf_point_matrix` is
+untouched by the switch, so the `CLAUDE.md` smoke test stays the guard it was.
+
+**The wild bootstrap and the Kilian correction left the code on 2026-09-18** (author decision: the
+AR sets replaced them). With them went `nboot`, `bootstrap_seed`, `apply_kilian`,
+`kilian_correction()`, `estimate_corrected_var()` and the `*_corrected` fields of `estimate_dfm()`;
+the last version that carried them is `main` at `07b1cbd`. `diagnostics/` still calls those
+arguments and no longer runs against `R/`; it is the record of what ran on 2026-07-28 and stays
+unedited (`diagnostics/README.md`).
 
 **COVID volatility (Lenza-Primiceri 2022), PRODUCTION since 2026-09-17.**
 `estimate_dfm(covid_volatility=)` and `main_sdfm(covid_volatility=)` put the common volatility scale
@@ -48,9 +52,9 @@ is untouched by the switch, so the `CLAUDE.md` smoke test stays the guard it was
 
 `production_spec()$covid_volatility` carries θ̂ = (6.611429, 12.468338, 1.760352, 0.943926) as
 literals — the spec function reads no artefact, because `output/` does not ship with the
-replication package, and `script/validate_production_spec.R` re-derives θ̂ from `data/processed/`
-and stops if it moved. With the field set to NULL the whole `main_sdfm()` object is `identical()`
-to the untreated code, which is what the N1/N2 checks still pin; the smoke test now pins the
+replication package, and `script/validation/validate_production_spec.R` re-derives θ̂ from
+`data/processed/` and stops if it moved. With the field set to NULL the whole `main_sdfm()` object
+is `identical()` to the untreated code, which is what the N1/N2 checks still pin; the smoke test now pins the
 **treated** point.
 
 **`covid_volatility` is a required argument of `run_stage2_cell()`**, with no default: the spec
@@ -84,30 +88,28 @@ The sets condition on θ̂ as they do on Λ̂ and K̂. `diagnose_instrument_in_f
 z on the same transformed regressors, so it calls `compute_factor_space_wald()` and
 `compute_robust_first_stage_F()` with `intercept = FALSE`. Its ξ_mp equals the `xi_den` of the AR sets.
 
-Three paths still `stop()`, because their influence function or DGP is not derived: `"raw"`, the
-bootstrap and Kilian — and so does `--bootstrap` in `validate_production_spec.R`. Deliberately
-untreated, with the reason at the call site: `script/ar_bands.R` (it exists to put AR, delta and
-the bootstrap on one point estimate) and `script/irf_spec_stage2.R` (a bootstrap diagnostic).
+`innovations = "raw"` still `stop()`s in the AR sets and in ξ_mp, because its influence function
+is not derived. The rounds that ran untreated to compare against the bootstrap,
+`arquivo/script/ar_bands.R` and `arquivo/script/irf_spec_stage2.R`, are archived.
 
 This is reweighting of the estimation, **not** heteroskedasticity identification. Guard:
-`script/validate_covid_volatility.R`. Notes:
+`script/validation/validate_covid_volatility.R`. Notes:
 - `notas/2026-09-14_volatilidade_covid_lenza_primiceri.md` (implementation);
 - `notas/2026-09-14_estimacao_theta_volatilidade_covid.md` (decisions and θ̂);
 - `notas/2026-09-14_inferencia_volatilidade_covid_q.md` (inference, steps 3/4 and 4/4);
 - `notas/2026-09-16_fidelidade_lenza_primiceri.md` (equation-by-equation fidelity audit);
 - `notas/2026-09-17_volatilidade_covid_producao.md` (the switch to production).
 
-**Estimation details.** The bootstrap uses Kilian-corrected coefficients for the DGP but the **point
-estimate uses plain OLS** (faithful to `DFMest_BLL.m`); `apply_kilian = TRUE` only affects the
-bootstrap. The AR sets read the plain OLS companion, so they are consistent with the point estimate
-and untouched by Kilian. `R/modeling/factor_estimation.R` implements BLL standardization, Bai-Ng IC
-for `r`, Amengual-Watson for `q`, plus `infer_tcode_from_varnames()` and `validate_dfm_results()`.
+**Estimation details.** The point estimate uses plain OLS (faithful to `DFMest_BLL.m`), WLS under
+the COVID scale, and the AR sets read the same companion. `R/modeling/factor_estimation.R`
+implements BLL standardization, Bai-Ng IC for `r`, Amengual-Watson for `q`, plus
+`infer_tcode_from_varnames()` and `validate_dfm_results()`.
 
 **Factor selection:** use the BLL-standardized Bai-Ng / Amengual-Watson variants. **Plain Bai-Ng
 (2002) requires stationarity and is the wrong tool here** — the panel is non-stationary by design.
 Ahn-Horenstein ER/GR and Alessi-Barigozzi-Capasso live in `R/modeling/factor_selection.R`
-(`script/factor_selection_alt.R`) as diagnostics on the same BLL object; they do not set production
-`r`. Do not substitute the `factorselect` package for them: its GR and ABC diverge from the papers
+(`arquivo/script/factor_selection_alt.R`, archived 2026-09-17) as diagnostics on the same BLL
+object; they do not set production `r`. Do not substitute the `factorselect` package for them: its GR and ABC diverge from the papers
 (`notas/2026-09-10_selecao_fatores_ah_abc.md`). The correlation-pruned panels of `script/panel_pruning.R`
 feed `script/factor_selection_pruned.R`, which runs the same battery plus Amengual-Watson. They are
 diagnostics too and do not change the production panel (`notas/2026-09-10_poda_correlacao_painel.md`).

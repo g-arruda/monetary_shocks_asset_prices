@@ -13,6 +13,60 @@ mantidos em lugar e já usam os caminhos correntes.
 
 ---
 
+## 2026-09-18 — saída do wild bootstrap e da correção de Kilian
+
+Os motivos estão em `arquivo/README.md`. As saídas continuam em `output/`.
+
+| antes | agora |
+|---|---|
+| `script/fomc_coincidence.R` | `arquivo/script/fomc_coincidence.R` |
+| `script/ar_bands.R` | `arquivo/script/ar_bands.R` |
+| `R/instrument/event_tests.R` | `arquivo/R/instrument/event_tests.R` |
+
+O código do bootstrap e de Kilian foi apagado, não movido: `kilian_correction()`,
+`estimate_corrected_var()` e `solve_or_pseudo()` de
+`R/modeling/factor_estimation.R`, o laço de réplicas e
+`validate_bootstrap_results()` de `R/modeling/impulse_response.R`. A última
+versão com eles é `main` em `07b1cbd`. Números de linha desses dois arquivos,
+de `dfm_pipeline.R`, `spec_sweep.R` e de `validate_production_spec.R` citados
+no acervo mudaram. `compute_irf_dfm(inference=)` trocou `"bootstrap"` por
+`"none"` (só o ponto) e perdeu o default.
+
+## 2026-09-17 — auditoria de `script/` e `R/`
+
+Os motivos estão em `arquivo/README.md`. As saídas dos scripts arquivados
+**não** se moveram: continuam em `output/`, no caminho que as notas citam.
+
+| antes | agora |
+|---|---|
+| `script/<x>.R`, para os 25 scripts abaixo | `arquivo/script/<x>.R` |
+| `script/validate_{mosw_ar,covid_volatility,production_spec,hac_kernel,olea_kilian,amengual_watson}.R` | `script/validation/validate_<…>.R` |
+| `script/q_narrative_overlay_covid.R` | `script/q_sensitivity.R --window=cheia` |
+| `script/q_narrative_overlay_precovid_p2.R` | `script/q_sensitivity.R --window=pre_covid` |
+| `R/identification/validation_tests.R` | `arquivo/R/identification/validation_tests.R` |
+| `theory_sign_table`, `summarize_irf_responses`, `evaluate_sweep_cell`, `classify_sweep_cells`, `rq_surface_table` em `R/identification/spec_sweep.R` | `arquivo/R/identification/spec_sweep.R` |
+| `build_variant_panel`, `experimental_variant_manifest`, `build_experimental_panels`, `classify_mosw` em `R/identification/experimental_panel.R` | `arquivo/R/identification/experimental_panel.R` |
+| `map_dynamic_direction_to_static` em `R/modeling/factor_estimation.R` | `arquivo/R/modeling/factor_estimation.R` |
+
+Os 25 scripts arquivados:
+- **painel:** `panel_composition{,_experimental,_rq_grid,_rq_grid_drop_blocks,_factor_selection_drop_blocks}.R`
+  e os três `validate_panel_composition_{experimental,rq_grid,rq_grid_drop_blocks}.R`;
+- **fiscais:** `fiscal_expectations.R`, `fiscal_dlsp_decomposition.R` e
+  `fiscal_exchange_expectations.R`;
+- **varredura IRF:** `irf_spec_sweep.R`, `irf_spec_stage2.R`, `p_selection.R`,
+  `q_selection.R`, `q_narrative_overlay.R` e `q_narrative_overlay_r8.R`;
+- **instrumento:** `jk_sovereign_confound.R`, `instrument_construction_sweep.R` e
+  `xi_mp_robustness.R`;
+- **DFM e benchmark:** `factor_stationarity.R`, `factor_selection_alt.R`,
+  `asset_representation.R`, `price_cross_instrument.R` e `var_lag_comparison.R`.
+
+Números de linha citados no acervo mudaram:
+- em `spec_sweep.R`, `experimental_panel.R` e `factor_estimation.R`, depois das
+  funções que saíram;
+- em `script/q_truncation.R`, que perdeu o bloco de θ̂ por máxima verossimilhança
+  (l.112-124) e o autoteste (f).
+
+
 ## 2026-08-17 — refactor de convenções (`coding-style`)
 
 | antes | agora |

@@ -1,7 +1,7 @@
 #' Return the single production specification
 #'
 #' @return List with canonical paths, panel composition, model dimensions,
-#'   identification settings, sample windows, bootstrap, and horizons.
+#'   identification settings, sample windows, and horizons.
 #'
 #' @examples
 #' spec <- production_spec()
@@ -34,7 +34,7 @@ production_spec <- function() {
     # function reads no artefact, because `output/` does not ship with the
     # replication package. `script/covid_volatility_theta.R` is what produced
     # them and `output/factors/covid_volatility_theta.csv` is the provenance;
-    # `script/validate_production_spec.R` re-derives theta from
+    # `script/validation/validate_production_spec.R` re-derives theta from
     # `data/processed/` and stops if it moves.
     covid_volatility = list(
       covid_start = as.Date("2020-03-01"),
@@ -69,14 +69,11 @@ production_spec <- function() {
     mp_var = "yield_6m",
     shock_bps = 50,
     normalize_value = 0.005,
-    # Operational inference of the DFM since 2026-09-08: Anderson-Rubin sets by
-    # test inversion, in place of the wild bootstrap. `nboot` and
-    # `bootstrap_seed` below stay in the spec because the bootstrap remains a
-    # computable comparison object (script/ar_bands.R, irf_spec_stage2.R).
+    # Inference of the DFM since 2026-09-08: Anderson-Rubin sets by test
+    # inversion.
     inference = "ar",
     ar_levels = c(0.68, 0.90),
     ar_nw_lags = 0L,
-    ar_bands_path = "output/irf/ar_bands.csv",
     sample = as.Date(c("2012-03-01", "2025-12-01")),
     pre_covid_sample = as.Date(c("2012-03-01", "2019-12-01")),
     event_sample = as.Date(c("2012-03-01", "2025-12-31")),
@@ -84,8 +81,6 @@ production_spec <- function() {
     n_months = 166L,
     n_series = 115L,
     n_innovations = 162L,
-    nboot = 800L,
-    bootstrap_seed = 123L,
     ci_levels = c(0.68, 0.90),
     horizon = 48L,
     base_series_removed = c("juros_cdi", "asset_mlcx"),

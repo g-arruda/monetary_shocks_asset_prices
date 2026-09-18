@@ -97,7 +97,7 @@ STAGES <- list(
   ),
   list(
     name     = "model",
-    desc     = sprintf("Production DFM (r=%d, q=%d) + wild bootstrap IRFs", SPEC$r, SPEC$q),
+    desc     = sprintf("Production DFM (r=%d, q=%d) + Anderson-Rubin IRF sets", SPEC$r, SPEC$q),
     interp   = "Rscript",
     file     = "script/model_alessi.R",
     network  = FALSE,

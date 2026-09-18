@@ -21,8 +21,8 @@
 > `(r,q,p)=(5,5,4)`,
 > `z_jk_bs_purif`, normalização de +50 pb em `yield_6m`, horizonte 0--48 e
 > conjuntos Anderson-Rubin de 68% e 90% com NW(0) desde 2026-09-08 — o wild
-> bootstrap de 800 réplicas com semente 123 saiu da produção e ficou como
-> objeto de comparação. Bai--Ng BLL seleciona
+> bootstrap de 800 réplicas com semente 123 saiu da produção e, em 2026-09-18,
+> também do código, junto com a correção de Kilian. Bai--Ng BLL seleciona
 > IC1=5, IC2=5 e IC3=20; `q=r=5` permanece a decisão operacional. `p=4` é
 > herdado da vintage anterior. Na amostra ampliada, a checagem separada em
 > amostra comum de `T=154` também seleciona `p=4` pelo AIC (8,231267), enquanto
@@ -124,7 +124,7 @@
 
 ## Status histórico (2026-08-10, coincidência FOMC testada — Etapa 1.4 finalmente executada, máscara absolvida)
 
-> **A Etapa 1.4 abaixo foi executada, treze anos de calendário depois de ter sido especificada, e o teste que ela viabiliza não encontra contaminação.** Achado mais grave do segundo council review sobre `paper/paper_anpec.tex` (4 críticos; relatório em `pareceres/council_2026-08-10.md`), **aberto e fechado no mesmo dia**. Código: `R/data_download/fomc.R`, `script/download.R`, `R/instrument/event_tests.R`, `script/fomc_coincidence.R` → `output/instrument/fomc_coincidence.{csv,md}` + `fomc_coincidence_days.csv` + overlay; leitura em `notas/2026-08-10_coincidencia_fomc.md`. **Nada aqui mudou** — `DEFAULT_VARIANT`, vértice, esquema de agregação e a cadeia de `build_variants.R` seguem intocados, e as 8 colunas `z_*` saíram **bit-idênticas** depois de repopular a flag.
+> **A Etapa 1.4 abaixo foi executada, treze anos de calendário depois de ter sido especificada, e o teste que ela viabiliza não encontra contaminação.** Achado mais grave do segundo council review sobre `paper/paper_anpec.tex` (4 críticos; relatório em `pareceres/council_2026-08-10.md`), **aberto e fechado no mesmo dia**. Código: `R/data_download/fomc.R`, `script/download.R`, `arquivo/R/instrument/event_tests.R`, `arquivo/script/fomc_coincidence.R` (os dois arquivados em 2026-09-18) → `output/instrument/fomc_coincidence.{csv,md}` + `fomc_coincidence_days.csv` + overlay; leitura em `notas/2026-08-10_coincidencia_fomc.md`. **Nada aqui mudou** — `DEFAULT_VARIANT`, vértice, esquema de agregação e a cadeia de `build_variants.R` seguem intocados, e as 8 colunas `z_*` saíram **bit-idênticas** depois de repopular a flag.
 > 1. **O defeito era um `else`, não o FOMC.** `data/raw/fomc_dates.csv` nunca existiu e `script/instrument.R` caía silenciosamente num vetor de datas vazio, então `fomc_coincide` era **identicamente FALSE desde que a flag foi escrita** — um fallback que torna "a coleta não foi feita" indistinguível de "a coleta deu vazio". Agora `load_fomc_dates()` (`R/instrument/di_surprise.R`) **aborta** com ponteiro para o downloader, e `script/run_all.R` declara o arquivo como requisito duro do estágio `instrument`.
 > 2. **A exposição era maior do que a crítica estimou.** Não 7 dos top-20 e ≈19% de Σ|z|, mas **8 dos top-20 (22,9%)** e **24 dos 62 dias retidos (38,7%), carregando 35,5% de Σ|z|**; 35 dos 95 dias Copom coincidem, e em 2025 foram 7 de 8 reuniões. A camada Bauer-Swanson de fato não remove um choque realizado *dentro* da janela Qua→Qui — isso continua verdade por construção.
 > 3. **Veredito: confound FOMC não detectado**, pela regra fixada antes dos números. O bloco americano contemporâneo (`d_ust2`, `r_sp500`) não explica a surpresa nos 62 dias retidos (F_rob 0,94, p_boot 0,458) e as duas interações são nulas (0,466 com `1(fomc_coincide)`, 0,511 com `1(jk_bs)`). **Os dois números que invertem o sinal da suspeita:** nos **35 dias em que Copom e FOMC caem no mesmo dia** o R² é **0,005**, o *menor* da tabela — se a coincidência injetasse notícia do Fed na surpresa seria o maior; e o maior (**0,108**) está nos **33 dias que o filtro rejeita**, ou seja o filtro descarta preferencialmente o dia carregado de notícia americana. É o mesmo padrão que o CDS mostrou em 08-09, agora com o regime nomeado.
@@ -134,7 +134,7 @@
 
 ## Status histórico (2026-07-31, confound de risco soberano testado — máscara absolvida)
 
-> **A máscara JK não seleciona risco soberano para dentro; ela seleciona *menos* risco que um dia comum.** Item de topo do council review de 07-31, testado em `script/jk_sovereign_confound.R` → `output/instrument/jk_sovereign_confound.{csv,md}` + `jk_sovereign_irf_overlay.pdf`; leitura em `notas/2026-07-31_confound_soberano_jk.md`. ⚠ Em 2026-08-10 os testes B (três vias) e D (tabela datada) saíram do script, `jk_sovereign_days.csv` foi apagado, e o teste C ganhou a máscara re-derivada nos resíduos ortogonalizados das duas pernas — ver `historico_decisoes.md` §2.4. **Nada aqui mudou** — `DEFAULT_VARIANT`, vértice, esquema de agregação e a cadeia de `build_variants.R` seguem intocados.
+> **A máscara JK não seleciona risco soberano para dentro; ela seleciona *menos* risco que um dia comum.** Item de topo do council review de 07-31, testado em `script/jk_sovereign_confound.R` (em `arquivo/script/` desde 2026-09-17) → `output/instrument/jk_sovereign_confound.{csv,md}` + `jk_sovereign_irf_overlay.pdf`; leitura em `notas/2026-07-31_confound_soberano_jk.md`. ⚠ Em 2026-08-10 os testes B (três vias) e D (tabela datada) saíram do script, `jk_sovereign_days.csv` foi apagado, e o teste C ganhou a máscara re-derivada nos resíduos ortogonalizados das duas pernas — ver `historico_decisoes.md` §2.4. **Nada aqui mudou** — `DEFAULT_VARIANT`, vértice, esquema de agregação e a cadeia de `build_variants.R` seguem intocados.
 > 1. **A acusação.** O filtro JK descarta o efeito-informação (juros ↑, ações ↑), mas a assinatura fiscal doméstica (juros ↑, ações ↓, câmbio ↑) é **a que ele retém**. Os placebos não a descartam: um choque fiscal doméstico também não move o S&P 500.
 > 2. **O dado aponta ao contrário.** Regra de leitura fixada *antes* dos números: contaminação exige que o dia retido carregue **mais** risco por unidade de surpresa que um dia comum. Nas 498 quintas **não-Copom** ΔEMBI carrega a surpresa com coef **0,326** (t = 3,97, R² 0,13); nos **62 dias retidos**, **0,099** (t = 1,74, R² 0,04). No câmbio, 0,051 (t = 4,64) contra 0,004 (t = 0,40). Em ΔCDS, que mede melhor: **0,436** (t = 4,35, R² 0,22) contra **0,140** (t = 2,86) — mesma razão de ~3×, mas o coeficiente dos retidos é **significativo** (p_boot 0,003), e os dias **rejeitados** pelo filtro carregam risco com sinal **negativo** (−0,285, p 0,010). As interações `x:1(jk_bs)` são **negativas** nas **cinco** proxies da janela do evento — CDS −0,191 (p_boot 0,170), EMBI −0,182 (p_boot 0,092), **BRL −0,036 (p_boot 0,068**, apreciação relativa = assinatura de UIP), slope DI −0,228, DI 10a −0,616. (Os `p_boot` foram resorteados em 08-09 com semeadura por célula; coeficientes e `t` são os mesmos.) A camada BS + máscara **empobrece** o conteúdo de risco.
 > 3. **⚠ Pré-requisito que quase inverteu o veredito: o alinhamento.** O arquivo do EMBI (`data/raw/banco_central_rep_dominicana/embi_brasil.csv`) é painel JP Morgan republicado pelo BC dominicano. Correlação de ΔEMBI com o mercado em t / t−1: S&P −0,498 / −0,045; VIX +0,413 / −0,007; Ibov −0,508 / −0,088. **É do mesmo dia** — e o CDS também (S&P −0,541 / −0,040; Ibov −0,580 / −0,089, correlações contemporâneas mais fortes nas quatro séries). Logo a janela Qui→Sex (interação **+0,248, p_boot 0,025**) **não** é correção de defasagem — é a resposta *defasada* do risco, que a IRF mensal já reporta. Não re-derivar isso.
@@ -155,7 +155,7 @@
 
 ## Status histórico (2026-07-11, pós-varredura de especificações)
 
-> A varredura sistemática (320 células: 8 instrumentos × 5 mp_vars × 4 grids (r,q) × 2 amostras; `script/irf_spec_sweep.R` + `script/irf_spec_stage2.R`) **confirma `z_jk_purif` como default** e refina três pontos do status 2026-05-08 abaixo:
+> A varredura sistemática (320 células: 8 instrumentos × 5 mp_vars × 4 grids (r,q) × 2 amostras; `script/irf_spec_sweep.R` + `script/irf_spec_stage2.R`, em `arquivo/script/` desde 2026-09-17) **confirma `z_jk_purif` como default** e refina três pontos do status 2026-05-08 abaixo:
 > 1. "Único que cruza Stock-Yogo" era artefato do grid antigo (r fixo = 7): `z_jk_purif` cruza F (factor-sp) ≥ 10 no full em (6,5)/(7,6)/(8,8) — 10.08/10.17/11.76 — e `z_jk` cruza em (8,8). Na janela **pre_covid (2013-19) com (r=6, q=5), cinco instrumentos cruzam** (z_jk_purif 15.4, z_jk 15.2, z_het_jk_3var 11.1, z_het_3var 10.8, z_bruto_purif 10.4).
 > 2. O auto-IC (r=5, q=4) usado por `model_alessi.R` é **borderline-weak** (9.20) — pendência aberta para migrar o caso base para (6,5) ou (7,6).
 > 3. Zero células `sign_puzzle` no grid inteiro: F (factor-sp) ≥ 10 ⇒ sinais teoricamente coerentes, sem exceção. O diagnóstico de sinais invertidos está **fechado** — é weak-IV no espaço dos fatores, e nada mais.
@@ -207,8 +207,10 @@ O produto desta linha são **oito variantes** do instrumento mensal, mantidas co
 > constavam como descartadas em `historico_decisoes.md` §2 e nenhuma varredura
 > viva as consumia — `irf_spec_sweep.R` já rodava só as oito. A maquinaria
 > **diária** do ramo `_us` (`e_di_us`, `jk_monetary_us`) permanece em
-> `build_variants.R` porque `script/jk_sovereign_confound.R` usa o conjunto de
-> dias `jk_us` como uma de suas sete máscaras de diagnóstico.
+> `build_variants.R` e em `copom_event_diagnostics.csv`, mas sem consumidor
+> vivo: `fomc_coincidence.R`, que montava `z_jk_us` com ela, foi arquivado em
+> 2026-09-18, e `jk_sovereign_confound.R`, que usava o conjunto de dias `jk_us`
+> como uma de suas sete máscaras, em 2026-09-17.
 
 ---
 
@@ -364,7 +366,7 @@ indicators…*”). Aqui `yield_6m` é observação de **fim de mês**
 qualquer dia de `t` já está integralmente refletida no valor de `t` — que é
 exatamente o que a soma assume.
 
-Reestimado em 2026-08-12 (`script/instrument_construction_sweep.R`): sob GK o ξ_mp
+Reestimado em 2026-08-12 (`arquivo/script/instrument_construction_sweep.R`): sob GK o ξ_mp
 cai de **7,65 para 0,11** no vértice de produção e não cruza 3,84 em nenhum
 vértice na amostra completa. Além disso, sob GK os meses sem reunião **deixam de
 ser zero** (a propriedade que JK e BS assumem) e o esquema induz **MA(1)**, o que
@@ -405,7 +407,7 @@ Para cada variante de $z_t$:
   do VAR de fatores como controles;
 - implementação: `diagnose_instrument_in_factor_space()` e
   `compute_robust_first_stage_F()`; validação externa em
-  `script/validate_olea_kilian.R`.
+  `script/validation/validate_olea_kilian.R`.
 
 O valor 10 é uma referência convencional de força, não um valor crítico
 fornecido por MOSW. Não se condiciona a apresentação das IRFs à aprovação de
@@ -416,8 +418,9 @@ elas divergem ou ficam abaixo da referência.
 > DFM.** A régua de força corrente continua sendo ξ_mp, não o F acima, e agora
 > ela decide duas coisas de uma vez: o conjunto AR de nível κ é limitado se e
 > somente se ξ_mp > κ. As bandas de 68% e 90% passam a ser conjuntos AR por
-> inversão de teste, **no lugar** do wild bootstrap, que continua computável e
-> serve de comparação em `script/ar_bands.R` mas não decide mais significância.
+> inversão de teste, **no lugar** do wild bootstrap, que saiu do código em
+> 2026-09-18; a comparação entre os dois ficou em `arquivo/script/ar_bands.R` e
+> `output/irf/ar_bands*`.
 > Significância é "o conjunto exclui zero", lida pela topologia
 > (`ar_excludes_zero()`), porque um conjunto AR não é necessariamente um
 > intervalo. Duas restrições vêm junto: a covariância plug-in condiciona em `Λ`,
@@ -458,7 +461,7 @@ Horizonte: 0 a 24 meses. Bandas: 68% e 90%.
    2026-07-27**, e mais amplo do que o prescrito: 13 vértices de 21 a 504 du ×
    2 esquemas de agregação × 5 variantes × 2 janelas, sob **ξ_mp** (a régua
    corrente; o item foi escrito na era em que o baseline era 3m e a régua era o
-   F legado). `script/instrument_construction_sweep.R` →
+   F legado). `arquivo/script/instrument_construction_sweep.R` →
    `output/instrument/instrument_construction_sweep.{csv,md}`.
    **Resultado:** 126 du (produção) **não** é o argmax em nenhuma janela, mas
    nenhum desafiante vence por margem maior que a dispersão leave-one-month-out
@@ -487,7 +490,7 @@ Horizonte: 0 a 24 meses. Bandas: 68% e 90%.
 - **Contexto brasileiro:** Gonçalves, Rodrigues & Genta (2025, IMF WP/25/48) — janela Wed→Thu, dados de DI, testes de Rigobon. É a evidência *alheia* com que o paper dialoga; a rota het **deste** projeto foi abandonada e seus artefatos permanecem em `arquivo/heterocedasticidade/`
 - **Teste de instrumento fraco:** Montiel Olea, Stock & Watson (2021, *JoE*) — estatística F robusta
 - **DFM + proxy-SVAR:** Alessi & Kerssenfischer (2019) — "The Response of Asset Prices to Monetary Policy Shocks: Stronger than Thought" — pipeline de estimação replicado neste projeto
-- **Wild bootstrap sob heterocedasticidade MD:** Gonçalves & Kilian (2004)
+- **Wild bootstrap sob heterocedasticidade MD:** Gonçalves & Kilian (2004) — a inferência do DFM até 2026-09-08, fora do código desde 2026-09-18
 
 ---
 

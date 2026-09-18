@@ -313,185 +313,6 @@ estimate_static_factors <- function(data, r, standardized = TRUE, seed = NULL) {
 
 
 
-#' Invert a matrix, falling back to the pseudo-inverse when ill-conditioned
-#'
-#' Replaces the `det(M) < 1e-12` guard the Kilian correction used at four
-#' sites. A determinant does not measure conditioning: for the Lyapunov matrix
-#' it is the product of hundreds of factors `1 - lambda_i lambda_j`, all below
-#' one, so it underflows toward 0 on a perfectly well-conditioned matrix.
-#' Measured on 2026-08-17: the DFM (5,5) Lyapunov has `det` 6,3e-19 against
-#' `rcond` 1,7e-06 — the `ginv` branch was taken on a matrix that inverts fine.
-#'
-#' `rcond()` is the test that asks the right question, and it has to be a
-#' *test*, not a `tryCatch` around `solve()`: LAPACK only errors on an exact
-#' zero pivot, so on the small VAR's Lyapunov matrix (`rcond` 7,3e-17) `solve()`
-#' returns silently and the garbage inverse propagates into NaN bands.
-#'
-#' The threshold `.Machine$double.eps^(2/3)` is ~3,7e-11, where `solve()` has
-#' already lost about eleven of sixteen digits. Every matrix this function sees
-#' in production sits orders of magnitude on one side or the other of it.
-#'
-#' @param M Square matrix to invert; the real part is taken.
-#' @param label Name used in the warning when the fallback is reached.
-#'
-#' @return The inverse, or the Moore-Penrose pseudo-inverse when `M` is too
-#'   ill-conditioned to invert.
-solve_or_pseudo <- function(M, label) {
-  M <- Re(M)
-  if (rcond(M) >= .Machine$double.eps^(2 / 3)) {
-    return(solve(M))
-  }
-  warning("Matriz mal condicionada em ", label, "; usando pseudo-inversa")
-  MASS::ginv(M)
-}
-
-
-#' Kilian (1998) small-sample bias correction of the companion matrix
-#'
-#' Pope's (1990) analytic bias approximation, shrunk toward stationarity by the
-#' `delta` loop when the corrected companion would otherwise have a root on or
-#' outside the unit circle. Faithful to Lutz Kilian's original MATLAB code
-#' (Pope 1990, JTSA; Kilian 1997), including the reuse of the Lyapunov solution.
-#'
-#' @param A Companion matrix of the factor VAR.
-#' @param SIGMA Residual covariance matrix.
-#' @param t Number of observations before lag truncation.
-#' @param q Number of dynamic factors (VAR dimension).
-#' @param p Factor-VAR lag order.
-#'
-#' @return List with the bias-corrected companion matrix and the shrinkage
-#'   actually applied.
-kilian_correction <- function(A, SIGMA, t, q, p) {
-
-  # Seguindo exatamente o código MATLAB
-  T <- t - p
-  
-  # Calcular SIGMAY usando a equação de Lyapunov
-  # vecSIGMAY = inv(eye((q*p)^2) - kron(A,A)) * vec(SIGMA)
-  I_kron <- diag((q * p)^2)
-  A_kron_A <- kronecker(A, A)
-  lyapunov_matrix <- I_kron - A_kron_A
-  
-  # A matriz é (q*p)^2 x (q*p)^2 — 400x400 na produção (5,5) com p=4. O teste
-  # antigo por det() dava 6,29e-19 contra um rcond de 1,7e-06, então o ramo da
-  # pseudo-inversa era tomado em toda réplica de bootstrap sem necessidade.
-  #
-  # Aqui NÃO cabe pseudo-inversa. SIGMAY é a covariância incondicional do
-  # estado da companion; se a equação de Lyapunov é singular, ela não está
-  # definida, e a `ginv` devolve um objeto que não é essa covariância. A fórmula
-  # de viés de Pope alimentada com ele produz um `Abias` enorme e uma companion
-  # corrigida explosiva — medido no VAR pequeno de `cds_5y` (rcond 7,3e-17),
-  # onde as 800 réplicas falharam e as bandas saíram NA. Abortar é o
-  # comportamento certo: `var_proxy.R:156` já cai para coeficientes não
-  # corrigidos, que é a resposta honesta quando a correção não é computável.
-  lyap_rcond <- rcond(Re(lyapunov_matrix))
-  if (lyap_rcond < .Machine$double.eps^(2 / 3)) {
-    stop("Equacao de Lyapunov numericamente singular (rcond = ",
-         format(lyap_rcond, digits = 3), "): SIGMAY nao esta definida e a ",
-         "correcao de Kilian fica indefinida.")
-  }
-  lyapunov_inv <- solve(Re(lyapunov_matrix))
-  
-  # vec(SIGMA) - vetorizar SIGMA por colunas (como no MATLAB)
-  SIGMA_expanded <- matrix(0, q * p, q * p)
-  SIGMA_expanded[1:nrow(SIGMA), 1:ncol(SIGMA)] <- SIGMA
-  vec_SIGMA <- as.vector(SIGMA_expanded)
-  vecSIGMAY <- lyapunov_inv %*% vec_SIGMA
-  SIGMAY <- matrix(vecSIGMAY, nrow = q * p, ncol = q * p)
-  
-  # Matriz identidade e transposta
-  I <- diag(q * p)
-  B <- t(A)  # B = A' no MATLAB
-  
-  # Calcular autovalores de A
-  peigen <- eigen(A)$values
-  
-  # Calcular sumeig seguindo o loop do MATLAB
-  sumeig <- matrix(0, q * p, q * p)
-  # ...variável não utilizada removida...
-  
-  for (h in 1:(q * p)) {
-    # sumeig = sumeig + (peigen(h) * inv(I - peigen(h) * B))
-    I_minus_peigen_B <- I - peigen[h] * B
-    # solve() on complex matrix (fiel ao Matlab); skip if singular
-    inv_mat <- tryCatch(solve(I_minus_peigen_B), error = function(e) NULL)
-    if (!is.null(inv_mat)) {
-      sumeig <- sumeig + peigen[h] * inv_mat
-    }
-  }
-  # Resultado teórico é real (pares conjugados se cancelam); limpar ruído numérico
-  sumeig <- Re(sumeig)
-  
-  # Calcular bias seguindo exatamente o MATLAB
-  # bias = SIGMA * (inv(I-B) + B*inv(I-B^2) + sumeig) * inv(SIGMAY)
-  
-  I_minus_B <- I - B
-  I_minus_B2 <- I - B %*% B
-  
-  # ...diagnóstico removido...
-  
-  # Verificar se as matrizes são invertíveis. Mesmo motivo do bloco de Lyapunov
-  # acima: o determinante de uma q*p x q*p não mede condicionamento. Estas três
-  # tomam o ramo do solve na produção (5,5) — dets 2,0e-05, 9,2e-04 e 2,9e+24 —
-  # mas o teste falharia do mesmo jeito para q*p maior.
-  inv_I_minus_B <- solve_or_pseudo(I_minus_B, "(I-B)")
-  inv_I_minus_B2 <- solve_or_pseudo(I_minus_B2, "(I-B²)")
-  inv_SIGMAY <- solve_or_pseudo(SIGMAY, "SIGMAY")
-  
-  # Calcular bias
-  bias_term <- inv_I_minus_B + B %*% inv_I_minus_B2 + sumeig
-  bias <- Re(SIGMA_expanded %*% bias_term %*% inv_SIGMAY)
-  
-  # ...diagnóstico removido...
-  
-  # Abias = -bias/T
-  Abias <- -bias / T
-  
-  # Loop de correção seguindo exatamente o MATLAB
-  bcstab <- 9  # Valor arbitrário > 1
-  delta <- 1   # Fator de ajuste
-  
-  # ...diagnóstico removido...
-  iter <- 0
-  max_iter <- 100  # Proteção contra loop infinito
-  
-  while (bcstab >= 1 && iter < max_iter) {
-    iter <- iter + 1
-    
-    # bcA = A - delta * Abias
-    bcA <- A - delta * Abias
-    
-    # Verificar estabilidade
-    bcmod <- abs(eigen(bcA)$values)
-
-    if (any(bcmod >= 1)) {
-      bcstab <- 1
-    } else {
-      bcstab <- 0
-    }
-    
-    # delta = delta - 0.01 (exatamente como no MATLAB)
-    delta <- delta - 0.01
-    
-    if (delta <= 0) {
-      bcstab <- 0
-      # ...diagnóstico removido...
-    }
-    
-    if (iter %% 20 == 0) {
-      # ...diagnóstico removido...
-    }
-  }
-  
-  if (iter >= max_iter) {
-    warning("Kilian correction did not converge within maximum iterations")
-  }
-  
-  return(bcA)
-}
-
-
-
 #' Common volatility scale of the Lenza-Primiceri (2022) COVID treatment
 #'
 #' Builds `s_t` of equation (1) in Lenza & Primiceri (2022, JAE): one before
@@ -527,8 +348,7 @@ covid_volatility_path <- function(dates, covid_start, theta) {
 #' Factor VAR by least squares, optionally under the COVID volatility scale
 #'
 #' With `s = NULL` this is plain OLS, the direct equivalent of `DFMest_BLL.m`
-#' lines 29-50 and what the point estimate uses; `estimate_corrected_var()` is
-#' only for the bootstrap DGP.
+#' lines 29-50.
 #'
 #' With `s`, the VAR is `F_t = c + A(L) F_{t-1} + s_t eps_t`,
 #' `eps_t ~ N(0, Sigma)`, the maximum-likelihood version of Lenza & Primiceri
@@ -659,117 +479,6 @@ estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
 }
 
 
-#' Factor VAR with the Kilian bias-corrected companion matrix
-#'
-#' Same OLS fit as `estimate_var_ols()`, then `kilian_correction()` on the
-#' companion. Used only to build the bootstrap DGP — never for the reported
-#' point IRF.
-#'
-#' @param data Numeric matrix of factors (T x K).
-#' @param p Lag order.
-#'
-#' @return List with the OLS and corrected coefficients, residuals, both
-#'   companion matrices, the residual covariance and stability diagnostics.
-estimate_corrected_var <- function(data, p) {
-  T <- nrow(data)
-  K <- ncol(data)
-  
-  # Construct regressor matrix
-  RHS <- matrix(NA, T - p, K * p + 1)
-  
-  for (i in 1:p) {
-    start_col <- (i - 1) * K + 1
-    end_col <- i * K
-    RHS[, start_col:end_col] <- data[(p + 1 - i):(T - i), ]
-  }
-  
-  # Add constant
-  RHS[, K * p + 1] <- 1
-  
-  
-  # 2. Variável dependente
-  LHS <- data[(p + 1):T, ]
-  
-  # 3. Estimação por OLS
-  XtX <- crossprod(RHS)
-  XtY <- crossprod(RHS, LHS)
-  
-  bet <- solve(XtX) %*% XtY
-  
-  # 4. Calcular resíduos
-  u <- LHS - RHS %*% bet
-  
-  # Ensure u is numeric
-  u <- Re(as.matrix(u))
-  
-  # 5. Construir matriz companion (excluindo constante)
-  coeffcompanion <- rbind(
-    t(bet[1:(p * K), ]),  # Coeficientes VAR
-    cbind(diag((p - 1) * K), matrix(0, (p - 1) * K, K))  # Identidade para lags
-  )
-  
-  # Calculate covariance matrix of residuals strictly following Matlab
-  # SIGMA = zeros(p*K);
-  # SIGMA(1:K,1:K) = u'*u/(T-p-p*K-1);
-  SIGMA <- crossprod(u) / (T - p - p * K - 1)
-  
-  # Apply Kilian correction
-  eigenvals_orig <- eigen(coeffcompanion)$values
-  max_eigen_orig <- max(abs(eigenvals_orig))
-  
-  coeffcompanion_corrected <- kilian_correction(coeffcompanion, SIGMA, T, K, p)
-  
-  eigenvals_corr <- eigen(coeffcompanion_corrected)$values
-  max_eigen_corr <- max(abs(eigenvals_corr))
-  
-  # ...diagnóstico removido...
-  
-  # Extract corrected coefficients
-  beta_corrected <- t(coeffcompanion_corrected[1:K, ])
-  
-  # Recalculate residuals with corrected coefficients
-  Y_resid <- data[(p + 1):T, ]
-  X_resid <- matrix(0, T - p, K * p)
-  
-  for (i in 1:p) {
-    X_resid[, ((i - 1) * K + 1):(i * K)] <- data[(p - i + 1):(T - i), ]
-  }
-  
-  # Add constant to beta_corrected
-  intercept <- bet[K * p + 1, ]
-  beta_corrected_full <- rbind(beta_corrected, intercept)
-  
-  # Add constant to X_resid
-  X_resid_full <- cbind(X_resid, 1)
-  
-  beta_corrected_full <- as.matrix(Re(beta_corrected_full))
-  X_resid_full <- as.matrix(Re(X_resid_full))
-  Y_resid <- as.matrix(Re(Y_resid))
-  
-  u_corrected <- Y_resid - X_resid_full %*% beta_corrected_full
-  u_corrected <- as.matrix(Re(u_corrected))
-  
-  return(list(
-    coefficients = beta_corrected_full,
-    residuals = u_corrected,
-    companion = coeffcompanion_corrected,
-    residuals_original = u,
-    coefficients_original = bet,
-    companion_original = coeffcompanion,
-    covariance_matrix = SIGMA,
-    # Diagnósticos adicionais
-    diagnostics = list(
-      original_max_eigenval = max_eigen_orig,
-      corrected_max_eigenval = max_eigen_corr,
-      is_stable_original = max_eigen_orig < 1,
-      is_stable_corrected = max_eigen_corr < 1,
-      covariance_det = det(Re(SIGMA))
-    )
-  ))
-}
-
-
-
 #' Reduce the factor-VAR residuals to q dynamic shocks
 #'
 #' Takes the leading `q` eigenvectors of the residual covariance, so the
@@ -850,9 +559,6 @@ estimate_dynamic_factors <- function(var_residuals, q, r,
 #' @param dates Optional Date vector with T elements.
 #' @param instrument Optional data.frame with columns `month` (Date) and
 #'   `shock` (numeric).
-#' @param apply_kilian When TRUE, also computes the Kilian (1998) bias-corrected
-#'   coefficients for the bootstrap DGP. The point estimate ALWAYS uses plain
-#'   OLS, faithful to `DFMest_BLL.m`.
 #' @param covid_volatility NULL (production) or a list that turns on the COVID
 #'   volatility scale of Lenza & Primiceri (2022) in the factor VAR:
 #'   `covid_start` (Date, one of the residual months), `theta` (named `s0`,
@@ -862,8 +568,7 @@ estimate_dynamic_factors <- function(var_residuals, q, r,
 #'   author decision; `production_spec()$covid_volatility_design` records the
 #'   ones taken, and `estimate_covid_theta()` estimates `theta`. Under it
 #'   nothing is centered: K comes from the uncentered second moment of the
-#'   selected innovations, (B4) for `"standardized"`. Requires `dates`;
-#'   incompatible with `apply_kilian`.
+#'   selected innovations, (B4) for `"standardized"`. Requires `dates`.
 #'
 #' @return List with the static factors, the factor VAR, the dynamic factors,
 #'   the aligned dates and instrument, and diagnostics. Under
@@ -872,7 +577,7 @@ estimate_dynamic_factors <- function(var_residuals, q, r,
 #'   `var_residuals_raw`, `var_residuals_standardized`, `var_sigma_mle` and
 #'   `var_loglik`.
 estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
-                         apply_kilian = FALSE, covid_volatility = NULL) {
+                         covid_volatility = NULL) {
   T_orig <- nrow(data)
 
   # --- Validação e alinhamento temporal via datas ---
@@ -927,10 +632,6 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
       stop("covid_volatility$innovations deve ser 'raw' (u_t) ou ",
            "'standardized' (u_t/s_t)")
     }
-    if (apply_kilian) {
-      stop("A correcao de Kilian supoe OLS com Sigma constante e nao esta ",
-           "definida sob covid_volatility")
-    }
     covid_start <- as.Date(covid_volatility$covid_start)
     residual_dates <- dates[(p + 1):length(dates)]
     if (!isTRUE(covid_start %in% residual_dates)) {
@@ -945,8 +646,8 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
   # --- Estimação ---
   static_result <- estimate_static_factors(data, r)
 
-  # Ponto estimado: SEMPRE VAR OLS (sem Kilian), fiel ao DFMest_BLL.m. Sob
-  # covid_volatility, mínimos quadrados nas linhas divididas por s_t (B2).
+  # VAR OLS, fiel ao DFMest_BLL.m. Sob covid_volatility, mínimos quadrados
+  # nas linhas divididas por s_t (B2).
   var_result <- estimate_var_ols(static_result$factors, p, s = volatility_path)
 
   # O que os passos seguintes, que supõem variância constante, leem como
@@ -969,28 +670,17 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
   max_eigenval <- max(abs(eigen(var_result$companion)$values))
   is_stable <- max_eigenval < 1
 
-  # Kilian correction: apenas para o DGP do bootstrap (DFMest_BLL_Boot.m)
-  kilian_result <- NULL
-  if (apply_kilian) {
-    kilian_result <- estimate_corrected_var(static_result$factors, p)
-  }
-
   out <- list(
     # Static factors
     static_factors = static_result$factors,
     static_loadings = static_result$loadings,
     static_eigenvalues = static_result$eigenvalues,
 
-    # VAR on static factors (OLS, sem Kilian — para ponto estimado)
+    # VAR on static factors
     var_coefficients = var_result$coefficients,
     var_residuals = innovations,
     companion_matrix = var_result$companion,
     var_covariance = var_result$covariance_matrix,
-
-    # Kilian-corrected (apenas para DGP do bootstrap)
-    var_coefficients_corrected = if (!is.null(kilian_result)) kilian_result$coefficients else NULL,
-    companion_corrected = if (!is.null(kilian_result)) kilian_result$companion else NULL,
-    var_residuals_original = var_result$residuals,  # resíduos OLS para bootstrap
 
     # Dynamic factors
     dynamic_factors = dynamic_result$factors,
@@ -1055,20 +745,4 @@ extract_dynamic_innovations <- function(dfm_results) {
     return(u)
   }
   u %*% K %*% solve(M)
-}
-
-
-#' Map a dynamic-shock direction into the static-factor space
-#'
-#' @param dfm_results Fitted DFM returned by `estimate_dfm()`.
-#' @param direction Numeric direction in the dynamic innovation space.
-#'
-#' @return Numeric vector in the static-factor space.
-map_dynamic_direction_to_static <- function(dfm_results, direction) {
-  K <- dfm_results$dynamic_loadings
-  M <- dfm_results$dynamic_scaling
-  if (!is.matrix(K) && !is.matrix(M)) {
-    return(as.numeric(direction))
-  }
-  drop(K %*% M %*% direction)
 }

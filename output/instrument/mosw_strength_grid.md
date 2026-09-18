@@ -1,6 +1,6 @@
 # Grade de força MOSW — ξ_mp e F robusto por (r,q) × amostra × instrumento
 
-Gerado por `script/mosw_strength_grid.R` em 2026-09-17.
+Gerado por `script/mosw_strength_grid.R` em 2026-09-18.
 
 Grid: q ∈ {2..r}, com r ∈ {4..6} na amostra cheia (12 combinações) e r ∈ {4..8} na pré-COVID (25); × 3 instrumentos = 111 células; p = 4; direção de normalização = `yield_6m`. A cheia para em r = 6 porque, sob a escala de Lenza-Primiceri, o VAR dos fatores é explosivo de r = 7 em diante (raiz máxima 1,001362 em r = 7 e 1,001318 em r = 8).
 
@@ -12,7 +12,7 @@ Todas as células passaram os gates de estabilidade, finitude e `n_obs`.
 Réguas de leitura:
 
 - **10** é uma referência convencional para ξ_mp e F robusto_mp, não um valor crítico fornecido por MOSW.
-- **`ar_bounded` deixou de ser previsão em 2026-09-08**: os conjuntos Anderson--Rubin do DFM passaram a ser a inferência operacional e são construídos em `script/ar_bands.R`. A coluna continua sendo o mesmo teste `ξ_mp > 3,84` que o sinal de `ahat` implementa a 95%.
+- **`ar_bounded` deixou de ser previsão em 2026-09-08**: os conjuntos Anderson--Rubin do DFM passaram a ser a inferência operacional e são construídos por `ar_dfm_bands()`. A coluna continua sendo o mesmo teste `ξ_mp > 3,84` que o sinal de `ahat` implementa a 95%.
 - **ξ_mp ≤ 3,84** significa conjunto AR 95% ilimitado — semirretas ou toda a reta, não intervalo.
 - **F robusto_mp** é o primeiro estágio HC1 na mesma direção de normalização de ξ_mp.
 

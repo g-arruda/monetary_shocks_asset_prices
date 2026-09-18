@@ -1,6 +1,6 @@
 # Validação de `amengual_watson()` contra o MATLAB de Stock-Watson
 
-Gerado por `script/validate_amengual_watson.R` em 2026-08-17.
+Gerado por `script/validation/validate_amengual_watson.R` em 2026-09-17.
 **Corpo gerado — não escrever prosa aqui.**
 
 Fixture: `output/validation/amengual_watson_fixture.csv`, o painel de produção de 111 séries e 153 meses. Parâmetros do original: `nt_min = 20`, `tol = 1e-08` (`favar_kilian.m:57-59`).
@@ -11,11 +11,11 @@ O `amengual_watson.m` original não conhece BLL, então o único caminho com con
 
 | q | aw_matlab | aw_projeto | aw_projeto_std |
 |---|---|---|---|
-|     1 | -0.083119 | -1.727473 | -0.089945 |
-|     2 | -0.154129 | -1.791997 | -0.160955 |
-|     3 | -0.211489 | -1.852428 | -0.218315 |
-|     4 | -0.273110 | -1.908546 | -0.279936 |
-|     5 | -0.345601 | -1.971470 | -0.352427 |
+|     1 | -0.091648 | -1.585094 | -0.098382 |
+|     2 | -0.156408 | -1.636697 | -0.163142 |
+|     3 | -0.216693 | -1.704682 | -0.223427 |
+|     4 | -0.280541 | -1.761777 | -0.287275 |
+|     5 | -0.359381 | -1.817903 | -0.366115 |
 
 ### A1. Seleção: MATLAB **5**, projeto **5** — acordo exato
 
@@ -25,14 +25,14 @@ O `amengual_watson.m` original não conhece BLL, então o único caminho com con
 
 A coluna `aw_projeto_std` é a do projeto com a padronização do 2º estágio ligada — o único ponto em que as duas implementações fazem coisas diferentes. Contra o MATLAB ela deixa:
 
-- gap **0.0068259651** em todas as 5 entradas, com dispersão **4.163e-16** — constante a precisão de máquina;
-- e essa constante é exatamente `log(147/146)` = **0.0068259651**, a diferença entre o desvio padrão populacional que o `nanstd .* mult` do MATLAB produz e o amostral do `sd()` do R.
+- gap **0.0067340322** em todas as 5 entradas, com dispersão **6.523e-16** — constante a precisão de máquina;
+- e essa constante é exatamente `log(149/148)` = **0.0067340322**, a diferença entre o desvio padrão populacional que o `nanstd .* mult` do MATLAB produz e o amostral do `sd()` do R.
 
 Ou seja: casada a convenção, **a tradução reproduz o original**. O que resta é uma escolha de denominador, não um desvio de algoritmo.
 
 ### A3. O que a flag como está no projeto custa
 
-`bai_ng_criteria(resid_mat, standardize = FALSE)` deixa os resíduos crus onde `factor_estimation_ls.m` os padronizaria coluna a coluna. O gap contra o MATLAB passa a **1.636893** em média com dispersão **1.849e-02** — não é constante, e reescala por coluna **pode** mover o `argmin` em outro painel. Neste não move: é o acordo de A1.
+`bai_ng_criteria(resid_mat, standardize = FALSE)` deixa os resíduos crus onde `factor_estimation_ls.m` os padronizaria coluna a coluna. O gap contra o MATLAB passa a **1.480297** em média com dispersão **3.492e-02** — não é constante, e reescala por coluna **pode** mover o `argmin` em outro painel. Neste não move: é o acordo de A1.
 
 As outras duas diferenças mapeadas não têm efeito:
 

@@ -7,8 +7,7 @@
 #
 # Author decision of 2026-09-08: the Anderson--Rubin sets withdrawn from the
 # DFM on 2026-08-12 are back, and they are now the **operational inference of
-# the DFM**, in place of the wild bootstrap. `registro/historico_decisoes.md`
-# section 7 carries the reversal. Of the two grounds for the 2026-08-12
+# the DFM**. `registro/historico_decisoes.md` section 7 carries the reversal. Of the two grounds for the 2026-08-12
 # withdrawal, one was fixed and one was overruled:
 #
 #   - the degenerate-case classifier was rebuilt as `solve_quadratic_le_zero()`
@@ -31,7 +30,7 @@
 # (which combines all of them), and the pair (Gamma, e_j) inside the Kronecker
 # by (Inner %*% Gamma, sy_j Lambda_j). With Load = Inner = I every function
 # below falls back **exactly** on the original MOSW, which is what keeps
-# `script/validate_mosw_ar.R` valid against the authors' oil application.
+# `script/validation/validate_mosw_ar.R` valid against the authors' oil application.
 #
 # Sources in the authors' official code (codigos_externos/codigo_olea/,
 # github.com/jm4474/SVARIV), read-only and gitignored:
@@ -554,8 +553,8 @@ mosw_ar_bounds <- function(deriv, cov, nvar, scale, confidence,
 #' Does the AR set exclude zero?
 #'
 #' The significance reading of an inverted test: `H0: IRF = 0` is rejected
-#' exactly when `0` is outside the confidence set. Unlike a bootstrap band, the
-#' set need not be an interval, so the answer is read off the topology and not
+#' exactly when `0` is outside the confidence set. Unlike a Wald band, the set
+#' need not be an interval, so the answer is read off the topology and not
 #' off `lo`/`hi` alone. Note that `two_rays` — `(-Inf, lo] U [hi, Inf)` — CAN
 #' exclude zero, when zero falls in the open gap `(lo, hi)`; and `real_line`
 #' never can. An `empty` set rejects every value of lambda including zero, which

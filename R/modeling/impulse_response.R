@@ -65,7 +65,7 @@ sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
 #' @param tcode Vector of transformation codes for `cumimp_transform`.
 #' @param diagnose If TRUE, print diagnostic information about `H`, the
 #'   pre-normalization impact response, and the MOSW relevance statistics.
-#'   Use only on the point estimate; never inside bootstrap loops.
+#'   Use only on the point estimate.
 #' @param var_names Optional column names for printing the impact vector when
 #'   `diagnose` is TRUE.
 #' @param center If TRUE, demean the innovations before projecting, as
@@ -418,73 +418,57 @@ infer_tcode_from_varnames <- function(var_names) {
 }
 
 
-#' Impulse responses of the DFM, identified and with bootstrap bands
+#' Impulse responses of the DFM, identified, with Anderson-Rubin sets
 #'
 #' The main entry point of the identification stage. Identification is by
 #' external instrument (Gertler-Karadi / Alessi-Kerssenfischer) — the single
 #' branch since the heteroskedasticity and non-Gaussian routes were abandoned on
 #' 2026-08-17. Their negative results remain documented under `arquivo/`.
 #'
-#' The point estimate uses the plain OLS companion; the wild bootstrap DGP uses
-#' the Kilian-corrected one, with Rademacher multipliers (Gonçalves-Kilian 2004).
-#'
 #' @param dfm_results List returned by `estimate_dfm()`. When it carries
-#'   `covid_volatility`, the point projects on the uncentered moment, the
+#'   `covid_volatility`, the point projects on the uncentered moment and the
 #'   Anderson-Rubin sets run on the transformed regression for
-#'   `innovations = "standardized"` (`ar_dfm_bands()`), and the bootstrap
-#'   aborts here, since its DGP assumes an OLS factor VAR with constant Sigma.
+#'   `innovations = "standardized"` (`ar_dfm_bands()`).
 #' @param instrument Optional instrument data.frame; normally already embedded
 #'   in `dfm_results` by the alignment stage.
 #' @param h Maximum horizon.
-#' @param nboot Number of bootstrap draws; 0 skips the band stage.
-#' @param bootstrap_seed Optional integer seed.
 #' @param mpind Column index of the monetary-policy variable used for
 #'   normalization.
 #' @param normalize_value Impact response imposed on the policy variable, in its
 #'   native units (0.005 for a +50bp shock on a decimal-proportion yield).
 #' @param data_dates Optional Date vector of the panel.
 #' @param tcode Integer vector of transformation codes, one per variable.
-#' @param ci_levels Confidence levels for the bootstrap bands.
+#' @param ci_levels Confidence levels of the sets.
 #' @param diagnose When TRUE, attaches first-stage and factor-space diagnostics.
 #' @param var_names Character vector of panel column names.
 #' @param identification Identification branch; `"proxy"` is the only one.
-#' @param inference Which bands fill `ci`: `"ar"` inverts the Anderson-Rubin
-#'   test (`ar_dfm_bands()`, the operational inference of the DFM since
-#'   2026-09-08 and what `production_spec()$inference` selects), `"bootstrap"`
-#'   takes the wild-bootstrap quantiles. The argument defaults to
-#'   `"bootstrap"` so that callers under `diagnostics/`, which are not
-#'   editable, keep the bands they were written against; every production
-#'   caller passes `"ar"` explicitly.
+#' @param inference What fills `ci`, with no default: `"ar"` inverts the
+#'   Anderson-Rubin test (`ar_dfm_bands()`, the inference of the DFM and what
+#'   `production_spec()$inference` selects); `"none"` returns the point alone,
+#'   with `lower = upper = point` at every level, for cells that are compared
+#'   point by point.
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #'
 #' @return List with `irf_point_matrix` (vars x horizons), `ci` (one entry per
 #'   level, each with `lower`/`upper`), `inference`, and `ar` — the full
-#'   `ar_dfm_bands()` result with set topologies, or NULL under bootstrap.
-compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
-                            bootstrap_seed = NULL, mpind = NULL,
+#'   `ar_dfm_bands()` result with set topologies, or NULL under `"none"`.
+compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, mpind = NULL,
                             normalize_value = 0.5, data_dates = NULL,
                             tcode = NULL, ci_levels = c(0.90, 0.95),
                             diagnose = getOption("dfm.irf.diagnose", FALSE),
                             var_names = NULL,
                             identification = "proxy",
-                            inference = c("bootstrap", "ar"),
-                            ar_nw_lags = 0L) {
+                            inference, ar_nw_lags = 0L) {
 
   identification <- match.arg(identification)
-  inference <- match.arg(inference)
+  inference <- match.arg(inference, c("ar", "none"))
   if (inference == "ar" && !exists("ar_dfm_bands", mode = "function")) {
     stop("inference = 'ar' requires R/identification/weak_iv_ar.R to be sourced")
   }
-  if (!is.null(dfm_results$covid_volatility) && inference == "bootstrap" && nboot > 0) {
-    stop("Bootstrap indisponivel sob covid_volatility: o DGP, a correcao de ",
-         "Kilian e a reestimacao supoem OLS com Sigma constante ",
-         "(notas/2026-09-14_volatilidade_covid_lenza_primiceri.md)")
-  }
-  if (!is.null(bootstrap_seed)) set.seed(bootstrap_seed)
 
-  # --- Extrair componentes do DFM (OLS, sem Kilian — para ponto estimado) ---
+  # --- Extrair componentes do DFM ---
   Lambda <- dfm_results$static_loadings
-  A      <- dfm_results$companion_matrix  # companion OLS (sem Kilian)
+  A      <- dfm_results$companion_matrix
   K      <- dfm_results$dynamic_loadings
   M      <- dfm_results$dynamic_scaling
   sy     <- dfm_results$data_sd
@@ -546,7 +530,7 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
     stop("instrument deve ser vetor numerico ou data.frame com colunas 'month' e 'shock'")
   }
 
-  # --- Matrizes B de propagação (companion OLS, sem Kilian) ---
+  # --- Matrizes B de propagação ---
   Bfull <- array(0, dim = c(rp, rp, h + 1))
   Bfull[, , 1] <- diag(rp)
   Bfull[, , 2] <- A
@@ -567,7 +551,7 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
   }
 
   # --- Resíduos de fatores dinâmicos: eta = u * K / M ---
-  u <- dfm_results$var_residuals  # resíduos OLS (sem Kilian)
+  u <- dfm_results$var_residuals
   if (!is.matrix(K) && !is.matrix(M)) {
     eta <- u
   } else {
@@ -584,7 +568,7 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
                                   center = is.null(dfm_results$covid_volatility))
   irf_point <- point_result$irf_mp
 
-  # --- Anderson-Rubin sets (operational inference since 2026-09-08) ---
+  # --- Anderson-Rubin sets ---
   ar <- NULL
   if (inference == "ar") {
     if (is.null(mpind)) {
@@ -609,117 +593,6 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, nboot = 300,
         level = lvl,
         lower = ar$by_level[[name]]$lo,
         upper = ar$by_level[[name]]$hi
-      )
-    }
-  } else if (nboot > 0) {
-    # Componentes para bootstrap DGP (Kilian-corrigidos, se disponíveis)
-    # Seguindo DFMest_BLL_Boot.m: DGP usa coeficientes corrigidos + resíduos OLS
-    boot_coeffs <- dfm_results$var_coefficients_corrected
-    if (is.null(boot_coeffs)) {
-      boot_coeffs <- dfm_results$var_coefficients
-    }
-    # Resíduos OLS originais para wild bootstrap (DFMest_BLL_Boot.m linha 57)
-    boot_resids <- dfm_results$var_residuals_original
-    if (is.null(boot_resids)) {
-      boot_resids <- dfm_results$var_residuals
-    }
-
-    # Calcular Idio (componente idiossincrático)
-    Chi <- sweep(dfm_results$static_factors %*% t(dfm_results$static_loadings), 2, sy, "*")
-    Idio <- dfm_results$detrended_data - Chi
-
-    irf_boot <- array(0, dim = c(n_vars, h + 1, nboot))
-
-    for (b in seq_len(nboot)) {
-      tryCatch({
-        # Wild bootstrap Rademacher (Gonçalves-Kilian 2004).
-        n_resid <- nrow(boot_resids)
-        rr <- 1 - 2 * (runif(n_resid) > 0.5)
-        resid_boot <- boot_resids * rr  # resíduos OLS * rr
-
-        # Reconstruir fatores com coeficientes corrigidos e resíduos OLS
-        F_boot <- matrix(0, nrow = nrow(dfm_results$static_factors), ncol = r)
-        F_boot[1:p, ] <- dfm_results$static_factors[1:p, ]
-
-        for (tt in (p + 1):nrow(F_boot)) {
-          lagged_vars <- as.vector(t(F_boot[(tt - 1):(tt - p), ]))
-          F_boot[tt, ] <- c(lagged_vars, 1) %*% boot_coeffs +
-            resid_boot[tt - p, ]
-        }
-
-        # Reconstruir X_boot
-        Chi_boot <- sweep(F_boot %*% t(Lambda), 2, sy, "*")
-        X_boot <- Chi_boot + Idio
-
-        # Re-estimar SEM Kilian (fiel a DFMest_BLL.m chamado em DFMest_BLL_Boot.m:69)
-        suppressWarnings({
-          dfm_boot <- estimate_dfm(X_boot, r, q, p, apply_kilian = FALSE)
-        })
-
-        Lambda_boot <- dfm_boot$static_loadings
-        A_boot <- dfm_boot$companion_matrix  # OLS, sem Kilian
-        K_boot <- dfm_boot$dynamic_loadings
-        M_boot <- dfm_boot$dynamic_scaling
-        sy_boot <- dfm_boot$data_sd
-        u_boot <- dfm_boot$var_residuals  # OLS, sem Kilian
-
-        # Matrizes B bootstrapadas
-        rp_boot <- nrow(A_boot)
-        Bfull_b <- array(0, dim = c(rp_boot, rp_boot, h + 1))
-        Bfull_b[, , 1] <- diag(rp_boot)
-        if (h >= 1) Bfull_b[, , 2] <- A_boot
-        for (i in 3:(h + 1))
-          Bfull_b[, , i] <- Bfull_b[, , i - 1] %*% A_boot
-
-        B_boot <- array(0, dim = c(r, r, h + 1))
-        for (i in seq_len(h + 1))
-          B_boot[, , i] <- Bfull_b[1:r, 1:r, i]
-
-        # IRFs de forma reduzida bootstrapadas
-        rawimp_boot <- array(0, dim = c(n_vars, q, h + 1))
-        for (i in seq_len(h + 1)) {
-          if (!is.matrix(K_boot) && !is.matrix(M_boot)) {
-            temp <- Re(Lambda_boot %*% B_boot[, , i] * K_boot * M_boot)
-          } else {
-            temp <- Re(Lambda_boot %*% B_boot[, , i] %*% K_boot %*% M_boot)
-          }
-          rawimp_boot[, , i] <- sweep(temp, 1, sy_boot, "*")
-        }
-
-        # Resíduos de fatores dinâmicos bootstrapados
-        if (!is.matrix(K_boot) && !is.matrix(M_boot)) {
-          eta_boot <- u_boot
-        } else {
-          eta_boot <- u_boot %*% K_boot %*% solve(M_boot)
-        }
-
-        # Identificação bootstrapada — wild bootstrap do instrumento (mesmo rr)
-        rr_sel <- rr[rsh_sel_ind]
-        inst_boot <- inst_sel * rr_sel
-
-        eta_boot_sel <- eta_boot[rsh_sel_ind, , drop = FALSE]
-        boot_result <- ident_ext_instr(rawimp_boot, eta_boot_sel, inst_boot,
-                                       h, mpind, normalize_value, tcode)
-        irf_boot[, , b] <- boot_result$irf_mp
-
-      }, error = function(e) {
-        warning("Bootstrap iteracao ", b, " falhou: ", e$message)
-        irf_boot[, , b] <<- irf_point
-      })
-    }
-
-    # Validação do bootstrap: chamada pelo warning, o retorno não é consumido
-    validate_bootstrap_results(irf_boot, irf_point)
-
-    # Intervalos de confianca
-    ci <- list()
-    for (lvl in ci_levels) {
-      alpha <- (1 - lvl) / 2
-      name <- sprintf("%.2f", lvl)
-      ci[[name]] <- list(
-        level = lvl,
-        lower = apply(irf_boot, c(1, 2), quantile, probs = alpha, na.rm = TRUE),
-        upper = apply(irf_boot, c(1, 2), quantile, probs = 1 - alpha, na.rm = TRUE)
       )
     }
   } else {
@@ -927,41 +800,4 @@ validate_dfm_results <- function(dfm_results) {
   checks$max_eigenvalue   <- max(abs(eigenvals))
 
   checks
-}
-
-
-#' Warn when wild-bootstrap draws collapse onto the point estimate
-#'
-#' A draw that reproduces `irf_point` exactly means the replication failed and
-#' fell back to the point IRF, so the bands it feeds are too narrow. Called for
-#' its `warning()`; the returned stats are diagnostic.
-#'
-#' @param irf_boot Array (vars x horizons x draws) of bootstrap IRFs.
-#' @param irf_point Matrix (vars x horizons) of the point IRF.
-#'
-#' @return List with total_iterations, failed_iterations, success_rate,
-#'   mean_abs_irf and bootstrap_variance.
-validate_bootstrap_results <- function(irf_boot, irf_point) {
-  nboot <- dim(irf_boot)[3]
-
-  failed_iterations <- 0
-  for (b in seq_len(nboot)) {
-    if (all(irf_boot[, , b] == irf_point)) {
-      failed_iterations <- failed_iterations + 1
-    }
-  }
-
-  bootstrap_stats <- list(
-    total_iterations   = nboot,
-    failed_iterations  = failed_iterations,
-    success_rate       = (nboot - failed_iterations) / nboot,
-    mean_abs_irf       = mean(abs(irf_boot), na.rm = TRUE),
-    bootstrap_variance = var(as.vector(irf_boot), na.rm = TRUE)
-  )
-
-  if (failed_iterations > nboot * 0.1) {
-    warning("Mais de 10% das iteracoes do bootstrap falharam. Considere ajustar os parametros.")
-  }
-
-  bootstrap_stats
 }

@@ -13,17 +13,17 @@
 # or whether it discards the directions the instrument identifies.
 #
 # FOUR WINDOW-CELLS, r = 5, q = 2..5:
-#   cheia_p4     2012-03..2025-12, p = 4, Anderson-Rubin 68/90 on q = 5
-#                (production);
+#   cheia_p4     2012-03..2025-12, p = 4, Anderson-Rubin 68/90 on q = 5,
+#                without the COVID volatility (production until 2026-09-17);
 #   pre_p4       2012-03..2019-12, p = 4, point only: the AR covariance is
 #                blocked there (hac_dim 135 >= T = 90, output/irf/ar_bands.md);
 #   pre_p2       2012-03..2019-12, p = 2, Anderson-Rubin 68/90 on q = 5
 #                (hac_dim 85);
 #   cheia_p4_lp  cheia_p4 with the Lenza-Primiceri (2022) COVID volatility in
-#                the factor VAR, theta-hat by maximum likelihood under
-#                production_spec()$covid_volatility_design (step 3/4 of the
-#                advisor's 2026-09-13 e-mail); Anderson-Rubin 68/90 on q = 5,
-#                on the transformed regression.
+#                the factor VAR at production_spec()$covid_volatility (step
+#                3/4 of the advisor's 2026-09-13 e-mail; production since
+#                2026-09-17); Anderson-Rubin 68/90 on q = 5, on the
+#                transformed regression.
 # Only the q = 5 reference gets AR sets: T2 reads only its bands, and an
 # alternative's set is bounded at level kappa iff its xi_mp > kappa. Asking
 # for the alternatives' sets also trips compute_irf_dfm()'s absolute 1e-10
@@ -49,7 +49,7 @@
 # The showcase (md tables, figure) is yield_6m, yield_2y, cambio_usd, cds_5y,
 # price_ipca and ibc_br, by author decision. asset_ibov stays in the paths CSV
 # and in the containment counts: dropping it from those would be the
-# cherry-picking script/q_selection.R forbids.
+# cherry-picking arquivo/script/q_selection.R forbids.
 #
 # Outputs: output/factors/q_truncation.{md,pdf}
 #          output/factors/q_truncation_cells.csv
@@ -109,28 +109,13 @@ inst_df <- data.frame(month = inst_panel$month, shock = inst_panel[[SPEC$instrum
   tidyr::drop_na(shock)
 
 
-# ---- COVID volatility: theta-hat on the full-window factors ------------
-
-# theta depends on the static factors and on p, not on q: one estimate serves
-# every q of cheia_p4_lp
-design <- SPEC$covid_volatility_design
-in_full <- dates >= SPEC$sample[1] & dates <= SPEC$sample[2]
-theta_fit <- estimate_covid_theta(
-  estimate_static_factors(data_mat[in_full, ], SPEC$r)$factors, SPEC$p,
-  dates[in_full][(SPEC$p + 1):sum(in_full)], design$covid_start,
-  design$theta_lower, design$theta_upper
-)
-covid_lp <- list(covid_start = design$covid_start, theta = theta_fit$theta,
-                 innovations = design$innovations)
-
-
 # ---- Cells ---------------------------------------------------------
 
 runs <- tidyr::expand_grid(WINDOW_CELLS, q = Q_VALUES) |>
   purrr::pmap(function(window_cell, window, p, ar_reference, covid, q) {
     win <- SPEC[[window]]
     in_win <- dates >= win[1] & dates <= win[2]
-    covid_volatility <- if (covid) covid_lp else NULL
+    covid_volatility <- if (covid) SPEC$covid_volatility else NULL
     dfm <- estimate_dfm(data_mat[in_win, ], r = SPEC$r, q = q, p = p, dates = dates[in_win],
                         covid_volatility = covid_volatility)
     diag_fs <- diagnose_instrument_in_factor_space(dfm, inst_df, dates[in_win], p, mp_idx,
@@ -138,9 +123,9 @@ runs <- tidyr::expand_grid(WINDOW_CELLS, q = Q_VALUES) |>
     stage2 <- run_stage2_cell(
       data_mat, dates, inst_panel, sample_window = win,
       r = SPEC$r, q = q, p = p, instrument = SPEC$instrument, mp_var = SPEC$mp_var,
-      h = H, nboot = 0L, seed = SPEC$bootstrap_seed, shock_bps = SPEC$shock_bps,
+      h = H, shock_bps = SPEC$shock_bps,
       tcode = tcode, ci_levels = SPEC$ar_levels,
-      inference = if (ar_reference && q == SPEC$r) "ar" else "bootstrap",
+      inference = if (ar_reference && q == SPEC$r) "ar" else "none",
       ar_nw_lags = SPEC$ar_nw_lags, covid_volatility = covid_volatility
     )
     list(window_cell = window_cell, p = p, q = q, dfm = dfm, diag = diag_fs,
@@ -261,7 +246,7 @@ dirs_tbl <- purrr::map_dfr(by_window, "dirs")
 # (a) the production cell reproduces the published point and 68/90 AR sets
 coh <- readr::read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE)
 chk_a <- paths |>
-  dplyr::filter(window_cell == "cheia_p4", q == SPEC$q) |>
+  dplyr::filter(window_cell == "cheia_p4_lp", q == SPEC$q) |>
   dplyr::inner_join(coh, by = c("variable" = "var", "h"), suffix = c("", "_ref"))
 stopifnot(
   nrow(chk_a) == nrow(coh),
@@ -273,7 +258,7 @@ stopifnot(
 # (b) strength agrees with the canonical grid, and the AR path with the Wald
 grid <- readr::read_csv("output/instrument/mosw_strength_grid.csv", show_col_types = FALSE) |>
   dplyr::filter(r == SPEC$r, instrument == SPEC$instrument, q %in% Q_VALUES) |>
-  dplyr::mutate(window_cell = dplyr::if_else(sample == "full", "cheia_p4", "pre_p4")) |>
+  dplyr::mutate(window_cell = dplyr::if_else(sample == "full", "cheia_p4_lp", "pre_p4")) |>
   dplyr::select(window_cell, q, xi_ref = wald_mp)
 chk_b <- dplyr::inner_join(cells_tbl, grid, by = c("window_cell", "q"))
 stopifnot(
@@ -303,16 +288,6 @@ stopifnot(
 # (e) every cell delivers exactly the normalized shock
 mp_h0 <- dplyr::filter(paths, variable == SPEC$mp_var, h == 0)$point
 stopifnot(max(abs(mp_h0 - SPEC$normalize_value)) < 1e-12)
-
-# (f) the treated cells run at the maximum-likelihood theta of
-# script/covid_volatility_theta.R, and their factor VAR is the one it maximized
-theta_ref <- readr::read_csv("output/factors/covid_volatility_theta.csv", show_col_types = FALSE)
-treated_loglik <- purrr::keep(runs, function(x) x$window_cell == "cheia_p4_lp") |>
-  purrr::map_dbl(function(x) x$dfm$var_loglik)
-stopifnot(
-  max(abs(theta_fit$theta / unlist(theta_ref[names(theta_fit$theta)]) - 1)) < 1e-8,
-  max(abs(treated_loglik - theta_fit$loglik)) < 1e-10 * abs(theta_fit$loglik)
-)
 
 
 # ---- T2: the Alessi-Kerssenfischer containment ----------------------
@@ -380,11 +355,12 @@ writeLines(c(
   "## Células",
   "",
   paste("Painel de produção (115 séries), `r = 5`, instrumento `z_jk_bs_purif`, choque de +50 pb",
-        "em `yield_6m`. `cheia_p4`: 2012-03 a 2025-12, `p = 4`, conjuntos Anderson-Rubin 68/90.",
+        "em `yield_6m`. `cheia_p4`: 2012-03 a 2025-12, `p = 4`, conjuntos Anderson-Rubin 68/90,",
+        "sem a volatilidade COVID (a produção até 2026-09-17).",
         "`pre_p4`: 2012-03 a 2019-12, `p = 4`, só pontual — o AR é bloqueado ali",
         "(`hac_dim` 135 >= T = 90, `output/irf/ar_bands.md`). `pre_p2`: mesma janela, `p = 2`, AR 68/90.",
         "`cheia_p4_lp`: a `cheia_p4` com a volatilidade COVID de Lenza-Primiceri (2022) no VAR dos",
-        "fatores, AR 68/90 na regressão transformada (seção própria abaixo).",
+        "fatores, AR 68/90 na regressão transformada (seção própria abaixo); é a produção desde 2026-09-17.",
         "Os conjuntos AR são construídos só na referência `q = 5`; `ar_bounded_κ` vem de ξ_mp > κ,",
         "a condição exata de limitação. `interval_68`/`interval_90`: fração dos conjuntos da",
         "referência (115 séries × 49 horizontes) que são intervalos; o único outro tipo é o singleton",
@@ -429,9 +405,9 @@ writeLines(c(
         "sobre `u_t/s_t` sem centragem, T1 nas direções do segundo momento não centrado e AR na",
         "regressão transformada, com θ̂ tratado como conhecido.",
         chartr(".", ",", sprintf("θ̂ = (s̄0 %.3f; s̄1 %.3f; s̄2 %.3f; ρ %.4f)",
-                                 theta_fit$theta[["s0"]], theta_fit$theta[["s1"]],
-                                 theta_fit$theta[["s2"]], theta_fit$theta[["rho"]])),
-        "por máxima verossimilhança, o de `script/covid_volatility_theta.R`.",
+                                 SPEC$covid_volatility$theta[["s0"]], SPEC$covid_volatility$theta[["s1"]],
+                                 SPEC$covid_volatility$theta[["s2"]], SPEC$covid_volatility$theta[["rho"]])),
+        "de `production_spec()`, estimado por máxima verossimilhança em `script/covid_volatility_theta.R`.",
         "Sem regra de leitura: o autor lê as IRFs a olho (última página do PDF)."),
   "",
   "## Leitura conjunta",

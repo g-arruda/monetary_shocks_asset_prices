@@ -1,20 +1,23 @@
 # ===================================================================
-# Compare q = 2, 3, 4 and 5 at fixed (r, p) = (5, 4) on the full window with
-# the Lenza-Primiceri (2022) COVID volatility in the factor VAR, for the
-# twenty variables that organize the paper's empirical narrative, including
-# all fiscal and expectation series.
+# Compare q = 2, 3, 4 and 5 at fixed r = 5 for the twenty variables that
+# organize the paper's empirical narrative, including all fiscal and
+# expectation series, in one of the two windows of step 4/4 of the advisor's
+# 2026-09-13 e-mail. The window is a required argument:
 #
-# Step 4/4 of the advisor's 2026-09-13 e-mail asks for the q table in both
-# windows, the full one adjusted. This is the treated sibling of
-# script/q_narrative_overlay.R (full window, OLS); the other window is
-# script/q_narrative_overlay_precovid_p2.R (pre-COVID, p = 2). theta is
-# estimated here by maximum likelihood under
-# production_spec()$covid_volatility_design, as in
-# script/covid_volatility_theta.R; it depends on the static factors and on p,
-# not on q, so one estimate serves every cell. q = 5 carries its 68/90%
-# Anderson-Rubin sets on the transformed regression; q = 2, 3 and 4 are point
+#   --window=cheia      2012-03..2025-12, p = 4, with the production
+#                       Lenza-Primiceri (2022) COVID volatility in the factor
+#                       VAR; the sets are on the transformed regression.
+#   --window=pre_covid  2012-03..2019-12, p = 2. At p = 4 the pre-COVID AR
+#                       covariance is blocked (hac_dim 135 >= T = 90,
+#                       output/irf/ar_bands.md); at p = 2 it is feasible
+#                       (hac_dim 85 < T = 92, the `pre_p2` cell of
+#                       script/q_truncation.R).
+#
+# q = 5 carries its 68/90% Anderson-Rubin sets; q = 2, 3 and 4 are point
 # estimates only, following the Figure A3 design of Alessi and Kerssenfischer
-# (2019). Note: notas/2026-09-14_inferencia_volatilidade_covid_q.md
+# (2019). Merges q_narrative_overlay_covid.R and
+# q_narrative_overlay_precovid_p2.R (2026-09-17), whose output names it keeps.
+# Note: notas/2026-09-14_inferencia_volatilidade_covid_q.md
 # ===================================================================
 
 source("R/modeling/factor_estimation.R")
@@ -22,6 +25,12 @@ source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/spec_sweep.R")
 source("R/identification/weak_iv_ar.R")
+
+WINDOW <- sub("^--window=", "", grep("^--window=", commandArgs(trailingOnly = TRUE), value = TRUE))
+if (length(WINDOW) != 1L || !WINDOW %in% c("cheia", "pre_covid")) {
+  stop("Pass --window=cheia or --window=pre_covid: the two windows of step 4/4 ",
+       "differ in sample, p and the COVID volatility, and neither is a default.")
+}
 
 SPEC <- production_spec()
 Q_VALUES <- c(5L, 4L, 3L, 2L)
@@ -36,7 +45,60 @@ VARS <- c(
 )
 H_FIG <- 48L
 OUT_DIR <- "output/factors"
-OUT_STEM <- file.path(OUT_DIR, "q_narrative_r5p4_covid")
+
+theta <- SPEC$covid_volatility$theta
+theta_txt <- chartr(".", ",", sprintf("s̄0 = %.3f; s̄1 = %.3f; s̄2 = %.3f; ρ = %.4f",
+                                      theta[["s0"]], theta[["s1"]], theta[["s2"]], theta[["rho"]]))
+
+# The pre-COVID window has no COVID month, so s_t = 1 throughout and
+# estimate_dfm() rejects the scale there: OLS is the treated fit
+CELL <- switch(WINDOW,
+  cheia = list(
+    sample = SPEC$sample,
+    p = SPEC$p,
+    covid_volatility = SPEC$covid_volatility,
+    stem = "q_narrative_r5p4_covid",
+    title = "Sensibilidade à dimensão dinâmica q: r = 5, p = 4, cheia com a volatilidade COVID (2012-03 a 2025-12)",
+    md = c(
+      "# IRFs narrativas: q = 2 a 5 com r = 5, p = 4, amostra cheia com a volatilidade COVID",
+      "",
+      "As vinte variáveis cobrem a curva, câmbio e risco soberano, expectativas,",
+      "atividade, preços, ações e todas as séries fiscais e de expectativa que",
+      "estruturam a narrativa empírica do artigo. Janela 2012-03 a 2025-12, p = 4,",
+      "com a escala de volatilidade COVID de Lenza-Primiceri (2022) no VAR dos fatores:",
+      sprintf("θ̂ = (%s) de `production_spec()`, `innovations = \"standardized\"`,", theta_txt),
+      "sem centragem. A linha q=5 traz conjuntos de Anderson-Rubin de 68% e 90% na",
+      "regressão transformada; q=2, q=3 e q=4 são sobreposições pontuais. Horizonte h = 0..48.",
+      "",
+      "A outra janela do passo 4/4 é `q_narrative_r5p2_precovid.*` (pré-COVID, p = 2);",
+      "a cheia sem tratamento é `q_narrative_r5p4.*`.",
+      "",
+      "Artefatos: `q_narrative_r5p4_covid_paths.csv`, `q_narrative_r5p4_covid_summary.csv`",
+      "e `q_narrative_r5p4_covid.pdf`."
+    )
+  ),
+  pre_covid = list(
+    sample = SPEC$pre_covid_sample,
+    p = 2L,
+    covid_volatility = NULL,
+    stem = "q_narrative_r5p2_precovid",
+    title = "Sensibilidade à dimensão dinâmica q: r = 5, p = 2, pré-COVID (2012-03 a 2019-12)",
+    md = c(
+      "# IRFs narrativas: q = 2 a 5 com r = 5, p = 2, pré-COVID",
+      "",
+      "As vinte variáveis cobrem a curva, câmbio e risco soberano, expectativas,",
+      "atividade, preços, ações e todas as séries fiscais e de expectativa que",
+      "estruturam a narrativa empírica do artigo. Janela 2012-03 a 2019-12, p = 2",
+      "(no `p = 4` pré-COVID o AR fica bloqueado: hac_dim 135 >= T = 90). A linha",
+      "q=5 traz conjuntos de Anderson-Rubin de 68% e 90%; q=2, q=3 e q=4 são",
+      "sobreposições pontuais. Horizonte h = 0..48.",
+      "",
+      "Artefatos: `q_narrative_r5p2_precovid_paths.csv`,",
+      "`q_narrative_r5p2_precovid_summary.csv` e `q_narrative_r5p2_precovid.pdf`."
+    )
+  )
+)
+OUT_STEM <- file.path(OUT_DIR, CELL$stem)
 
 Q_LABEL <- paste0("q=", Q_VALUES)
 Q_PALETTE <- c("q=5" = "black", "q=4" = "firebrick", "q=3" = "darkgreen", "q=2" = "steelblue")
@@ -56,30 +118,17 @@ tcode <- infer_tcode_from_varnames(var_names)
 inst_panel <- readr::read_csv(SPEC$instrument_path, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
-design <- SPEC$covid_volatility_design
-in_win <- dates >= SPEC$sample[1] & dates <= SPEC$sample[2]
-theta_fit <- estimate_covid_theta(
-  estimate_static_factors(data_mat[in_win, ], SPEC$r)$factors, SPEC$p,
-  dates[in_win][(SPEC$p + 1):sum(in_win)], design$covid_start,
-  design$theta_lower, design$theta_upper
-)
-theta_ref <- readr::read_csv("output/factors/covid_volatility_theta.csv", show_col_types = FALSE)
-stopifnot(max(abs(theta_fit$theta / unlist(theta_ref[names(theta_fit$theta)]) - 1)) < 1e-8)
-covid_lp <- list(covid_start = design$covid_start, theta = theta_fit$theta,
-                 innovations = design$innovations)
-
 cells <- purrr::map(Q_VALUES, function(q) {
   run_stage2_cell(
     data_mat, dates, inst_panel,
-    sample_window = SPEC$sample,
-    r = SPEC$r, q = q, p = SPEC$p,
+    sample_window = CELL$sample,
+    r = SPEC$r, q = q, p = CELL$p,
     instrument = SPEC$instrument, mp_var = SPEC$mp_var,
-    h = SPEC$horizon, nboot = 0L, seed = SPEC$bootstrap_seed,
-    shock_bps = SPEC$shock_bps, tcode = tcode,
+    h = SPEC$horizon, shock_bps = SPEC$shock_bps, tcode = tcode,
     ci_levels = SPEC$ar_levels,
-    inference = if (q == SPEC$q) "ar" else "bootstrap",
+    inference = if (q == SPEC$q) "ar" else "none",
     ar_nw_lags = SPEC$ar_nw_lags,
-    covid_volatility = covid_lp
+    covid_volatility = CELL$covid_volatility
   )
 })
 
@@ -101,7 +150,7 @@ paths <- purrr::map2_dfr(cells, Q_VALUES, function(cell, q) {
     data.frame(
       r = SPEC$r,
       q = q,
-      p = SPEC$p,
+      p = CELL$p,
       variable = variable,
       h = 0:SPEC$horizon,
       point = point[i, ],
@@ -172,34 +221,13 @@ summary <- summary |>
 
 readr::write_csv(paths, paste0(OUT_STEM, "_paths.csv"))
 readr::write_csv(summary, paste0(OUT_STEM, "_summary.csv"))
-
-theta_txt <- chartr(".", ",", sprintf("s̄0 = %.3f; s̄1 = %.3f; s̄2 = %.3f; ρ = %.4f",
-                                      theta_fit$theta[["s0"]], theta_fit$theta[["s1"]],
-                                      theta_fit$theta[["s2"]], theta_fit$theta[["rho"]]))
-writeLines(c(
-  "# IRFs narrativas: q = 2 a 5 com r = 5, p = 4, amostra cheia com a volatilidade COVID",
-  "",
-  "As vinte variáveis cobrem a curva, câmbio e risco soberano, expectativas,",
-  "atividade, preços, ações e todas as séries fiscais e de expectativa que",
-  "estruturam a narrativa empírica do artigo. Janela 2012-03 a 2025-12, p = 4,",
-  "com a escala de volatilidade COVID de Lenza-Primiceri (2022) no VAR dos fatores:",
-  sprintf("θ̂ = (%s) por máxima verossimilhança, `innovations = \"standardized\"`,", theta_txt),
-  "sem centragem. A linha q=5 traz conjuntos de Anderson-Rubin de 68% e 90% na",
-  "regressão transformada; q=2, q=3 e q=4 são sobreposições pontuais. Horizonte h = 0..48.",
-  "",
-  "A outra janela do passo 4/4 é `q_narrative_r5p2_precovid.*` (pré-COVID, p = 2);",
-  "a cheia sem tratamento é `q_narrative_r5p4.*`.",
-  "",
-  "Artefatos: `q_narrative_r5p4_covid_paths.csv`, `q_narrative_r5p4_covid_summary.csv`",
-  "e `q_narrative_r5p4_covid.pdf`."
-), paste0(OUT_STEM, ".md"))
+writeLines(CELL$md, paste0(OUT_STEM, ".md"))
 
 plot_data <- paths |>
   dplyr::filter(h <= H_FIG)
 band_data <- plot_data |>
   dplyr::filter(q == SPEC$q)
 
-title <- "Sensibilidade à dimensão dinâmica q: r = 5, p = 4, cheia com a volatilidade COVID (2012-03 a 2025-12)"
 subtitle <- paste0(
   "z_jk_bs_purif × yield_6m, choque de +50 pb; bandas Anderson-Rubin 68/90% apenas para q=5"
 )
@@ -207,7 +235,7 @@ subtitle <- paste0(
 pdf(paste0(OUT_STEM, ".pdf"), width = 11, height = 7.5)
 print(plot_dimension_overlay(
   plot_data, band_data, VARS[1:6], Q_PALETTE, Q_LINETYPE,
-  H_FIG, 3, title, subtitle
+  H_FIG, 3, CELL$title, subtitle
 ))
 print(plot_dimension_overlay(
   plot_data, band_data, VARS[7:10], Q_PALETTE, Q_LINETYPE,

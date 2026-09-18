@@ -53,7 +53,7 @@
 # separate author decision that this script does not recommend.
 #
 # READING RULE, FIXED BEFORE THE NUMBERS EXISTED (same discipline as
-# `verdict_for()` in script/jk_sovereign_confound.R):
+# `verdict_for()` in arquivo/script/jk_sovereign_confound.R):
 #
 #  - The US block jointly significant on the 62 retained days at
 #    p_boot < 0.10, OR its interaction with 1(fomc_coincide) over the

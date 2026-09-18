@@ -47,7 +47,8 @@ from "the collection came back empty", and the error only surfaces months later,
   with a pointer if the file goes missing.
 - **`data/raw/CDS 5y.xlsx`** — daily 5y sovereign CDS (Bloomberg, `BRAZIL CDS USD SR 5Y D14 Corp`).
   Metadata sits in rows 1-5 and the series in columns C:D, hence the `cell_limits(c(7, 3), ...)`
-  read. Consumed only by `jk_sovereign_confound.R`; the panel's monthly `cds_5y` comes from
+  read. Its only consumer was `jk_sovereign_confound.R`, archived to `arquivo/script/` on
+  2026-09-17, so nothing live reads it now; the panel's monthly `cds_5y` comes from
   `download.R` and the two agree at **cor 0.9994** — which is what makes the daily test and the
   monthly IRF the same object rather than homonyms.
 - **`data/raw/fomc_dates.csv`** — FOMC decision dates with a `scheduled`/`unscheduled` column. Unlike the

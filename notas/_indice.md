@@ -139,6 +139,27 @@ separada do benchmark observável.
 - Nota fica aqui. Log de sessão fica em `progress_logs/`. Parecer recebido fica
   em `pareceres/`. Nunca o contrário.
 
+**2026-09-18:** o wild bootstrap e a correção de Kilian saíram do código.
+`script/ar_bands.R`, `script/fomc_coincidence.R` e `R/instrument/event_tests.R`
+foram para `arquivo/`. Toda nota que descreve bandas de bootstrap do DFM, ou
+que manda rodar um desses scripts, descreve código que não roda mais contra
+`R/`. As saídas continuam em `output/`. O `(5,2)` ilimitado de
+`2026-09-08_bandas_anderson_rubin_producao` é do modelo sem tratamento: sob a
+escala COVID de produção, `(5,2)` tem ξ_mp 5,124 e é limitado a 68, 90 e 95%.
+
+**2026-09-17:** a auditoria de `script/` e `R/` mudou de lugar vários scripts
+citados nas notas abaixo:
+- 25 scripts de rodadas fechadas foram para `arquivo/script/` (entre eles
+  `jk_sovereign_confound.R`, `xi_mp_robustness.R`, `irf_spec_*.R`, `p_selection.R`,
+  `q_selection.R`, `factor_stationarity.R`, `asset_representation.R`,
+  `price_cross_instrument.R`, os `fiscal_*` e a família `panel_composition*`);
+- os `validate_*.R` vivos foram para `script/validation/`;
+- `q_narrative_overlay_{covid,precovid_p2}.R` viraram
+  `script/q_sensitivity.R --window=cheia|pre_covid`.
+
+As saídas **não** se moveram: todo caminho `output/…` citado nas notas continua
+válido. O mapa completo está em `registro/mapa_renomeacoes.md`.
+
 **2026-08-11:** esta pasta era `relatorio/working-notes/` até a adoção do
 esqueleto `/newproject`; os councils foram para `pareceres/` e `_instrucoes/`
 virou `registro/`. Só os caminhos mudaram — nenhum conteúdo de nota foi tocado.

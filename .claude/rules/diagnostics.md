@@ -5,6 +5,11 @@ paths:
 
 # Diagnostics round (2026-07-28 DFM-IV audit)
 
+**Frozen since 2026-09-18.** The wild bootstrap and the Kilian correction left `R/`, and scripts
+`01`-`05` and both `rq_*` audits still pass `apply_kilian`, `nboot` or `bootstrap_seed`, or read
+`companion_corrected`, so they no longer run against the current `R/`. They stay unedited as the
+record of what ran (author decision); the `R/` they ran against is `main` at `07b1cbd`.
+
 Seven scripts (`0{1..7}_*.R`) share `_common.R`, which loads the production spec, the panel, the
 instrument variants and the cached `irf_coherence_cell.rds` as globals. **A diagnostic script never
 re-estimates unless it has to, and nothing here modifies estimation code or production outputs.**

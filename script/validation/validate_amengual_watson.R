@@ -265,7 +265,7 @@ fmt <- function(x) formatC(x, format = "f", digits = 6)
 sections <- c(
   "# Validação de `amengual_watson()` contra o MATLAB de Stock-Watson",
   "",
-  sprintf("Gerado por `script/validate_amengual_watson.R` em %s.",
+  sprintf("Gerado por `script/validation/validate_amengual_watson.R` em %s.",
           format(Sys.Date(), "%Y-%m-%d")),
   "**Corpo gerado — não escrever prosa aqui.**",
   "",

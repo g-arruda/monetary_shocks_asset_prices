@@ -1,7 +1,7 @@
 # ===================================================================
 # Factor-space diagnostics for proxy-SVAR identification
 # Reports MOSW relevance and impact response of the policy variable
-# for arbitrary (DFM, instrument) pairs without running the bootstrap.
+# for arbitrary (DFM, instrument) pairs without building the IRF sets.
 # ===================================================================
 
 

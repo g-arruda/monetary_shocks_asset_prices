@@ -29,7 +29,6 @@ message(sprintf("Estimating production DFM (r=%d, q=%d, p=%d) ...",
 seed_inst <- readr::read_csv("data/processed/instrument_bruto.csv", show_col_types = FALSE)
 dfm <- estimate_dfm(X, r = SPEC$r, q = SPEC$q, p = SPEC$p,
                     dates = dates, instrument = seed_inst,
-                    apply_kilian = FALSE,
                     # Production cell: carries the Lenza-Primiceri scale, so the
                     # first stage and the MOSW Wald block describe the model the
                     # published IRFs come from.
@@ -258,8 +257,8 @@ report <- paste(
   "",
   "- O valor 10 é uma referência convencional, não um valor crítico fornecido por MOSW.",
   "- Se ξ_mp e F robusto_mp divergirem, a evidência de força é mista.",
-  "- Abaixo de 10, qualificar o bootstrap; a inferência AR do DFM está adiada.",
-  "- **ξ_mp abaixo de 3,84**: um futuro conjunto AR de 95% pode ser ilimitado.",
+  "- Abaixo de 10, as bandas convencionais não são aproximadamente válidas; a inferência do DFM são os conjuntos AR.",
+  "- **ξ_mp abaixo de 3,84**: o conjunto AR de 95% é ilimitado.",
   "- MOSW (§4.2, footnote 6)",
   "  advertem ainda contra *screening* no F: reportar F/ξ e usar rotineiramente",
   "  os conjuntos AR robustos, não condicionar a inferência no pré-teste.  ",

@@ -46,8 +46,8 @@ fechar ou comprimir um item.
 | Variável de política | `yield_6m`, choque +50bp no impacto (+0,005 em proporção decimal) |
 | Dimensão | **r = 5, q = 5**, VAR(p = 4) nos fatores; Bai--Ng BLL dá IC1=5, IC2=5 e IC3=20; `q=r=5`; `p=4` herdado, com nova checagem AIC/BIC separada em `T=154` |
 | Painel | **115 séries**, variante `drop_setor_externo__eua__credito__imoveis_fiscal_expectations`, 2012-03 a 2025-12 (166 observações alinhadas; 162 inovações fatoriais após p=4) |
-| Inferência | **conjuntos Anderson-Rubin por inversão de teste** (MOSW 2021), NW(0), níveis 68/90, h = 0-48, desde 2026-09-08. O wild bootstrap Gonçalves-Kilian (nboot = 800, seed 123, Kilian só no DGP) segue computável como comparação, não como régua. ⚠ `hac_dim < T` barra `(8,8)` em `p=4` e a janela pré-COVID inteira |
-| Força | ξ_mp/F_rob,mp = **6,057014/9,625428** full e **8,643436/13,809985** pré-COVID; raiz máxima 0,970090 full e 0,993359 pré-COVID; ambas estáveis |
+| Inferência | **conjuntos Anderson-Rubin por inversão de teste** (MOSW 2021), NW(0), níveis 68/90, h = 0-48, desde 2026-09-08. O wild bootstrap Gonçalves-Kilian e a correção de Kilian saíram do código em 2026-09-18. ⚠ `hac_dim < T` barra `(8,8)` em `p=4` e a janela pré-COVID inteira |
+| Força | ξ_mp/F_rob,mp = **6,847997/11,765250** full, sob a escala COVID de Lenza-Primiceri desde 2026-09-17, e **8,643436/13,809985** pré-COVID; raiz máxima 0,983677 full e 0,993359 pré-COVID; ambas estáveis |
 | Benchmark VAR do paper | `{ibc_br, price_ipca, yield_6m, cambio_usd, cds_5y}` em nível, com constante e tendência linear; `p=2` pelo AIC em amostra comum de `T=141`; respostas `C_h B_1`; `xi_mp=6,797335`, raiz máxima `0,965424`; AR/MOSW 68%/90% com NW(0) |
 
 Esta tabela combina a produção vigente do DFM com a produção corrente do
@@ -82,11 +82,9 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 | B | Verificar se `(5,5,4)` cruza o limiar mínimo de Anderson-Rubin e comunicar ao orientador | passo 1/4 do e-mail de 13-09; ⚠ a produção já responde isso (ξ_mp = 6,847997 > 3,84 sob a escala LP; 2841 de 2842 conjuntos `interval` por nível em `irf_coherence_h.csv`) — falta formalizar e decidir se fecha o item acima |
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; depende da rodada editorial do Tema A |
 | B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; ⚠ perna da cheia tratada feita em 2026-09-14 (`q_narrative_r5p4_covid.*`), a pré-COVID já existia; falta a leitura do autor e o passo 1/4 |
-| B | Bootstrap e correção de Kilian sob o tratamento de volatilidade COVID | aberto em 2026-09-14, ao fechar a inferência AR sob o tratamento; seguem em `stop()`; não bloqueia nada, porque o AR é a inferência operacional |
 | A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada; ⚠ desde 2026-09-16 §3.5, §3.6 e a prosa da §5.2 já estão em AR, e sobram §4, as duas legendas que dizem *wild bootstrap*, as figuras, a janela e os números |
 | B | Ler as IRFs sob a escala de volatilidade COVID e escrever a §4 | aberto em 2026-09-17, ao ligar o tratamento em produção; a rodada de 09-17 deu veredito de **viabilidade** (ξ_mp, topologia dos conjuntos, estabilidade), não de leitura econômica; a §4 ficou fora por decisão do autor |
 | B | Confirmar o ótimo global de θ̂ | aberto em 2026-09-17; o perfil varre só ρ, sem multi-start em (s̄0,s̄1,s̄2); deixou de ser lacuna sobre um exercício e virou lacuna sobre o número publicado |
-| B | Reexecutar as rodadas fechadas que ficaram OLS, ou marcá-las de vintage | aberto em 2026-09-17; `fomc_coincidence`, `jk_sovereign_confound`, `fiscal_*` e `q_narrative_overlay*` seguem sem tratamento e com os números das notas que as documentam |
 | A | Repintar as figuras e a §4 sob a escala LP | aberto em 2026-09-17; mesma rodada editorial da linha de sincronização acima; `fig_section5.R` e `fig_weak_iv.R` seguem atrás de `--repaint-paper-figures` |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
@@ -148,6 +146,9 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   citação no texto, com `goncalveskilian2004` e `kilian1998small` fora do corpo.
   Enquanto a rodada não acontece, `script/fig_section5.R` e
   `script/fig_weak_iv.R` abortam sem `--repaint-paper-figures`, de propósito.
+  ⚠ A §5.3 (FOMC) reporta a janela 2013-01 (62 dias), e o script dela foi
+  arquivado em 2026-09-18 sem reexecução: a rodada decide se ela fica como
+  vintage declarada, sai ou é refeita.
   Depende da rodada de 2026-09-08 fechada no Tema B.
 - [ ] **Ler as IRFs sob a escala de volatilidade COVID e escrever a §4.**
   A rodada de 2026-09-17 ligou o tratamento em produção com veredito de
@@ -158,16 +159,18 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   `script/covid_volatility_theta.R` varre só ρ, em 101 pontos, sem multi-start
   em `(s̄0, s̄1, s̄2)`. Enquanto o tratamento estava desligado isso era lacuna
   sobre um exercício; desde 2026-09-17 é lacuna sobre o número publicado.
-- [ ] **Reexecutar as rodadas fechadas que ficaram OLS, ou marcá-las de
-  vintage.** `fomc_coincidence.R`, `jk_sovereign_confound.R`, `fiscal_*` e
-  `q_narrative_overlay*` seguem sem tratamento, com `covid_volatility = NULL`
-  explícito e o motivo no sítio de chamada. Seus números são os das notas que
-  as documentam. ⚠ `ar_bands.R` e `irf_spec_stage2.R` **não** entram aqui:
-  ficam OLS por desenho, e seus alvos não devem ser sincronizados com
-  `mosw_strength_grid.csv`.
-
 ### Fechados (contexto)
 
+- [x] **`fomc_coincidence.R` marcado de vintage — ARQUIVADO em 2026-09-18**
+  (autor), no lugar de reexecutado. A §5.3 continua com os números de
+  `output/instrument/fomc_coincidence.md` (janela 2013-01, 62 dias, commit
+  `08ccff3`); o script abortava contra a produção corrente. Os p-valores da
+  §5.3 vêm do wild bootstrap das regressões diárias
+  (`arquivo/R/instrument/event_tests.R`, arquivado junto); o bootstrap do DFM
+  só entrava na seção de IRFs, que o paper não usa. As outras rodadas
+  OLS deste item (`jk_sovereign_confound.R`, `fiscal_*`,
+  `q_narrative_overlay.R`) foram arquivadas em 2026-09-17, e `ar_bands.R` em
+  2026-09-18 (`arquivo/README.md`).
 - [x] **Equações do tratamento de volatilidade COVID — sem apêndice, FEITO em
   2026-09-17.** Nenhuma equação de Lenza-Primiceri muda de forma no DFM: `F̂_t`
   ocupa o lugar de `y_t`, `r` o de `n`, e as (B1)-(B5) valem letra por letra.
@@ -347,6 +350,11 @@ removidos do registro. Recuperáveis no histórico do git.*
   fixam `q = r` mesmo com Amengual-Watson indicando menos choques, e o
   truncamento `q < r` distorce na amostra cheia mas não na pré-COVID
   (`notas/2026-09-10_truncamento_q.md`).
+  ⚠ **Desde 2026-09-17, `(5,2)` não fica mais abaixo do mínimo na produção:**
+  sob a escala COVID ele tem ξ_mp = 5,124 e é limitado a 68, 90 e 95%
+  (`output/factors/q_truncation_cells.csv`, célula `cheia_p4_lp`). O 2,339 da
+  demonstração de 2026-09-08 é do modelo sem tratamento, e o script que a fez
+  foi arquivado em 2026-09-18 (`arquivo/script/ar_bands.R`).
   ⚠ **Restrição nova, medida em 2026-09-08:** a metade do pedido que
   trata de `(5,2)` foi entregue, mas `r=q=8` como principal é hoje incompatível
   com a inferência de produção — a covariância de MOSW exige `hac_dim < T` e em
@@ -375,20 +383,19 @@ coordenados" do e-mail do orientador de 2026-09-13
 - [ ] **Refazer a tabela de sensibilidade `q = 2,...,5` (`r = 5` fixo) nas
   duas janelas — completa ajustada e pré-COVID — uma vez estabilizada a
   especificação principal.** Passo 4/4. ⚠ A perna da cheia ajustada foi
-  calculada em 2026-09-14 (`script/q_narrative_overlay_covid.R`,
+  calculada em 2026-09-14 (hoje `script/q_sensitivity.R --window=cheia`,
   `output/factors/q_narrative_r5p4_covid.*`); a pré-COVID já existia
   (`output/factors/q_narrative_r5p2_precovid.*`, em `p = 2`). Falta a
   leitura do autor e a especificação principal (passo 1/4). Nota:
   `notas/2026-09-14_inferencia_volatilidade_covid_q.md`.
-- [ ] **Bootstrap e correção de Kilian sob o tratamento de volatilidade
-  COVID.** Seguem em `stop()`: o DGP do wild bootstrap, a reestimação por
-  réplica e a fórmula de Pope/Kilian supõem OLS com Σ constante. Surgiu ao
-  fechar a inferência AR sob o tratamento (Fechados, abaixo). Não bloqueia
-  nada, porque o AR é a inferência operacional. Nota:
-  `notas/2026-09-14_inferencia_volatilidade_covid_q.md`.
 
 ### Fechados (contexto)
 
+- [x] **Bootstrap e correção de Kilian sob o tratamento de volatilidade
+  COVID — ENCERRADO em 2026-09-18** (autor), sem ser derivado: o wild
+  bootstrap e a correção de Kilian saíram do código, porque os conjuntos
+  Anderson--Rubin os substituíram como inferência do DFM. A última versão com
+  eles é `main` em `07b1cbd` (`arquivo/README.md`).
 - [x] **Correção de outliers de 2020 (Lenza-Primiceri) — LIGADA EM PRODUÇÃO
   em 2026-09-17.** Passo 3/4. Virou o estimador do VAR dos fatores, descrito
   na §3.1. ξ_mp sobe de 6,057014 para 6,847997 na cheia, F_rob de 9,625428
@@ -595,6 +602,13 @@ removidos do registro. Recuperáveis no histórico do git.*
 
 ### Fechados (contexto)
 
+- [x] **Auditoria de `script/` e `R/` — FEITO em 2026-09-17.** Foram 25 scripts de
+  rodadas fechadas para `arquivo/script/`, com 10 funções e `validation_tests.R`
+  para `arquivo/R/`. As 6 travas foram para `script/validation/`, e as duas
+  narrativas `q` viraram `q_sensitivity.R --window=`. Os autotestes (a) e (b) de
+  `q_truncation.R` passaram a conferir a `cheia_p4_lp`. Smoke, as travas e os CSVs
+  regerados saíram idênticos ao HEAD. Mapa: `registro/mapa_renomeacoes.md`;
+  motivos: `arquivo/README.md`.
 - [x] **`cumsum` do bloco acionário corrigido — FEITO em 2026-08-17.** Tcode 6
   (`x*100` sem acumular) para os 7 `asset_*`; h=0 invariante, smoke test
   bit-idêntico. Largura h36/h0 27,573→0,920, pico falso do Ibovespa

@@ -111,7 +111,6 @@ for (sample_name in names(SAMPLES)) {
         q = q,
         p = P_LAGS,
         dates = dates_sub,
-        apply_kilian = FALSE,
         # The full window runs the production Lenza-Primiceri scale, so xi_mp of
         # record is the one the published IRFs are built on. The pre-COVID
         # window has s_t = 1 in every month, so it is the same fit either way,
@@ -283,7 +282,7 @@ sections <- c(
   "- **10** é uma referência convencional para ξ_mp e F robusto_mp, não um valor crítico fornecido por MOSW.",
   paste0("- **`ar_bounded` deixou de ser previsão em 2026-09-08**: os conjuntos ",
          "Anderson--Rubin do DFM passaram a ser a inferência operacional e são ",
-         "construídos em `script/ar_bands.R`. A coluna continua sendo o mesmo ",
+         "construídos por `ar_dfm_bands()`. A coluna continua sendo o mesmo ",
          "teste `ξ_mp > 3,84` que o sinal de `ahat` implementa a 95%."),
   "- **ξ_mp ≤ 3,84** significa conjunto AR 95% ilimitado — semirretas ou toda a reta, não intervalo.",
   "- **F robusto_mp** é o primeiro estágio HC1 na mesma direção de normalização de ξ_mp.",

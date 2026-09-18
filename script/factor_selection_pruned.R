@@ -10,7 +10,7 @@
 # pruning_manifest.csv (script/panel_pruning.R): the production panel minus
 # the series each configuration drops. The principal one is complete linkage
 # at 0.90. Every estimator reads the BLL object production reads, exactly as
-# script/factor_selection_alt.R does; self-test (a) reproduces that round on
+# arquivo/script/factor_selection_alt.R does; self-test (a) reproduces that round on
 # the current panel.
 #
 # THE READING RULE IS PRE-REGISTERED (plan of 2026-09-10), fixed before any
@@ -43,6 +43,7 @@ source("R/identification/spec_sweep.R")
 SPEC          <- production_spec()
 KMAX          <- 20L   # the grid of the production Bai-Ng surface
 N_PERM        <- 100L
+PERM_SEED     <- 123L  # the seed stream of arquivo/script/factor_selection_alt.R
 AW_R          <- 5L    # the production r, where the q comparison is read
 AW_R_GRID     <- 4:8   # spans the (5,2), (7,5) and (8,8) cells of the e-mail
 MANIFEST_PATH <- "output/panel_experimental/poda_correlacao/pruning_manifest.csv"
@@ -85,9 +86,8 @@ results <- purrr::imap(panels, function(X, name) {
   bn <- bai_ng_criteria(X, max_r = KMAX, apply_bll = TRUE)
   ah <- ahn_horenstein(yy, KMAX)
 
-  # The seed stream of script/factor_selection_alt.R: its first draw is the
-  # pre-registered primary nesting order
-  set.seed(SPEC$bootstrap_seed)
+  # The first draw of that seed stream is the pre-registered primary nesting order
+  set.seed(PERM_SEED)
   perms <- replicate(N_PERM, sample.int(ncol(X)), simplify = FALSE)
   abc1  <- abc_criterion(yy, KMAX, "IC1", perms[[1]])
   abc2  <- abc_criterion(yy, KMAX, "IC2", perms[[1]])
@@ -258,7 +258,7 @@ sections <- c(
                 "com passo 0,01 e subamostras aninhadas n_j = ⌊3N/4⌋..N numa permutação fixa",
                 "(seed %d). Amengual-Watson BLL com p = %d."),
           SPEC$panel_name, SPEC$sample[1], SPEC$sample[2], ncol(panel), MANIFEST_PATH,
-          nrow(panel) - 1, KMAX, SPEC$bootstrap_seed, SPEC$p),
+          nrow(panel) - 1, KMAX, PERM_SEED, SPEC$p),
   "",
   md_table(as.data.frame(panels_tbl)),
   "",

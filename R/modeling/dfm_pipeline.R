@@ -10,7 +10,7 @@
 #'
 #' Reads the processed panel, infers transformation codes, resolves the
 #' monetary-policy column, estimates the factor model and returns the
-#' identified IRFs with wild-bootstrap bands.
+#' identified IRFs with their Anderson-Rubin sets.
 #'
 #' `"proxy"` (external instrument) is the only identification branch. The
 #' heteroskedasticity and non-Gaussian branches were abandoned on 2026-08-17.
@@ -24,8 +24,6 @@
 #' @param q Number of dynamic shocks.
 #' @param p Factor-VAR lag order.
 #' @param h Maximum impulse-response horizon.
-#' @param nboot Number of wild-bootstrap draws.
-#' @param bootstrap_seed Bootstrap seed.
 #' @param mp_var Monetary-policy normalization variable, as a column name or a
 #'   column index.
 #' @param shock_size_bps Impact normalization in basis points.
@@ -33,26 +31,24 @@
 #'   names when NULL.
 #' @param ci_levels Confidence levels.
 #' @param identification Identification branch; `"proxy"` is the only one.
-#' @param inference Band construction; `production_spec()$inference` (`"ar"`)
-#'   by default. See `compute_irf_dfm()`.
+#' @param inference `"ar"` (`production_spec()$inference`) or `"none"` for the
+#'   point alone. See `compute_irf_dfm()`.
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #' @param covid_volatility COVID volatility scale of the factor VAR, passed to
-#'   `estimate_dfm()`; `production_spec()` keeps it NULL (off). When on, the
-#'   Kilian correction is skipped and only the point IRF is available
-#'   (`inference = "bootstrap"`, `nboot = 0`).
+#'   `estimate_dfm()`; `production_spec()$covid_volatility` by default, which is
+#'   production since 2026-09-17. NULL runs the untreated OLS factor VAR.
 #'
 #' @return List with the fitted DFM, IRFs, panel, transformations, and
 #'   normalization.
 #'
 #' @examples
 #' res <- main_sdfm(r = 5L, q = 5L, p = 4, shock_size_bps = 50,
-#'                  mp_var = "yield_6m", nboot = 0)
+#'                  mp_var = "yield_6m")
 main_sdfm <- function(spec = production_spec(),
                       data_path = spec$data_path,
                       instrument_path = spec$legacy_instrument_path,
                       r = spec$r, q = spec$q, p = spec$p,
-                      h = spec$horizon, nboot = spec$nboot,
-                      bootstrap_seed = spec$bootstrap_seed,
+                      h = spec$horizon,
                       mp_var = spec$mp_var, shock_size_bps = spec$shock_bps,
                       tcode = NULL, ci_levels = spec$ci_levels,
                       identification = "proxy",
@@ -101,11 +97,7 @@ main_sdfm <- function(spec = production_spec(),
   instrument <- readr::read_csv(instrument_path)
 
   # Estimate SDFM com datas e instrumento para alinhamento temporal
-  # apply_kilian: computa coeficientes corrigidos para o DGP do bootstrap, que
-  # supõe OLS com Sigma constante e por isso não roda sob covid_volatility.
-  # O ponto estimado usa VAR OLS (sem Kilian), fiel ao DFMest_BLL.m
   dfm_results <- estimate_dfm(data, r, q, p, dates = dates, instrument = instrument,
-                              apply_kilian = is.null(covid_volatility),
                               covid_volatility = covid_volatility)
 
   # Validate results
@@ -114,12 +106,10 @@ main_sdfm <- function(spec = production_spec(),
     warning("Missing DFM components: ", paste(validation$missing_components, collapse = ", "))
   }
 
-  # Compute IRFs with wild bootstrap (instrumento e datas já embutidos no dfm_results)
+  # Instrumento e datas já embutidos no dfm_results
   irf_results <- compute_irf_dfm(
     dfm_results,
     h = h,
-    nboot = nboot,
-    bootstrap_seed = bootstrap_seed,
     mpind = mpind,
     normalize_value = normalize_value,
     tcode = tcode,

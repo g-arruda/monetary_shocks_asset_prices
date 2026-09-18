@@ -1,5 +1,13 @@
 # `diagnostics/` — o que cada arquivo faz
 
+> ⚠ **Desde 2026-09-18 estes scripts não rodam contra o `R/` corrente.** O wild
+> bootstrap e a correção de Kilian saíram do código, e os scripts `01`-`05` e as
+> duas auditorias `rq_*` ainda passam `apply_kilian`, `nboot` ou
+> `bootstrap_seed`, ou leem `companion_corrected`. Por decisão do autor, ficam
+> sem edição, como registro do que rodou: a versão de `R/` com que rodaram é
+> `main` em `07b1cbd`. Já estavam na vintage de 111 séries antes disso. As saídas
+> em `output/` e os `.md` valem como o registro datado da rodada.
+
 A rodada de auditoria DFM-IV de 2026-07-28. Sete scripts numerados (`01`-`07`)
 compartilhando `_common.R`, um por tarefa, escrevendo para `diagnostics/output/`
 como `t<tarefa>_<item>_*.csv`. Já existem dois documentos de leitura corrida

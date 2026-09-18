@@ -2,18 +2,14 @@
 paths:
   - "R/instrument/**"
   - "script/instrument*.R"
-  - "script/jk_sovereign_confound.R"
-  - "script/fomc_coincidence.R"
   - "script/mosw_strength_grid.R"
-  - "script/xi_mp_robustness.R"
-  - "script/model_var_weak_iv.R"
-  - "script/validate_*.R"
+  - "script/validation/*.R"
 ---
 
 # Instrument construction and strength
 
-**The build chain lives in `R/instrument/build_variants.R`** (helpers in `di_surprise.R`,
-`event_tests.R`), parameterized by `target_bd` and `agg` (`agg_monthly_sum` / `agg_monthly_gk`).
+**The build chain lives in `R/instrument/build_variants.R`** (helpers in `di_surprise.R`),
+parameterized by `target_bd` and `agg` (`agg_monthly_sum` / `agg_monthly_gk`).
 `script/instrument.R` calls it once with production values and keeps **all** I/O. Production vertex
 is `TARGET_BD = 126` ≈ 6m DI; `DEFAULT_VARIANT` controls the legacy single-column
 `data/processed/instrument.csv`.
@@ -62,8 +58,10 @@ rulers (`f_factor`, F (y6m AR)) are still computed and reported but **stopped de
   `identical()`.
 - **`denom_vs_prod`**: when the normalization denominator shrinks, part of a larger magnitude is
   arithmetic, not economics — and below ξ_mp 10 a variant supports **direction, not interval**.
-- **`p_boot` is seeded per cell** (`wild_coef_test(key=)`), so adding a proxy cannot move another
-  cell's p. Preserve that when extending either confound script.
-- **`validate_*.R` must run off a committed fixture in `output/validation/`**, never off
+- **The daily confound tests are archived**: `arquivo/script/jk_sovereign_confound.R` on 2026-09-17,
+  `arquivo/script/fomc_coincidence.R` and its `arquivo/R/instrument/event_tests.R` on 2026-09-18.
+  Their `p_boot` was seeded per cell (`wild_coef_test(key=)`), so adding a proxy could not move
+  another cell's p; preserve that if they are ever revived.
+- **`script/validation/*.R` must run off a committed fixture in `output/validation/`**, never off
   `codigos_externos/` — those are gitignored, which is why `validate_olea_kilian.R` was silently
   broken for months.

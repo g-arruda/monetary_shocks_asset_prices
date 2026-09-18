@@ -6,8 +6,8 @@
 #
 # script/instrument.R keeps all I/O, messages and diagnostics and
 # calls build_instrument_variants() once with the production
-# parameters; script/instrument_construction_sweep.R calls it many
-# times in memory and writes nothing.
+# parameters; arquivo/script/instrument_construction_sweep.R called it
+# many times in memory and wrote nothing.
 #
 # Fidelity note. The two aggregation schemes come from different
 # papers and are NOT interchangeable defaults:
@@ -318,8 +318,9 @@ build_instrument_variants <- function(inputs,
   # covering Fed spillovers on the ~32 FOMC-coincident Copom weeks.
   # The monthly variant this used to feed (z_jk_purif_us) was dropped on
   # 2026-08-05 as redundant (cor 0.999 with z_jk_purif). The DAILY columns
-  # stay: script/jk_sovereign_confound.R uses the `jk_us` day set as one of
-  # its seven diagnostic masks.
+  # stay in data/processed/copom_event_diagnostics.csv, but their two
+  # consumers are archived: arquivo/script/fomc_coincidence.R (2026-09-18),
+  # which built z_jk_us from them, and arquivo/script/jk_sovereign_confound.R.
 
   lm_di_us   <- lm(delta_di ~ r_sp500 + d_vix + r_brent + d_ust2, data = valid)
   lm_ibov_us <- lm(r_ibov   ~ r_sp500 + d_vix + r_brent + d_ust2, data = valid)

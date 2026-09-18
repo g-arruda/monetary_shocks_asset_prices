@@ -52,8 +52,8 @@ arquivo/             — código/docs fora do pipeline ativo; nada vivo lê ou e
 ## `script/`
 
 O pipeline ordenado (download → clean → instrument → model) mais os
-scripts de diagnóstico/robustez/sweep, orquestrado por `run_all.R`. São 40
-scripts R ativos, organizados em 6 grupos temáticos — ver
+scripts de diagnóstico e robustez, orquestrado por `run_all.R`. São 16
+scripts R ativos, mais 6 travas de validação em `script/validation/` — ver
 **[`script/README.md`](script/README.md)** para o catálogo completo, arquivo
 por arquivo.
 
@@ -93,19 +93,23 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   `bicaic.m` de Montiel Olea et al.). O órfão
   `svensson_model.R` foi para `arquivo/R/modeling/` em 2026-08-05.
 - **`identification/`** — a máquina de diagnóstico em torno do proxy-SVAR:
-  `spec_sweep.R`, `validation_tests.R`, `factor_space_diagnostics.R`,
+  `spec_sweep.R`, `factor_space_diagnostics.R`,
   `irf_coherence.R` (pontuação de coerência teórica), `experimental_panel.R` e
   `weak_iv_ar.R` (MA, SVAR-IV, covariância e inversão AR, somente para VAR de
   observáveis).
   Os ramos het e não-gaussiano saíram do código ativo em 2026-08-17. O código
   dedicado à heterocedasticidade foi removido em 2026-09-01; seus artefatos e
-  vereditos permanecem em `arquivo/heterocedasticidade/`.
-- **`instrument/`** (3 arquivos) — `build_variants.R` (a cadeia de construção
-  das 8 variantes de instrumento GK/JK/BS; eram 10 até 2026-08-05),
+  vereditos permanecem em `arquivo/heterocedasticidade/`. Em 2026-09-17,
+  `validation_tests.R`, que não tinha chamador, e as funções que só scripts
+  arquivados usavam foram para `arquivo/R/`. Em 2026-09-18 o wild bootstrap e
+  a correção de Kilian saíram de `modeling/`: a inferência do DFM são os
+  conjuntos Anderson-Rubin de `identification/weak_iv_ar.R`.
+- **`instrument/`** (2 arquivos) — `build_variants.R` (a cadeia de construção
+  das 8 variantes de instrumento GK/JK/BS; eram 10 até 2026-08-05) e
   `di_surprise.R` (helper de surpresa de futuro de DI, mais os carregadores de
-  datas de Copom e de FOMC) e `event_tests.R` (inferência das regressões
-  diárias de janela de evento: `wild_coef_test` e `wild_wald_test`, ambos com
-  wild bootstrap sob a nula restrita e semente por célula).
+  datas de Copom e de FOMC). `event_tests.R`, a inferência das regressões
+  diárias de evento, foi para `arquivo/R/instrument/` em 2026-09-18 com seu
+  último consumidor, `fomc_coincidence.R`.
 - **`reporting/`** (1 arquivo) — `markdown_report.R`, com formatação estável
   para tabelas e números dos relatórios Markdown gerados.
 
@@ -117,7 +121,8 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 
 - **`irf/`** — a rodada de coerência (`irf_coherence_*`, fonte de todo número
   em §5 do paper), a rodada de inferência (`ar_bands_*`, que documenta a troca
-  de 2026-09-08 do wild bootstrap pelos conjuntos Anderson-Rubin) e os
+  de 2026-09-08 do wild bootstrap pelos conjuntos Anderson-Rubin; o script está
+  em `arquivo/script/` desde 2026-09-18) e os
   artefatos do sweep de especificação (`spec_sweep_*`, `irf_spec_*`).
   `irf_section.md` é anterior à troca e carrega banner dizendo isso.
 - **`instrument/`** — réguas de força do instrumento (`mosw_strength_grid`,
@@ -141,7 +146,7 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
 - **`validation/`** — artefatos de replicação Olea-Stock-Watson (Kilian-oil,
   aplicação de imposto), usados para validar o Wald ξ_mp e o kernel HAC. O
   `.rds` do petróleo existe porque `codigos_externos/` é gitignorado: sem ele
-  `validate_olea_kilian.R` não rodaria num clone limpo.
+  `script/validation/validate_olea_kilian.R` não rodaria num clone limpo.
 - **`download/`** — inventário e relatório histórico da coleta isolada de
   séries feita em 2026-08-13; não é entrada da estimação corrente.
 - **`logs/`** (gitignored) — logs de execução por estágio do `run_all.R`.
@@ -158,7 +163,7 @@ diário, entrada externa fixa de 32 MB), `copom_historico.csv`,
 `focus_daily.csv`, `ibov_daily.csv`, `brl_usd_daily.csv`, `fred_dgs2.csv`,
 `CDS 5y.xlsx` (CDS soberano
 5a diário, export Bloomberg — entrada externa fixa, como a curva; lido por
-`jk_sovereign_confound.R`), `fomc_dates.csv` (datas de decisão do FOMC;
+`arquivo/script/jk_sovereign_confound.R`, sem consumidor vivo desde 2026-09-17), `fomc_dates.csv` (datas de decisão do FOMC;
 **produzido** por `script/download.R`, e requisito duro do estágio
 `instrument` desde 2026-08-10); mais `yields/` (curva de juros fornecida pelo
 orientador, `yields_dia.csv` — entrada externa fixa, sem produtor no
@@ -280,8 +285,10 @@ estratégias abandonadas vivem em
 **[`arquivo/nao_gaussiana/`](arquivo/nao_gaussiana/README.md)**. Na primeira,
 o código dedicado foi removido em 2026-09-01 depois que o resultado negativo
 entrou no paper; os CSVs, a nota e o veredito foram preservados. O resto — scripts órfãos superados, a investigação de
-contaminação de IRF de 2026-07-15/16, o draft anterior em `tex/` — está no
-inventário de **[`arquivo/README.md`](arquivo/README.md)**.
+contaminação de IRF de 2026-07-15/16, os 25 scripts de rodadas fechadas
+arquivados em 2026-09-17, o draft anterior em `tex/` — está no
+inventário de **[`arquivo/README.md`](arquivo/README.md)**. As saídas desses
+scripts continuam em `output/`.
 
 ## Arquivos soltos na raiz
 

@@ -1,11 +1,11 @@
 # Truncamento `q < r`: suficiência do subespaço retido e invariância à la Alessi-Kerssenfischer
 
-Gerado por `script/q_truncation.R` em 2026-09-14.
+Gerado por `script/q_truncation.R` em 2026-09-17.
 **Corpo gerado — não escrever prosa aqui.** A leitura vive em `notas/2026-09-10_truncamento_q.md`; a da célula `cheia_p4_lp`, em `notas/2026-09-14_inferencia_volatilidade_covid_q.md`.
 
 ## Células
 
-Painel de produção (115 séries), `r = 5`, instrumento `z_jk_bs_purif`, choque de +50 pb em `yield_6m`. `cheia_p4`: 2012-03 a 2025-12, `p = 4`, conjuntos Anderson-Rubin 68/90. `pre_p4`: 2012-03 a 2019-12, `p = 4`, só pontual — o AR é bloqueado ali (`hac_dim` 135 >= T = 90, `output/irf/ar_bands.md`). `pre_p2`: mesma janela, `p = 2`, AR 68/90. `cheia_p4_lp`: a `cheia_p4` com a volatilidade COVID de Lenza-Primiceri (2022) no VAR dos fatores, AR 68/90 na regressão transformada (seção própria abaixo). Os conjuntos AR são construídos só na referência `q = 5`; `ar_bounded_κ` vem de ξ_mp > κ, a condição exata de limitação. `interval_68`/`interval_90`: fração dos conjuntos da referência (115 séries × 49 horizontes) que são intervalos; o único outro tipo é o singleton {0,005} da `yield_6m` em h = 0, que a normalização impõe.
+Painel de produção (115 séries), `r = 5`, instrumento `z_jk_bs_purif`, choque de +50 pb em `yield_6m`. `cheia_p4`: 2012-03 a 2025-12, `p = 4`, conjuntos Anderson-Rubin 68/90, sem a volatilidade COVID (a produção até 2026-09-17). `pre_p4`: 2012-03 a 2019-12, `p = 4`, só pontual — o AR é bloqueado ali (`hac_dim` 135 >= T = 90, `output/irf/ar_bands.md`). `pre_p2`: mesma janela, `p = 2`, AR 68/90. `cheia_p4_lp`: a `cheia_p4` com a volatilidade COVID de Lenza-Primiceri (2022) no VAR dos fatores, AR 68/90 na regressão transformada (seção própria abaixo); é a produção desde 2026-09-17. Os conjuntos AR são construídos só na referência `q = 5`; `ar_bounded_κ` vem de ξ_mp > κ, a condição exata de limitação. `interval_68`/`interval_90`: fração dos conjuntos da referência (115 séries × 49 horizontes) que são intervalos; o único outro tipo é o singleton {0,005} da `yield_6m` em h = 0, que a normalização impõe.
 
 | window_cell | p | q | T_eff | xi_mp | ar_bounded_68 | ar_bounded_90 | ar_bounded_95 | impact_mp_pre | max_root | hac_dim | interval_68 | interval_90 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -167,7 +167,7 @@ Referência: a célula `q = 5` da mesma janela, com seus conjuntos AR de 90%. *i
 
 ## Passo 3/4: a cheia com a volatilidade COVID (`cheia_p4_lp`)
 
-As linhas `cheia_p4_lp` das tabelas acima são a `cheia_p4` com a escala `s_t` de Lenza-Primiceri (2022) no VAR dos fatores: mínimos quadrados ponderados, K e H lidos sobre `u_t/s_t` sem centragem, T1 nas direções do segundo momento não centrado e AR na regressão transformada, com θ̂ tratado como conhecido. θ̂ = (s̄0 6,611; s̄1 12,468; s̄2 1,760; ρ 0,9439) por máxima verossimilhança, o de `script/covid_volatility_theta.R`. Sem regra de leitura: o autor lê as IRFs a olho (última página do PDF).
+As linhas `cheia_p4_lp` das tabelas acima são a `cheia_p4` com a escala `s_t` de Lenza-Primiceri (2022) no VAR dos fatores: mínimos quadrados ponderados, K e H lidos sobre `u_t/s_t` sem centragem, T1 nas direções do segundo momento não centrado e AR na regressão transformada, com θ̂ tratado como conhecido. θ̂ = (s̄0 6,611; s̄1 12,468; s̄2 1,760; ρ 0,9439) de `production_spec()`, estimado por máxima verossimilhança em `script/covid_volatility_theta.R`. Sem regra de leitura: o autor lê as IRFs a olho (última página do PDF).
 
 ## Leitura conjunta
 

@@ -231,4 +231,4 @@ ggplot2::ggsave(
   device = grDevices::pdf,
   version = "1.4"
 )
-message("-> ", output_path, " (DFM wild bootstrap; VAR AR/MOSW; 68%/90%)")
+message("-> ", output_path, " (DFM AR/MOSW; VAR AR/MOSW; 68%/90%)")

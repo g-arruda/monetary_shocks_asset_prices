@@ -1,4 +1,4 @@
-# Validate the canonical 115-series production panel and the (5,5) bootstrap gate.
+# Validate the canonical 115-series production panel and the (5,5) impact gate.
 
 rm(list = ls())
 
@@ -9,7 +9,6 @@ source("R/modeling/var_proxy.R")
 source("R/identification/factor_space_diagnostics.R")
 
 spec <- production_spec()
-run_bootstrap <- "--bootstrap" %in% commandArgs(trailingOnly = TRUE)
 out_dir <- "output/validation"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -168,7 +167,6 @@ diagnostics <- lapply(names(samples), function(sample_name) {
     q = spec$q,
     p = spec$p,
     dates = dates[keep],
-    apply_kilian = FALSE,
     covid_volatility = if (sample_name == "full") spec$covid_volatility else NULL
   )
   strength <- diagnose_instrument_in_factor_space(
@@ -210,21 +208,20 @@ point_dfm <- estimate_dfm(
   q = spec$q,
   p = spec$p,
   dates = dates,
-  apply_kilian = FALSE,
   covid_volatility = spec$covid_volatility
 )
 point_irf <- compute_irf_dfm(
   point_dfm,
   instrument = instrument,
   h = spec$horizon,
-  nboot = 0L,
   mpind = mpind,
   normalize_value = spec$normalize_value,
   data_dates = dates,
   tcode = infer_tcode_from_varnames(colnames(data_mat)),
   ci_levels = spec$ci_levels,
   var_names = colnames(data_mat),
-  identification = "proxy"
+  identification = "proxy",
+  inference = "none"
 )
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
 # Under the production Lenza-Primiceri scale since 2026-09-17. The previous,
@@ -251,90 +248,3 @@ readr::write_csv(
   impact_smoke,
   file.path(out_dir, "production_spec_impact_smoke.csv")
 )
-
-if (run_bootstrap) {
-  if (!is.null(spec$covid_volatility)) {
-    stop("--bootstrap is unavailable while the Lenza-Primiceri scale is ",
-         "production: the bootstrap DGP and the Kilian correction assume OLS ",
-         "with constant Sigma. Production inference is the Anderson-Rubin sets ",
-         "(production_spec()$inference).")
-  }
-  tcodes <- infer_tcode_from_varnames(colnames(data_mat))
-  dfm <- estimate_dfm(
-    data_mat,
-    r = spec$r,
-    q = spec$q,
-    p = spec$p,
-    dates = dates,
-    apply_kilian = TRUE
-  )
-  bootstrap_failures <- character()
-  started <- Sys.time()
-  irf <- withCallingHandlers(
-    compute_irf_dfm(
-      dfm,
-      instrument = instrument,
-      h = spec$horizon,
-      nboot = spec$nboot,
-      bootstrap_seed = spec$bootstrap_seed,
-      mpind = mpind,
-      normalize_value = spec$normalize_value,
-      data_dates = dates,
-      tcode = tcodes,
-      ci_levels = spec$ci_levels,
-      var_names = colnames(data_mat),
-      identification = "proxy"
-    ),
-    warning = function(warning) {
-      if (grepl("^Bootstrap iteracao", conditionMessage(warning))) {
-        bootstrap_failures <<- c(bootstrap_failures, conditionMessage(warning))
-        invokeRestart("muffleWarning")
-      }
-    }
-  )
-  ordered_bands <- all(vapply(
-    irf$ci,
-    function(interval) all(is.finite(interval$lower)) && all(is.finite(interval$upper)) &&
-      all(interval$lower <= interval$upper),
-    logical(1)
-  ))
-  normalization <- irf$irf_point_matrix[mpind, 1]
-  failure_count <- length(bootstrap_failures)
-  gate <- tibble::tibble(
-    panel = spec$panel_name,
-    r = spec$r,
-    q = spec$q,
-    p = spec$p,
-    n_series = ncol(data_mat),
-    n_months = nrow(data_mat),
-    n_innovations = diagnostics$n_innovations[diagnostics$sample == "full"],
-    nboot = spec$nboot,
-    seed = spec$bootstrap_seed,
-    bootstrap_failures = failure_count,
-    max_companion_root = dfm$diagnostics$max_eigenvalue,
-    stable = dfm$diagnostics$is_stable,
-    h0_yield_6m = normalization,
-    finite_ordered_bands = ordered_bands,
-    elapsed_minutes = as.numeric(difftime(Sys.time(), started, units = "mins")),
-    gate_pass = failure_count == 0L && dfm$diagnostics$is_stable &&
-      abs(normalization - spec$normalize_value) < 1e-12 && ordered_bands
-  )
-  print(gate, width = Inf)
-  if (!gate$gate_pass) {
-    stop("The canonical production bootstrap gate failed.")
-  }
-  headline_rows <- dplyr::bind_rows(lapply(headline, function(variable) {
-    index <- match(variable, colnames(data_mat))
-    tibble::tibble(
-      variable = variable,
-      h = 0:spec$horizon,
-      point = irf$irf_point_matrix[index, ],
-      lo68 = irf$ci[["0.68"]]$lower[index, ],
-      hi68 = irf$ci[["0.68"]]$upper[index, ],
-      lo90 = irf$ci[["0.90"]]$lower[index, ],
-      hi90 = irf$ci[["0.90"]]$upper[index, ]
-    )
-  }))
-  readr::write_csv(gate, file.path(out_dir, "production_spec_bootstrap_gate.csv"))
-  readr::write_csv(headline_rows, file.path(out_dir, "production_spec_headline_irf.csv"))
-}

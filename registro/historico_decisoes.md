@@ -90,7 +90,8 @@ contemporâneo (`z_jk_purif` 5,77, `z_jk` 6,30). Cortar para duas apagaria a
 evidência do §3.4 do paper. Além disso três varreduras vivas consomem o resto:
 `xi_mp_robustness.R` e `instrument_construction_sweep.R` rodam 5 variantes
 (tiers A2/A3), `mosw_strength_grid.R` roda todas (A4), e `irf_spec_sweep.R`
-roda 8 — e a pendência D1 (comparação cross-instrumento do IPCA) cita
+roda 8 (os três, exceto `mosw_strength_grid.R`, foram para `arquivo/script/` em
+2026-09-17) — e a pendência D1 (comparação cross-instrumento do IPCA) cita
 "320 células, 8 instrumentos".
 
 **Saíram exatamente as duas já declaradas mortas na tabela acima** — e são
@@ -105,8 +106,10 @@ as 8 colunas sobreviventes de `instrumentos_mensais.csv` saíram
 ⚠ **A maquinaria diária do ramo `_us` ficou.** `e_di_us`, `e_ibov_us` e
 `jk_monetary_us` continuam em `build_variants.R` e no
 `copom_event_diagnostics.csv` porque `script/jk_sovereign_confound.R`
-(tier S1, `DAY_SETS`) usa o conjunto de dias `jk_us` como uma de suas sete
-máscaras de diagnóstico. Só a coluna **mensal** foi removida. Já `e_di_local`/`lm_di_local`
+(tier S1, `DAY_SETS`) usava o conjunto de dias `jk_us` como uma de suas sete
+máscaras de diagnóstico. Desde 2026-09-17 esse script está em `arquivo/script/`,
+e desde 2026-09-18 também `fomc_coincidence.R`, que montava `z_jk_us`: o ramo
+diário ficou sem consumidor vivo. Só a coluna **mensal** foi removida. Já `e_di_local`/`lm_di_local`
 não tinham consumidor nenhum depois do corte e saíram — é a única coluna que
 `copom_event_diagnostics.csv` perdeu.
 
@@ -125,7 +128,7 @@ artefatos precisa saber que a régua é "reexecutar antes e depois", não
 O council review levantou que o filtro JK descarta o efeito-informação (juros ↑,
 ações ↑) mas retém a assinatura fiscal doméstica (juros ↑, ações ↓, câmbio ↑).
 A resposta natural seria uma terceira via. Ela foi construída — em memória, em
-`script/jk_sovereign_confound.R`, sem tocar `build_variants.R` — e **não deve ser
+`arquivo/script/jk_sovereign_confound.R`, sem tocar `build_variants.R` — e **não deve ser
 promovida**. Registro para ninguém re-propor:
 
 - **A terceira via usa o câmbio**, com a mesma forma do JK: sob UIP um aperto
@@ -172,12 +175,13 @@ sobreviveu bate com `max |dif| = 0`, `p_boot` inclusive, porque
 veredito do FOMC também não mudou.
 
 - **Teste B (três vias) e Teste D (tabela datada) saíram de
-  `script/jk_sovereign_confound.R`.** B pela aritmética do parágrafo anterior, a
+  `arquivo/script/jk_sovereign_confound.R`.** B pela aritmética do parágrafo anterior, a
   metade "política" de todas as três regras ficando abaixo de 3,84. D porque seu
   único consumidor era a ressalva de concentração de `paper_anpec.tex`, retirada
   do paper na mesma data por decisão do autor;
   `output/instrument/jk_sovereign_days.csv` foi apagado do repositório.
-- **Teste 4 (divisão FOMC / sem-FOMC) saiu de `script/fomc_coincidence.R`,** e
+- **Teste 4 (divisão FOMC / sem-FOMC) saiu de `fomc_coincidence.R`** (hoje em
+  `arquivo/script/`), e
   com ele a terceira perna da regra de veredito pré-registrada. **A perna havia
   passado** na rodada de 2026-08-10, sem acionar a cláusula de poder, enquanto a
   metade *com* FOMC saía com conjunto AR ilimitado e portanto incitável em
@@ -239,7 +243,7 @@ está fora de escala.**
 
 ### 3.1 Painel de ações em log-nível — testado, venceu, e **deixado de lado por decisão do autor** (2026-07-31)
 
-`script/asset_representation.R` → `output/assets/`. Nota:
+`arquivo/script/asset_representation.R` → `output/assets/`. Nota:
 `notas/2026-07-31_acoes_representacao.md`. **Não reabrir sem
 evidência nova**: o teste foi feito, o resultado é claro, e a decisão de não
 promover é do autor, não do dado.
@@ -349,11 +353,13 @@ Resolvidos e verificados; ficam aqui só para não serem reabertos.
   T·Γ̂'Ŵ⁻¹Γ̂ ~ χ²_q e **ξ_mp** (a Wald na direção de impacto do `yield_6m`,
   análogo exato do `Waldstat` oficial). Validado end-to-end contra os números
   publicados da aplicação Kilian-petróleo (ξ₁ = 4,4; F robusta = 9,4 — a F
-  publicada é HC1, não HC0). `script/validate_olea_kilian.R`.
+  publicada é HC1, não HC0). `script/validation/validate_olea_kilian.R`.
 - **Suíte T1-T8 de validação** (2026-05-05/06) — placebo, máscara aleatória,
   sub-período, correlação, anti-JK, curva F(k), sensibilidade AR(p), QLR de
   Andrews. Escrita para `z_het_jk`; as funções em
-  `R/identification/validation_tests.R` são agnósticas ao instrumento e ficam.
+  `R/identification/validation_tests.R` são agnósticas ao instrumento e
+  ficaram. Sem chamador vivo, o arquivo foi para `arquivo/R/identification/` em
+  2026-09-17.
   **Resultados que sobrevivem:** anti-JK F = 0,194 contra JK F = 21,29 (o
   complemento sign-equal não carrega sinal — o filtro não é só esparsificação);
   QLR não rejeita quebra no slope do primeiro estágio (sup F = 6,88 em 2015-08,
@@ -541,7 +547,7 @@ regulares publicadas na rodada de 2026-08-10, mas invalidava a API como
 implementação geral e impedia aceitar o módulo sem correção e validação novas.
 
 Foram removidos `R/identification/weak_iv_ar.R`, `script/ar_bands.R`,
-`script/validate_mosw_ar.R` e os quatro artefatos `output/irf/ar_bands*`. O
+`script/validation/validate_mosw_ar.R` e os quatro artefatos `output/irf/ar_bands*`. O
 fixture `output/validation/olea_oil_fixture.rds`, a estatística MOSW
 `compute_factor_space_wald()`, as validações de força/HAC e todo o pipeline de
 produção foram preservados. O paper voltou a usar apenas as bandas de 68% e 90%
@@ -567,7 +573,7 @@ sobrepujado por decisão:
 
 - **Resolvido.** O defeito da inversão não existe mais. `solve_quadratic_le_zero()`
   resolve a desigualdade por completo, acerta os dez casos do oráculo da
-  auditoria e é validado a cada rodada por `script/validate_mosw_ar.R`.
+  auditoria e é validado a cada rodada por `script/validation/validate_mosw_ar.R`.
 - **Sobrepujado por decisão.** A covariância plug-in continua condicionando em
   `Λ`, `K`, `M` e `sy` estimados, e a condição de reabertura registrada acima —
   derivação que incorpore a estimação fatorial, ou reamostragem com cobertura
@@ -583,8 +589,9 @@ O que voltou é a fusão dos dois módulos, não o código retirado: a generaliz
 `Load`/`Inner`/`d0` foi reposta **sobre** o solucionador corrigido, com
 `Load = Inner = I` recaindo bit-a-bit no MOSW original (bloco D de
 `validate_mosw_ar.R`, desvio exatamente 0). O interruptor é
-`production_spec()$inference`; `compute_irf_dfm(inference=)` mantém o default
-`"bootstrap"` porque os cinco chamadores em `diagnostics/` não são editáveis.
+`production_spec()$inference`; `compute_irf_dfm(inference=)` manteve o default
+`"bootstrap"` porque os cinco chamadores em `diagnostics/` não são editáveis, até
+o bootstrap sair do código em 2026-09-18 (§14).
 
 **Duas restrições numéricas nasceram com a troca**, e nenhuma delas é
 contornável: `mosw_rform_cov` exige `hac_dim < T`, o que barra `(r,q)=(8,8)` em
@@ -759,7 +766,8 @@ janela pré-COVID não se move, porque nela `s_t = 1` em todos os meses. Detalhe
 `notas/2026-09-17_volatilidade_covid_producao.md`.
 
 **O que morreu junto.** A correção de Kilian e o wild bootstrap não rodam sob a escala e param
-por desenho; `--bootstrap` de `validate_production_spec.R` passou a parar com mensagem. Sob a
+por desenho; `--bootstrap` de `validate_production_spec.R` passou a parar com mensagem (os
+três saíram do código em 2026-09-18, §14). Sob a
 escala, `r >= 7` é explosivo na janela cheia, e a grade de força passou a varrer `r = 4:6` ali.
 
 ### 13.1 Proibição da reversão de médio prazo — **removida** (2026-09-17)
@@ -771,3 +779,42 @@ near-unit persistence of the factor VAR are the same object. `cambio_usd` is the
 **Removida por decisão do autor**, na mesma rodada. Fica registrada aqui para que a remoção
 seja rastreável e não pareça perda acidental: quem procurar a regra no `CLAUDE.md` e não a
 encontrar deve ler isto, não reescrevê-la.
+
+---
+
+## 14. Wild bootstrap e correção de Kilian saem do código (2026-09-18)
+
+**Decisão do autor:** os conjuntos Anderson--Rubin substituíram o wild bootstrap de
+Gonçalves-Kilian (2004), com a correção de Kilian (1998) no DGP, como inferência do DFM em
+2026-09-08 (§7). Desde 2026-09-17 o bootstrap já não rodava na produção, porque supõe OLS com
+Σ constante e o VAR dos fatores passou a ser WLS sob a escala COVID (§13). Mantê-lo
+computável só servia a `ar_bands.R`, cuja comparação já estava feita e registrada. O código
+saiu inteiro.
+
+**O que saiu:**
+- de `R/modeling/impulse_response.R`, o laço de réplicas de `compute_irf_dfm()` e
+  `validate_bootstrap_results()`;
+- de `R/modeling/factor_estimation.R`, `kilian_correction()`, `estimate_corrected_var()` e
+  `solve_or_pseudo()`, que só a correção usava;
+- os argumentos `nboot`, `bootstrap_seed` e `apply_kilian`, os campos `*_corrected` e
+  `var_residuals_original` de `estimate_dfm()`, os campos `nboot` e `bootstrap_seed` de
+  `production_spec()` e o modo `--bootstrap` de `validate_production_spec.R`.
+
+A última versão com tudo isso é `main` em `07b1cbd`. `compute_irf_dfm(inference=)` passou a
+aceitar `"ar"` ou `"none"` (só o ponto), sem default.
+
+**O que foi para `arquivo/`:** `ar_bands.R`, que punha AR, delta e bootstrap na mesma célula,
+e `fomc_coincidence.R`, fonte da §5.3, que abortava contra a produção corrente e rodava IRFs
+do DFM com 800 réplicas numa seção que o paper não usa. Com ele foi
+`R/instrument/event_tests.R`, o wild bootstrap das regressões diárias de evento, que só ele
+ainda chamava. A §5.3 fica com os números da janela 2013-01 (62 dias), e a rodada editorial do
+Tema A decide o que fazer com ela.
+
+**O que ficou sem rodar:** `diagnostics/` chama `apply_kilian`, `nboot` e
+`companion_corrected`, e não roda mais contra `R/`. Por decisão do autor, fica sem edição,
+como registro do que rodou em 2026-07-28.
+
+**Não confundir:** a inferência continua robusta à heterocedasticidade, pelo `W` HAC dos
+conjuntos AR. O que saiu foi a reamostragem.
+
+**Não reabrir sem evidência nova.**

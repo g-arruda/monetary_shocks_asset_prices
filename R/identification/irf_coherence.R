@@ -75,28 +75,24 @@ coherence_var_table <- function() {
 
 #' Evaluate one IRF path point-by-point against its theory spec
 #'
-#' Significance is "the confidence set excludes zero". Under the wild bootstrap
-#' the set is always an interval and that reduces to `lo > 0 | hi < 0`. Under
-#' the Anderson-Rubin inversion — the operational inference since 2026-09-08 —
-#' it need not be, so when the set topologies are supplied they decide, through
-#' `ar_excludes_zero()`. A `two_rays` set excludes zero when zero sits in its
+#' Significance is "the confidence set excludes zero". An Anderson-Rubin set
+#' need not be an interval, so its topology decides, through
+#' `ar_excludes_zero()`: a `two_rays` set excludes zero when zero sits in its
 #' gap; a `real_line` set never does; an `empty` set gives `NA`.
 #'
 #' @param path Numeric vector, IRF point estimate at h = 0..H.
 #' @param lo68,hi68,lo90,hi90 CI bounds, same length as `path`.
 #' @param spec One row of `coherence_var_table()`.
-#' @param set_type68,set_type90 Optional character vectors of AR set
-#'   topologies. NULL means interval bands (bootstrap).
+#' @param set_type68,set_type90 Character vectors of AR set topologies.
 #'
 #' @return List with `perh` (data.frame h x metrics) and `summary` (one row).
 evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
-                              set_type68 = NULL, set_type90 = NULL) {
+                              set_type68, set_type90) {
   H <- length(path) - 1
   h <- 0:H
   sgn <- sign(path)
 
   excludes_zero <- function(set_type, lo, hi) {
-    if (is.null(set_type)) return(lo > 0 | hi < 0)
     drop(ar_excludes_zero(matrix(set_type, ncol = 1),
                           matrix(lo, ncol = 1), matrix(hi, ncol = 1)))
   }
@@ -105,14 +101,13 @@ evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
   if (anyNA(sig68) || anyNA(sig90)) {
     stop("Empty Anderson-Rubin set in '", spec$var, "': the inversion rejects ",
          "every value of the response, which scoring cannot read as a sign. ",
-         "Inspect output/irf/ar_bands.csv before coercing it to a verdict.")
+         "Inspect cell$irf$ar before coercing it to a verdict.")
   }
 
   perh <- data.frame(
     var = spec$var, h = h, point = path,
     lo68 = lo68, hi68 = hi68, lo90 = lo90, hi90 = hi90,
-    set_type68 = if (is.null(set_type68)) NA_character_ else set_type68,
-    set_type90 = if (is.null(set_type90)) NA_character_ else set_type90,
+    set_type68 = set_type68, set_type90 = set_type90,
     sign = sgn, sig68 = sig68, sig90 = sig90,
     stringsAsFactors = FALSE
   )

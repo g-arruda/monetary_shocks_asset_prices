@@ -10,7 +10,8 @@ Independent paper replicating Alessi & Kerssenfischer (2019) for Brazil: large-s
 Dynamic Factor Model, monetary shocks identified by an external instrument (Copom-day DI futures
 surprises), IRFs of Brazilian asset prices. Inference: Anderson–Rubin sets by test inversion
 (Montiel Olea, Stock & Watson 2021) since 2026-09-08, replacing the wild bootstrap (Gonçalves &
-Kilian 2004) with Kilian (1998) bias correction. Canonical paper: `paper/paper_anpec.tex`.
+Kilian 2004) with Kilian (1998) bias correction, which left the code on 2026-09-18. Canonical
+paper: `paper/paper_anpec.tex`.
 
 The record, in `registro/`: `metodo.md` (the live design — instrument construction and the
 identification chain), `pendencias.md` (what is open), `historico_decisoes.md` (what died and why —
@@ -36,7 +37,7 @@ intercept-only. **Since 2026-09-17 the factor VAR carries the Lenza-Primiceri
 2020-03, `innovations = "standardized"`. The **full window** is therefore
 weighted least squares; the **pre-COVID window is not, and needs not be** —
 every month of it has `s_t = 1`, so the weighted fit *is* the unweighted one
-(proved bit-identical by N1/N2 of `script/validate_covid_volatility.R`), and
+(proved bit-identical by N1/N2 of `script/validation/validate_covid_volatility.R`), and
 `estimate_dfm()` rejects a `covid_start` outside its residual months. Contrasts
 between the two windows stay contrasts of window, not of estimator.
 
@@ -56,10 +57,9 @@ first-stage F rulers still print but stopped deciding on 2026-07-26.
 **Under the scale, `r ≥ 7` is explosive on the full window** (max root 1.001362
 at r=7, 1.001318 at r=8, every q), so `script/mosw_strength_grid.R` sweeps
 r=4:6 there and keeps r=4:8 pre-COVID, where everything is stable. Production
-r=5 is far from that edge. **Kilian and the wild bootstrap do not run under the
-scale** and stop by design (`factor_estimation.R:930-933`,
-`impulse_response.R:478-482`); `--bootstrap` in `validate_production_spec.R`
-stops for the same reason. This is reweighting of the estimation, **not**
+r=5 is far from that edge. The Kilian correction and the wild bootstrap, which
+assume OLS with a constant Σ and never ran under the scale, were **removed from
+the code on 2026-09-18**. This is reweighting of the estimation, **not**
 heteroskedasticity identification.
 
 **§3 is current; §4 onward is one vintage behind, in window and in
@@ -108,37 +108,39 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
 `script/irf_coherence_check.R` runs the production spec once and writes
 `output/irf/irf_coherence_h.csv` — point + 68/90 Anderson–Rubin sets + `set_type` + flags, **the
 source of §5** — plus `irf_coherence_cell.rds`, the cached estimation object follow-up analyses
-reuse instead of re-estimating. `script/ar_bands.R` is the round that documents the inference
-swap: it puts AR, delta-method and wild bootstrap side by side on the production cell, contrasts
-`(5,2)`, and records the cells the `hac_dim < T` gate blocks. Catalog of the scripts in
-`script/README.md`; repo map in `README.md`.
+reuse instead of re-estimating. The inference swap was documented by `arquivo/script/ar_bands.R`,
+archived on 2026-09-18 with the bootstrap it compared against; its outputs stay in
+`output/irf/ar_bands*`, including the record of the cells the `hac_dim < T` gate blocks. Catalog of
+the scripts in `script/README.md`; repo map in `README.md`.
 
 ## Completed rounds
 
-Cite the note, never this table. Notes are under `notas/`.
+Cite the note, never this table. Notes are under `notas/`. Rounds whose script sits in
+`arquivo/script/` were archived on 2026-09-17 or 2026-09-18: their outputs stay in `output/`, but
+the script is not maintained and most no longer run (`arquivo/README.md`).
 
 | round | script | note | verdict |
 |---|---|---|---|
-| Sovereign confound | `jk_sovereign_confound.R` | `2026-08-24_migracao_dfm_p4` | daily selection not confirmed; re-derived mask lowers ξ_mp to 3.438 |
-| FOMC coincidence | `fomc_coincidence.R` | `2026-08-24_migracao_dfm_p4` | regressions null, but re-derived mask lowers ξ_mp to 3.671: weak contamination signal |
-| ξ_mp robustness | `xi_mp_robustness.R` | `2026-08-24_migracao_dfm_p4` | all 149 full-sample LOO cells remain below 10; none falls below 3.84 |
-| Construction sweep | `instrument_construction_sweep.R` | idem | vertex not identified; all give same IRF |
-| Preços cross-instrumento | `price_cross_instrument.R` | `2026-08-24_migracao_dfm_p4` | corcova comum aos 3 degraus; efeitos das camadas não são uniformes entre séries |
-| Varredura de `p` | `p_selection.R` | `2026-08-24_migracao_dfm_p4` | production `p=4`; historical `p=6` retained as an alternative cell |
-| Factor stationarity | `factor_stationarity.R` | `2026-08-24_migracao_dfm_p4` | 3/5 I(1), no I(2), full-sample root 0.968126 (real) |
+| Sovereign confound | `arquivo/script/jk_sovereign_confound.R` | `2026-08-24_migracao_dfm_p4` | daily selection not confirmed; re-derived mask lowers ξ_mp to 3.438 |
+| FOMC coincidence | `arquivo/script/fomc_coincidence.R` | `2026-08-24_migracao_dfm_p4` | regressions null, but re-derived mask lowers ξ_mp to 3.671: weak contamination signal |
+| ξ_mp robustness | `arquivo/script/xi_mp_robustness.R` | `2026-08-24_migracao_dfm_p4` | all 149 full-sample LOO cells remain below 10; none falls below 3.84 |
+| Construction sweep | `arquivo/script/instrument_construction_sweep.R` | idem | vertex not identified; all give same IRF |
+| Preços cross-instrumento | `arquivo/script/price_cross_instrument.R` | `2026-08-24_migracao_dfm_p4` | corcova comum aos 3 degraus; efeitos das camadas não são uniformes entre séries |
+| Varredura de `p` | `arquivo/script/p_selection.R` | `2026-08-24_migracao_dfm_p4` | production `p=4`; historical `p=6` retained as an alternative cell |
+| Factor stationarity | `arquivo/script/factor_stationarity.R` | `2026-08-24_migracao_dfm_p4` | 3/5 I(1), no I(2), full-sample root 0.968126 (real) |
 | Levels VAR and weak-IV | `model_var.R` | `2026-08-22_var_niveis_aic_tendencia` | constant and trend, AIC p=2, horizon-specific responses, AR 68%/90% |
-| Equity representation | `asset_representation.R` | `2026-07-31_acoes_representacao` | null is mechanical; log-level set aside |
+| Equity representation | `arquivo/script/asset_representation.R` | `2026-07-31_acoes_representacao` | null is mechanical; log-level set aside |
 | DFM-IV audit (Tasks 0-7) | `diagnostics/` | `diagnostics/diagnostico_dfm.md` | H2 confirmed; state dependence split |
 | Het at monthly frequency | (reestimation, no dedicated script) | `2026-09-01_heterocedasticidade_frequencia` | rank condition not satisfied monthly; route stays out of production |
-| Fiscal Focus expectations (isolated) | `fiscal_expectations.R` | `2026-09-01_teste_expectativas_fiscais` | 111→114-series experimental panel; no evidence of expected fiscal deterioration |
-| DLSP accounting decomposition | `fiscal_dlsp_decomposition.R` | `2026-09-01_decomposicao_contabil_dlsp` | blocked: the 7-flow identity omits the external "outros ajustes" line |
-| 115-series exchange-adjustment + fiscal expectations (joint) | `fiscal_exchange_expectations.R` | `2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais` | experimental panel superseded for DFM numbers; not promoted to production |
-| Anderson–Rubin as the DFM's operational inference | `ar_bands.R` | `2026-09-08_bandas_anderson_rubin_producao` | swap done; all 5635 production cells bounded, weak-IV premium 1.38× at 90%; `(5,2)` unbounded; `(8,8)` and pre-COVID blocked by `hac_dim < T` |
-| Lenza-Primiceri scale into production | `validate_production_spec.R`, `irf_coherence_check.R`, `mosw_strength_grid.R` | `2026-09-17_volatilidade_covid_producao` | switched on: ξ_mp 6.057014 → 6.847997, F_rob 9.625428 → 11.765250, root 0.970090 → 0.983677, every §5 set still `interval` at 68/90; pre-COVID unmoved (s_t ≡ 1); `r ≥ 7` explosive on the full window |
-| Alternative `r` estimators (AH ER/GR, ABC) | `factor_selection_alt.R` | `2026-09-10_selecao_fatores_ah_abc` | mixed: ER = GR = 2, ABC-IC*₁ = 9 on a 2-point stability interval (5 in 39/100 column permutations); `factorselect` diverges from both papers in GR and ABC and is not used |
+| Fiscal Focus expectations (isolated) | `arquivo/script/fiscal_expectations.R` | `2026-09-01_teste_expectativas_fiscais` | 111→114-series experimental panel; no evidence of expected fiscal deterioration |
+| DLSP accounting decomposition | `arquivo/script/fiscal_dlsp_decomposition.R` | `2026-09-01_decomposicao_contabil_dlsp` | blocked: the 7-flow identity omits the external "outros ajustes" line |
+| 115-series exchange-adjustment + fiscal expectations (joint) | `arquivo/script/fiscal_exchange_expectations.R` | `2026-09-01_painel_115_ajuste_cambial_expectativas_fiscais` | experimental panel superseded for DFM numbers; not promoted to production |
+| Anderson–Rubin as the DFM's operational inference | `arquivo/script/ar_bands.R` | `2026-09-08_bandas_anderson_rubin_producao` | swap done; all 5635 production cells bounded, weak-IV premium 1.38× at 90%; `(5,2)` unbounded (untreated model); `(8,8)` and pre-COVID blocked by `hac_dim < T` |
+| Lenza-Primiceri scale into production | `validation/validate_production_spec.R`, `irf_coherence_check.R`, `mosw_strength_grid.R` | `2026-09-17_volatilidade_covid_producao` | switched on: ξ_mp 6.057014 → 6.847997, F_rob 9.625428 → 11.765250, root 0.970090 → 0.983677, every §5 set still `interval` at 68/90; pre-COVID unmoved (s_t ≡ 1); `r ≥ 7` explosive on the full window |
+| Alternative `r` estimators (AH ER/GR, ABC) | `arquivo/script/factor_selection_alt.R` | `2026-09-10_selecao_fatores_ah_abc` | mixed: ER = GR = 2, ABC-IC*₁ = 9 on a 2-point stability interval (5 in 39/100 column permutations); `factorselect` diverges from both papers in GR and ABC and is not used |
 | Correlation pruning + `(r,q)` on the pruned panel | `panel_pruning.R`, `factor_selection_pruned.R` | `2026-09-10_poda_correlacao_painel` | complete linkage at \|ρ\| ≥ 0.90 drops 9/115 series; Bai-Ng IC2 5 → 3, AH 2 → 1, ABC 9 → 11 (unstable), AW `q = 2` at every `r`; divergence grows (D 10 → 12), underestimation hypothesis contradicted |
 | `q < r` truncation: subspace sufficiency + AK invariance by window | `q_truncation.R` | `2026-09-10_truncamento_q` | harmless before COVID, distorting after: pre-COVID `p=2` 115/115 series immaterial at `q=3,4`, full sample 0/115; the proxy's covariance sits in the discarded directions (T1 p 0.051/0.039/0.015 full, ≥ 0.22 pre-COVID); rules written after an exploratory pass |
-| COVID volatility (Lenza-Primiceri) in the factor VAR: θ̂ by ML, AR under WLS, steps 3/4 and 4/4 | `covid_volatility_theta.R`, `q_truncation.R` (cell `cheia_p4_lp`), `q_narrative_overlay_covid.R` | `2026-09-14_inferencia_volatilidade_covid_q` | **superseded on 2026-09-17: the treatment became production.** θ̂ = (6.61, 12.47, 1.76, 0.944), with a second maximum at ρ = 0 2.6 log-points below; at `q=3` 23/115 series immaterial and 75 material, against 115/115 immaterial pre-COVID `p=2`; the sets condition on θ̂ |
+| COVID volatility (Lenza-Primiceri) in the factor VAR: θ̂ by ML, AR under WLS, steps 3/4 and 4/4 | `covid_volatility_theta.R`, `q_truncation.R` (cell `cheia_p4_lp`), `q_sensitivity.R` | `2026-09-14_inferencia_volatilidade_covid_q` | **superseded on 2026-09-17: the treatment became production.** θ̂ = (6.61, 12.47, 1.76, 0.944), with a second maximum at ρ = 0 2.6 log-points below; at `q=3` 23/115 series immaterial and 75 material, against 115/115 immaterial pre-COVID `p=2`; the sets condition on θ̂ |
 
 ## ⚠ Prohibitions
 
@@ -151,8 +153,8 @@ These govern what may be **said**, so they apply even when no file is open.
 - **The 68%/90% Anderson–Rubin sets are the sole operational inference for the DFM** since
   **2026-09-08** (author decision; it reverses the 2026-08-12 withdrawal, `historico_decisoes.md`
   §7). `production_spec()$inference` is the single authority, `compute_irf_dfm(inference=)` the
-  single switch. The wild bootstrap is still computable and still the object `ar_bands.R` compares
-  against, but it no longer decides significance. Two things are true of the sets: the plug-in
+  single switch (`"ar"`, or `"none"` for the point alone). The wild bootstrap and the Kilian
+  correction left the code on 2026-09-18. Two things are true of the sets: the plug-in
   covariance conditions on the estimated `Λ`, `K`, `M`, `sy` and `θ̂`; and `mosw_rform_cov` needs
   `hac_dim < T`, which **blocks** `(r,q)=(8,8)` at `p=4` (336 ≥ 162) and the **whole pre-COVID
   window** at `p=4` (135 ≥ 90). No pseudo-inverse, no substitute bootstrap, no fallback — a
@@ -170,8 +172,10 @@ These govern what may be **said**, so they apply even when no file is open.
 - **Significance is "the set excludes zero", read off the topology.** An AR set need not be an
   interval: `two_rays` excludes zero only when zero falls in its gap, `real_line` never does, and
   `empty` is a misspecification signal that scoring must not read as a sign. `ar_excludes_zero()`
-  is the only place that rule lives. The set is bounded at level κ **iff ξ_mp > κ**, which is why
-  `(5,2)` — ξ_mp = 2.339 — is unbounded at 90% and 95% and bounded only at 68%.
+  is the only place that rule lives. The set is bounded at level κ **iff ξ_mp > κ**. The
+  `(5,2)` example of `arquivo/script/ar_bands.R` — ξ_mp = 2.339, unbounded at 90% and 95% — is
+  the **untreated** model; under the production scale `(5,2)` has ξ_mp = 5.124 and is bounded at
+  68, 90 and 95% (`output/factors/q_truncation_cells.csv`, cell `cheia_p4_lp`).
   **The small-VAR benchmark keeps its own AR/MOSW sets** (`R/identification/weak_iv_ar.R`, now the
   shared module: `Load`/`Inner` default to the identity and the VAR path is bit-identical, guarded
   by `validate_mosw_ar.R`). Those sets are inference *for the VAR*, never for the DFM, and
@@ -225,8 +229,8 @@ These govern what may be **said**, so they apply even when no file is open.
   keeps only artefacts/verdict). Het is rejected at both frequencies; GMR has no power on this
   panel because DFM aggregation destroys the non-Gaussianity. Loose ends that die with them:
   *conditional* het (GARCH-SVAR) and LMS (2017) via `svars::id.ngml`, neither attempted, `svars`
-  not installed. **Heteroskedasticity-robust *inference* is untouched** — the Gonçalves-Kilian wild
-  bootstrap and the HAC first stage are production.
+  not installed. **Heteroskedasticity-robust *inference* is untouched** — the Anderson–Rubin sets
+  and the HAC first stage are heteroskedasticity-robust.
 - **Do not silently re-architect the identification core** — see `.claude/rules/identification.md`.
 
 ## Common commands
@@ -243,32 +247,26 @@ Rscript script/download.R                    # all reproducible monthly and dail
 Rscript script/instrument.R                  # 8 GK-family variants
 Rscript script/instrument_diagnostics.R      # first-stage F + MOSW Wald block
 Rscript script/mosw_strength_grid.R          # ξ_mp over (r,q) × sample × instrument
-Rscript script/xi_mp_robustness.R            # leave-one-month-out + NW(0..6) on ξ_mp
-Rscript script/instrument_construction_sweep.R  # DI vertex × aggregation scheme
-Rscript script/validate_hac_kernel.R         # NW kernel vs the official MATLAB
 
-# Confound tests on the JK mask (~3 min each)
-Rscript script/jk_sovereign_confound.R       # sovereign risk: EMBI+ and 5y CDS
-Rscript script/fomc_coincidence.R            # FOMC spillover: US block + re-derived mask
-
-# IRF specification sweep
-Rscript script/irf_spec_sweep.R              # stage 1: point estimates (~seconds)
-Rscript script/irf_spec_stage2.R             # stage 2: bootstrap on winning cells (~2 min)
-Rscript script/ar_bands.R                    # AR vs delta vs bootstrap; (5,2); células barradas
+# IRF inference, coherence and q sensitivity
 Rscript script/irf_coherence_check.R         # 58 vars scored point-by-point (feeds §5)
+Rscript script/q_truncation.R                # q < r truncation, four window-cells
+Rscript script/q_sensitivity.R --window=cheia   # q = 2..5 narrative; --window=pre_covid for the other
 Rscript script/fig_section5.R                # paper/fig_*.pdf from the cached .rds
 
-Rscript script/model_alessi.R                # main DFM (long; bootstrap dominated)
+Rscript script/model_alessi.R                # main DFM: Bai-Ng surface + IRF figure
 Rscript script/model_var.R                   # Olea small-VAR points, AR sets and diagnostics
-Rscript script/validate_mosw_ar.R            # AR module vs the authors' fixture + degenerate cases
 Rscript script/fig_weak_iv.R                  # canonical small-VAR AR figure
-Rscript script/factor_stationarity.R         # unit roots, cointegration, spectrum (~2 min)
-Rscript script/asset_representation.R        # returns vs log-level vs level (~12 min)
+
+# Regression checks against the reference code (MOSW, Stock-Watson, Lenza-Primiceri)
+for f in script/validation/*.R; do Rscript "$f" || break; done
 ```
 
-There is no test suite, no linter, no build step. Iterate by running the relevant script.
+There is no formal test suite, linter or build step. `script/validation/` holds the regression
+checks against the authors' code: rerun them after touching `R/modeling/` or `R/identification/`.
+Otherwise iterate by running the relevant script.
 
-**Smoke test after touching the identification path** (fast, no bootstrap):
+**Smoke test after touching the identification path** (fast):
 
 ```r
 source("R/modeling/factor_estimation.R")
@@ -276,7 +274,7 @@ source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/weak_iv_ar.R")   # main_sdfm passa inference = "ar"
 source("R/modeling/dfm_pipeline.R")
-res <- main_sdfm(r = 5L, q = 5L, p = 4, shock_size_bps = 50, mp_var = "yield_6m", nboot = 0)
+res <- main_sdfm(r = 5L, q = 5L, p = 4, shock_size_bps = 50, mp_var = "yield_6m")
 # note the field is `irfs`, not `irf`, and the names come from the data matrix
 P <- res$irfs$irf_point_matrix; vn <- colnames(res$data)
 P[match(c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd"), vn), 1]
@@ -289,7 +287,7 @@ Expected h0 (matches `output/validation/production_spec_impact_smoke.csv`),
 bit-identical check: `0.0050000000000000001`, `0.0070090326083686542`,
 `0.0072900543327283655`, `-1.5020158375666013`,
 `0.12942167379213612`. The untreated point (`covid_volatility = NULL`) is still
-pinned, as the degeneracy reference, in `script/validate_covid_volatility.R`.
+pinned, as the degeneracy reference, in `script/validation/validate_covid_volatility.R`.
 
 ## Conventions
 
@@ -313,7 +311,8 @@ pinned, as the degeneracy reference, in `script/validate_covid_volatility.R`.
   it.** `diagnostics/` audits and **never modifies estimation code**.
 - **Reference code:** `codigos_externos/` (Alessi-Kerssenfischer, JK, Bauer-Swanson, Montiel
   Olea-Stock-Watson) is **gitignored** — read-only for translation. Because of that, every
-  `validate_*.R` runs off a committed fixture in `output/validation/`, never off those directories.
+  `script/validation/validate_*.R` runs off a committed fixture in `output/validation/`, never off
+  those directories.
 - **`output/`** is git-tracked (~24 MB), most recently refreshed by the 2026-09-02 production
   migration; frozen artefacts (e.g. the VAR benchmark, archived het) carry their own vintage in
   `notas/_indice.md` and are not stale by being older.

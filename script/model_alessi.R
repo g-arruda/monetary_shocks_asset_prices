@@ -3,7 +3,7 @@
 # r=q=5. Instrumento: data/processed/instrument.csv = z_jk_bs_purif
 # (default desde 2026-07-15; máscara JK em resíduos pré-evento BS).
 # Inferência: conjuntos Anderson-Rubin (`production_spec()$inference`), a
-# régua operacional do DFM desde 2026-09-08. Nenhuma réplica é sorteada aqui.
+# régua operacional do DFM desde 2026-09-08.
 # Saída: output/irf/irf_model_alessi_r5q5.pdf
 # ===================================================================
 
@@ -39,8 +39,7 @@ sdfm_results <- main_sdfm(
   p = SPEC$p,
   shock_size_bps = SPEC$shock_bps,
   mp_var = SPEC$mp_var,
-  ci_levels = SPEC$ci_levels,
-  nboot = 0L
+  ci_levels = SPEC$ci_levels
 )
 
 # Generate IRF plots for key economic variables. Os indices abaixo foram

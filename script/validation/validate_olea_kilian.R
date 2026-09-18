@@ -13,7 +13,7 @@
 # directly, as this script used to, made it unrunnable in a clean
 # clone (and it had been silently broken since the reference code
 # moved into codigos_externos/). Same fixture and same rationale as
-# script/validate_hac_kernel.R.
+# script/validation/validate_hac_kernel.R.
 #
 # The VAR is re-estimated here from the authors' Y rather than taken
 # from the fixture, so the check still covers the estimation step:
