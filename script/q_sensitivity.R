@@ -10,13 +10,12 @@
 #   --window=pre_covid  2012-03..2019-12, p = 2. At p = 4 the pre-COVID AR
 #                       covariance is blocked (hac_dim 135 >= T = 90,
 #                       output/irf/ar_bands.md); at p = 2 it is feasible
-#                       (hac_dim 85 < T = 92, the `pre_p2` cell of
-#                       script/q_truncation.R).
+#                       (hac_dim 85 < T = 92, the `pre_p2` cell of the archived
+#                       arquivo/script/q_truncation.R).
 #
 # q = 5 carries its 68/90% Anderson-Rubin sets; q = 2, 3 and 4 are point
 # estimates only, following the Figure A3 design of Alessi and Kerssenfischer
-# (2019). Merges q_narrative_overlay_covid.R and
-# q_narrative_overlay_precovid_p2.R (2026-09-17), whose output names it keeps.
+# (2019). The script only draws: output/factors/<stem>.pdf.
 # Note: notas/2026-09-14_inferencia_volatilidade_covid_q.md
 # ===================================================================
 
@@ -46,10 +45,6 @@ VARS <- c(
 H_FIG <- 48L
 OUT_DIR <- "output/factors"
 
-theta <- SPEC$covid_volatility$theta
-theta_txt <- chartr(".", ",", sprintf("s̄0 = %.3f; s̄1 = %.3f; s̄2 = %.3f; ρ = %.4f",
-                                      theta[["s0"]], theta[["s1"]], theta[["s2"]], theta[["rho"]]))
-
 # The pre-COVID window has no COVID month, so s_t = 1 throughout and
 # estimate_dfm() rejects the scale there: OLS is the treated fit
 CELL <- switch(WINDOW,
@@ -58,44 +53,14 @@ CELL <- switch(WINDOW,
     p = SPEC$p,
     covid_volatility = SPEC$covid_volatility,
     stem = "q_narrative_r5p4_covid",
-    title = "Sensibilidade à dimensão dinâmica q: r = 5, p = 4, cheia com a volatilidade COVID (2012-03 a 2025-12)",
-    md = c(
-      "# IRFs narrativas: q = 2 a 5 com r = 5, p = 4, amostra cheia com a volatilidade COVID",
-      "",
-      "As vinte variáveis cobrem a curva, câmbio e risco soberano, expectativas,",
-      "atividade, preços, ações e todas as séries fiscais e de expectativa que",
-      "estruturam a narrativa empírica do artigo. Janela 2012-03 a 2025-12, p = 4,",
-      "com a escala de volatilidade COVID de Lenza-Primiceri (2022) no VAR dos fatores:",
-      sprintf("θ̂ = (%s) de `production_spec()`, `innovations = \"standardized\"`,", theta_txt),
-      "sem centragem. A linha q=5 traz conjuntos de Anderson-Rubin de 68% e 90% na",
-      "regressão transformada; q=2, q=3 e q=4 são sobreposições pontuais. Horizonte h = 0..48.",
-      "",
-      "A outra janela do passo 4/4 é `q_narrative_r5p2_precovid.*` (pré-COVID, p = 2);",
-      "a cheia sem tratamento é `q_narrative_r5p4.*`.",
-      "",
-      "Artefatos: `q_narrative_r5p4_covid_paths.csv`, `q_narrative_r5p4_covid_summary.csv`",
-      "e `q_narrative_r5p4_covid.pdf`."
-    )
+    title = "Sensibilidade à dimensão dinâmica q: r = 5, p = 4, cheia com a volatilidade COVID (2012-03 a 2025-12)"
   ),
   pre_covid = list(
     sample = SPEC$pre_covid_sample,
     p = 2L,
     covid_volatility = NULL,
     stem = "q_narrative_r5p2_precovid",
-    title = "Sensibilidade à dimensão dinâmica q: r = 5, p = 2, pré-COVID (2012-03 a 2019-12)",
-    md = c(
-      "# IRFs narrativas: q = 2 a 5 com r = 5, p = 2, pré-COVID",
-      "",
-      "As vinte variáveis cobrem a curva, câmbio e risco soberano, expectativas,",
-      "atividade, preços, ações e todas as séries fiscais e de expectativa que",
-      "estruturam a narrativa empírica do artigo. Janela 2012-03 a 2019-12, p = 2",
-      "(no `p = 4` pré-COVID o AR fica bloqueado: hac_dim 135 >= T = 90). A linha",
-      "q=5 traz conjuntos de Anderson-Rubin de 68% e 90%; q=2, q=3 e q=4 são",
-      "sobreposições pontuais. Horizonte h = 0..48.",
-      "",
-      "Artefatos: `q_narrative_r5p2_precovid_paths.csv`,",
-      "`q_narrative_r5p2_precovid_summary.csv` e `q_narrative_r5p2_precovid.pdf`."
-    )
+    title = "Sensibilidade à dimensão dinâmica q: r = 5, p = 2, pré-COVID (2012-03 a 2019-12)"
   )
 )
 OUT_STEM <- file.path(OUT_DIR, CELL$stem)
@@ -131,8 +96,8 @@ cells <- purrr::map(Q_VALUES, function(q) {
   )
 })
 
-# The containment below reads [lo, hi], which is the set only for an interval
-# and, at the normalization point, for the singleton {normalize_value}
+# The bands draw [lo, hi], which is the set only for an interval and, at the
+# normalization point, for the singleton {normalize_value}
 set90 <- cells[[match(SPEC$q, Q_VALUES)]]$irf$ar$by_level[["0.90"]]$set_type
 set90 <- set90[match(VARS, var_names), ]
 at_norm <- row(set90) == match(SPEC$mp_var, VARS) & col(set90) == 1L
@@ -170,57 +135,6 @@ stopifnot(max(abs(mp_h0 - SPEC$normalize_value)) < 1e-12)
 
 paths <- paths |>
   dplyr::mutate(cell = factor(paste0("q=", q), levels = paste0("q=", Q_VALUES)))
-
-summary <- paths |>
-  dplyr::filter(h <= H_FIG) |>
-  dplyr::group_by(variable, h) |>
-  dplyr::summarise(
-    min_q = min(point),
-    max_q = max(point),
-    gap_q = max_q - min_q,
-    .groups = "drop"
-  ) |>
-  dplyr::group_by(variable) |>
-  dplyr::summarise(
-    max_gap_q = max(abs(gap_q)),
-    max_gap_h = h[which.max(abs(gap_q))],
-    .groups = "drop"
-  ) |>
-  dplyr::left_join(
-    paths |>
-      dplyr::filter(h %in% c(0L, 6L, 12L, 24L, 36L, 48L)) |>
-      dplyr::select(variable, h, q, point) |>
-      tidyr::pivot_wider(names_from = c(h, q), values_from = point,
-                         names_glue = "h{h}_q{q}"),
-    by = "variable"
-  )
-
-containment <- paths |>
-  dplyr::filter(q != SPEC$q, h <= H_FIG) |>
-  dplyr::select(-lo68, -hi68, -lo90, -hi90) |>
-  dplyr::inner_join(
-    paths |>
-      dplyr::filter(q == SPEC$q) |>
-      dplyr::select(variable, h, lo90, hi90),
-    by = c("variable", "h")
-  ) |>
-  dplyr::group_by(variable, q) |>
-  dplyr::summarise(
-    share_in_q5_band90 = mean(point >= lo90 & point <= hi90),
-    .groups = "drop"
-  ) |>
-  tidyr::pivot_wider(
-    names_from = q,
-    values_from = share_in_q5_band90,
-    names_glue = "share_q{q}_in_q5_band90"
-  )
-
-summary <- summary |>
-  dplyr::left_join(containment, by = "variable")
-
-readr::write_csv(paths, paste0(OUT_STEM, "_paths.csv"))
-readr::write_csv(summary, paste0(OUT_STEM, "_summary.csv"))
-writeLines(CELL$md, paste0(OUT_STEM, ".md"))
 
 plot_data <- paths |>
   dplyr::filter(h <= H_FIG)

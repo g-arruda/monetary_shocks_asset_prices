@@ -139,7 +139,8 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
   e no painel podado e o truncamento `q < r` (`q_truncation_*`), de
   2026-09-10; e a volatilidade COVID de Lenza-Primiceri (2026-09-14): θ̂ e a
   trajetória de `s_t` (`covid_volatility_*`), a célula `cheia_p4_lp` dentro
-  de `q_truncation_*` e a narrativa tratada `q_narrative_r5p4_covid.*`.
+  de `q_truncation_*` e a narrativa tratada `q_narrative_r5p4_covid.pdf` (o
+  `_summary.csv` ao lado é órfão citado desde 2026-09-18).
 - **`var/`** — o benchmark VAR em níveis e sua inferência AR corrente
   (2026-08-22): cinco séries, constante e tendência linear, AIC e BIC em
   amostra comum, `p=2` pelo AIC, NW(0) e respostas `C_h B_1`.
