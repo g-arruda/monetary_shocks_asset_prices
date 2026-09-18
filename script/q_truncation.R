@@ -71,7 +71,6 @@ source("R/identification/experimental_panel.R")
 SPEC     <- production_spec()
 Q_VALUES <- 5:2
 H        <- SPEC$horizon
-H_SHORT  <- 12L
 ALPHA    <- 0.05
 COVID    <- as.Date(c("2020-03-01", "2020-12-01"))
 SHOWCASE <- c("yield_6m", "yield_2y", "cambio_usd", "cds_5y", "price_ipca", "ibc_br")
@@ -84,10 +83,6 @@ WINDOW_CELLS <- tibble::tribble(
   "pre_p2",      "pre_covid_sample", 2L, TRUE,          FALSE,
   "cheia_p4_lp", "sample",           4L, TRUE,          TRUE
 )
-
-Q_LABEL    <- paste0("q=", Q_VALUES)
-Q_PALETTE  <- c("q=5" = "black", "q=4" = "firebrick", "q=3" = "darkgreen", "q=2" = "steelblue")
-Q_LINETYPE <- c("q=5" = "solid", "q=4" = "42", "q=3" = "22", "q=2" = "11")
 
 
 # ---- Data ----------------------------------------------------------
@@ -299,7 +294,7 @@ containment <- purrr::map_dfr(ar_cells, function(wc) {
     dplyr::filter(window_cell == wc) |>
     dplyr::select(cell_key = q, variable, h, point, lo68, hi68, lo90, hi90) |>
     containment_vs_production(prod_key = SPEC$q, denom_ratio = denom_ratio,
-                              h_max = H, h_short = H_SHORT, var_order = var_names) |>
+                              h_max = H, h_short = 12L, var_order = var_names) |>
     dplyr::rename(q = cell_key) |>
     dplyr::mutate(window_cell = wc, .before = 1)
 })
@@ -426,7 +421,7 @@ writeLines(c(
 
 plot_df <- paths |>
   dplyr::filter(variable %in% SHOWCASE) |>
-  dplyr::mutate(cell = factor(paste0("q=", q), levels = Q_LABEL))
+  dplyr::mutate(cell = factor(paste0("q=", q), levels = paste0("q=", Q_VALUES)))
 
 PAGES <- tibble::tribble(
   ~window_cell, ~title,
@@ -440,8 +435,11 @@ pdf(paste0(OUT_STEM, ".pdf"), width = 11, height = 7.5)
 purrr::pwalk(PAGES, function(window_cell, title) {
   df <- plot_df[plot_df$window_cell == window_cell, ]
   print(plot_dimension_overlay(
-    df, df[df$q == SPEC$q & !is.na(df$lo90), ], SHOWCASE, Q_PALETTE, Q_LINETYPE,
-    H, 3, title, "z_jk_bs_purif × yield_6m, choque de +50 pb; r = 5; q = 2, 3 e 4 só pontuais"
+    df, df[df$q == SPEC$q & !is.na(df$lo90), ], SHOWCASE,
+    palette = c("q=5" = "black", "q=4" = "firebrick", "q=3" = "darkgreen", "q=2" = "steelblue"),
+    linetypes = c("q=5" = "solid", "q=4" = "42", "q=3" = "22", "q=2" = "11"),
+    h_max = H, ncol = 3, title = title,
+    subtitle = "z_jk_bs_purif × yield_6m, choque de +50 pb; r = 5; q = 2, 3 e 4 só pontuais"
   ))
 })
 invisible(dev.off())

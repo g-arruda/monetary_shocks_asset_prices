@@ -100,7 +100,6 @@ CELL <- switch(WINDOW,
 )
 OUT_STEM <- file.path(OUT_DIR, CELL$stem)
 
-Q_LABEL <- paste0("q=", Q_VALUES)
 Q_PALETTE <- c("q=5" = "black", "q=4" = "firebrick", "q=3" = "darkgreen", "q=2" = "steelblue")
 Q_LINETYPE <- c("q=5" = "solid", "q=4" = "42", "q=3" = "22", "q=2" = "11")
 
@@ -170,7 +169,7 @@ mp_h0 <- dplyr::filter(paths, variable == SPEC$mp_var, h == 0)$point
 stopifnot(max(abs(mp_h0 - SPEC$normalize_value)) < 1e-12)
 
 paths <- paths |>
-  dplyr::mutate(cell = factor(paste0("q=", q), levels = Q_LABEL))
+  dplyr::mutate(cell = factor(paste0("q=", q), levels = paste0("q=", Q_VALUES)))
 
 summary <- paths |>
   dplyr::filter(h <= H_FIG) |>
@@ -228,25 +227,22 @@ plot_data <- paths |>
 band_data <- plot_data |>
   dplyr::filter(q == SPEC$q)
 
-subtitle <- paste0(
-  "z_jk_bs_purif × yield_6m, choque de +50 pb; bandas Anderson-Rubin 68/90% apenas para q=5"
-)
-
 pdf(paste0(OUT_STEM, ".pdf"), width = 11, height = 7.5)
 print(plot_dimension_overlay(
-  plot_data, band_data, VARS[1:6], Q_PALETTE, Q_LINETYPE,
-  H_FIG, 3, CELL$title, subtitle
+  plot_data, band_data, VARS[1:6], palette = Q_PALETTE, linetypes = Q_LINETYPE,
+  h_max = H_FIG, ncol = 3, title = CELL$title,
+  subtitle = "z_jk_bs_purif × yield_6m, choque de +50 pb; bandas Anderson-Rubin 68/90% apenas para q=5"
 ))
 print(plot_dimension_overlay(
-  plot_data, band_data, VARS[7:10], Q_PALETTE, Q_LINETYPE,
-  H_FIG, 2, "", ""
+  plot_data, band_data, VARS[7:10], palette = Q_PALETTE, linetypes = Q_LINETYPE,
+  h_max = H_FIG, ncol = 2, title = "", subtitle = ""
 ))
 print(plot_dimension_overlay(
-  plot_data, band_data, VARS[11:14], Q_PALETTE, Q_LINETYPE,
-  H_FIG, 2, "Variáveis fiscais", ""
+  plot_data, band_data, VARS[11:14], palette = Q_PALETTE, linetypes = Q_LINETYPE,
+  h_max = H_FIG, ncol = 2, title = "Variáveis fiscais", subtitle = ""
 ))
 print(plot_dimension_overlay(
-  plot_data, band_data, VARS[15:20], Q_PALETTE, Q_LINETYPE,
-  H_FIG, 3, "Expectativas", ""
+  plot_data, band_data, VARS[15:20], palette = Q_PALETTE, linetypes = Q_LINETYPE,
+  h_max = H_FIG, ncol = 3, title = "Expectativas", subtitle = ""
 ))
 invisible(dev.off())
