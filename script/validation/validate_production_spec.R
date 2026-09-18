@@ -61,13 +61,11 @@ if (!identical(unname(unlist(bai_ng$r_hat)), c(5L, 5L, 20L)) ||
     any(!is.finite(as.matrix(bai_ng_surface[, -1])))) {
   stop("The BLL Bai-Ng surface must be finite and select IC1=5, IC2=5, IC3=20.")
 }
-if (file.exists(spec$bai_ng_output)) {
-  saved_bai_ng <- readr::read_csv(spec$bai_ng_output, show_col_types = FALSE)
-  if (!identical(names(saved_bai_ng), names(bai_ng_surface)) ||
-      nrow(saved_bai_ng) != nrow(bai_ng_surface) ||
-      max(abs(as.matrix(saved_bai_ng) - as.matrix(bai_ng_surface))) > 1e-12) {
-    stop("The saved production BLL Bai-Ng surface does not reproduce.")
-  }
+saved_bai_ng <- readr::read_csv(spec$bai_ng_output, show_col_types = FALSE)
+if (!identical(names(saved_bai_ng), names(bai_ng_surface)) ||
+    nrow(saved_bai_ng) != nrow(bai_ng_surface) ||
+    max(abs(as.matrix(saved_bai_ng) - as.matrix(bai_ng_surface))) > 1e-12) {
+  stop("The saved production BLL Bai-Ng surface does not reproduce.")
 }
 
 instrument_wide <- readr::read_csv(spec$instrument_path, show_col_types = FALSE) |>
