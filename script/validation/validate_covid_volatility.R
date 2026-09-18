@@ -61,6 +61,12 @@ if (!all(n1)) {
 
 # N2 — point pipeline through main_sdfm: q = r and q < r, both innovation
 # switches, covid_start at the first, middle and last residual month
+#' Production point IRF of main_sdfm() at a given q and volatility setting
+#'
+#' @param q Number of dynamic factors.
+#' @param covid_volatility `NULL` (OLS) or a Lenza-Primiceri specification list.
+#'
+#' @return The point IRF matrix, variables by horizons.
 point_irf <- function(q, covid_volatility) {
   res <- suppressMessages(main_sdfm(r = spec$r, q = q, p = spec$p,
                                     inference = "none",
@@ -115,6 +121,11 @@ if (abs(wls$loglik - brute) > 1e-10 * abs(brute)) {
 neutral <- list(covid_start = residual_dates[1],
                 theta = c(s0 = 1, s1 = 1, s2 = 1, rho = 0.5),
                 innovations = "raw")
+#' Message of the error an expression raises
+#'
+#' @param expr Expression, evaluated lazily.
+#'
+#' @return The condition message, or `""` if `expr` runs without error.
 error_message <- function(expr) {
   tryCatch(suppressMessages({
     expr
@@ -158,30 +169,29 @@ neutral_std <- modifyList(neutral, list(
   covid_start = spec$covid_volatility_design$covid_start,
   innovations = "standardized"
 ))
-ar_at <- function(covid_volatility) {
+ar_sets <- lapply(list(production = NULL, neutral = neutral_std), function(covid_volatility) {
   suppressMessages(main_sdfm(inference = "ar",
                              covid_volatility = covid_volatility))$irfs$ar
-}
-ar_production <- ar_at(NULL)
-ar_neutral <- ar_at(neutral_std)
-relative_gap <- function(got, want) max(abs(got - want)) / max(abs(want))
+})
 mp_idx <- match(spec$mp_var, colnames(data_mat))
 diag_gap <- purrr::map_dbl(c(5L, 3L), function(q) {
-  diag_at <- function(covid_volatility) {
+  strength <- lapply(list(neutral = neutral_std, production = NULL), function(covid_volatility) {
     dfm <- estimate_dfm(data_mat, spec$r, q, spec$p, dates = dates,
                         covid_volatility = covid_volatility)
     diag <- diagnose_instrument_in_factor_space(dfm, instrument, dates, spec$p, mp_idx)
     unlist(diag[c("wald_mp", "f_robust_mp", "impact_mp")])
-  }
-  max(abs(diag_at(neutral_std) / diag_at(NULL) - 1))
+  })
+  max(abs(strength$neutral / strength$production - 1))
 })
 n5 <- c(
-  set_type = identical(purrr::map(ar_neutral$by_level, "set_type"),
-                       purrr::map(ar_production$by_level, "set_type")),
-  bounds = max(purrr::map2_dbl(ar_neutral$by_level, ar_production$by_level,
-                               function(a, b) max(relative_gap(a$lo, b$lo),
-                                                  relative_gap(a$hi, b$hi)))) < 1e-10,
-  xi_den = abs(ar_neutral$xi_den / ar_production$xi_den - 1) < 1e-10,
+  set_type = identical(purrr::map(ar_sets$neutral$by_level, "set_type"),
+                       purrr::map(ar_sets$production$by_level, "set_type")),
+  bounds = max(purrr::map2_dbl(ar_sets$neutral$by_level, ar_sets$production$by_level,
+                               function(a, b) {
+                                 max(max(abs(a$lo - b$lo)) / max(abs(b$lo)),
+                                     max(abs(a$hi - b$hi)) / max(abs(b$hi)))
+                               })) < 1e-10,
+  xi_den = abs(ar_sets$neutral$xi_den / ar_sets$production$xi_den - 1) < 1e-10,
   xi_mp = all(diag_gap < 1e-10)
 )
 if (!all(n5)) {
@@ -281,6 +291,11 @@ lower_sim <- c(s0 = 1, s1 = 1, s2 = 1, rho = 0)
 upper_sim <- c(s0 = Inf, s1 = Inf, s2 = Inf, rho = 1)
 fit_theta <- estimate_covid_theta(Y, p_sim, sim_residual_dates, covid_sim,
                                   lower_sim, upper_sim)
+#' Log-likelihood (B5) of the simulated VAR at a given theta
+#'
+#' @param theta Named vector `c(s0, s1, s2, rho)`.
+#'
+#' @return Scalar (B5) log-likelihood.
 loglik_sim <- function(theta) {
   path <- covid_volatility_path(sim_residual_dates, covid_sim, theta)
   estimate_var_ols(Y, p_sim, s = path)$loglik
@@ -332,19 +347,22 @@ irf_sim <- suppressMessages(compute_irf_dfm(dfm_sim, instrument = z_sim, h = h_s
                                             inference = "none"))$irf_point_matrix
 powers <- Reduce(function(B, i) B %*% dfm_sim$companion_matrix, seq_len(h_sim),
                  accumulate = TRUE, init = diag(nrow(dfm_sim$companion_matrix)))
-manual_irf <- function(eta) {
-  H <- drop(crossprod(z_sim, eta)) / sum(z_sim^2)
-  irf <- sapply(powers, function(B) {
-    dfm_sim$data_sd * (dfm_sim$static_loadings %*% B[1:n_sim, 1:n_sim] %*%
-                         dfm_sim$dynamic_loadings %*% dfm_sim$dynamic_scaling %*% H)
-  })
-  irf / irf[1, 1]
-}
-uncentered <- manual_irf(eta_sim)
-centered <- manual_irf(sweep(eta_sim, 2, colMeans(eta_sim)))
+manual_irf <- lapply(
+  list(uncentered = eta_sim, centered = sweep(eta_sim, 2, colMeans(eta_sim))),
+  function(eta) {
+    H <- drop(crossprod(z_sim, eta)) / sum(z_sim^2)
+    irf <- sapply(powers, function(B) {
+      dfm_sim$data_sd * (dfm_sim$static_loadings %*% B[1:n_sim, 1:n_sim] %*%
+                           dfm_sim$dynamic_loadings %*% dfm_sim$dynamic_scaling %*% H)
+    })
+    irf / irf[1, 1]
+  }
+)
 s7 <- c(
-  uncentered = max(abs(irf_sim - uncentered)) < 1e-10 * max(abs(uncentered)),
-  centering_matters = max(abs(uncentered - centered)) > 1e-6 * max(abs(uncentered))
+  uncentered = max(abs(irf_sim - manual_irf$uncentered)) <
+    1e-10 * max(abs(manual_irf$uncentered)),
+  centering_matters = max(abs(manual_irf$uncentered - manual_irf$centered)) >
+    1e-6 * max(abs(manual_irf$uncentered))
 )
 if (!all(s7)) {
   stop("S7: the treated identification fails at ", paste(names(s7)[!s7], collapse = ", "))
@@ -372,20 +390,18 @@ z_lin <- eps_true[, 1] + rnorm(T_sim - p_sim)
 X_raw <- cbind(1, Y[p_sim:(T_sim - 1), ], Y[(p_sim - 1):(T_sim - 2), ])
 A_error <- as.vector(t(fit$coefficients[1:(n_sim * p_sim), ]) - cbind(A1, A2))
 gamma_hat <- colMeans(z_lin * fit$residuals_standardized)
-influence_means <- function(X) {
+influence <- lapply(list(transformed = X_raw / s_sim, untransformed = X_raw), function(X) {
   Q1inv <- solve(crossprod(X) / nrow(X))
   Q2 <- crossprod(z_lin, X) / nrow(X)
   x_eps <- as.vector(crossprod(eps_true, X) / nrow(X))   # mean of vec(eps_t x_t')
   list(A = drop(kronecker(Q1inv[-1, , drop = FALSE], diag(n_sim)) %*% x_eps),
        Gamma = colMeans(z_lin * eps_true) -
          drop(kronecker(Q2 %*% Q1inv, diag(n_sim)) %*% x_eps))
-}
-transformed <- influence_means(X_raw / s_sim)
-untransformed <- influence_means(X_raw)
+})
 s9 <- c(
-  A = max(abs(A_error - transformed$A)) < 1e-10,
-  Gamma = max(abs(gamma_hat - transformed$Gamma)) < 1e-10,
-  transformation_matters = max(abs(A_error - untransformed$A)) > 1e-6
+  A = max(abs(A_error - influence$transformed$A)) < 1e-10,
+  Gamma = max(abs(gamma_hat - influence$transformed$Gamma)) < 1e-10,
+  transformation_matters = max(abs(A_error - influence$untransformed$A)) > 1e-6
 )
 if (!all(s9)) {
   stop("S9: the treated influence function fails at ",
