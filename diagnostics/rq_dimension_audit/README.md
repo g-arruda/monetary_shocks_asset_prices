@@ -1,5 +1,10 @@
 # Auditoria das dimensões `(r,q)`
 
+> **Scripts arquivados em 2026-09-18** em `arquivo/diagnostics/rq_dimension_audit/scripts/`,
+> com as funções de painel experimental que só eles chamavam. Este README e
+> `output/` ficam aqui porque as notas os citam; os comandos abaixo registram
+> como a rodada foi executada.
+
 > **SUPERSEDED em 2026-08-13 pela auditoria conjunta em
 > [`../rq_block_dimension_audit/`](../rq_block_dimension_audit/).** Esta pasta
 > preserva o código e os artefatos da

@@ -77,9 +77,10 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   `script/download.R`. `fred.R` e `fomc.R` saíram em 2026-09-18 com a
   purificação UST/FOMC do instrumento, seu único consumidor.
 - **`preprocessing/`** (2 arquivos) — `seasonality.R`, o wrapper de ajuste
-  sazonal X-13, e `experimental_extensions.R`, que reconstrói os painéis
-  experimentais históricos a partir das sete séries já processadas e de 12
-  extensões locais que não pertencem ao download de produção.
+  sazonal X-13, e `production_extensions.R`, que monta as extensões fiscais e
+  de expectativas do painel de produção. `experimental_extensions.R`, que
+  reconstruía os painéis experimentais da escolha de blocos, foi para
+  `arquivo/R/preprocessing/` em 2026-09-18.
 - **`modeling/`** (6 arquivos) — `production_spec.R`, a especificação única do
   painel de 115 séries `(5,5,4)`, 2012-03--2025-12; `dfm_pipeline.R`, a
   composição do fluxo
@@ -95,7 +96,8 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   `svensson_model.R` foi para `arquivo/R/modeling/` em 2026-08-05.
 - **`identification/`** — a máquina de diagnóstico em torno do proxy-SVAR:
   `spec_sweep.R`, `factor_space_diagnostics.R`,
-  `irf_coherence.R` (pontuação de coerência teórica), `experimental_panel.R` e
+  `irf_coherence.R` (pontuação de coerência teórica), `experimental_panel.R`
+  (taxonomia de blocos e poda por correlação, usadas por `panel_pruning.R`) e
   `weak_iv_ar.R` (MA, SVAR-IV, covariância e inversão AR, somente para VAR de
   observáveis).
   Os ramos het e não-gaussiano saíram do código ativo em 2026-08-17. O código
@@ -176,7 +178,8 @@ repositório) e `curva_juros/`, `investing/`, `epu/`,
 processado retém 115 séries porque `clean.R` remove `juros_cdi` e
 `asset_mlcx`. As extensões
 rejeitadas que sustentam diagnósticos antigos vivem, quando disponíveis,
-em `experimental_extensions/`; o download de produção não as cria.
+em `experimental_extensions/`; o download de produção não as cria, e nenhum
+código vivo as lê desde 2026-09-18.
 
 ## `registro/` — a memória do projeto
 

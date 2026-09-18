@@ -103,3 +103,114 @@ classify_mosw <- function(xi_mp) {
     TRUE ~ "xi_mp_ge_10"
   )
 }
+
+
+# Removed from R/identification/experimental_panel.R on 2026-09-18, with
+# arquivo/R/preprocessing/experimental_extensions.R: their only callers were the
+# rq_* audits, whose scripts are now in arquivo/diagnostics/. Kept as written.
+
+
+#' Return the deterministic factorial block-removal design
+#'
+#' Every panel excludes the two near-duplicate production series. The six
+#' pre-specified experimental blocks are then removed in every possible
+#' combination from the 123-series complete experimental panel.
+#'
+#' @param experimental_inputs Output of `build_experimental_inputs()`.
+#'
+#' @return Tibble with one row per block-removal variant.
+factorial_drop_block_manifest <- function(experimental_inputs) {
+  block_names <- unique(unname(experimental_inputs$blocks))
+  block_sizes <- vapply(
+    block_names,
+    function(block) sum(experimental_inputs$blocks == block),
+    integer(1)
+  )
+  combinations <- expand.grid(
+    rep(list(c(FALSE, TRUE)), length(block_names)),
+    KEEP.OUT.ATTRS = FALSE,
+    stringsAsFactors = FALSE
+  )
+  names(combinations) <- block_names
+
+  manifest <- lapply(seq_len(nrow(combinations)), function(i) {
+    selected <- block_names[as.logical(unlist(combinations[i, ], use.names = FALSE))]
+    experimental_removed <- names(experimental_inputs$blocks)[
+      experimental_inputs$blocks %in% selected
+    ]
+    variant <- if (length(selected) == 0L) {
+      "conjunto_completo_sem_duplicatas"
+    } else if (length(selected) == length(block_names)) {
+      "baseline"
+    } else {
+      paste0("drop_", paste(selected, collapse = "__"))
+    }
+
+    tibble::tibble(
+      variant = variant,
+      removed_blocks = if (length(selected) == 0L) "none" else paste(selected, collapse = ";"),
+      n_blocks_removed = length(selected),
+      removed_candidate_series = if (length(experimental_removed) == 0L) "none" else paste(experimental_removed, collapse = ";"),
+      removed_near_duplicates = "juros_cdi;asset_mlcx",
+      removed_series = paste(c("juros_cdi", "asset_mlcx", experimental_removed), collapse = ";"),
+      near_duplicates_absent = TRUE,
+      expected_n_series = 123L - sum(block_sizes[names(block_sizes) %in% selected])
+    )
+  }) |>
+    dplyr::bind_rows()
+
+  if (nrow(manifest) != 64L || anyDuplicated(manifest$variant) ||
+      any(manifest$expected_n_series < 104L) || any(manifest$expected_n_series > 123L)) {
+    stop("The factorial block-removal design must contain 64 unique panels from N=123 to N=104.")
+  }
+
+  manifest
+}
+
+
+#' Build every factorial experimental-block-removal panel in memory
+#'
+#' @param base_mat Canonical complete 106-series matrix.
+#' @param expected_dates Fixed monthly dates aligned with `base_mat`.
+#' @param mp_var Policy normalization variable required in each panel.
+#'
+#' @return List with panels, experimental inputs, and the deterministic manifest.
+build_factorial_drop_block_panels <- function(base_mat, expected_dates, mp_var) {
+  if (!all(c("juros_cdi", "asset_mlcx") %in% colnames(base_mat))) {
+    stop("The canonical panel must contain juros_cdi and asset_mlcx for the factorial removal design.")
+  }
+
+  experimental_inputs <- build_experimental_inputs(expected_dates)
+  manifest <- factorial_drop_block_manifest(experimental_inputs)
+  fixed_keep <- setdiff(colnames(base_mat), c("juros_cdi", "asset_mlcx"))
+  if (length(fixed_keep) != 104L || any(fixed_keep %in% colnames(experimental_inputs$matrix))) {
+    stop("The factorial panel base must contain 104 non-duplicate production series with no experimental-name overlap.")
+  }
+
+  panels <- stats::setNames(lapply(manifest$variant, function(variant) {
+    experimental_removed <- strsplit(
+      manifest$removed_candidate_series[manifest$variant == variant],
+      ";",
+      fixed = TRUE
+    )[[1]]
+    if (identical(experimental_removed, "none")) {
+      experimental_removed <- character()
+    }
+    experimental_keep <- setdiff(colnames(experimental_inputs$matrix), experimental_removed)
+    panel <- cbind(
+      base_mat[, fixed_keep, drop = FALSE],
+      experimental_inputs$matrix[, experimental_keep, drop = FALSE]
+    )
+    if (!(mp_var %in% colnames(panel)) || anyDuplicated(colnames(panel)) ||
+        any(!is.finite(panel)) || any(c("juros_cdi", "asset_mlcx") %in% colnames(panel))) {
+      stop("Invalid factorial panel constructed for ", variant, ".")
+    }
+    if (ncol(panel) != manifest$expected_n_series[manifest$variant == variant]) {
+      stop("Unexpected series count in factorial panel ", variant, ".")
+    }
+
+    list(matrix = panel, experimental_removed = experimental_removed)
+  }), manifest$variant)
+
+  list(panels = panels, experimental_inputs = experimental_inputs, variant_manifest = manifest)
+}

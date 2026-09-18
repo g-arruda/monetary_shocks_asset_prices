@@ -8,7 +8,9 @@ paths:
 **Frozen since 2026-09-18.** The wild bootstrap and the Kilian correction left `R/`, and scripts
 `01`-`05` and both `rq_*` audits still pass `apply_kilian`, `nboot` or `bootstrap_seed`, or read
 `companion_corrected`, so they no longer run against the current `R/`. They stay unedited as the
-record of what ran (author decision); the `R/` they ran against is `main` at `07b1cbd`.
+record of what ran (author decision); the `R/` they ran against is `main` at `07b1cbd`. The two
+`rq_*` audits' `scripts/` moved to `arquivo/diagnostics/` the same day, with the experimental-panel
+functions only they called; their READMEs and `output/` stay here because the notes cite them.
 
 Seven scripts (`0{1..7}_*.R`) share `_common.R`, which loads the production spec, the panel, the
 instrument variants and the cached `irf_coherence_cell.rds` as globals. **A diagnostic script never

@@ -1,5 +1,10 @@
 # Auditoria conjunta de painel e dimensões `(r,q)`
 
+> **Scripts arquivados em 2026-09-18** em `arquivo/diagnostics/rq_block_dimension_audit/scripts/`,
+> com as funções de painel experimental que só eles chamavam. Este README e
+> `output/` ficam aqui porque as notas os citam; os comandos abaixo registram
+> como a rodada foi executada.
+
 > **CURRENT, 2026-08-13.** Esta auditoria substitui a decisão dimensional
 > isolada em [`../rq_dimension_audit/`](../rq_dimension_audit/), porque o painel
 > canônico de 106 séries deixou de ser o universo metodologicamente admissível.

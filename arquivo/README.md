@@ -175,7 +175,26 @@ caminho ativo fazia `source()` deles. O núcleo DFM permanece com o ramo único
 |---|---|---|
 | `validation_tests.R` | As 12 funções da suíte de validação do instrumento (`first_stage_F`, `residualize_target`, `placebo_test`, `random_mask_test`, `subperiod_F`, `anti_jk_test`, `random_mask_curve`, `qlr_supF`, …). Arquivo inteiro, arquivado em 2026-09-17 | Nenhuma função era chamada. `irf_coherence_check.R` e `irf_spec_stage2.R` faziam `source()` dele sem usar nada. `notas/2026-07-11_varredura_irf.md` e `historico_decisoes.md` §4 citam `first_stage_F` e `residualize_target` |
 | `spec_sweep.R` | `theory_sign_table`, `summarize_irf_responses`, `evaluate_sweep_cell`, `classify_sweep_cells` e `rq_surface_table`, retiradas de `R/identification/spec_sweep.R` em 2026-09-17; `containment_vs_production` e `plot_overlay_cells`, em 2026-09-18 | Só `irf_spec_sweep.R` e os `panel_composition_rq_grid*` chamavam as primeiras; só `q_truncation.R` chamava `containment_vs_production`, e `plot_overlay_cells` já não tinha chamador. O resto de `spec_sweep.R` (`run_stage2_cell`, `plot_dimension_overlay`, `md_table`, …) segue vivo |
-| `experimental_panel.R` | `build_variant_panel`, `experimental_variant_manifest`, `build_experimental_panels` e `classify_mosw`, retiradas de `R/identification/experimental_panel.R` em 2026-09-17 | Só a família `panel_composition*` as chamava. A metade fatorial do arquivo vivo segue em uso por `diagnostics/rq_*_audit` |
+| `experimental_panel.R` | `build_variant_panel`, `experimental_variant_manifest`, `build_experimental_panels` e `classify_mosw`, retiradas de `R/identification/experimental_panel.R` em 2026-09-17; `factorial_drop_block_manifest` e `build_factorial_drop_block_panels`, em 2026-09-18 | Só a família `panel_composition*` chamava as primeiras; as fatoriais, só as auditorias `rq_*`, arquivadas junto (`arquivo/diagnostics/`). No arquivo vivo ficam `base_block_taxonomy` e `prune_correlated_series`, usadas por `script/panel_pruning.R` |
+
+## `arquivo/R/preprocessing/` — módulos
+
+| módulo | conteúdo | por que saiu |
+|---|---|---|
+| `experimental_extensions.R` | `experimental_series_manifest`, `validate_experimental_series`, `adjust_extension_seasonality`, `last_extension_observation_in_month` e `build_experimental_inputs`: os 19 candidatos a série dos painéis experimentais da escolha de blocos, lidos de `data/raw/experimental_extensions/` e de `fred_dgs2.csv`. Arquivo inteiro, arquivado em 2026-09-18 | A escolha de blocos terminou no painel de 115 séries de produção. Só as auditorias `rq_*` e os `panel_composition*` já arquivados o chamavam, e `fred_dgs2.csv` deixou de ser baixado com o corte da cadeia UST/FOMC |
+
+## `arquivo/diagnostics/` — auditorias `(r,q)` e de blocos
+
+Só os `scripts/` saíram, em 2026-09-18. `README.md` e `output/` de cada auditoria
+ficam em `diagnostics/`, onde as notas os citam.
+
+| pasta | o que é |
+|---|---|
+| `rq_block_dimension_audit/scripts/` | A auditoria conjunta de 2026-08-13: 64 painéis por remoção fatorial de seis blocos experimentais × 36 pares `(r,q)`. É o teste de composição de blocos que levou ao painel de produção (`notas/2026-08-13_decisao_conjunta_painel_dimensoes.md`) |
+| `rq_dimension_audit/scripts/` | A auditoria dimensional anterior no painel de 106 séries, com a reprodução R/NumPy de BLL/AW (`notas/2026-08-13_parecer_dimensoes_rq.md`) |
+
+Já não rodavam contra o `R/` corrente desde a saída do wild bootstrap
+(`.claude/rules/diagnostics.md`); a versão de `R/` com que rodaram é `main` em `07b1cbd`.
 
 ## `arquivo/codex/` — instruções do Codex (arquivado em 2026-09-18)
 

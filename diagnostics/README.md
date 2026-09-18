@@ -2,7 +2,8 @@
 
 > ⚠ **Desde 2026-09-18 estes scripts não rodam contra o `R/` corrente.** O wild
 > bootstrap e a correção de Kilian saíram do código, e os scripts `01`-`05` e as
-> duas auditorias `rq_*` ainda passam `apply_kilian`, `nboot` ou
+> duas auditorias `rq_*` (cujos scripts foram para `arquivo/diagnostics/` na
+> mesma data) ainda passam `apply_kilian`, `nboot` ou
 > `bootstrap_seed`, ou leem `companion_corrected`. Por decisão do autor, ficam
 > sem edição, como registro do que rodou: a versão de `R/` com que rodaram é
 > `main` em `07b1cbd`. Já estavam na vintage de 111 séries antes disso. As saídas
@@ -58,6 +59,9 @@ rodada — ver `diagnostico_dfm.md`).
   64 painéis, 2.304 células full, uma decisão dimensional por painel, 192
   contrastes de bloco e quatro finalistas com 800 bootstraps. A recomendação de
   123 séries em `(4,3)` foi superada pela produção de 111 séries `(5,5)`.
+  Scripts em `arquivo/diagnostics/rq_block_dimension_audit/scripts/` desde
+  2026-09-18; README e `output/` ficam aqui.
 - `rq_dimension_audit/` — auditoria dimensional anterior, agora superada como
   decisão. Sua reprodução R/NumPy e os dez bootstraps continuam sendo
-  proveniência válida para o painel de 106 séries.
+  proveniência válida para o painel de 106 séries. Scripts arquivados como os
+  da auditoria conjunta.
