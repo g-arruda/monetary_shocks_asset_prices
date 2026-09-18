@@ -2,13 +2,25 @@ rm(list = ls())
 
 source("R/preprocessing/seasonality.R")
 source("R/preprocessing/production_extensions.R")
+source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 
 spec <- production_spec()
 expected_dates <- seq(spec$sample[1], spec$sample[2], by = "month")
+# Column order of the panel every output was estimated on. The ABC selector
+# subsamples the cross-section in column order and the PCA rounds differently
+# under a permutation, so download.R's current order (prices after trab_*,
+# fiscal and Focus after epu_*) would move results
+price_order <- c(
+  "price_ipp", "price_ipca", "price_ipca_difusao", "price_core_ipca_dw",
+  "price_igp_m", "price_ipc", "price_core_ipc", "price_incc", "price_inpc",
+  "price_core_ipca_ex0", "price_core_ipca_ex1"
+)
 raw_data <- readr::read_csv("data/raw/raw_data.csv", show_col_types = FALSE) |>
   dplyr::mutate(ref.date = as.Date(ref.date)) |>
-  dplyr::filter(ref.date >= spec$sample[1], ref.date <= spec$sample[2])
+  dplyr::filter(ref.date >= spec$sample[1], ref.date <= spec$sample[2]) |>
+  dplyr::relocate(dplyr::starts_with(c("fiscal_", "expect_")), .before = epu_brazil) |>
+  dplyr::relocate(dplyr::all_of(price_order), .after = epu_us)
 
 data <- raw_data |>
   dplyr::mutate(
@@ -132,7 +144,7 @@ raw_manifest <- tibble::tibble(
   ),
   unit = NA_character_,
   transformation = ifelse(variable %in% logged_variables, "log_level", "level"),
-  tcode = ifelse(variable %in% logged_variables, 2L, 1L),
+  tcode = infer_tcode_from_varnames(variable),
   n_months = length(expected_dates),
   first_month = min(expected_dates),
   last_month = max(expected_dates),
