@@ -12,7 +12,6 @@ spec <- production_spec()
 production_sample_start <- spec$sample[1]
 production_sample_end <- spec$sample[2]
 extension_start <- as.Date("2010-01-01")
-vintage_end <- production_sample_end
 daily_start <- as.Date("2010-01-01")
 daily_end <- spec$event_sample[2]
 required_external_files <- c(
@@ -47,7 +46,7 @@ focus <- download_focus_data(
   from = daily_start,
   to = daily_end,
   sample_start = extension_start,
-  sample_end = vintage_end
+  sample_end = production_sample_end
 )
 fred_dgs2 <- download_fred_series(
   "DGS2",
@@ -110,15 +109,12 @@ moedas <- c("BRL", "EUR", "CNY", "ARS", "INR")
 cambio <- download_cambio(moedas, end_date = daily_end) |>
   dplyr::rename(ref.date = date)
 
-
 # Dados do Banco Central do Brasil ----
 
-# Primeiro vamos pegar os dados mensais
 ## Dados referente a juros ----
 vec_juros <- c(
   "selic" = 4189,
   "cdi" = 4392
-  # "cdb_rdb" = 28618 # Taxa média acumulada no mês de instituições financeiras
 )
 
 juros <- download_bcb_data(vec_juros, parallel = FALSE) |>
@@ -133,10 +129,9 @@ vec_fiscal <- c(
 fiscal <- download_bcb_data(
   vec_fiscal,
   start_date = extension_start,
-  end_date = vintage_end,
+  end_date = production_sample_end,
   parallel = FALSE
 )
-
 
 # curva de juros ----
 yield_curve <- readr::read_csv(
@@ -166,13 +161,8 @@ monthly_yield_curve <- yield_curve |>
   dplyr::ungroup() |>
   dplyr::select(-data)
 
-if (anyDuplicated(monthly_yield_curve$ref.date)) {
-  stop("Monthly yield curve contains more than one observation per month.")
-}
-
 juros <- juros |>
   dplyr::left_join(monthly_yield_curve, by = "ref.date")
-
 
 ## Monetary base ----
 vec_base_monetaria <- c(
@@ -188,14 +178,11 @@ vec_base_monetaria <- c(
 base_monetaria <- download_bcb_data(vec_base_monetaria, parallel = FALSE) |>
   dplyr::rename_with(~ paste0("base_", .), -ref.date)
 
-
-
 ## Dados de crédito ----
 vec_credito <- c(
   "credito_agro" = 22027,
   "credito_industria_total" = 22043,
   "credito_construcao" = 22030,
-  # "credito_siup" = 22034,
   "credito_comercio" = 22036,
   "credito_transporte" = 22037,
   "credito_pessoa_fisica" = 22050,
@@ -206,7 +193,6 @@ vec_credito <- c(
 )
 
 credito <- download_bcb_data(vec_credito, start_date = "2010-01-01", parallel = FALSE)
-
 
 ## Consumo ----
 
@@ -222,15 +208,11 @@ vec_consumo <- c(
   "vendas_servicos" = 23982
 )
 
-
 consumo <- download_bcb_data(
   vec_consumo,
   start_date = "2010-01-01",
-  parallel = FALSE)
-
-
-
-
+  parallel = FALSE
+)
 
 ## Atividade econômica ----
 
@@ -246,9 +228,6 @@ ativ_economica <- download_bcb_data(
   start_date = "2010-01-01",
   parallel = FALSE
 )
-
-
-
 
 ## Industria ----
 
@@ -272,10 +251,7 @@ industria <- download_bcb_data(
   parallel = FALSE
 )
 
-
-
 ## Energia ----
-
 
 vec_energia <- c(
   "energia_comercial" = 1402,
@@ -289,9 +265,6 @@ energia <- download_bcb_data(
   start_date = "2010-01-01",
   parallel = FALSE
 )
-
-
-
 
 ## Dados sobre emprego ----
 
@@ -308,13 +281,8 @@ vec_emprego <- c(
   "hrs_trabalhadas_industria" = 28556
 )
 
-
 emprego <- download_bcb_data(vec_emprego, start_date = "2012-01-01", parallel = FALSE) |>
   dplyr::rename_with(~ paste0("trab_", .), -ref.date)
- 
-
-
-
 
 ## Dados risco ----
 
@@ -334,10 +302,6 @@ embi <- embi_daily |>
   dplyr::ungroup() |>
   dplyr::select(ref.date, embi_perc)
 
-if (anyDuplicated(embi$ref.date)) {
-  stop("Monthly EMBI+ series contains more than one observation per month.")
-}
-
 # Os tres CSVs da investing.com vem no formato pt-BR ("138,19"). Sob o locale
 # default do readr a virgula e lida como separador de MILHAR, e cada valor
 # entra 100x inflado (13819). O erro e de escala pura, entao a padronizacao
@@ -354,7 +318,6 @@ cds <- readr::read_csv(
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, cds_5y = ultimo)
 
-
 msci <- readr::read_csv(
   "data/raw/investing/msci.csv",
   locale = locale_br,
@@ -363,7 +326,6 @@ msci <- readr::read_csv(
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, msci = ultimo)
-
 
 sp500_vix <- readr::read_csv(
   "data/raw/investing/sp500_vix.csv",
@@ -374,20 +336,16 @@ sp500_vix <- readr::read_csv(
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, sp500_vix = ultimo)
 
-
 risco <- embi |>
   dplyr::left_join(cds, by = "ref.date") |>
   dplyr::left_join(msci, by = "ref.date") |>
   dplyr::left_join(sp500_vix, by = "ref.date") |>
   tidyr::drop_na()
 
-
-
-
 ## economic_policy_uncertainty ----
 
 epu <- readxl::read_excel(
-  "data/raw/epu/economic_policy_uncertainty.xlsx",
+  "data/raw/epu/economic_policy_uncertainty.xlsx"
 ) |>
   dplyr::transmute(
     year = suppressWarnings(as.integer(Year)),
@@ -406,8 +364,6 @@ epu <- readxl::read_excel(
   dplyr::select(-year, -month) |>
   dplyr::rename_with(~ paste0("epu_", tolower(.)), -ref.date)
 
-
-
 ## Dados sobre inflacao ----
 
 vec_inflacao <- c(
@@ -415,7 +371,7 @@ vec_inflacao <- c(
   "ipca_difusao" = 21379,
   "core_ipca_ex0" = 11427,
   "core_ipca_ex1" = 16121,
-  "core_ipca_dw" = 16122, 
+  "core_ipca_dw" = 16122,
   "igp_m" = 189,
   "ipc" = 191,
   "core_ipc" = 4467,
@@ -426,13 +382,10 @@ vec_inflacao <- c(
 ipp <- download_ipea_series("IPP12_IPPCG12") |>
   dplyr::select(ref.date = date, ipp = value)
 
-
 inflacao <- download_bcb_data(vec_inflacao, parallel = FALSE) |>
   dplyr::left_join(ipp, by = "ref.date") |>
   tidyr::drop_na() |>
   dplyr::rename_with(~ paste0("price_", .), -ref.date)
-
-
 
 ## Dados sobre commodities ----
 
@@ -444,10 +397,7 @@ vec_commodity <- c(
 
 commodity <- download_bcb_data(vec_commodity, parallel = FALSE)
 
-
-
 # Dados trimestrais ----
-# aqui vamos ter que fazer uma interpolação dos dados para transformar para mensal
 
 tempo_procura_trab <- sidrar::get_sidra(1616, variable = 4092, geo = "Brazil", period = "all") |>
   dplyr::select(Trimestre, `Tempo de procura de trabalho`, Valor) |>
@@ -459,16 +409,11 @@ tempo_procura_trab <- sidrar::get_sidra(1616, variable = 4092, geo = "Brazil", p
   janitor::clean_names() |>
   dplyr::mutate(
     trimestre = stringr::str_extract(trimestre, "\\d{1}º trimestre \\d{4}"),
-    # Primeiro vamos criar o formato ano-trimestre (exemplo: 2012-Q1)
     trimestre = stringr::str_replace(trimestre, "(\\d{1})º trimestre (\\d{4})", "\\2-Q\\1"),
-    # Agora convertemos para data usando yearquarter do tsibble
     trimestre = tsibble::yearquarter(trimestre)
   )
 
-
-# Criar sequência mensal
 dados_mensais <- tempo_procura_trab |>
-  # Criar datas mensais
   dplyr::mutate(
     data_inicio = as.Date(trimestre),
     meses = purrr::map(data_inicio, ~ seq.Date(
@@ -480,14 +425,11 @@ dados_mensais <- tempo_procura_trab |>
   tidyr::unnest(meses) |>
   dplyr::select(-trimestre, -data_inicio)
 
-
-
-# Aplicar interpolação spline para cada coluna
 colunas_interpoladas <- dados_mensais |>
   dplyr::mutate(
     dplyr::across(
       .cols = -meses,
-      .fns = ~ stats::spline(
+      .fns = ~ spline(
         x = as.numeric(meses),
         y = .,
         n = length(meses)
@@ -495,7 +437,6 @@ colunas_interpoladas <- dados_mensais |>
     )
   )
 
-# Formatar resultado final
 resultado_mensal <- colunas_interpoladas |>
   dplyr::mutate(
     mes = lubridate::floor_date(meses, "month")
@@ -503,8 +444,6 @@ resultado_mensal <- colunas_interpoladas |>
   dplyr::select(ref.date = mes, dplyr::everything(), -meses) |>
   dplyr::arrange(ref.date) |>
   dplyr::rename_with(~ paste0("trab_", .), -ref.date)
-
-
 
 emprego <- emprego |>
   dplyr::left_join(resultado_mensal, by = "ref.date")
@@ -529,9 +468,6 @@ all_dfs <- list(
   fiscal = fiscal,
   focus = focus$monthly
 )
-
-
-
 
 merged_df <- all_dfs |>
   purrr::reduce(dplyr::left_join, by = "ref.date") |>
