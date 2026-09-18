@@ -7,13 +7,9 @@
 # h = 0..48 is checked for sign and for exclusion of zero at 68% and 90%
 # against the theory window defined in R/identification/irf_coherence.R.
 # Outputs: output/irf/irf_coherence_h.csv, irf_coherence_summary.csv,
-#          irf_coherence_report.md, irf_coherence_plots.pdf,
 #          irf_coherence_cell.rds
-# NOT an output: output/irf/irf_coherence_leitura.md — the interpretive
-# reading lives there precisely because irf_coherence_report.md is
-# rewritten in full on every run (that is how ~95 lines of hand-written
-# prose were lost in commit fc0ef58 on 2026-07-26). Never write prose into
-# the report; write it into the sibling.
+# The interpretive reading lives in output/irf/irf_coherence_leitura.md,
+# which no script touches.
 # ===================================================================
 
 rm(list = ls())
@@ -21,7 +17,6 @@ rm(list = ls())
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
-source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")
 source("R/identification/irf_coherence.R")
 source("R/identification/weak_iv_ar.R")
@@ -110,107 +105,3 @@ summ <- dplyr::bind_rows(purrr::map(evaluations, "summary"))
 readr::write_csv(perh, file.path(OUT_DIR, "irf_coherence_h.csv"))
 readr::write_csv(summ, file.path(OUT_DIR, "irf_coherence_summary.csv"))
 
-
-# ---- Plots (6 panels per page, grouped) ----------------------------
-
-pdf(file.path(OUT_DIR, "irf_coherence_plots.pdf"), width = 11, height = 8)
-for (g in unique(spec_tbl$group)) {
-  vars_g <- spec_tbl$var[spec_tbl$group == g]
-  pages <- split(vars_g, ceiling(seq_along(vars_g) / 6))
-  for (pg in pages) {
-    response_idx <- lapply(pg, function(v) setNames(match(v, var_names), v))
-    p <- plot_irf(cell$irf, response_vars = response_idx, horizon = HORIZON,
-                  var_names = var_names, tcode = tcode, ci_to_plot = CI_LEVELS) +
-      patchwork::plot_annotation(
-        title = sprintf("Coerência IRF — grupo: %s", g),
-        subtitle = sprintf("%s x %s | r=%d q=%d | +%dbp | conjuntos Anderson-Rubin | 68/90",
-                           INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, SHOCK_BPS)
-      )
-    print(p)
-  }
-}
-invisible(dev.off())
-
-
-# ---- Report --------------------------------------------------------
-
-traj_cols <- c("var", "h0", "h3", "h6", "h12", "h24", "h36", "h48",
-               "share_correct", "verdict")
-
-group_sections <- unlist(lapply(unique(spec_tbl$group), function(g) {
-  tbl <- summ |>
-    dplyr::filter(group == g) |>
-    dplyr::select(dplyr::all_of(traj_cols))
-  c(sprintf("### %s", g), "", md_table(tbl), "")
-}))
-
-violations <- summ |>
-  dplyr::filter(verdict %in% c("incoerente", "placebo_viola") | wrong_sig90 %in% TRUE)
-
-verdict_count <- summ |>
-  dplyr::count(tier, verdict) |>
-  dplyr::arrange(tier, dplyr::desc(n))
-
-report <- c(
-  "# Coerência ponto a ponto das IRFs — especificação de produção",
-  "",
-  sprintf("Gerado por `script/irf_coherence_check.R` em %s.", format(Sys.Date())),
-  "",
-  "> **Arquivo gerado — sobrescrito por inteiro a cada rodada.** Não escreva",
-  "> prosa aqui: ela se perde no próximo run. A leitura interpretativa vive em",
-  "> [`irf_coherence_leitura.md`](irf_coherence_leitura.md), que nenhum script toca.",
-  "",
-  sprintf(paste0("Especificação: `%s` x `%s`, r=%d, q=%d, p=%d, full sample, ",
-                 "choque +%dbp, %s, níveis 68/90, h=0..%d."),
-          INSTRUMENT, MP_VAR, R_FACTORS, Q_DYNAMIC, P_LAGS, SHOCK_BPS,
-          sprintf(paste0("conjuntos Anderson--Rubin por inversão de teste, ",
-                         "NW(%d), ξ_mp = %.4f na direção de normalização"),
-                  AR_NW_LAGS, ar$xi_den),
-          HORIZON),
-  "",
-  sprintf(paste0("Topologia dos conjuntos: %s a 68%%, %s a 90%%. O coeficiente ",
-                 "de λ² é `T·den² − κ·d0'W₂d0`, logo o conjunto é limitado em ",
-                 "todos os horizontes se e somente se ξ_mp > κ."),
-          paste(sprintf("%s %d", names(table(ar$by_level[["0.68"]]$set_type)),
-                        as.integer(table(ar$by_level[["0.68"]]$set_type))),
-                collapse = ", "),
-          paste(sprintf("%s %d", names(table(ar$by_level[["0.90"]]$set_type)),
-                        as.integer(table(ar$by_level[["0.90"]]$set_type))),
-                collapse = ", ")),
-  "",
-  "## Método",
-  "",
-  "Para cada variável, cada horizonte h é checado quanto a sinal e significância",
-  "(o conjunto de confiança exclui zero, a 68% e a 90%) contra a janela teórica",
-  "[w_lo, w_hi] definida em",
-  "`R/identification/irf_coherence.R::coherence_var_table()`. Vereditos:",
-  "`coerente_forte` (≥80% da janela com sinal certo + significância CI68),",
-  "`coerente` (≥80% sem significância), `parcial` (50-80%, sem violação",
-  "significativa), `incoerente` (<50% ou sinal errado com CI90 excluindo 0),",
-  "`soft_*` (canal registrado — dominância fiscal admissível), `ambigua`",
-  "(sem prior forte), `placebo_ok/viola` (externas: CI90 deve conter 0 em ≥90% de h0-h24).",
-  "",
-  "## Contagem de vereditos",
-  "",
-  md_table(verdict_count),
-  "",
-  "## Violações (incoerente / placebo_viola / sinal errado significativo)",
-  "",
-  if (nrow(violations) > 0) {
-    md_table(violations |> dplyr::select(group, var, verdict, share_correct,
-                                  wrong_sig90, h0, h12, h24))
-  } else "*Nenhuma violação significativa.*",
-  "",
-  "## Trajetórias por grupo (unidades nativas; tcode aplicado)",
-  "",
-  group_sections,
-  "",
-  "## Canais soft (câmbio / risco soberano)",
-  "",
-  md_table(summ |>
-             dplyr::filter(tier == "soft") |>
-             dplyr::select(var, h0, h6, h12, h24, channel, right_sig90)),
-  ""
-)
-
-writeLines(report, file.path(OUT_DIR, "irf_coherence_report.md"))

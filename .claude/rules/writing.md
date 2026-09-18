@@ -68,7 +68,9 @@ source, **not a target to edit** and not evidence for current magnitudes.
 **These bodies are rewritten in full on every run. Never put prose in them:**
 `output/irf/irf_coherence_report.md`, `output/irf/ar_bands.md`,
 `output/var/svar_iv_weak_robust.md`, `output/factors/factor_stationarity.md`,
-`output/assets/asset_representation.md`, `output/var/var_benchmark.md`.
+`output/assets/asset_representation.md`, `output/var/var_benchmark.md`. Several of their
+generators are archived or no longer write them (`irf_coherence_report.md` since 2026-09-18);
+the files stay as cited records and still take no prose.
 
 Their hand-written counterpart is **`output/irf/irf_coherence_leitura.md`, which no script may
 touch** — a previous one was silently destroyed by a re-run of the check, which is why the split
