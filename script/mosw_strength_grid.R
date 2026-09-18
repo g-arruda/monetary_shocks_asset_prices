@@ -5,8 +5,7 @@
 # yield_6m-impact direction.
 # One estimate_dfm per (sample, r, q); instruments enter only the
 # cheap projection/diagnostic step.
-# Outputs: output/instrument/mosw_strength_grid.csv
-#          output/instrument/mosw_strength_grid.md
+# Output: output/instrument/mosw_strength_grid.csv
 # ===================================================================
 
 rm(list = ls())
@@ -15,7 +14,6 @@ source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
-source("R/identification/spec_sweep.R")
 
 
 # ---- Config --------------------------------------------------------
@@ -137,101 +135,3 @@ grid <- purrr::map_dfr(names(SAMPLES), function(sample_name) {
 
 readr::write_csv(grid, file.path(OUT_DIR, "mosw_strength_grid.csv"))
 
-
-# ---- Report --------------------------------------------------------
-
-#' Reshape a MOSW statistic into an (r,q) comparison table
-#'
-#' @param data MOSW grid rows for one sample or provenance block.
-#' @param value_col Name of the statistic to display.
-#'
-#' @return Wide data frame with one row per instrument and one column per cell.
-heat <- function(data, value_col) {
-  data |>
-    dplyr::mutate(rq = sprintf("(%d,%d)", r, q)) |>
-    dplyr::select(instrument, rq, val = dplyr::all_of(value_col)) |>
-    dplyr::mutate(val = round(val, 2)) |>
-    tidyr::pivot_wider(names_from = rq, values_from = val)
-}
-
-summary_tbl <- grid |>
-  dplyr::group_by(sample, instrument) |>
-  dplyr::summarise(
-    n_cells = dplyr::n(),
-    xi_mp_ge10 = sum(wald_mp >= 10),
-    xi_mp_ge384 = sum(wald_mp > CHI2_1_95),
-    xi_mp_min = min(wald_mp),
-    xi_mp_median = median(wald_mp),
-    xi_mp_max = max(wald_mp),
-    best_rq = sprintf("(%d,%d)", r[which.max(wald_mp)], q[which.max(wald_mp)]),
-    f_robust_mp_median = median(f_robust_mp),
-    .groups = "drop"
-  ) |>
-  dplyr::arrange(sample, match(instrument, INSTRUMENTS))
-
-prod_tbl <- grid |>
-  dplyr::filter(r == SPEC$r, q == SPEC$q) |>
-  dplyr::select(sample, instrument, r, q, n_obs, wald_mp,
-                f_robust_mp, ar_bounded) |>
-  dplyr::arrange(sample, match(instrument, INSTRUMENTS))
-
-sections <- c(
-  "# Grade de força MOSW — ξ_mp e F robusto por (r,q) × amostra × instrumento",
-  "",
-  sprintf("Gerado por `script/mosw_strength_grid.R` em %s.", format(Sys.Date())),
-  "",
-  sprintf(paste0("Grid: q ∈ {2..r}, com r ∈ {4..6} na amostra cheia (%d ",
-                 "combinações) e r ∈ {4..8} na pré-COVID (%d); × %d ",
-                 "instrumentos = %d células; p = %d; direção de normalização = ",
-                 "`%s`. A cheia para em r = 6 porque, sob a escala de ",
-                 "Lenza-Primiceri, o VAR dos fatores é explosivo de r = 7 em ",
-                 "diante (raiz máxima 1,001362 em r = 7 e 1,001318 em r = 8)."),
-          nrow(RQ_GRID_BY_SAMPLE$full), nrow(RQ_GRID_BY_SAMPLE$pre_covid),
-          length(INSTRUMENTS), nrow(grid), P_LAGS, MP_VAR),
-  "",
-  paste0("Instrumentos (camadas de construção do instrumento, ",
-         "conforme `tab:first_stage`): ",
-         paste(sprintf("`%s`", INSTRUMENTS), collapse = ", "), "."),
-  "",
-  "As duas estatísticas usam a direção de normalização de `yield_6m`.",
-  "Todas as células passaram os gates de estabilidade, finitude e `n_obs`.",
-  "",
-  "Réguas de leitura:",
-  "",
-  "- **10** é uma referência convencional para ξ_mp e F robusto_mp, não um valor crítico fornecido por MOSW.",
-  paste0("- **`ar_bounded` deixou de ser previsão em 2026-09-08**: os conjuntos ",
-         "Anderson--Rubin do DFM passaram a ser a inferência operacional e são ",
-         "construídos por `ar_dfm_bands()`. A coluna continua sendo o mesmo ",
-         "teste `ξ_mp > 3,84` que o sinal de `ahat` implementa a 95%."),
-  "- **ξ_mp ≤ 3,84** significa conjunto AR 95% ilimitado — semirretas ou toda a reta, não intervalo.",
-  "- **F robusto_mp** é o primeiro estágio HC1 na mesma direção de normalização de ξ_mp.",
-  "",
-  "## Resumo por instrumento (contagem de células por faixa de ξ_mp)",
-  "",
-  md_table(summary_tbl),
-  "",
-  sprintf("## Especificação de produção (r=%d, q=%d, p=%d)",
-          SPEC$r, SPEC$q, P_LAGS),
-  "",
-  md_table(prod_tbl),
-  ""
-)
-
-for (sample_name in names(SAMPLES)) {
-  sub <- grid |> dplyr::filter(sample == sample_name)
-  sections <- c(
-    sections,
-    sprintf("## Amostra %s", sample_name),
-    "",
-    "### ξ_mp (Wald na direção de impacto de yield_6m)",
-    "",
-    md_table(heat(sub, "wald_mp")),
-    "",
-    "### F robusto_mp (primeiro estágio HC1)",
-    "",
-    md_table(heat(sub, "f_robust_mp")),
-    ""
-  )
-}
-
-writeLines(sections, file.path(OUT_DIR, "mosw_strength_grid.md"))

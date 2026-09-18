@@ -58,7 +58,7 @@ grupo 1, na ordem em que aparecem.
 | script | o que faz |
 |---|---|
 | `instrument_diagnostics.R` | Compara as três variantes no DFM de produção. Por variante: meses com `z ≠ 0`, ξ_mp, F_rob,mp, `β̂`, EP e `p` na direção de `yield_6m` — as colunas da `tab:first_stage` que `mosw_strength_grid.csv` não carrega — e um teste de exogeneidade *lead-lag*. Escreve `output/instrument/instrument_diagnostics.csv`. O antigo `instrument_diagnostics_report.md` e o PNG de dispersão ficam como órfãos citados. |
-| `mosw_strength_grid.R` | Atualização incremental da grade de ξ_mp e F_rob,mp com `z_jk_bs_purif`, `p=4`, na direção de normalização de `yield_6m`. Na cheia, com a escala COVID, varre `r=4:6`, porque `r ≥ 7` é explosivo; na pré-COVID, `r=4:8`. Preserva no CSV as linhas históricas fora desse recorte. Escreve `output/instrument/mosw_strength_grid.{csv,md}`. |
+| `mosw_strength_grid.R` | Grade de ξ_mp e F_rob,mp dos três instrumentos da `tab:first_stage`, `p=4`, na direção de normalização de `yield_6m`. Na cheia, com a escala COVID, varre `r=4:6`, porque `r ≥ 7` é explosivo; na pré-COVID, `r=4:8`. Escreve `output/instrument/mosw_strength_grid.csv`, que carrega ξ_mp, F_rob e `n` da `tab:first_stage` nas duas janelas; o `.md` deixou de ser gerado em 2026-09-18 e fica como órfão citado. |
 
 ## 4. IRF: coerência, inferência e sensibilidade a `q`
 

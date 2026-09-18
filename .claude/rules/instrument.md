@@ -50,7 +50,8 @@ independent route — the MOSW `W2` block instead of `compute_factor_space_wald`
 `nw_lags` defaults to 0 (Eicker-White), so every published number is unchanged; the Bartlett kernel
 is only needed for a GK-aggregated instrument, which induces an MA(1). The legacy first-stage F
 rulers (`f_factor`, F (y6m AR)) are still computed and reported but **stopped deciding on
-2026-07-26**. Grid: `output/instrument/mosw_strength_grid.{csv,md}`.
+2026-07-26**. Grid: `output/instrument/mosw_strength_grid.csv` (the `.md` beside it stopped being
+written on 2026-09-18 and stays as a cited record).
 
 ## Traps
 
