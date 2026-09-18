@@ -138,7 +138,8 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
   narrativas `q_narrative_*`; a seleção de `r` por estimadores alternativos
   e no painel podado e o truncamento `q < r` (`q_truncation_*`), de
   2026-09-10; e a volatilidade COVID de Lenza-Primiceri (2026-09-14): θ̂ e a
-  trajetória de `s_t` (`covid_volatility_*`), a célula `cheia_p4_lp` dentro
+  trajetória de `s_t` (`covid_volatility_*`; desde 2026-09-18 só o `_theta.csv`
+  é regravado), a célula `cheia_p4_lp` dentro
   de `q_truncation_*` e a narrativa tratada `q_narrative_r5p4_covid.pdf` (o
   `_summary.csv` ao lado é órfão citado desde 2026-09-18).
 - **`var/`** — o benchmark VAR em níveis e sua inferência AR corrente

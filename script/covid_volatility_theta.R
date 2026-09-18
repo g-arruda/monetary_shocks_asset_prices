@@ -4,10 +4,9 @@
 # s0, s1, s2 >= 1 and rho in [0, 1]. theta depends on the static factors and
 # on p, not on q, so one estimate serves the whole q table. These are the
 # literals of production_spec()$covid_volatility, production since 2026-09-17;
-# nothing here computes an IRF.
-#   output/factors/covid_volatility_theta.csv        theta-hat and likelihoods
-#   output/factors/covid_volatility_path.csv         s_t and residual sizes by month
-#   output/factors/covid_volatility_profile_rho.csv  profile log-likelihood in rho
+# nothing here computes an IRF. s_t follows from theta-hat through
+# covid_volatility_path(); the profile in rho is a check and is not written.
+# Output: output/factors/covid_volatility_theta.csv (theta-hat and likelihoods)
 # Note: notas/2026-09-14_estimacao_theta_volatilidade_covid.md
 
 source("R/modeling/production_spec.R")
@@ -27,15 +26,11 @@ factors <- estimate_static_factors(data_mat, spec$r)$factors
 fit <- estimate_covid_theta(factors, spec$p, residual_dates, design$covid_start,
                             design$theta_lower, design$theta_upper)
 wls <- estimate_var_wls(factors, spec$p, s = fit$path)
-ols <- estimate_var_wls(factors, spec$p)
 neutral <- estimate_var_wls(factors, spec$p, s = rep(1, length(residual_dates)))
 
-# Squared Mahalanobis size per dimension: OLS residuals against their ML
-# covariance, standardized WLS residuals against (B4). At an interior maximum
-# the envelope condition sets it to one in t* and t* + 1, the months that s0
-# and s1 govern alone.
-ols_sigma <- crossprod(ols$residuals) / nrow(ols$residuals)
-mahal_ols <- rowSums((ols$residuals %*% solve(ols_sigma)) * ols$residuals) / spec$r
+# Squared Mahalanobis size per dimension of the standardized WLS residuals
+# against (B4). At an interior maximum the envelope condition sets it to one in
+# t* and t* + 1, the months that s0 and s1 govern alone.
 mahal_wls <- rowSums((wls$residuals_standardized %*% solve(wls$sigma_mle)) *
                        wls$residuals_standardized) / spec$r
 
@@ -52,8 +47,8 @@ if (fit$convergence != 0 || any(interior & foc_gap > 1e-4)) {
 # Profile log-likelihood in rho, (s0, s1, s2) re-maximized at each grid point.
 # The free maximum has to dominate the grid, or the optimizer stopped at a
 # local peak.
-profile <- purrr::map_dfr(seq(0, 1, by = 0.01), function(rho) {
-  prof <- optim(
+profile_loglik <- purrr::map_dbl(seq(0, 1, by = 0.01), function(rho) {
+  optim(
     fit$theta[c("s0", "s1", "s2")],
     function(s) {
       path <- covid_volatility_path(residual_dates, design$covid_start, c(s, rho = rho))
@@ -63,13 +58,10 @@ profile <- purrr::map_dfr(seq(0, 1, by = 0.01), function(rho) {
     lower = design$theta_lower[c("s0", "s1", "s2")],
     upper = design$theta_upper[c("s0", "s1", "s2")],
     control = list(fnscale = -1, factr = 1e3)
-  )
-  tibble::tibble(rho = rho, loglik = prof$value, s0 = prof$par[["s0"]],
-                 s1 = prof$par[["s1"]], s2 = prof$par[["s2"]],
-                 convergence = prof$convergence)
+  )$value
 })
-if (max(profile$loglik) > fit$loglik + 1e-6 * abs(fit$loglik)) {
-  stop("The rho profile reaches ", max(profile$loglik), ", above the free ",
+if (max(profile_loglik) > fit$loglik + 1e-6 * abs(fit$loglik)) {
+  stop("The rho profile reaches ", max(profile_loglik), ", above the free ",
        "maximum ", fit$loglik, ": estimate_covid_theta stopped at a local peak")
 }
 
@@ -90,14 +82,3 @@ tibble::tibble(
   start_rho = fit$start[["rho"]]
 ) |>
   readr::write_csv("output/factors/covid_volatility_theta.csv")
-
-tibble::tibble(
-  month = residual_dates,
-  s = fit$path,
-  weight = 1 / fit$path^2,
-  mahal_ols = mahal_ols,
-  mahal_wls = mahal_wls
-) |>
-  readr::write_csv("output/factors/covid_volatility_path.csv")
-
-readr::write_csv(profile, "output/factors/covid_volatility_profile_rho.csv")
