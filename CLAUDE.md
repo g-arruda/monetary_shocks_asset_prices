@@ -318,8 +318,6 @@ pinned, as the degeneracy reference, in `script/validation/validate_covid_volati
 - **`output/`** is git-tracked (~24 MB), most recently refreshed by the 2026-09-02 production
   migration; frozen artefacts (e.g. the VAR benchmark, archived het) carry their own vintage in
   `notas/_indice.md` and are not stale by being older.
-- **`AGENTS.md` is Codex's, not mine** — Claude Code reads `CLAUDE.md` only, and the file is
-  deliberately not imported. If you change an invariant, change it in both or they drift apart.
 
 ## Scoped rules
 

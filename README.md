@@ -1,9 +1,9 @@
 # Índice do projeto
 
 Mapa de navegação do repositório: o que cada diretório/arquivo faz, em 1-3
-frases. Isto **não substitui** o `AGENTS.md` (acordos de trabalho e
-invariantes), o `CLAUDE.md` (pipeline e comandos) nem os READMEs locais mais
-detalhados; este índice aponta para eles em vez de duplicá-los.
+frases. Isto **não substitui** o `CLAUDE.md` (invariantes, pipeline e
+comandos) nem os READMEs locais mais detalhados; este índice aponta para eles
+em vez de duplicá-los.
 
 ## Visão geral
 
@@ -16,7 +16,6 @@ futuro em dia de Copom), e IRFs de preços de ativos brasileiros. Ver
 ## Árvore de 1º nível
 
 ```
-AGENTS.md            — regras de trabalho, limites do repositório e invariantes
 CLAUDE.md            — invariantes, entry points, proibições (fonte operacional)
 HANDOFF.md           — estado corrente ao fim da última sessão
 README.md            — este arquivo
@@ -40,7 +39,7 @@ arquivo/             — código/docs fora do pipeline ativo; nada vivo lê ou e
 
 | procuro... | está em |
 |---|---|
-| quais regras seguir ao alterar o repositório | `AGENTS.md` |
+| quais regras seguir ao alterar o repositório | `CLAUDE.md` e `.claude/rules/` |
 | por que a especificação é essa | `registro/metodo.md` |
 | o que falta fazer | `registro/pendencias.md` |
 | se um caminho já foi tentado | `registro/historico_decisoes.md` |
@@ -298,8 +297,6 @@ scripts continuam em `output/`.
 
 ## Arquivos soltos na raiz
 
-- **`AGENTS.md`** — acordos de trabalho, invariantes da especificação e
-  limites entre código, dados, registros e artefatos.
 - **`CLAUDE.md`** — a fonte de verdade operacional: pipeline, comandos,
   núcleo de identificação, convenções, layout de dados.
 - **`HANDOFF.md`** (privado) — log de handoff entre sessões.

@@ -177,6 +177,12 @@ caminho ativo fazia `source()` deles. O núcleo DFM permanece com o ramo único
 | `spec_sweep.R` | `theory_sign_table`, `summarize_irf_responses`, `evaluate_sweep_cell`, `classify_sweep_cells` e `rq_surface_table`, retiradas de `R/identification/spec_sweep.R` em 2026-09-17; `containment_vs_production` e `plot_overlay_cells`, em 2026-09-18 | Só `irf_spec_sweep.R` e os `panel_composition_rq_grid*` chamavam as primeiras; só `q_truncation.R` chamava `containment_vs_production`, e `plot_overlay_cells` já não tinha chamador. O resto de `spec_sweep.R` (`run_stage2_cell`, `plot_dimension_overlay`, `md_table`, …) segue vivo |
 | `experimental_panel.R` | `build_variant_panel`, `experimental_variant_manifest`, `build_experimental_panels` e `classify_mosw`, retiradas de `R/identification/experimental_panel.R` em 2026-09-17 | Só a família `panel_composition*` as chamava. A metade fatorial do arquivo vivo segue em uso por `diagnostics/rq_*_audit` |
 
+## `arquivo/codex/` — instruções do Codex (arquivado em 2026-09-18)
+
+| item | por que saiu |
+|---|---|
+| `AGENTS.md` | Instruções de trabalho do Codex, que o autor deixou de usar. Vivia em paralelo ao `CLAUDE.md` e já divergia dele: dava a escala COVID como desligada e ξ_mp = 6,057014, quando ela está em produção desde 2026-09-17. `CLAUDE.md` e `.claude/rules/` são a única fonte de regras. As pastas `.codex/` e `.agents/` estavam vazias e fora do git, e foram só removidas |
+
 ## `arquivo/relatorio/` — notas e correspondência
 
 | item | o que é |
