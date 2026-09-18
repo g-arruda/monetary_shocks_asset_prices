@@ -47,7 +47,6 @@ PERM_SEED     <- 123L  # the seed stream of arquivo/script/factor_selection_alt.
 AW_R          <- 5L    # the production r, where the q comparison is read
 AW_R_GRID     <- 4:8   # spans the (5,2), (7,5) and (8,8) cells of the e-mail
 MANIFEST_PATH <- "output/panel_experimental/poda_correlacao/pruning_manifest.csv"
-ALT_SUMMARY   <- "output/factors/factor_selection_alt_summary.csv"
 OUT_DIR       <- "output/factors"
 
 
@@ -167,7 +166,7 @@ dev_c         <- max(purrr::map_dbl(results, "dev_c"))
 # ---- Self-tests --------------------------------------------------------
 
 # (a) on the current panel the battery is the round of 2026-09-10
-alt <- readr::read_csv(ALT_SUMMARY, show_col_types = FALSE) |>
+alt <- readr::read_csv("output/factors/factor_selection_alt_summary.csv", show_col_types = FALSE) |>
   dplyr::filter(variante %in% c("produção (BLL)", "Teorema 1", "permutação principal")) |>
   dplyr::select(estimador, r_alt = r_hat)
 chk_a <- summary |>

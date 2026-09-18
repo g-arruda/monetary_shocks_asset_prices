@@ -233,7 +233,7 @@ heat <- tidyr::expand_grid(serie_x = colnames(C), serie_y = colnames(C)) |>
     rho = C[cbind(serie_x, serie_y)],
     rotulo_x = factor(label_of[serie_x], levels = label_of),
     rotulo_y = factor(label_of[serie_y], levels = rev(label_of)),
-    acima = serie_x != serie_y & abs(rho) >= 0.90,
+    acima = serie_x != serie_y & abs(rho) >= CONFIGS$threshold[CONFIGS$principal],
     texto = dplyr::if_else(serie_x != serie_y & abs(rho) >= PAIR_FLOOR,
                            sprintf("%.2f", rho), "")
   )

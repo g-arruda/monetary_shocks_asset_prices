@@ -2,8 +2,9 @@
 # by maximum likelihood, (B5) of their Appendix B, under the author's design of
 # 2026-09-14 (production_spec()$covid_volatility_design): t* = 2020-03,
 # s0, s1, s2 >= 1 and rho in [0, 1]. theta depends on the static factors and
-# on p, not on q, so one estimate serves the whole q table. Production keeps
-# the treatment off; nothing here computes an IRF.
+# on p, not on q, so one estimate serves the whole q table. These are the
+# literals of production_spec()$covid_volatility, production since 2026-09-17;
+# nothing here computes an IRF.
 #   output/factors/covid_volatility_theta.csv        theta-hat and likelihoods
 #   output/factors/covid_volatility_path.csv         s_t and residual sizes by month
 #   output/factors/covid_volatility_profile_rho.csv  profile log-likelihood in rho
