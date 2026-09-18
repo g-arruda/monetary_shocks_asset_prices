@@ -1,61 +1,28 @@
 # ===================================================================
-# Computational core of the Copom-day DI instrument, extracted from
-# script/instrument.R on 2026-07-27 so the two construction choices
-# that were previously hard-coded — the DI vertex and the monthly
-# aggregation scheme — can be swept without duplicating the chain.
+# Computational core of the Copom-day DI instrument. script/instrument.R
+# keeps all I/O and calls build_instrument_variants() once.
 #
-# script/instrument.R keeps all I/O, messages and diagnostics and
-# calls build_instrument_variants() once with the production
-# parameters; arquivo/script/instrument_construction_sweep.R called it
-# many times in memory and wrote nothing.
+# The three monthly variants are the construction layers of tab:first_stage:
+#   z_bruto        raw Wed->Thu DI surprise at the target vertex;
+#   z_bs_purif     + Bauer-Swanson (2023, eq. 7) pre-event orthogonalization;
+#   z_jk_bs_purif  + Jarocinski-Karadi (2020) sign filter on the BS
+#                  residuals (production).
 #
-# Fidelity note. The two aggregation schemes come from different
-# papers and are NOT interchangeable defaults:
-#
-#  - "sum" is Jarocinski-Karadi (2020, sec. II.A): "To construct m_t
-#    we add up the intraday surprises occurring in month t on the
-#    days with FOMC announcements. Note that m_t is zero in the
-#    months with no FOMC announcements." Same convention in
-#    Bauer-Swanson's own code (loadhfmpdata.m). This is production.
-#
-#  - "gk" is Gertler-Karadi (2015, fn. 11), second of the two
-#    equivalent formulations they give: "we can first create a
-#    cumulative daily surprise series by cumulating all FOMC day
-#    surprises ..., then, second, we can take monthly averages of
-#    these series, and, third, obtain monthly average surprises as
-#    the first difference of this series."
-#
-#    GK state their own motivation conditionally, and the condition
-#    does not hold here: "as we use monthly average rates (not end
-#    of the month rates) for our monetary policy indicators, a
-#    surprise that happens at the end of a month can be expected to
-#    have a smaller influence on the monthly average rate than a
-#    surprise coming at the beginning of the month". The policy
-#    indicator of this project, yield_6m, is an END-OF-MONTH
-#    observation (script/download.R selects the maximum date in each month),
-#    for which a surprise anywhere in month t is already fully
-#    reflected — which is what "sum" assumes. So "gk" is offered as
-#    robustness, not as a candidate default.
-#
-#    Two consequences worth stating where the numbers are read:
-#    (i) under "gk" the months with no meeting are no longer zero,
-#    so the JK/BS "zero in months without an announcement" property
-#    is lost; (ii) splitting each surprise between t and t+1 induces
-#    an MA(1), so xi_mp for a "gk" instrument should be read with
-#    nw_lags >= 1 (see compute_factor_space_wald).
+# Monthly aggregation is Jarocinski-Karadi (2020, sec. II.A): m_t adds up the
+# event surprises of month t and is zero in months without a meeting, as in
+# Bauer-Swanson's loadhfmpdata.m. yield_6m is an end-of-month observation, so
+# a surprise anywhere in month t is fully reflected in it.
 # ===================================================================
 
 
-# ---- Monthly aggregation schemes ------------------------------
-
-#' Sum of event-day values within the calendar month (Jarocinski-Karadi).
+#' Sum of event-day values within the calendar month (Jarocinski-Karadi)
 #'
 #' @param df Daily event panel; needs `month`, `copom_day` and `value_col`.
 #' @param value_col Name of the column holding the surprise.
-#' @param keep_mask Logical vector, same length as `df`: events to keep.
-#' @param monthly_grid Tibble with the complete `month` column.
+#' @param keep_mask Logical vector, one per row of `df`: events to keep.
+#'
 #' @return Tibble `month`, `shock`.
-agg_monthly_sum <- function(df, value_col, keep_mask, monthly_grid) {
+agg_monthly_sum <- function(df, value_col, keep_mask) {
   df |>
     dplyr::mutate(val = ifelse(keep_mask, .data[[value_col]], 0)) |>
     dplyr::group_by(month) |>
@@ -63,88 +30,29 @@ agg_monthly_sum <- function(df, value_col, keep_mask, monthly_grid) {
                      .groups = "drop")
 }
 
-#' Position-weighted monthly aggregation (Gertler-Karadi 2015, fn. 11).
-#'
-#' Cumulates the kept event surprises into a daily step level over the
-#' calendar, averages that level within each month, and first-differences.
-#' The daily calendar is extended one month back so the difference is
-#' defined for the first month of the sample.
-#'
-#' @inheritParams agg_monthly_sum
-#' @return Tibble `month`, `shock`.
-agg_monthly_gk <- function(df, value_col, keep_mask, monthly_grid) {
-  ev <- df |>
-    dplyr::mutate(val = ifelse(keep_mask, .data[[value_col]], 0)) |>
-    dplyr::filter(copom_day) |>
-    dplyr::transmute(date, val = tidyr::replace_na(val, 0))
 
-  first_month <- min(monthly_grid$month)
-  last_month  <- max(monthly_grid$month)
-  cal <- tibble::tibble(
-    date = seq(seq(first_month, by = "-1 month", length.out = 2)[2],
-               lubridate::ceiling_date(last_month, "month") - 1,
-               by = "day"))
-
-  cal |>
-    dplyr::left_join(
-      ev |> dplyr::group_by(date) |>
-        dplyr::summarise(val = sum(val), .groups = "drop"),
-      by = "date") |>
-    dplyr::mutate(val   = tidyr::replace_na(val, 0),
-                  level = cumsum(val),
-                  month = lubridate::floor_date(date, "month")) |>
-    dplyr::group_by(month) |>
-    dplyr::summarise(avg_level = mean(level), .groups = "drop") |>
-    dplyr::arrange(month) |>
-    dplyr::mutate(shock = avg_level - dplyr::lag(avg_level)) |>
-    dplyr::filter(!is.na(shock)) |>
-    dplyr::select(month, shock)
-}
-
-#' Dispatch an aggregation scheme by name.
-make_aggregator <- function(scheme = c("sum", "gk")) {
-  scheme <- match.arg(scheme)
-  switch(scheme, sum = agg_monthly_sum, gk = agg_monthly_gk)
-}
-
-
-# ---- The build chain ------------------------------------------
-
-#' Build the eight monthly GK-family instrument variants.
+#' Build the three monthly instrument variants of tab:first_stage
 #'
 #' @param inputs Named list of daily inputs, all tibbles with a `date`
 #'   column: `di_panel`, `ibov_daily`, `ext_daily`, `brl_daily`,
-#'   `focus_daily`, `dgs2_daily`; plus `copom_wed` and `fomc_dates`
-#'   (Date vectors).
-#' @param target_bd DI vertex in business days. Production: 126 (~6m).
-#' @param agg Aggregation scheme, "sum" (Jarocinski-Karadi, production)
-#'   or "gk" (Gertler-Karadi fn. 11). See the header note.
+#'   `focus_daily`; plus `copom_wed` (Date vector).
+#' @param target_bd DI vertex in business days.
 #' @param sample_start,sample_end Sample bounds.
-#' @param strict If TRUE (production), abort when a pre-event predictor
-#'   is NA on the valid panel. The sweep sets FALSE so a vertex whose
-#'   surprise coverage differs cannot kill the whole grid; the returned
-#'   diagnostics report it instead.
 #'
-#' @return List with `monthly` (tibble: `month` + the eight `z_*` columns),
-#'   `daily` (the valid Thursday panel with residuals and masks) and
-#'   `diag` (counts and R2 of the BS regressions).
-build_instrument_variants <- function(inputs,
-                                      target_bd    = 126,
-                                      agg          = "sum",
-                                      sample_start = as.Date("2012-03-01"),
-                                      sample_end   = as.Date("2025-12-31"),
-                                      strict       = TRUE) {
-
+#' @return List with `monthly` (tibble: `month`, `z_bruto`, `z_bs_purif`,
+#'   `z_jk_bs_purif`), `daily` (the valid Thursday panel with residuals and
+#'   the mask) and `diag` (counts and R2 of the BS regressions).
+#'
+#' @examples
+#' built <- build_instrument_variants(inputs, 126, as.Date("2012-03-01"),
+#'                                    as.Date("2025-12-31"))
+build_instrument_variants <- function(inputs, target_bd, sample_start, sample_end) {
   di_panel    <- inputs$di_panel
   ibov_daily  <- inputs$ibov_daily
   ext_daily   <- inputs$ext_daily
   brl_daily   <- inputs$brl_daily
   focus_daily <- inputs$focus_daily
-  dgs2_daily  <- inputs$dgs2_daily
   copom_wed   <- inputs$copom_wed
-  fomc_dates  <- inputs$fomc_dates %||% as.Date(character(0))
-
-  agg_fn <- make_aggregator(agg)
 
   # ---- Thursday panel ----------------------------------------
 
@@ -170,19 +78,6 @@ build_instrument_variants <- function(inputs,
     ) |>
     dplyr::select(date, r_sp500, d_vix, r_brent)
 
-  # For each Thursday we want the SAME-session change: Thu close vs. Wed close.
-  # For Ibov/external factors, daily log-return uses the immediately-prior available
-  # trading day, which in normal weeks is Wed. If Wed is a holiday for that market,
-  # the row stays (using previous available close) and the downstream Wed->Thu DI
-  # would be NA via the contract matcher, so the whole Thursday gets dropped together.
-
-  # Contemporaneous UST 2y change (bps) on the Treasury trading calendar; a
-  # US-holiday Thursday has no session, so the same-window US-rate news is 0.
-  ust2_d <- dgs2_daily |>
-    dplyr::arrange(date) |>
-    dplyr::mutate(d_ust2 = 100 * (ust2y - dplyr::lag(ust2y))) |>
-    dplyr::select(date, d_ust2)
-
   # ---- Pre-event predictors (Bauer-Swanson eq. 7 analogue) ----
   # Financial trends over the 13 weeks (65 trading days) ending at the Wednesday
   # close, i.e. strictly predetermined at the announcement; Focus median revisions
@@ -203,9 +98,8 @@ build_instrument_variants <- function(inputs,
     ifelse(idx >= 1, daily$val[idx], NA_real_)
   }
 
-  # The pre-event DI slope is hard-wired to 504bd - 63bd and is therefore
-  # invariant to target_bd: it stays a valid predetermined predictor across
-  # the whole vertex sweep, with no circularity even near 63 or 504.
+  # The pre-event DI slope is hard-wired to 504bd - 63bd, so it does not move
+  # with target_bd.
   di_slope_daily <- di_panel |>
     dplyr::group_by(date) |>
     dplyr::summarise(
@@ -236,67 +130,33 @@ build_instrument_variants <- function(inputs,
     dplyr::left_join(di_surprises, by = "date") |>
     dplyr::left_join(ibov_d,       by = "date") |>
     dplyr::left_join(ext_d,        by = "date") |>
-    dplyr::left_join(ust2_d,       by = "date") |>
     dplyr::left_join(pre_event,    by = "date") |>
     dplyr::mutate(
-      d_ust2        = tidyr::replace_na(d_ust2, 0),   # US-holiday Thursday: no session
-      copom_day     = (date - 1) %in% copom_wed,
-      fomc_coincide = copom_day & ((date - 1) %in% fomc_dates | date %in% fomc_dates),
-      trend         = as.numeric(date - min(date)) / 365.25
+      copom_day = (date - 1) %in% copom_wed,
+      trend     = as.numeric(date - min(date)) / 365.25
     )
 
+  # The same-session S&P, VIX and Brent changes enter no regression; a Thursday
+  # without them is still dropped, because that is what defines the sample of
+  # the BS regressions below.
   valid <- thu_panel |>
     dplyr::filter(!is.na(delta_di), !is.na(r_ibov),
                   !is.na(r_sp500),  !is.na(d_vix), !is.na(r_brent))
 
-  # Pre-event predictors must be complete on the valid panel so the audit
-  # variants share exactly the same rows as the legacy ones.
+  # lm() would drop an incomplete row silently and move the regression sample
   pre_cols <- c("pre_ibov", "pre_sp500", "pre_vix", "pre_brent", "pre_brl",
                 "pre_slope", "pre_focus_ipca", "pre_focus_selic")
   n_na_pre <- colSums(is.na(valid[pre_cols]))
   if (any(n_na_pre > 0)) {
-    msg <- paste0("NA in pre-event predictors on the valid panel: ",
-                  paste(sprintf("%s=%d", names(n_na_pre[n_na_pre > 0]),
-                                n_na_pre[n_na_pre > 0]), collapse = ", "))
-    if (strict) {
-      stop(msg, ". Check daily input coverage or rerun script/download.R.")
-    }
-    valid <- valid |> tidyr::drop_na(dplyr::all_of(pre_cols))
+    stop("NA in pre-event predictors on the valid panel: ",
+         paste(sprintf("%s=%d", names(n_na_pre[n_na_pre > 0]),
+                       n_na_pre[n_na_pre > 0]), collapse = ", "),
+         ". Check daily input coverage or rerun script/download.R.")
   }
 
-  # ---- Purification regressions (full panel) -----------------
-
-  lm_di   <- lm(delta_di ~ r_sp500 + d_vix + r_brent, data = valid)
-  lm_ibov <- lm(r_ibov   ~ r_sp500 + d_vix + r_brent, data = valid)
-
-  valid$e_di   <- residuals(lm_di)
-  valid$e_ibov <- residuals(lm_ibov)
-
-  # ---- JK sign classification (on residuals) -----------------
-  # Monetary shock: residual DI and residual Ibov move in opposite directions.
-  # Information shock: same direction -> zero out.
-
-  valid <- valid |>
-    dplyr::mutate(
-      jk_monetary = copom_day &
-                    sign(e_di) != 0 & sign(e_ibov) != 0 &
-                    sign(e_di) != sign(e_ibov)
-    )
-
-  # Reversed ordering (JK filter -> purification): mask decided on RAW
-  # co-movement, before any global-factor cleanup.
-
-  valid <- valid |>
-    dplyr::mutate(
-      jk_monetary_raw = copom_day &
-                        sign(delta_di) != 0 & sign(r_ibov) != 0 &
-                        sign(delta_di) != sign(r_ibov)
-    )
-
-  # ---- BS-faithful pre-event purification (audit 2026-07-14) --
+  # ---- Bauer-Swanson pre-event purification -------------------
   # Bauer-Swanson (2023) eq. 7: regress the surprise on PREDETERMINED news only
-  # (financial trends + survey revisions + trend), keep the residual. Unlike the
-  # contemporaneous regression above, nothing on the RHS can absorb the shock.
+  # (financial trends + survey revisions + trend) and keep the residual.
 
   bs_formula <- ~ trend + pre_ibov + pre_sp500 + pre_vix + pre_brent + pre_brl +
                   pre_slope + pre_focus_ipca + pre_focus_selic
@@ -306,66 +166,34 @@ build_instrument_variants <- function(inputs,
   valid$e_di_bs   <- residuals(lm_di_bs)
   valid$e_ibov_bs <- residuals(lm_ibov_bs)
 
+  # ---- Jarocinski-Karadi sign filter on the BS residuals ------
+  # Monetary shock: residual DI and residual Ibov move in opposite directions.
+  # Information shock: same direction -> zero out.
+
   valid <- valid |>
     dplyr::mutate(
       jk_monetary_bs = copom_day &
                        sign(e_di_bs) != 0 & sign(e_ibov_bs) != 0 &
-                       sign(e_di_bs) != sign(e_ibov_bs)
-    )
-
-  # ---- Contemporaneous purification + UST 2y control ----------
-  # Same-window global cleanup with the Wed->Thu 2y Treasury change added,
-  # covering Fed spillovers on the ~32 FOMC-coincident Copom weeks.
-  # The monthly variant this used to feed (z_jk_purif_us) was dropped on
-  # 2026-08-05 as redundant (cor 0.999 with z_jk_purif). The DAILY columns
-  # stay in data/processed/copom_event_diagnostics.csv, but their two
-  # consumers are archived: arquivo/script/fomc_coincidence.R (2026-09-18),
-  # which built z_jk_us from them, and arquivo/script/jk_sovereign_confound.R.
-
-  lm_di_us   <- lm(delta_di ~ r_sp500 + d_vix + r_brent + d_ust2, data = valid)
-  lm_ibov_us <- lm(r_ibov   ~ r_sp500 + d_vix + r_brent + d_ust2, data = valid)
-
-  valid$e_di_us   <- residuals(lm_di_us)
-  valid$e_ibov_us <- residuals(lm_ibov_us)
-
-  valid <- valid |>
-    dplyr::mutate(
-      jk_monetary_us = copom_day &
-                       sign(e_di_us) != 0 & sign(e_ibov_us) != 0 &
-                       sign(e_di_us) != sign(e_ibov_us)
+                       sign(e_di_bs) != sign(e_ibov_bs),
+      month = lubridate::floor_date(date, "month")
     )
 
   # ---- Monthly aggregation -----------------------------------
-
-  valid <- valid |> dplyr::mutate(month = lubridate::floor_date(date, "month"))
 
   monthly_grid <- tibble::tibble(
     month = seq(lubridate::floor_date(sample_start, "month"),
                 lubridate::floor_date(sample_end,   "month"), by = "month"))
 
-  ag <- function(value_col, keep_mask) agg_fn(valid, value_col, keep_mask, monthly_grid)
-
-  z_bruto        <- ag("delta_di", rep(TRUE, nrow(valid)))
-  z_bruto_purif  <- ag("e_di",    rep(TRUE, nrow(valid)))
-  z_jk           <- ag("delta_di", valid$jk_monetary)
-  z_jk_purif     <- ag("e_di",    valid$jk_monetary)
-  z_jk_raw_purif <- ag("e_di",    valid$jk_monetary_raw)
-  z_jk_raw       <- ag("delta_di", valid$jk_monetary_raw)
-  z_bs_purif     <- ag("e_di_bs", rep(TRUE, nrow(valid)))
-  z_jk_bs_purif  <- ag("e_di_bs", valid$jk_monetary_bs)
+  keep_all <- rep(TRUE, nrow(valid))
+  z_bruto       <- agg_monthly_sum(valid, "delta_di", keep_all)
+  z_bs_purif    <- agg_monthly_sum(valid, "e_di_bs",  keep_all)
+  z_jk_bs_purif <- agg_monthly_sum(valid, "e_di_bs",  valid$jk_monetary_bs)
 
   instrumentos <- monthly_grid |>
-    dplyr::left_join(z_bruto       |> dplyr::rename(z_bruto       = shock), by = "month") |>
-    dplyr::left_join(z_bruto_purif |> dplyr::rename(z_bruto_purif = shock), by = "month") |>
-    dplyr::left_join(z_jk          |> dplyr::rename(z_jk          = shock), by = "month") |>
-    dplyr::left_join(z_jk_purif    |> dplyr::rename(z_jk_purif    = shock), by = "month") |>
-    dplyr::left_join(z_jk_raw_purif |> dplyr::rename(z_jk_raw_purif = shock), by = "month") |>
-    dplyr::left_join(z_jk_raw      |> dplyr::rename(z_jk_raw      = shock), by = "month") |>
-    dplyr::left_join(z_bs_purif    |> dplyr::rename(z_bs_purif    = shock), by = "month") |>
-    dplyr::left_join(z_jk_bs_purif |> dplyr::rename(z_jk_bs_purif = shock), by = "month") |>
+    dplyr::left_join(dplyr::rename(z_bruto,       z_bruto       = shock), by = "month") |>
+    dplyr::left_join(dplyr::rename(z_bs_purif,    z_bs_purif    = shock), by = "month") |>
+    dplyr::left_join(dplyr::rename(z_jk_bs_purif, z_jk_bs_purif = shock), by = "month") |>
     dplyr::mutate(dplyr::across(dplyr::starts_with("z_"), ~ tidyr::replace_na(.x, 0)))
-
-  # ---- Diagnostics -------------------------------------------
 
   copom_days <- valid |> dplyr::filter(copom_day)
 
@@ -373,45 +201,13 @@ build_instrument_variants <- function(inputs,
     monthly = instrumentos,
     daily   = valid,
     diag    = list(
-      target_bd     = target_bd,
-      agg           = agg,
-      n_thursdays   = nrow(thu_panel),
-      n_valid       = nrow(valid),
-      n_copom       = nrow(copom_days),
-      n_jk          = sum(copom_days$jk_monetary),
-      n_jk_raw      = sum(copom_days$jk_monetary_raw),
-      n_jk_bs       = sum(copom_days$jk_monetary_bs),
-      n_jk_us       = sum(copom_days$jk_monetary_us),
-      r2_di_bs      = summary(lm_di_bs)$r.squared,
-      r2_ibov_bs    = summary(lm_ibov_bs)$r.squared,
-      n_na_pre      = sum(n_na_pre)
+      target_bd   = target_bd,
+      n_thursdays = nrow(thu_panel),
+      n_valid     = nrow(valid),
+      n_copom     = nrow(copom_days),
+      n_jk_bs     = sum(copom_days$jk_monetary_bs),
+      r2_di_bs    = summary(lm_di_bs)$r.squared,
+      r2_ibov_bs  = summary(lm_ibov_bs)$r.squared
     )
   )
-}
-
-#' Null-coalescing operator
-#'
-#' @param x Value to use when not NULL.
-#' @param y Fallback.
-#'
-#' @return `x` unless it is NULL, in which case `y`.
-`%||%` <- function(x, y) if (is.null(x)) y else x
-
-#' Aggregate one masked daily column onto a monthly grid, zero-filled
-#'
-#' Thin wrapper over `agg_monthly_sum()` that returns a plain vector aligned to
-#' `monthly_grid`, with months contributing no event set to 0 rather than NA.
-#'
-#' @param value_col Name of the daily column to aggregate.
-#' @param mask Logical vector selecting the days that count.
-#' @param valid Daily panel of valid Thursdays.
-#' @param monthly_grid Tibble with a `month` column giving the target grid.
-#'
-#' @return Numeric vector aligned to `monthly_grid$month`.
-build_monthly_z <- function(value_col, mask, valid, monthly_grid) {
-  monthly_grid |>
-    dplyr::left_join(agg_monthly_sum(valid, value_col, mask, monthly_grid),
-                     by = "month") |>
-    dplyr::mutate(shock = tidyr::replace_na(shock, 0)) |>
-    dplyr::pull(shock)
 }

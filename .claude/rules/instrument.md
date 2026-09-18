@@ -9,16 +9,22 @@ paths:
 # Instrument construction and strength
 
 **The build chain lives in `R/instrument/build_variants.R`** (helpers in `di_surprise.R`),
-parameterized by `target_bd` and `agg` (`agg_monthly_sum` / `agg_monthly_gk`).
-`script/instrument.R` calls it once with production values and keeps **all** I/O. Production vertex
-is `TARGET_BD = 126` ≈ 6m DI; `DEFAULT_VARIANT` controls the legacy single-column
+parameterized by the DI vertex `target_bd`. `script/instrument.R` calls it once with production
+values and keeps **all** I/O. Production vertex is `TARGET_BD = 126` ≈ 6m DI;
+`production_spec()$instrument` picks the column written to the legacy single-column
 `data/processed/instrument.csv`.
 
-The 8 variants are GK-style futures surprises + Jarociński-Karadi sign filter + global-factor
-cleanup. Monthly aggregation is JK's within-month sum, **not** GK's moving-average scheme — a
-justified choice since 2026-07-27, not a deviation: GK's fn. 11 conditions its weighting on a
-*monthly-average* policy indicator while `yield_6m` here is end-of-month, and the GK scheme on this
-panel collapses ξ_mp from 10.43 to 0.30.
+**Only the three variants of `tab:first_stage` exist in live code since 2026-09-18**, one per
+construction layer: `z_bruto` (raw Wed→Thu surprise), `z_bs_purif` (+ Bauer-Swanson pre-event
+orthogonalization) and `z_jk_bs_purif` (+ Jarociński-Karadi sign filter on the BS residuals,
+production). The contemporaneous purification, the raw-sign mask, the UST 2y control and the FOMC
+flag left with the variants and tests they fed. Monthly aggregation is JK's within-month sum,
+**not** GK's moving-average scheme — a justified choice since 2026-07-27, not a deviation: GK's
+fn. 11 conditions its weighting on a *monthly-average* policy indicator while `yield_6m` here is
+end-of-month, and the GK scheme on this panel collapsed ξ_mp from 10.43 to 0.30 (the GK aggregator
+left the code on 2026-09-18). **The same-session S&P/VIX/Brent filter on the Thursday panel stays**:
+those changes enter no regression any more, but dropping a Thursday without them is what defines
+the sample of the BS regressions.
 
 **The finding that governs variant choice: strength lives in the *mask*, not the purified values.**
 Predetermined masks (raw or BS-pre-event) exclude the 2020-03-19 COVID panic day that
@@ -48,11 +54,11 @@ rulers (`f_factor`, F (y6m AR)) are still computed and reported but **stopped de
 
 ## Traps
 
-- **Fail loud on missing inputs.** `build_variants.R` computed a `fomc_coincide` flag that was
+- **Fail loud on missing inputs.** `build_variants.R` once computed a `fomc_coincide` flag that was
   identically FALSE for months because `instrument.R` fell back silently to an empty date vector.
   **The defect was the `else`**: a silent fallback makes "never collected" indistinguishable from
-  "returned nothing". `load_fomc_dates()` now aborts, and `run_all.R` declares `data/raw/fomc_dates.csv`
-  a hard requirement of the `instrument` stage.
+  "returned nothing". The flag and the FOMC-date input left the code on 2026-09-18 with the archived
+  FOMC test; the lesson stands for every input.
 - **Masks built from `sign(residuals(lm))` carry a `names` attribute** that a CSV round-trip drops.
   When checking a rebuilt daily panel against `copom_event_diagnostics.csv`, compare **values**, not
   `identical()`.

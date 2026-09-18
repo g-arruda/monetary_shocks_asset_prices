@@ -42,9 +42,9 @@ grupo 1, na ordem em que aparecem.
 | script | o que faz |
 |---|---|
 | `run_all.R` | Orquestrador fim a fim. Roda 4 estágios nomeados (`download`, `clean`, `instrument`, `model`), cada um como subprocesso `Rscript` via `system2`, com `--list/--dry-run/--from/--to/--only/--skip/--skip-existing/--continue-on-error`. Confere as pré-condições de cada estágio (`requires`/`produces`). O estágio `model` só chama `model_alessi.R`: não roda `model_var.R` nem scripts de diagnóstico. |
-| `download.R` | Único ponto de entrada de downloads. Coleta SGS, Focus/Olinda, FRED, Yahoo, B3, o calendário FOMC, IPEA e SIDRA, e valida os insumos externos fixos usados. Grava os seis artefatos diários em `data/raw/` e monta `raw_data.csv`: 113 séries completas na amostra 2012-03–2025-12, incluindo os três indicadores fiscais e as quatro expectativas Focus da produção. `di.csv`, a curva e o CDS Bloomberg continuam externos e nunca são sobrescritos. |
+| `download.R` | Único ponto de entrada de downloads. Coleta SGS, Focus/Olinda, Yahoo, B3, IPEA e SIDRA, e valida os insumos externos fixos usados. Grava os quatro artefatos diários em `data/raw/` e monta `raw_data.csv`: 113 séries completas na amostra 2012-03–2025-12, incluindo os três indicadores fiscais e as quatro expectativas Focus da produção. `di.csv`, a curva e o CDS Bloomberg continuam externos e nunca são sobrescritos. |
 | `clean.R` | Filtra 2012-03–2025-12 e aplica log e a cascata X-13 às 113 séries raw. Constrói e audita o ajuste cambial da DLSP e as três expectativas fiscais Focus. Grava a base histórica de 106 séries e monta o painel de produção de 115, removendo `juros_cdi` e `asset_mlcx`. Escreve o manifesto integral em `output/panel/production_series_manifest.csv`. |
-| `instrument.R` | Constrói, desde 2012-03, as 8 variantes mensais de instrumento (família GK/JK/BS) via `R/instrument/{di_surprise,build_variants}.R`, com antecedentes diários desde 2011-09 (`TARGET_BD=126`, soma JK, variante padrão `z_jk_bs_purif`). Escreve `data/processed/instrumentos_mensais.csv`, os CSVs por variante e o legado `data/processed/instrument.csv`. |
+| `instrument.R` | Constrói, desde 2012-03, as três variantes mensais da `tab:first_stage` — `z_bruto`, `z_bs_purif` e a de produção `z_jk_bs_purif` — via `R/instrument/{di_surprise,build_variants}.R`, com antecedentes diários desde 2011-09 (`TARGET_BD=126`, soma JK). Escreve `data/processed/instrumentos_mensais.csv`, o legado `data/processed/instrument.csv` e o painel diário `copom_event_diagnostics.csv`. |
 | `model_alessi.R` | Script de produção do DFM principal. Consome `production_spec()`, grava a superfície Bai--Ng BLL completa e estima `(r=5, q=5, p=4, choque=+50bp em yield_6m)` com a inferência de produção: conjuntos Anderson--Rubin desde 2026-09-08. Escreve `output/irf/irf_model_alessi_r5q5.pdf`. |
 
 ## 2. Benchmark (fora do `run_all.R`)
@@ -57,7 +57,7 @@ grupo 1, na ordem em que aparecem.
 
 | script | o que faz |
 |---|---|
-| `instrument_diagnostics.R` | Compara as variantes no DFM de produção compartilhado. Reporta ξ_mp e o primeiro estágio robusto F_rob,mp na direção de `yield_6m`, a dispersão Copom-dia e o teste de variância Copom vs. não-Copom. Escreve `output/instrument/instrument_diagnostics_report.md` e um PNG. |
+| `instrument_diagnostics.R` | Compara as três variantes no DFM de produção. Por variante: meses com `z ≠ 0`, ξ_mp, F_rob,mp, `β̂`, EP e `p` na direção de `yield_6m` — as colunas da `tab:first_stage` que `mosw_strength_grid.csv` não carrega — e um teste de exogeneidade *lead-lag*. Escreve `output/instrument/instrument_diagnostics.csv`. O antigo `instrument_diagnostics_report.md` e o PNG de dispersão ficam como órfãos citados. |
 | `mosw_strength_grid.R` | Atualização incremental da grade de ξ_mp e F_rob,mp com `z_jk_bs_purif`, `p=4`, na direção de normalização de `yield_6m`. Na cheia, com a escala COVID, varre `r=4:6`, porque `r ≥ 7` é explosivo; na pré-COVID, `r=4:8`. Preserva no CSV as linhas históricas fora desse recorte. Escreve `output/instrument/mosw_strength_grid.{csv,md}`. |
 
 ## 4. IRF: coerência, inferência e sensibilidade a `q`

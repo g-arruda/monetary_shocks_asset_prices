@@ -1,8 +1,9 @@
 # ============================================================
-# Instrument validity diagnostics — compares the 8 instrument variants
-# on the same DFM residual.
-# Also: scatterplot of residual DI vs. residual Ibov on Copom days,
-# and variance F-test (Copom vs. non-Copom).
+# Relevance of the three instrument variants of tab:first_stage on the
+# production DFM: months with z != 0, xi_mp, robust first-stage F, beta, SE
+# and p in the yield_6m direction, plus a lead-lag exogeneity check of z on
+# six lags of the first factor-VAR residual.
+# Output: output/instrument/instrument_diagnostics.csv
 # ============================================================
 
 source("R/modeling/factor_estimation.R")
@@ -10,11 +11,8 @@ source("R/modeling/impulse_response.R")
 source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 
-dir.create("output/instrument", showWarnings = FALSE, recursive = TRUE)
-
 SPEC <- production_spec()
-
-# ---- 1. DFM estimation (instrument-agnostic) ---------------
+VARIANTS <- c("z_bruto", "z_bs_purif", "z_jk_bs_purif")
 
 raw_data <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
   tidyr::drop_na()
@@ -24,219 +22,50 @@ X      <- raw_data |>
   dplyr::select(-ref.date) |>
   as.matrix()
 
-# We need any instrument df just so estimate_dfm() builds the VAR; use the bruto.
-seed_inst <- readr::read_csv("data/processed/instrument_bruto.csv", show_col_types = FALSE)
+inst_panel <- readr::read_csv(SPEC$instrument_path, show_col_types = FALSE)
+
+# The instrument only trims estimate_dfm() to its months, which every variant
+# covers, so any column serves.
 dfm <- estimate_dfm(X, r = SPEC$r, q = SPEC$q, p = SPEC$p,
-                    dates = dates, instrument = seed_inst,
-                    # Production cell: carries the Lenza-Primiceri scale, so the
-                    # first stage and the MOSW Wald block describe the model the
-                    # published IRFs come from.
+                    dates = dates,
+                    instrument = dplyr::transmute(inst_panel, month, shock = z_bruto),
                     covid_volatility = SPEC$covid_volatility)
 
 policy_residual <- dfm$var_residuals[, 1]
 p_lag           <- dfm$p
+mp_idx_diag     <- match(SPEC$mp_var, colnames(X))
 
-# Index of yield_6m in the panel — used by diagnose_instrument_in_factor_space
-# to read the impact response per variant in policy-variable native units.
-mp_idx_diag <- match(SPEC$mp_var, colnames(X))
-
-# ---- 2. Diagnostics per variant ----------------------------
-
-variants <- list(
-  "z_bruto"        = "data/processed/instrument_bruto.csv",
-  "z_bruto_purif"  = "data/processed/instrument_bruto_purif.csv",
-  "z_jk"           = "data/processed/instrument_jk.csv",
-  "z_jk_purif"     = "data/processed/instrument_jk_purif.csv",
-  "z_jk_raw_purif" = "data/processed/instrument_jk_raw_purif.csv",
-  "z_jk_raw"       = "data/processed/instrument_jk_raw.csv",
-  "z_bs_purif"     = "data/processed/instrument_bs_purif.csv",
-  "z_jk_bs_purif"  = "data/processed/instrument_jk_bs_purif.csv"
-)
-
-results <- purrr::imap_dfr(variants, function(path, name) {
-  inst_df <- readr::read_csv(path, show_col_types = FALSE)
+results <- purrr::map_dfr(VARIANTS, function(name) {
+  inst_df <- dplyr::transmute(inst_panel, month, shock = .data[[name]])
   align   <- sel_ext_inst_sample(dfm$dates, p_lag, inst_df)
   Z_t     <- align$inst_sel
   res_al  <- policy_residual[align$rsh_sel_ind]
-  T_eff   <- length(Z_t)
 
   n_lags <- 6
   ex_df <- tibble::tibble(Z = Z_t)
   for (k in seq_len(n_lags)) ex_df[[paste0("lag", k)]] <- dplyr::lag(res_al, k)
   ex_df <- na.omit(ex_df)
   ex_lm <- lm(Z ~ ., data = ex_df)
-  ex_vc <- sandwich::vcovHC(ex_lm, type = "HC0")
-  ex_wf <- lmtest::waldtest(ex_lm, vcov = ex_vc)
-  exog_f  <- ex_wf$F[2]
-  exog_pv <- ex_wf$`Pr(>F)`[2]
+  ex_wf <- lmtest::waldtest(ex_lm, vcov = sandwich::vcovHC(ex_lm, type = "HC0"))
 
   diag_fs <- diagnose_instrument_in_factor_space(dfm, inst_df, dates, p_lag,
                                                  mp_idx_diag)
 
   tibble::tibble(
     variant      = name,
-    n            = T_eff,
+    n            = length(Z_t),
     nonzero      = sum(Z_t != 0),
     xi_mp        = diag_fs$wald_mp,
     f_robust_mp  = diag_fs$f_robust_mp,
     beta_mp      = diag_fs$first_stage_beta,
     se_mp        = diag_fs$first_stage_se,
     p_mp         = diag_fs$first_stage_p,
-    exog_f       = exog_f,
-    exog_p       = exog_pv,
+    exog_f       = ex_wf$F[2],
+    exog_p       = ex_wf$`Pr(>F)`[2],
     impact_y6m   = diag_fs$impact_mp,
     sign_y6m     = diag_fs$sign_mp
   )
 })
 
-# ---- 3. Scatterplot of residual DI vs residual Ibov --------
-
-event_diag <- readr::read_csv("data/processed/copom_event_diagnostics.csv",
-                              show_col_types = FALSE)
-
-quad <- event_diag |>
-  dplyr::filter(copom_day) |>
-  dplyr::mutate(quadrant = dplyr::case_when(
-    e_di > 0 & e_ibov > 0 ~ "I (+,+) info",
-    e_di < 0 & e_ibov > 0 ~ "II (-,+) monetary",
-    e_di < 0 & e_ibov < 0 ~ "III (-,-) info",
-    e_di > 0 & e_ibov < 0 ~ "IV (+,-) monetary",
-    TRUE ~ "zero"
-  ))
-pct_wrong <- round(100 *
-  sum(quad$quadrant %in% c("I (+,+) info", "III (-,-) info")) /
-  nrow(quad), 1)
-
-p_scatter <- ggplot2::ggplot(quad, ggplot2::aes(x = e_di, y = e_ibov)) +
-  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3, colour = "grey50") +
-  ggplot2::geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey50") +
-  ggplot2::geom_point(ggplot2::aes(colour = quadrant), alpha = 0.8) +
-  ggplot2::scale_colour_manual(values = c(
-    "I (+,+) info" = "#d95f02", "II (-,+) monetary" = "#1b9e77",
-    "III (-,-) info" = "#d95f02", "IV (+,-) monetary" = "#1b9e77",
-    "zero" = "grey70"
-  )) +
-  ggplot2::labs(
-    title    = "Purified surprises on Copom days",
-    subtitle = sprintf("Wrong-signed (info) share: %.1f%%  (n = %d)", pct_wrong, nrow(quad)),
-    x = "e_DI (residual, bps)",
-    y = "e_Ibov (residual, log-return %)",
-    colour = NULL
-  ) +
-  ggplot2::theme_minimal(base_size = 11) +
-  ggplot2::theme(legend.position = "bottom")
-ggplot2::ggsave("output/instrument/scatterplot_surpresas_copom.png", p_scatter,
-                width = 7, height = 6, dpi = 150)
-
-# ---- 4. Variance F-test: Copom vs. non-Copom ----------------
-
-variance_series <- list(
-  "e_DI"             = event_diag$e_di,
-  "e_Ibov"           = event_diag$e_ibov,
-  "delta_DI (raw)"   = event_diag$delta_di,
-  "delta_Ibov (raw)" = event_diag$r_ibov
-)
-var_tests <- purrr::imap_dfr(variance_series, function(x, label) {
-  copom     <- x[event_diag$copom_day]
-  non_copom <- x[!event_diag$copom_day]
-  f_test    <- var.test(copom, non_copom)
-  tibble::tibble(series = label,
-                 var_copom = var(copom), var_non_copom = var(non_copom),
-                 n_copom = length(copom), n_non_copom = length(non_copom),
-                 F_stat = unname(f_test$statistic), p_value = f_test$p.value)
-})
-
-# ---- 5. Report ---------------------------------------------
-
-res_tbl <- results |>
-  dplyr::mutate(
-    dplyr::across(c(xi_mp, f_robust_mp, exog_f), ~ sprintf("%.3f", .x)),
-    beta_mp    = sprintf("%+.2e", beta_mp),
-    se_mp      = sprintf("%.2e", se_mp),
-    impact_y6m = sprintf("%+.2e", impact_y6m),
-    sign_y6m   = ifelse(sign_y6m > 0, "+",
-                        ifelse(sign_y6m < 0, "-", "0")),
-    dplyr::across(c(p_mp, exog_p), ~ dplyr::case_when(
-      is.na(.x) ~ "NA",
-      .x < 0.001 ~ "< 0.001",
-      .default = sprintf("%.3f", .x)
-    ))
-  )
-
-hdr <- "| Variant | n | nonzero | ξ_mp | F robusto_mp | β̂_mp | SE(HC1) | p_mp | impacto y6m | sinal | Exog F | Exog p |"
-sep <- "|---|---|---|---|---|---|---|---|---|---|---|---|"
-rows <- apply(res_tbl, 1, function(r)
-  sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |",
-          r["variant"], r["n"], r["nonzero"], r["xi_mp"],
-          r["f_robust_mp"], r["beta_mp"], r["se_mp"], r["p_mp"],
-          r["impact_y6m"], r["sign_y6m"], r["exog_f"], r["exog_p"]))
-tbl_md <- paste(c(hdr, sep, rows), collapse = "\n")
-
-v <- var_tests |>
-  dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ signif(.x, 3)))
-var_md <- paste(c(
-  "| Series | Var(Copom) | Var(non-Copom) | n_C | n_NC | F | p-value |",
-  "|---|---|---|---|---|---|---|",
-  apply(v, 1, function(r)
-    sprintf("| %s | %s | %s | %s | %s | %s | %s |",
-            r["series"], r["var_copom"], r["var_non_copom"],
-            r["n_copom"], r["n_non_copom"], r["F_stat"], r["p_value"]))
-), collapse = "\n")
-
-report <- paste(
-  "# Instrument Validity Diagnostics Report",
-  "",
-  sprintf("**Date generated:** %s", Sys.Date()),
-  sprintf("**DFM sample:** %s to %s  ", min(dfm$dates), max(dfm$dates)),
-  "**Identification:** proxy-SVAR with external instrument (Montiel Olea, Stock & Watson 2021).",
-  "**Instrument variants:** raw Copom-day ΔDI (3m), purified by global factors (SP500, VIX, Brent),",
-  "Jarociński-Karadi sign filter, and JK + purified.",
-  "",
-  "---",
-  "",
-  "## 1. Força do instrumento por variante",
-  "",
-  "As duas estatísticas seguem a §4.2 de Montiel Olea-Stock-Watson (2021).",
-  "**ξ_mp** é a Wald na direção c'Γ̂ com c = linha de `yield_6m` na matriz de",
-  "  impacto Λ·K·M: é o análogo exato do `Waldstat` oficial (Γ̂ da variável",
-  "normalizadora). **F robusto_mp** é o t² HC1 do instrumento na regressão",
-  "de c_mp'η_t sobre o instrumento e as defasagens dos fatores. Ambos usam a",
-  "mesma direção; o código reproduz ξ₁=4,4 e F=9,4 da aplicação dos autores.",
-  "",
-  tbl_md,
-  "",
-  "---",
-  "",
-  "## 2. Scatterplot — purified surprises on Copom days",
-  "",
-  sprintf("Wrong-signed (information) share: **%.1f%%**.", pct_wrong),
-  "",
-  "![scatter](scatterplot_surpresas_copom.png)",
-  "",
-  "Quadrants II & IV (green, negative co-movement) are classified as monetary shocks and kept in z_JK / z_JK_purif.  ",
-  "Quadrants I & III (orange, positive co-movement) are classified as information shocks and zeroed out.",
-  "",
-  "---",
-  "",
-  "## 3. Variance F-test: Copom vs. non-Copom Thursdays",
-  "",
-  "H0: equal variance.  Expect rejection for `e_DI` (news shock on Copom days), ideally NOT for `e_Ibov`.",
-  "",
-  var_md,
-  "",
-  "---",
-  "",
-  "## 4. Interpretation",
-  "",
-  "- O valor 10 é uma referência convencional, não um valor crítico fornecido por MOSW.",
-  "- Se ξ_mp e F robusto_mp divergirem, a evidência de força é mista.",
-  "- Abaixo de 10, as bandas convencionais não são aproximadamente válidas; a inferência do DFM são os conjuntos AR.",
-  "- **ξ_mp abaixo de 3,84**: o conjunto AR de 95% é ilimitado.",
-  "- MOSW (§4.2, footnote 6)",
-  "  advertem ainda contra *screening* no F: reportar F/ξ e usar rotineiramente",
-  "  os conjuntos AR robustos, não condicionar a inferência no pré-teste.  ",
-  "- Compare z_bruto vs. z_JK to assess whether the JK filter changes identification, and vs. their `_purif` counterparts for the role of global-factor contamination.",
-  sep = "\n"
-)
-
-writeLines(report, "output/instrument/instrument_diagnostics_report.md")
+dir.create("output/instrument", showWarnings = FALSE, recursive = TRUE)
+readr::write_csv(results, "output/instrument/instrument_diagnostics.csv")

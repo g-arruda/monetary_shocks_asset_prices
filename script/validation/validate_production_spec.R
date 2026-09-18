@@ -74,7 +74,7 @@ if (!identical(instrument_wide$month, expected_dates) ||
     nrow(instrument_wide) != spec$n_months ||
     anyDuplicated(instrument_wide$month) ||
     any(!is.finite(as.matrix(instrument_wide[, -1])))) {
-  stop("The eight instrument variants must cover all 166 production months.")
+  stop("The instrument variants must cover all 166 production months.")
 }
 first_instrument <- c(
   -22.017543058626288, 0, -3.96538127126775, 0,

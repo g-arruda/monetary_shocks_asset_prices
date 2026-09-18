@@ -58,9 +58,6 @@ surprise_wed_to_thu <- function(di_panel, wed_date, thu_date,
   NA_real_
 }
 
-# Build table of (date = Thursday, delta_di_bps) for a given target maturity.
-# thursdays must be a Date vector. The paired Wednesday is assumed to be thu - 1 day;
-# callers passing a non-business-day Wednesday should filter beforehand if needed.
 #' Load Copom announcement Wednesdays from data/raw/copom_historico.csv
 #'
 #' Drops the leading numero_reuniao column (matches existing project pattern),
@@ -87,32 +84,6 @@ load_copom_wednesdays <- function(path = "data/raw/copom_historico.csv",
     dplyr::pull(meeting_date)
 }
 
-#' Load FOMC decision dates from data/raw/fomc_dates.csv
-#'
-#' Aborts when the file is missing instead of returning an empty vector. That
-#' silent fallback (script/instrument.R, until 2026-08-10) kept `fomc_coincide`
-#' identically FALSE from the day the flag was written until the council review
-#' found it — see pareceres/council_2026-08-10.md.
-#'
-#' @param path CSV path with a `date` column. Default `"data/raw/fomc_dates.csv"`.
-#' @param from Earliest decision date kept (default 2012-03-01).
-#' @param to   Latest decision date kept (default 2025-12-31).
-#'
-#' @return Date vector of FOMC decision dates, sorted and unique.
-load_fomc_dates <- function(path = "data/raw/fomc_dates.csv",
-                            from = as.Date("2012-03-01"),
-                            to   = as.Date("2025-12-31")) {
-  if (!file.exists(path)) {
-    stop(path, " not found. Run: Rscript script/download.R")
-  }
-  readr::read_csv(path, show_col_types = FALSE) |>
-    dplyr::transmute(date = as.Date(date)) |>
-    dplyr::filter(!is.na(date), date >= from, date <= to) |>
-    dplyr::distinct(date) |>
-    dplyr::arrange(date) |>
-    dplyr::pull(date)
-}
-
 #' DI surprises for a vector of Thursdays
 #'
 #' Maps `surprise_wed_to_thu()` over each Thursday and its preceding
@@ -135,17 +106,3 @@ build_thursday_surprises <- function(di_panel, thursdays, target_bd = 63, min_bd
   )
   tibble::tibble(date = thursdays, delta_di = deltas)
 }
-
-#' Exact-date lookup of a column in a daily tibble
-#'
-#' Used instead of `dplyr::lag()` for the Wed->Thu event window. A lag would
-#' silently span a longer window whenever the relevant market (EMBI on the US
-#' calendar, UST, S&P) was shut on the Wednesday; an exact-date match returns
-#' NA there instead, which is the honest answer.
-#'
-#' @param want Date vector to look up.
-#' @param daily Daily tibble carrying a `date` column.
-#' @param col Name of the column to read.
-#'
-#' @return Values of `col` aligned to `want`, NA where the date is absent.
-on_date <- function(want, daily, col) daily[[col]][match(want, daily$date)]

@@ -56,9 +56,7 @@ STAGES <- list(
       "data/raw/focus_fiscal_expectations.csv",
       "data/raw/ibov_daily.csv",
       "data/raw/brl_usd_daily.csv",
-      "data/raw/investing/external_factors_daily.csv",
-      "data/raw/fred_dgs2.csv",
-      "data/raw/fomc_dates.csv"
+      "data/raw/investing/external_factors_daily.csv"
     )
   ),
   list(
@@ -79,16 +77,14 @@ STAGES <- list(
   ),
   list(
     name     = "instrument",
-    desc     = "Copom-day DI surprises to eight monthly GK-family variants",
+    desc     = "Copom-day DI surprises to the three monthly instrument variants",
     file     = "script/instrument.R",
     network  = FALSE,
     requires = c("data/raw/di.csv", "data/raw/copom_historico.csv",
-                 "data/raw/fomc_dates.csv",
                  "data/raw/ibov_daily.csv",
                  "data/raw/investing/external_factors_daily.csv",
                  "data/raw/brl_usd_daily.csv",
-                 "data/raw/focus_daily.csv",
-                 "data/raw/fred_dgs2.csv"),
+                 "data/raw/focus_daily.csv"),
     produces = c("data/processed/instrument.csv",
                  "data/processed/instrumentos_mensais.csv")
   ),

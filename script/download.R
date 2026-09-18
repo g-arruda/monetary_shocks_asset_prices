@@ -2,9 +2,7 @@ source("R/data_download/bcb.R")
 source("R/data_download/exchange.R")
 source("R/data_download/external_factors.R")
 source("R/data_download/focus.R")
-source("R/data_download/fred.R")
 source("R/data_download/b3.R")
-source("R/data_download/fomc.R")
 source("R/data_download/ipea.R")
 source("R/modeling/production_spec.R")
 
@@ -48,15 +46,8 @@ focus <- download_focus_data(
   sample_start = extension_start,
   sample_end = production_sample_end
 )
-fred_dgs2 <- download_fred_series(
-  "DGS2",
-  from = daily_start,
-  to = daily_end
-) |>
-  dplyr::rename(ust2y = value)
 external_factors <- download_external_factors(daily_start, daily_end)
 brl_usd_daily <- download_brl_usd_daily(daily_start, daily_end)
-fomc_dates <- download_fomc_dates(daily_start, daily_end)
 
 b3_symbols <- c("IBOV", "SMLL", "IDIV", "IFIX", "IFNC", "IMAT", "IMOB", "MLCX")
 b3_names <- c(
@@ -489,9 +480,7 @@ daily_outputs <- list(
   focus_daily = focus$daily,
   ibov_daily = ibov_daily,
   brl_usd_daily = brl_usd_daily,
-  external_factors = external_factors,
-  fred_dgs2 = fred_dgs2,
-  fomc_dates = fomc_dates
+  external_factors = external_factors
 )
 invalid_daily <- names(daily_outputs)[vapply(daily_outputs, function(data) {
   date_column <- if ("date" %in% names(data)) "date" else names(data)[1]
@@ -518,5 +507,3 @@ readr::write_csv(focus$fiscal_monthly, "data/raw/focus_fiscal_expectations.csv")
 readr::write_csv(ibov_daily, "data/raw/ibov_daily.csv")
 readr::write_csv(brl_usd_daily, "data/raw/brl_usd_daily.csv")
 readr::write_csv(external_factors, "data/raw/investing/external_factors_daily.csv")
-readr::write_csv(fred_dgs2, "data/raw/fred_dgs2.csv")
-readr::write_csv(fomc_dates, "data/raw/fomc_dates.csv")

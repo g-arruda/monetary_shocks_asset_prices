@@ -71,11 +71,12 @@ script e por tarefa, e `diagnostics/diagnostico_dfm.md` para o veredito.
 Nunca importado por `script/` na direção contrária (nada em `R/` faz
 `source()` de `script/`).
 
-- **`data_download/`** (8 arquivos) — funções sem execução automática:
+- **`data_download/`** (6 arquivos) — funções sem execução automática:
   `bcb.R` (SGS), `exchange.R` (câmbio), `external_factors.R` (Yahoo),
-  `focus.R` (Focus/Olinda), `fred.R` (FRED), `b3.R` (índices B3), `fomc.R`
-  (calendário do Fed) e `ipea.R` (Ipeadata). O único entry point que chama
-  essas funções e grava dados é `script/download.R`.
+  `focus.R` (Focus/Olinda), `b3.R` (índices B3) e `ipea.R` (Ipeadata). O
+  único entry point que chama essas funções e grava dados é
+  `script/download.R`. `fred.R` e `fomc.R` saíram em 2026-09-18 com a
+  purificação UST/FOMC do instrumento, seu único consumidor.
 - **`preprocessing/`** (2 arquivos) — `seasonality.R`, o wrapper de ajuste
   sazonal X-13, e `experimental_extensions.R`, que reconstrói os painéis
   experimentais históricos a partir das sete séries já processadas e de 12
@@ -105,9 +106,9 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   a correção de Kilian saíram de `modeling/`: a inferência do DFM são os
   conjuntos Anderson-Rubin de `identification/weak_iv_ar.R`.
 - **`instrument/`** (2 arquivos) — `build_variants.R` (a cadeia de construção
-  das 8 variantes de instrumento GK/JK/BS; eram 10 até 2026-08-05) e
-  `di_surprise.R` (helper de surpresa de futuro de DI, mais os carregadores de
-  datas de Copom e de FOMC). `event_tests.R`, a inferência das regressões
+  das 3 variantes da `tab:first_stage`, uma por camada; eram 10 até 2026-08-05
+  e 8 até 2026-09-18) e `di_surprise.R` (helper de surpresa de futuro de DI,
+  mais o carregador das datas de Copom). `event_tests.R`, a inferência das regressões
   diárias de evento, foi para `arquivo/R/instrument/` em 2026-09-18 com seu
   último consumidor, `fomc_coincidence.R`.
 - **`reporting/`** (1 arquivo) — `markdown_report.R`, com formatação estável
@@ -126,8 +127,11 @@ no `CLAUDE.md` para os nomes de arquivo exatos dentro de cada subpasta.
   artefatos do sweep de especificação (`spec_sweep_*`, `irf_spec_*`).
   `irf_section.md` é anterior à troca e carrega banner dizendo isso.
 - **`instrument/`** — réguas de força do instrumento (`mosw_strength_grid`,
-  `instrument_diagnostics_report`, `instrument_construction_sweep`,
-  `jk_sovereign_confound`, `fomc_coincidence`).
+  `instrument_diagnostics.csv`, que carrega as colunas da `tab:first_stage`
+  fora da grade; o `instrument_diagnostics_report.md` e o PNG de dispersão são
+  órfãos citados desde 2026-09-18) e as rodadas arquivadas
+  (`instrument_construction_sweep`, `jk_sovereign_confound`,
+  `fomc_coincidence`).
 - **`factors/`** — estacionariedade, cointegração e espectro da companion
   matrix dos fatores (2026-07-31); as varreduras de `p` e de `q` e as
   narrativas `q_narrative_*`; a seleção de `r` por estimadores alternativos
@@ -160,12 +164,10 @@ tratamento e nunca editado à mão; **`processed/`** é o que entra na estimaç�
 Em `raw/`: `raw_data.csv` (106 séries históricas mais as sete adições de
 produção), `raw_data_30.csv`, `di.csv` (DI futuro
 diário, entrada externa fixa de 32 MB), `copom_historico.csv`,
-`focus_daily.csv`, `ibov_daily.csv`, `brl_usd_daily.csv`, `fred_dgs2.csv`,
+`focus_daily.csv`, `ibov_daily.csv`, `brl_usd_daily.csv`,
 `CDS 5y.xlsx` (CDS soberano
 5a diário, export Bloomberg — entrada externa fixa, como a curva; lido por
-`arquivo/script/jk_sovereign_confound.R`, sem consumidor vivo desde 2026-09-17), `fomc_dates.csv` (datas de decisão do FOMC;
-**produzido** por `script/download.R`, e requisito duro do estágio
-`instrument` desde 2026-08-10); mais `yields/` (curva de juros fornecida pelo
+`arquivo/script/jk_sovereign_confound.R`, sem consumidor vivo desde 2026-09-17); mais `yields/` (curva de juros fornecida pelo
 orientador, `yields_dia.csv` — entrada externa fixa, sem produtor no
 repositório) e `curva_juros/`, `investing/`, `epu/`,
 `banco_central_rep_dominicana/` (downloads brutos por fonte). O painel

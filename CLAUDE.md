@@ -68,7 +68,8 @@ inference.** On **2026-09-17** §3 was reorganized into four subsections —
 instrumento`, `Relevância do instrumento e inferência` — and **fully migrated**
 to the production vintage: 2012-03--2025-12, 166 observations, 162 innovations,
 `(r,q,p)=(5,5,4)`, ξ_mp 6.85 full and 8.64 pre-COVID, `tab:first_stage` rebuilt
-from `mosw_strength_grid.md` and `instrument_diagnostics_report.md`, 102 Copom
+from `mosw_strength_grid.md` and `instrument_diagnostics_report.md` (since 2026-09-18 its
+numbers are carried by `mosw_strength_grid.csv` and `instrument_diagnostics.csv`), 102 Copom
 meetings, 67 monetary and 35 information, BS `R²` 0.022. Note:
 `2026-09-17_reorganizacao_secao_3`. Its §3.1 now carries the whole estimation
 chain in order, including the concentrated likelihood that estimates θ and the
@@ -96,11 +97,11 @@ restore bootstrap inference for this benchmark.
 Three ordered stages plus estimation, one `Rscript` process each, orchestrated by `script/run_all.R`:
 
 1. **`script/download.R`** → `data/raw/raw_data.csv` with 113 monthly series plus every reproducible
-   daily raw input (BCB, Focus, FRED, Yahoo, B3, FOMC, IPEA, SIDRA). Auxiliary functions in
+   daily raw input (BCB, Focus, Yahoo, B3, IPEA, SIDRA). Auxiliary functions in
    `R/data_download/` never execute or write on source.
 2. **`script/clean.R`** → `data/processed/data_log_deseasonalized.csv` (log + X-13).
-3. **`script/instrument.R`** → 8 monthly variants via `R/instrument/build_variants.R`. Requires
-   `data/raw/fomc_dates.csv` (hard).
+3. **`script/instrument.R`** → the 3 monthly variants of `tab:first_stage` (`z_bruto`, `z_bs_purif`,
+   production `z_jk_bs_purif`) via `R/instrument/build_variants.R`.
 4. **Estimation** — `script/model_alessi.R` (main DFM; the pipeline itself is `main_sdfm()` in
    `R/modeling/dfm_pipeline.R`) and `script/model_var.R` (small-VAR
    **benchmark**; it does not use the factors).
@@ -244,8 +245,8 @@ Rscript script/run_all.R --from=clean        # skip the network stages
 
 # Full instrument rebuild + diagnostics
 Rscript script/download.R                    # all reproducible monthly and daily raw inputs
-Rscript script/instrument.R                  # 8 GK-family variants
-Rscript script/instrument_diagnostics.R      # first-stage F + MOSW Wald block
+Rscript script/instrument.R                  # the 3 variants of tab:first_stage
+Rscript script/instrument_diagnostics.R      # tab:first_stage columns per variant (CSV)
 Rscript script/mosw_strength_grid.R          # ξ_mp over (r,q) × sample × instrument
 
 # IRF inference, coherence and q sensitivity
@@ -323,5 +324,5 @@ pinned, as the degeneracy reference, in `script/validation/validate_covid_volati
 
 `.claude/rules/` holds the area detail, each file declaring the `paths:` that load it — the estimation
 contract and its traps (`identification.md`), variant construction and ξ_mp (`instrument.md`), the
-panel and its three fixed external inputs (`data.md`), the audit round (`diagnostics.md`), and
+panel and its two fixed external inputs (`data.md`), the audit round (`diagnostics.md`), and
 generated-vs-hand-written outputs (`writing.md`).

@@ -244,6 +244,8 @@ Séries diárias, mesmo período, variação quarta → quinta:
 ### 1.4 Datas FOMC
 
 **Executada em 2026-08-10** (`script/download.R`, via `R/data_download/fomc.R`, → `data/raw/fomc_dates.csv`).
+**Retirada do código em 2026-09-18**, com a flag `fomc_coincide` e a purificação UST 2a: o único
+consumidor era o teste FOMC arquivado (`arquivo/script/fomc_coincidence.R`).
 
 - Coletar datas de decisão do FOMC no período
 - Criar dummy `fomc_coincide = 1` para semanas com Copom e FOMC simultâneos (~32 ocorrências)
@@ -435,7 +437,8 @@ elas divergem ou ficam abaixo da referência.
 (8 variantes × 14 células (r,q) × 2 janelas), a produção
 `z_jk_bs_purif` dá ξ_mp/F_rob,mp = **7,65/7,95 full** e
 **11,53/6,26 pré-COVID** em (7,6). A tabela por variante em uma especificação
-DFM comum está em `output/instrument/instrument_diagnostics_report.md` §1.
+DFM comum está em `output/instrument/instrument_diagnostics_report.md` §1 (desde 2026-09-18,
+`output/instrument/instrument_diagnostics.csv`, só com as três variantes da `tab:first_stage`).
 
 O grid e o produtor das antigas réguas foram arquivados em 2026-08-05
 (`arquivo/output/`, `arquivo/script/`), sem consumidor vivo.
