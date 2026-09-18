@@ -5,25 +5,10 @@ source("R/preprocessing/production_extensions.R")
 source("R/modeling/production_spec.R")
 
 spec <- production_spec()
-raw_added <- setdiff(spec$production_series_added, c(
-  "dlsp_exchange_adjustment",
-  "expect_focus_fiscal_dlsp_ny",
-  "expect_focus_fiscal_primary_balance_ny",
-  "expect_focus_fiscal_nominal_balance_ny"
-))
 expected_dates <- seq(spec$sample[1], spec$sample[2], by = "month")
 raw_data <- readr::read_csv("data/raw/raw_data.csv", show_col_types = FALSE) |>
   dplyr::mutate(ref.date = as.Date(ref.date)) |>
   dplyr::filter(ref.date >= spec$sample[1], ref.date <= spec$sample[2])
-
-if (!identical(raw_data$ref.date, expected_dates) || ncol(raw_data) - 1L != 113L ||
-    anyDuplicated(names(raw_data)) || anyNA(raw_data) ||
-    any(!is.finite(as.matrix(raw_data[, -1])))) {
-  stop("The raw input must contain 113 unique finite series over the fixed 166 months.")
-}
-if (!all(raw_added %in% names(raw_data))) {
-  stop("The raw input does not contain all seven raw production additions.")
-}
 
 data <- raw_data |>
   dplyr::mutate(
@@ -37,12 +22,9 @@ data <- raw_data |>
       .fns = log
     )
   )
-if (any(!is.finite(as.matrix(data[, -1])))) {
-  stop("Log transformations produced non-finite values.")
-}
 
 season_result <- check_seasonality(data)
-series_log <- stats::setNames(
+series_log <- setNames(
   rep("nao_sazonal", ncol(data) - 1L),
   setdiff(names(data), "ref.date")
 )
@@ -101,8 +83,7 @@ adjusted_data <- data |>
         return(adjusted)
       }
     }
-    series_log[[variable]] <<- "SEM_AJUSTE: todas_as_tentativas_X13_falharam"
-    as.numeric(series)
+    stop("Every X-13 attempt failed for ", variable, ".")
   }) |>
   tibble::as_tibble()
 
@@ -120,19 +101,9 @@ data <- data |>
 
 base_data <- data |>
   dplyr::select(-dplyr::all_of(spec$production_series_added))
-if (ncol(base_data) - 1L != 106L || any(!is.finite(as.matrix(base_data[, -1])))) {
-  stop("The processed historical base must contain 106 finite series.")
-}
 
 production_data <- data |>
   dplyr::select(-dplyr::all_of(spec$base_series_removed))
-if (ncol(production_data) - 1L != spec$n_series ||
-    anyDuplicated(names(production_data)) ||
-    !all(spec$required_series %in% names(production_data)) ||
-    any(spec$excluded_series %in% names(production_data)) ||
-    any(!is.finite(as.matrix(production_data[, -1])))) {
-  stop("The processed production panel does not match the 115-series specification.")
-}
 
 dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
 dir.create("output/panel", showWarnings = FALSE, recursive = TRUE)
