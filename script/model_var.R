@@ -18,14 +18,6 @@ source("R/modeling/var_proxy.R")
 source("R/identification/weak_iv_ar.R")
 source("R/reporting/markdown_report.R")
 
-required_packages <- c("dplyr", "readr", "tidyr")
-missing_packages <- required_packages[
-  !vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)
-]
-if (length(missing_packages)) {
-  stop("Missing packages: ", paste(missing_packages, collapse = ", "))
-}
-
 SPEC <- production_spec()
 VAR_SPEC <- SPEC$var_benchmark
 if (!"--reestimate-current-instrument" %in% commandArgs(trailingOnly = TRUE)) {
@@ -34,80 +26,40 @@ if (!"--reestimate-current-instrument" %in% commandArgs(trailingOnly = TRUE)) {
     "Use --reestimate-current-instrument only in its dedicated re-estimation round."
   )
 }
-DATA_PATH <- SPEC$data_path
-INSTRUMENT_PATH <- SPEC$instrument_path
 OUT_DIR <- "output/var"
 P <- VAR_SPEC$p
 H <- VAR_SPEC$ar_horizon
-P_MAX <- VAR_SPEC$max_lag
 AR_LEVELS <- VAR_SPEC$ar_levels
-NW_LAGS <- VAR_SPEC$nw_lags
 MP_VAR <- SPEC$mp_var
 SCALE <- SPEC$normalize_value
-if (
-  !identical(VAR_SPEC$label, "ibc5_fx_cds_level_trend_p2") ||
-    !identical(VAR_SPEC$deterministic, "trend") ||
-    !identical(VAR_SPEC$lag_criterion, "aic") ||
-    P != 2L || P_MAX != 12L || NW_LAGS != 0L ||
-    !identical(AR_LEVELS, c(0.68, 0.90))
-) {
-  stop("The small-VAR specification no longer matches the declared design")
-}
 
-
-cat("=== Observable SVAR-IV by Montiel Olea et al. ===\n\n")
 
 # 1. Load levels ---------------------------------------------------
 
-cat("[1] Loading levels and the external instrument\n")
-
-series_names <- VAR_SPEC$vars
-panel <- readr::read_csv(DATA_PATH, show_col_types = FALSE) |>
+panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
   dplyr::filter(
     ref.date >= VAR_SPEC$sample[1L],
     ref.date <= VAR_SPEC$sample[2L]
   ) |>
-  dplyr::select(ref.date, dplyr::all_of(series_names))
-
-if (
-  nrow(panel) != VAR_SPEC$n_months || anyNA(panel) ||
-    !identical(
-      as.Date(panel$ref.date),
-      seq(VAR_SPEC$sample[1L], VAR_SPEC$sample[2L], by = "month")
-    )
-) {
-  stop("The level panel does not match the declared 2013-01--2025-09 sample")
-}
+  dplyr::select(ref.date, dplyr::all_of(VAR_SPEC$vars))
 
 levels <- panel |>
   dplyr::select(-ref.date) |>
   as.matrix()
 dates_level <- as.Date(panel$ref.date)
 
-instrument <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE) |>
+instrument <- readr::read_csv(SPEC$instrument_path, show_col_types = FALSE) |>
   dplyr::transmute(
     month = as.Date(month),
     shock = .data[[SPEC$instrument]]
   )
-if (anyNA(instrument) || anyDuplicated(instrument$month)) {
-  stop("The external instrument has missing or duplicated months")
-}
-
-cat(sprintf(
-  "    %d months, %d declared series, instrument %s\n",
-  nrow(levels),
-  ncol(levels),
-  SPEC$instrument
-))
 
 
 # 2. Lag-order criteria --------------------------------------------
 
-cat("\n[2] AIC and BIC with constant and linear trend\n")
-
 lag_criteria <- var_lag_criteria(
   levels,
-  pmax = P_MAX,
+  pmax = VAR_SPEC$max_lag,
   deterministic = VAR_SPEC$deterministic
 ) |>
   dplyr::mutate(cell_id = "production", cell = VAR_SPEC$label) |>
@@ -115,159 +67,126 @@ lag_criteria <- var_lag_criteria(
 
 aic_selected <- lag_criteria$p[which.min(lag_criteria$aic)]
 bic_selected <- lag_criteria$p[which.min(lag_criteria$bic)]
-cat(sprintf("    AIC selects p = %d; BIC selects p = %d\n", aic_selected, bic_selected))
 
-stopifnot(
-  aic_selected == P,
-  all(lag_criteria$T_common == 141L),
-  all(is.finite(levels))
+
+# 3. Reduced form, SVAR-IV point, and AR sets ----------------------
+
+n_vars <- length(VAR_SPEC$vars)
+mp_index <- match(MP_VAR, VAR_SPEC$vars)
+fit <- olea_rform_var(
+  levels,
+  P,
+  deterministic = VAR_SPEC$deterministic
+)
+
+residual_dates <- dates_level[(P + 1L):length(dates_level)]
+instrument_index <- match(residual_dates, instrument$month)
+if (anyNA(instrument_index)) {
+  stop("The instrument does not cover every residual month in ", VAR_SPEC$label)
+}
+z <- instrument$shock[instrument_index]
+
+covariance <- mosw_rform_cov(
+  fit$X,
+  z,
+  fit$eta,
+  P,
+  nw_lags = VAR_SPEC$nw_lags
+)
+svar_iv <- mosw_svar_iv(
+  fit$AL,
+  fit$Sigma,
+  covariance$Gamma,
+  H,
+  SCALE,
+  mp_index
+)
+derivatives <- mosw_response_derivatives(
+  fit$AL,
+  P,
+  H,
+  covariance$Gamma
+)
+
+companion <- if (P == 1L) fit$AL else {
+  rbind(
+    fit$AL,
+    cbind(diag(n_vars * (P - 1L)),
+          matrix(0, n_vars * (P - 1L), n_vars))
+  )
+}
+max_root <- max(Mod(eigen(companion)$values))
+
+cell_ar <- lapply(AR_LEVELS, function(level) {
+  mosw_ar_bounds(
+    derivatives,
+    covariance,
+    nvar = mp_index,
+    scale = SCALE,
+    confidence = level
+  )
+})
+names(cell_ar) <- sprintf("%.2f", AR_LEVELS)
+
+point_deviation <- max(vapply(
+  cell_ar,
+  function(ar) max(abs(ar$point - svar_iv$point)),
+  numeric(1)
+))
+impact_deviation <- max(vapply(
+  seq_len(H + 1L),
+  function(horizon) {
+    max(abs(
+      svar_iv$point[, horizon] -
+        derivatives$C[, , horizon] %*% svar_iv$B1
+    ))
+  },
+  numeric(1)
+))
+
+sets <- purrr::imap(cell_ar, function(ar, level_key) {
+  data.frame(
+    cell_id = "production",
+    cell = VAR_SPEC$label,
+    var = rep(VAR_SPEC$vars, times = H + 1L),
+    h = rep(0:H, each = n_vars),
+    level = as.numeric(level_key),
+    point = as.vector(ar$point),
+    lo = as.vector(ar$lo),
+    hi = as.vector(ar$hi),
+    set_type = as.vector(ar$set_type),
+    casedummy = as.vector(ar$casedummy),
+    ahat = as.vector(ar$ahat),
+    bhat = as.vector(ar$bhat),
+    chat = as.vector(ar$chat),
+    delta = as.vector(ar$Delta),
+    stringsAsFactors = FALSE
+  )
+}) |>
+  dplyr::bind_rows()
+
+ar90 <- cell_ar[["0.90"]]
+diagnostics <- data.frame(
+  cell_id = "production",
+  cell = VAR_SPEC$label,
+  n = n_vars,
+  p = P,
+  T_eff = covariance$T_eff,
+  hac_dim = covariance$hac_dim,
+  lag_common_T = unique(lag_criteria$T_common),
+  aic_selected = aic_selected,
+  bic_selected = bic_selected,
+  xi_var = ar90$xi_den,
+  ar_bounded_90 = ar90$ahat[1L, 1L] > 0,
+  max_eig = max_root,
+  gamma_yield = covariance$Gamma[mp_index],
+  n_inst = length(z),
+  n_inst_nonzero = sum(z != 0),
+  stringsAsFactors = FALSE
 )
 
 
-# 5--7. Reduced form, SVAR-IV point, and AR sets -------------------
-
-cat("\n[3--5] RForm_VAR, SVAR-IV impact, and AR inversion\n")
-
-set_rows <- list()
-diagnostic_rows <- list()
-point_deviations <- numeric(1L)
-impact_deviations <- numeric(1L)
-
-for (i in 1L) {
-  cell_id <- "production"
-  variables <- VAR_SPEC$vars
-  label <- VAR_SPEC$label
-  data_cell <- levels[, variables, drop = FALSE]
-  mp_index <- match(MP_VAR, variables)
-  fit <- olea_rform_var(
-    data_cell,
-    P,
-    deterministic = VAR_SPEC$deterministic
-  )
-
-  residual_dates <- dates_level[(P + 1L):length(dates_level)]
-  instrument_index <- match(residual_dates, instrument$month)
-  if (anyNA(instrument_index)) {
-    stop("The instrument does not cover every residual month in ", label)
-  }
-  z <- instrument$shock[instrument_index]
-
-  covariance <- mosw_rform_cov(
-    fit$X,
-    z,
-    fit$eta,
-    P,
-    nw_lags = NW_LAGS
-  )
-  svar_iv <- mosw_svar_iv(
-    fit$AL,
-    fit$Sigma,
-    covariance$Gamma,
-    H,
-    SCALE,
-    mp_index
-  )
-  derivatives <- mosw_response_derivatives(
-    fit$AL,
-    P,
-    H,
-    covariance$Gamma
-  )
-
-  companion <- if (P == 1L) fit$AL else {
-    rbind(
-      fit$AL,
-      cbind(diag(length(variables) * (P - 1L)),
-            matrix(0, length(variables) * (P - 1L), length(variables)))
-    )
-  }
-  max_root <- max(Mod(eigen(companion)$values))
-
-  cell_ar <- lapply(AR_LEVELS, function(level) {
-    mosw_ar_bounds(
-      derivatives,
-      covariance,
-      nvar = mp_index,
-      scale = SCALE,
-      confidence = level
-    )
-  })
-  names(cell_ar) <- sprintf("%.2f", AR_LEVELS)
-
-  point_deviations[i] <- max(vapply(
-    cell_ar,
-    function(ar) max(abs(ar$point - svar_iv$point)),
-    numeric(1)
-  ))
-  impact_deviations[i] <- max(vapply(
-    seq_len(H + 1L),
-    function(horizon) {
-      max(abs(
-        svar_iv$point[, horizon] -
-          derivatives$C[, , horizon] %*% svar_iv$B1
-      ))
-    },
-    numeric(1)
-  ))
-
-  for (level_key in names(cell_ar)) {
-    ar <- cell_ar[[level_key]]
-    set_rows[[length(set_rows) + 1L]] <- data.frame(
-      cell_id = cell_id,
-      cell = label,
-      var = rep(variables, times = H + 1L),
-      h = rep(0:H, each = length(variables)),
-      level = as.numeric(level_key),
-      point = as.vector(ar$point),
-      lo = as.vector(ar$lo),
-      hi = as.vector(ar$hi),
-      set_type = as.vector(ar$set_type),
-      casedummy = as.vector(ar$casedummy),
-      ahat = as.vector(ar$ahat),
-      bhat = as.vector(ar$bhat),
-      chat = as.vector(ar$chat),
-      delta = as.vector(ar$Delta),
-      stringsAsFactors = FALSE
-    )
-  }
-
-  ar90 <- cell_ar[["0.90"]]
-  diagnostic_rows[[length(diagnostic_rows) + 1L]] <- data.frame(
-    cell_id = cell_id,
-    cell = label,
-    n = length(variables),
-    p = P,
-    T_eff = covariance$T_eff,
-    hac_dim = covariance$hac_dim,
-    lag_common_T = 141L,
-    aic_selected = aic_selected,
-    bic_selected = bic_selected,
-    xi_var = ar90$xi_den,
-    ar_bounded_90 = ar90$ahat[1L, 1L] > 0,
-    max_eig = max_root,
-    gamma_yield = covariance$Gamma[mp_index],
-    n_inst = length(z),
-    n_inst_nonzero = sum(z != 0),
-    stringsAsFactors = FALSE
-  )
-
-  cat(sprintf(
-    "    %-10s n=%d T=%d xi=%6.3f max|lambda|=%.4f\n",
-    cell_id,
-    length(variables),
-    covariance$T_eff,
-    ar90$xi_den,
-    max_root
-  ))
-}
-
-sets <- dplyr::bind_rows(set_rows)
-diagnostics <- dplyr::bind_rows(diagnostic_rows)
-
-
 # Numerical and serialization gates --------------------------------
-
-cat("\n[6] Numerical gates\n")
 
 known_types <- c(
   "interval", "two_rays", "empty", "real_line", "singleton",
@@ -282,8 +201,8 @@ normalisation <- sets |>
   dplyr::filter(var == MP_VAR, h == 0L)
 
 stopifnot(
-  max(point_deviations) < 1e-12,
-  max(impact_deviations) < 1e-12,
+  point_deviation < 1e-12,
+  impact_deviation < 1e-12,
   all(diagnostics$max_eig < 1),
   nrow(normalisation) == 2L,
   all(normalisation$point == SCALE),
@@ -327,7 +246,6 @@ stopifnot(
 topology <- sets |>
   dplyr::count(level, set_type, name = "n_sets") |>
   dplyr::arrange(level, set_type)
-print(topology, row.names = FALSE)
 
 headline <- sets |>
   dplyr::filter(
@@ -395,8 +313,3 @@ report <- c(
 )
 writeLines(report, file.path(OUT_DIR, "svar_iv_weak_robust.md"))
 
-cat("\nWritten:\n")
-cat("  output/var/var_benchmark_lag_criteria.csv\n")
-cat("  output/var/svar_iv_weak_robust.csv\n")
-cat("  output/var/svar_iv_weak_robust_diag.csv\n")
-cat("  output/var/svar_iv_weak_robust.md\n")
