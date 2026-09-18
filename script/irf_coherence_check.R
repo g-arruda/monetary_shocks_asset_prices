@@ -104,4 +104,3 @@ summ <- dplyr::bind_rows(purrr::map(evaluations, "summary"))
 
 readr::write_csv(perh, file.path(OUT_DIR, "irf_coherence_h.csv"))
 readr::write_csv(summ, file.path(OUT_DIR, "irf_coherence_summary.csv"))
-

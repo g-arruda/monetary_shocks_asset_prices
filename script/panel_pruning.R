@@ -112,4 +112,3 @@ stopifnot(slack_c >= 0, mp_dropped == 0)
 
 readr::write_csv(manifest, file.path(OUT_DIR, "pruning_manifest.csv"))
 readr::write_csv(pairs, file.path(OUT_DIR, "pairs_above_080.csv"))
-
