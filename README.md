@@ -250,9 +250,10 @@ decisões do FOMC, também condicionada à seleção de produção). Por decisã
 editorial, as duas últimas omitem a rederivação da máscara, preservada apenas
 nos diagnósticos e registros. A conclusão
 passou a ser a §6. Desde 2026-08-05
-`script/fig_section5.R` gera as **10** figuras direto aqui
+`script/fig_section5.R` gera as **9** figuras direto aqui
 (`paper/fig_*.pdf`, nomes nus, que é como o `.tex` as inclui): o §4 usa
-8, a §5 usa `fig_placebos`, e `fig_estado` segue sem consumidor.
+8, a §5 usa `fig_placebos`, e `fig_estado`, que seguia sem consumidor, saiu com
+o seu gerador em 2026-09-18.
 
 O draft abntex2 anterior (`main.tex`, "Choques monetários nos preços dos
 ativos") foi **arquivado em `arquivo/tex/`** nessa mesma data — não por
