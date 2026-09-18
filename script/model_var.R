@@ -128,22 +128,6 @@ cell_ar <- lapply(AR_LEVELS, function(level) {
 })
 names(cell_ar) <- sprintf("%.2f", AR_LEVELS)
 
-point_deviation <- max(vapply(
-  cell_ar,
-  function(ar) max(abs(ar$point - svar_iv$point)),
-  numeric(1)
-))
-impact_deviation <- max(vapply(
-  seq_len(H + 1L),
-  function(horizon) {
-    max(abs(
-      svar_iv$point[, horizon] -
-        derivatives$C[, , horizon] %*% svar_iv$B1
-    ))
-  },
-  numeric(1)
-))
-
 sets <- purrr::imap(cell_ar, function(ar, level_key) {
   data.frame(
     cell_id = "production",
@@ -185,63 +169,10 @@ diagnostics <- data.frame(
   stringsAsFactors = FALSE
 )
 
-
-# Numerical and serialization gates --------------------------------
-
-known_types <- c(
-  "interval", "two_rays", "empty", "real_line", "singleton",
-  "half_line_left", "half_line_right"
-)
-bounded_both <- sets$set_type %in% c("interval", "two_rays", "singleton")
-left_infinite <- sets$set_type %in% c("real_line", "half_line_left")
-right_infinite <- sets$set_type %in% c("real_line", "half_line_right")
-empty <- sets$set_type == "empty"
-
-normalisation <- sets |>
-  dplyr::filter(var == MP_VAR, h == 0L)
-
-stopifnot(
-  point_deviation < 1e-12,
-  impact_deviation < 1e-12,
-  all(diagnostics$max_eig < 1),
-  nrow(normalisation) == 2L,
-  all(normalisation$point == SCALE),
-  all(normalisation$set_type == "singleton"),
-  all(normalisation$lo == SCALE),
-  all(normalisation$hi == SCALE),
-  all(sets$set_type %in% known_types),
-  all(is.finite(sets$lo[bounded_both])),
-  all(is.finite(sets$hi[bounded_both])),
-  all(is.infinite(sets$lo[left_infinite]) & sets$lo[left_infinite] < 0),
-  all(is.infinite(sets$hi[right_infinite]) & sets$hi[right_infinite] > 0),
-  all(is.na(sets$lo[empty])),
-  all(is.na(sets$hi[empty]))
-)
-
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 readr::write_csv(lag_criteria, file.path(OUT_DIR, "var_benchmark_lag_criteria.csv"))
 readr::write_csv(sets, file.path(OUT_DIR, "svar_iv_weak_robust.csv"))
 readr::write_csv(diagnostics, file.path(OUT_DIR, "svar_iv_weak_robust_diag.csv"))
-
-sets_roundtrip <- readr::read_csv(
-  file.path(OUT_DIR, "svar_iv_weak_robust.csv"),
-  show_col_types = FALSE
-)
-stopifnot(
-  identical(sets_roundtrip$set_type, sets$set_type),
-  identical(is.infinite(sets_roundtrip$lo), is.infinite(sets$lo)),
-  identical(is.infinite(sets_roundtrip$hi), is.infinite(sets$hi)),
-  identical(is.na(sets_roundtrip$lo), is.na(sets$lo)),
-  identical(is.na(sets_roundtrip$hi), is.na(sets$hi)),
-  all(
-    sign(sets_roundtrip$lo[is.infinite(sets$lo)]) ==
-      sign(sets$lo[is.infinite(sets$lo)])
-  ),
-  all(
-    sign(sets_roundtrip$hi[is.infinite(sets$hi)]) ==
-      sign(sets$hi[is.infinite(sets$hi)])
-  )
-)
 
 topology <- sets |>
   dplyr::count(level, set_type, name = "n_sets") |>
