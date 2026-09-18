@@ -13,18 +13,17 @@ source("R/identification/factor_space_diagnostics.R")
 dir.create("output/instrument", showWarnings = FALSE, recursive = TRUE)
 
 SPEC <- production_spec()
-YIELD6M_TARGET <- SPEC$mp_var
 
 # ---- 1. DFM estimation (instrument-agnostic) ---------------
 
-raw_data <- readr::read_csv(SPEC$data_path,
-                     show_col_types = FALSE) |> tidyr::drop_na()
+raw_data <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
+  tidyr::drop_na()
 
 dates  <- as.Date(raw_data$ref.date)
-X      <- raw_data |> dplyr::select(-ref.date) |> as.matrix()
+X      <- raw_data |>
+  dplyr::select(-ref.date) |>
+  as.matrix()
 
-message(sprintf("Estimating production DFM (r=%d, q=%d, p=%d) ...",
-                SPEC$r, SPEC$q, SPEC$p))
 # We need any instrument df just so estimate_dfm() builds the VAR; use the bruto.
 seed_inst <- readr::read_csv("data/processed/instrument_bruto.csv", show_col_types = FALSE)
 dfm <- estimate_dfm(X, r = SPEC$r, q = SPEC$q, p = SPEC$p,
@@ -36,11 +35,10 @@ dfm <- estimate_dfm(X, r = SPEC$r, q = SPEC$q, p = SPEC$p,
 
 policy_residual <- dfm$var_residuals[, 1]
 p_lag           <- dfm$p
-residual_dates  <- dfm$dates[(p_lag + 1):length(dfm$dates)]
 
 # Index of yield_6m in the panel — used by diagnose_instrument_in_factor_space
 # to read the impact response per variant in policy-variable native units.
-mp_idx_diag <- match(YIELD6M_TARGET, colnames(X))
+mp_idx_diag <- match(SPEC$mp_var, colnames(X))
 
 # ---- 2. Diagnostics per variant ----------------------------
 
@@ -54,11 +52,8 @@ variants <- list(
   "z_bs_purif"     = "data/processed/instrument_bs_purif.csv",
   "z_jk_bs_purif"  = "data/processed/instrument_jk_bs_purif.csv"
 )
-variants <- variants[file.exists(unlist(variants))]
 
-fmt_p <- function(p) if (is.na(p)) "NA" else if (p < 0.001) "< 0.001" else sprintf("%.3f", p)
-
-run_variant <- function(name, path) {
+results <- purrr::imap_dfr(variants, function(path, name) {
   inst_df <- readr::read_csv(path, show_col_types = FALSE)
   align   <- sel_ext_inst_sample(dfm$dates, p_lag, inst_df)
   Z_t     <- align$inst_sel
@@ -92,99 +87,81 @@ run_variant <- function(name, path) {
     impact_y6m   = diag_fs$impact_mp,
     sign_y6m     = diag_fs$sign_mp
   )
-}
-
-results <- purrr::map2_dfr(names(variants), variants, run_variant)
-
-print(results |> dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ round(.x, 3))))
+})
 
 # ---- 3. Scatterplot of residual DI vs residual Ibov --------
 
-diag_path <- "data/processed/copom_event_diagnostics.csv"
-if (file.exists(diag_path)) {
-  diag <- readr::read_csv(diag_path, show_col_types = FALSE)
-  copom_pts <- diag |> dplyr::filter(copom_day)
+event_diag <- readr::read_csv("data/processed/copom_event_diagnostics.csv",
+                              show_col_types = FALSE)
 
-  quad <- copom_pts |>
-    dplyr::mutate(quadrant = dplyr::case_when(
-      e_di > 0 & e_ibov > 0 ~ "I (+,+) info",
-      e_di < 0 & e_ibov > 0 ~ "II (-,+) monetary",
-      e_di < 0 & e_ibov < 0 ~ "III (-,-) info",
-      e_di > 0 & e_ibov < 0 ~ "IV (+,-) monetary",
-      TRUE ~ "zero"
-    ))
-  pct_wrong <- round(100 *
-    sum(quad$quadrant %in% c("I (+,+) info", "III (-,-) info")) /
-    nrow(quad), 1)
+quad <- event_diag |>
+  dplyr::filter(copom_day) |>
+  dplyr::mutate(quadrant = dplyr::case_when(
+    e_di > 0 & e_ibov > 0 ~ "I (+,+) info",
+    e_di < 0 & e_ibov > 0 ~ "II (-,+) monetary",
+    e_di < 0 & e_ibov < 0 ~ "III (-,-) info",
+    e_di > 0 & e_ibov < 0 ~ "IV (+,-) monetary",
+    TRUE ~ "zero"
+  ))
+pct_wrong <- round(100 *
+  sum(quad$quadrant %in% c("I (+,+) info", "III (-,-) info")) /
+  nrow(quad), 1)
 
-  p_scatter <- ggplot2::ggplot(quad, ggplot2::aes(x = e_di, y = e_ibov)) +
-    ggplot2::geom_vline(xintercept = 0, linewidth = 0.3, colour = "grey50") +
-    ggplot2::geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey50") +
-    ggplot2::geom_point(ggplot2::aes(colour = quadrant), alpha = 0.8) +
-    ggplot2::scale_colour_manual(values = c(
-      "I (+,+) info" = "#d95f02", "II (-,+) monetary" = "#1b9e77",
-      "III (-,-) info" = "#d95f02", "IV (+,-) monetary" = "#1b9e77",
-      "zero" = "grey70"
-    )) +
-    ggplot2::labs(
-      title    = "Purified surprises on Copom days",
-      subtitle = sprintf("Wrong-signed (info) share: %.1f%%  (n = %d)", pct_wrong, nrow(quad)),
-      x = "e_DI (residual, bps)",
-      y = "e_Ibov (residual, log-return %)",
-      colour = NULL
-    ) +
-    ggplot2::theme_minimal(base_size = 11) +
-    ggplot2::theme(legend.position = "bottom")
-  ggplot2::ggsave("output/instrument/scatterplot_surpresas_copom.png", p_scatter,
-         width = 7, height = 6, dpi = 150)
-  message(sprintf("Scatterplot saved. Wrong-signed share: %.1f%%", pct_wrong))
-} else {
-  pct_wrong <- NA_real_
-  message("Event diagnostics file missing, skipping scatterplot.")
-}
+p_scatter <- ggplot2::ggplot(quad, ggplot2::aes(x = e_di, y = e_ibov)) +
+  ggplot2::geom_vline(xintercept = 0, linewidth = 0.3, colour = "grey50") +
+  ggplot2::geom_hline(yintercept = 0, linewidth = 0.3, colour = "grey50") +
+  ggplot2::geom_point(ggplot2::aes(colour = quadrant), alpha = 0.8) +
+  ggplot2::scale_colour_manual(values = c(
+    "I (+,+) info" = "#d95f02", "II (-,+) monetary" = "#1b9e77",
+    "III (-,-) info" = "#d95f02", "IV (+,-) monetary" = "#1b9e77",
+    "zero" = "grey70"
+  )) +
+  ggplot2::labs(
+    title    = "Purified surprises on Copom days",
+    subtitle = sprintf("Wrong-signed (info) share: %.1f%%  (n = %d)", pct_wrong, nrow(quad)),
+    x = "e_DI (residual, bps)",
+    y = "e_Ibov (residual, log-return %)",
+    colour = NULL
+  ) +
+  ggplot2::theme_minimal(base_size = 11) +
+  ggplot2::theme(legend.position = "bottom")
+ggplot2::ggsave("output/instrument/scatterplot_surpresas_copom.png", p_scatter,
+                width = 7, height = 6, dpi = 150)
 
 # ---- 4. Variance F-test: Copom vs. non-Copom ----------------
 
-var_test_row <- function(x, copom_flag, label) {
-  v_copom     <- var(x[copom_flag])
-  v_non_copom <- var(x[!copom_flag])
-  n1 <- sum(copom_flag); n2 <- sum(!copom_flag)
-  F_stat <- v_copom / v_non_copom
-  # two-sided p-value under F(n1-1, n2-1)
-  p_val <- 2 * min(
-    pf(F_stat, n1 - 1, n2 - 1),
-    1 - pf(F_stat, n1 - 1, n2 - 1)
-  )
+variance_series <- list(
+  "e_DI"             = event_diag$e_di,
+  "e_Ibov"           = event_diag$e_ibov,
+  "delta_DI (raw)"   = event_diag$delta_di,
+  "delta_Ibov (raw)" = event_diag$r_ibov
+)
+var_tests <- purrr::imap_dfr(variance_series, function(x, label) {
+  copom     <- x[event_diag$copom_day]
+  non_copom <- x[!event_diag$copom_day]
+  f_test    <- var.test(copom, non_copom)
   tibble::tibble(series = label,
-         var_copom = v_copom, var_non_copom = v_non_copom,
-         n_copom = n1, n_non_copom = n2,
-         F_stat = F_stat, p_value = p_val)
-}
-
-if (exists("diag")) {
-  var_tests <- dplyr::bind_rows(
-    var_test_row(diag$e_di,   diag$copom_day, "e_DI"),
-    var_test_row(diag$e_ibov, diag$copom_day, "e_Ibov"),
-    var_test_row(diag$delta_di, diag$copom_day, "delta_DI (raw)"),
-    var_test_row(diag$r_ibov,   diag$copom_day, "delta_Ibov (raw)")
-  )
-  print(var_tests |> dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ signif(.x, 3))))
-} else {
-  var_tests <- NULL
-}
+                 var_copom = var(copom), var_non_copom = var(non_copom),
+                 n_copom = length(copom), n_non_copom = length(non_copom),
+                 F_stat = unname(f_test$statistic), p_value = f_test$p.value)
+})
 
 # ---- 5. Report ---------------------------------------------
 
 res_tbl <- results |>
-  dplyr::mutate(dplyr::across(c(xi_mp, f_robust_mp, exog_f),
-                ~ sprintf("%.3f", .x)),
-         beta_mp     = sprintf("%+.2e", beta_mp),
-         se_mp       = sprintf("%.2e", se_mp),
-         impact_y6m  = sprintf("%+.2e", impact_y6m),
-         sign_y6m    = ifelse(sign_y6m > 0, "+",
-                              ifelse(sign_y6m < 0, "-", "0")),
-         p_mp        = purrr::map_chr(p_mp, fmt_p),
-         exog_p      = purrr::map_chr(exog_p, fmt_p))
+  dplyr::mutate(
+    dplyr::across(c(xi_mp, f_robust_mp, exog_f), ~ sprintf("%.3f", .x)),
+    beta_mp    = sprintf("%+.2e", beta_mp),
+    se_mp      = sprintf("%.2e", se_mp),
+    impact_y6m = sprintf("%+.2e", impact_y6m),
+    sign_y6m   = ifelse(sign_y6m > 0, "+",
+                        ifelse(sign_y6m < 0, "-", "0")),
+    dplyr::across(c(p_mp, exog_p), ~ dplyr::case_when(
+      is.na(.x) ~ "NA",
+      .x < 0.001 ~ "< 0.001",
+      .default = sprintf("%.3f", .x)
+    ))
+  )
 
 hdr <- "| Variant | n | nonzero | ξ_mp | F robusto_mp | β̂_mp | SE(HC1) | p_mp | impacto y6m | sinal | Exog F | Exog p |"
 sep <- "|---|---|---|---|---|---|---|---|---|---|---|---|"
@@ -195,20 +172,16 @@ rows <- apply(res_tbl, 1, function(r)
           r["impact_y6m"], r["sign_y6m"], r["exog_f"], r["exog_p"]))
 tbl_md <- paste(c(hdr, sep, rows), collapse = "\n")
 
-var_md <- if (!is.null(var_tests)) {
-  v <- var_tests |>
-    dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ signif(.x, 3)))
-  paste(c(
-    "| Series | Var(Copom) | Var(non-Copom) | n_C | n_NC | F | p-value |",
-    "|---|---|---|---|---|---|---|",
-    apply(v, 1, function(r)
-      sprintf("| %s | %s | %s | %s | %s | %s | %s |",
-              r["series"], r["var_copom"], r["var_non_copom"],
-              r["n_copom"], r["n_non_copom"], r["F_stat"], r["p_value"]))
-  ), collapse = "\n")
-} else {
-  "_(event diagnostics not available)_"
-}
+v <- var_tests |>
+  dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ signif(.x, 3)))
+var_md <- paste(c(
+  "| Series | Var(Copom) | Var(non-Copom) | n_C | n_NC | F | p-value |",
+  "|---|---|---|---|---|---|---|",
+  apply(v, 1, function(r)
+    sprintf("| %s | %s | %s | %s | %s | %s | %s |",
+            r["series"], r["var_copom"], r["var_non_copom"],
+            r["n_copom"], r["n_non_copom"], r["F_stat"], r["p_value"]))
+), collapse = "\n")
 
 report <- paste(
   "# Instrument Validity Diagnostics Report",
@@ -236,7 +209,7 @@ report <- paste(
   "",
   "## 2. Scatterplot — purified surprises on Copom days",
   "",
-  if (!is.na(pct_wrong)) sprintf("Wrong-signed (information) share: **%.1f%%**.", pct_wrong) else "_(not computed)_",
+  sprintf("Wrong-signed (information) share: **%.1f%%**.", pct_wrong),
   "",
   "![scatter](scatterplot_surpresas_copom.png)",
   "",
@@ -267,8 +240,3 @@ report <- paste(
 )
 
 writeLines(report, "output/instrument/instrument_diagnostics_report.md")
-message("Report written to output/instrument/instrument_diagnostics_report.md")
-
-cat("\n========== VARIANT COMPARISON ==========\n")
-print(results |> dplyr::mutate(dplyr::across(dplyr::where(is.numeric), ~ round(.x, 3))))
-cat("========================================\n\n")
