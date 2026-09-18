@@ -1,7 +1,6 @@
 # ===================================================================
-# FUNÇÕES DE IMPULSO-RESPOSTA (IRF) PARA MODELO DFM
-# IDENTIFICAÇÃO VIA INSTRUMENTO EXTERNO (PROXY SVAR)
-# Seguindo Alessi & Kerssenfischer / Gertler & Karadi (2015)
+# Impulse responses of the DFM identified by an external instrument
+# (proxy SVAR), following Alessi & Kerssenfischer and Gertler & Karadi (2015).
 # ===================================================================
 
 
@@ -16,131 +15,61 @@
 #' @param data_dates Date vector of the estimation panel.
 #' @param p Factor-VAR lag order.
 #' @param instrument_df Data.frame with columns `month` (Date) and `shock`.
-#' @param rr Optional numeric weights applied to the selected instrument.
 #'
 #' @return List with `rsh_sel_ind` (logical index into the residuals) and
 #'   `inst_sel` (the instrument on the common months).
-sel_ext_inst_sample <- function(data_dates, p, instrument_df, rr = NULL) {
+#'
+#' @examples
+#' align <- sel_ext_inst_sample(dfm$dates, 4L, instrument)
+sel_ext_inst_sample <- function(data_dates, p, instrument_df) {
   inst_dates <- as.Date(instrument_df$month)
-  inst_data  <- instrument_df$shock
-
   residual_dates <- data_dates[(p + 1):length(data_dates)]
 
-  rsh_sel_ind <- residual_dates %in% inst_dates
-  inst_sel    <- inst_data[inst_dates %in% residual_dates]
-
-  if (!is.null(rr)) {
-    rr_sel   <- rr[rsh_sel_ind]
-    inst_sel <- inst_sel * rr_sel
-  }
-
-  list(rsh_sel_ind = rsh_sel_ind, inst_sel = inst_sel)
+  list(
+    rsh_sel_ind = residual_dates %in% inst_dates,
+    inst_sel = instrument_df$shock[inst_dates %in% residual_dates]
+  )
 }
 
 
-# ===================================================================
-# IDENTIFICAÇÃO POR INSTRUMENTO EXTERNO
-# Equivalente a IdentExtInstr.m
-# ===================================================================
 #' Identification via external instrument (equivalent to IdentExtInstr.m)
 #'
-#' `normalize_value` is in the policy variable's *native units*. For the
-#' default DFM where the policy variable is `yield_6m` (decimal proportion,
-#' 0.05 = 5%), a +50bp shock corresponds to `normalize_value = 0.005`.
-#' The historical default of 0.5 (kept for backward compatibility with
-#' calls that target a percent-scale policy variable, such as
-#' `juros_selic` in `script/model_var.R`) implicitly normalises to +5000bp
-#' on a decimal-proportion variable. Callers should set
-#' `normalize_value = shock_bps / 10000` when the policy variable is in
-#' decimal proportion. See `registro/justificativa_uso_yield-6m.md`.
+#' Projects the reduced-form responses on `H = (Z' eta) / (Z'Z)` (Stock-Watson
+#' 2018, eq. 4) and normalizes the impact response of the policy variable to
+#' `normalize_value`, in its native units: 0.005 is +50bp on the
+#' decimal-proportion `yield_6m`.
 #'
 #' @param rawimp Reduced-form IRF array (n_vars x q x h+1).
-#' @param rsh_sel Reduced-form factor innovations aligned with the instrument.
+#' @param rsh_sel Dynamic-factor innovations aligned with the instrument.
 #' @param Z_sel Instrument vector aligned with `rsh_sel`.
 #' @param h Horizon of the IRF (excluding impact).
-#' @param mpind Index of the policy variable in `rawimp[, , 1]`. If NULL, no
-#'   impact normalization is applied.
-#' @param normalize_value Target value of `irf_mp[mpind, 1]` after normalization,
-#'   in native units of the policy variable.
-#' @param tcode Vector of transformation codes for `cumimp_transform`.
-#' @param diagnose If TRUE, print diagnostic information about `H`, the
-#'   pre-normalization impact response, and the MOSW relevance statistics.
-#'   Use only on the point estimate.
-#' @param var_names Optional column names for printing the impact vector when
-#'   `diagnose` is TRUE.
+#' @param mpind Index of the policy variable in `rawimp[, , 1]`.
+#' @param normalize_value Target value of the policy variable's impact
+#'   response, in its native units.
+#' @param tcode Transformation codes for `cumimp_transform()`.
 #' @param center If TRUE, demean the innovations before projecting, as
 #'   `IdentExtInstr.m:5` does; a no-op for OLS residuals with a constant. FALSE
 #'   keeps the uncentered moment of MOSW (`SVARIV.m:128`), which is what the
 #'   COVID volatility treatment uses: its WLS residuals are orthogonal to the
 #'   scaled constant `1/s_t`, not to 1.
 #'
-#' @return List with `irf_mp` (normalized + tcode-transformed IRFs),
-#'   `irf_mp_pre_tcode` (normalized but before `cumimp_transform`; the
-#'   normalization at line 122 happens before this field is filled, so it is
-#'   not a raw IRF), and `H` (factor-space loadings).
-ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
-                            mpind = NULL, normalize_value = 0.5,
-                            tcode = NULL, diagnose = FALSE,
-                            var_names = NULL, center = TRUE) {
-  rsh_id <- rsh_sel
-  if (center) {
-    rsh_id <- sweep(rsh_sel, 2, colMeans(rsh_sel))
-  }
+#' @return Matrix (vars x horizons) of normalized, tcode-transformed IRFs.
+#'
+#' @examples
+#' irf <- ident_ext_instr(rawimp, eta_sel, z_sel, 48L, mpind, 0.005, tcode)
+ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h, mpind, normalize_value,
+                            tcode, center = TRUE) {
+  rsh_id <- if (center) sweep(rsh_sel, 2, colMeans(rsh_sel)) else rsh_sel
 
-  # Proxy-SVAR loadings: H = (Z' eta) / (Z'Z) — Stock-Watson (2018) eq. 4
   Z_mat <- as.matrix(Z_sel)
   H <- drop(crossprod(Z_mat, rsh_id)) / drop(crossprod(Z_mat))
 
   n_vars <- dim(rawimp)[1]
-  irf_mp <- matrix(0, n_vars, h + 1)
+  irf_mp <- vapply(seq_len(h + 1), function(j) {
+    drop(matrix(rawimp[, , j], nrow = n_vars) %*% H)
+  }, numeric(n_vars))
 
-  for (j in seq_len(h + 1)) {
-    rawimp_j <- matrix(rawimp[, , j], nrow = n_vars)
-    irf_mp[, j] <- rawimp_j %*% H
-  }
-
-  if (isTRUE(diagnose) && !is.null(mpind)) {
-    impact_pre <- irf_mp[mpind, 1]
-    c_mp       <- as.numeric(rawimp[mpind, , 1])
-    eta_mp     <- as.numeric(rsh_id %*% c_mp)
-    xi_mp      <- compute_factor_space_wald(eta_mp, Z_mat)$wald_joint
-    f_robust_mp <- compute_robust_first_stage_F(eta_mp, Z_mat)$f_statistic
-
-    cat("\n========== ident_ext_instr DIAGNOSTIC ==========\n")
-    cat(sprintf("H (factor-space loadings, length %d):\n", length(H)))
-    cat(sprintf("  %s\n", paste(sprintf("%.4e", H), collapse = "  ")))
-    cat(sprintf("irf_mp[mpind=%d, 1] (pre-norm) = %.4e   sign = %s\n",
-                mpind, impact_pre,
-                if (impact_pre > 0) "POSITIVE" else if (impact_pre < 0) "NEGATIVE" else "ZERO"))
-    cat(sprintf("MOSW xi_mp in the normalization direction = %.3f\n", xi_mp))
-    cat(sprintf("MOSW robust first-stage F_mp (HC1) = %.3f\n", f_robust_mp))
-    cat("      [no lag controls here — instrument_diagnostics.R reports the\n")
-    cat("      Shat-corrected version with factor-VAR lags residualized out]\n")
-    if (xi_mp < 10 || f_robust_mp < 10) {
-      cat("[!!!] WARNING: relevance in the normalization direction is below 10.\n")
-      cat("      Conventional IRF bands require weak-instrument caution.\n")
-    }
-    cat("Impact (raw, pre-norm) per variable:\n")
-    impact_vec <- irf_mp[, 1]
-    if (!is.null(var_names) && length(var_names) == length(impact_vec)) {
-      names(impact_vec) <- var_names
-    }
-    print(impact_vec)
-    if (impact_pre < 0) {
-      cat("\n[!!!] WARNING: impact_pre < 0 — normalization will FLIP ALL IRF SIGNS.\n")
-      cat("      Likely root cause: sign of H or of dynamic-factor rotation K\n")
-      cat("      is not aligned with instrument's sign convention.\n")
-    }
-    cat("================================================\n\n")
-  }
-
-  if (!is.null(mpind)) {
-    irf_mp <- irf_mp / irf_mp[mpind, 1] * normalize_value
-  }
-
-  irf_mp_transformed <- cumimp_transform(irf_mp, tcode)
-
-  list(irf_mp = irf_mp_transformed, irf_mp_pre_tcode = irf_mp, H = H)
+  cumimp_transform(irf_mp / irf_mp[mpind, 1] * normalize_value, tcode)
 }
 
 
@@ -154,8 +83,7 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
 #'
 #' @param target_innovation Numeric vector `c_mp' eta_t` aligned with `Z`.
 #' @param Z Instrument vector or one-column matrix.
-#' @param controls Optional matrix/data.frame of factor-VAR regressors. A
-#'   constant is added by the regression.
+#' @param controls Matrix of factor-VAR regressors aligned with `Z`.
 #' @param nw_lags Newey-West truncation lag. Zero uses HC1.
 #' @param intercept Include an intercept. FALSE when `controls` already carry
 #'   the deterministic column, as the regressors of the COVID volatility
@@ -163,43 +91,18 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h,
 #'
 #' @return List with `f_statistic`, `beta`, `se`, `p_value`, `n_obs`, and
 #'   `nw_lags`.
-compute_robust_first_stage_F <- function(target_innovation, Z,
-                                         controls = NULL, nw_lags = 0L,
-                                         intercept = TRUE) {
-  if (!requireNamespace("sandwich", quietly = TRUE)) {
-    stop("Package 'sandwich' is required for the robust first-stage F")
-  }
+#'
+#' @examples
+#' fs <- compute_robust_first_stage_F(eta_mp, z, controls = X_lags)
+compute_robust_first_stage_F <- function(target_innovation, Z, controls,
+                                         nw_lags = 0L, intercept = TRUE) {
+  controls <- as.matrix(controls)
+  colnames(controls) <- paste0("control_", seq_len(ncol(controls)))
+  regression_data <- cbind(data.frame(y = as.numeric(target_innovation),
+                                      z = as.numeric(Z)),
+                           controls)
 
-  y <- as.numeric(target_innovation)
-  z <- as.numeric(Z)
-  if (length(y) != length(z)) {
-    stop("target_innovation and Z must have the same length")
-  }
-  if (any(!is.finite(y)) || any(!is.finite(z))) {
-    stop("target_innovation and Z must contain only finite values")
-  }
-  if (sd(z) == 0) stop("Z must vary in the effective sample")
-
-  nw_lags <- as.integer(nw_lags)
-  if (is.na(nw_lags) || nw_lags < 0L || nw_lags >= length(z)) {
-    stop("nw_lags must be a non-negative integer smaller than the sample size")
-  }
-
-  regression_data <- data.frame(y = y, z = z)
-  if (!is.null(controls)) {
-    controls <- as.matrix(controls)
-    if (nrow(controls) != length(z) || any(!is.finite(controls))) {
-      stop("controls must be finite and aligned with target_innovation and Z")
-    }
-    colnames(controls) <- paste0("control_", seq_len(ncol(controls)))
-    regression_data <- cbind(regression_data, controls)
-  }
-
-  if (intercept) {
-    fit <- lm(y ~ ., data = regression_data)
-  } else {
-    fit <- lm(y ~ 0 + ., data = regression_data)
-  }
+  fit <- lm(if (intercept) y ~ . else y ~ 0 + ., data = regression_data)
   covariance <- if (nw_lags == 0L) {
     sandwich::vcovHC(fit, type = "HC1")
   } else {
@@ -222,67 +125,44 @@ compute_robust_first_stage_F <- function(target_innovation, Z,
 }
 
 
-#' Montiel Olea-Stock-Watson Wald statistics for instrument relevance in factor space
+#' Montiel Olea-Stock-Watson Wald statistic for instrument relevance in factor space
 #'
 #' Implements the relevance diagnostics of Montiel Olea, Stock & Watson
-#' (2021, J. Econometrics, sec. 4.2) against the q factor innovations:
-#'
-#' The scalar case supplies `xi_mp`, the Wald statistic in the policy-variable
-#' normalization direction used by Montiel Olea, Stock and Watson.
-#'
-#' with Gamma = (1/T) sum_t z_t eta_t and W the Eicker-White covariance of the
-#' moment z_t eta_t (Newey-West with 0 lags, matching NWlags = 0 in the
-#' authors' applications). When `controls` is supplied (the factor-VAR
-#' regressors: lags + constant), z is residualized on them first — this
-#' reproduces the Shat correction of CovAhat_Sigmahat_Gamma.m, which
-#' propagates the VAR estimation error into W. Without controls, z is only
-#' demeaned (the constant-only version of the same correction; Gamma is
-#' unchanged either way because the VAR residuals are orthogonal to the
-#' regressors in-sample).
-#'
-#' The vector-valued output remains available for internal validation and
-#' HAC calculations, but the project's reported relevance diagnostics are
-#' the scalar `xi_mp` and its matching robust first-stage F.
+#' (2021, J. Econometrics, sec. 4.2) against the q factor innovations, with
+#' `Gamma = (1/T) sum_t z_t eta_t` and `W` the Eicker-White covariance of the
+#' moment `z_t eta_t` (Newey-West with 0 lags, `NWlags = 0` in the authors'
+#' applications). z is residualized on the factor-VAR regressors first, which
+#' reproduces the Shat correction of `CovAhat_Sigmahat_Gamma.m`. Called with
+#' the scalar innovation of the policy variable, `wald_joint` is `xi_mp`.
 #'
 #' @param eta Matrix of factor innovations (T x q).
 #' @param Z Instrument vector or column matrix (T x 1), aligned to eta.
-#' @param controls Optional matrix/data.frame of VAR regressors aligned to eta
-#'   (lags of the factors; a constant is added internally).
+#' @param controls Matrix of factor-VAR regressors aligned to eta.
 #' @param nw_lags Newey-West truncation lag for W. The default 0 is the
 #'   Eicker-White estimator and reproduces `NWlags = 0` of the oil application
-#'   (`codigos_externos/codigo_olea/OilSVARIV.m:50`), which is what every existing caller and
-#'   every published number in this project assume. Values > 0 apply the
-#'   Bartlett kernel of `codigos_externos/codigo_olea/functions/RForm/NW_hac_STATA.m`. Only
-#'   needed when the moment z_t eta_t is serially correlated — e.g. under a
-#'   Gertler-Karadi position-weighted monthly aggregation, which splits each
-#'   event surprise across t and t+1 and so induces an MA(1). The official
-#'   suite uses `NWlags = 8` in the tax application (`TaxSVARIV.m:52`).
+#'   (`codigos_externos/codigo_olea/OilSVARIV.m:50`), which every published
+#'   number assumes. Values > 0 apply the Bartlett kernel of
+#'   `codigos_externos/codigo_olea/functions/RForm/NW_hac_STATA.m`, needed only
+#'   when the moment is serially correlated; the tax application uses
+#'   `NWlags = 8` (`TaxSVARIV.m:52`).
 #' @param intercept Add a constant to `controls` before residualizing z, as
 #'   the OLS factor VAR carries one. FALSE when `controls` already hold the
 #'   deterministic column: under the COVID volatility treatment the regressors
-#'   are divided by `s_t` and the constant becomes `1/s_t`, the Shat correction
-#'   of `CovAhat_Sigmahat_Gamma.m` on the transformed regression. Unused
-#'   without `controls`.
+#'   are divided by `s_t` and the constant becomes `1/s_t`.
 #'
 #' @return List with `wald_k` (length-q vector), `wald_joint`, `q`, `T_eff`,
-#'   and `nw_lags`. Vector-valued fields are internal inputs to scalar
-#'   projections and validation checks, not reported strength diagnostics.
-compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L,
+#'   and `nw_lags`.
+#'
+#' @examples
+#' xi_mp <- compute_factor_space_wald(eta_mp, z, controls = X_lags)$wald_joint
+compute_factor_space_wald <- function(eta, Z, controls, nw_lags = 0L,
                                       intercept = TRUE) {
   eta <- as.matrix(eta)
   Z   <- as.numeric(Z)
   T_eff <- length(Z)
-  q     <- ncol(eta)
 
-  if (!is.null(controls)) {
-    regressors <- as.matrix(controls)
-    if (intercept) {
-      regressors <- cbind(1, regressors)
-    }
-    Z_use <- as.numeric(qr.resid(qr(regressors), Z))
-  } else {
-    Z_use <- Z - mean(Z)
-  }
+  regressors <- if (intercept) cbind(1, as.matrix(controls)) else as.matrix(controls)
+  Z_use <- as.numeric(qr.resid(qr(regressors), Z))
 
   G_mat <- Z_use * eta                       # T x q, rows z_t * eta_t'
   Gamma <- colMeans(G_mat)
@@ -292,29 +172,16 @@ compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L,
   # Bartlett accumulation, transcribed from NW_hac_STATA.m: weight
   # 1 - n/(lags+1), divisor T (no degrees-of-freedom correction), and
   # lags = 0 collapses exactly to the Eicker-White W above.
-  nw_lags <- as.integer(nw_lags)
-  if (is.na(nw_lags) || nw_lags < 0L) {
-    stop("nw_lags must be a non-negative integer")
-  }
-  if (nw_lags >= T_eff) {
-    stop("nw_lags (", nw_lags, ") must be smaller than T_eff (", T_eff, ")")
-  }
   for (l in seq_len(nw_lags)) {
     Gl <- crossprod(V[seq_len(T_eff - l), , drop = FALSE],
                     V[(1L + l):T_eff, , drop = FALSE]) / T_eff
     W  <- W + (1 - l / (nw_lags + 1)) * (Gl + t(Gl))
   }
 
-  wald_k     <- T_eff * Gamma^2 / diag(W)
-  wald_joint <- tryCatch(
-    T_eff * drop(t(Gamma) %*% solve(W, Gamma)),
-    error = function(e) NA_real_
-  )
-
   list(
-    wald_k     = wald_k,
-    wald_joint = wald_joint,
-    q          = q,
+    wald_k     = T_eff * Gamma^2 / diag(W),
+    wald_joint = T_eff * drop(t(Gamma) %*% solve(W, Gamma)),
+    q          = ncol(eta),
     T_eff      = T_eff,
     nw_lags    = nw_lags
   )
@@ -326,94 +193,49 @@ compute_factor_space_wald <- function(eta, Z, controls = NULL, nw_lags = 0L,
 #' Codes 1-5 are `cumimp.m`: 1 = level, 2 = first difference, 3 = second
 #' difference, 4 = log-level, 5 = first log-difference. Code **6 has no
 #' counterpart in AK** and is this project's: a monthly return put on the
-#' percent scale (`x * 100`) **without** accumulating. It exists because the
-#' asset block enters the panel as a monthly return and the `cumsum` of code 2
-#' was integrating the sampling error along with the signal — see
-#' `registro/pendencias.md`, Tema E.
+#' percent scale (`x * 100`) **without** accumulating, for the asset block.
 #' Note that **tcode 1 does not multiply by 100** — a trap documented in
 #' `.claude/rules/identification.md`.
 #'
 #' @param Imp Matrix of raw IRFs (vars x horizons).
-#' @param tcode Integer vector of transformation codes, one per variable;
-#'   defaults to all 1.
+#' @param tcode Integer vector of transformation codes, one per variable.
 #'
 #' @return Matrix of the same shape, in economic units.
-cumimp_transform <- function(Imp, tcode = NULL) {
-  if (is.null(tcode)) {
-    tcode <- rep(1L, nrow(Imp))
-  }
-  if (length(tcode) != nrow(Imp)) {
-    stop("tcode deve ter comprimento igual ao numero de variaveis (", nrow(Imp), ")")
-  }
+#'
+#' @examples
+#' irf <- cumimp_transform(irf_raw, infer_tcode_from_varnames(var_names))
+cumimp_transform <- function(Imp, tcode) {
+  cum <- t(apply(Imp, 1, cumsum))
 
-  CC <- Imp * 0
-
-  notransf <- which(tcode == 1)
-  firstdiff <- which(tcode == 2)
-  seconddiff <- which(tcode == 3)
-  loglevel <- which(tcode == 4)
-  firstlogdiff <- which(tcode == 5)
-  pctnocum <- which(tcode == 6)
-
-  if (length(notransf) > 0) {
-    CC[notransf, ] <- Imp[notransf, ]
-  }
-  if (length(pctnocum) > 0) {
-    CC[pctnocum, ] <- Imp[pctnocum, , drop = FALSE] * 100
-  }
-  if (length(firstdiff) > 0) {
-    CC[firstdiff, ] <- t(apply(Imp[firstdiff, , drop = FALSE], 1, cumsum)) * 100
-  }
-  if (length(firstlogdiff) > 0) {
-    CC[firstlogdiff, ] <- (exp(t(apply(Imp[firstlogdiff, , drop = FALSE], 1, cumsum))) - 1) * 100
-  }
-  if (length(seconddiff) > 0) {
-    first_cum <- t(apply(Imp[seconddiff, , drop = FALSE], 1, cumsum))
-    CC[seconddiff, ] <- t(apply(first_cum, 1, cumsum))
-  }
-  if (length(loglevel) > 0) {
-    CC[loglevel, ] <- (exp(Imp[loglevel, , drop = FALSE]) - 1) * 100
-  }
-
+  CC <- Imp
+  CC[tcode == 2, ] <- cum[tcode == 2, ] * 100
+  CC[tcode == 3, ] <- t(apply(cum, 1, cumsum))[tcode == 3, ]
+  CC[tcode == 4, ] <- (exp(Imp[tcode == 4, ]) - 1) * 100
+  CC[tcode == 5, ] <- (exp(cum[tcode == 5, ]) - 1) * 100
+  CC[tcode == 6, ] <- Imp[tcode == 6, ] * 100
   CC
 }
 
 
-# ===================================================================
-# DICIONÁRIO DE TCODES COM BASE NAS TRANSFORMAÇÕES DO CLEAN
-# Padrão: tcode = 1 (nível)
-# Não-padrão:
-# - base_*                -> tcode = 4 (log-level)
-# - credit* / credito_*   -> tcode = 4 (log-level)
-# - fin_inst_reserve_req  -> tcode = 4 (log-level)
-# - pib                   -> tcode = 4 (log-level)
-# - asset_*               -> tcode = 6 (retorno mensal em %, sem acumular)
-# ===================================================================
 #' Assign transformation codes from panel variable names
+#'
+#' Everything is a level (1) except `base_*`, `credit*`/`credito_*`,
+#' `fin_inst_reserve_req` and `pib` (log-level, 4) and `asset_*` (6). The
+#' `asset_*` series are monthly returns (`download.R`: `prod(1 + r) - 1`); the
+#' `cumsum` of code 2, used until 2026-08-17, integrated the sampling error
+#' with the signal. h = 0 is invariant to that change.
 #'
 #' @param var_names Character vector of panel column names.
 #'
 #' @return Integer vector of tcodes aligned to `var_names`.
+#'
+#' @examples
+#' tcode <- infer_tcode_from_varnames(colnames(panel))
 infer_tcode_from_varnames <- function(var_names) {
   tcode <- rep(1L, length(var_names))
-
-  loglevel_idx <- grepl("^base_", var_names) |
-    grepl("^credit", var_names) |
-    grepl("^credito_", var_names) |
-    var_names %in% c("fin_inst_reserve_req", "pib")
-
-  tcode[loglevel_idx] <- 4L
-
-  # asset_* são retornos mensais (download.R: prod(1+r)-1), não níveis.
-  # Até 2026-08-17 usavam tcode = 2, que acumula a IRF para recuperar a resposta
-  # de NÍVEL de preço. O nível é o objeto teórico, mas o cumsum integrava o erro
-  # de estimação junto com o sinal: a razão de largura de banda h36/h0 chegava a
-  # 10,46 nos 8 índices e o Ibovespa ganhava um pico de +20,3% em h≈24 que é
-  # ruído acumulado. O código 6 põe a resposta na escala percentual sem acumular.
-  # Em h=0 o cumsum é no-op e o x100 é escalar positivo, de modo que ponto e
-  # bandas no impacto são INVARIANTES à troca.
+  tcode[grepl("^(base_|credit|credito_)", var_names) |
+          var_names %in% c("fin_inst_reserve_req", "pib")] <- 4L
   tcode[grepl("^asset_", var_names)] <- 6L
-
   tcode
 }
 
@@ -423,24 +245,22 @@ infer_tcode_from_varnames <- function(var_names) {
 #' The main entry point of the identification stage. Identification is by
 #' external instrument (Gertler-Karadi / Alessi-Kerssenfischer) — the single
 #' branch since the heteroskedasticity and non-Gaussian routes were abandoned on
-#' 2026-08-17. Their negative results remain documented under `arquivo/`.
+#' 2026-08-17.
 #'
 #' @param dfm_results List returned by `estimate_dfm()`. When it carries
 #'   `covid_volatility`, the point projects on the uncentered moment and the
-#'   Anderson-Rubin sets run on the transformed regression for
-#'   `innovations = "standardized"` (`ar_dfm_bands()`).
-#' @param instrument Optional instrument data.frame; normally already embedded
-#'   in `dfm_results` by the alignment stage.
+#'   Anderson-Rubin sets run on the transformed regression
+#'   (`ar_dfm_bands()`).
+#' @param instrument Data.frame with `month` and `shock`, aligned through
+#'   `dfm_results$dates`, or a numeric vector already aligned with the
+#'   residuals. Defaults to the one `estimate_dfm()` embedded.
 #' @param h Maximum horizon.
 #' @param mpind Column index of the monetary-policy variable used for
 #'   normalization.
 #' @param normalize_value Impact response imposed on the policy variable, in its
 #'   native units (0.005 for a +50bp shock on a decimal-proportion yield).
-#' @param data_dates Optional Date vector of the panel.
 #' @param tcode Integer vector of transformation codes, one per variable.
 #' @param ci_levels Confidence levels of the sets.
-#' @param diagnose When TRUE, attaches first-stage and factor-space diagnostics.
-#' @param var_names Character vector of panel column names.
 #' @param identification Identification branch; `"proxy"` is the only one.
 #' @param inference What fills `ci`, with no default: `"ar"` inverts the
 #'   Anderson-Rubin test (`ar_dfm_bands()`, the inference of the DFM and what
@@ -450,130 +270,53 @@ infer_tcode_from_varnames <- function(var_names) {
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #'
 #' @return List with `irf_point_matrix` (vars x horizons), `ci` (one entry per
-#'   level, each with `lower`/`upper`), `inference`, and `ar` — the full
-#'   `ar_dfm_bands()` result with set topologies, or NULL under `"none"`.
-compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, mpind = NULL,
-                            normalize_value = 0.5, data_dates = NULL,
-                            tcode = NULL, ci_levels = c(0.90, 0.95),
-                            diagnose = getOption("dfm.irf.diagnose", FALSE),
-                            var_names = NULL,
+#'   level, each with `level`, `lower` and `upper`), `ci_levels`,
+#'   `identification`, `inference`, and `ar` — the full `ar_dfm_bands()` result
+#'   with set topologies, or NULL under `"none"`.
+#'
+#' @examples
+#' irf <- compute_irf_dfm(dfm, h = 48L, mpind = mp_idx, normalize_value = 0.005,
+#'                        tcode = tcode, ci_levels = c(0.68, 0.90),
+#'                        inference = "ar")
+compute_irf_dfm <- function(dfm_results, instrument = dfm_results$instrument,
+                            h = 24, mpind, normalize_value,
+                            tcode = rep(1L, nrow(dfm_results$static_loadings)),
+                            ci_levels = c(0.90, 0.95),
                             identification = "proxy",
                             inference, ar_nw_lags = 0L) {
-
   identification <- match.arg(identification)
   inference <- match.arg(inference, c("ar", "none"))
-  if (inference == "ar" && !exists("ar_dfm_bands", mode = "function")) {
-    stop("inference = 'ar' requires R/identification/weak_iv_ar.R to be sourced")
-  }
 
-  # --- Extrair componentes do DFM ---
   Lambda <- dfm_results$static_loadings
   A      <- dfm_results$companion_matrix
-  K      <- dfm_results$dynamic_loadings
-  M      <- dfm_results$dynamic_scaling
-  sy     <- dfm_results$data_sd
-  p      <- dfm_results$p
   r      <- ncol(Lambda)
-  q      <- dfm_results$q
-  n_vars <- nrow(Lambda)
-  rp     <- nrow(A)
 
-  # --- Resolver identificação ---
-  if (is.null(instrument) && !is.null(dfm_results$instrument)) {
-    instrument <- dfm_results$instrument
-  }
-  if (is.null(instrument)) {
-    stop("instrument deve ser fornecido diretamente ou via dfm_results$instrument")
-  }
-
-  ci_levels <- sort(unique(as.numeric(ci_levels)))
-  if (length(ci_levels) == 0 || any(is.na(ci_levels)) ||
-      any(ci_levels <= 0) || any(ci_levels >= 1)) {
-    stop("ci_levels deve conter niveis entre 0 e 1 (ex: c(0.90, 0.95))")
-  }
-
-  if (is.null(tcode) && !is.null(dfm_results$tcode)) {
-    tcode <- dfm_results$tcode
-  }
-  if (is.null(tcode)) {
-    tcode <- rep(1L, n_vars)
-  }
-
-  # --- Parsear instrumento ---
-  rsh_sel_ind <- NULL
-  inst_sel    <- NULL
   if (is.data.frame(instrument)) {
-    if (!all(c("month", "shock") %in% names(instrument)))
-      stop("Instrument data.frame deve conter colunas 'month' e 'shock'")
-
-    dates_vec <- data_dates
-    if (is.null(dates_vec) && !is.null(dfm_results$dates))
-      dates_vec <- dfm_results$dates
-    if (is.null(dates_vec))
-      stop("data_dates ou dfm_results$dates necessario para alinhamento temporal")
-
-    dates_vec <- as.Date(dates_vec)
-    align     <- sel_ext_inst_sample(dates_vec, p, instrument)
+    align       <- sel_ext_inst_sample(dfm_results$dates, dfm_results$p, instrument)
     rsh_sel_ind <- align$rsh_sel_ind
     inst_sel    <- align$inst_sel
-
-    if (sum(rsh_sel_ind) == 0)
-      stop("Nenhuma data comum entre instrumento e residuos do VAR")
-  } else if (is.numeric(instrument)) {
-    n_resid <- nrow(dfm_results$var_residuals)
-    if (length(instrument) != n_resid)
-      stop("Vetor de instrumento (", length(instrument),
-           ") deve ter mesmo comprimento que residuos do VAR (", n_resid, ")")
-    rsh_sel_ind <- rep(TRUE, n_resid)
+  } else {
+    rsh_sel_ind <- rep(TRUE, nrow(dfm_results$var_residuals))
     inst_sel    <- instrument
-  } else {
-    stop("instrument deve ser vetor numerico ou data.frame com colunas 'month' e 'shock'")
   }
 
-  # --- Matrizes B de propagação ---
-  Bfull <- array(0, dim = c(rp, rp, h + 1))
-  Bfull[, , 1] <- diag(rp)
-  Bfull[, , 2] <- A
-  for (i in 3:(h + 1)) Bfull[, , i] <- Bfull[, , i - 1] %*% A
+  # Reduced-form responses diag(sy) Lambda B_h K M, B_h the r x r block of A^h
+  powers <- Reduce(function(B, i) B %*% A, seq_len(h), accumulate = TRUE,
+                   init = diag(nrow(A)))
+  rawimp <- simplify2array(lapply(powers, function(B) {
+    sweep(Lambda %*% B[1:r, 1:r] %*% dfm_results$dynamic_loadings %*%
+            dfm_results$dynamic_scaling, 1, dfm_results$data_sd, "*")
+  }))
 
-  B <- array(0, dim = c(r, r, h + 1))
-  for (i in seq_len(h + 1)) B[, , i] <- Bfull[1:r, 1:r, i]
+  eta <- extract_dynamic_innovations(dfm_results)
 
-  # --- IRFs de forma reduzida (rawimp) ---
-  rawimp <- array(0, dim = c(n_vars, q, h + 1))
-  for (i in seq_len(h + 1)) {
-    if (!is.matrix(K) && !is.matrix(M)) {
-      temp <- Re(Lambda %*% B[, , i] * K * M)
-    } else {
-      temp <- Re(Lambda %*% B[, , i] %*% K %*% M)
-    }
-    rawimp[, , i] <- sweep(temp, 1, sy, "*")
-  }
+  # Under the COVID volatility, no centering: MOSW's Gamma (SVARIV.m:128)
+  irf_point <- ident_ext_instr(rawimp, eta[rsh_sel_ind, , drop = FALSE], inst_sel,
+                               h, mpind, normalize_value, tcode,
+                               center = is.null(dfm_results$covid_volatility))
 
-  # --- Resíduos de fatores dinâmicos: eta = u * K / M ---
-  u <- dfm_results$var_residuals
-  if (!is.matrix(K) && !is.matrix(M)) {
-    eta <- u
-  } else {
-    eta <- u %*% K %*% solve(M)
-  }
-
-  # --- Identificação (estimativa pontual) ---
-  eta_sel <- eta[rsh_sel_ind, , drop = FALSE]
-  # Sob a volatilidade COVID, sem centragem: o Gamma de MOSW (SVARIV.m:128)
-  point_result <- ident_ext_instr(rawimp, eta_sel, inst_sel, h,
-                                  mpind, normalize_value, tcode,
-                                  diagnose = diagnose,
-                                  var_names = var_names,
-                                  center = is.null(dfm_results$covid_volatility))
-  irf_point <- point_result$irf_mp
-
-  # --- Anderson-Rubin sets ---
   ar <- NULL
   if (inference == "ar") {
-    if (is.null(mpind)) {
-      stop("inference = 'ar' requires mpind: the sets are normalized on it")
-    }
     ar <- ar_dfm_bands(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
                        normalize_value, tcode, ci_levels, nw_lags = ar_nw_lags)
 
@@ -585,33 +328,17 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, mpind = NULL
       stop("The Anderson-Rubin point deviates from ident_ext_instr by ",
            format(dev_point, digits = 3), " (tolerance 1e-10)")
     }
-
-    ci <- list()
-    for (lvl in ci_levels) {
-      name <- sprintf("%.2f", lvl)
-      ci[[name]] <- list(
-        level = lvl,
-        lower = ar$by_level[[name]]$lo,
-        upper = ar$by_level[[name]]$hi
-      )
-    }
-  } else {
-    ci <- list()
-    for (lvl in ci_levels) {
-      name <- sprintf("%.2f", lvl)
-      ci[[name]] <- list(
-        level = lvl,
-        lower = irf_point,
-        upper = irf_point
-      )
-    }
   }
 
-  irf_point_3d <- array(0, dim = c(n_vars, h + 1, 1))
-  irf_point_3d[, , 1] <- irf_point
+  level_keys <- sprintf("%.2f", ci_levels)
+  ci <- purrr::map2(ci_levels, level_keys, function(lvl, key) {
+    list(level = lvl,
+         lower = if (is.null(ar)) irf_point else ar$by_level[[key]]$lo,
+         upper = if (is.null(ar)) irf_point else ar$by_level[[key]]$hi)
+  })
+  names(ci) <- level_keys
 
-  out <- list(
-    irf_point = irf_point_3d,
+  list(
     irf_point_matrix = irf_point,
     ci = ci,
     ci_levels = ci_levels,
@@ -619,185 +346,54 @@ compute_irf_dfm <- function(dfm_results, instrument = NULL, h = 24, mpind = NULL
     inference = inference,
     ar = ar
   )
-
-  out
 }
 
 
-#' Plot IRFs with shaded confidence bands, paper style
+#' Plot IRFs with shaded confidence bands
 #'
-#' @param irf_results Full list returned by `compute_irf_dfm()`.
-#' @param response_vars List of named variables (or indices) to draw.
-#' @param shock Retained for signature compatibility; a single shock is drawn.
+#' @param irf_results List returned by `compute_irf_dfm()`.
+#' @param response_vars Named character vector: panel variables to draw, named
+#'   by their panel label.
 #' @param horizon Maximum horizon on the x axis.
-#' @param cumulative Ignored — IRFs already arrive in economic units via
-#'   `cumimp_transform()`; passing TRUE only raises a warning.
-#' @param invert_shock When TRUE, flips the sign of the plotted response.
 #' @param var_names Character vector of panel column names.
-#' @param tcode Retained for signature compatibility; units come from
-#'   `irf_results`, already transformed.
 #' @param ci_to_plot Confidence levels to shade.
 #'
-#' @return A patchwork of ggplot2 panels.
-plot_irf <- function(irf_results, response_vars, shock = 1, horizon = 20,
-                     cumulative = FALSE, invert_shock = FALSE,
-                     var_names = NULL, tcode = NULL,
-                     ci_to_plot = c(0.90, 0.95)) {
+#' @return A patchwork of ggplot2 panels, two per row.
+#'
+#' @examples
+#' p <- plot_irf(res$irfs, c(ipca = "price_ipca"), 48L, colnames(res$data),
+#'               c(0.68, 0.90))
+plot_irf <- function(irf_results, response_vars, horizon, var_names, ci_to_plot) {
+  h <- 0:horizon
+  keys <- sprintf("%.2f", sort(ci_to_plot, decreasing = TRUE))
+  fills <- c("grey90", "grey80", "grey70", "grey60")
+  alphas <- c(0.5, 0.45, 0.4, 0.35)
 
-  if (isTRUE(cumulative)) {
-    warning("IRFs ja estao em unidades economicas via tcode (cumimp). 'cumulative' sera ignorado.")
-  }
-
-  if (!is.list(irf_results) || is.null(irf_results$irf_point_matrix)) {
-    stop("plot_irf agora espera o objeto completo retornado por compute_irf_dfm (lista com irf_point_matrix e ci)")
-  }
-
-  point <- irf_results$irf_point_matrix
-  ci_obj <- irf_results$ci
-  n_vars <- nrow(point)
-  max_h <- ncol(point) - 1
-  horizon <- min(horizon, max_h)
-
-  if (is.null(var_names)) {
-    var_names <- as.character(seq_len(n_vars))
-  }
-
-  if (invert_shock) {
-    point <- -point
-    for (nm in names(ci_obj)) {
-      lo <- ci_obj[[nm]]$lower
-      hi <- ci_obj[[nm]]$upper
-      ci_obj[[nm]]$lower <- -hi
-      ci_obj[[nm]]$upper <- -lo
-    }
-  }
-
-  ci_to_plot <- sort(unique(as.numeric(ci_to_plot)), decreasing = TRUE)
-  ci_keys <- sprintf("%.2f", ci_to_plot)
-  missing_ci <- setdiff(ci_keys, names(ci_obj))
-  if (length(missing_ci) > 0) {
-    stop("Niveis de IC solicitados nao encontrados no objeto irf_results$ci: ",
-         paste(missing_ci, collapse = ", "))
-  }
-
-  fill_palette <- c("grey90", "grey80", "grey70", "grey60")
-  alpha_palette <- c(0.5, 0.45, 0.4, 0.35)
-
-  plot_list <- list()
-
-  for (i in seq_along(response_vars)) {
-    var_spec <- response_vars[[i]]
-    var_label <- names(var_spec)
-
-    if (is.numeric(var_spec)) {
-      var_index <- as.integer(var_spec)
-    } else if (is.character(var_spec)) {
-      var_index <- match(var_spec, var_names)
-      if (is.na(var_index)) {
-        stop("Variavel '", var_spec, "' nao encontrada em var_names")
-      }
-      if (length(var_label) == 0 || is.null(var_label)) {
-        var_label <- var_spec
-      }
-    } else {
-      stop("Cada item de response_vars deve ser numerico (indice) ou character (nome)")
-    }
-
-    if (var_index < 1 || var_index > n_vars) {
-      stop("Indice de variavel fora do limite: ", var_index, " (1..", n_vars, ")")
-    }
-
-    if (length(var_label) == 0 || is.null(var_label) || identical(var_label, "")) {
-      var_label <- var_names[var_index]
-    }
-
-    df_point <- data.frame(
-      tempo = seq_len(horizon + 1) - 1,
-      irf = point[var_index, seq_len(horizon + 1)]
-    )
-
-    p <- ggplot2::ggplot(df_point, ggplot2::aes(x = tempo))
-
-    for (k in seq_along(ci_keys)) {
-      key <- ci_keys[k]
-      ci_k <- ci_obj[[key]]
-      df_ci <- data.frame(
-        tempo = seq_len(horizon + 1) - 1,
-        lower = ci_k$lower[var_index, seq_len(horizon + 1)],
-        upper = ci_k$upper[var_index, seq_len(horizon + 1)]
-      )
-
-      p <- p + ggplot2::geom_ribbon(
-        data = df_ci,
+  panels <- purrr::imap(response_vars, function(variable, label) {
+    i <- match(variable, var_names)
+    bands <- purrr::map(seq_along(keys), function(k) {
+      ci <- irf_results$ci[[keys[k]]]
+      ggplot2::geom_ribbon(
+        data = data.frame(tempo = h, lower = ci$lower[i, h + 1], upper = ci$upper[i, h + 1]),
         ggplot2::aes(ymin = lower, ymax = upper),
-        fill = fill_palette[min(k, length(fill_palette))],
-        alpha = alpha_palette[min(k, length(alpha_palette))]
+        fill = fills[k], alpha = alphas[k]
       )
-    }
+    })
 
-    p <- p +
+    ggplot2::ggplot(data.frame(tempo = h, irf = irf_results$irf_point_matrix[i, h + 1]),
+                    ggplot2::aes(x = tempo)) +
+      bands +
       ggplot2::geom_line(ggplot2::aes(y = irf), color = "black", linewidth = 1) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
       ggplot2::theme_classic() +
-      ggplot2::labs(y = var_label) +
+      ggplot2::labs(y = label) +
       ggplot2::theme(
         axis.title.x = ggplot2::element_blank(),
         axis.title.y = ggplot2::element_text(size = ggplot2::rel(1.4)),
         axis.text = ggplot2::element_text(size = ggplot2::rel(1.2)),
         plot.title = ggplot2::element_blank()
       )
+  })
 
-    plot_list[[i]] <- p
-  }
-
-  patchwork::wrap_plots(plot_list, ncol = 2)
-}
-
-
-# ===================================================================
-# FUNÇÕES AUXILIARES
-# ===================================================================
-
-
-
-
-#' Check that a fitted DFM carries every component the IRF stage needs
-#'
-#' Structural check only — it does not judge the estimates. The `q == r` branch
-#' matters because the dynamic reduction degenerates to scalars there, and code
-#' downstream that assumes matrices would fail silently.
-#'
-#' @param dfm_results List returned by `estimate_dfm()`.
-#'
-#' @return List of checks, including `missing_components`.
-validate_dfm_results <- function(dfm_results) {
-  checks <- list()
-
-  required_components <- c(
-    "static_loadings", "companion_matrix",
-    "dynamic_loadings", "dynamic_scaling",
-    "data_sd", "p", "r", "q"
-  )
-  checks$missing_components <- setdiff(required_components, names(dfm_results))
-
-  q <- dfm_results$q
-  r <- dfm_results$r
-  K <- dfm_results$dynamic_loadings
-  M <- dfm_results$dynamic_scaling
-
-  if (q == r) {
-    checks$qr_case_K_scalar <- !is.matrix(K) && length(K) == 1
-    checks$qr_case_M_scalar <- !is.matrix(M) && length(M) == 1
-    checks$qr_case_K_equals_1 <- K == 1
-    checks$qr_case_M_equals_1 <- M == 1
-  } else {
-    checks$qr_case_K_matrix <- is.matrix(K) && ncol(K) == q
-    checks$qr_case_M_matrix <- is.matrix(M) && ncol(M) == q
-  }
-
-  eigenvals <- eigen(dfm_results$companion_matrix)$values
-  checks$companion_stable <- all(abs(eigenvals) < 1)
-  checks$max_eigenvalue   <- max(abs(eigenvals))
-
-  checks
+  patchwork::wrap_plots(panels, ncol = 2)
 }

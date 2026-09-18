@@ -16,8 +16,10 @@ instrument:
 - `ident_ext_instr()` — projects raw IRFs through `H = (Z' rsh) / (Z'Z)` and normalizes the impact
   response of the policy variable to `normalize_value` in its *native units*: `shock_bps/10000` for
   decimal-proportion yields (50bp → 0.005, production since 2026-05-07) and `shock_bps/100` for
-  percent-scale `juros_selic` (the legacy default 0.5, mirroring `IdentExtInstr.m:14`). **That
-  default has no consumer** — every caller passes the value explicitly.
+  percent-scale `juros_selic` (0.5, the default of `IdentExtInstr.m:14`). The argument has **no
+  default** since 2026-09-18: every caller passes the value explicitly, as it did before. The
+  `diagnose` printout and the `var_names`/`data_dates`/`rr` arguments left with it; the
+  diagnostics it printed are `script/instrument_diagnostics.R`'s CSV.
 
 **One branch.** `compute_irf_dfm` and `main_sdfm` (`R/modeling/dfm_pipeline.R`) take
 `identification = "proxy"` and nothing else. The heteroskedasticity and non-Gaussian branches were

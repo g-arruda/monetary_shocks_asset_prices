@@ -24,8 +24,7 @@
 #' @param q Number of dynamic shocks.
 #' @param p Factor-VAR lag order.
 #' @param h Maximum impulse-response horizon.
-#' @param mp_var Monetary-policy normalization variable, as a column name or a
-#'   column index.
+#' @param mp_var Monetary-policy normalization variable (column name).
 #' @param shock_size_bps Impact normalization in basis points.
 #' @param tcode Optional transformation-code vector; inferred from the column
 #'   names when NULL.
@@ -58,55 +57,33 @@ main_sdfm <- function(spec = production_spec(),
 
   identification <- match.arg(identification)
 
-  # Load and prepare data (preservar ref.date para alinhamento)
-  raw_data <- readr::read_csv(data_path) |>
+  raw_data <- readr::read_csv(data_path, show_col_types = FALSE) |>
     tidyr::drop_na()
-
   dates <- as.Date(raw_data$ref.date)
-
   data <- raw_data |>
     dplyr::select(-ref.date) |>
     as.matrix()
 
-  # Definir tcodes por nome de variável se não fornecido
   if (is.null(tcode)) {
     tcode <- infer_tcode_from_varnames(colnames(data))
   }
 
-  # Definir variável de política monetária para normalização do choque
-  if (is.character(mp_var)) {
-    mpind <- match(mp_var, colnames(data))
-    if (is.na(mpind)) {
-      stop("Variavel de politica monetaria '", mp_var, "' nao encontrada nos dados")
-    }
-  } else if (is.numeric(mp_var) && length(mp_var) == 1) {
-    mpind <- as.integer(mp_var)
-    if (mpind < 1 || mpind > ncol(data)) {
-      stop("Indice mp_var fora do intervalo de colunas do painel")
-    }
-  } else {
-    stop("mp_var deve ser nome (character) ou indice (numeric) de coluna")
+  # A misspelled name would otherwise normalize on NA and return NaN IRFs
+  mpind <- match(mp_var, colnames(data))
+  if (is.na(mpind)) {
+    stop("Variavel de politica monetaria '", mp_var, "' nao encontrada nos dados")
   }
 
-  # `yield_6m` is stored in decimal proportion (0.0975 = 9.75%); a +50bp
-  # shock in proportion is therefore 0.005, not 0.5. The earlier convention
-  # (`/ 100`) implicitly normalized to +5000bp and was corrected on
-  # 2026-05-07. See `registro/justificativa_uso_yield-6m.md`.
+  # `yield_6m` is a decimal proportion (0.0975 = 9.75%): +50bp is 0.005
+  # (registro/justificativa_uso_yield-6m.md)
   normalize_value <- shock_size_bps / 10000
 
-  instrument <- readr::read_csv(instrument_path)
+  instrument <- readr::read_csv(instrument_path, show_col_types = FALSE)
 
-  # Estimate SDFM com datas e instrumento para alinhamento temporal
+  # The instrument trims the panel to their common months
   dfm_results <- estimate_dfm(data, r, q, p, dates = dates, instrument = instrument,
                               covid_volatility = covid_volatility)
 
-  # Validate results
-  validation <- validate_dfm_results(dfm_results)
-  if (length(validation$missing_components) > 0) {
-    warning("Missing DFM components: ", paste(validation$missing_components, collapse = ", "))
-  }
-
-  # Instrumento e datas já embutidos no dfm_results
   irf_results <- compute_irf_dfm(
     dfm_results,
     h = h,
@@ -114,7 +91,6 @@ main_sdfm <- function(spec = production_spec(),
     normalize_value = normalize_value,
     tcode = tcode,
     ci_levels = ci_levels,
-    var_names = colnames(data),
     identification = identification,
     inference = inference,
     ar_nw_lags = ar_nw_lags

@@ -40,26 +40,23 @@ sdfm_results <- main_sdfm(
   ci_levels = SPEC$ci_levels
 )
 
-response_vars <- list(
-  c("ipca"              = "price_ipca"),
-  c("ipca difusao"      = "price_ipca_difusao"),
-  c("ipca core ex0"     = "price_core_ipca_ex0"),
-  c("ipca core ex1"     = "price_core_ipca_ex1"),
-  c("ipca core dw"      = "price_core_ipca_dw"),
-  c("commodity agro"    = "commodity_agro"),
-  c("commodity metal"   = "commodity_metal"),
-  c("commodity energia" = "commodity_energia"),
-  c("EMBI+"             = "embi_perc"),
-  c("CDS 5Y"            = "cds_5y")
+response_vars <- c(
+  "ipca"              = "price_ipca",
+  "ipca difusao"      = "price_ipca_difusao",
+  "ipca core ex0"     = "price_core_ipca_ex0",
+  "ipca core ex1"     = "price_core_ipca_ex1",
+  "ipca core dw"      = "price_core_ipca_dw",
+  "commodity agro"    = "commodity_agro",
+  "commodity metal"   = "commodity_metal",
+  "commodity energia" = "commodity_energia",
+  "EMBI+"             = "embi_perc",
+  "CDS 5Y"            = "cds_5y"
 )
 
 irf_plot <- plot_irf(sdfm_results$irfs,
   response_vars = response_vars,
-  shock = 1,
   horizon = SPEC$horizon,
-  cumulative = FALSE,
   var_names = colnames(sdfm_results$data),
-  tcode = sdfm_results$tcode,
   ci_to_plot = c(0.68, 0.90)
 )
 

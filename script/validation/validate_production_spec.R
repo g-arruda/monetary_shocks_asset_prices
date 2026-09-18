@@ -215,10 +215,8 @@ point_irf <- compute_irf_dfm(
   h = spec$horizon,
   mpind = mpind,
   normalize_value = spec$normalize_value,
-  data_dates = dates,
   tcode = infer_tcode_from_varnames(colnames(data_mat)),
   ci_levels = spec$ci_levels,
-  var_names = colnames(data_mat),
   identification = "proxy",
   inference = "none"
 )
