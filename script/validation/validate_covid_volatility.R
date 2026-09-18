@@ -1,5 +1,5 @@
 # Validate the Lenza-Primiceri (2022) COVID volatility scale of the factor VAR:
-# `estimate_var_ols(s =)`, `estimate_covid_theta()`,
+# `estimate_var_wls(s =)`, `estimate_covid_theta()`,
 # `estimate_dfm(covid_volatility =)`, the uncentered identification it
 # triggers in `compute_irf_dfm()`, and the Anderson-Rubin sets and xi_mp on the
 # transformed regression (`ar_dfm_bands()`,
@@ -41,12 +41,12 @@ residual_dates <- dates[(spec$p + 1):length(dates)]
 
 # N1 — factor VAR: every residual month as covid_start, rho in {0, 0.5}
 factors <- estimate_static_factors(data_mat, spec$r)$factors
-ols <- estimate_var_ols(factors, spec$p)
+ols <- estimate_var_wls(factors, spec$p)
 n1 <- tidyr::expand_grid(covid_start = residual_dates, rho = c(0, 0.5)) |>
   purrr::pmap_lgl(function(covid_start, rho) {
     s <- covid_volatility_path(residual_dates, covid_start,
                                c(s0 = 1, s1 = 1, s2 = 1, rho = rho))
-    wls <- estimate_var_ols(factors, spec$p, s = s)
+    wls <- estimate_var_wls(factors, spec$p, s = s)
     identical(s, rep(1, length(residual_dates))) &&
       identical(wls$coefficients, ols$coefficients) &&
       identical(wls$residuals, ols$residuals) &&
@@ -107,7 +107,7 @@ if (!identical(reference[["5"]][match(headline, colnames(data_mat)), 1], untreat
 }
 
 # N3 — (B5) at neutral theta against the Gaussian log-likelihood summed row by row
-wls <- estimate_var_ols(factors, spec$p, s = rep(1, length(residual_dates)))
+wls <- estimate_var_wls(factors, spec$p, s = rep(1, length(residual_dates)))
 u <- wls$residuals
 sigma <- crossprod(u) / nrow(u)
 brute <- sum(-ncol(u) / 2 * log(2 * pi) - log(det(sigma)) / 2 -
@@ -220,7 +220,7 @@ for (t in (p_sim + 1):T_sim) {
   Y[t, ] <- intercept + A1 %*% Y[t - 1, ] + A2 %*% Y[t - 2, ] + s_all[t] * eps_sim[t, ]
 }
 s_sim <- s_all[(p_sim + 1):T_sim]
-fit <- estimate_var_ols(Y, p_sim, s = s_sim)
+fit <- estimate_var_wls(Y, p_sim, s = s_sim)
 
 # S1 — (B2) against weighted least squares by lm.wfit, weights 1/s_t^2
 RHS <- cbind(Y[p_sim:(T_sim - 1), ], Y[(p_sim - 1):(T_sim - 2), ], 1)
@@ -265,7 +265,7 @@ treated_sim <- lapply(c(raw = "raw", standardized = "standardized"), function(in
                covid_volatility = list(covid_start = covid_sim, theta = theta_sim,
                                        innovations = innovations))
 })
-wls_sim <- estimate_var_ols(treated_sim$raw$static_factors, p_sim, s = s_sim)
+wls_sim <- estimate_var_wls(treated_sim$raw$static_factors, p_sim, s = s_sim)
 s4 <- c(
   path_aligned = identical(treated_sim$raw$volatility_path, s_sim),
   coefficients = identical(treated_sim$raw$var_coefficients, wls_sim$coefficients),
@@ -275,7 +275,7 @@ s4 <- c(
   switch_matters = !isTRUE(all.equal(wls_sim$residuals, wls_sim$residuals_standardized)),
   dynamic_from_switch = identical(
     treated_sim$standardized$dynamic_factors,
-    estimate_dynamic_factors(wls_sim$residuals_standardized, 2L, n_sim,
+    estimate_dynamic_factors(wls_sim$residuals_standardized, 2L,
                              sigma_u = wls_sim$sigma_mle)$factors
   )
 )
@@ -298,9 +298,9 @@ fit_theta <- estimate_covid_theta(Y, p_sim, sim_residual_dates, covid_sim,
 #' @return Scalar (B5) log-likelihood.
 loglik_sim <- function(theta) {
   path <- covid_volatility_path(sim_residual_dates, covid_sim, theta)
-  estimate_var_ols(Y, p_sim, s = path)$loglik
+  estimate_var_wls(Y, p_sim, s = path)$loglik
 }
-at_hat <- estimate_var_ols(Y, p_sim, s = fit_theta$path)
+at_hat <- estimate_var_wls(Y, p_sim, s = fit_theta$path)
 e_hat <- at_hat$residuals_standardized
 m_hat <- rowSums((e_hat %*% solve(at_hat$sigma_mle)) * e_hat) / n_sim
 t_sim <- match(covid_sim, sim_residual_dates)

@@ -647,7 +647,7 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
   # The project's response is `diag(sy) Lambda B_h K M H` with
   # `H = M^-1 K' Gamma_eta`, so `M` cancels and the projection is `K K'`. When
   # q = r that projection is the identity, and estimate_dynamic_factors()
-  # collapses K and M to the scalar 1 anyway.
+  # returns K = M = I_r anyway.
   Inner <- if (dfm_results$q < r) K %*% t(K) else diag(r)
   Load  <- sweep(Lambda, 1, sy, "*")
 
@@ -695,7 +695,7 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
   }
 
   # The regressor block above has to be the same estimating equation that
-  # produced `u`. estimate_var_ols() puts the constant last and this block puts
+  # produced `u`. estimate_var_wls() puts the constant last and this block puts
   # it first, the order CovAhat_Sigmahat_Gamma.m:76 requires; OLS residuals are
   # invariant to that, but only if the columns are otherwise the same ones.
   # In-sample orthogonality is the cheap proof of it.
@@ -704,7 +704,7 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
   if (!is.finite(orth) || orth > 1e-8 * max(orth_scale, 1)) {
     stop("ar_dfm_bands: the rebuilt regressors are not orthogonal to the ",
          "factor-VAR residuals (max |X'u| = ", format(orth, digits = 3),
-         "). The X_reg rebuild diverged from estimate_var_ols().")
+         "). The X_reg rebuild diverged from estimate_var_wls().")
   }
 
   k_inst  <- if (is.matrix(inst_sel)) ncol(inst_sel) else 1L

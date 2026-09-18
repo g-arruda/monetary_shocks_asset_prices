@@ -47,7 +47,7 @@ unedited (`diagnostics/README.md`).
 `estimate_dfm(covid_volatility=)` and `main_sdfm(covid_volatility=)` put the common volatility scale
 `s_t` of LP's Appendix B into the factor VAR:
 - `covid_volatility_path()` builds `s_t`;
-- `estimate_var_ols(s=)` runs (B2) and returns (B4) and (B5);
+- `estimate_var_wls(s=)` runs (B2) and returns (B4) and (B5); `s = 1`, its default, is OLS;
 - `estimate_covid_theta()` maximizes (B5) by L-BFGS-B inside the design's box.
 
 `production_spec()$covid_volatility` carries θ̂ = (6.611429, 12.468338, 1.760352, 0.943926) as

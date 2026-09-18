@@ -3,96 +3,34 @@
 #' Standardizes the level panel by the standard deviation of its first
 #' differences (Barigozzi, Lippi & Luciani 2016), removes a linear trend
 #' series by series, and takes the leading `r` eigenvectors of the covariance
-#' of the standardized differences via SVD. SVD rather than `eigen()` and the
-#' sign normalization below make the decomposition bit-reproducible.
+#' of the standardized differences. SVD rather than `eigen()`, and each
+#' eigenvector signed so that its largest entry is positive, make the
+#' decomposition bit-reproducible.
 #'
 #' @param data Numeric matrix of the level panel (T x N).
-#' @param r Number of static factors to extract.
-#' @param standardized Retained for signature compatibility; BLL
-#'   standardization is unconditional.
-#' @param seed Optional integer seed.
+#' @param r Number of static factors.
 #'
-#' @return List with factors, loadings, sy, Z, eigenvalues, yy,
-#'   detrended_data and diagnostics.
-estimate_static_factors <- function(data, r, standardized = TRUE, seed = NULL) {
-  n_obs <- nrow(data)
+#' @return List with `factors` (T x r), `loadings` (N x r), `sy` (standard
+#'   deviations of the first differences) and `yy` (the standardized first
+#'   differences whose covariance the loadings decompose).
+#'
+#' @examples
+#' static <- estimate_static_factors(panel, r = 5L)
+estimate_static_factors <- function(data, r) {
+  y <- diff(data)
+  sy <- apply(y, 2, sd)
+  yy <- sweep(sweep(y, 2, colMeans(y), "-"), 2, sy, "/")
 
-  # Fixar seed se fornecido para reprodutibilidade absoluta
-  if (!is.null(seed)) {
-    set.seed(seed)
-  }
-  
-  # ===================================================================
-  # PADRONIZAÇÃO BLL (Barigozzi, Lippi, Luciani 2016)
-  # ===================================================================
-  
-  # 1. Calcular primeira diferença para obter desvio padrão
-  y <- diff(data)  # Primeira diferença: Y(t) - Y(t-1)
-  sy <- apply(y, 2, sd)  # Desvio padrão das primeiras diferenças
-  
-  # 2. Padronizar as primeiras diferenças (para cálculo dos autovalores)
-  y_centered <- sweep(y, 2, colMeans(y), "-")  # Centrar
-  yy <- sweep(y_centered, 2, sy, "/")  # Padronizar: (y - mean(y))/sd(y)
-  
-  # 3. Detrending dos dados em nível
-  # Construir matriz de regressores: [1, t] para remoção de tendência linear
-  regX <- cbind(1, 1:n_obs)  # Constante e tendência linear
-  
-  # Remover tendência de cada série individualmente
-  beta <- solve(crossprod(regX)) %*% crossprod(regX, data)  # Coeficientes da regressão
-  X <- data - regX %*% beta  # Dados destrendizados
-  
-  # 4. Padronização BLL final: dados destrendizados / sd das diferenças
-  Z <- sweep(X, 2, sy, "/")  # Padronização BLL: X / sy
-  
-  # ===================================================================
-  # EXTRAÇÃO DOS FATORES ESTÁTICOS USANDO SVD NA MATRIZ DE COVARIÂNCIA
-  # ===================================================================
-  
-  # 5. Usar Decomposição SVD na matriz de covariância para garantir determinismo
-  cov_yy <- cov(yy)
+  trend <- cbind(1, seq_len(nrow(data)))
+  beta <- solve(crossprod(trend)) %*% crossprod(trend, data)
+  Z <- sweep(data - trend %*% beta, 2, sy, "/")
 
-  # Use SVD em vez de eigen para maior estabilidade e reprodutibilidade
-  svd_result <- svd(cov_yy)
+  lambda <- svd(cov(yy))$u[, 1:r, drop = FALSE]
+  flip <- lambda[cbind(apply(abs(lambda), 2, which.max), seq_len(r))] < 0
+  lambda <- sweep(lambda, 2, ifelse(flip, -1, 1), "*")
 
-  # Os autovetores são a matriz U da decomposição SVD
-  eigenvals <- svd_result$d[1:r]
-  lambda <- svd_result$u[, 1:r, drop = FALSE]
-
-  # ...diagnóstico removido...
-
-  # CRÍTICO: Normalização determinística robusta (inspirada em estimate_dynamic_factors)
-  # Garante que os vetores tenham sempre a mesma orientação.
-  for (i in 1:ncol(lambda)) {
-    # Encontra o índice do elemento com o maior valor absoluto no vetor
-    max_abs_idx <- which.max(abs(lambda[, i]))
-    
-    # Se esse elemento específico for negativo, inverte o sinal do VETOR INTEIRO
-    if (lambda[max_abs_idx, i] < 0) {
-      lambda[, i] <- -lambda[, i]
-    }
-  }
-  
-  # 7. Calcular fatores estáticos: F = Z * lambda
-  F <- Z %*% lambda
-  
-  return(list(
-    factors = F,                    # Fatores estáticos F = Z * lambda
-    loadings = lambda,              # Loadings (autovetores da SVD)
-    sy = sy,                        # Desvios padrão das diferenças
-    Z = Z,                          # Dados padronizados BLL
-    eigenvalues = eigenvals,        # Autovalores correspondentes aos valores singulares
-    yy = yy,                        # Diferenças padronizadas (para diagnóstico)
-    detrended_data = X,             # Dados destrendizados (para diagnóstico)
-    # Diagnósticos adicionais
-    diagnostics = list(
-      method = "SVD_covariance",
-      eigenvalues = eigenvals,
-      selected_indices = 1:r  # SVD já ordena automaticamente
-    )
-  ))
+  list(factors = Z %*% lambda, loadings = lambda, sy = sy, yy = yy)
 }
-
 
 
 #' Common volatility scale of the Lenza-Primiceri (2022) COVID treatment
@@ -127,83 +65,50 @@ covid_volatility_path <- function(dates, covid_start, theta) {
 }
 
 
-#' Factor VAR by least squares, optionally under the COVID volatility scale
+#' Factor VAR by weighted least squares
 #'
-#' With `s = NULL` this is plain OLS, the direct equivalent of `DFMest_BLL.m`
-#' lines 29-50.
-#'
-#' With `s`, the VAR is `F_t = c + A(L) F_{t-1} + s_t eps_t`,
-#' `eps_t ~ N(0, Sigma)`, the maximum-likelihood version of Lenza & Primiceri
-#' (2022, JAE, Appendix B) conditional on `s`: coefficients by (B2), the ML
-#' covariance by (B4) and the concentrated log-likelihood by (B5), constants
-#' included (the paper writes it up to proportionality). Nothing here chooses
-#' or optimizes `s`.
+#' `F_t = c + A(L) F_{t-1} + s_t eps_t`, `eps_t ~ N(0, Sigma)`: every row,
+#' constant included, is divided by `s_t`, which is (B2) of Lenza & Primiceri
+#' (2022, JAE, Appendix B). With `s = 1` this is OLS, the direct equivalent of
+#' `DFMest_BLL.m` lines 29-50. Nothing here chooses `s`.
 #'
 #' @param data Numeric matrix of factors (T x K).
 #' @param p Lag order.
-#' @param s Optional volatility scale, one positive value per residual row
-#'   (length T - p), from `covid_volatility_path()`. NULL is plain OLS.
+#' @param s Volatility scale: one positive value per residual row (length
+#'   T - p) from `covid_volatility_path()`, or 1 for OLS.
 #'
-#' @return List with coefficients, residuals, companion matrix and the residual
-#'   covariance matrix. With `s`, `residuals` stay `u_t = y_t - B'x_t`, and the
-#'   list adds `residuals_standardized` (`u_t / s_t`), `sigma_mle` (B4) and
-#'   `loglik` (B5); `covariance_matrix` is then computed on `u_t / s_t` with
-#'   the same degrees-of-freedom divisor as the OLS branch.
-estimate_var_ols <- function(data, p, s = NULL) {
-  T <- nrow(data)
+#' @return List with `coefficients` (lags first, constant last), `residuals`
+#'   `u_t = y_t - B'x_t`, `residuals_standardized` (`u_t / s_t`), `companion`,
+#'   `covariance_matrix` (of `u_t / s_t`, degrees-of-freedom divisor),
+#'   `sigma_mle` (B4, divisor T - p) and `loglik` (B5, constants included).
+#'
+#' @examples
+#' ols <- estimate_var_wls(factors, p = 4L)
+#' wls <- estimate_var_wls(factors, p = 4L, s = covid_volatility_path(...))
+estimate_var_wls <- function(data, p, s = 1) {
   K <- ncol(data)
+  n_eff <- nrow(data) - p
 
-  RHS <- matrix(NA, T - p, K * p + 1)
-  for (i in 1:p) {
-    start_col <- (i - 1) * K + 1
-    end_col <- i * K
-    RHS[, start_col:end_col] <- data[(p + 1 - i):(T - i), ]
-  }
-  RHS[, K * p + 1] <- 1
+  RHS <- cbind(stats::embed(data, p + 1)[, -(1:K), drop = FALSE], 1)
+  LHS <- data[(p + 1):nrow(data), , drop = FALSE]
 
-  LHS <- data[(p + 1):T, ]
-
-  if (is.null(s)) {
-    bet <- solve(crossprod(RHS)) %*% crossprod(RHS, LHS)
-  } else {
-    # (B2): least squares on every row divided by s_t, constant column included
-    bet <- solve(crossprod(RHS / s)) %*% crossprod(RHS / s, LHS / s)
-  }
+  bet <- solve(crossprod(RHS / s)) %*% crossprod(RHS / s, LHS / s)
   u <- LHS - RHS %*% bet
-  u <- Re(as.matrix(u))
-
-  coeffcompanion <- rbind(
-    t(bet[1:(p * K), ]),
-    cbind(diag((p - 1) * K), matrix(0, (p - 1) * K, K))
-  )
-
-  if (is.null(s)) {
-    SIGMA <- crossprod(u) / (T - p - p * K - 1)
-
-    return(list(
-      coefficients = bet,
-      residuals = u,
-      companion = coeffcompanion,
-      covariance_matrix = SIGMA
-    ))
-  }
-
-  # The constant covariance Sigma belongs to u_t / s_t. (B4) and (B5) divide by
-  # the T - p effective rows, the ML convention.
   e <- u / s
-  n_eff <- T - p
   sigma_mle <- crossprod(e) / n_eff
-  loglik <- -n_eff * K / 2 * (1 + log(2 * pi)) - K * sum(log(s)) -
-    n_eff / 2 * as.numeric(determinant(sigma_mle, logarithm = TRUE)$modulus)
 
   list(
     coefficients = bet,
     residuals = u,
     residuals_standardized = e,
-    companion = coeffcompanion,
-    covariance_matrix = crossprod(e) / (T - p - p * K - 1),
+    companion = rbind(
+      t(bet[1:(p * K), ]),
+      cbind(diag((p - 1) * K), matrix(0, (p - 1) * K, K))
+    ),
+    covariance_matrix = crossprod(e) / (n_eff - p * K - 1),
     sigma_mle = sigma_mle,
-    loglik = loglik
+    loglik = -n_eff * K / 2 * (1 + log(2 * pi)) - K * sum(log(s)) -
+      n_eff / 2 * as.numeric(determinant(sigma_mle, logarithm = TRUE)$modulus)
   )
 }
 
@@ -228,11 +133,15 @@ estimate_var_ols <- function(data, p, s = NULL) {
 #'
 #' @return List with `theta`, the maximized `loglik`, the `start` vector,
 #'   `optim`'s `convergence` code and `message`, and the path `s_t` at `theta`.
+#'
+#' @examples
+#' fit <- estimate_covid_theta(factors, 4L, residual_dates,
+#'                             as.Date("2020-03-01"), lower, upper)
 estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
                                  lower, upper) {
   loglik_at <- function(theta) {
     s <- covid_volatility_path(residual_dates, covid_start, theta)
-    estimate_var_ols(factors, p, s = s)$loglik
+    estimate_var_wls(factors, p, s = s)$loglik
   }
 
   # Row i of abs_change is the change into residual month i + 1, on the VAR's
@@ -261,145 +170,83 @@ estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
 }
 
 
-#' Reduce the factor-VAR residuals to q dynamic shocks
+#' Reduce the factor-VAR innovations to q dynamic shocks
 #'
-#' Takes the leading `q` eigenvectors of the residual covariance, so the
-#' `r`-dimensional VAR innovations are spanned by `q` dynamic shocks
-#' `eta = K M^{-1} u`. When `q == r` the reduction is the identity and the
-#' innovations pass through unchanged.
+#' Takes the leading `q` eigenvectors `K` of `sigma_u`, each signed so that its
+#' largest entry is positive, and `M = diag(sqrt(eigenvalues))`, so the `r`
+#' innovations are spanned by the `q` dynamic shocks `eta = u K M^-1`. When
+#' `q == r` the reduction is the identity: `K = M = I_r` and `eta = u`.
 #'
-#' @param var_residuals Matrix of factor-VAR residuals (T-p x r).
+#' @param var_residuals Matrix of factor-VAR innovations (T - p x r).
 #' @param q Number of dynamic factors.
-#' @param r Number of static factors.
-#' @param sigma_u Second-moment matrix whose leading eigenvectors give K; the
-#'   residual covariance by default. `estimate_dfm()` passes the uncentered
-#'   second moment under the COVID volatility treatment.
+#' @param sigma_u Second-moment matrix whose leading eigenvectors give `K`.
 #'
-#' @return List with eta, the eigenvector matrix K, the scaling matrix M, the
-#'   eigenvalues and diagnostics.
-estimate_dynamic_factors <- function(var_residuals, q, r,
-                                     sigma_u = cov(var_residuals)) {
+#' @return List with `factors` (eta), `K` and `M`.
+#'
+#' @examples
+#' dyn <- estimate_dynamic_factors(u, q = 3L, sigma_u = cov(u))
+estimate_dynamic_factors <- function(var_residuals, q, sigma_u) {
+  r <- ncol(var_residuals)
   if (q == r) {
-    # Caso especial: q = r (fatores dinâmicos = fatores estáticos)
-    K <- 1
-    M <- 1
-    eta <- var_residuals
-    eigenvals <- rep(1, r)
-  } else {
-    # Caso geral: q < r
-    # CRÍTICO: Usar decomposição SVD ao invés de eigen para garantir determinismo
-    svd_result <- svd(sigma_u)
-    eigenvals_sorted <- sort(svd_result$d, decreasing = TRUE)
-    idx <- order(svd_result$d, decreasing = TRUE)[1:q]
-    eigenvals <- eigenvals_sorted[1:q]
-    eigenvects <- svd_result$u[, idx, drop = FALSE]
-    # CRÍTICO: Normalizar autovetores de forma determinística
-    for (i in 1:ncol(eigenvects)) {
-      # Garantir sinal consistente: fazer o maior elemento absoluto positivo
-      max_abs_idx <- which.max(abs(eigenvects[, i]))
-      if (eigenvects[max_abs_idx, i] < 0) {
-        eigenvects[, i] <- -eigenvects[, i]
-      }
-    }
-    # Construir matrizes K e M
-    K <- eigenvects  # Autovetores (matriz K)
-    # nrow = q é obrigatório: com q = 1, diag() lê o escalar como DIMENSAO da
-    # identidade, não como valor diagonal, e devolve uma matriz não conforme.
-    M <- diag(sqrt(eigenvals), nrow = q)  # M = diag(sqrt(diag(MM)))
-    # Calcular fatores dinâmicos: eta = u * K / M
-    eta <- var_residuals %*% K %*% solve(M)
+    return(list(factors = var_residuals, K = diag(r), M = diag(r)))
   }
-  
-  if (q == r) {
-    diagnostics <- list(case = "q_equals_r")
-  } else {
-    diagnostics <- list(case = "q_less_than_r", selected_indices = idx)
-  }
-  return(list(
-    factors = eta,    # Fatores dinâmicos eta
-    K = K,           # Matriz de autovetores (ou escalar se q=r)
-    M = M,           # Matriz diagonal com raiz dos autovalores (ou escalar se q=r)
-    eigenvalues = eigenvals,  # Autovalores para diagnóstico
-    diagnostics = diagnostics
-  ))
-}
 
+  svd_u <- svd(sigma_u)
+  K <- svd_u$u[, 1:q, drop = FALSE]
+  flip <- K[cbind(apply(abs(K), 2, which.max), seq_len(q))] < 0
+  K <- sweep(K, 2, ifelse(flip, -1, 1), "*")
+  # nrow = q: with q = 1, diag() would read the scalar as a dimension
+  M <- diag(sqrt(svd_u$d[1:q]), nrow = q)
+
+  list(factors = var_residuals %*% K %*% solve(M), K = K, M = M)
+}
 
 
 #' Estimate the structural dynamic factor model end to end
 #'
-#' Chains static factors (BLL standardization), the factor VAR, and the
-#' dynamic factors, following Alessi & Kerssenfischer over BLL methodology.
-#' When both `dates` and `instrument` are supplied the panel and the
-#' instrument are trimmed to their common months before estimation, so the
-#' returned residuals are already aligned to the proxy.
+#' Chains static factors (BLL standardization), the factor VAR and the
+#' dynamic factors, following Alessi & Kerssenfischer over the BLL
+#' methodology. With an `instrument`, the panel and the instrument are first
+#' trimmed to their common months, so the residuals are aligned to the proxy.
 #'
 #' @param data Numeric matrix T x N (no date column).
 #' @param r Number of static factors.
 #' @param q Number of dynamic factors.
 #' @param p Factor-VAR lag order.
-#' @param dates Optional Date vector with T elements.
+#' @param dates Date vector with T elements; required with `instrument` or
+#'   `covid_volatility`.
 #' @param instrument Optional data.frame with columns `month` (Date) and
 #'   `shock` (numeric).
-#' @param covid_volatility NULL (production) or a list that turns on the COVID
-#'   volatility scale of Lenza & Primiceri (2022) in the factor VAR:
-#'   `covid_start` (Date, one of the residual months), `theta` (named `s0`,
-#'   `s1`, `s2`, `rho`) and `innovations` — `"raw"`, the residuals
-#'   `u_t = y_t - B'x_t`, or `"standardized"`, `u_t / s_t` — which decides what
-#'   K, M and eta read downstream. Every field is required, because each is an
-#'   author decision; `production_spec()$covid_volatility_design` records the
-#'   ones taken, and `estimate_covid_theta()` estimates `theta`. Under it
-#'   nothing is centered: K comes from the uncentered second moment of the
-#'   selected innovations, (B4) for `"standardized"`. Requires `dates`.
+#' @param covid_volatility NULL, or a list that turns on the COVID volatility
+#'   scale of Lenza & Primiceri (2022) in the factor VAR: `covid_start` (Date,
+#'   one of the residual months), `theta` (named `s0`, `s1`, `s2`, `rho`) and
+#'   `innovations` — `"raw"`, the residuals `u_t`, or `"standardized"`,
+#'   `u_t / s_t` — which decides what K, M and eta read downstream. Every
+#'   field is required, because each is an author decision;
+#'   `production_spec()$covid_volatility` carries the production one.
 #'
-#' @return List with the static factors, the factor VAR, the dynamic factors,
-#'   the aligned dates and instrument, and diagnostics. Under
-#'   `covid_volatility`, `var_residuals` holds the innovations the switch
-#'   selected, and the list adds `covid_volatility`, `volatility_path`,
-#'   `var_residuals_raw`, `var_residuals_standardized`, `var_sigma_mle` and
-#'   `var_loglik`.
+#' @return List with the static factors and loadings, `data_sd`, the factor
+#'   VAR (`var_coefficients`, `var_residuals` — the innovations the switch
+#'   selected — and `companion_matrix`), the dynamic factors and their `K`
+#'   (`dynamic_loadings`) and `M` (`dynamic_scaling`), `p`, `r`, `q`, the
+#'   aligned `dates` and `instrument`, `covid_volatility`, `volatility_path`
+#'   (`s_t`, or 1) and `diagnostics` (largest companion root and stability).
+#'
+#' @examples
+#' dfm <- estimate_dfm(panel, 5L, 5L, 4L, dates = dates,
+#'                     covid_volatility = production_spec()$covid_volatility)
 estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
                          covid_volatility = NULL) {
-  T_orig <- nrow(data)
-
-  # --- Validação e alinhamento temporal via datas ---
-  if (!is.null(dates)) {
-    dates <- as.Date(dates)
-    if (length(dates) != T_orig) {
-      stop("Vetor de dates (", length(dates), ") deve ter o mesmo comprimento ",
-           "que nrow(data) (", T_orig, ")")
-    }
-  }
-
   if (!is.null(instrument)) {
-    if (!is.data.frame(instrument) || !all(c("month", "shock") %in% names(instrument))) {
-      stop("instrument deve ser um data.frame com colunas 'month' e 'shock'")
-    }
-    instrument$month <- as.Date(instrument$month)
-
-    if (!is.null(dates)) {
-      n_inst_orig <- nrow(instrument)
-
-      common_dates <- as.Date(intersect(as.character(dates), as.character(instrument$month)))
-      if (length(common_dates) == 0) {
-        stop("Nenhuma data em comum entre dados e instrumento")
-      }
-
-      data_idx <- dates %in% common_dates
-      data <- data[data_idx, , drop = FALSE]
-      dates <- dates[data_idx]
-
-      instrument <- instrument[instrument$month %in% common_dates, ]
-      instrument <- instrument[order(instrument$month), ]
-
-      message(sprintf("Alinhamento temporal: %d datas em comum (de %d dados e %d instrumento)",
-                      length(common_dates), T_orig, n_inst_orig))
-    }
+    keep <- dates %in% instrument$month
+    data <- data[keep, , drop = FALSE]
+    dates <- dates[keep]
+    instrument <- instrument[instrument$month %in% dates, ]
+    instrument <- instrument[order(instrument$month), ]
   }
 
-  # --- Volatilidade COVID (Lenza-Primiceri 2022, Apêndice B) ---
-  # Todo campo é decisão do autor: nenhum tem default.
-  volatility_path <- NULL
+  # Lenza-Primiceri (2022, Appendix B): every field is an author decision
+  volatility_path <- 1
   if (!is.null(covid_volatility)) {
     missing_fields <- c(
       setdiff(c("covid_start", "theta", "innovations"), names(covid_volatility)),
@@ -414,117 +261,69 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
       stop("covid_volatility$innovations deve ser 'raw' (u_t) ou ",
            "'standardized' (u_t/s_t)")
     }
-    covid_start <- as.Date(covid_volatility$covid_start)
     residual_dates <- dates[(p + 1):length(dates)]
-    if (!isTRUE(covid_start %in% residual_dates)) {
-      stop("covid_start (", format(covid_start), ") nao e um mes dos residuos ",
-           "do VAR (", format(residual_dates[1]), " a ",
-           format(residual_dates[length(residual_dates)]), ")")
+    if (!isTRUE(covid_volatility$covid_start %in% residual_dates)) {
+      stop("covid_start (", format(covid_volatility$covid_start),
+           ") nao e um mes dos residuos do VAR (", format(residual_dates[1]),
+           " a ", format(residual_dates[length(residual_dates)]), ")")
     }
-    volatility_path <- covid_volatility_path(residual_dates, covid_start,
+    volatility_path <- covid_volatility_path(residual_dates,
+                                             covid_volatility$covid_start,
                                              covid_volatility$theta)
   }
 
-  # --- Estimação ---
-  static_result <- estimate_static_factors(data, r)
+  static <- estimate_static_factors(data, r)
+  var_fit <- estimate_var_wls(static$factors, p, s = volatility_path)
 
-  # VAR OLS, fiel ao DFMest_BLL.m. Sob covid_volatility, mínimos quadrados
-  # nas linhas divididas por s_t (B2).
-  var_result <- estimate_var_ols(static_result$factors, p, s = volatility_path)
-
-  # O que os passos seguintes, que supõem variância constante, leem como
-  # inovação: K, M e eta, e daí o H do proxy.
-  innovations <- var_result$residuals
-  if (!is.null(covid_volatility) && covid_volatility$innovations == "standardized") {
-    innovations <- var_result$residuals_standardized
-  }
-
-  # Sob WLS nada é centrado: K lê o segundo momento não centrado das inovações,
-  # que com "standardized" é a (B4). Sem tratamento, o cov() de sempre.
-  if (is.null(covid_volatility)) {
-    dynamic_result <- estimate_dynamic_factors(innovations, q, r)
+  # K, M, eta and the proxy's H assume a constant variance and read these
+  # innovations. Under the treatment nothing is centred: K reads the uncentred
+  # second moment, which is (B4) for "standardized".
+  innovations <- if (identical(covid_volatility$innovations, "standardized")) {
+    var_fit$residuals_standardized
   } else {
-    dynamic_result <- estimate_dynamic_factors(
-      innovations, q, r, sigma_u = crossprod(innovations) / nrow(innovations)
-    )
+    var_fit$residuals
   }
+  sigma_u <- if (is.null(covid_volatility)) {
+    cov(innovations)
+  } else {
+    crossprod(innovations) / nrow(innovations)
+  }
+  dynamic <- estimate_dynamic_factors(innovations, q, sigma_u)
 
-  max_eigenval <- max(abs(eigen(var_result$companion)$values))
-  is_stable <- max_eigenval < 1
+  max_eigenvalue <- max(abs(eigen(var_fit$companion)$values))
 
-  out <- list(
-    # Static factors
-    static_factors = static_result$factors,
-    static_loadings = static_result$loadings,
-    static_eigenvalues = static_result$eigenvalues,
-
-    # VAR on static factors
-    var_coefficients = var_result$coefficients,
+  list(
+    static_factors = static$factors,
+    static_loadings = static$loadings,
+    data_sd = static$sy,
+    var_coefficients = var_fit$coefficients,
     var_residuals = innovations,
-    companion_matrix = var_result$companion,
-    var_covariance = var_result$covariance_matrix,
-
-    # Dynamic factors
-    dynamic_factors = dynamic_result$factors,
-    dynamic_loadings = dynamic_result$K,
-    dynamic_scaling = dynamic_result$M,
-    dynamic_eigenvalues = dynamic_result$eigenvalues,
-
-    # Dados transformados e auxiliares
-    data_sd = static_result$sy,
-    Z = static_result$Z,
-    yy = static_result$yy,
-    detrended_data = static_result$detrended_data,
-
-    # Componentes para IRF
-    loadings_lambda = static_result$loadings,
-    scaling_matrix_K = dynamic_result$K,
-    scaling_matrix_M = dynamic_result$M,
-
-    # Parâmetros do modelo
+    companion_matrix = var_fit$companion,
+    dynamic_factors = dynamic$factors,
+    dynamic_loadings = dynamic$K,
+    dynamic_scaling = dynamic$M,
     p = p,
     r = r,
     q = q,
-
-    # Datas e instrumento
     dates = dates,
     instrument = instrument,
-
-    # Diagnósticos
-    diagnostics = list(
-      max_eigenvalue = max_eigenval,
-      is_stable = is_stable
-    )
+    covid_volatility = covid_volatility,
+    volatility_path = volatility_path,
+    diagnostics = list(max_eigenvalue = max_eigenvalue,
+                       is_stable = max_eigenvalue < 1)
   )
-
-  if (!is.null(covid_volatility)) {
-    out <- c(out, list(
-      covid_volatility = covid_volatility,
-      volatility_path = volatility_path,
-      var_residuals_raw = var_result$residuals,
-      var_residuals_standardized = var_result$residuals_standardized,
-      var_sigma_mle = var_result$sigma_mle,
-      var_loglik = var_result$loglik
-    ))
-  }
-
-  out
 }
-#' Recover the dynamic-factor innovations from a fitted DFM
-#'
-#' When `q == r`, the estimator stores scalar identity placeholders for the
-#' dynamic loading and scaling matrices. In that case the factor-VAR residuals
-#' already are the dynamic innovations.
+
+
+#' Recover the dynamic-factor innovations `eta = u K M^-1` of a fitted DFM
 #'
 #' @param dfm_results Fitted DFM returned by `estimate_dfm()`.
 #'
 #' @return Numeric matrix with one dynamic innovation per column.
+#'
+#' @examples
+#' eta <- extract_dynamic_innovations(dfm)
 extract_dynamic_innovations <- function(dfm_results) {
-  K <- dfm_results$dynamic_loadings
-  M <- dfm_results$dynamic_scaling
-  u <- dfm_results$var_residuals
-  if (!is.matrix(K) && !is.matrix(M)) {
-    return(u)
-  }
-  u %*% K %*% solve(M)
+  dfm_results$var_residuals %*% dfm_results$dynamic_loadings %*%
+    solve(dfm_results$dynamic_scaling)
 }

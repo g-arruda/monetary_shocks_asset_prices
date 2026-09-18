@@ -72,12 +72,7 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
   H <- drop(crossprod(Z_mat, rsh_id)) / drop(crossprod(Z_mat))
 
   # Impact response (h=0): rawimp[, , 1] = Lambda %*% K %*% M, scaled by sy
-  if (!is.matrix(K) && !is.matrix(M)) {
-    rawimp_0 <- Lambda * K * M
-  } else {
-    rawimp_0 <- Lambda %*% K %*% M
-  }
-  rawimp_0 <- sweep(rawimp_0, 1, sy, "*")
+  rawimp_0 <- sweep(Lambda %*% K %*% M, 1, sy, "*")
   impact_full <- as.numeric(rawimp_0 %*% H)
   impact_mp   <- impact_full[mp_var_idx]
 

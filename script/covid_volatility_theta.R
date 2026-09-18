@@ -26,9 +26,9 @@ factors <- estimate_static_factors(data_mat, spec$r)$factors
 
 fit <- estimate_covid_theta(factors, spec$p, residual_dates, design$covid_start,
                             design$theta_lower, design$theta_upper)
-wls <- estimate_var_ols(factors, spec$p, s = fit$path)
-ols <- estimate_var_ols(factors, spec$p)
-neutral <- estimate_var_ols(factors, spec$p, s = rep(1, length(residual_dates)))
+wls <- estimate_var_wls(factors, spec$p, s = fit$path)
+ols <- estimate_var_wls(factors, spec$p)
+neutral <- estimate_var_wls(factors, spec$p, s = rep(1, length(residual_dates)))
 
 # Squared Mahalanobis size per dimension: OLS residuals against their ML
 # covariance, standardized WLS residuals against (B4). At an interior maximum
@@ -57,7 +57,7 @@ profile <- purrr::map_dfr(seq(0, 1, by = 0.01), function(rho) {
     fit$theta[c("s0", "s1", "s2")],
     function(s) {
       path <- covid_volatility_path(residual_dates, design$covid_start, c(s, rho = rho))
-      estimate_var_ols(factors, spec$p, s = path)$loglik
+      estimate_var_wls(factors, spec$p, s = path)$loglik
     },
     method = "L-BFGS-B",
     lower = design$theta_lower[c("s0", "s1", "s2")],
