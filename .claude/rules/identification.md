@@ -33,7 +33,7 @@ not editable. The collapse was validated by the `CLAUDE.md` smoke test reproduci
 **One inference, since 2026-09-08.** `compute_irf_dfm(inference=)` takes `"ar"` or `"none"` and
 has no default. `"ar"` fills `ci` from the Anderson-Rubin sets (`ar_dfm_bands()` in
 `R/identification/weak_iv_ar.R`), which is what `production_spec()$inference` says; `"none"` returns
-the point alone, for cells compared point by point (`q_truncation.R`, `q_sensitivity.R`). The AR
+the point alone, for cells compared point by point (`q_sensitivity.R`). The AR
 branch hard-stops if its re-derived point deviates from `ident_ext_instr()` by more than 1e-10 — the
 two paths must agree about the identification, not merely about the bands. `irf_point_matrix` is
 untouched by the switch, so the `CLAUDE.md` smoke test stays the guard it was.

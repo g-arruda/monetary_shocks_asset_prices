@@ -1,10 +1,10 @@
 # ===================================================================
 # Helpers for running and comparing DFM specification cells: the shared
-# stage-2 path (run_stage2_cell), the normalization value, the containment
-# rule against a reference cell, the dimension overlays and md_table.
-# The sweep's scoring and failure taxonomy left for
+# stage-2 path (run_stage2_cell), the normalization value, the dimension
+# overlay and md_table. The sweep's scoring and failure taxonomy left for
 # arquivo/R/identification/spec_sweep.R on 2026-09-17, with
-# irf_spec_sweep.R, which now sits in arquivo/script/.
+# irf_spec_sweep.R; the containment rule followed on 2026-09-18, with
+# q_truncation.R. Both scripts sit in arquivo/script/.
 # ===================================================================
 
 
@@ -98,136 +98,6 @@ run_stage2_cell <- function(data_mat, dates, inst_panel, sample_window,
     instrument = instrument, mp_var = mp_var, r = r, q = q, p = p,
     dfm_max_eig = dfm$diagnostics$max_eigenvalue
   )
-}
-
-
-#' Contain each alternative-dimension path inside the production bands
-#'
-#' The Alessi-Kerssenfischer Figure A3 reading, applied mechanically: the
-#' production cell is the only one carrying bands, and every alternative is
-#' scored by how often its point falls inside them. The asymmetry is the
-#' design, not an omission. `cor_path` measures shape and is immune to scale;
-#' `denom_ratio` names the scale factor, so a gap can be attributed instead of
-#' merely observed.
-#'
-#' The verdict is computed from `share_in90` and `cor_path` ONLY. The rescaled
-#' columns are a post-hoc decomposition and are deliberately kept out of the
-#' rule, so that looking at them cannot flip a verdict fixed in advance.
-#'
-#' @param paths Long data.frame with `cell_key`, `variable`, `h`, `point` and
-#'   the four band columns `lo68`, `hi68`, `lo90`, `hi90`. Bands are only read
-#'   on the production rows.
-#' @param prod_key Value of `cell_key` identifying the production cell.
-#' @param denom_ratio Named numeric vector: each cell's pre-normalization impact
-#'   of the policy variable over production's. Names are `as.character(cell_key)`.
-#' @param h_max Last horizon entering the containment shares.
-#' @param h_short Short-run horizon bounding the `share_in90_h12` column.
-#' @param var_order Variable order for the returned rows.
-#'
-#' @return Data.frame, one row per (`cell_key`, `variable`), with the
-#'   containment shares, the shape and deviation metrics, the post-hoc
-#'   denominator decomposition and `veredito`.
-containment_vs_production <- function(paths, prod_key, denom_ratio,
-                                      h_max, h_short, var_order) {
-  prod <- paths |>
-    dplyr::filter(cell_key == prod_key) |>
-    dplyr::select(variable, h, prod_point = point, lo68, hi68, lo90, hi90)
-
-  paths |>
-    dplyr::filter(cell_key != prod_key) |>
-    dplyr::select(cell_key, variable, h, alt_point = point) |>
-    dplyr::inner_join(prod, by = c("variable", "h")) |>
-    dplyr::filter(h <= h_max) |>
-    # Rescaled path: the alternative's own raw column normalized by PRODUCTION's
-    # denominator instead of its own. Holding the normalization fixed is what
-    # separates "the estimated column moved" from "the divisor shrank".
-    dplyr::mutate(resc_point = alt_point * unname(denom_ratio[as.character(cell_key)]),
-                  in68 = alt_point >= lo68 & alt_point <= hi68,
-                  in90 = alt_point >= lo90 & alt_point <= hi90,
-                  in90_resc = resc_point >= lo90 & resc_point <= hi90,
-                  dev  = alt_point - prod_point) |>
-    dplyr::group_by(cell_key, variable) |>
-    dplyr::summarise(
-      share_in68       = mean(in68),
-      share_in90       = mean(in90),
-      share_in90_h12   = mean(in90[h <= h_short]),
-      first_out90_h    = if (all(in90)) NA_integer_ else min(h[!in90]),
-      cor_path         = cor(alt_point, prod_point),
-      max_abs_dev      = max(abs(dev)),
-      max_abs_dev_h    = h[which.max(abs(dev))],
-      rel_max_abs_dev  = max(abs(dev)) / max(abs(prod_point)),
-      sign_flip_h0     = sign(alt_point[h == 0]) != sign(prod_point[h == 0]),
-      # Post-hoc, not pre-registered: h0 gap split into the part the denominator
-      # explains and the part left over, which is the estimated column itself.
-      ratio_h0         = alt_point[h == 0] / prod_point[h == 0],
-      resto_coluna_h0  = resc_point[h == 0] / prod_point[h == 0],
-      share_in90_resc  = mean(in90_resc),
-      .groups = "drop"
-    ) |>
-    dplyr::mutate(
-      denom_ratio = unname(denom_ratio[as.character(cell_key)]),
-      veredito = dplyr::case_when(
-        share_in90 == 1 & cor_path > 0.95 ~ "imaterial",
-        share_in90 < 1 | sign_flip_h0     ~ "material",
-        TRUE                              ~ "parcial"
-      )
-    ) |>
-    dplyr::arrange(dplyr::desc(cell_key), match(variable, var_order))
-}
-
-
-#' Overlay IRF panels for an arbitrary set of stage-2 cells
-#'
-#' Overlays any number of cells with a palette keyed by cell tag.
-#'
-#' @param cells Named list of stage-2 results (names used as legend labels).
-#' @param response_idx List of named indices (label = panel title).
-#' @param horizon Horizon to plot.
-#' @param palette Named color vector aligned with `names(cells)`.
-#' @param subtitle Plot subtitle.
-#'
-#' @return Patchwork object.
-plot_overlay_cells <- function(cells, response_idx, horizon, palette, subtitle) {
-  key90 <- sprintf("%.2f", 0.90)
-  key68 <- sprintf("%.2f", 0.68)
-
-  panels <- purrr::map(response_idx, function(entry) {
-    var_idx <- as.integer(entry)
-    var_lbl <- names(entry)
-
-    df <- purrr::imap_dfr(cells, function(s, tag) {
-      tibble::tibble(
-        h     = 0:horizon,
-        point = s$irf$irf_point_matrix[var_idx, seq_len(horizon + 1)],
-        lo90  = s$irf$ci[[key90]]$lower[var_idx, seq_len(horizon + 1)],
-        hi90  = s$irf$ci[[key90]]$upper[var_idx, seq_len(horizon + 1)],
-        lo68  = s$irf$ci[[key68]]$lower[var_idx, seq_len(horizon + 1)],
-        hi68  = s$irf$ci[[key68]]$upper[var_idx, seq_len(horizon + 1)],
-        spec  = tag
-      )
-    })
-
-    ggplot2::ggplot(df, ggplot2::aes(x = h, colour = spec, fill = spec)) +
-      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "grey60") +
-      ggplot2::geom_ribbon(ggplot2::aes(ymin = lo90, ymax = hi90),
-                           alpha = 0.10, colour = NA) +
-      ggplot2::geom_ribbon(ggplot2::aes(ymin = lo68, ymax = hi68),
-                           alpha = 0.18, colour = NA) +
-      ggplot2::geom_line(ggplot2::aes(y = point), linewidth = 0.7) +
-      ggplot2::scale_colour_manual(values = palette) +
-      ggplot2::scale_fill_manual(values = palette) +
-      ggplot2::labs(title = var_lbl, x = NULL, y = NULL) +
-      ggplot2::theme_minimal(base_size = 10) +
-      ggplot2::theme(legend.position = "bottom",
-                     plot.title = ggplot2::element_text(size = 11, face = "bold"))
-  })
-
-  patchwork::wrap_plots(panels, ncol = 3, guides = "collect") +
-    patchwork::plot_annotation(
-      title = "IRFs das especificações vencedoras da varredura",
-      subtitle = subtitle
-    ) &
-    ggplot2::theme(legend.position = "bottom")
 }
 
 

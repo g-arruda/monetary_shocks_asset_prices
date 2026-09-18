@@ -19,6 +19,11 @@ Com eles foram para `arquivo/script/` o `ar_bands.R`, que comparava AR, delta e
 bootstrap, e o `fomc_coincidence.R`, junto com `R/instrument/event_tests.R`, que
 só ele chamava. As saídas dos dois continuam em `output/`.
 
+**2026-09-18 — limpeza pós-inspeção visual.** `q_truncation.R` foi para
+`arquivo/script/` (os gráficos que importam são os de `q_sensitivity.R`), com
+`containment_vs_production()`. Vários scripts perderam relatórios `.md` e
+figuras que ninguém lia; os que as notas citam ficam em `output/` como órfãos.
+
 Rodadas anteriores de limpeza:
 - **2026-08-01 e 2026-08-05:** saíram cinco scripts da investigação de
   contaminação de IRF e `diagnose_factor_space_F.R`.
@@ -65,7 +70,6 @@ grupo 1, na ordem em que aparecem.
 | script | o que faz |
 |---|---|
 | `irf_coherence_check.R` | Roda a especificação de produção uma vez e pontua 58 variáveis do painel, ponto a ponto e em cada horizonte, contra janelas de teoria (`R/identification/irf_coherence.R`). É o script que alimenta a §5 do paper. As bandas são os conjuntos Anderson--Rubin de `production_spec()$inference`, e significância é "o conjunto exclui zero", lida pela topologia. Escreve `output/irf/irf_coherence_{h,summary}.csv` e o cache `irf_coherence_cell.rds`, lido por scripts a jusante. O relatório `irf_coherence_report.md` e o `irf_coherence_plots.pdf` deixaram de ser gerados em 2026-09-18 e ficam como órfãos citados. |
-| `q_truncation.R` | Testa se o truncamento `q < r` em `r = 5` descarta o choque monetário, em quatro janelas-célula: `cheia_p4` (a cheia sem tratamento), `pre_p4` só pontual, `pre_p2` com AR e `cheia_p4_lp`, a cheia com a volatilidade COVID de Lenza-Primiceri no θ̂ de `production_spec()`. A `cheia_p4_lp` é a produção desde 2026-09-17, e os autotestes (a) e (b) a conferem contra `irf_coherence_h.csv` e `mosw_strength_grid.csv`. Mede a suficiência do subespaço retido pelo Wald conjunto de z nas direções descartadas, e a invariância da Figura A3 de Alessi-Kerssenfischer por `containment_vs_production()` sobre as 115 séries. A leitura conjunta pré-registrada usa só as três células sem tratamento. Escreve `output/factors/q_truncation.{md,pdf}` e `q_truncation_{cells,directions,paths,containment}.csv`. |
 | `q_sensitivity.R` | Passo 4/4 do e-mail de 2026-09-13: as 20 variáveis da narrativa em `q = 2..5`, com `r = 5`. `--window` é obrigatório. `--window=cheia` usa `p = 4` e a volatilidade COVID de `production_spec()`, com AR na regressão transformada. `--window=pre_covid` usa `p = 2`, porque em `p = 4` o AR pré-COVID é barrado. `q = 5` traz os conjuntos AR de 68/90%, e `q = 2..4` são pontuais, no desenho da Figura A3 de Alessi-Kerssenfischer. Só desenha: escreve `output/factors/q_narrative_r5p4_covid.pdf` ou `q_narrative_r5p2_precovid.pdf`. Desde 2026-09-18 não grava `.md` nem CSV; os `_summary.csv`, citados em `notas/2026-09-14_inferencia_volatilidade_covid_q.md`, ficam como órfãos. |
 | `fig_section5.R` | Pós-processamento puro: lê o `irf_coherence_cell.rds` canônico e as tabelas da Tarefa 7, sem reestimar nada. Escreve as 10 figuras `paper/fig_*.pdf` até h=36. **Congelado desde 2026-09-08:** aborta sem `--repaint-paper-figures`, porque o cache passou a carregar conjuntos AR e as legendas do paper ainda dizem *wild bootstrap*. |
 | `fig_weak_iv.R` | Pós-processamento puro do CSV canônico da inferência robusta no VAR. Escreve só `paper/fig_weak_iv_main.pdf`, com ponto, zero e conjunto AR de 95% nas cinco respostas da produção até `h=36`. **Congelado desde 2026-09-08:** aborta sem `--repaint-paper-figures`, porque o contraste bootstrap-vs-AR que a legenda anuncia deixou de existir quando o DFM migrou para AR. |

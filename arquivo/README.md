@@ -146,6 +146,12 @@ bootstrap das regressões diárias de evento, veio junto: `fomc_coincidence.R` e
 o último consumidor vivo. Desde esta data, também nenhum script arquivado que
 passe `nboot`, `apply_kilian` ou `inference = "bootstrap"` roda contra `R/`.
 
+### Limpeza pós-inspeção visual (arquivado em 2026-09-18)
+
+| script | nota | estado ao sair |
+|---|---|---|
+| `q_truncation.R` | `2026-09-10_truncamento_q`, `2026-09-14_inferencia_volatilidade_covid_q` | rodava. Saiu por decisão do autor: os gráficos que importam são os de `script/q_sensitivity.R`, que não lê as saídas dele. `output/factors/q_truncation_*` fica; `q_truncation_cells.csv` é citado no `CLAUDE.md` e em `registro/pendencias.md` (ξ_mp de `(5,2)` sob a escala) |
+
 ## `arquivo/R/modeling/` — módulos
 
 | módulo | conteúdo | por que saiu |
@@ -168,7 +174,7 @@ caminho ativo fazia `source()` deles. O núcleo DFM permanece com o ramo único
 | módulo | conteúdo | por que saiu |
 |---|---|---|
 | `validation_tests.R` | As 12 funções da suíte de validação do instrumento (`first_stage_F`, `residualize_target`, `placebo_test`, `random_mask_test`, `subperiod_F`, `anti_jk_test`, `random_mask_curve`, `qlr_supF`, …). Arquivo inteiro, arquivado em 2026-09-17 | Nenhuma função era chamada. `irf_coherence_check.R` e `irf_spec_stage2.R` faziam `source()` dele sem usar nada. `notas/2026-07-11_varredura_irf.md` e `historico_decisoes.md` §4 citam `first_stage_F` e `residualize_target` |
-| `spec_sweep.R` | `theory_sign_table`, `summarize_irf_responses`, `evaluate_sweep_cell`, `classify_sweep_cells` e `rq_surface_table`, retiradas de `R/identification/spec_sweep.R` em 2026-09-17 | Só `irf_spec_sweep.R` e os `panel_composition_rq_grid*` as chamavam. O resto de `spec_sweep.R` (`run_stage2_cell`, `containment_vs_production`, `md_table`, …) segue vivo |
+| `spec_sweep.R` | `theory_sign_table`, `summarize_irf_responses`, `evaluate_sweep_cell`, `classify_sweep_cells` e `rq_surface_table`, retiradas de `R/identification/spec_sweep.R` em 2026-09-17; `containment_vs_production` e `plot_overlay_cells`, em 2026-09-18 | Só `irf_spec_sweep.R` e os `panel_composition_rq_grid*` chamavam as primeiras; só `q_truncation.R` chamava `containment_vs_production`, e `plot_overlay_cells` já não tinha chamador. O resto de `spec_sweep.R` (`run_stage2_cell`, `plot_dimension_overlay`, `md_table`, …) segue vivo |
 | `experimental_panel.R` | `build_variant_panel`, `experimental_variant_manifest`, `build_experimental_panels` e `classify_mosw`, retiradas de `R/identification/experimental_panel.R` em 2026-09-17 | Só a família `panel_composition*` as chamava. A metade fatorial do arquivo vivo segue em uso por `diagnostics/rq_*_audit` |
 
 ## `arquivo/relatorio/` — notas e correspondência

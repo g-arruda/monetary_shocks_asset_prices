@@ -140,8 +140,8 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Lenza-Primiceri scale into production | `validation/validate_production_spec.R`, `irf_coherence_check.R`, `mosw_strength_grid.R` | `2026-09-17_volatilidade_covid_producao` | switched on: ξ_mp 6.057014 → 6.847997, F_rob 9.625428 → 11.765250, root 0.970090 → 0.983677, every §5 set still `interval` at 68/90; pre-COVID unmoved (s_t ≡ 1); `r ≥ 7` explosive on the full window |
 | Alternative `r` estimators (AH ER/GR, ABC) | `arquivo/script/factor_selection_alt.R` | `2026-09-10_selecao_fatores_ah_abc` | mixed: ER = GR = 2, ABC-IC*₁ = 9 on a 2-point stability interval (5 in 39/100 column permutations); `factorselect` diverges from both papers in GR and ABC and is not used |
 | Correlation pruning + `(r,q)` on the pruned panel | `panel_pruning.R`, `factor_selection_pruned.R` | `2026-09-10_poda_correlacao_painel` | complete linkage at \|ρ\| ≥ 0.90 drops 9/115 series; Bai-Ng IC2 5 → 3, AH 2 → 1, ABC 9 → 11 (unstable), AW `q = 2` at every `r`; divergence grows (D 10 → 12), underestimation hypothesis contradicted |
-| `q < r` truncation: subspace sufficiency + AK invariance by window | `q_truncation.R` | `2026-09-10_truncamento_q` | harmless before COVID, distorting after: pre-COVID `p=2` 115/115 series immaterial at `q=3,4`, full sample 0/115; the proxy's covariance sits in the discarded directions (T1 p 0.051/0.039/0.015 full, ≥ 0.22 pre-COVID); rules written after an exploratory pass |
-| COVID volatility (Lenza-Primiceri) in the factor VAR: θ̂ by ML, AR under WLS, steps 3/4 and 4/4 | `covid_volatility_theta.R`, `q_truncation.R` (cell `cheia_p4_lp`), `q_sensitivity.R` | `2026-09-14_inferencia_volatilidade_covid_q` | **superseded on 2026-09-17: the treatment became production.** θ̂ = (6.61, 12.47, 1.76, 0.944), with a second maximum at ρ = 0 2.6 log-points below; at `q=3` 23/115 series immaterial and 75 material, against 115/115 immaterial pre-COVID `p=2`; the sets condition on θ̂ |
+| `q < r` truncation: subspace sufficiency + AK invariance by window | `arquivo/script/q_truncation.R` | `2026-09-10_truncamento_q` | harmless before COVID, distorting after: pre-COVID `p=2` 115/115 series immaterial at `q=3,4`, full sample 0/115; the proxy's covariance sits in the discarded directions (T1 p 0.051/0.039/0.015 full, ≥ 0.22 pre-COVID); rules written after an exploratory pass |
+| COVID volatility (Lenza-Primiceri) in the factor VAR: θ̂ by ML, AR under WLS, steps 3/4 and 4/4 | `covid_volatility_theta.R`, `arquivo/script/q_truncation.R` (cell `cheia_p4_lp`), `q_sensitivity.R` | `2026-09-14_inferencia_volatilidade_covid_q` | **superseded on 2026-09-17: the treatment became production.** θ̂ = (6.61, 12.47, 1.76, 0.944), with a second maximum at ρ = 0 2.6 log-points below; at `q=3` 23/115 series immaterial and 75 material, against 115/115 immaterial pre-COVID `p=2`; the sets condition on θ̂ |
 
 ## ⚠ Prohibitions
 
@@ -251,7 +251,6 @@ Rscript script/mosw_strength_grid.R          # ξ_mp over (r,q) × sample × ins
 
 # IRF inference, coherence and q sensitivity
 Rscript script/irf_coherence_check.R         # 58 vars scored point-by-point (feeds §5)
-Rscript script/q_truncation.R                # q < r truncation, four window-cells
 Rscript script/q_sensitivity.R --window=cheia   # q = 2..5 narrative; --window=pre_covid for the other
 Rscript script/fig_section5.R                # paper/fig_*.pdf from the cached .rds
 
