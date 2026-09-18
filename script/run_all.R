@@ -42,7 +42,6 @@ STAGES <- list(
   list(
     name     = "download",
     desc     = "Download and merge every reproducible raw input",
-    interp   = "Rscript",
     file     = "script/download.R",
     network  = TRUE,
     requires = c("data/raw/yields/yields_dia.csv",
@@ -65,7 +64,6 @@ STAGES <- list(
   list(
     name     = "clean",
     desc     = "Log transforms + X-13 seasonal adjustment of the monthly panel",
-    interp   = "Rscript",
     file     = "script/clean.R",
     network  = FALSE,
     requires = c(
@@ -82,7 +80,6 @@ STAGES <- list(
   list(
     name     = "instrument",
     desc     = "Copom-day DI surprises to eight monthly GK-family variants",
-    interp   = "Rscript",
     file     = "script/instrument.R",
     network  = FALSE,
     requires = c("data/raw/di.csv", "data/raw/copom_historico.csv",
@@ -98,7 +95,6 @@ STAGES <- list(
   list(
     name     = "model",
     desc     = sprintf("Production DFM (r=%d, q=%d) + Anderson-Rubin IRF sets", SPEC$r, SPEC$q),
-    interp   = "Rscript",
     file     = "script/model_alessi.R",
     network  = FALSE,
     requires = c(SPEC$data_path, SPEC$legacy_instrument_path),
@@ -111,24 +107,32 @@ STAGE_NAMES   <- names(STAGES)
 
 # Which stage produces a given file, if any — drives the preflight so that
 # a requirement satisfied earlier in the same run is not reported missing.
-PRODUCER <- local({
-  m <- character()
-  for (s in STAGES) for (f in s$produces) m[f] <- s$name
-  m
-})
+PRODUCER <- unlist(lapply(unname(STAGES), function(s) {
+  setNames(rep(s$name, length(s$produces)), s$produces)
+}))
 
 
 # ---- Argument parsing ----------------------------------------------
 
 args <- commandArgs(trailingOnly = TRUE)
 
+#' Whether a bare flag was passed on the command line
+#'
+#' @param x Flag, e.g. `"--list"`.
+#'
+#' @return `TRUE` if `x` is among the trailing arguments.
 flag <- function(x) x %in% args
-opt  <- function(key) {
+
+#' Value of a `--key=value` option, the last one if repeated
+#'
+#' @param key Option name without dashes, e.g. `"from"`.
+#'
+#' @return The value as a string, or `NULL` if the option was not passed.
+opt <- function(key) {
   hit <- grep(sprintf("^--%s=", key), args, value = TRUE)
   if (length(hit) == 0) return(NULL)
   sub(sprintf("^--%s=", key), "", hit[length(hit)])
 }
-split_list <- function(x) trimws(strsplit(x, ",", fixed = TRUE)[[1]])
 
 known <- c("--list", "--dry-run", "--skip-existing", "--continue-on-error",
            "--help", "-h")
@@ -149,6 +153,12 @@ dry_run      <- flag("--dry-run")
 skip_existing <- flag("--skip-existing")
 keep_going   <- flag("--continue-on-error")
 
+#' Abort on stage names that are not in the stage table
+#'
+#' @param x Stage names read from an option.
+#' @param what Option the names came from, for the error message.
+#'
+#' @return `x`, unchanged, when every name is a known stage.
 check_names <- function(x, what) {
   bad <- setdiff(x, STAGE_NAMES)
   if (length(bad) > 0) {
@@ -162,7 +172,7 @@ check_names <- function(x, what) {
 selected <- STAGE_NAMES
 
 if (!is.null(opt("only"))) {
-  only <- check_names(split_list(opt("only")), "--only")
+  only <- check_names(trimws(strsplit(opt("only"), ",", fixed = TRUE)[[1]]), "--only")
   selected <- STAGE_NAMES[STAGE_NAMES %in% only]
 } else {
   if (!is.null(opt("from"))) {
@@ -179,7 +189,8 @@ if (!is.null(opt("only"))) {
 }
 
 if (!is.null(opt("skip"))) {
-  selected <- setdiff(selected, check_names(split_list(opt("skip")), "--skip"))
+  skipped <- trimws(strsplit(opt("skip"), ",", fixed = TRUE)[[1]])
+  selected <- setdiff(selected, check_names(skipped, "--skip"))
 }
 
 if (length(selected) == 0) stop("Nenhum estagio selecionado.", call. = FALSE)
@@ -187,6 +198,11 @@ if (length(selected) == 0) stop("Nenhum estagio selecionado.", call. = FALSE)
 
 # ---- --list --------------------------------------------------------
 
+#' Render a list of paths with their existence status for `--list`
+#'
+#' @param paths Character vector of file paths.
+#'
+#' @return One string: each path tagged `[ok]` or `[FALTA]`, or `"-"` if empty.
 file_state <- function(paths) {
   if (length(paths) == 0) return("-")
   paste(vapply(paths, function(p) {
@@ -200,7 +216,7 @@ if (do_list) {
     s <- STAGES[[i]]
     cat(sprintf("%d. %-17s %s%s\n", i, s$name, s$desc,
                 if (s$network) "  [rede]" else ""))
-    cat(sprintf("   cmd      : %s %s\n", s$interp, s$file))
+    cat(sprintf("   cmd      : Rscript %s\n", s$file))
     cat(sprintf("   requer   : %s\n", file_state(s$requires)))
     cat(sprintf("   produz   : %s\n\n", file_state(s$produces)))
   }
@@ -215,28 +231,20 @@ if (do_list) {
 # stage starts, so a 40-minute download never fails on a missing input at
 # the end.
 
-missing <- list()
-for (nm in selected) {
+checks <- do.call(rbind, lapply(selected, function(nm) {
   s <- STAGES[[nm]]
-  for (req in s$requires) {
-    producer <- PRODUCER[req]
-    made_here <- !is.na(producer) &&
-      producer %in% selected &&
-      match(producer, selected) < match(nm, selected)
-    if (!file.exists(req) && !made_here) {
-      missing[[length(missing) + 1]] <- list(stage = nm, file = req,
-                                             producer = unname(producer))
-    }
-  }
-  if (!file.exists(s$file)) {
-    missing[[length(missing) + 1]] <- list(stage = nm, file = s$file,
-                                           producer = NA_character_)
-  }
-}
+  data.frame(stage = nm, file = c(s$requires, s$file),
+             producer = c(unname(PRODUCER[s$requires]), NA_character_))
+}))
+made_here <- !is.na(checks$producer) &
+  checks$producer %in% selected &
+  match(checks$producer, selected) < match(checks$stage, selected)
+missing <- checks[!file.exists(checks$file) & !made_here, ]
 
-if (length(missing) > 0) {
+if (nrow(missing) > 0) {
   cat("\n[ABORTADO] Preflight: entradas ausentes. Nada foi executado.\n\n")
-  for (m in missing) {
+  for (i in seq_len(nrow(missing))) {
+    m <- missing[i, ]
     cat(sprintf("  - estagio '%s' precisa de: %s\n", m$stage, m$file))
     if (!is.na(m$producer)) {
       cat(sprintf("      produzido pelo estagio '%s' (inclua-o na selecao)\n",
@@ -274,7 +282,7 @@ if (dry_run) {
     s <- STAGES[[nm]]
     tag <- if (skip_existing && length(s$produces) > 0 &&
                all(file.exists(s$produces))) "  [seria pulado: saidas existem]" else ""
-    cat(sprintf("  %s %s%s\n", s$interp, s$file, tag))
+    cat(sprintf("  Rscript %s%s\n", s$file, tag))
   }
   cat("\n")
   quit(save = "no", status = 0)
@@ -302,14 +310,13 @@ for (nm in selected) {
   }
 
   log_file <- file.path(LOG_DIR, sprintf("run_all_%s_%s.log", stamp, nm))
-  cat(sprintf("\n--- [%s] %s %s\n", nm, s$interp, s$file))
+  cat(sprintf("\n--- [%s] Rscript %s\n", nm, s$file))
   cat(sprintf("    log: %s\n", log_file))
 
-  cmd <- if (identical(s$interp, "Rscript")) RSCRIPT else s$interp
   t0  <- Sys.time()
   # stdout streams to the console AND to the log; stderr is merged in.
   code <- system2("sh", c("-c", shQuote(sprintf("%s %s 2>&1 | tee %s",
-                                                shQuote(cmd), shQuote(s$file),
+                                                shQuote(RSCRIPT), shQuote(s$file),
                                                 shQuote(log_file)))))
   mins <- as.numeric(Sys.time() - t0, units = "mins")
 
