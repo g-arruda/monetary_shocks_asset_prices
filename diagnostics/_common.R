@@ -8,7 +8,6 @@
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
-source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/identification/spec_sweep.R")
 source("R/identification/irf_coherence.R")
@@ -17,12 +16,24 @@ DIAG_OUT <- "diagnostics/output"
 dir.create(DIAG_OUT, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Especificacao de producao (espelha irf_coherence_check.R) -----
-PRODUCTION <- production_spec()
-SPEC <- c(PRODUCTION, list(
-  h = PRODUCTION$horizon,
-  seed = PRODUCTION$bootstrap_seed,
-  window = PRODUCTION$sample
-))
+# Escrita aqui desde 2026-09-21, quando production_spec() foi apagado. Esta
+# rodada esta congelada: `seed` saiu com o bootstrap, e os scripts 01-05, que
+# ainda o passam, ja nao rodavam contra o R/ corrente.
+SPEC <- list(
+  data_path = "data/processed/data_log_deseasonalized.csv",
+  coherence_cell_path = "output/irf/irf_coherence_cell.rds",
+  instrument = "z_jk_bs_purif",
+  r = 5L, q = 5L, p = 4L,
+  h = 48L,
+  horizon = 48L,
+  mp_var = "yield_6m",
+  shock_bps = 50,
+  ci_levels = c(0.68, 0.90),
+  n_series = 115L,
+  window = as.Date(c("2012-03-01", "2025-12-01")),
+  sample = as.Date(c("2012-03-01", "2025-12-01")),
+  pre_covid_sample = as.Date(c("2012-03-01", "2019-12-01"))
+)
 
 # ---- Painel -------------------------------------------------------
 PANEL_RAW <- readr::read_csv("data/raw/raw_data.csv", show_col_types = FALSE)

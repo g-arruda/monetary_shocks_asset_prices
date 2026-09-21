@@ -22,8 +22,6 @@
 
 rm(list = ls())
 
-source("R/modeling/production_spec.R")
-
 if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
   stop(
     "The results-section figures are frozen at the wild-bootstrap vintage. ",
@@ -32,12 +30,11 @@ if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
     "--repaint-paper-figures only in the editorial round that syncs the two."
   )
 }
-SPEC <- production_spec()
-
 H_MAX <- 36L   # every IRF figure stops here
 
-cell  <- readRDS(SPEC$coherence_cell_path)
-panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE)
+cell  <- readRDS("output/irf/irf_coherence_cell.rds")
+panel <- readr::read_csv("data/processed/data_log_deseasonalized.csv",
+                         show_col_types = FALSE)
 hcsv  <- readr::read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE)
 
 point <- cell$irf$irf_point_matrix

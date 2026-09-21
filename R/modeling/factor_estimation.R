@@ -168,6 +168,43 @@ estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
     path = covid_volatility_path(residual_dates, covid_start, fit$par)
   )
 }
+#' Read the estimated COVID volatility scale of the factor VAR
+#'
+#' Returns the `covid_volatility` list that `estimate_dfm()` expects, with
+#' `covid_start` and theta read from the CSV that `script/covid_volatility_theta.R`
+#' writes. Theta is an estimate, not a decision, so it is never typed as a
+#' literal: `readr` writes doubles at shortest-round-trip precision, so the four
+#' values come back bit-identical to the maximizer of (B5). `innovations` is the
+#' author's decision of 2026-09-14 and is not in the CSV.
+#'
+#' @param path CSV written by `script/covid_volatility_theta.R`, with columns
+#'   `covid_start`, `s0`, `s1`, `s2` and `rho`. No default: every call site
+#'   writes the path it reads.
+#' @param innovations `"standardized"` (`u_t / s_t`, production) or `"raw"`.
+#'
+#' @return List with `covid_start` (Date), `theta` (named `s0`, `s1`, `s2`,
+#'   `rho`) and `innovations`.
+#'
+#' @examples
+#' cv <- read_covid_volatility("output/factors/covid_volatility_theta.csv")
+read_covid_volatility <- function(path, innovations = "standardized") {
+  if (!file.exists(path)) {
+    stop("COVID volatility scale not found at '", path,
+         "'. Run script/covid_volatility_theta.R, which estimates theta by ",
+         "maximum likelihood and writes it.")
+  }
+  fit <- readr::read_csv(path, show_col_types = FALSE)
+  if (nrow(fit) != 1L ||
+      !all(c("covid_start", "s0", "s1", "s2", "rho") %in% names(fit))) {
+    stop("'", path, "' must carry one row with covid_start, s0, s1, s2 and rho.")
+  }
+
+  list(
+    covid_start = as.Date(fit$covid_start),
+    theta = c(s0 = fit$s0, s1 = fit$s1, s2 = fit$s2, rho = fit$rho),
+    innovations = innovations
+  )
+}
 
 
 #' Reduce the factor-VAR innovations to q dynamic shocks
@@ -223,7 +260,7 @@ estimate_dynamic_factors <- function(var_residuals, q, sigma_u) {
 #'   `innovations` — `"raw"`, the residuals `u_t`, or `"standardized"`,
 #'   `u_t / s_t` — which decides what K, M and eta read downstream. Every
 #'   field is required, because each is an author decision;
-#'   `production_spec()$covid_volatility` carries the production one.
+#'   `read_covid_volatility()` builds the production one.
 #'
 #' @return List with the static factors and loadings, `data_sd`, the factor
 #'   VAR (`var_coefficients`, `var_residuals` — the innovations the switch
@@ -234,7 +271,7 @@ estimate_dynamic_factors <- function(var_residuals, q, sigma_u) {
 #'
 #' @examples
 #' dfm <- estimate_dfm(panel, 5L, 5L, 4L, dates = dates,
-#'                     covid_volatility = production_spec()$covid_volatility)
+#'                     covid_volatility = read_covid_volatility(theta_path))
 estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
                          covid_volatility = NULL) {
   if (!is.null(instrument)) {

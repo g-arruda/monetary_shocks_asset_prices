@@ -29,8 +29,16 @@
 
 RSCRIPT <- file.path(R.home("bin"), "Rscript")
 LOG_DIR <- "output/logs"
-source("R/modeling/production_spec.R")
-SPEC <- production_spec()
+
+# Canonical artefacts of the chain, written here rather than resolved from a
+# spec object. `covid_volatility_theta.csv` has no stage: script/
+# covid_volatility_theta.R estimates theta and the preflight reports it missing.
+PANEL_BASE  <- "data/processed/data_log_deseasonalized_base_106.csv"
+PANEL       <- "data/processed/data_log_deseasonalized.csv"
+INSTRUMENT  <- "data/processed/instrument.csv"
+THETA       <- "output/factors/covid_volatility_theta.csv"
+MODEL_IRF   <- "output/irf/irf_model_alessi_r5q5.pdf"
+BAI_NG      <- "output/factors/production_bai_ng_bll_surface.csv"
 
 
 # ---- Stage table ---------------------------------------------------
@@ -70,8 +78,8 @@ STAGES <- list(
       "data/raw/DLSP/Evodlp.xlsx"
     ),
     produces = c(
-      SPEC$base_data_path,
-      SPEC$data_path,
+      PANEL_BASE,
+      PANEL,
       "output/panel/production_series_manifest.csv"
     )
   ),
@@ -90,11 +98,11 @@ STAGES <- list(
   ),
   list(
     name     = "model",
-    desc     = sprintf("Production DFM (r=%d, q=%d) + Anderson-Rubin IRF sets", SPEC$r, SPEC$q),
+    desc     = "Production DFM (r=5, q=5) + Anderson-Rubin IRF sets",
     file     = "script/model_alessi.R",
     network  = FALSE,
-    requires = c(SPEC$data_path, SPEC$legacy_instrument_path),
-    produces = c(SPEC$model_output, SPEC$bai_ng_output)
+    requires = c(PANEL, INSTRUMENT, THETA),
+    produces = c(MODEL_IRF, BAI_NG)
   )
 )
 

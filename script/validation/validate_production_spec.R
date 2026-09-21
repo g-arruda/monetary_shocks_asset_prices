@@ -2,22 +2,56 @@
 
 rm(list = ls())
 
-source("R/modeling/production_spec.R")
 source("R/modeling/factor_estimation.R")
 source("R/modeling/factor_selection.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/var_proxy.R")
 source("R/identification/factor_space_diagnostics.R")
 
-spec <- production_spec()
 out_dir <- "output/validation"
 
-# Read only here: the composition of the production panel and the record of
-# the factor-VAR lag choice (AIC on the common T = 154 sample, trend in the
-# selection only; p = 4 inherited from the 2013-01--2025-09 vintage)
+# This script is the canonical declaration of the production specification:
+# every invariant below is written here as a literal and checked against what
+# data/processed/ and output/ actually contain. The estimation scripts carry
+# their own copies, which is the point — a check that read the producer's own
+# values would prove nothing.
+PANEL_PATH      <- "data/processed/data_log_deseasonalized.csv"
+BASE_PATH       <- "data/processed/data_log_deseasonalized_base_106.csv"
+INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
+THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
+BAI_NG_PATH     <- "output/factors/production_bai_ng_bll_surface.csv"
+SAMPLE           <- as.Date(c("2012-03-01", "2025-12-01"))
+PRE_COVID_SAMPLE <- as.Date(c("2012-03-01", "2019-12-01"))
+R_FACTORS  <- 5L
+Q_DYNAMIC  <- 5L
+P_LAGS     <- 4L
+HORIZON    <- 48L
+INSTRUMENT <- "z_jk_bs_purif"
+MP_VAR     <- "yield_6m"
+NORMALIZE_VALUE <- 0.005
+CI_LEVELS  <- c(0.68, 0.90)
+N_SERIES      <- 115L
+N_BASE_SERIES <- 106L
 N_MONTHS <- 166L
 N_INNOVATIONS <- 162L
-REQUIRED_SERIES <- c(spec$mp_var, spec$production_series_added)
+# The author's design of 2026-09-14, which is how theta is obtained
+COVID_START <- as.Date("2020-03-01")
+THETA_LOWER <- c(s0 = 1, s1 = 1, s2 = 1, rho = 0)
+THETA_UPPER <- c(s0 = Inf, s1 = Inf, s2 = Inf, rho = 1)
+PRODUCTION_SERIES_ADDED <- c(
+  "fiscal_dbgg",
+  "fiscal_dlsp",
+  "fiscal_primary_balance",
+  "expect_focus_ipca12m",
+  "expect_focus_selic_ny",
+  "expect_focus_pib_ny",
+  "expect_focus_cambio_ny",
+  "dlsp_exchange_adjustment",
+  "expect_focus_fiscal_dlsp_ny",
+  "expect_focus_fiscal_primary_balance_ny",
+  "expect_focus_fiscal_nominal_balance_ny"
+)
+REQUIRED_SERIES <- c(MP_VAR, PRODUCTION_SERIES_ADDED)
 EXCLUDED_SERIES <- c(
   "juros_cdi", "asset_mlcx", "external_current_account_gdp",
   "external_exports", "external_imports", "external_reserves", "us_dgs2",
@@ -34,8 +68,8 @@ LAG_SELECTION <- list(
 )
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
-panel <- readr::read_csv(spec$data_path, show_col_types = FALSE)
-base <- readr::read_csv(spec$base_data_path, show_col_types = FALSE)
+panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE)
+base <- readr::read_csv(BASE_PATH, show_col_types = FALSE)
 manifest <- readr::read_csv(
   "output/panel/production_series_manifest.csv",
   show_col_types = FALSE
@@ -47,16 +81,16 @@ data_mat <- panel |>
 base_mat <- base |>
   dplyr::select(-ref.date) |>
   as.matrix()
-expected_dates <- seq(spec$sample[1], spec$sample[2], by = "month")
+expected_dates <- seq(SAMPLE[1], SAMPLE[2], by = "month")
 if (!identical(dates, expected_dates) || nrow(data_mat) != N_MONTHS ||
-    ncol(data_mat) != spec$n_series || ncol(base_mat) != 106L ||
+    ncol(data_mat) != N_SERIES || ncol(base_mat) != N_BASE_SERIES ||
     anyDuplicated(colnames(data_mat)) || any(!is.finite(data_mat)) ||
     any(!is.finite(base_mat)) ||
     !all(REQUIRED_SERIES %in% colnames(data_mat)) ||
     any(EXCLUDED_SERIES %in% colnames(data_mat))) {
   stop("The canonical and base panels do not satisfy the production composition invariants.")
 }
-if (nrow(manifest) != spec$n_series || anyDuplicated(manifest$variable) ||
+if (nrow(manifest) != N_SERIES || anyDuplicated(manifest$variable) ||
     !setequal(manifest$variable, colnames(data_mat)) ||
     !identical(
       manifest$source_id[match("spread_credito_pj_total", manifest$variable)],
@@ -66,7 +100,7 @@ if (nrow(manifest) != spec$n_series || anyDuplicated(manifest$variable) ||
       manifest$source_id[match("spread_credito_pf_total", manifest$variable)],
       "SGS 20785"
     ) ||
-    !all(spec$production_series_added %in% manifest$variable) ||
+    !all(PRODUCTION_SERIES_ADDED %in% manifest$variable) ||
     any(c("spread_icc_juridica", "spread_icc_fisica") %in% manifest$variable) ||
     any(grepl("^SEM_AJUSTE", manifest$seasonal_status))) {
   stop("The production manifest does not identify the 115-series composition and sources.")
@@ -83,14 +117,14 @@ if (!identical(unname(unlist(bai_ng$r_hat)), c(5L, 5L, 20L)) ||
     any(!is.finite(as.matrix(bai_ng_surface[, -1])))) {
   stop("The BLL Bai-Ng surface must be finite and select IC1=5, IC2=5, IC3=20.")
 }
-saved_bai_ng <- readr::read_csv(spec$bai_ng_output, show_col_types = FALSE)
+saved_bai_ng <- readr::read_csv(BAI_NG_PATH, show_col_types = FALSE)
 if (!identical(names(saved_bai_ng), names(bai_ng_surface)) ||
     nrow(saved_bai_ng) != nrow(bai_ng_surface) ||
     max(abs(as.matrix(saved_bai_ng) - as.matrix(bai_ng_surface))) > 1e-12) {
   stop("The saved production BLL Bai-Ng surface does not reproduce.")
 }
 
-instrument_wide <- readr::read_csv(spec$instrument_path, show_col_types = FALSE) |>
+instrument_wide <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE) |>
   dplyr::mutate(month = as.Date(month))
 if (!identical(instrument_wide$month, expected_dates) ||
     nrow(instrument_wide) != N_MONTHS ||
@@ -102,7 +136,7 @@ first_instrument <- c(
   -22.017543058626288, 0, -3.96538127126775, 0,
   0, 7.955274952337614, 0, -2.465187498734114
 )
-if (max(abs(instrument_wide[[spec$instrument]][seq_along(first_instrument)] -
+if (max(abs(instrument_wide[[INSTRUMENT]][seq_along(first_instrument)] -
     first_instrument)) > 1e-12) {
   stop("The recalculated initial production-instrument values changed.")
 }
@@ -116,18 +150,18 @@ event_diagnostics <- readr::read_csv(
 zero_contract <- tibble::tibble(month = expected_dates) |>
   dplyr::left_join(event_diagnostics, by = "month") |>
   dplyr::mutate(kept_events = tidyr::replace_na(kept_events, 0L))
-if (sum(instrument_wide[[spec$instrument]] == 0) != 99L ||
+if (sum(instrument_wide[[INSTRUMENT]] == 0) != 99L ||
     !identical(
-      instrument_wide[[spec$instrument]] == 0,
+      instrument_wide[[INSTRUMENT]] == 0,
       zero_contract$kept_events == 0
     )) {
   stop("The JK monthly zeros do not match months without retained events.")
 }
 instrument <- instrument_wide |>
-  dplyr::transmute(month = as.Date(month), shock = .data[[spec$instrument]]) |>
+  dplyr::transmute(month = as.Date(month), shock = .data[[INSTRUMENT]]) |>
   dplyr::filter(!is.na(shock))
 
-factors <- estimate_static_factors(data_mat, spec$r)$factors
+factors <- estimate_static_factors(data_mat, R_FACTORS)$factors
 lag_criteria <- var_lag_criteria(
   factors,
   pmax = LAG_SELECTION$max_lag,
@@ -136,7 +170,7 @@ lag_criteria <- var_lag_criteria(
 if (unique(lag_criteria$T_common) != LAG_SELECTION$common_sample ||
     lag_criteria$p[which.min(lag_criteria$aic)] != LAG_SELECTION$selected_aic ||
     lag_criteria$p[which.min(lag_criteria$bic)] != LAG_SELECTION$selected_bic ||
-    abs(lag_criteria$aic[lag_criteria$p == spec$p] -
+    abs(lag_criteria$aic[lag_criteria$p == P_LAGS] -
       LAG_SELECTION$aic_at_production) > 1e-12) {
   stop("The reported factor-lag criteria do not reproduce on the expanded sample.")
 }
@@ -144,26 +178,26 @@ readr::write_csv(
   lag_criteria,
   file.path(out_dir, "production_factor_lag_criteria.csv")
 )
-# The production theta lives as literals in production_spec(), because that
-# function reads no artefact. Re-derive it here from data/processed/ and stop if
-# it moved: a panel, r or p change silently invalidates a frozen theta.
+# Every estimation script reads theta from THETA_PATH. Re-derive it here from
+# data/processed/ and stop if it moved: a panel, r or p change silently
+# invalidates the stored theta.
+covid_volatility <- read_covid_volatility(THETA_PATH)
 theta_refit <- estimate_covid_theta(
-  factors, spec$p, dates[(spec$p + 1):length(dates)],
-  spec$covid_volatility_design$covid_start,
-  spec$covid_volatility_design$theta_lower,
-  spec$covid_volatility_design$theta_upper
+  factors, P_LAGS, dates[(P_LAGS + 1):length(dates)],
+  COVID_START, THETA_LOWER, THETA_UPPER
 )
-theta_spec <- spec$covid_volatility$theta
-if (!setequal(names(theta_refit$theta), names(theta_spec)) ||
-    max(abs(theta_refit$theta / theta_spec[names(theta_refit$theta)] - 1)) > 1e-8) {
-  stop("The frozen production theta does not reproduce from the panel: refit is (",
+theta_stored <- covid_volatility$theta
+if (!identical(covid_volatility$covid_start, COVID_START) ||
+    !setequal(names(theta_refit$theta), names(theta_stored)) ||
+    max(abs(theta_refit$theta / theta_stored[names(theta_refit$theta)] - 1)) > 1e-8) {
+  stop("The stored production theta does not reproduce from the panel: refit is (",
        paste(sprintf("%s = %.15g", names(theta_refit$theta), theta_refit$theta),
-             collapse = ", "), "). Re-run script/covid_volatility_theta.R and ",
-       "update production_spec()$covid_volatility$theta.")
+             collapse = ", "), "). Re-run script/covid_volatility_theta.R, which ",
+       "writes ", THETA_PATH, ".")
 }
 
-mpind <- match(spec$mp_var, colnames(data_mat))
-samples <- list(full = spec$sample, pre_covid = spec$pre_covid_sample)
+mpind <- match(MP_VAR, colnames(data_mat))
+samples <- list(full = SAMPLE, pre_covid = PRE_COVID_SAMPLE)
 # The full window runs the production Lenza-Primiceri scale since 2026-09-17;
 # the pre-COVID window has s_t = 1 in every month, so its numbers are the same
 # treated or not, and they did not move when the treatment was switched on.
@@ -181,17 +215,17 @@ diagnostics <- lapply(names(samples), function(sample_name) {
   keep <- dates >= window[1] & dates <= window[2]
   dfm <- estimate_dfm(
     data_mat[keep, , drop = FALSE],
-    r = spec$r,
-    q = spec$q,
-    p = spec$p,
+    r = R_FACTORS,
+    q = Q_DYNAMIC,
+    p = P_LAGS,
     dates = dates[keep],
-    covid_volatility = if (sample_name == "full") spec$covid_volatility else NULL
+    covid_volatility = if (sample_name == "full") covid_volatility else NULL
   )
   strength <- diagnose_instrument_in_factor_space(
     dfm,
     instrument,
     dates[keep],
-    p = spec$p,
+    p = P_LAGS,
     mp_var_idx = mpind
   )
   tibble::tibble(
@@ -222,20 +256,20 @@ readr::write_csv(diagnostics, file.path(out_dir, "production_spec_diagnostics.cs
 
 point_dfm <- estimate_dfm(
   data_mat,
-  r = spec$r,
-  q = spec$q,
-  p = spec$p,
+  r = R_FACTORS,
+  q = Q_DYNAMIC,
+  p = P_LAGS,
   dates = dates,
-  covid_volatility = spec$covid_volatility
+  covid_volatility = covid_volatility
 )
 point_irf <- compute_irf_dfm(
   point_dfm,
   instrument = instrument,
-  h = spec$horizon,
+  h = HORIZON,
   mpind = mpind,
-  normalize_value = spec$normalize_value,
+  normalize_value = NORMALIZE_VALUE,
   tcode = infer_tcode_from_varnames(colnames(data_mat)),
-  ci_levels = spec$ci_levels,
+  ci_levels = CI_LEVELS,
   identification = "proxy",
   inference = "none"
 )
@@ -256,8 +290,8 @@ impact_smoke <- tibble::tibble(
   expected = expected_impacts
 )
 if (max(abs(impact_smoke$impact - impact_smoke$expected)) > 1e-12 ||
-    abs(impact_smoke$impact[impact_smoke$variable == spec$mp_var] -
-      spec$normalize_value) > 1e-12) {
+    abs(impact_smoke$impact[impact_smoke$variable == MP_VAR] -
+      NORMALIZE_VALUE) > 1e-12) {
   stop("The five required impact responses do not reproduce the expanded-sample gate.")
 }
 readr::write_csv(

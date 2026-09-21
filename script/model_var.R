@@ -8,50 +8,62 @@
 #   output/var/var_benchmark_lag_criteria.csv
 #   output/var/svar_iv_weak_robust.csv
 #   output/var/svar_iv_weak_robust_diag.csv
-#   output/var/svar_iv_weak_robust.md
 # ===================================================================
 
 rm(list = ls())
 
-source("R/modeling/production_spec.R")
 source("R/modeling/var_proxy.R")
 source("R/identification/weak_iv_ar.R")
-source("R/reporting/markdown_report.R")
 
-SPEC <- production_spec()
-VAR_SPEC <- SPEC$var_benchmark
 if (!"--reestimate-current-instrument" %in% commandArgs(trailingOnly = TRUE)) {
   stop(
-    "The observable VAR outputs are frozen at the 2013-01--2025-09 vintage. ",
+    "The observable VAR outputs are frozen at the 2012-03--2025-12 p=4 vintage. ",
     "Use --reestimate-current-instrument only in its dedicated re-estimation round."
   )
 }
 OUT_DIR <- "output/var"
-P <- VAR_SPEC$p
-H <- VAR_SPEC$ar_horizon
-AR_LEVELS <- VAR_SPEC$ar_levels
-MP_VAR <- SPEC$mp_var
-SCALE <- SPEC$normalize_value
+PANEL_PATH      <- "data/processed/data_log_deseasonalized.csv"
+INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
+INSTRUMENT      <- "z_jk_bs_purif"
+
+# The only active small-VAR benchmark cell: five series in levels, constant
+# and linear trend in every equation. Since 2026-09-21 it runs the DFM's own
+# window and lag order (author decision): 2012-03--2025-12 and p = 4, which
+# gives T_eff = 162, the DFM's own count of factor innovations. The contrast is
+# then between models, not between samples or lag orders. p = 4 is therefore a
+# comparability choice, NOT the AIC's: on the common T = 154 sample the AIC
+# still picks p = 2 and the BIC p = 1, and both are reported.
+CELL_LABEL    <- "ibc5_fx_cds_level_trend_p4"
+VAR_VARS      <- c("ibc_br", "price_ipca", "yield_6m", "cambio_usd", "cds_5y")
+DETERMINISTIC <- "trend"
+VAR_SAMPLE    <- as.Date(c("2012-03-01", "2025-12-01"))
+MAX_LAG   <- 12L
+P         <- 4L
+H         <- 36L
+AR_LEVELS <- c(0.68, 0.90)
+NW_LAGS   <- 0L
+MP_VAR <- "yield_6m"
+SCALE  <- 0.005     # +50bp on yield_6m, a decimal proportion
 
 
 # 1. Load levels ---------------------------------------------------
 
-panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
+panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   dplyr::filter(
-    ref.date >= VAR_SPEC$sample[1L],
-    ref.date <= VAR_SPEC$sample[2L]
+    ref.date >= VAR_SAMPLE[1L],
+    ref.date <= VAR_SAMPLE[2L]
   ) |>
-  dplyr::select(ref.date, dplyr::all_of(VAR_SPEC$vars))
+  dplyr::select(ref.date, dplyr::all_of(VAR_VARS))
 
 levels <- panel |>
   dplyr::select(-ref.date) |>
   as.matrix()
 dates_level <- as.Date(panel$ref.date)
 
-instrument <- readr::read_csv(SPEC$instrument_path, show_col_types = FALSE) |>
+instrument <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE) |>
   dplyr::transmute(
     month = as.Date(month),
-    shock = .data[[SPEC$instrument]]
+    shock = .data[[INSTRUMENT]]
   )
 
 
@@ -59,10 +71,10 @@ instrument <- readr::read_csv(SPEC$instrument_path, show_col_types = FALSE) |>
 
 lag_criteria <- var_lag_criteria(
   levels,
-  pmax = VAR_SPEC$max_lag,
-  deterministic = VAR_SPEC$deterministic
+  pmax = MAX_LAG,
+  deterministic = DETERMINISTIC
 ) |>
-  dplyr::mutate(cell_id = "production", cell = VAR_SPEC$label) |>
+  dplyr::mutate(cell_id = "production", cell = CELL_LABEL) |>
   dplyr::select(cell_id, cell, dplyr::everything())
 
 aic_selected <- lag_criteria$p[which.min(lag_criteria$aic)]
@@ -71,18 +83,18 @@ bic_selected <- lag_criteria$p[which.min(lag_criteria$bic)]
 
 # 3. Reduced form, SVAR-IV point, and AR sets ----------------------
 
-n_vars <- length(VAR_SPEC$vars)
-mp_index <- match(MP_VAR, VAR_SPEC$vars)
+n_vars <- length(VAR_VARS)
+mp_index <- match(MP_VAR, VAR_VARS)
 fit <- olea_rform_var(
   levels,
   P,
-  deterministic = VAR_SPEC$deterministic
+  deterministic = DETERMINISTIC
 )
 
 residual_dates <- dates_level[(P + 1L):length(dates_level)]
 instrument_index <- match(residual_dates, instrument$month)
 if (anyNA(instrument_index)) {
-  stop("The instrument does not cover every residual month in ", VAR_SPEC$label)
+  stop("The instrument does not cover every residual month in ", CELL_LABEL)
 }
 z <- instrument$shock[instrument_index]
 
@@ -91,7 +103,7 @@ covariance <- mosw_rform_cov(
   z,
   fit$eta,
   P,
-  nw_lags = VAR_SPEC$nw_lags
+  nw_lags = NW_LAGS
 )
 svar_iv <- mosw_svar_iv(
   fit$AL,
@@ -131,8 +143,8 @@ names(cell_ar) <- sprintf("%.2f", AR_LEVELS)
 sets <- purrr::imap(cell_ar, function(ar, level_key) {
   data.frame(
     cell_id = "production",
-    cell = VAR_SPEC$label,
-    var = rep(VAR_SPEC$vars, times = H + 1L),
+    cell = CELL_LABEL,
+    var = rep(VAR_VARS, times = H + 1L),
     h = rep(0:H, each = n_vars),
     level = as.numeric(level_key),
     point = as.vector(ar$point),
@@ -152,7 +164,7 @@ sets <- purrr::imap(cell_ar, function(ar, level_key) {
 ar90 <- cell_ar[["0.90"]]
 diagnostics <- data.frame(
   cell_id = "production",
-  cell = VAR_SPEC$label,
+  cell = CELL_LABEL,
   n = n_vars,
   p = P,
   T_eff = covariance$T_eff,
@@ -173,74 +185,3 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 readr::write_csv(lag_criteria, file.path(OUT_DIR, "var_benchmark_lag_criteria.csv"))
 readr::write_csv(sets, file.path(OUT_DIR, "svar_iv_weak_robust.csv"))
 readr::write_csv(diagnostics, file.path(OUT_DIR, "svar_iv_weak_robust_diag.csv"))
-
-topology <- sets |>
-  dplyr::count(level, set_type, name = "n_sets") |>
-  dplyr::arrange(level, set_type)
-
-headline <- sets |>
-  dplyr::filter(
-    level == 0.90,
-    h <= 4L,
-    var %in% c("cambio_usd", "cds_5y")
-  ) |>
-  dplyr::mutate(
-    ar_set = dplyr::case_when(
-      set_type == "interval" ~ sprintf("[%s; %s]", fmt(lo, 4), fmt(hi, 4)),
-      set_type == "singleton" ~ sprintf("{%s}", fmt(lo, 4)),
-      set_type == "two_rays" ~ sprintf(
-        "(-Inf; %s] U [%s; Inf)", fmt(lo, 4), fmt(hi, 4)
-      ),
-      set_type == "half_line_left" ~ sprintf("(-Inf; %s]", fmt(hi, 4)),
-      set_type == "half_line_right" ~ sprintf("[%s; Inf)", fmt(lo, 4)),
-      set_type == "real_line" ~ "(-Inf; Inf)",
-      set_type == "empty" ~ "empty"
-    )
-  ) |>
-  dplyr::select(cell_id, cell, var, h, point, ar_set)
-
-report <- c(
-  "# SVAR-IV de observáveis pelo método de Montiel Olea et al.",
-  "",
-  "> Gerado por `script/model_var.R`; reescrito a cada execução.",
-  "",
-  paste0(
-    "A célula de produção usa `{ibc_br, price_ipca, yield_6m, cambio_usd, ",
-    "cds_5y}` em nível, o instrumento externo `", SPEC$instrument, "` e ",
-    "normalização de +50 pb no impacto em `yield_6m`. Cada equação inclui ",
-    "constante e tendência linear. As respostas são os valores `C_h B_1` ",
-    "de cada horizonte."
-  ),
-  "",
-  "## AIC, BIC e diagnósticos numéricos",
-  "",
-  md_tbl(lag_criteria, digits = 5),
-  "",
-  md_tbl(diagnostics, digits = 5),
-  "",
-  paste0(
-    "AIC e BIC usam as mesmas T = 141 observações para p = 1,...,12. ",
-    "O AIC seleciona p = ", aic_selected, " e o BIC seleciona p = ",
-    bic_selected, ". A produção segue o AIC. `NWlags = 0`."
-  ),
-  "",
-  "## Topologias dos conjuntos Anderson--Rubin",
-  "",
-  md_tbl(topology, digits = 2),
-  "",
-  paste0(
-    "O CSV preserva intervalos, conjuntos vazios, singletons, semirretas, ",
-    "duas semirretas e a reta inteira sem substituir limites infinitos."
-  ),
-  "",
-  "## Respostas de manchete até h = 4, AR 90%",
-  "",
-  md_tbl(headline, digits = 4),
-  "",
-  paste0(
-    "A fonte canônica dos pontos e conjuntos AR é ",
-    "`output/var/svar_iv_weak_robust.csv`."
-  )
-)
-writeLines(report, file.path(OUT_DIR, "svar_iv_weak_robust.md"))
-

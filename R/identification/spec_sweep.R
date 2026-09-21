@@ -44,7 +44,7 @@ norm_value_for <- function(mp_var, shock_bps) {
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #' @param covid_volatility COVID volatility scale of the factor VAR, passed to
 #'   `estimate_dfm()`. **Required, with no default**: since 2026-09-17 the
-#'   treatment is production (`production_spec()$covid_volatility`), and a
+#'   treatment is production (`read_covid_volatility()`), and a
 #'   default either way would silently decide for the caller which estimator a
 #'   cell runs. A cell that publishes production numbers passes the spec field;
 #'   a cell that reproduces a closed round, or that runs a pre-COVID window,
@@ -61,7 +61,7 @@ run_stage2_cell <- function(data_mat, dates, inst_panel, sample_window,
                             covid_volatility) {
   if (missing(covid_volatility)) {
     stop("run_stage2_cell: covid_volatility has no default. Pass ",
-         "production_spec()$covid_volatility for a production cell, or NULL ",
+         "read_covid_volatility(<theta csv>) for a production cell, or NULL ",
          "for a pre-COVID window or a closed round, and say why ",
          "(notas/2026-09-17_volatilidade_covid_producao.md).")
   }

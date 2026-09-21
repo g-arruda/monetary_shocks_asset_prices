@@ -2,8 +2,8 @@
 # DFM principal: especificação de produção no painel de 115 séries, com
 # r=q=5. Instrumento: data/processed/instrument.csv = z_jk_bs_purif
 # (default desde 2026-07-15; máscara JK em resíduos pré-evento BS).
-# Inferência: conjuntos Anderson-Rubin (`production_spec()$inference`), a
-# régua operacional do DFM desde 2026-09-08.
+# Inferência: conjuntos Anderson-Rubin, a régua operacional do DFM desde
+# 2026-09-08.
 # Saída: output/irf/irf_model_alessi_r5q5.pdf
 # ===================================================================
 
@@ -12,13 +12,21 @@ rm(list = ls())
 source("R/modeling/factor_estimation.R")
 source("R/modeling/factor_selection.R")
 source("R/modeling/impulse_response.R")
-source("R/modeling/production_spec.R")
 source("R/modeling/dfm_pipeline.R")
 source("R/identification/weak_iv_ar.R")
 
-SPEC <- production_spec()
+PANEL_PATH <- "data/processed/data_log_deseasonalized.csv"
+BAI_NG_OUT <- "output/factors/production_bai_ng_bll_surface.csv"
+IRF_OUT    <- "output/irf/irf_model_alessi_r5q5.pdf"
+R_FACTORS  <- 5L        # BLL Bai-Ng IC1 = IC2 = 5 over r = 1..20
+Q_DYNAMIC  <- 5L        # q = r, operational decision
+P_LAGS     <- 4L
+HORIZON    <- 48L
+MP_VAR     <- "yield_6m"
+SHOCK_BPS  <- 50
+CI_LEVELS  <- c(0.68, 0.90)
 
-panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
+panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   dplyr::select(-ref.date) |>
   as.matrix()
 bai_ng <- bai_ng_criteria(panel, max_r = 20L, apply_bll = TRUE)
@@ -28,16 +36,18 @@ bai_ng_surface <- tibble::tibble(
   IC2 = bai_ng$criteria$IC2,
   IC3 = bai_ng$criteria$IC3
 )
-dir.create(dirname(SPEC$bai_ng_output), showWarnings = FALSE, recursive = TRUE)
-readr::write_csv(bai_ng_surface, SPEC$bai_ng_output)
+dir.create(dirname(BAI_NG_OUT), showWarnings = FALSE, recursive = TRUE)
+readr::write_csv(bai_ng_surface, BAI_NG_OUT)
 
 sdfm_results <- main_sdfm(
-  r = SPEC$r,
-  q = SPEC$q,
-  p = SPEC$p,
-  shock_size_bps = SPEC$shock_bps,
-  mp_var = SPEC$mp_var,
-  ci_levels = SPEC$ci_levels
+  data_path = PANEL_PATH,
+  r = R_FACTORS,
+  q = Q_DYNAMIC,
+  p = P_LAGS,
+  h = HORIZON,
+  shock_size_bps = SHOCK_BPS,
+  mp_var = MP_VAR,
+  ci_levels = CI_LEVELS
 )
 
 response_vars <- c(
@@ -55,10 +65,10 @@ response_vars <- c(
 
 irf_plot <- plot_irf(sdfm_results$irfs,
   response_vars = response_vars,
-  horizon = SPEC$horizon,
+  horizon = HORIZON,
   var_names = colnames(sdfm_results$data),
   ci_to_plot = c(0.68, 0.90)
 )
 
-ggplot2::ggsave(SPEC$model_output, irf_plot,
+ggplot2::ggsave(IRF_OUT, irf_plot,
                 width = 11, height = 9, dpi = 200)

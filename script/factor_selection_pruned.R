@@ -37,10 +37,13 @@ rm(list = ls())
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/factor_selection.R")
-source("R/modeling/production_spec.R")
 source("R/identification/spec_sweep.R")
 
-SPEC          <- production_spec()
+PANEL_PATH    <- "data/processed/data_log_deseasonalized.csv"
+SAMPLE        <- as.Date(c("2012-03-01", "2025-12-01"))
+R_FACTORS     <- 5L    # the production r
+P_LAGS        <- 4L
+MP_VAR        <- "yield_6m"
 KMAX          <- 20L   # the grid of the production Bai-Ng surface
 N_PERM        <- 100L
 PERM_SEED     <- 123L  # the seed stream of arquivo/script/factor_selection_alt.R
@@ -52,8 +55,8 @@ OUT_DIR       <- "output/factors"
 
 # ---- Panels ------------------------------------------------------------
 
-panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
-  dplyr::filter(ref.date >= SPEC$sample[1], ref.date <= SPEC$sample[2]) |>
+panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
+  dplyr::filter(ref.date >= SAMPLE[1], ref.date <= SAMPLE[2]) |>
   dplyr::select(-ref.date) |>
   as.matrix()
 
@@ -75,13 +78,13 @@ panels <- c(
 same_panel <- manifest |>
   dplyr::group_by(config) |>
   dplyr::summarise(ok = identical(series, colnames(panel)))
-stopifnot(all(same_panel$ok), SPEC$mp_var %in% colnames(panels[[PRINCIPAL]]))
+stopifnot(all(same_panel$ok), MP_VAR %in% colnames(panels[[PRINCIPAL]]))
 
 
 # ---- The battery, panel by panel ---------------------------------------
 
 results <- purrr::imap(panels, function(X, name) {
-  yy <- estimate_static_factors(X, r = SPEC$r)$yy
+  yy <- estimate_static_factors(X, r = R_FACTORS)$yy
   bn <- bai_ng_criteria(X, max_r = KMAX, apply_bll = TRUE)
   ah <- ahn_horenstein(yy, KMAX)
 
@@ -101,7 +104,7 @@ results <- purrr::imap(panels, function(X, name) {
   aw <- tidyr::expand_grid(r = sort(unique(c(AW_R_GRID, bn$r_hat$IC2))),
                            standardize_resid = c(FALSE, TRUE)) |>
     dplyr::mutate(fit = purrr::map2(r, standardize_resid, function(r, s) {
-      amengual_watson(X, r = r, p = SPEC$p, apply_bll = TRUE, standardize_resid = s)
+      amengual_watson(X, r = r, p = P_LAGS, apply_bll = TRUE, standardize_resid = s)
     })) |>
     dplyr::mutate(
       q_hat = purrr::map_int(fit, "q_hat"),
@@ -257,8 +260,8 @@ sections <- c(
                 "com passo 0,01 e subamostras aninhadas n_j = ⌊3N/4⌋..N numa permutação fixa",
                 "(seed %d). Amengual-Watson BLL com p = %d."),
           "drop_setor_externo__eua__credito__imoveis_fiscal_expectations",
-          SPEC$sample[1], SPEC$sample[2], ncol(panel), MANIFEST_PATH,
-          nrow(panel) - 1, KMAX, PERM_SEED, SPEC$p),
+          SAMPLE[1], SAMPLE[2], ncol(panel), MANIFEST_PATH,
+          nrow(panel) - 1, KMAX, PERM_SEED, P_LAGS),
   "",
   md_table(as.data.frame(panels_tbl)),
   "",
@@ -349,7 +352,7 @@ chosen_k <- fig_df |>
   dplyr::ungroup()
 
 p_k <- ggplot2::ggplot(fig_df, ggplot2::aes(k, valor, colour = painel)) +
-  ggplot2::geom_vline(xintercept = SPEC$r, linetype = "dotted", colour = "grey50") +
+  ggplot2::geom_vline(xintercept = R_FACTORS, linetype = "dotted", colour = "grey50") +
   ggplot2::geom_line() +
   ggplot2::geom_point(data = chosen_k, size = 2.5) +
   ggplot2::facet_wrap(~criterio, scales = "free_y") +
@@ -359,7 +362,7 @@ p_k <- ggplot2::ggplot(fig_df, ggplot2::aes(k, valor, colour = painel)) +
     title = "Numero de fatores: painel atual contra o podado por correlacao",
     subtitle = sprintf(paste("Primeiras diferencas padronizadas BLL, T = %d; pontos marcam o k",
                              "escolhido; pontilhado em r = %d (producao)"),
-                       nrow(panel) - 1, SPEC$r),
+                       nrow(panel) - 1, R_FACTORS),
     x = "numero de fatores k", y = NULL, colour = NULL
   ) +
   ggplot2::theme_classic(base_size = 10) +

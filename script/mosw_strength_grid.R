@@ -12,15 +12,16 @@ rm(list = ls())
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
-source("R/modeling/production_spec.R")
 source("R/identification/factor_space_diagnostics.R")
 
 
 # ---- Config --------------------------------------------------------
 
-SPEC <- production_spec()
+PANEL_PATH      <- "data/processed/data_log_deseasonalized.csv"
+INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
+THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
 P_LAGS <- 4L
-MP_VAR <- SPEC$mp_var
+MP_VAR <- "yield_6m"
 
 # The three construction layers reported in the paper's first-stage table
 # (tab:first_stage): raw DI surprise, + predetermined orthogonalization,
@@ -28,8 +29,8 @@ MP_VAR <- SPEC$mp_var
 INSTRUMENTS <- c("z_bruto", "z_bs_purif", "z_jk_bs_purif")
 
 SAMPLES <- list(
-  full = SPEC$sample,
-  pre_covid = SPEC$pre_covid_sample
+  full = as.Date(c("2012-03-01", "2025-12-01")),
+  pre_covid = as.Date(c("2012-03-01", "2019-12-01"))
 )
 
 # The full window runs the production Lenza-Primiceri scale, and under it the
@@ -51,7 +52,7 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Data ----------------------------------------------------------
 
-raw_data <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
+raw_data <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   tidyr::drop_na()
 dates <- as.Date(raw_data$ref.date)
 data_mat <- raw_data |>
@@ -62,7 +63,7 @@ if (is.na(mp_idx)) {
   stop("Policy normalization variable is missing from the production panel")
 }
 
-inst_panel <- readr::read_csv(SPEC$instrument_path, show_col_types = FALSE)
+inst_panel <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
 
@@ -86,7 +87,11 @@ grid <- purrr::map_dfr(names(SAMPLES), function(sample_name) {
       # record is the one the published IRFs are built on. The pre-COVID
       # window has s_t = 1 in every month, so it is the same fit either way,
       # and estimate_dfm() rejects a covid_start outside its residual months.
-      covid_volatility = if (sample_name == "full") SPEC$covid_volatility else NULL
+      covid_volatility = if (sample_name == "full") {
+        read_covid_volatility(THETA_PATH)
+      } else {
+        NULL
+      }
     )
 
     if (!isTRUE(dfm$diagnostics$is_stable) ||

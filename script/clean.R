@@ -3,10 +3,28 @@ rm(list = ls())
 source("R/preprocessing/seasonality.R")
 source("R/preprocessing/production_extensions.R")
 source("R/modeling/impulse_response.R")
-source("R/modeling/production_spec.R")
 
-spec <- production_spec()
-expected_dates <- seq(spec$sample[1], spec$sample[2], by = "month")
+SAMPLE_START <- as.Date("2012-03-01")
+SAMPLE_END   <- as.Date("2025-12-01")
+BASE_PATH       <- "data/processed/data_log_deseasonalized_base_106.csv"
+PRODUCTION_PATH <- "data/processed/data_log_deseasonalized.csv"
+# The 115-series production panel is the 106-series base minus these two and
+# plus the fiscal and Focus-expectations extensions
+BASE_SERIES_REMOVED <- c("juros_cdi", "asset_mlcx")
+PRODUCTION_SERIES_ADDED <- c(
+  "fiscal_dbgg",
+  "fiscal_dlsp",
+  "fiscal_primary_balance",
+  "expect_focus_ipca12m",
+  "expect_focus_selic_ny",
+  "expect_focus_pib_ny",
+  "expect_focus_cambio_ny",
+  "dlsp_exchange_adjustment",
+  "expect_focus_fiscal_dlsp_ny",
+  "expect_focus_fiscal_primary_balance_ny",
+  "expect_focus_fiscal_nominal_balance_ny"
+)
+expected_dates <- seq(SAMPLE_START, SAMPLE_END, by = "month")
 # Column order of the panel every output was estimated on. The ABC selector
 # subsamples the cross-section in column order and the PCA rounds differently
 # under a permutation, so download.R's current order (prices after trab_*,
@@ -18,7 +36,7 @@ price_order <- c(
 )
 raw_data <- readr::read_csv("data/raw/raw_data.csv", show_col_types = FALSE) |>
   dplyr::mutate(ref.date = as.Date(ref.date)) |>
-  dplyr::filter(ref.date >= spec$sample[1], ref.date <= spec$sample[2]) |>
+  dplyr::filter(ref.date >= SAMPLE_START, ref.date <= SAMPLE_END) |>
   dplyr::relocate(dplyr::starts_with(c("fiscal_", "expect_")), .before = epu_brazil) |>
   dplyr::relocate(dplyr::all_of(price_order), .after = epu_us)
 
@@ -112,15 +130,15 @@ data <- data |>
   dplyr::left_join(extensions$data, by = "ref.date")
 
 base_data <- data |>
-  dplyr::select(-dplyr::all_of(spec$production_series_added))
+  dplyr::select(-dplyr::all_of(PRODUCTION_SERIES_ADDED))
 
 production_data <- data |>
-  dplyr::select(-dplyr::all_of(spec$base_series_removed))
+  dplyr::select(-dplyr::all_of(BASE_SERIES_REMOVED))
 
 dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
 dir.create("output/panel", showWarnings = FALSE, recursive = TRUE)
-readr::write_csv(base_data, spec$base_data_path)
-readr::write_csv(production_data, spec$data_path)
+readr::write_csv(base_data, BASE_PATH)
+readr::write_csv(production_data, PRODUCTION_PATH)
 
 raw_variables <- setdiff(names(production_data), "ref.date")
 logged_variables <- c(
@@ -130,8 +148,8 @@ logged_variables <- c(
 raw_manifest <- tibble::tibble(
   variable = raw_variables,
   block = dplyr::case_when(
-    variable %in% spec$production_series_added[grepl("^fiscal_|^dlsp_", spec$production_series_added)] ~ "fiscal",
-    variable %in% spec$production_series_added[grepl("^expect_", spec$production_series_added)] ~ "expectativas",
+    variable %in% grep("^fiscal_|^dlsp_", PRODUCTION_SERIES_ADDED, value = TRUE) ~ "fiscal",
+    variable %in% grep("^expect_", PRODUCTION_SERIES_ADDED, value = TRUE) ~ "expectativas",
     TRUE ~ "painel_historico"
   ),
   source_file = "data/raw/raw_data.csv",

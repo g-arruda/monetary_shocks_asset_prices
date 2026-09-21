@@ -30,11 +30,12 @@ rm(list = ls())
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/factor_selection.R")
-source("R/modeling/production_spec.R")
 source("R/identification/spec_sweep.R")   # md_table
 source("R/reporting/markdown_report.R")   # fmt
 
-SPEC       <- production_spec()
+R_FACTORS  <- 5L   # the production r
+Q_DYNAMIC  <- 5L
+P_LAGS     <- 4L
 FIXTURE    <- "output/validation/amengual_watson_fixture.csv"
 OUT_PATH   <- "output/validation/amengual_watson_validation.md"
 NT_MIN     <- 20L
@@ -192,8 +193,8 @@ fixture <- readr::read_csv(FIXTURE, show_col_types = FALSE)
 X <- fixture |>
   dplyr::select(-ref.date) |>
   as.matrix()
-r <- SPEC$r
-p <- SPEC$p
+r <- R_FACTORS
+p <- P_LAGS
 
 cat(sprintf("Fixture: %d x %d, r = %d, p = %d\n", nrow(X), ncol(X), r, p))
 
@@ -266,7 +267,7 @@ cat(sprintf("B. |loadings BLL - lambda producao| max = %.3e\n", loading_gap))
 cat(sprintf("B. cor(PC_k(yy), diff(F_prod)_k) = %s\n",
             paste(sprintf("%.6f", fac_cor), collapse = " ")))
 cat(sprintf("B. q_hat sob apply_bll = TRUE: %d (producao usa q = %d)\n",
-            prj_bll$q_hat, SPEC$q))
+            prj_bll$q_hat, Q_DYNAMIC))
 
 
 # ---- Report --------------------------------------------------------
@@ -357,7 +358,7 @@ sections <- c(
   "",
   sprintf(paste("- **`q_hat = %d`** vem do caminho BLL, que é o admissível",
                 "aqui, e **discorda do `q = %d` de produção**."),
-          prj_bll$q_hat, SPEC$q),
+          prj_bll$q_hat, Q_DYNAMIC),
   sprintf(paste("- **`q_hat = %d`** vem de rodar o critério no painel de",
                 "níveis. É o comparável de fidelidade ao MATLAB, mas a",
                 "ferramenta que `.claude/rules/identification.md` exclui neste",

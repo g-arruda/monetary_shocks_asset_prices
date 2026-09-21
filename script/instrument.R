@@ -9,13 +9,13 @@
 
 source("R/instrument/di_surprise.R")
 source("R/instrument/build_variants.R")
-source("R/modeling/production_spec.R")
 
-SPEC <- production_spec()
-SAMPLE_START <- SPEC$event_sample[1]
-SAMPLE_END   <- SPEC$event_sample[2]
+# Copom-day window: the production months, to the end of the last one
+SAMPLE_START <- as.Date("2012-03-01")
+SAMPLE_END   <- as.Date("2025-12-31")
 LOAD_START   <- as.Date("2011-09-01")   # daily antecedents of the 65-day pre-event trends
 TARGET_BD    <- 126                     # ~6 months in business days
+PRODUCTION_VARIANT <- "z_jk_bs_purif"   # the column of the single-column legacy CSV
 
 di_panel <- load_di_panel("data/raw/di.csv", from = LOAD_START, to = SAMPLE_END)
 
@@ -54,12 +54,12 @@ built <- build_instrument_variants(
 
 dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
 
-readr::write_csv(built$monthly, SPEC$instrument_path)
+readr::write_csv(built$monthly, "data/processed/instrumentos_mensais.csv")
 
 # Single-column production instrument read by main_sdfm()
 built$monthly |>
-  dplyr::transmute(month, shock = .data[[SPEC$instrument]]) |>
-  readr::write_csv(SPEC$legacy_instrument_path)
+  dplyr::transmute(month, shock = .data[[PRODUCTION_VARIANT]]) |>
+  readr::write_csv("data/processed/instrument.csv")
 
 built$daily |>
   dplyr::select(date, delta_di, r_ibov, e_di_bs, e_ibov_bs,

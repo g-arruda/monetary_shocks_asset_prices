@@ -21,7 +21,6 @@
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
-source("R/modeling/production_spec.R")
 source("R/identification/spec_sweep.R")
 source("R/identification/weak_iv_ar.R")
 
@@ -31,7 +30,19 @@ if (length(WINDOW) != 1L || !WINDOW %in% c("cheia", "pre_covid")) {
        "differ in sample, p and the COVID volatility, and neither is a default.")
 }
 
-SPEC <- production_spec()
+PANEL_PATH      <- "data/processed/data_log_deseasonalized.csv"
+INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
+THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
+R_FACTORS  <- 5L
+Q_PRODUCTION <- 5L
+INSTRUMENT <- "z_jk_bs_purif"
+MP_VAR     <- "yield_6m"
+HORIZON    <- 48L
+SHOCK_BPS  <- 50
+NORMALIZE_VALUE <- 0.005      # +50bp on yield_6m, a decimal proportion
+CI_LEVELS  <- c(0.68, 0.90)
+AR_NW_LAGS <- 0L
+
 Q_VALUES <- c(5L, 4L, 3L, 2L)
 VARS <- c(
   "yield_6m", "yield_2y", "yield_5y", "cambio_usd", "embi_perc",
@@ -49,14 +60,14 @@ OUT_DIR <- "output/factors"
 # estimate_dfm() rejects the scale there: OLS is the treated fit
 CELL <- switch(WINDOW,
   cheia = list(
-    sample = SPEC$sample,
-    p = SPEC$p,
-    covid_volatility = SPEC$covid_volatility,
+    sample = as.Date(c("2012-03-01", "2025-12-01")),
+    p = 4L,
+    covid_volatility = read_covid_volatility(THETA_PATH),
     stem = "q_narrative_r5p4_covid",
     title = "Sensibilidade à dimensão dinâmica q: r = 5, p = 4, cheia com a volatilidade COVID (2012-03 a 2025-12)"
   ),
   pre_covid = list(
-    sample = SPEC$pre_covid_sample,
+    sample = as.Date(c("2012-03-01", "2019-12-01")),
     p = 2L,
     covid_volatility = NULL,
     stem = "q_narrative_r5p2_precovid",
@@ -70,7 +81,7 @@ Q_LINETYPE <- c("q=5" = "solid", "q=4" = "42", "q=3" = "22", "q=2" = "11")
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
-raw_data <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
+raw_data <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   tidyr::drop_na()
 dates <- as.Date(raw_data$ref.date)
 data_mat <- raw_data |>
@@ -79,32 +90,32 @@ data_mat <- raw_data |>
 var_names <- colnames(data_mat)
 tcode <- infer_tcode_from_varnames(var_names)
 
-inst_panel <- readr::read_csv(SPEC$instrument_path, show_col_types = FALSE)
+inst_panel <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE)
 inst_panel$month <- as.Date(inst_panel$month)
 
 cells <- purrr::map(Q_VALUES, function(q) {
   run_stage2_cell(
     data_mat, dates, inst_panel,
     sample_window = CELL$sample,
-    r = SPEC$r, q = q, p = CELL$p,
-    instrument = SPEC$instrument, mp_var = SPEC$mp_var,
-    h = SPEC$horizon, shock_bps = SPEC$shock_bps, tcode = tcode,
-    ci_levels = SPEC$ci_levels,
-    inference = if (q == SPEC$q) "ar" else "none",
-    ar_nw_lags = SPEC$ar_nw_lags,
+    r = R_FACTORS, q = q, p = CELL$p,
+    instrument = INSTRUMENT, mp_var = MP_VAR,
+    h = HORIZON, shock_bps = SHOCK_BPS, tcode = tcode,
+    ci_levels = CI_LEVELS,
+    inference = if (q == Q_PRODUCTION) "ar" else "none",
+    ar_nw_lags = AR_NW_LAGS,
     covid_volatility = CELL$covid_volatility
   )
 })
 
 # The bands draw [lo, hi], which is the set only for an interval and, at the
 # normalization point, for the singleton {normalize_value}
-set90 <- cells[[match(SPEC$q, Q_VALUES)]]$irf$ar$by_level[["0.90"]]$set_type
+set90 <- cells[[match(Q_PRODUCTION, Q_VALUES)]]$irf$ar$by_level[["0.90"]]$set_type
 set90 <- set90[match(VARS, var_names), ]
-at_norm <- row(set90) == match(SPEC$mp_var, VARS) & col(set90) == 1L
+at_norm <- row(set90) == match(MP_VAR, VARS) & col(set90) == 1L
 stopifnot(all(set90[!at_norm] == "interval"), all(set90[at_norm] == "singleton"))
 
 paths <- purrr::map2_dfr(cells, Q_VALUES, function(cell, q) {
-  ar_ref <- q == SPEC$q
+  ar_ref <- q == Q_PRODUCTION
   point <- cell$irf$irf_point_matrix
   ci68 <- cell$irf$ci[["0.68"]]
   ci90 <- cell$irf$ci[["0.90"]]
@@ -112,11 +123,11 @@ paths <- purrr::map2_dfr(cells, Q_VALUES, function(cell, q) {
   purrr::map_dfr(VARS, function(variable) {
     i <- match(variable, var_names)
     data.frame(
-      r = SPEC$r,
+      r = R_FACTORS,
       q = q,
       p = CELL$p,
       variable = variable,
-      h = 0:SPEC$horizon,
+      h = 0:HORIZON,
       point = point[i, ],
       lo68 = if (ar_ref) ci68$lower[i, ] else NA_real_,
       hi68 = if (ar_ref) ci68$upper[i, ] else NA_real_,
@@ -128,10 +139,10 @@ paths <- purrr::map2_dfr(cells, Q_VALUES, function(cell, q) {
 })
 
 # The AR branch's own 1e-10 point guard (R/modeling/impulse_response.R) already
-# confirms the re-derived point agrees with ident_ext_instr() at q = SPEC$q;
+# confirms the re-derived point agrees with ident_ext_instr() at the production q;
 # here we only confirm the shock stays normalized in every cell.
-mp_h0 <- dplyr::filter(paths, variable == SPEC$mp_var, h == 0)$point
-stopifnot(max(abs(mp_h0 - SPEC$normalize_value)) < 1e-12)
+mp_h0 <- dplyr::filter(paths, variable == MP_VAR, h == 0)$point
+stopifnot(max(abs(mp_h0 - NORMALIZE_VALUE)) < 1e-12)
 
 paths <- paths |>
   dplyr::mutate(cell = factor(paste0("q=", q), levels = paste0("q=", Q_VALUES)))
@@ -139,7 +150,7 @@ paths <- paths |>
 plot_data <- paths |>
   dplyr::filter(h <= H_FIG)
 band_data <- plot_data |>
-  dplyr::filter(q == SPEC$q)
+  dplyr::filter(q == Q_PRODUCTION)
 
 pdf(paste0(OUT_STEM, ".pdf"), width = 11, height = 7.5)
 print(plot_dimension_overlay(

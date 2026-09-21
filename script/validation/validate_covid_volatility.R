@@ -23,30 +23,36 @@
 
 rm(list = ls())
 
-source("R/modeling/production_spec.R")
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/identification/weak_iv_ar.R")
 source("R/identification/factor_space_diagnostics.R")
 source("R/modeling/dfm_pipeline.R")
 
-spec <- production_spec()
-panel <- readr::read_csv(spec$data_path, show_col_types = FALSE) |>
+PANEL_PATH      <- "data/processed/data_log_deseasonalized.csv"
+INSTRUMENT_PATH <- "data/processed/instrument.csv"
+R_FACTORS   <- 5L
+Q_DYNAMIC   <- 5L
+P_LAGS      <- 4L
+MP_VAR      <- "yield_6m"
+COVID_START <- as.Date("2020-03-01")
+
+panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   tidyr::drop_na()
 dates <- as.Date(panel$ref.date)
 data_mat <- panel |>
   dplyr::select(-ref.date) |>
   as.matrix()
-residual_dates <- dates[(spec$p + 1):length(dates)]
+residual_dates <- dates[(P_LAGS + 1):length(dates)]
 
 # N1 — factor VAR: every residual month as covid_start, rho in {0, 0.5}
-factors <- estimate_static_factors(data_mat, spec$r)$factors
-ols <- estimate_var_wls(factors, spec$p)
+factors <- estimate_static_factors(data_mat, R_FACTORS)$factors
+ols <- estimate_var_wls(factors, P_LAGS)
 n1 <- tidyr::expand_grid(covid_start = residual_dates, rho = c(0, 0.5)) |>
   purrr::pmap_lgl(function(covid_start, rho) {
     s <- covid_volatility_path(residual_dates, covid_start,
                                c(s0 = 1, s1 = 1, s2 = 1, rho = rho))
-    wls <- estimate_var_wls(factors, spec$p, s = s)
+    wls <- estimate_var_wls(factors, P_LAGS, s = s)
     identical(s, rep(1, length(residual_dates))) &&
       identical(wls$coefficients, ols$coefficients) &&
       identical(wls$residuals, ols$residuals) &&
@@ -68,7 +74,7 @@ if (!all(n1)) {
 #'
 #' @return The point IRF matrix, variables by horizons.
 point_irf <- function(q, covid_volatility) {
-  res <- suppressMessages(main_sdfm(r = spec$r, q = q, p = spec$p,
+  res <- suppressMessages(main_sdfm(r = R_FACTORS, q = q, p = P_LAGS,
                                     inference = "none",
                                     covid_volatility = covid_volatility))
   res$irfs$irf_point_matrix
@@ -107,7 +113,7 @@ if (!identical(reference[["5"]][match(headline, colnames(data_mat)), 1], untreat
 }
 
 # N3 — (B5) at neutral theta against the Gaussian log-likelihood summed row by row
-wls <- estimate_var_wls(factors, spec$p, s = rep(1, length(residual_dates)))
+wls <- estimate_var_wls(factors, P_LAGS, s = rep(1, length(residual_dates)))
 u <- wls$residuals
 sigma <- crossprod(u) / nrow(u)
 brute <- sum(-ncol(u) / 2 * log(2 * pi) - log(det(sigma)) / 2 -
@@ -132,29 +138,29 @@ error_message <- function(expr) {
     ""
   }), error = conditionMessage)
 }
-treated_dfm <- estimate_dfm(data_mat, spec$r, spec$q, spec$p, dates = dates,
+treated_dfm <- estimate_dfm(data_mat, R_FACTORS, Q_DYNAMIC, P_LAGS, dates = dates,
                             covid_volatility = neutral)
-instrument <- readr::read_csv(spec$legacy_instrument_path, show_col_types = FALSE)
+instrument <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE)
 n4 <- c(
   missing_field = grepl("sem innovations", error_message(
-    estimate_dfm(data_mat, spec$r, spec$q, spec$p, dates = dates,
+    estimate_dfm(data_mat, R_FACTORS, Q_DYNAMIC, P_LAGS, dates = dates,
                  covid_volatility = neutral[c("covid_start", "theta")]))),
   missing_theta = grepl("sem rho", error_message(
-    estimate_dfm(data_mat, spec$r, spec$q, spec$p, dates = dates,
+    estimate_dfm(data_mat, R_FACTORS, Q_DYNAMIC, P_LAGS, dates = dates,
                  covid_volatility = modifyList(neutral, list(theta = c(s0 = 1, s1 = 1, s2 = 1)))))),
   invalid_innovations = grepl("innovations deve ser", error_message(
-    estimate_dfm(data_mat, spec$r, spec$q, spec$p, dates = dates,
+    estimate_dfm(data_mat, R_FACTORS, Q_DYNAMIC, P_LAGS, dates = dates,
                  covid_volatility = modifyList(neutral, list(innovations = "standarized"))))),
   start_outside = grepl("nao e um mes", error_message(
-    estimate_dfm(data_mat, spec$r, spec$q, spec$p, dates = dates,
+    estimate_dfm(data_mat, R_FACTORS, Q_DYNAMIC, P_LAGS, dates = dates,
                  covid_volatility = modifyList(neutral, list(covid_start = dates[1]))))),
   no_dates = grepl("nao e um mes", error_message(
-    estimate_dfm(data_mat, spec$r, spec$q, spec$p, covid_volatility = neutral))),
+    estimate_dfm(data_mat, R_FACTORS, Q_DYNAMIC, P_LAGS, covid_volatility = neutral))),
   anderson_rubin = grepl("ar_dfm_bands.*raw", error_message(
     main_sdfm(inference = "ar", covid_volatility = neutral))),
   xi_mp = grepl("diagnose_instrument_in_factor_space.*raw", error_message(
-    diagnose_instrument_in_factor_space(treated_dfm, instrument, dates, spec$p,
-                                        match(spec$mp_var, colnames(data_mat)))))
+    diagnose_instrument_in_factor_space(treated_dfm, instrument, dates, P_LAGS,
+                                        match(MP_VAR, colnames(data_mat)))))
 )
 if (!all(n4)) {
   stop("N4: the treatment's stop() did not fire for ",
@@ -166,19 +172,19 @@ if (!all(n4)) {
 # transformed regressors are the OLS ones; only the centering and K's divisor
 # differ.
 neutral_std <- modifyList(neutral, list(
-  covid_start = spec$covid_volatility_design$covid_start,
+  covid_start = COVID_START,
   innovations = "standardized"
 ))
 ar_sets <- lapply(list(production = NULL, neutral = neutral_std), function(covid_volatility) {
   suppressMessages(main_sdfm(inference = "ar",
                              covid_volatility = covid_volatility))$irfs$ar
 })
-mp_idx <- match(spec$mp_var, colnames(data_mat))
+mp_idx <- match(MP_VAR, colnames(data_mat))
 diag_gap <- purrr::map_dbl(c(5L, 3L), function(q) {
   strength <- lapply(list(neutral = neutral_std, production = NULL), function(covid_volatility) {
-    dfm <- estimate_dfm(data_mat, spec$r, q, spec$p, dates = dates,
+    dfm <- estimate_dfm(data_mat, R_FACTORS, q, P_LAGS, dates = dates,
                         covid_volatility = covid_volatility)
-    diag <- diagnose_instrument_in_factor_space(dfm, instrument, dates, spec$p, mp_idx)
+    diag <- diagnose_instrument_in_factor_space(dfm, instrument, dates, P_LAGS, mp_idx)
     unlist(diag[c("wald_mp", "f_robust_mp", "impact_mp")])
   })
   max(abs(strength$neutral / strength$production - 1))

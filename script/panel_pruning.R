@@ -31,11 +31,15 @@
 rm(list = ls())
 
 source("R/modeling/factor_estimation.R")
-source("R/modeling/production_spec.R")
 source("R/identification/experimental_panel.R")
 
-SPEC          <- production_spec()
-KEEP_PRIORITY <- c(SPEC$mp_var, "yield_2y", "yield_5y", "asset_ibov", "cambio_usd",
+PANEL_PATH    <- "data/processed/data_log_deseasonalized.csv"
+SAMPLE        <- as.Date(c("2012-03-01", "2025-12-01"))
+PRE_COVID_END <- as.Date("2019-12-01")
+R_FACTORS     <- 5L
+N_SERIES      <- 115L
+MP_VAR        <- "yield_6m"
+KEEP_PRIORITY <- c(MP_VAR, "yield_2y", "yield_5y", "asset_ibov", "cambio_usd",
                    "price_ipca")
 PAIR_FLOOR    <- 0.80   # pairs listed in pairs_above_080.csv: below every threshold of the sweep
 OUT_DIR       <- "output/panel_experimental/poda_correlacao"
@@ -54,12 +58,12 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # ---- Data and the correlation the PCA reads --------------------------
 
-raw <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
-  dplyr::filter(ref.date >= SPEC$sample[1], ref.date <= SPEC$sample[2])
+raw <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
+  dplyr::filter(ref.date >= SAMPLE[1], ref.date <= SAMPLE[2])
 panel <- raw |>
   dplyr::select(-ref.date) |>
   as.matrix()
-pre_covid <- raw$ref.date <= SPEC$pre_covid_sample[2]
+pre_covid <- raw$ref.date <= PRE_COVID_END
 blocks    <- base_block_taxonomy(colnames(panel))
 
 C     <- cor(diff(panel))
@@ -67,9 +71,9 @@ C_pre <- cor(diff(panel[pre_covid, ]))
 
 # (a) every production series has a block -- base_block_taxonomy() aborts otherwise
 # (b) the correlation of `yy`, the matrix the production PCA decomposes, is C
-yy    <- estimate_static_factors(panel, r = SPEC$r)$yy
+yy    <- estimate_static_factors(panel, r = R_FACTORS)$yy
 dev_b <- max(abs(cor(yy) - C))
-stopifnot(ncol(panel) == SPEC$n_series, dev_b < 1e-12)
+stopifnot(ncol(panel) == N_SERIES, dev_b < 1e-12)
 
 
 # ---- Pairs above the floor -------------------------------------------
@@ -107,7 +111,7 @@ complete_groups <- manifest |>
   dplyr::summarise(min_abs_rho = min(abs(C[series, series])), .groups = "drop")
 slack_c <- min(complete_groups$min_abs_rho - complete_groups$threshold)
 # (d) the normalization variable survives every configuration
-mp_dropped <- sum(!manifest$kept[manifest$series == SPEC$mp_var])
+mp_dropped <- sum(!manifest$kept[manifest$series == MP_VAR])
 stopifnot(slack_c >= 0, mp_dropped == 0)
 
 readr::write_csv(manifest, file.path(OUT_DIR, "pruning_manifest.csv"))

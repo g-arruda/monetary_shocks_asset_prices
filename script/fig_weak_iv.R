@@ -14,8 +14,6 @@
 
 rm(list = ls())
 
-source("R/modeling/production_spec.R")
-
 if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
   stop(
     "fig_weak_iv_main.pdf is frozen at the wild-bootstrap vintage of the DFM. ",
@@ -25,17 +23,20 @@ if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
   )
 }
 
-SPEC <- production_spec()
-VAR_SPEC <- SPEC$var_benchmark
-H_MAX <- VAR_SPEC$ar_horizon
-LEVELS <- VAR_SPEC$ar_levels
+# The only active small-VAR benchmark cell: the DFM's window and lag order
+# since 2026-09-21
+VAR_CELL     <- "ibc5_fx_cds_level_trend_p4"
+VAR_SAMPLE   <- as.Date(c("2012-03-01", "2025-12-01"))
+H_MAX        <- 36L
+LEVELS       <- c(0.68, 0.90)
 
 dfm <- readr::read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE)
 var <- readr::read_csv("output/var/svar_iv_weak_robust.csv", show_col_types = FALSE)
-panel <- readr::read_csv(SPEC$data_path, show_col_types = FALSE) |>
+panel <- readr::read_csv("data/processed/data_log_deseasonalized.csv",
+                         show_col_types = FALSE) |>
   dplyr::filter(
-    ref.date >= VAR_SPEC$sample[1L],
-    ref.date <= VAR_SPEC$sample[2L]
+    ref.date >= VAR_SAMPLE[1L],
+    ref.date <= VAR_SAMPLE[2L]
   )
 
 series <- tibble::tibble(
@@ -70,7 +71,7 @@ dfm_bands <- dfm |>
 
 var_bands <- var |>
   dplyr::filter(
-    cell == VAR_SPEC$label,
+    cell == VAR_CELL,
     var %in% series$var,
     h >= 0L,
     h <= H_MAX,

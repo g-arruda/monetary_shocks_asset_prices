@@ -263,8 +263,8 @@ infer_tcode_from_varnames <- function(var_names) {
 #' @param ci_levels Confidence levels of the sets.
 #' @param identification Identification branch; `"proxy"` is the only one.
 #' @param inference What fills `ci`, with no default: `"ar"` inverts the
-#'   Anderson-Rubin test (`ar_dfm_bands()`, the inference of the DFM and what
-#'   `production_spec()$inference` selects); `"none"` returns the point alone,
+#'   Anderson-Rubin test (`ar_dfm_bands()`, the inference of the DFM since
+#'   2026-09-08); `"none"` returns the point alone,
 #'   with `lower = upper = point` at every level, for cells that are compared
 #'   point by point.
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.

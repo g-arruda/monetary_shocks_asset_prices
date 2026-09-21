@@ -4,14 +4,13 @@ source("R/data_download/external_factors.R")
 source("R/data_download/focus.R")
 source("R/data_download/b3.R")
 source("R/data_download/ipea.R")
-source("R/modeling/production_spec.R")
 
-spec <- production_spec()
-production_sample_start <- spec$sample[1]
-production_sample_end <- spec$sample[2]
+# Production monthly window; the daily inputs run to the end of its last month
+production_sample_start <- as.Date("2012-03-01")
+production_sample_end <- as.Date("2025-12-01")
 extension_start <- as.Date("2010-01-01")
 daily_start <- as.Date("2010-01-01")
-daily_end <- spec$event_sample[2]
+daily_end <- as.Date("2025-12-31")
 required_external_files <- c(
   "data/raw/yields/yields_dia.csv",
   "data/raw/banco_central_rep_dominicana/embi_brasil.csv",

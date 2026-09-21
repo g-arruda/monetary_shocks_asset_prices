@@ -7,7 +7,6 @@
 # and BIC paths with an independent implementation and `vars::VARselect`.
 # ===================================================================
 
-source("R/modeling/production_spec.R")
 source("R/modeling/var_proxy.R")
 source("R/identification/weak_iv_ar.R")
 
@@ -243,28 +242,41 @@ stopifnot(
 
 cat("\nC. AIC and BIC in the Brazilian production cell\n\n")
 
-spec <- production_spec()
-var_spec <- spec$var_benchmark
-levels <- readr::read_csv(spec$data_path, show_col_types = FALSE) |>
+# The only active small-VAR benchmark cell, on the DFM's window since
+# 2026-09-21. This block pins what the criteria say, which is not the p the
+# benchmark runs: production takes p = 4 from the DFM so that the contrast is
+# between models and not between lag orders, while the AIC on the common
+# T = 154 sample still picks 2 and the BIC 1.
+PANEL_PATH    <- "data/processed/data_log_deseasonalized.csv"
+VAR_VARS      <- c("ibc_br", "price_ipca", "yield_6m", "cambio_usd", "cds_5y")
+VAR_SAMPLE    <- as.Date(c("2012-03-01", "2025-12-01"))
+DETERMINISTIC <- "trend"
+MAX_LAG       <- 12L
+AIC_SELECTED  <- 2L    # what the AIC picks on T = 154
+BIC_SELECTED  <- 1L    # what the BIC picks
+P_PRODUCTION  <- 4L    # what the benchmark runs, by comparability with the DFM
+LAG_COMMON_T  <- 154L
+
+levels <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   dplyr::filter(
-    ref.date >= var_spec$sample[1L],
-    ref.date <= var_spec$sample[2L]
+    ref.date >= VAR_SAMPLE[1L],
+    ref.date <= VAR_SAMPLE[2L]
   ) |>
-  dplyr::select(dplyr::all_of(var_spec$vars)) |>
+  dplyr::select(dplyr::all_of(VAR_VARS)) |>
   as.matrix()
 translated <- var_lag_criteria(
   levels,
-  var_spec$max_lag,
-  deterministic = var_spec$deterministic
+  MAX_LAG,
+  deterministic = DETERMINISTIC
 )
 
 # Independent common-sample lag criteria: every order is fitted on the same
 # last T_common observations
-T_common <- nrow(levels) - var_spec$max_lag
+T_common <- nrow(levels) - MAX_LAG
 n_levels <- ncol(levels)
-n_deterministic <- if (var_spec$deterministic == "constant") 1L else 2L
-literal <- dplyr::bind_rows(lapply(seq_len(var_spec$max_lag), function(p) {
-  series_p <- levels[(var_spec$max_lag - p + 1L):nrow(levels), , drop = FALSE]
+n_deterministic <- if (DETERMINISTIC == "constant") 1L else 2L
+literal <- dplyr::bind_rows(lapply(seq_len(MAX_LAG), function(p) {
+  series_p <- levels[(MAX_LAG - p + 1L):nrow(levels), , drop = FALSE]
   n_total <- nrow(series_p)
   lags <- do.call(
     cbind,
@@ -273,7 +285,7 @@ literal <- dplyr::bind_rows(lapply(seq_len(var_spec$max_lag), function(p) {
     })
   )
   Y <- series_p[(p + 1L):n_total, , drop = FALSE]
-  deterministic_terms <- if (var_spec$deterministic == "constant") {
+  deterministic_terms <- if (DETERMINISTIC == "constant") {
     matrix(1, nrow(Y), 1L)
   } else {
     cbind(1, (p + 1L):n_total)
@@ -299,7 +311,7 @@ literal_deviation <- max(
 
 vars_criteria <- vars::VARselect(
   levels,
-  lag.max = var_spec$max_lag,
+  lag.max = MAX_LAG,
   type = "both"
 )$criteria
 vars_deviation <- max(
@@ -320,8 +332,10 @@ cat(sprintf(
 stopifnot(
   literal_deviation < 1e-12,
   vars_deviation < 1e-12,
-  aic_selected == var_spec$p,
-  nrow(levels) - var_spec$max_lag == 141L
+  aic_selected == AIC_SELECTED,
+  bic_selected == BIC_SELECTED,
+  P_PRODUCTION != aic_selected,   # the departure is deliberate, not a drift
+  nrow(levels) - MAX_LAG == LAG_COMMON_T
 )
 
 
