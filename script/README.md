@@ -1,6 +1,6 @@
 # `script/` — o que cada arquivo faz
 
-São 16 scripts em `script/` e 6 travas de validação em `script/validation/`,
+São 15 scripts em `script/` e 6 travas de validação em `script/validation/`,
 organizados por tema. A pasta é plana, com uma exceção: desde 2026-09-17 as
 travas ficam na subpasta `validation/`, que espelha `output/validation/`, onde
 estão as fixtures e os relatórios delas.
@@ -23,6 +23,11 @@ só ele chamava. As saídas dos dois continuam em `output/`.
 `arquivo/script/` (os gráficos que importam são os de `q_sensitivity.R`), com
 `containment_vs_production()`. Vários scripts perderam relatórios `.md` e
 figuras que ninguém lia; os que as notas citam ficam em `output/` como órfãos.
+Só restam as três variantes da `tab:first_stage`: com a purificação UST/FOMC
+saíram do `download.R` os downloads de `fred_dgs2.csv` e `fomc_dates.csv`, e com
+eles `R/data_download/{fred,fomc}.R`, que ficaram sem chamador. O `clean.R`
+passou a impor a ordem das colunas do painel e a tirar o `tcode` do manifesto de
+`infer_tcode_from_varnames()`.
 
 Rodadas anteriores de limpeza:
 - **2026-08-01 e 2026-08-05:** saíram cinco scripts da investigação de
@@ -97,7 +102,7 @@ projeto: `Rscript script/validation/<arquivo>.R`.
 | `validate_mosw_ar.R` | Valida o caminho inteiro do VAR observável. Contra `olea_oil_fixture.rds`, reproduz `AL`, `eta`, `Sigma`, `Gamma`, `WHat`, MA, os pontos SVAR-IV e os conjuntos AR de 68%/95%. Exige os dez casos degenerados do oráculo e compara AIC/BIC da célula brasileira com uma implementação independente e com `vars::VARselect(type="both")` (AIC `p=2`, BIC `p=1`). Checa também que a generalização `Load`/`Inner`, por onde passa o DFM, colapsa **exatamente** no MOSW original quando as duas são a identidade. Falha se faltar fixture ou dado. |
 | `validate_olea_kilian.R` | Reproduz os números publicados de Montiel Olea-Stock-Watson (2021) no caso Kilian-oil (ξ₁=4.4, F robusto=9.4) a partir de `output/validation/olea_oil_fixture.rds`, e confere que o VAR reestimado bate com o `RForm` dos autores. Só console, com `stopifnot`; falha se faltar fixture. |
 | `validate_amengual_watson.R` | Valida a tradução de `amengual_watson()` contra `amengual_watson.m`, `factor_estimation_ls.m` e `bai_ng.m` de Stock-Watson, transcritos literalmente, sobre a fixture commitada `output/validation/amengual_watson_fixture.csv`. Não há MATLAB/Octave aqui, então a transcrição *é* o instrumento. Mede em separado o que `apply_bll = TRUE` faz. Escreve `output/validation/amengual_watson_validation.md` e falha alto se `q_hat` divergir ou se o gap deixar de ser a constante `log(n/(n-1))`. |
-| `validate_production_spec.R` | Valida a composição 115/base 106, as 166 datas, o manifesto SGS 20784/20785, o contrato do instrumento, a superfície Bai--Ng BLL, os critérios de defasagem, a força e as raízes full/pré-COVID e os cinco impactos obrigatórios. Re-deriva o θ̂ de `production_spec()`. Também produz números: escreve `production_factor_lag_criteria.csv` (o AIC p=4 da §3.1) e `production_spec_impact_smoke.csv`. |
+| `validate_production_spec.R` | Valida a composição 115/base 106, as 166 datas, o manifesto SGS 20784/20785, o contrato do instrumento, a superfície Bai--Ng BLL, os critérios de defasagem, a força e as raízes full/pré-COVID e os cinco impactos obrigatórios. Re-deriva o θ̂ de `production_spec()`. Também produz números: escreve `production_factor_lag_criteria.csv` (o AIC p=4 da §3.1), `production_spec_diagnostics.csv` e `production_spec_impact_smoke.csv`. |
 | `validate_covid_volatility.R` | Valida a escala de volatilidade COVID de Lenza-Primiceri (2022, Apêndice B) no VAR dos fatores. **No painel de produção, com θ neutro (`s_t ≡ 1`):** o WLS sai `identical()` ao OLS com cada um dos 162 meses de resíduo como `t*`; o pipeline pontual tratado bate com a produção a 1e-12; (B5) confere com a verossimilhança gaussiana calculada por força bruta; e cada `stop()` a jusante dispara. **Em VAR simulado com θ arbitrário:** checa (B2), (B5), `s_t`, o encanamento de `estimate_dfm`, `estimate_covid_theta`, o H não centrado, os valores iniciais contra `bvarGLP_covid.m`, a função de influência do estimador tratado e os conjuntos AR e o ξ_mp tratados contra MOSW alimentado à mão. Silencioso; para no primeiro erro. |
 
 ## Notas cruzadas
