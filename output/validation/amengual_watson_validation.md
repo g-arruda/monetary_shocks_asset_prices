@@ -1,6 +1,6 @@
 # Validação de `amengual_watson()` contra o MATLAB de Stock-Watson
 
-Gerado por `script/validation/validate_amengual_watson.R` em 2026-09-17.
+Gerado por `script/validation/validate_amengual_watson.R` em 2026-09-21.
 **Corpo gerado — não escrever prosa aqui.**
 
 Fixture: `output/validation/amengual_watson_fixture.csv`, o painel de produção de 111 séries e 153 meses. Parâmetros do original: `nt_min = 20`, `tol = 1e-08` (`favar_kilian.m:57-59`).

@@ -8,26 +8,26 @@ A célula de produção usa `{ibc_br, price_ipca, yield_6m, cambio_usd, cds_5y}`
 
 | cell_id | cell | p | n | T_common | deterministic | logdet | n_parameters | aic | bic | selected_aic | selected_bic |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| production | ibc5_fx_cds_level_trend_p2 | 1 | 5 | 141 | trend | -11.06988 | 35 | -10.57342 | -9.84146 | FALSE | TRUE |
-| production | ibc5_fx_cds_level_trend_p2 | 2 | 5 | 141 | trend | -11.69393 | 60 | -10.84286 | -9.58807 | TRUE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 3 | 5 | 141 | trend | -11.92968 | 85 | -10.72400 | -8.94638 | FALSE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 4 | 5 | 141 | trend | -12.26993 | 110 | -10.70965 | -8.40920 | FALSE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 5 | 5 | 141 | trend | -12.62359 | 135 | -10.70870 | -7.88542 | FALSE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 6 | 5 | 141 | trend | -12.93835 | 160 | -10.66885 | -7.32273 | FALSE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 7 | 5 | 141 | trend | -13.19021 | 185 | -10.56609 | -6.69715 | FALSE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 8 | 5 | 141 | trend | -13.37142 | 210 | -10.39270 | -6.00093 | FALSE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 9 | 5 | 141 | trend | -13.60407 | 235 | -10.27074 | -5.35614 | FALSE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 10 | 5 | 141 | trend | -14.25480 | 260 | -10.56686 | -5.12943 | FALSE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 11 | 5 | 141 | trend | -14.63094 | 285 | -10.58839 | -4.62813 | FALSE | FALSE |
-| production | ibc5_fx_cds_level_trend_p2 | 12 | 5 | 141 | trend | -14.92588 | 310 | -10.52872 | -4.04563 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 1 | 5 | 154 | trend | -11.29305 | 35 | -10.83851 | -10.14829 | FALSE | TRUE |
+| production | ibc5_fx_cds_level_trend_p4 | 2 | 5 | 154 | trend | -11.88566 | 60 | -11.10644 | -9.92321 | TRUE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 3 | 5 | 154 | trend | -12.12055 | 85 | -11.01665 | -9.34041 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 4 | 5 | 154 | trend | -12.43478 | 110 | -11.00621 | -8.83695 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 5 | 5 | 154 | trend | -12.78182 | 135 | -11.02858 | -8.36631 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 6 | 5 | 154 | trend | -13.08690 | 160 | -11.00898 | -7.85370 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 7 | 5 | 154 | trend | -13.31437 | 185 | -10.91177 | -7.26349 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 8 | 5 | 154 | trend | -13.48375 | 210 | -10.75648 | -6.61518 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 9 | 5 | 154 | trend | -13.68341 | 235 | -10.63146 | -5.99715 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 10 | 5 | 154 | trend | -14.22590 | 260 | -10.84928 | -5.72195 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 11 | 5 | 154 | trend | -14.56145 | 285 | -10.86015 | -5.23981 | FALSE | FALSE |
+| production | ibc5_fx_cds_level_trend_p4 | 12 | 5 | 154 | trend | -14.81271 | 310 | -10.78674 | -4.67339 | FALSE | FALSE |
 
 
 | cell_id | cell | n | p | T_eff | hac_dim | lag_common_T | aic_selected | bic_selected | xi_var | ar_bounded_90 | max_eig | gamma_yield | n_inst | n_inst_nonzero |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| production | ibc5_fx_cds_level_trend_p2 | 5 | 2 | 151 | 90 | 141 | 2 | 1 | 6.79734 | TRUE | 0.96542 | 0.01238 | 151 | 61 |
+| production | ibc5_fx_cds_level_trend_p4 | 5 | 4 | 162 | 140 | 154 | 2 | 1 | 7.25832 | TRUE | 0.97652 | 0.01117 | 162 | 65 |
 
 
-AIC e BIC usam as mesmas T = 141 observações para p = 1,...,12. O AIC seleciona p = 2 e o BIC seleciona p = 1. A produção segue o AIC. `NWlags = 0`.
+AIC e BIC usam as mesmas T = 154 observações para p = 1,...,12. O AIC seleciona p = 2 e o BIC seleciona p = 1. A produção usa p = 4, o mesmo do DFM, para que o contraste entre os dois modelos não seja de ordem nem de amostra; não é a escolha do AIC. `NWlags = 0`.
 
 ## Topologias dos conjuntos Anderson--Rubin
 
@@ -45,16 +45,16 @@ O CSV preserva intervalos, conjuntos vazios, singletons, semirretas, duas semirr
 
 | cell_id | cell | var | h | point | ar_set |
 |---|---|---|---|---|---|
-| production | ibc5_fx_cds_level_trend_p2 | cambio_usd | 0 | 0.0805 | [0.0289; 0.1626] |
-| production | ibc5_fx_cds_level_trend_p2 | cds_5y | 0 | 18.8585 | [8.2727; 38.5309] |
-| production | ibc5_fx_cds_level_trend_p2 | cambio_usd | 1 | 0.1187 | [0.0400; 0.2414] |
-| production | ibc5_fx_cds_level_trend_p2 | cds_5y | 1 | 21.9656 | [9.1997; 44.0700] |
-| production | ibc5_fx_cds_level_trend_p2 | cambio_usd | 2 | 0.1068 | [0.0221; 0.2266] |
-| production | ibc5_fx_cds_level_trend_p2 | cds_5y | 2 | 21.1440 | [7.5060; 42.4869] |
-| production | ibc5_fx_cds_level_trend_p2 | cambio_usd | 3 | 0.0900 | [0.0077; 0.1989] |
-| production | ibc5_fx_cds_level_trend_p2 | cds_5y | 3 | 19.1729 | [5.9450; 38.4400] |
-| production | ibc5_fx_cds_level_trend_p2 | cambio_usd | 4 | 0.0735 | [-0.0032; 0.1712] |
-| production | ibc5_fx_cds_level_trend_p2 | cds_5y | 4 | 17.4427 | [4.8234; 34.8246] |
+| production | ibc5_fx_cds_level_trend_p4 | cambio_usd | 0 | 0.0810 | [0.0306; 0.1612] |
+| production | ibc5_fx_cds_level_trend_p4 | cds_5y | 0 | 15.6812 | [4.1056; 33.5354] |
+| production | ibc5_fx_cds_level_trend_p4 | cambio_usd | 1 | 0.1141 | [0.0294; 0.2430] |
+| production | ibc5_fx_cds_level_trend_p4 | cds_5y | 1 | 19.6079 | [4.5406; 43.7069] |
+| production | ibc5_fx_cds_level_trend_p4 | cambio_usd | 2 | 0.0923 | [0.0012; 0.2226] |
+| production | ibc5_fx_cds_level_trend_p4 | cds_5y | 2 | 12.2188 | [-3.4243; 34.2253] |
+| production | ibc5_fx_cds_level_trend_p4 | cambio_usd | 3 | 0.0819 | [0.0024; 0.1853] |
+| production | ibc5_fx_cds_level_trend_p4 | cds_5y | 3 | 20.1919 | [5.2725; 41.3134] |
+| production | ibc5_fx_cds_level_trend_p4 | cambio_usd | 4 | 0.0981 | [0.0223; 0.2006] |
+| production | ibc5_fx_cds_level_trend_p4 | cds_5y | 4 | 21.0260 | [6.4179; 41.4297] |
 
 
 A fonte canônica dos pontos e conjuntos AR é `output/var/svar_iv_weak_robust.csv`.

@@ -1,6 +1,6 @@
 # Número de fatores no painel podado por correlação: Bai-Ng, Ahn-Horenstein, ABC e Amengual-Watson
 
-Gerado por `script/factor_selection_pruned.R` em 2026-09-10.
+Gerado por `script/factor_selection_pruned.R` em 2026-09-21.
 **Corpo gerado — não escrever prosa aqui.** A leitura vive em `notas/2026-09-10_poda_correlacao_painel.md`.
 
 ## Painéis
