@@ -12,8 +12,12 @@ record of what ran (author decision); the `R/` they ran against is `main` at `07
 `rq_*` audits' `scripts/` moved to `arquivo/diagnostics/` the same day, with the experimental-panel
 functions only they called; their READMEs and `output/` stay here because the notes cite them.
 
-Seven scripts (`0{1..7}_*.R`) share `_common.R`, which loads the production spec, the panel, the
-instrument variants and the cached `irf_coherence_cell.rds` as globals. **A diagnostic script never
+Seven scripts (`0{1..7}_*.R`) share `_common.R`, which loads the panel, the
+instrument variants and the cached `irf_coherence_cell.rds` as globals, plus the `SPEC` list the
+round reads. That list used to come from `production_spec()`; when that file was deleted on
+2026-09-21 its values were written into `_common.R` itself — the one edit this directory took, so
+that `06` and `07`, which still run, kept running (`06`/`07` verified byte-identical across the
+change). `seed` went with the bootstrap and is gone. **A diagnostic script never
 re-estimates unless it has to, and nothing here modifies estimation code or production outputs.**
 Tables land in `diagnostics/output/` as `t<task>_<item>_*.csv`; the deliverable is
 `diagnostics/diagnostico_dfm.md` and `00_pipeline_map.md` traces raw data → plot. Per-script catalog

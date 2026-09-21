@@ -26,13 +26,13 @@ instrument:
 **abandoned on 2026-08-17** and the switch was collapsed — code, artefacts and verdicts in
 `arquivo/heterocedasticidade/` and `arquivo/nao_gaussiana/`, summary in
 `registro/historico_decisoes.md` §0 and §1. The argument is kept (rather than dropped) because six
-live callers pass `identification = "proxy"` explicitly, five of them under `diagnostics/`, which is
-not editable. The collapse was validated by the `CLAUDE.md` smoke test reproducing **bit-identically**
+live callers pass `identification = "proxy"` explicitly, five of them under `diagnostics/`, whose
+scripts stay unedited (only `_common.R` was repointed, on 2026-09-21). The collapse was validated by the `CLAUDE.md` smoke test reproducing **bit-identically**
 — that is the guard any future change to this file must clear.
 
 **One inference, since 2026-09-08.** `compute_irf_dfm(inference=)` takes `"ar"` or `"none"` and
 has no default. `"ar"` fills `ci` from the Anderson-Rubin sets (`ar_dfm_bands()` in
-`R/identification/weak_iv_ar.R`), which is what `production_spec()$inference` says; `"none"` returns
+`R/identification/weak_iv_ar.R`), which is the production inference; `"none"` returns
 the point alone, for cells compared point by point (`q_sensitivity.R`). The AR
 branch hard-stops if its re-derived point deviates from `ident_ext_instr()` by more than 1e-10 — the
 two paths must agree about the identification, not merely about the bands. `irf_point_matrix` is
@@ -52,25 +52,33 @@ unedited (`diagnostics/README.md`).
 - `estimate_var_wls(s=)` runs (B2) and returns (B4) and (B5); `s = 1`, its default, is OLS;
 - `estimate_covid_theta()` maximizes (B5) by L-BFGS-B inside the design's box.
 
-`production_spec()$covid_volatility` carries θ̂ = (6.611429, 12.468338, 1.760352, 0.943926) as
-literals — the spec function reads no artefact, because `output/` does not ship with the
-replication package, and `script/validation/validate_production_spec.R` re-derives θ̂ from
+**Since 2026-09-21 θ̂ is read, not typed.** `read_covid_volatility(path)`
+(`R/modeling/factor_estimation.R`) builds the `covid_volatility` list from
+`output/factors/covid_volatility_theta.csv`, the committed CSV that
+`script/covid_volatility_theta.R` writes: θ̂ = (6.611429, 12.468338, 1.760352, 0.943926),
+`covid_start` = 2020-03, `innovations = "standardized"` supplied by the loader, since it is a
+design decision and not in the CSV. `readr` writes doubles at shortest-round-trip precision, so
+the four values come back bit-identical — verified, the treated point did not move. `path` has no
+default: every call site writes the file it reads, and a missing file `stop()`s with a pointer to
+the producing script. `script/covid_volatility_theta.R` is the sole producer and therefore the one
+script that must not read it; `script/validation/validate_production_spec.R` re-derives θ̂ from
 `data/processed/` and stops if it moved. With the field set to NULL the whole `main_sdfm()` object
 is `identical()` to the untreated code, which is what the N1/N2 checks still pin; the smoke test now pins the
 **treated** point.
 
-**`covid_volatility` is a required argument of `run_stage2_cell()`**, with no default: the spec
-field is read in one place (`main_sdfm()`), and a default either way would silently decide which
+**`covid_volatility` is a required argument of `run_stage2_cell()`**, with no default: a default
+either way would silently decide which
 estimator a cell runs — that is how §4 and §5 would have ended up on different estimators. Cells
-that publish production numbers pass `production_spec()$covid_volatility`; pre-COVID windows and
+that publish production numbers pass `read_covid_volatility()` of the CSV; pre-COVID windows and
 closed rounds pass NULL and say why at the call site. **The pre-COVID window cannot take it and
 does not need it**: every month of it has `s_t = 1`, so the weighted fit *is* the unweighted one,
 and window contrasts stay contrasts of window, not of estimator. Under the scale `r >= 7` is
 explosive on the full window, so `mosw_strength_grid.R` sweeps r=4:6 there.
 
 The list's three fields (`covid_start`, `theta`, `innovations`) take no default. The author's
-decisions of 2026-09-14, which are how θ̂ is obtained, live in
-`production_spec()$covid_volatility_design`:
+decisions of 2026-09-14, which are how θ̂ is obtained, are written in
+`script/covid_volatility_theta.R` (which applies them) and in
+`script/validation/validate_production_spec.R` (which re-derives θ̂ under them):
 - `t*` = 2020-03;
 - s̄ ≥ 1 and ρ ∈ [0,1], the floor being what makes the maximum likelihood exist;
 - `innovations = "standardized"`.

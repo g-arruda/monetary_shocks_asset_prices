@@ -81,10 +81,12 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   de expectativas do painel de produção. `experimental_extensions.R`, que
   reconstruía os painéis experimentais da escolha de blocos, foi para
   `arquivo/R/preprocessing/` em 2026-09-18.
-- **`modeling/`** (6 arquivos) — `production_spec.R`, a especificação única do
-  painel de 115 séries `(5,5,4)`, 2012-03--2025-12; `dfm_pipeline.R`, a
-  composição do fluxo
-  estimativo; e os motores `factor_estimation.R`
+- **`modeling/`** (5 arquivos) — `dfm_pipeline.R`, a composição do fluxo
+  estimativo, cujos defaults são os valores de produção escritos na própria
+  assinatura de `main_sdfm()` (`production_spec.R`, a especificação
+  centralizada, foi apagada em 2026-09-21: cada script traz agora os seus
+  literais, e θ̂ vem de `output/factors/covid_volatility_theta.csv` por
+  `read_covid_volatility()`); e os motores `factor_estimation.R`
   (estimação BLL do DFM e do VAR dos fatores), `factor_selection.R` (todos os
   seletores do número de fatores: Bai-Ng BLL para r e Amengual-Watson para q,
   mais ER/GR de Ahn-Horenstein e ABC, usados só como diagnóstico),

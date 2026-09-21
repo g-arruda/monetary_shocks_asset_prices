@@ -21,10 +21,15 @@ with the advisor.
 
 ## Production spec — the invariant that costs most to get wrong
 
-**`z_jk_bs_purif` × `yield_6m` × (r=5, q=5, p=4), +50bp**, read from
-`R/modeling/production_spec.R`, which since 2026-09-18 carries only what two or more scripts read
-(single-reader values — the lag-selection record, the composition checks — live in
-`script/validation/validate_production_spec.R`). The production panel is the 115-series
+**`z_jk_bs_purif` × `yield_6m` × (r=5, q=5, p=4), +50bp**. Since **2026-09-21 there is no spec
+object**: `R/modeling/production_spec.R` was deleted and every path, dimension, window and switch
+is written as a literal in the script that uses it, in a constants block at its top (author
+decision — a centralized spec made every number a second lookup). The one value that is not a
+literal is θ̂, which is an estimate: it is read from
+`output/factors/covid_volatility_theta.csv` by `read_covid_volatility()`. The **canonical
+declaration** of the whole specification — and the check that data, panel, instrument, strength and
+impacts still match it — is `script/validation/validate_production_spec.R`; when a literal and that
+file disagree, that file is right. The production panel is the 115-series
 `drop_setor_externo__eua__credito__imoveis_fiscal_expectations`, covering
 2012-03 through 2025-12 (166 months, 162 factor innovations after `p=4`);
 the 106-series base exists only for historical factor-grid reproduction.
@@ -34,9 +39,13 @@ prior vintage rather than reselected — the AIC check on the extended common
 sample (`T=154`, constant and trend in the selection only) still picks `p=4`
 (8.231267), and BIC still picks `p=2`. The estimated factor VAR remains
 intercept-only. **Since 2026-09-17 the factor VAR carries the Lenza-Primiceri
-(2022) COVID volatility scale `s_t`** — `production_spec()$covid_volatility`,
-θ̂ = (6.611429, 12.468338, 1.760352, 0.943926) frozen as literals, `t*` =
-2020-03, `innovations = "standardized"`. The **full window** is therefore
+(2022) COVID volatility scale `s_t`** — θ̂ = (6.611429, 12.468338, 1.760352,
+0.943926), `t*` = 2020-03, `innovations = "standardized"`. Since 2026-09-21 θ̂
+is read from `output/factors/covid_volatility_theta.csv` through
+`read_covid_volatility()` (`R/modeling/factor_estimation.R`), never typed as a
+literal: `script/covid_volatility_theta.R` is its sole producer and the only
+script that must not read it. `readr` round-trips the four doubles
+bit-identically, which is why the treated point below did not move. The **full window** is therefore
 weighted least squares; the **pre-COVID window is not, and needs not be** —
 every month of it has `s_t = 1`, so the weighted fit *is* the unweighted one
 (proved bit-identical by N1/N2 of `script/validation/validate_covid_volatility.R`), and
@@ -85,11 +94,18 @@ That gap closes in a not-yet-scheduled editorial round; until then
 with an inference its captions do not announce. See `notas/_indice.md` before
 citing paper numbers as current.
 
-The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p2`**. It
+The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
-with a constant and linear trend in every equation. AIC and BIC are computed
-on a common 141-observation sample; production uses `p=2`, selected by AIC.
-Published responses are
+with a constant and linear trend in every equation. **Since 2026-09-21 it runs
+the DFM's own window and lag order** — 2012-03--2025-12 and `p=4` — by author
+decision, so that `T_eff = 162` equals the DFM's count of factor innovations
+and the contrast is between models rather than between samples or lag orders.
+`p=4` is therefore a **comparability choice and not the AIC's**: on the common
+`T=154` sample the AIC still picks `p=2` (−11.106 against −11.006 at `p=4`) and
+the BIC `p=1`, both reported, and `validate_mosw_ar.R` pins that the departure
+is deliberate. The migrated cell is stronger: ξ_var 6.797335 → **7.258325**,
+max root 0.9765222 (stable), `hac_dim` 140 < 162 so the gate passes, AR sets
+bounded at 90%. Published responses are
 horizon-specific `C_h B_1` estimates with VAR-only AR/MOSW sets at 68% and 90%
 under NW(0). Do not add sensitivity cells, sum responses across horizons, or
 restore bootstrap inference for this benchmark.
@@ -155,8 +171,8 @@ These govern what may be **said**, so they apply even when no file is open.
   68% only → **direction and magnitude**, labelled as such.
 - **The 68%/90% Anderson–Rubin sets are the sole operational inference for the DFM** since
   **2026-09-08** (author decision; it reverses the 2026-08-12 withdrawal, `historico_decisoes.md`
-  §7). `production_spec()$inference` is the single authority, `compute_irf_dfm(inference=)` the
-  single switch (`"ar"`, or `"none"` for the point alone). The wild bootstrap and the Kilian
+  §7). `compute_irf_dfm(inference=)` is the single switch (`"ar"`, or `"none"` for the point
+  alone) and has no default; every production call site writes `"ar"`. The wild bootstrap and the Kilian
   correction left the code on 2026-09-18. Two things are true of the sets: the plug-in
   covariance conditions on the estimated `Λ`, `K`, `M`, `sy` and `θ̂`; and `mosw_rform_cov` needs
   `hac_dim < T`, which **blocks** `(r,q)=(8,8)` at `p=4` (336 ≥ 162) and the **whole pre-COVID
@@ -273,9 +289,10 @@ Otherwise iterate by running the relevant script.
 ```r
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
-source("R/modeling/production_spec.R")
 source("R/identification/weak_iv_ar.R")   # main_sdfm passa inference = "ar"
 source("R/modeling/dfm_pipeline.R")
+# every other argument is the production default, written in main_sdfm()'s
+# signature; covid_volatility defaults to read_covid_volatility() of the CSV
 res <- main_sdfm(r = 5L, q = 5L, p = 4, shock_size_bps = 50, mp_var = "yield_6m")
 # note the field is `irfs`, not `irf`, and the names come from the data matrix
 P <- res$irfs$irf_point_matrix; vn <- colnames(res$data)

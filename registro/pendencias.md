@@ -48,7 +48,7 @@ fechar ou comprimir um item.
 | Painel | **115 séries**, variante `drop_setor_externo__eua__credito__imoveis_fiscal_expectations`, 2012-03 a 2025-12 (166 observações alinhadas; 162 inovações fatoriais após p=4) |
 | Inferência | **conjuntos Anderson-Rubin por inversão de teste** (MOSW 2021), NW(0), níveis 68/90, h = 0-48, desde 2026-09-08. O wild bootstrap Gonçalves-Kilian e a correção de Kilian saíram do código em 2026-09-18. ⚠ `hac_dim < T` barra `(8,8)` em `p=4` e a janela pré-COVID inteira |
 | Força | ξ_mp/F_rob,mp = **6,847997/11,765250** full, sob a escala COVID de Lenza-Primiceri desde 2026-09-17, e **8,643436/13,809985** pré-COVID; raiz máxima 0,983677 full e 0,993359 pré-COVID; ambas estáveis |
-| Benchmark VAR do paper | `{ibc_br, price_ipca, yield_6m, cambio_usd, cds_5y}` em nível, com constante e tendência linear; `p=2` pelo AIC em amostra comum de `T=141`; respostas `C_h B_1`; `xi_mp=6,797335`, raiz máxima `0,965424`; AR/MOSW 68%/90% com NW(0) |
+| Benchmark VAR do paper | `{ibc_br, price_ipca, yield_6m, cambio_usd, cds_5y}` em nível, com constante e tendência linear; desde 2026-09-21 na **janela e no `p` do DFM** (2012-03--2025-12, `p=4`, `T_eff=162`), decisão de comparabilidade e **não** do AIC, que em `T=154` ainda escolhe `p=2` (BIC, `p=1`); respostas `C_h B_1`; `xi_var=7,258325`, raiz máxima `0,976522`; AR/MOSW 68%/90% com NW(0) |
 
 Esta tabela combina a produção vigente do DFM com a produção corrente do
 benchmark VAR do paper. O código, os artefatos em `output/var/`, a figura e a

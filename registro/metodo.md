@@ -58,8 +58,16 @@
 > rederivada permanecem neste registro e nos artefatos. A rodada foi
 > exclusivamente textual e não reestimou modelos.
 
-## Status (2026-08-22, benchmark VAR em níveis)
+## Status histórico (2026-08-22, benchmark VAR em níveis)
 
+> **Superado em 2026-09-21:** por decisão do autor o benchmark passou a rodar a
+> janela e o `p` do DFM — 2012-03--2025-12 e `p=4`, célula
+> `ibc5_fx_cds_level_trend_p4`, `T_eff=162` — para que o contraste entre os dois
+> modelos não seja de amostra nem de ordem. O `p=4` é escolha de
+> comparabilidade e **não** do AIC, que na amostra comum de `T=154` ainda
+> seleciona `p=2`. ξ_var subiu de 6,797335 para 7,258325 e a raiz máxima para
+> 0,976522. O que segue descreve a vintage anterior.
+>
 > O único benchmark VAR pequeno ativo é `ibc5_fx_cds_level_trend_p2`, com
 > IBC-Br, IPCA, yield de 6 meses, câmbio e CDS em nível. Cada equação inclui
 > constante e tendência linear. AIC e BIC são calculados para `p=1,...,12`

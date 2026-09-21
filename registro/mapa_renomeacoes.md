@@ -13,6 +13,41 @@ mantidos em lugar e já usam os caminhos correntes.
 
 ---
 
+## 2026-09-21 — fim de `production_spec()`
+
+`R/modeling/production_spec.R` foi **apagado** (decisão do autor: a
+especificação centralizada obrigava um segundo arquivo para auditar qualquer
+número). Cada argumento, caminho, dimensão e janela passou a ser um literal no
+bloco de constantes do script que o usa. Nenhum número se moveu: o smoke test
+saiu bit-idêntico e todo `.csv`/`.rds` de `output/` saiu byte-idêntico na
+re-rodada.
+
+| antes | agora |
+|---|---|
+| `production_spec()$data_path`, `$sample`, `$r`, `$q`, `$p`, `$horizon`, `$mp_var`, `$shock_bps`, `$instrument`, `$inference`, `$ci_levels`, `$ar_nw_lags`, … | literais no topo de cada script que os lê |
+| `production_spec()$covid_volatility` | `read_covid_volatility("output/factors/covid_volatility_theta.csv")`, em `R/modeling/factor_estimation.R` |
+| `production_spec()$covid_volatility_design` | literais em `script/covid_volatility_theta.R` e `script/validation/validate_production_spec.R` |
+| `production_spec()$var_benchmark` | literais em `script/model_var.R`, `script/fig_weak_iv.R` e `script/validation/validate_mosw_ar.R` |
+| `production_spec()$production_series_added`, `$base_series_removed` | literais em `script/clean.R` e `script/validation/validate_production_spec.R` |
+| defaults `spec$…` de `main_sdfm()` | literais na assinatura, em `R/modeling/dfm_pipeline.R` |
+| célula `ibc5_fx_cds_level_trend_p2` (VAR pequeno, 2013-01--2025-09, `p=2`) | `ibc5_fx_cds_level_trend_p4` (2012-03--2025-12, `p=4`, a janela e a ordem do DFM) |
+| `script/model_var.R` escrevia `output/var/svar_iv_weak_robust.md` | não escreve mais; o `.md` fica congelado na vintage `p=4`, como registro citado, e o script só produz os três `.csv` |
+
+`script/validation/validate_production_spec.R` deixou de validar um objeto e
+passou a ser a **declaração canônica** da especificação: quando um literal de
+script e esse arquivo discordarem, esse arquivo é o certo. O θ̂ é o único valor
+que não é literal, porque é estimativa e não decisão — `readr` faz o
+round-trip dos quatro doubles bit-idêntico, e
+`script/covid_volatility_theta.R`, seu único produtor, é o único script que não
+o lê.
+
+Os 18 scripts de `arquivo/script/` e os 4 de `arquivo/nao_gaussiana/script/`
+que fazem `source("R/modeling/production_spec.R")` **não** foram editados: a
+maioria já não rodava, e agora nenhum roda. `diagnostics/_common.R` foi a única
+exceção editada, para `06` e `07` continuarem rodando.
+
+---
+
 ## 2026-09-18 — limpeza pós-inspeção visual e fim do Codex
 
 Os motivos estão em `arquivo/README.md`. As saídas continuam em `output/`.

@@ -69,8 +69,10 @@ source, **not a target to edit** and not evidence for current magnitudes.
 `output/irf/irf_coherence_report.md`, `output/irf/ar_bands.md`,
 `output/var/svar_iv_weak_robust.md`, `output/factors/factor_stationarity.md`,
 `output/assets/asset_representation.md`, `output/var/var_benchmark.md`. Several of their
-generators are archived or no longer write them (`irf_coherence_report.md` since 2026-09-18);
-the files stay as cited records and still take no prose.
+generators are archived or no longer write them (`irf_coherence_report.md` since 2026-09-18,
+`svar_iv_weak_robust.md` since 2026-09-21); the files stay as cited records and still take no
+prose. `svar_iv_weak_robust.md` is frozen at the 2012-03--2025-12 `p=4` vintage of the three
+CSVs beside it, which are `script/model_var.R`'s only outputs now.
 
 Their hand-written counterpart is **`output/irf/irf_coherence_leitura.md`, which no script may
 touch** — a previous one was silently destroyed by a re-run of the check, which is why the split

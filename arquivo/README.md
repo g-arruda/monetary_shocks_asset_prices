@@ -283,6 +283,16 @@ recuperar.
   `output/validation/production_spec_{bootstrap_gate,headline_irf}.csv`, ficam
   onde estão.
 
+- Em 2026-09-21, `R/modeling/production_spec.R`: a especificação centralizada
+  foi revertida e cada valor passou a ser literal no script que o usa
+  (`registro/historico_decisoes.md` §14, mapa em
+  `registro/mapa_renomeacoes.md`). **Consequência para este diretório:** os 18
+  scripts de `arquivo/script/` e os 4 de `arquivo/nao_gaussiana/script/` que
+  fazem `source("R/modeling/production_spec.R")` agora falham nessa linha. Não
+  foram editados — a maioria já não rodava, por `nboot`, `apply_kilian` ou
+  argumentos que saíram de `R/`. O conteúdo do arquivo apagado está no histórico
+  do git; a última versão com ele é `feature/coding-style-script` em `ba5979a`.
+
 - `paper/img/` (6 PDFs, 2026-08-05): duplicata byte-idêntica das figuras
   na raiz de `paper/`. O `paper_anpec.fls` mostra que o compile sempre
   leu da raiz; só linhas `\includegraphics` comentadas apontavam para `img/`.

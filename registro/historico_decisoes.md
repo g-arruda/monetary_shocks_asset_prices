@@ -818,3 +818,89 @@ como registro do que rodou em 2026-07-28.
 conjuntos AR. O que saiu foi a reamostragem.
 
 **Não reabrir sem evidência nova.**
+
+---
+
+## 14. Especificação centralizada em `production_spec()` — REVERTIDA em 2026-09-21
+
+**Veredito:** a centralização foi desfeita e `R/modeling/production_spec.R` foi apagado.
+**Decisão do autor**, por auditabilidade: com a especificação num segundo arquivo, ler qualquer
+número de qualquer script exigia resolver `SPEC$r`, `spec$covid_volatility` ou
+`VAR_SPEC$sample` de cabeça. Cada argumento, insumo, especificação e caminho passou a estar
+escrito no ponto que o usa, num bloco de constantes no topo do script — padrão que
+`irf_coherence_check.R` e `validate_production_spec.R` já seguiam para os seus próprios valores.
+
+**O que a centralização foi.** Entrou em 2026-08-13 com a migração para o painel de 111 séries
+(`notas/2026-08-13_migracao_producao_painel_111_r5q5.md`), como a "especificação única" que os
+scripts de produção e os diagnósticos deixariam de duplicar. Em 2026-09-18 foi reduzida ao que
+dois ou mais scripts leem, com os valores de leitor único indo para
+`validate_production_spec.R` — meio caminho da reversão.
+
+**Como a duplicação é governada agora.** `script/validation/validate_production_spec.R` deixou
+de validar um objeto e passou a ser a **declaração canônica**: cada invariante escrito lá como
+literal e checado contra o que `data/processed/` e `output/` contêm. Quando um literal de script
+e esse arquivo discordarem, esse arquivo é o certo. A cópia independente é o que dá valor à
+trava — um validador que lesse os valores do próprio produtor não provaria nada.
+
+**A exceção que não é literal.** θ̂ = (6,611429; 12,468338; 1,760352; 0,943926) é estimativa, não
+decisão, e não é digitado em lugar nenhum: `read_covid_volatility()`
+(`R/modeling/factor_estimation.R`) o lê de `output/factors/covid_volatility_theta.csv`, o CSV
+commitado que `script/covid_volatility_theta.R` escreve — único produtor e, por isso, único
+script que não o lê. `readr` grava doubles na menor representação que faz round-trip, então os
+quatro valores voltam bit-idênticos; conferido, e o ponto tratado não se moveu. A razão que a
+regra dava para congelar θ̂ como literal (`output/` não viajar no pacote de replicação) caiu:
+`output/` é git-tracked, e as travas de `script/validation/` já leem fixtures commitadas.
+
+**O que custa.** Some a garantia central de que `(r,q,p)`, `mp_var`, `shock_bps` e as janelas não
+divirjam entre os 19 scripts: uma edição num script não é mais propagada nem detectada, e
+aparece só quando um artefato de `output/` muda. Troca deliberada — auditabilidade local no
+lugar de consistência global.
+
+**Verificação.** Smoke test do `CLAUDE.md` bit-idêntico a 17 dígitos; as 6 travas de
+`script/validation/` passam; todo `.csv`/`.rds` de `output/` e de `data/processed/` byte-idêntico
+na re-rodada de `clean.R`, `instrument.R`, `irf_coherence_check.R`, `model_alessi.R`,
+`instrument_diagnostics.R`, `mosw_strength_grid.R`, `covid_volatility_theta.R`,
+`q_sensitivity.R` (duas janelas), `panel_pruning.R` e `factor_selection_pruned.R`; `.md` só na
+linha de data e `.pdf` só no timestamp embutido, com renderização idêntica. As duas rodadas
+congeladas (`diagnostics/` e o benchmark VAR) foram verificadas contra uma worktree em HEAD, com
+o mesmo insumo: saída byte-idêntica com e sem o spec, e o que divergia do commit já divergia
+antes desta sessão. Seus artefatos foram restaurados ao commit.
+
+**Não reabrir sem evidência nova.**
+
+---
+
+## 15. `p=2` pelo AIC no benchmark VAR — REVERTIDO em 2026-09-21
+
+**Veredito:** o VAR pequeno deixou de seguir a própria seleção de defasagem e passou a rodar a
+**janela e o `p` do DFM** — 2012-03--2025-12 e `p=4`, célula `ibc5_fx_cds_level_trend_p4`.
+**Decisão do autor**, por comparabilidade: com janelas e ordens diferentes, o contraste
+DFM-vs-VAR confundia modelo com amostra e com ordem de defasagem, que é justamente o que o
+benchmark existe para isolar. `T_eff` passou a 162, o mesmo número de inovações fatoriais do DFM,
+e a amostra comum da tabela de critérios passou a `T=154`, a mesma da checagem AIC do DFM.
+
+**O que isto custa em prosa.** `p=4` é escolha de comparabilidade e **não** do AIC. Na amostra
+comum de `T=154` o AIC continua escolhendo `p=2` (−11,10644 contra −11,00621 em `p=4`) e o BIC
+`p=1`. A frase "a produção segue o AIC", que valeu de 2026-08-22 a 2026-09-21, saiu: o `.md`
+gerado por `model_var.R` agora diz que o `p` vem do DFM e não do critério, e
+`script/validation/validate_mosw_ar.R` fixa os dois fatos separadamente — o que os critérios
+escolhem (2 e 1, em `T=154`) e o que a produção roda (4) —, com um `stopifnot` de que o
+afastamento é deliberado e não deriva.
+
+**A célula migrada é melhor, não pior.** ξ_var 6,797335 → **7,258325**; raiz máxima 0,9654237 →
+0,9765222, estável; `hac_dim` 90 → 140, contra `T_eff` 162, então a porta `hac_dim < T` continua
+passando; conjuntos AR limitados a 90%. Cobertura da proxy 61 → 65 meses não-nulos em 162.
+A topologia dos 370 conjuntos não muda (368 `interval` + 2 `singleton`) e a significância
+**aumenta**: células que excluem zero vão de 71 para 75 de 184 a 68%, e de 23 para **33** a 90%,
+com os ganhos em `cambio_usd` (4 → 8 a 90%), `cds_5y` (11 → 14) e `price_ipca` (0 → 2). Doze
+pontos trocam de sinal, todos em `yield_6m` (8) e `cambio_usd` (4), em horizontes longos onde a
+resposta cruza zero — o horizonte de cruzamento andou. Os sinais de impacto não mudam:
+`ibc_br` −0,725, `cambio_usd` +0,081, `cds_5y` +15,68 pb, `yield_6m` +0,005 por normalização.
+
+**⚠ A figura fica duas vintages atrás.** `paper/fig_weak_iv_main.pdf` está congelada atrás de
+`--repaint-paper-figures` desde 2026-09-08, e agora o lado VAR dela também é de outra célula.
+`script/fig_weak_iv.R` foi repontuado para `_p4`, então a rodada editorial do Tema A pinta a
+célula nova — mas até lá a figura publicada mostra `_p2` na janela antiga, e a legenda ainda
+anuncia *wild bootstrap* no DFM.
+
+**Não reabrir sem evidência nova.**

@@ -11,7 +11,7 @@ paths:
 **The build chain lives in `R/instrument/build_variants.R`** (helpers in `di_surprise.R`),
 parameterized by the DI vertex `target_bd`. `script/instrument.R` calls it once with production
 values and keeps **all** I/O. Production vertex is `TARGET_BD = 126` ≈ 6m DI;
-`production_spec()$instrument` picks the column written to the legacy single-column
+`PRODUCTION_VARIANT` in that script picks the column written to the legacy single-column
 `data/processed/instrument.csv`.
 
 **Only the three variants of `tab:first_stage` exist in live code since 2026-09-18**, one per
