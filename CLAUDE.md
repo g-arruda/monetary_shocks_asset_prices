@@ -86,13 +86,45 @@ meetings, 67 monetary and 35 information, BS `R²` 0.022. Note:
 chain in order, including the concentrated likelihood that estimates θ and the
 WLS that follows from it.
 
-**§4, §5 and `output/irf/irf_section.md` still describe the prior 2013-01--2025-09
-window, and the two *wild bootstrap* captions describe the figures as painted.**
-That gap closes in a not-yet-scheduled editorial round; until then
-`script/fig_section5.R` and `script/fig_weak_iv.R` abort without
-`--repaint-paper-figures`, so a stray re-run cannot repaint the paper's figures
-with an inference its captions do not announce. See `notas/_indice.md` before
-citing paper numbers as current.
+**§5 is current since 2026-09-21; §4 and `output/irf/irf_section.md` are not.**
+A second pass the same day reshaped `tab:het_frequency` (pre-COVID row out) and rewrote §5.2
+against `como_escrever`, cutting the paragraph that re-explained the Anderson--Rubin sets
+already set out in §3.4. **On 2026-09-22 §5.1 was rebuilt on `goncalves2025`'s own three
+series and the summed-window row was deleted**, so the section now reports the daily and
+monthly rows side by side and **attributes the contrast to neither frequency nor window
+type** — see the prohibition below, which lists what may not be written. The abstract, in
+Portuguese and in English, agrees with it: it locates the divergence in the identification
+condition, not in the frequency of the data.
+**On 2026-09-24 §5.1 was deleted** by author decision, following the advisor's suggestion
+(`email_meu_31-08_20h12.md`, pergunta 4), and the het diagnostic **moved to §3.3**
+(`sec:identificacao`) as the reason the paper does not use that identification: one paragraph
+plus one footnote, right after the proxy-identification paragraph. §5 Robustez kept its title and
+lost its only subsection (`sec:weak_iv` now labels §5 itself); the introduction points at
+`sec:identificacao`. The appendix is split into **Anexo A** (`tab:lista_variaveis`) and **Anexo B** (`anexo-B`), which carries **two tables**: `tab:het_variance` (Rigobon--Sack
+variance ratio per series, from `output/het/het_variance_ratios.csv`) and `tab:het_frequency` (the
+`Qr(λ₁=λ₂)` summary with the DI variance ratio `a`, SEs, corrected and uncorrected statistic; the
+`det` column left it the same day, and so did `tab:het_sequencia`, the full sequential table, by
+author decision). The summary prints the factor row's uncorrected p 0.035, and its note prints the
+inconvenient factor-row rejections of `λ₁=…=λ₄` (p 0.021) and `λ₁=…=λ₅` (p 0.013) and why that row
+has 161 observations, not 162 (the formal lag the test imposes).
+Holm across the three daily vertices keeps the 3-month rejection (p 0.010). The vertex and
+kurtosis sensitivities travel in the footnote. The paragraph keeps the non-decomposition
+sentence: the advisor's reading ("aggregation dilutes the variance") is exactly what the
+2026-09-22 prohibition forbids, and was not written. `rigobonsack2004` entered the bib (23 of
+the 25 keys).
+That round migrated `sec:weak_iv` to the production vintage, re-estimated
+`sec:het_frequency` at `(5,5,4)` under the LP scale, repainted
+`fig:weak_iv_main` with Anderson--Rubin sets on both sides, and **deleted §5.3**
+(the FOMC subsection) by author decision. Note:
+`2026-09-21_migracao_secao_5`. **§4 now *contradicts* §5**, it is not merely
+behind it: §4 prints BRL/USD +3,74% and CDS +30,7 bp at impact where §5.2 prints
++3,23% and +30,5 bp for the same series of the same model. §4 is the wrong one.
+Its migration is a not-yet-scheduled editorial round and depends on the economic
+reading of the IRFs under the LP scale, still open; until then
+`script/fig_section5.R` aborts without `--repaint-paper-figures`, so a stray
+re-run cannot repaint §4's eight figures with an inference its captions do not
+announce. `fig:curva` carries the last *wild bootstrap* caption. See
+`notas/_indice.md` before citing paper numbers as current.
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
@@ -160,6 +192,9 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Correlation pruning + `(r,q)` on the pruned panel | `panel_pruning.R`, `factor_selection_pruned.R` | `2026-09-10_poda_correlacao_painel` | complete linkage at \|ρ\| ≥ 0.90 drops 9/115 series; Bai-Ng IC2 5 → 3, AH 2 → 1, ABC 9 → 11 (unstable), AW `q = 2` at every `r`; divergence grows (D 10 → 12), underestimation hypothesis contradicted |
 | `q < r` truncation: subspace sufficiency + AK invariance by window | `arquivo/script/q_truncation.R` | `2026-09-10_truncamento_q` | harmless before COVID, distorting after: pre-COVID `p=2` 115/115 series immaterial at `q=3,4`, full sample 0/115; the proxy's covariance sits in the discarded directions (T1 p 0.051/0.039/0.015 full, ≥ 0.22 pre-COVID); rules written after an exploratory pass |
 | COVID volatility (Lenza-Primiceri) in the factor VAR: θ̂ by ML, AR under WLS, steps 3/4 and 4/4 | `covid_volatility_theta.R`, `arquivo/script/q_truncation.R` (cell `cheia_p4_lp`), `q_sensitivity.R` | `2026-09-14_inferencia_volatilidade_covid_q` | **superseded on 2026-09-17: the treatment became production.** θ̂ = (6.61, 12.47, 1.76, 0.944), with a second maximum at ρ = 0 2.6 log-points below; at `q=3` 23/115 series immaterial and 75 material, against 115/115 immaterial pre-COVID `p=2`; the sets condition on θ̂ |
+| §5 migrated, §5.3 deleted | `het_conditions.R`, `fig_weak_iv.R` | `2026-09-21_migracao_secao_5` | §5.2 on the production vintage, `fig:weak_iv_main` repainted in AR on both sides, §5.3 (FOMC) cut by author decision; **§4 now contradicts §5** |
+| Battery cut to the `svars` test; §5.1 and `tab:het_frequency` rebuilt on `goncalves2025`'s own series | `het_conditions.R`, `het_rigobon/` | `2026-09-22_condicao_het_svars` | Rigobon's single rank condition, tested by the sequential `Qr` of Lütkepohl et al. (2021) via `svars`. Both frequencies now carry **their** three series — DI, BRL/USD, 5y CDS; no Ibovespa, no 2-year DI. Daily rejects at the 3-month vertex (p 0.003, λ₁ 7.55 vs 1.36); **the same three series monthly reject at no vertex** (p 0.917--0.988, λ₁ ≈ λ₂, det 40.8 → −0.03). The two differences between the rows — frequency and announcement window against calendar variation — are **not decomposed**: the summed-window object that had separated them was deleted the same day by author decision, and the only monthly aggregation is the panel's own. Factor innovations 0.076. ⚠ the daily result depends on the vertex (0.003/0.084/0.147) and on the test's kurtosis correction (÷4.9). Five home-grown statistics retired; `svars` installed |
+| Rigobon het: replicação de GRG e IRFs (quarentena) | `het_rigobon/` | `2026-09-22_condicao_het_svars` | a réplica diária **bate** com GRG (razões 3,45/0,98/0,89 contra 3,40/0,92/0,85; ponto deles no IC 95% nas 6 células de câmbio e CDS); o CDS de GRG **fecha**, não é nulo, e a unidade é inferida — §2 corrigida. Na célula diária identificada um aperto de 50 p.b. **fecha** o CDS 4,2 p.b. e **aprecia** o real 1,53%, o sinal deles nas duas séries; o VAR mensal não identifica em nenhum vértice e as inovações fatoriais dão +9,6 p.b. e +1,52% contra +30,5 e +3,23% do proxy, sem rejeitar a 5% |
 
 ## ⚠ Prohibitions
 
@@ -243,14 +278,82 @@ These govern what may be **said**, so they apply even when no file is open.
   (Sims-Stock-Watson 1990; AK's own §2.2 defence).
 - **Heteroskedasticity and non-Gaussian (GMR) identification** — both abandoned on **2026-08-17**,
   verdicts in `historico_decisoes.md` §0 and §1. Non-Gaussian code and artefacts remain in
-  `arquivo/nao_gaussiana/`; heteroskedasticity's dedicated code was removed on **2026-09-01** after a
-  final monthly reestimation confirmed the rank condition still fails (`arquivo/heterocedasticidade/`
-  keeps only artefacts/verdict). Het is rejected at both frequencies; GMR has no power on this
-  panel because DFM aggregation destroys the non-Gaussianity. Loose ends that die with them:
-  *conditional* het (GARCH-SVAR) and LMS (2017) via `svars::id.ngml`, neither attempted, `svars`
-  not installed. **Heteroskedasticity-robust *inference* is untouched** — the Anderson–Rubin sets
-  and the HAC first stage are heteroskedasticity-robust.
+  `arquivo/nao_gaussiana/`; heteroskedasticity's dedicated code was removed on **2026-09-01**
+  (`arquivo/heterocedasticidade/` keeps only artefacts/verdict). **On 2026-09-21 the
+  *diagnostic* half came back** — `R/identification/het_tests.R` and
+  `script/het_conditions.R`, which §3.3 and Anexo B publish — while `ident_het_regimes()` and
+  `het_shock_extraction.R` stayed deleted. The author also authorized an exploratory round
+  that **does** build impulse responses from the identified column; it lives entirely in
+  `het_rigobon/`, quarantined, `compute_irf_dfm()` gained no `"het"` branch, and nothing from
+  that folder may be cited as corroboration, robustness or an alternative estimate without a
+  separate author decision.
+  **On 2026-09-22 the battery was cut to the `svars` package's test** (author decision).
+  Rigobon states ONE condition, the rank condition, which fails iff the regime covariances
+  are proportional; its multivariate form is the distinctness of the eigenvalues of `Λ` in
+  `Σ_NC = BB'`, `Σ_C = BΛB'`, tested by the sequential `Qr` of Lütkepohl, Meitz, Netšunajev
+  and Saikkonen (2021) as implemented in `svars`. **Five statistics were retired and may not
+  be reported or cited again**: Mauchly's proportionality LR, the λ₁–λ₂ gap, `ratio_dir`,
+  `rank1_share` and the permutation placebo. They were this project's own construction, and
+  four of the five were consequences of the one condition that binds. Every number they
+  produced — `p_boot` 0.0508, LR 135.1290, gap 0.7415, ratio 1.9630, the 0.20 min-gap
+  criterion, the 37-cell Holm sweep — is **discontinued**, not merely superseded.
+  ⚠ **`svars::id.cv()` is not called directly and must not be.** Its indicator path for a
+  recurring regime is broken (`R/id.cv.R:177` subsets with `u[SB, ]`, reachable only with a
+  numeric `SB`, so a 0/1 vector indexes by position); the estimate silently collapses to
+  `Λ = I`. `fit_het_cv()` calls the package's estimator as `id.cv()` calls it internally and
+  guards the result against the closed-form generalized eigendecomposition.
+  **The series are `goncalves2025`'s own, on both sides** — the Wed→Thu change in the DI, the
+  BRL/USD rate and the 5-year sovereign CDS (their Table 1). They use **no Ibovespa and no
+  2-year DI**; the daily row this project published until 2026-09-21 used both, and that set
+  was the project's, not theirs. Their fourth series, inflation expectations, is a bond
+  breakeven this panel does not carry (the Focus measure is a survey, and its daily change is
+  exactly zero on 23% of days), so it is left out and the gap is declared. The DI vertex is
+  the dimension the authors themselves vary and is reported as a row.
+  **What the round established, and what may be written.** Daily, the three series reject
+  `λ₁ = λ₂` at the 3-month vertex (`Qr` 11.43, p 0.003, λ₁ 7.55 against 1.36). **The same
+  three series in the monthly panel do not reject at any vertex** (p 0.917 to 0.988), and
+  their two largest eigenvalues nearly coincide (2.51 against 2.36): the normalized rank
+  determinant falls from 40.8 to −0.03, which is the proportionality Rigobon names as the
+  failure mode. **The two frequencies are not decomposed, and no claim may decompose them.**
+  Between the daily row and the monthly one, the observation frequency and the measured object
+  change together — announcement window against calendar variation — and nothing measures
+  either apart from the other. **The only monthly aggregation is the panel's own** (author
+  decision, 2026-09-22): the reference month's last quotation for the DI vertices and the CDS,
+  the monthly average for the exchange rate. The object that summed the Wed→Thu windows inside
+  the calendar month was **removed**, and every number it produced — a = 8.735, det_ratio 74.65,
+  `Qr` 6.73, p 0.0346 at the 3-month vertex, and the 6- and 12-month cells — is **discontinued**.
+  Making the rule uniform does not change the verdict: with the exchange rate taken at month end
+  too, the monthly p is 0.545 / 0.836 / 0.570 and the determinant stays inside ±0.34 — still no
+  rejection at any vertex. The five factor innovations do not reject at 5% either (p 0.076).
+  ⚠ Two sensitivities must travel with the daily claim. **The vertex matters**: from 3 to 6 and
+  12 months p goes 0.003 → 0.084 → 0.147, tracking the fall in the DI variance ratio with
+  maturity that `goncalves2025` report. **And the test's kurtosis correction decides the daily
+  case**: with excess kurtosis 12.7 in the quiet regime it divides the statistic by 4.9, and
+  without it every daily cell would reject. The corrected statistic is the valid one; both are
+  in `output/het/het_conditions.csv` (`qr_12`, `qr_12_nk`).
+  ⚠ **The exploratory responses are not estimates where the condition fails.** In the
+  identified daily cell a 50bp tightening **narrows** the CDS 4.2bp and **appreciates** the BRL
+  1.53% — `goncalves2025`'s sign on both. The monthly VAR is unidentified at every vertex and
+  its point is not interpretable; the factor innovations give +9.60bp and +1.52% against the
+  proxy's +30.5bp and +3.23%, but do not reject at 5% either. Responses without identification
+  are printed as such and may not be read as direction and magnitude.
+  **`goncalves2025`'s CDS is not null either.** Their Table 5 reports +0.01/−0.03/−0.05/−0.11
+  at the 1/3/6/12-month vertices, in **percentage points** — −3/−5/−11 bp, the 12-month one
+  distinct from zero (t ≈ 2.2) — which their own prose ("do not seem to affect the CDS")
+  undersells. The replication lands on it (−11.96/−12.75/−10.37 bp). ⚠ Their CDS unit is
+  **inferred, not declared**: fixed by two scale tests (published SE ratio 15.0 against a
+  14.25 sd ratio in the rebuilt panel; basis points would give 0.14), documented in
+  `het_rigobon/_common.R`. What may not be written: that GRG find no CDS response. §2 was
+  corrected on 2026-09-22 and now reports the closing.
+  GMR has no power on this panel because DFM aggregation destroys the non-Gaussianity. Loose
+  ends that die with them: *conditional* het (GARCH-SVAR) and LMS (2017) via `svars::id.ngml`,
+  neither attempted. **`svars` is installed since 2026-09-22** (with `copula` and `gsl`), for
+  the identification test only. **Heteroskedasticity-robust *inference* is untouched** — the
+  Anderson–Rubin sets and the HAC first stage are heteroskedasticity-robust.
 - **Do not silently re-architect the identification core** — see `.claude/rules/identification.md`.
+  The 2026-09-21 het round respected this: `het_rigobon/` imports `R/` read-only, builds its own
+  reduced-form objects, and proves its local `rawimp` reproduces `compute_irf_dfm()` to **0
+  exactly** rather than extracting the formula from the guarded file.
 
 ## Common commands
 

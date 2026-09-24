@@ -14,15 +14,21 @@ paths:
 The canonical paper is `paper/paper_anpec.tex` (class `elsarticle`). §3 Metodologia has four
 subsections since 2026-09-17 — `Modelo e estimação`, `Base de dados`, `Identificação e construção
 do instrumento`, `Relevância do instrumento e inferência`; §4 Resultados has six subsections;
-§5 Robustez includes `sec:exogeneidade`, `sec:invertibilidade`, `sec:weak_iv`,
-`sec:confound` and `sec:fomc`; concluding remarks is §6. `script/fig_section5.R` writes the
-general robustness figures, while `script/fig_weak_iv.R` writes the weak-IV figure.
+§3.3 (`sec:identificacao`) carries, since 2026-09-24, one paragraph and one footnote on why the
+paper does not use heteroskedasticity identification, and Anexo B carries its two tables (Anexo A is the variable list)
+(`tab:het_variance`, `tab:het_frequency`; `tab:het_sequencia` was cut the same day); §5 Robustez has **no**
+subsection, only the VAR benchmark, labelled both `sec:robustez` and `sec:weak_iv`;
+`sec:het_frequency` (rebuilt on 2026-09-22 around the `svars` test) was deleted that day; the
+five home-grown statistics may not come back; `sec:fomc` was deleted on 2026-09-21, and `sec:exogeneidade`,
+`sec:invertibilidade` and `sec:confound` had already gone. Concluding remarks is §6.
+`script/fig_section5.R` writes §4's eight figures, while `script/fig_weak_iv.R` writes
+the weak-IV figure.
 
 **The paper was fully synchronized on 2026-08-25** and has since fallen behind
-twice, and §3 caught up on 2026-09-17. The abstract, §1, §2, §4, §5, the
-conclusion and the appendix still carry the 2013-01--2025-09 magnitudes and
-described **wild-bootstrap** bands for the DFM, which the next paragraph
-corrects.
+twice; §3 caught up on 2026-09-17, §5 on 2026-09-21, its het subsection again on 2026-09-22 and moved to §3.3 as one paragraph on 2026-09-24. The abstract, §1, §2,
+§4, the conclusion and the appendix still carry the 2013-01--2025-09 magnitudes,
+and `fig:curva`'s caption still describes **wild-bootstrap** bands, which the
+next paragraph corrects.
 `tab:rq_sweep` no longer exists. The sign-filter subsections report only
 exercises that hold the production mask fixed; the rederived-mask diagnostics
 remain in the generated outputs and living record.
@@ -35,11 +41,13 @@ which was reorganized into four subsections and migrated number by number to the
 production vintage, including `tab:first_stage`. Note:
 `2026-09-17_reorganizacao_secao_3`.
 
-§4, §5 and the two captions that still say *wild bootstrap* (term structure and
-`fig:weak_iv_main`) describe the figures as actually painted and stay until the
-repaint; that method is now uncited in the body. Until that round runs,
-`script/fig_section5.R` and `script/fig_weak_iv.R` abort without
-`--repaint-paper-figures`. Do not quote a paper band as current inference;
+§4 and the one caption that still says *wild bootstrap* (term structure)
+describe the figures as actually painted and stay until the repaint; that method
+is now uncited in the body. §5.2's figure was repainted on 2026-09-21 and its
+caption is Anderson--Rubin on both sides. Until the §4 round runs,
+`script/fig_section5.R` aborts without `--repaint-paper-figures`. **§4 now
+contradicts §5** in BRL/USD and CDS at impact, and §4 is the wrong one. Do not
+quote a paper band as current inference;
 quote `output/irf/irf_coherence_h.csv`, whose `set_type68`/`set_type90` columns
 say what kind of set each band is.
 
@@ -70,7 +78,9 @@ source, **not a target to edit** and not evidence for current magnitudes.
 `output/var/svar_iv_weak_robust.md`, `output/factors/factor_stationarity.md`,
 `output/assets/asset_representation.md`, `output/var/var_benchmark.md`. Several of their
 generators are archived or no longer write them (`irf_coherence_report.md` since 2026-09-18,
-`svar_iv_weak_robust.md` since 2026-09-21); the files stay as cited records and still take no
+`svar_iv_weak_robust.md` since 2026-09-21, `output/het/het_conditions.md` and
+`het_rigobon/output/0{1,2,3}_*.md` since 2026-09-24, when their scripts lost the md reports and
+the numbers moved to the CSVs beside them); the files stay as cited records and still take no
 prose. `svar_iv_weak_robust.md` is frozen at the 2012-03--2025-12 `p=4` vintage of the three
 CSVs beside it, which are `script/model_var.R`'s only outputs now.
 

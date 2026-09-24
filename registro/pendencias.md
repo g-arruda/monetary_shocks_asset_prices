@@ -82,10 +82,11 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 | B | Verificar se `(5,5,4)` cruza o limiar mínimo de Anderson-Rubin e comunicar ao orientador | passo 1/4 do e-mail de 13-09; ⚠ a produção já responde isso (ξ_mp = 6,847997 > 3,84 sob a escala LP; 2841 de 2842 conjuntos `interval` por nível em `irf_coherence_h.csv`) — falta formalizar e decidir se fecha o item acima |
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; depende da rodada editorial do Tema A |
 | B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; ⚠ perna da cheia tratada feita em 2026-09-14 (`q_narrative_r5p4_covid.*`), a pré-COVID já existia; falta a leitura do autor e o passo 1/4 |
-| A | Sincronizar paper, figuras e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; `fig_section5.R` e `fig_weak_iv.R` estão congelados atrás de `--repaint-paper-figures` até essa rodada; ⚠ desde 2026-09-16 §3.5, §3.6 e a prosa da §5.2 já estão em AR, e sobram §4, as duas legendas que dizem *wild bootstrap*, as figuras, a janela e os números |
+| A | Sincronizar a §4, `fig_section5.R` e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; §3 migrou em 09-17 e §5 em 09-21, sobrando a §4, suas oito figuras e a legenda da `fig:curva`; `fig_section5.R` segue congelado atrás de `--repaint-paper-figures`; ⚠⚠ a §4 **contradiz** a §5 em BRL/USD (3,74% contra 3,23%) e CDS (30,7 contra 30,5 p.b.) |
 | B | Ler as IRFs sob a escala de volatilidade COVID e escrever a §4 | aberto em 2026-09-17, ao ligar o tratamento em produção; a rodada de 09-17 deu veredito de **viabilidade** (ξ_mp, topologia dos conjuntos, estabilidade), não de leitura econômica; a §4 ficou fora por decisão do autor |
+| A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | B | Confirmar o ótimo global de θ̂ | aberto em 2026-09-17; o perfil varre só ρ, sem multi-start em (s̄0,s̄1,s̄2); deixou de ser lacuna sobre um exercício e virou lacuna sobre o número publicado |
-| A | Repintar as figuras e a §4 sob a escala LP | aberto em 2026-09-17; mesma rodada editorial da linha de sincronização acima; `fig_section5.R` e `fig_weak_iv.R` seguem atrás de `--repaint-paper-figures` |
+| A | Repintar as oito figuras da §4 sob a escala LP | aberto em 2026-09-17; mesma rodada editorial da linha acima; `fig_weak_iv.R` já rodou em 2026-09-21 e `fig_section5.R` segue atrás de `--repaint-paper-figures` |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -133,23 +134,54 @@ comparação do IPCA no Tema D e o bloqueador no Tema E. **Nada na auditoria
 contradiz o fato central** — as cinco moedas, a janela pré-COVID e a constelação
 dos placebos empurram câmbio + risco soberano na direção do paper.*
 
-- [ ] **Sincronizar paper, figuras e `output/irf/irf_section.md` com a produção
-  corrente** — duas defasagens de uma vez: a janela (2012-03--2025-12, contra a
-  2013-01--2025-09 que o texto descreve) e a **inferência** (conjuntos
-  Anderson-Rubin, contra o wild bootstrap que as legendas e a §4 ainda
-  anunciam). Em 2026-09-16 a metade de inferência foi feita só na metodologia e
-  na prosa da §5.2: §3.5 perdeu a frase do bootstrap, §3.6 ganhou os conjuntos
-  AR com a equação mapeada, e `sec:weak_iv` deixou de contrastar
-  bootstrap-no-DFM com AR-no-VAR. Falta o resto. ⚠ Duas legendas seguem dizendo
-  *wild bootstrap* porque descrevem os PDFs realmente pintados (estrutura a
-  termo e `fig:weak_iv_main`), e com o corte na §3.5 esse método ficou sem
-  citação no texto, com `goncalveskilian2004` e `kilian1998small` fora do corpo.
-  Enquanto a rodada não acontece, `script/fig_section5.R` e
-  `script/fig_weak_iv.R` abortam sem `--repaint-paper-figures`, de propósito.
-  ⚠ A §5.3 (FOMC) reporta a janela 2013-01 (62 dias), e o script dela foi
-  arquivado em 2026-09-18 sem reexecução: a rodada decide se ela fica como
-  vintage declarada, sai ou é refeita.
-  Depende da rodada de 2026-09-08 fechada no Tema B.
+- [ ] **Sincronizar a §4, sua figura e `output/irf/irf_section.md` com a
+  produção corrente** — a §3 migrou em 2026-09-17 e a **§5 em 2026-09-21**
+  (`notas/2026-09-21_migracao_secao_5.md`), com a §5.1 reestimada, a §5.2 nos
+  números novos, `fig:weak_iv_main` repintada e a §5.3 excluída. Sobra a §4, com
+  a janela 2013-01--2025-09, as oito figuras de `script/fig_section5.R` e a
+  legenda da `fig:curva`, a última que ainda diz *wild bootstrap* — método que
+  saiu do código em 2026-09-18 e não tem mais citação no corpo, com
+  `goncalveskilian2004` e `kilian1998small` fora dele.
+  ⚠⚠ **A §4 agora CONTRADIZ a §5, não apenas está atrasada:** a §4 diz que o
+  BRL/USD sobe $3{,}74\%$ e o CDS $30{,}7$ p.b. no impacto, e a §5.2 diz
+  $3{,}23\%$ e $30{,}5$ p.b. para as mesmas séries do mesmo modelo. A §4 é a
+  errada. Enquanto a rodada não acontece, `script/fig_section5.R` aborta sem
+  `--repaint-paper-figures`, de propósito.
+  Depende da leitura econômica das IRFs sob a escala LP, logo abaixo.
+- [x] **O que o resumo diz sobre frequência — RESOLVIDO em 2026-09-22.**
+  O resumo deixou de explicar a divergência com `goncalves2025` pela frequência ou
+  pela agregação e passou a situá-la na **condição de identificação**: ela vale nas
+  três séries diárias e falha nas mesmas três séries no painel mensal. "As condições"
+  virou "a condição de posto" nas duas línguas, que é o que Rigobon enuncia. Duas
+  afirmações opostas foram **revertidas do registro** no mesmo dia: a de que a
+  agregação temporal **vira o sinal**, que se apoiava na quarta vertente, e a de que
+  ela **não é o obstáculo**, que se apoiava na linha da soma das janelas Qua→Qui
+  dentro do mês — objeto retirado por decisão do autor. A única agregação mensal é a
+  do painel, a última cotação do mês de referência.
+  Nota: `2026-09-22_condicao_het_svars`.
+- [x] **O que a §2 diz sobre o CDS de Gonçalves, Rodrigues e Genta — RESOLVIDO em
+  2026-09-22.** `paper_anpec.tex` deixou de repetir "não apresenta resposta
+  sistemática" e passa a reportar o fechamento de 3 a 11 p.b., com o vértice de doze
+  meses distinto de zero, registrando que os autores o descrevem como ausente. A
+  unidade inferida fica documentada em `het_rigobon/_common.R` e no relatório
+  `01_daily_grg.md`, não no corpo do artigo. Isto **reforça** o contraste: o DFM dá
+  +30,5 p.b. de alargamento onde o diário identificado dá fechamento.
+- [ ] **Decidir se o resumo carrega as duas ressalvas da linha diária.**
+  Desde 2026-09-22 os dois sistemas usam **as séries de GRG** — DI, câmbio e CDS de 5
+  anos. ⚠ Antes disso o projeto chamava de "linha diária publicada" um conjunto com
+  DI de 2 anos e Ibovespa, que **não são de GRG**; o erro foi corrigido e a
+  `tab:het_frequency` refeita. Duas ressalvas ficaram na §5.1 e **não** no resumo: o
+  **vértice** decide no diário (p 0,0033 / 0,0844 / 0,1474 em 3, 6 e 12 meses,
+  acompanhando a queda da razão de variância do DI com a maturidade nos próprios GRG),
+  e a **correção de curtose** do teste também (÷4,9; sem ela as três células diárias
+  rejeitariam). O resumo fala da identificação diária sem qualificar nenhuma das duas.
+  Decisão editorial.
+  ⚠ Fica registrada uma **lacuna de dados**: a quarta série de GRG é o *breakeven* de
+  inflação entre títulos indexados e nominais, que este painel não tem. A medida
+  disponível é a do Focus, que é survey — eles dizem "market-based (not survey data)" —
+  e cuja variação diária é exatamente zero em 23% dos dias. Construir o breakeven a
+  partir de NTN-B e LTN é uma rodada de dados, não editorial.
+  Nota: `2026-09-22_condicao_het_svars`.
 - [ ] **Ler as IRFs sob a escala de volatilidade COVID e escrever a §4.**
   A rodada de 2026-09-17 ligou o tratamento em produção com veredito de
   **viabilidade** — ξ_mp 6,847997, conjuntos `interval` a 68/90%, companheira
@@ -161,11 +193,25 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   sobre um exercício; desde 2026-09-17 é lacuna sobre o número publicado.
 ### Fechados (contexto)
 
+- [x] **Resumo corrigido nas duas línguas — 2026-09-21.** Dizia que a importância
+  do canal "pode depender da frequência dos dados e da estratégia de identificação";
+  agora reporta que a frequência **não** explica a divergência com `goncalves2025`,
+  porque as mesmas séries agregadas ao mês preservam as duas condições. ⚠ Fechou junto
+  com a correção do mecanismo da §5.1: a condição de posto nunca falhou na coluna
+  identificada (gap λ₁--λ₂ de 0,74 / 0,76 / 0,55), e o 0,10 antes publicado é o par
+  (2,3). Nota: `2026-09-21_migracao_secao_5.md` §6.5.
+  ⚠ **Superado em 2026-09-22**: o resumo não diz mais que a frequência não explica a
+  divergência, e a linha das séries agregadas ao mês que sustentava a frase não existe
+  mais. Ver o item `O que o resumo diz sobre frequência`, acima.
+
 - [x] **`fomc_coincidence.R` marcado de vintage — ARQUIVADO em 2026-09-18**
-  (autor), no lugar de reexecutado. A §5.3 continua com os números de
+  (autor), no lugar de reexecutado. **A §5.3 foi EXCLUÍDA do paper em 2026-09-21**
+  (decisão do autor, `notas/2026-09-21_migracao_secao_5.md`), o que encerra a
+  pergunta que a rodada editorial teria de decidir. Os números seguem em
   `output/instrument/fomc_coincidence.md` (janela 2013-01, 62 dias, commit
-  `08ccff3`); o script abortava contra a produção corrente. Os p-valores da
-  §5.3 vêm do wild bootstrap das regressões diárias
+  `08ccff3`), e a ressalva de 2026-08-24 continua valendo no registro: a máscara
+  global rederivada derruba `ξ_mp` para 3,671. Os p-valores que a §5.3 citava
+  vinham do wild bootstrap das regressões diárias
   (`arquivo/R/instrument/event_tests.R`, arquivado junto); o bootstrap do DFM
   só entrava na seção de IRFs, que o paper não usa. As outras rodadas
   OLS deste item (`jk_sovereign_confound.R`, `fiscal_*`,
@@ -391,6 +437,20 @@ coordenados" do e-mail do orientador de 2026-09-13
 
 ### Fechados (contexto)
 
+- [x] **Sistema mensal de quatro observáveis identificado por heterocedasticidade —
+  autorizado em 2026-09-21, reavaliado com o teste do `svars` em 2026-09-22.**
+  Veredito: **a premissa estava errada**. O VAR mensal nas quatro observáveis do painel
+  **não** identifica — o teste `Qr` de Lütkepohl et al. (2021) não rejeita `λ₁ = λ₂`
+  em nenhum vértice (p 0,917 a 0,988), com os dois maiores autovalores praticamente
+  coincidindo —, e as cinco inovações fatoriais também não a 5% (p 0,0761). Quem
+  identifica é o sistema **diário** nas mesmas três séries de `goncalves2025`, no
+  vértice de 3 meses (p 0,0033), e ali o aperto de 50 p.b. **fecha** o CDS 4,2 p.b. e
+  **aprecia** o real 1,53% — o sinal deles, não o do DFM. ⚠ O que separa as duas
+  linhas — a frequência, ou a troca da janela de anúncio pela variação de calendário —
+  **não está medido**: a linha que somava as janelas Qua→Qui dentro do mês foi
+  retirada por decisão do autor, e a única agregação mensal é a do painel. A rota het
+  segue abandonada para o artigo. Pasta: `het_rigobon/`; nota: `2026-09-22_condicao_het_svars`.
+
 - [x] **Bootstrap e correção de Kilian sob o tratamento de volatilidade
   COVID — ENCERRADO em 2026-09-18** (autor), sem ser derivado: o wild
   bootstrap e a correção de Kilian saíram do código, porque os conjuntos
@@ -514,12 +574,47 @@ O núcleo de identificação foi colapsado para o ramo único `proxy` na mesma d
 (`R/modeling/{dfm_pipeline,impulse_response}.R`), com o smoke test de produção
 bit-idêntico como guard.
 
+**Em 2026-09-21 o autor autorizou uma rodada exploratória que constrói IRFs pela
+coluna rank-1.** Ela vive inteira em `het_rigobon/`, em quarentena: importa `R/` em
+modo leitura, escreve só na própria pasta e **não** acrescentou ramo
+`identification = "het"` a `compute_irf_dfm()`. A identificação segue abandonada para
+o artigo, e o veredito da rodada está em `het_rigobon/README.md`. Os dois itens que
+ela abriu são **editoriais** e estão no Tema A.
+
 ### Fechados (contexto)
 
-- [x] **Resultado negativo da het incorporado ao paper — 2026-09-01.** §5
-  reporta o teste de proporcionalidade no diário e no mensal corrente; nenhuma
-  das 450 células válidas (115 séries) identifica. Código dedicado removido.
-  Fonte: `arquivo/heterocedasticidade/README.md`.
+- [x] **Resultado negativo da het incorporado ao paper — 2026-09-01,
+  REESTIMADO em 2026-09-21.** §5.1 reporta o teste de proporcionalidade no
+  diário e no mensal. A vintage de 2026-09-01 rodava `(4,4,4)` sem a escala LP,
+  com 450 células válidas e família de 100 no desenho de calendário; a de
+  2026-09-21 roda a produção `(5,5,4)` sob a escala, com inovações padronizadas
+  e família de 37. **O veredito não mudou** — 0 de 37 sobrevivem a Holm — mas o
+  `p_boot` de produção é marginal, 0,0508, contra 0,0559 antes, e o assintótico
+  da mesma estatística, 0,0057, rejeitaria.
+  ⚠ **O código dedicado voltou, como diagnóstico:** `R/identification/het_tests.R`
+  e `script/het_conditions.R`. `ident_het_regimes()` e `het_shock_extraction.R`
+  seguem removidos, e nenhuma IRF sai deste ramo em código vivo — a identificação
+  por heterocedasticidade continua abandonada desde 2026-08-17.
+  ⚠⚠ **A ESTATÍSTICA MUDOU EM 2026-09-22, e com ela todos os números acima.** Por
+  decisão do autor a bateria foi reduzida ao teste do pacote `svars` — o `Qr`
+  sequencial de Lütkepohl et al. (2021) sobre a distinção dos autovalores de `Λ` —,
+  que é a forma multivariada da condição de posto de Rigobon. O teste de
+  proporcionalidade de Mauchly, o gap λ₁−λ₂, `ratio_dir`, `rank1_share` e o placebo
+  de permutação **saíram**, e os valores-p deste item (0,0508, 0,0559, 0,0003, 0,0057)
+  são **descontinuados**. Os dois sistemas passaram a usar **as séries de GRG** — DI,
+  câmbio BRL/USD e CDS de 5 anos; o conjunto que o projeto chamava de linha diária
+  publicada usava DI de 2 anos e Ibovespa, que **não são deles**. Sob o teste novo: o
+  diário rejeita no vértice de 3 meses (p 0,0033), o VAR mensal **nas mesmas três
+  séries** não rejeita em nenhum vértice (0,917 a 0,988, com λ₁ ≈ λ₂ e determinante de
+  eq. (6) em −0,03), e as inovações fatoriais não a 5% (0,0761). ⚠ **As duas
+  diferenças entre as linhas não estão separadas** e nenhuma afirmação pode atribuir a
+  queda a uma delas: o objeto que somava as janelas Qua→Qui dentro do mês foi retirado
+  por decisão do autor no fim da rodada, com todos os seus números, e a única agregação
+  mensal é a do painel — a última cotação do mês de referência nos vértices do DI e no
+  CDS, a média mensal no câmbio. Tanto a afirmação de que a agregação vira o sinal
+  quanto a de que ela destrói a separação dos autovalores foram **revertidas**.
+  Fontes: `notas/2026-09-22_condicao_het_svars.md`,
+  `output/het/het_conditions.md`, `arquivo/heterocedasticidade/README.md`.
 
 - [x] **Enquadramento do GMR no paper — ENCERRADO SEM ENTRAR (2026-08-17).** A
   recomendação viva era usar o GMR como *teste*, não como estimativa concorrente,

@@ -897,10 +897,130 @@ pontos trocam de sinal, todos em `yield_6m` (8) e `cambio_usd` (4), em horizonte
 resposta cruza zero — o horizonte de cruzamento andou. Os sinais de impacto não mudam:
 `ibc_br` −0,725, `cambio_usd` +0,081, `cds_5y` +15,68 pb, `yield_6m` +0,005 por normalização.
 
-**⚠ A figura fica duas vintages atrás.** `paper/fig_weak_iv_main.pdf` está congelada atrás de
-`--repaint-paper-figures` desde 2026-09-08, e agora o lado VAR dela também é de outra célula.
-`script/fig_weak_iv.R` foi repontuado para `_p4`, então a rodada editorial do Tema A pinta a
-célula nova — mas até lá a figura publicada mostra `_p2` na janela antiga, e a legenda ainda
-anuncia *wild bootstrap* no DFM.
+**A figura foi repintada em 2026-09-21**, na migração da §5
+(`notas/2026-09-21_migracao_secao_5.md`): `paper/fig_weak_iv_main.pdf` mostra agora a célula
+`_p4` na janela de produção contra o DFM `(5,5,4)`, e a legenda anuncia conjuntos
+Anderson-Rubin nos dois modelos.
 
 **Não reabrir sem evidência nova.**
+
+---
+
+## 16. A §5.3 (FOMC) sai do paper (2026-09-21)
+
+**Decisão do autor.** A subseção `O filtro de sinal seleciona notícias do FOMC?` foi excluída
+inteira do `paper/paper_anpec.tex`, com `eq:fomc-contamination` e o `\label{sec:fomc}`. A
+única referência cruzada a ela estava num parágrafo já comentado, que saiu junto. Nenhuma
+`\cite` morreu: o orçamento segue em 21 chaves das 25.
+
+**Por quê.** Ela reportava a janela 2013-01, com 62 dias retidos pelo filtro, contra os 65
+meses com instrumento não nulo da produção corrente, e `arquivo/script/fomc_coincidence.R` foi
+arquivado em 2026-09-18 sem reexecução porque abortava contra a produção. Os números seguem
+em `output/instrument/fomc_coincidence.md`, com a vintage declarada.
+
+**O que a exclusão não apaga.** O veredito de 2026-08-24 continua no registro: as regressões
+com interação são nulas, mas a máscara global rederivada do exercício FOMC derruba `ξ_mp` para
+3,671, abaixo de 3,84, o que o registro classifica como **sinal fraco de contaminação FOMC**.
+O paper nunca reportou essa ressalva, por decisão de 2026-08-25, e segue não reportando.
+
+---
+
+## 17. O diagnóstico de heterocedasticidade volta ao código (2026-09-21)
+
+> **Superada em parte pela §18.** Os testes que voltaram nesta data saíram em 2026-09-22:
+> a bateria foi reduzida ao teste do pacote `svars`, e `script/het_proportionality.R`
+> virou `script/het_conditions.R`. Os valores-p citados abaixo são descontinuados.
+
+**Decisão do autor, e uma reversão parcial de 2026-09-01.** Naquela data todo o código
+dedicado à rota de heterocedasticidade saiu do repositório. Em 2026-09-21, para reestimar a
+§5.1 na produção, voltaram **apenas os testes**: `R/identification/het_tests.R` (regimes
+mensais, split por regime, teste de proporcionalidade de Rigobon, placebo de permutação,
+distinção de autovalores) e `script/het_proportionality.R`, recuperados de `9c25fee^` e
+portados para a API corrente.
+
+**O que não voltou, e não volta:** `ident_het_regimes()` e `het_shock_extraction.R`, a
+identificação propriamente dita. Nenhuma IRF pode sair deste ramo, e a identificação por
+heterocedasticidade segue abandonada desde 2026-08-17 (§0 e
+`arquivo/heterocedasticidade/`). O que voltou é o diagnóstico que o paper **já reportava**
+como resultado negativo desde 2026-09-01, agora reprodutível contra a produção em vez de
+citado de uma vintage anterior.
+
+**O que a reestimação achou.** O veredito não mudou — 0 de 37 células sobrevivem a Holm, nas
+duas janelas —, mas o `p_boot` da célula de produção é marginal: 0,0508 contra os 0,0559 da
+vintage `(4,4,4)`, e o valor-$p$ assintótico da mesma estatística, 0,0057, rejeitaria. O paper
+reporta os dois e diz qual é lido. A linha diária passou a ser recomputada de uma fixture
+comitada (`output/validation/het_daily_changes_referee2.csv`) em vez de citada de uma linha de
+prosa arquivada cujo ponteiro (`hetero_results.json`) não existia no disco.
+
+**Não reabrir a identificação sem evidência nova.**
+
+---
+
+## 18. A bateria de heterocedasticidade reduzida ao teste do `svars` (2026-09-22)
+
+**Decisão do autor.** A `tab:het_frequency` era sustentada por cinco estatísticas — teste
+de proporcionalidade de Mauchly, gap λ₁−λ₂, `ratio_dir`, `rank1_share` e placebo de
+permutação. Nenhuma delas é o que a literatura roda. Rigobon (2003) enuncia **uma**
+condição de identificação, a de posto, eq. (6), e mostra no Apêndice A que ela falha se e
+somente se as covariâncias dos dois regimes forem proporcionais; os cinco números do
+projeto eram faces da mesma condição, ou construção própria sem contrapartida publicada.
+
+**O que passou a valer.** A condição é testada pela estatística sequencial `Qr` de
+Lütkepohl, Meitz, Netšunajev e Saikkonen (2021), implementada no pacote `svars`, sobre a
+distinção dos autovalores de `Λ` em `Σ_NC = BB'`, `Σ_C = BΛB'` — a forma multivariada da
+condição de posto. O estimador é o do próprio pacote.
+
+**O que saiu, e não volta como estatística reportada:** as cinco acima, com todos os
+números que produziram (`p_boot` 0,0508, LR 135,1290, gap 0,7415, razão 1,9630, o critério
+de 0,20, a varredura de 37 células com Holm). Saiu também a quarta vertente da rodada de
+2026-09-21 — o VAR sobre a soma mensal das variações Qua→Qui — e a decomposição do
+mecanismo de agregação que só ela sustentava. **A afirmação de que a agregação temporal
+vira o sinal foi revertida do registro.**
+
+**E saiu, no fim da mesma rodada, o último resto daquela vertente: a soma das janelas
+Qua→Qui dentro do mês de calendário**, que sobrevivera como diagnóstico escalar da
+comparação "antes e depois". Decisão do autor. **A única agregação mensal que existe é a
+do painel de produção** — a última cotação do mês de referência nos vértices do DI
+(`script/download.R:149`) e no CDS (`:309`), a média mensal no câmbio
+(`R/data_download/exchange.R:103`). Os números daquela linha são **descontinuados**: no
+vértice de 3 meses a = 8,735, determinante normalizado 74,65, `Qr` 6,73, p 0,0346; a 6
+meses 34,4 e 0,1051; a 12 meses 18,0 e 0,2549. Com eles sai a afirmação **oposta** à que
+já fora revertida — a de que a agregação temporal *não* é o obstáculo e a variação de
+calendário *é*. Nenhuma das duas tem medida que a sustente, e o paper não afirma nenhuma.
+
+**Uma correção no mesmo dia, apontada pelo autor.** O conjunto que o projeto chamava de
+"linha diária publicada" — DI de 3 meses, DI de 2 anos, Ibovespa e câmbio — **não é o de
+GRG**. A Tabela 1 deles traz o DI (1m, 3m, 6m, 12m), o *breakeven* de inflação (1, 2, 3 e 5
+anos), o câmbio BRL/USD e o **CDS soberano de 5 anos**; não há Ibovespa nem vértice de 2
+anos. Os dois sistemas passaram a usar as séries deles. A expectativa fica de fora por falta
+de dado: o projeto só tem a medida do Focus, que é survey e tem 23% de variações diárias
+exatamente zero, e a lacuna fica declarada.
+
+**O que o teste achou.** As mesmas três séries **identificam no diário e não no mensal**. No
+vértice de 3 meses o diário rejeita `λ₁ = λ₂` (`Qr` 11,43, p 0,0033, λ₁ 7,55 contra 1,36); o
+VAR mensal nas mesmas três séries não rejeita em nenhum vértice (p 0,917 a 0,988), com os
+dois maiores autovalores praticamente coincidindo e o determinante normalizado de eq. (6)
+caindo de 40,8 para −0,03 — **proporcionalidade**, o modo de falha que Rigobon aponta. ⚠
+Entre as duas linhas mudam **duas** coisas ao mesmo tempo, a frequência e a troca da janela
+de anúncio pela variação de calendário, e **nada aqui separa uma da outra**: nenhuma
+afirmação pode atribuir a queda a uma das duas. Tornar a regra uniforme não muda o veredito
+— com o câmbio também em fim de mês, p vai a 0,5445 / 0,8362 / 0,5703 e o determinante fica
+dentro de ±0,34, ainda sem rejeitar em nenhum vértice. As cinco inovações fatoriais não
+rejeitam a 5% (0,0761).
+
+⚠ **Duas ressalvas que viajam junto.** O **vértice** decide no diário: de 3 para 6 e 12
+meses p vai de 0,0033 a 0,0844 e 0,1474, acompanhando a queda da razão de variância do DI
+com a maturidade nos próprios GRG. E a **correção de curtose** do teste também: com excesso
+de curtose 12,7 no regime sem reunião ela divide a estatística por 4,9, e sem ela as três
+células diárias rejeitariam. A corrigida é a válida, e é a que a `tab:het_frequency`
+reporta.
+
+⚠ **`svars::id.cv()` não pode ser chamado direto** para um regime recorrente: seu ramo de
+indicador seleciona as linhas com `u[SB, ]` e só é alcançável com `SB` numérico, então um
+0/1 indexa por posição e a estimativa colapsa para `Λ = I` sem aviso.
+`fit_het_cv()` chama o estimador como o próprio `id.cv()` o chama internamente e guarda o
+resultado contra a decomposição generalizada em forma fechada.
+
+**A identificação segue abandonada** para o artigo (§0, 2026-08-17). O que esta decisão
+muda é a estatística do diagnóstico que a §5.1 publica, e o conteúdo da pasta em quarentena
+`het_rigobon/`. Nota: `2026-09-22_condicao_het_svars`.

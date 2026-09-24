@@ -5,10 +5,22 @@
 passou a ser reportado no paper em 2026-09-01, sem reativar a rota como
 especificação ou robustez.
 
-> **Vintage corrente do diagnóstico mensal:** painel de 115 séries,
-> `(r,q,p)=(4,4,4)`, reestimado em 2026-09-01. Os artefatos anteriores a essa
-> rodada foram sobrescritos. A réplica diária preservada usa o sistema financeiro
-> de quatro variáveis e serve como contraste de frequência.
+> **Vintage corrente do diagnóstico mensal:** desde 2026-09-21 ela **não está
+> mais aqui**, e desde 2026-09-22 a estatística é outra. O diagnóstico roda na
+> produção `(5,5,4)` sob a escala de Lenza-Primiceri por `script/het_conditions.R`
+> e `R/identification/het_tests.R`, e o teste é o `Qr` sequencial de Lütkepohl et
+> al. (2021) do pacote `svars`, não mais o teste de proporcionalidade de Mauchly.
+> **Todo valor-p desta pasta é descontinuado**, não apenas antigo. Os artefatos
+> vivos ficam em `output/het/` e a nota é `notas/2026-09-22_condicao_het_svars.md`.
+> O que
+> esta pasta guarda é a vintage anterior: painel de 115 séries, `(r,q,p)=(4,4,4)`,
+> reestimado em 2026-09-01, e a réplica diária de quatro variáveis, cuja fixture
+> foi copiada para `output/validation/het_daily_changes_referee2.csv` para que
+> nenhum caminho vivo leia de `arquivo/`.
+>
+> **A identificação continua morta.** O que voltou ao código foi a bateria de
+> testes; `ident_het_regimes()` e `het_shock_extraction.R` seguem removidos, e
+> nenhuma IRF sai desse ramo.
 
 ## Veredito
 
@@ -24,13 +36,17 @@ Reprovada em **duas frentes**, com dois anos de calendário de projeto entre ela
    nenhuma das 100 células sobrevive à correção de Holm.
 
 **A leitura que sobrevive:** a heterocedasticidade que identifica no diário
-(Rigobon-Sack) não sobrevive à agregação mensal. Sem coluna separável não há
+(Rigobon-Sack) não se transporta para o objeto mensal. ⚠ Desde 2026-09-22 o
+projeto não atribui essa falha à agregação temporal: entre o diário e o mensal
+mudam a frequência e o tipo de variação ao mesmo tempo, e nada separa as duas.
+Sem coluna separável não há
 direção monetária, e por isso **nunca houve estágio de IRF** neste ramo — qualquer
 IRF ali seria número sem identificação atrás.
 
 **Ponta solta declarada e nunca tentada:** heterocedasticidade *condicional*
 (GARCH-SVAR, Lanne-Saikkonen 2007 / Normandin-Phaneuf 2004), que dispensa datas
-de regime. É outro ramo, não Rigobon; `svars` não está instalado.
+de regime. É outro ramo, não Rigobon; nunca foi tentado, ainda que o `svars`
+esteja instalado desde 2026-09-22 para o teste de identificação.
 
 ## O que permanece aqui
 
@@ -42,7 +58,10 @@ de regime. É outro ramo, não Rigobon; `svars` não está instalado.
 | `_instrucoes/` | `Heteroscedasticidade.md`, `plano_reimplementacao_het.md` |
 
 O código exclusivamente dedicado à rota foi removido do repositório em
-2026-09-01. Ele permanece recuperável pelo histórico Git. A correspondência
+2026-09-01. Ele permanece recuperável pelo histórico Git, e em **2026-09-21 a
+metade de diagnóstico foi recuperada** de `9c25fee^` e portada para a API
+corrente, em `R/identification/het_tests.R` e `script/het_conditions.R`, que em
+2026-09-22 foi reescrito sobre o estimador e o teste do pacote `svars`. A correspondência
 externa e sua réplica Python ficaram intactas porque pertencem ao registro
 verbatim do parecer, não ao código ativo do projeto.
 

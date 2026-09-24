@@ -94,6 +94,72 @@ Escreve a verossimilhança concentrada que estima θ, que faltava, e corta três
 blocos de prosa defensiva por decisão do autor. Rodada editorial: nada foi
 reestimado.
 
+**A condição de identificação por heterocedasticidade reduzida ao teste do `svars` (2026-09-22):**
+[`2026-09-22_condicao_het_svars`](2026-09-22_condicao_het_svars.md)
+**CURRENT.** A bateria de cinco estatísticas do projeto foi **retirada** e substituída pelo
+teste do pacote `svars`, e os dois sistemas passaram a usar **as séries de GRG**: DI, câmbio
+BRL/USD e CDS soberano de 5 anos. ⚠ O que o projeto chamava de "linha diária publicada"
+(DI 3m, DI 2a, Ibovespa, câmbio) **não era o conjunto deles** — GRG não usam Ibovespa nem o
+vértice de 2 anos. A quarta série deles, expectativa de inflação, é *breakeven* de títulos,
+que o projeto não tem (só Focus, survey, com 23% de variações diárias exatamente zero); a
+lacuna fica declarada. Rigobon (2003) enuncia **uma** condição, a de posto, que falha se e
+somente se as covariâncias forem proporcionais; testada pelo `Qr` sequencial de Lütkepohl
+et al. (2021). **As mesmas três séries identificam no diário e não no mensal**: diário
+rejeita no vértice de 3 meses (`Qr` 11,43, p 0,0033, λ₁ 7,55 contra 1,36), e o VAR mensal
+não rejeita em nenhum vértice (p 0,917 a 0,988), com λ₁ ≈ λ₂ e determinante de eq. (6)
+caindo de 40,8 para −0,03 — proporcionalidade. ⚠ **As duas diferenças entre as linhas — a
+frequência e a troca da janela de anúncio pela variação de calendário — não estão
+separadas**, e nenhuma afirmação pode atribuir a queda a uma delas: o objeto que somava as
+janelas Qua→Qui dentro do mês foi **retirado por decisão do autor** no fim da rodada, e a
+única agregação mensal é a do painel, a última cotação do mês de referência. Inovações
+fatoriais, p 0,0761. ⚠ **O vértice decide no diário** (0,0033 / 0,0844 / 0,1474, acompanhando
+a queda da razão de variância do DI com a maturidade em GRG) e ⚠ **a correção de curtose
+também** (÷4,9; sem ela as três células diárias rejeitariam). ⚠ `svars::id.cv()` **não pode
+ser chamado direto** — seu ramo de indicador recorrente está quebrado e colapsa para `Λ = I`
+em silêncio. Nas IRFs em quarentena, a célula identificada **fecha** o CDS 4,2 p.b. e
+**aprecia** o real 1,53% — o sinal de GRG nas duas séries; o VAR mensal não identifica e seu
+ponto não é interpretável. **A afirmação de que a agregação temporal vira o sinal foi
+revertida do registro, e a afirmação oposta — de que ela não é o obstáculo — saiu junto com
+a linha somada que a sustentava.** §5.1, `tab:het_frequency`, resumo PT/EN, introdução, §2 e
+conclusão reescritos.
+A rota het segue **abandonada** para o artigo.
+
+
+**Auditoria do estimador `svars` e atenuação mensal (2026-09-22):**
+[`2026-09-22_auditoria_het_cv`](2026-09-22_auditoria_het_cv.md)
+confere `fit_het_cv()` contra o próprio `svars::id.cv()` num caso com quebra
+contígua, padronizado: `Λ`, a tabela `Qr` e `BB'` idênticos, e o colapso do
+`id.cv()` nas unidades cruas fixado como o motivo da padronização. Entra a 7ª
+trava, `script/validation/validate_het_cv.R`, cuja identidade
+`Qr_nk/fator = Qr` a `8,9e-15` prova que o `qr_without_kurtosis()` carrega a
+curtose do pacote (convenção `TB`): κ e fator de curtose mudam na 3ª casa
+(12,6735/2,2525 → 12,6435/2,2949; 4,8459 → 4,8773), `Qr` e `p` não. O
+diagnóstico de quarentena `het_rigobon/03_atenuacao.R` mede a diluição temporal
+prevista contra a razão mensal observada (DI 3m 1,220 contra 1,381; DI 12m 1,080
+contra 2,686; CDS 0,997 contra 2,274): a diluição sozinha preveria razões
+próximas de 1 e o observado excede em todas as séries, mas **nada atribui a queda
+da condição à agregação temporal nem à variação de calendário**. Declara ainda
+os testes conjuntos da linha fatorial — `λ₁=…=λ₄` p 0,0208 e `λ₁=…=λ₅` p 0,0127
+rejeitam a 5%, contra `λ₁=λ₂` p 0,0761, que é o par que decide a coluna — e a
+distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
+(diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
+produção; os cinco impactos do smoke test saíram bit-idênticos.
+
+**A §5 do paper migrada, com a §5.1 reestimada e a §5.3 excluída (2026-09-21):**
+[`2026-09-21_migracao_secao_5`](2026-09-21_migracao_secao_5.md)
+leva a §5 para a produção corrente e fecha a metade §5 da sincronização aberta
+em 2026-09-08. A §5.2 ganha os cinco impactos novos (IBC-Br −0,66% e −0,73%,
+BRL/USD +3,23% e +2,02%, CDS +30,5 e +15,7 p.b.), o parágrafo de defasagens
+**invertido** — os dois modelos agora usam a mesma janela e `p=4` — e a
+persistência reescrita horizonte por horizonte, porque os conjuntos de 90% não
+são blocos contíguos. Entra o número inconveniente: **o VAR tem *price puzzle* a
+90% e o DFM não**. `fig:weak_iv_main` repintada, com a legenda em Anderson--Rubin
+nos dois modelos. A §5.1 é reestimada em `(5,5,4)` sob a escala LP com inovações
+padronizadas: o veredito **não muda** — 0 de 37 células sobrevivem a Holm — mas o
+`p_boot` de produção é marginal, 0,0508, e o assintótico da mesma estatística
+rejeitaria. ⚠ **A §4 passou a contradizer a §5** em BRL/USD e CDS: a §4 é a
+errada, e sua migração segue não agendada.
+
 **Fidelidade a Lenza-Primiceri: o que o artigo autoriza (2026-09-16):**
 [`2026-09-16_fidelidade_lenza_primiceri`](2026-09-16_fidelidade_lenza_primiceri.md)
 audita a rodada de 09-14 contra o artigo, equação por equação, e classifica cada
