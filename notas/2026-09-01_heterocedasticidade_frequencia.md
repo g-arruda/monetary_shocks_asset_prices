@@ -1,5 +1,10 @@
 # Identificação por heterocedasticidade e frequência dos dados
 
+> **SUPERADA — 2026-09-22.** O veredito (het fora da produção) não mudou, mas a
+> estatística mudou: o teste de proporcionalidade desta nota saiu do projeto, e a
+> condição passou a ser testada pelo `Qr` do pacote `svars`. Os valores-p aqui são
+> **descontinuados**. Ver `2026-09-22_condicao_het_svars`.
+>
 > **CURRENT — diagnóstico negativo reestimado em 2026-09-01.** Painel mensal de
 > produção com 115 séries, `(r,q,p)=(4,4,4)`. Este exercício não altera a
 > identificação de produção por `z_jk_bs_purif` nem gera IRFs alternativas.

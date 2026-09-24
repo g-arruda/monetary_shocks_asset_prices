@@ -1,0 +1,24 @@
+sistema,frequencia,vertice,ordem,lambda,lambda_se
+Tres observaveis de GRG,Diaria,3 meses,1,7.548765407762117,1.1506702454671476
+Tres observaveis de GRG,Diaria,3 meses,2,1.3611156957184374,0.20747481320406921
+Tres observaveis de GRG,Diaria,3 meses,3,0.676376182291206,0.10311309520492605
+Tres observaveis de GRG,Diaria,6 meses,1,4.063070070973952,0.6193395825132795
+Tres observaveis de GRG,Diaria,6 meses,2,1.3569563338305384,0.20684111817163794
+Tres observaveis de GRG,Diaria,6 meses,3,0.6503995133283135,0.09915443113534547
+Tres observaveis de GRG,Diaria,12 meses,1,3.630596352011041,0.5534208036021772
+Tres observaveis de GRG,Diaria,12 meses,2,1.4013133281612156,0.21360298148914292
+Tres observaveis de GRG,Diaria,12 meses,3,0.6683368335464914,0.1018880669443109
+Tres observaveis de GRG (VAR),Mensal,3 meses,1,2.509324002400523,0.591925724313709
+Tres observaveis de GRG (VAR),Mensal,3 meses,2,2.359270868951377,0.5566117046000306
+Tres observaveis de GRG (VAR),Mensal,3 meses,3,1.266032257028065,0.29857301869914876
+Tres observaveis de GRG (VAR),Mensal,6 meses,1,3.0741737762870303,0.7251537608421942
+Tres observaveis de GRG (VAR),Mensal,6 meses,2,2.588252993770242,0.610670267750507
+Tres observaveis de GRG (VAR),Mensal,6 meses,3,1.4043691127771647,0.33122977201492987
+Tres observaveis de GRG (VAR),Mensal,12 meses,1,2.85309005600323,0.672910123981027
+Tres observaveis de GRG (VAR),Mensal,12 meses,2,2.440267817926048,0.575728503053136
+Tres observaveis de GRG (VAR),Mensal,12 meses,3,1.42112886508996,0.3352042719897439
+Cinco inovacoes fatoriais,Mensal,--,1,4.034367551144955,0.9530703145068606
+Cinco inovacoes fatoriais,Mensal,--,2,1.6789301068920335,0.3964879019481469
+Cinco inovacoes fatoriais,Mensal,--,3,1.2455796590394232,0.2941926590908946
+Cinco inovacoes fatoriais,Mensal,--,4,0.8472662176750331,0.20011009287820328
+Cinco inovacoes fatoriais,Mensal,--,5,0.725899380660315,0.17148616828172034

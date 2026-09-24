@@ -1,0 +1,29 @@
+sistema,vertice,hipotese,estatistica,gl,p
+Tres observaveis de GRG,3 meses,lambda_ 1 =lambda_2,11.434151184040639,2,0.003289316153067934
+Tres observaveis de GRG,3 meses,lambda_ 1 =lambda_2=lambda_3,26.859417205661757,5,6.0752905081673525e-5
+Tres observaveis de GRG,3 meses,lambda_ 2 =lambda_3,2.081507146362517,2,0.3531884283230653
+Tres observaveis de GRG,6 meses,lambda_ 1 =lambda_2,4.945096497586994,2,0.08436959013247247
+Tres observaveis de GRG,6 meses,lambda_ 1 =lambda_2=lambda_3,14.44314701669666,5,0.0130265062354179
+Tres observaveis de GRG,6 meses,lambda_ 2 =lambda_3,2.281187896062194,2,0.3196291223387817
+Tres observaveis de GRG,12 meses,lambda_ 1 =lambda_2,3.829000412611309,2,0.14741549151060152
+Tres observaveis de GRG,12 meses,lambda_ 1 =lambda_2=lambda_3,12.299311816784348,5,0.030908888201523377
+Tres observaveis de GRG,12 meses,lambda_ 2 =lambda_3,2.348555749634903,2,0.3090420661885971
+Tres observaveis de GRG (VAR),3 meses,lambda_ 1 =lambda_2,0.024592796802742067,2,0.9877788933835547
+Tres observaveis de GRG (VAR),3 meses,lambda_ 1 =lambda_2=lambda_3,3.409518958066283,5,0.6371205721926724
+Tres observaveis de GRG (VAR),3 meses,lambda_ 2 =lambda_3,2.467166990196076,2,0.29124702315018314
+Tres observaveis de GRG (VAR),6 meses,lambda_ 1 =lambda_2,0.1741792099128793,2,0.9165949605018413
+Tres observaveis de GRG (VAR),6 meses,lambda_ 1 =lambda_2=lambda_3,3.694446711888172,5,0.5941905907899999
+Tres observaveis de GRG (VAR),6 meses,lambda_ 2 =lambda_3,2.1686990189458317,2,0.3381216593105564
+Tres observaveis de GRG (VAR),12 meses,lambda_ 1 =lambda_2,0.14400928474149982,2,0.9305265759518203
+Tres observaveis de GRG (VAR),12 meses,lambda_ 1 =lambda_2=lambda_3,2.9506954002816803,5,0.7075871177748749
+Tres observaveis de GRG (VAR),12 meses,lambda_ 2 =lambda_3,1.7043756159862535,2,0.42648085231025834
+Cinco inovacoes fatoriais,--,lambda_ 1 =lambda_2,5.152608914658158,2,0.07605454815017187
+Cinco inovacoes fatoriais,--,lambda_ 1 =lambda_2=lambda_3,10.831455956894438,5,0.05482603818377507
+Cinco inovacoes fatoriais,--,lambda_ 1 =lambda_2=lambda_3=lambda_4,19.571334509653965,9,0.020750199457494234
+Cinco inovacoes fatoriais,--,lambda_ 1 =lambda_2=lambda_3=lambda_4=lambda_5,28.362165272568017,14,0.012732221060120175
+Cinco inovacoes fatoriais,--,lambda_ 2 =lambda_3,0.6140690167456722,2,0.7356252152400516
+Cinco inovacoes fatoriais,--,lambda_ 2 =lambda_3=lambda_4,3.1747728885993904,5,0.6730614981244135
+Cinco inovacoes fatoriais,--,lambda_ 2 =lambda_3=lambda_4=lambda_5,6.0127853258410084,9,0.7386380009918448
+Cinco inovacoes fatoriais,--,lambda_ 3 =lambda_4,1.0204578963544637,2,0.6003581121810289
+Cinco inovacoes fatoriais,--,lambda_ 3 =lambda_4=lambda_5,2.199475741347277,5,0.820911691515907
+Cinco inovacoes fatoriais,--,lambda_ 4 =lambda_5,0.1651123532753377,2,0.9207597112192266
