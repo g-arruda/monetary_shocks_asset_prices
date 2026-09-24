@@ -1,0 +1,7 @@
+vertice,var,het_diario,identificado_diario,het_mensal,identificado_mensal
+3 meses,yield_3m,50,TRUE,50,FALSE
+3 meses,cds_5y,-4.160369926892124,TRUE,-80.52339860917193,FALSE
+3 meses,cambio_usd,-1.5294378023752782,TRUE,-4.017631422827309,FALSE
+6 meses,yield_6m,50,FALSE,50,FALSE
+6 meses,cds_5y,-4.1056568624307355,FALSE,-1.1043057569841408,FALSE
+6 meses,cambio_usd,-1.281987438422469,FALSE,0.9294821007185271,FALSE
