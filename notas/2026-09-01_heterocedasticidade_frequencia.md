@@ -62,6 +62,10 @@ externos foram preservados como evidência auditável.
 - `arquivo/heterocedasticidade/output/het/het_gate_grid.csv`: grade de
   calendário e correção de Holm.
 - `arquivo/heterocedasticidade/output/het/het_verdict.csv`: veredito agregado.
-- `arquivo/relatorio/correspondence/referee2/replication/hetero_results.json`:
-  fixture diária preservada.
+- `arquivo/relatorio/correspondence/referee2/replication/referee2_daily_changes.csv`:
+  fixture diária preservada. **Correção de 2026-09-21:** esta nota apontava para
+  um `hetero_results.json` que não existe no disco; a fixture é o CSV de
+  variações Qua→Qui acima, copiado nessa data para
+  `output/validation/het_daily_changes_referee2.csv`, de onde
+  `script/het_proportionality.R` a recomputa.
 - `paper/paper_anpec.tex`: texto e tabela publicados.
