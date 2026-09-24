@@ -145,6 +145,22 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**A §4 do paper migrada, com as oito figuras repintadas (2026-09-24):**
+[`2026-09-24_migracao_secao_4`](2026-09-24_migracao_secao_4.md)
+**CURRENT.** Fecha a sincronização aberta em 2026-09-08: a §4 sai do cache de
+produção, as oito figuras são repintadas com conjuntos Anderson--Rubin e
+`script/fig_section5.R` perde a trava `--repaint-paper-figures`. Nada reestimado;
+os 140 números da prosa batem com o cache, e a contradição com a §5.2 some
+(BRL/USD 3,23%, CDS 30,5 p.b.). A leitura muda em cinco blocos: todos os vértices
+da curva têm pico em h3 e cruzam zero entre h14 e h16; **o IBC-Br não fica
+positivo em 36 meses** (90% de h6 a h24); **o IPCA não fica positivo em nenhum
+horizonte**; curva e risco soberano ainda estão no vale em h36. ⚠ Dois números
+inconvenientes entram no texto: a fase positiva das ações é significativa a 90%
+em cinco índices, e o impacto em nenhum; a NFSP primária fica positiva e
+significativa de h18 a h32. Fora da §4, só números e datas no resumo, na
+introdução e na conclusão; as frases de argumento que a leitura nova enfraquece
+ficaram para o autor (Tema A).
+
 **A §5 do paper migrada, com a §5.1 reestimada e a §5.3 excluída (2026-09-21):**
 [`2026-09-21_migracao_secao_5`](2026-09-21_migracao_secao_5.md)
 leva a §5 para a produção corrente e fecha a metade §5 da sincronização aberta
@@ -157,8 +173,8 @@ são blocos contíguos. Entra o número inconveniente: **o VAR tem *price puzzle
 nos dois modelos. A §5.1 é reestimada em `(5,5,4)` sob a escala LP com inovações
 padronizadas: o veredito **não muda** — 0 de 37 células sobrevivem a Holm — mas o
 `p_boot` de produção é marginal, 0,0508, e o assintótico da mesma estatística
-rejeitaria. ⚠ **A §4 passou a contradizer a §5** em BRL/USD e CDS: a §4 é a
-errada, e sua migração segue não agendada.
+rejeitaria. ⚠ **A §4 passou a contradizer a §5** em BRL/USD e CDS: a §4 era a
+errada, e foi migrada em 2026-09-24.
 
 **Fidelidade a Lenza-Primiceri: o que o artigo autoriza (2026-09-16):**
 [`2026-09-16_fidelidade_lenza_primiceri`](2026-09-16_fidelidade_lenza_primiceri.md)
@@ -288,6 +304,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-09-24_migracao_secao_4`](2026-09-24_migracao_secao_4.md) | 09-24 | **CURRENT — rodada editorial; nada reestimado** | `paper/paper_anpec.tex` sob a produção de 115 séries, 2012-03--2025-12, `(5,5,4)`, escala LP, conjuntos AR 68/90 | Tudo: a §4 inteira, as oito figuras e suas legendas na vintage de produção; a tabela das cinco trajetórias que mudaram de forma (curva, câmbio e risco, atividade, preços, ações); as seis frases de banda que ficaram falsas e foram reescritas; as correções de número e data no resumo, na introdução e na conclusão. ⚠ A fase positiva das ações e a NFSP primária positiva em h18–h32 são significativas a 90% e estão no texto. ⚠ As frases de argumento do resumo e da conclusão que a leitura nova enfraquece seguem abertas no Tema A |
 | [`2026-09-17_reorganizacao_secao_3`](2026-09-17_reorganizacao_secao_3.md) | 09-17 | **CURRENT — rodada editorial; nada reestimado** | `paper/paper_anpec.tex` sob a produção de 115 séries, 2012-03--2025-12, `(5,5,4)`; branch `feature/lp-volatilidade-producao` | Sobrevivem: a §3 em quatro subseções (modelo e estimação, base de dados, identificação e construção do instrumento, relevância do instrumento e inferência); a migração número a número da janela, das 102 reuniões, da classificação 67/35 e da `tab:first_stage`; o `R²` de 0,022 apurado por `script/instrument.R`, que reproduziu as 11 saídas de `data/processed/` bit a bit; e a verossimilhança concentrada (5c), fiel a `factor_estimation.R:593-595`, que antes não existia no paper. ⚠ **Só a §3 migrou**: §4, §5, `irf_section.md` e as duas legendas *wild bootstrap* seguem em 2013:01--2025:09 e descrevem as figuras como pintadas. ⚠ Saíram por decisão do autor as duas ressalvas dos conjuntos AR (covariância `plug-in` e gate `hac_dim < T`), a nota `y_t → F_t` de Lenza-Primiceri e a troca `c_j' = s_jy Λ_j'` com a nota de MOSW. **O gate segue valendo no código e nos artefatos**: nenhuma banda pré-COVID e nenhum `(8,8)` podem ser publicados como inferência. |
 | [`2026-09-17_volatilidade_covid_producao`](2026-09-17_volatilidade_covid_producao.md) | 09-17 | **CURRENT — o tratamento é produção** | painel 115, 2012-03--2025-12, `(5,5,4)` sob a escala LP; branch `feature/lp-volatilidade-producao` | Sobrevivem: o veredito de viabilidade (ξ_mp 6,847997 cheia, F_rob 11,765250, raiz 0,983677, 2841/2842 conjuntos `interval` por nível); a prova de que a pré-COVID é idêntica tratada ou não, porque `s_t = 1` em todos os seus meses; o roteamento por argumento obrigatório em `run_stage2_cell()`; e a instabilidade de `r >= 7` na cheia (raiz 1,001362 e 1,001318). ⚠ **Viabilidade não é leitura**: a §4 do paper ficou fora por decisão do autor, e a leitura econômica das IRFs tratadas não foi feita. ⚠ O ótimo global de θ̂ segue não confirmado, e isso deixou de ser lacuna sobre um exercício para ser lacuna sobre o número publicado. ⚠ `ar_bands.R` e `irf_spec_stage2.R` ficam OLS de propósito; seus alvos não devem ser sincronizados com `mosw_strength_grid.csv`. |
 | [`2026-09-16_fidelidade_lenza_primiceri`](2026-09-16_fidelidade_lenza_primiceri.md) | 09-16 | **CURRENT — auditoria de fidelidade; nada estimado** | artigo em `artigos/Lenza - How to estimate a vector autoregression after March 2020/`; rodada auditada sob painel 115, 2012-03--2025-12, `(r,p) = (5,4)`; `main`, após `f858fe5` | Sobrevive o mapeamento equação-por-equação e a classificação nas quatro caixas mais a declarada (a★): 8 FIEL, 2 (a★), 12 EXTRAPOLAÇÃO, 8 ENGENHARIA, **0 DIVERGÊNCIA**. Sustentam-se: o ramo implementado é o Apêndice B, exclusivamente; a escala entra só no VAR dos fatores (`factor_estimation.R:946` contra `:950`), de modo que `Λ̂` e `sy` seguem sem tratamento e multiplicam toda IRF; θ̂ sai do objetivo da (B5) exatamente, mas numa caixa que o artigo não fixa, com piso `s̄ ≥ 1` idêntico ao `setpriors_covid.m:225-226` dos autores; e a forma estimada difere da do artigo — ŝ2 = 1,76 contra ≈20, ρ̂ = 0,944 contra ≲0,8, meia-vida 12,01 meses, 70 dos 162 meses com `s_t` ≠ 1 e 19,07 meses-equivalentes reponderados. ⚠ **Zero DIVERGÊNCIA afirma que a justificativa existe, não que esteja certa:** o plug-in em θ̂ não dispõe do argumento de ordem menor, porque θ̂ não é consistente (`…estimacao_theta…:90-104`), e nenhuma das três saídas — teoria limite com θ incidental, AR conjunto em (β,θ), ou integrar θ como o corpo do artigo — foi tentada. ⚠ A diferença do segundo máximo em ρ = 0 tem duas leituras legítimas: **2,6211** contra o máximo livre (a das notas) e **2,6088** contra o máximo da grade. ⚠ O segundo momento não centrado de `factor_estimation.R:964-966` é **inerte em `q = r`** (`:791-796`), logo não age na célula de referência. Não altera a produção e não supersede as três notas de 09-14. |

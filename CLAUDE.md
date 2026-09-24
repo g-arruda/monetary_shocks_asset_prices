@@ -73,8 +73,7 @@ assume OLS with a constant Σ and never ran under the scale, were **removed from
 the code on 2026-09-18**. This is reweighting of the estimation, **not**
 heteroskedasticity identification.
 
-**§3 is current; §4 onward is one vintage behind, in window and in
-inference.** On **2026-09-17** §3 was reorganized into four subsections —
+**The whole paper is on the production vintage since 2026-09-24.** On **2026-09-17** §3 was reorganized into four subsections —
 `Modelo e estimação`, `Base de dados`, `Identificação e construção do
 instrumento`, `Relevância do instrumento e inferência` — and **fully migrated**
 to the production vintage: 2012-03--2025-12, 166 observations, 162 innovations,
@@ -86,7 +85,7 @@ meetings, 67 monetary and 35 information, BS `R²` 0.022. Note:
 chain in order, including the concentrated likelihood that estimates θ and the
 WLS that follows from it.
 
-**§5 is current since 2026-09-21; §4 and `output/irf/irf_section.md` are not.**
+**§5 is current since 2026-09-21.**
 A second pass the same day reshaped `tab:het_frequency` (pre-COVID row out) and rewrote §5.2
 against `como_escrever`, cutting the paragraph that re-explained the Anderson--Rubin sets
 already set out in §3.4. **On 2026-09-22 §5.1 was rebuilt on `goncalves2025`'s own three
@@ -116,15 +115,21 @@ That round migrated `sec:weak_iv` to the production vintage, re-estimated
 `sec:het_frequency` at `(5,5,4)` under the LP scale, repainted
 `fig:weak_iv_main` with Anderson--Rubin sets on both sides, and **deleted §5.3**
 (the FOMC subsection) by author decision. Note:
-`2026-09-21_migracao_secao_5`. **§4 now *contradicts* §5**, it is not merely
-behind it: §4 prints BRL/USD +3,74% and CDS +30,7 bp at impact where §5.2 prints
-+3,23% and +30,5 bp for the same series of the same model. §4 is the wrong one.
-Its migration is a not-yet-scheduled editorial round and depends on the economic
-reading of the IRFs under the LP scale, still open; until then
-`script/fig_section5.R` aborts without `--repaint-paper-figures`, so a stray
-re-run cannot repaint §4's eight figures with an inference its captions do not
-announce. `fig:curva` carries the last *wild bootstrap* caption. See
-`notas/_indice.md` before citing paper numbers as current.
+`2026-09-21_migracao_secao_5`.
+
+**§4 is current since 2026-09-24**, and with it `output/irf/irf_section.md`. The round
+re-estimated nothing: every number comes from `irf_coherence_cell.rds`, and the 140 numbers in
+the prose were checked against it. The eight figures were repainted with Anderson--Rubin sets
+and captions to match, and `script/fig_section5.R` lost its `--repaint-paper-figures` guard. §4
+and §5.2 now agree (BRL/USD +3,23%, CDS +30,5 bp at impact). The prose reports **points**, and
+cites sets only where the previous text cited bands, under the two-tier rule. The reading changed
+shape, not only magnitude: every vertex of the curve peaks at h3, IBC-Br stays negative for 36
+months, and IPCA is never positive. Two inconvenient numbers are in the text: equity returns are
+significant at 90% only in their **positive** phase, never at impact, and the primary NFSP turns
+positive and significant from h18 to h32. Outside §4 only numbers and dates changed, in the
+abstract, introduction and conclusion. The argument sentences that the new reading weakens are
+an open author decision in Tema A. Note: `2026-09-24_migracao_secao_4`. See `notas/_indice.md`
+before citing paper numbers as current.
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
@@ -192,9 +197,10 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Correlation pruning + `(r,q)` on the pruned panel | `panel_pruning.R`, `factor_selection_pruned.R` | `2026-09-10_poda_correlacao_painel` | complete linkage at \|ρ\| ≥ 0.90 drops 9/115 series; Bai-Ng IC2 5 → 3, AH 2 → 1, ABC 9 → 11 (unstable), AW `q = 2` at every `r`; divergence grows (D 10 → 12), underestimation hypothesis contradicted |
 | `q < r` truncation: subspace sufficiency + AK invariance by window | `arquivo/script/q_truncation.R` | `2026-09-10_truncamento_q` | harmless before COVID, distorting after: pre-COVID `p=2` 115/115 series immaterial at `q=3,4`, full sample 0/115; the proxy's covariance sits in the discarded directions (T1 p 0.051/0.039/0.015 full, ≥ 0.22 pre-COVID); rules written after an exploratory pass |
 | COVID volatility (Lenza-Primiceri) in the factor VAR: θ̂ by ML, AR under WLS, steps 3/4 and 4/4 | `covid_volatility_theta.R`, `arquivo/script/q_truncation.R` (cell `cheia_p4_lp`), `q_sensitivity.R` | `2026-09-14_inferencia_volatilidade_covid_q` | **superseded on 2026-09-17: the treatment became production.** θ̂ = (6.61, 12.47, 1.76, 0.944), with a second maximum at ρ = 0 2.6 log-points below; at `q=3` 23/115 series immaterial and 75 material, against 115/115 immaterial pre-COVID `p=2`; the sets condition on θ̂ |
-| §5 migrated, §5.3 deleted | `het_conditions.R`, `fig_weak_iv.R` | `2026-09-21_migracao_secao_5` | §5.2 on the production vintage, `fig:weak_iv_main` repainted in AR on both sides, §5.3 (FOMC) cut by author decision; **§4 now contradicts §5** |
+| §5 migrated, §5.3 deleted | `het_conditions.R`, `fig_weak_iv.R` | `2026-09-21_migracao_secao_5` | §5.2 on the production vintage, `fig:weak_iv_main` repainted in AR on both sides, §5.3 (FOMC) cut by author decision; §4 contradicted §5 until 2026-09-24 |
 | Battery cut to the `svars` test; §5.1 and `tab:het_frequency` rebuilt on `goncalves2025`'s own series | `het_conditions.R`, `het_rigobon/` | `2026-09-22_condicao_het_svars` | Rigobon's single rank condition, tested by the sequential `Qr` of Lütkepohl et al. (2021) via `svars`. Both frequencies now carry **their** three series — DI, BRL/USD, 5y CDS; no Ibovespa, no 2-year DI. Daily rejects at the 3-month vertex (p 0.003, λ₁ 7.55 vs 1.36); **the same three series monthly reject at no vertex** (p 0.917--0.988, λ₁ ≈ λ₂, det 40.8 → −0.03). The two differences between the rows — frequency and announcement window against calendar variation — are **not decomposed**: the summed-window object that had separated them was deleted the same day by author decision, and the only monthly aggregation is the panel's own. Factor innovations 0.076. ⚠ the daily result depends on the vertex (0.003/0.084/0.147) and on the test's kurtosis correction (÷4.9). Five home-grown statistics retired; `svars` installed |
 | Rigobon het: replicação de GRG e IRFs (quarentena) | `het_rigobon/` | `2026-09-22_condicao_het_svars` | a réplica diária **bate** com GRG (razões 3,45/0,98/0,89 contra 3,40/0,92/0,85; ponto deles no IC 95% nas 6 células de câmbio e CDS); o CDS de GRG **fecha**, não é nulo, e a unidade é inferida — §2 corrigida. Na célula diária identificada um aperto de 50 p.b. **fecha** o CDS 4,2 p.b. e **aprecia** o real 1,53%, o sinal deles nas duas séries; o VAR mensal não identifica em nenhum vértice e as inovações fatoriais dão +9,6 p.b. e +1,52% contra +30,5 e +3,23% do proxy, sem rejeitar a 5% |
+| §4 migrated, eight figures repainted | `fig_section5.R` | `2026-09-24_migracao_secao_4` | nothing re-estimated; §4 and §5.2 agree; IBC-Br negative for 36 months and IPCA never positive, so the old hump and recovery prose was false; the positive equity phase and the primary NFSP at h18–h32 are significant at 90% and are in the text |
 
 ## ⚠ Prohibitions
 

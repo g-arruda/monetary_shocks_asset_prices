@@ -65,12 +65,12 @@ FOMC**. Esta ressalva permanece no registro e nos artefatos, mas o paper reporta
 apenas os exercícios que mantêm fixa a máscara de produção, por decisão do
 autor em 2026-08-25.
 
-O paper, as figuras e `output/irf/irf_section.md` ainda usam a vintage DFM
-anterior. A sincronização editorial ficou explicitamente para uma rodada
-posterior. Grades
+Desde 2026-09-24 o paper inteiro, as figuras da §4 e `output/irf/irf_section.md`
+estão na vintage de produção (`notas/2026-09-24_migracao_secao_4.md`). Grades
 históricas de painel, `(r,q)` e instrumento condicionadas a `p=6` permanecem
 evidência datada e não foram reestimadas. O benchmark VAR em níveis continua
-separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
+separado, na janela e no `p=4` do DFM desde 2026-09-21, com seus conjuntos
+AR/MOSW próprios.
 
 ---
 
@@ -80,13 +80,11 @@ separado, em `p=2`, com seus conjuntos AR/MOSW próprios.
 |---|---|---|
 | B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ a poda de 2026-09-10 deu veredito contrário à hipótese de subestimação que o e-mail usava como amarração |
 | B | Verificar se `(5,5,4)` cruza o limiar mínimo de Anderson-Rubin e comunicar ao orientador | passo 1/4 do e-mail de 13-09; ⚠ a produção já responde isso (ξ_mp = 6,847997 > 3,84 sob a escala LP; 2841 de 2842 conjuntos `interval` por nível em `irf_coherence_h.csv`) — falta formalizar e decidir se fecha o item acima |
-| B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; depende da rodada editorial do Tema A |
+| B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
 | B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; ⚠ perna da cheia tratada feita em 2026-09-14 (`q_narrative_r5p4_covid.*`), a pré-COVID já existia; falta a leitura do autor e o passo 1/4 |
-| A | Sincronizar a §4, `fig_section5.R` e `irf_section.md` com a janela 2012-03 **e** com a inferência AR | aberto em 2026-09-08; §3 migrou em 09-17 e §5 em 09-21, sobrando a §4, suas oito figuras e a legenda da `fig:curva`; `fig_section5.R` segue congelado atrás de `--repaint-paper-figures`; ⚠⚠ a §4 **contradiz** a §5 em BRL/USD (3,74% contra 3,23%) e CDS (30,7 contra 30,5 p.b.) |
-| B | Ler as IRFs sob a escala de volatilidade COVID e escrever a §4 | aberto em 2026-09-17, ao ligar o tratamento em produção; a rodada de 09-17 deu veredito de **viabilidade** (ξ_mp, topologia dos conjuntos, estabilidade), não de leitura econômica; a §4 ficou fora por decisão do autor |
+| A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | B | Confirmar o ótimo global de θ̂ | aberto em 2026-09-17; o perfil varre só ρ, sem multi-start em (s̄0,s̄1,s̄2); deixou de ser lacuna sobre um exercício e virou lacuna sobre o número publicado |
-| A | Repintar as oito figuras da §4 sob a escala LP | aberto em 2026-09-17; mesma rodada editorial da linha acima; `fig_weak_iv.R` já rodou em 2026-09-21 e `fig_section5.R` segue atrás de `--repaint-paper-figures` |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -134,20 +132,19 @@ comparação do IPCA no Tema D e o bloqueador no Tema E. **Nada na auditoria
 contradiz o fato central** — as cinco moedas, a janela pré-COVID e a constelação
 dos placebos empurram câmbio + risco soberano na direção do paper.*
 
-- [ ] **Sincronizar a §4, sua figura e `output/irf/irf_section.md` com a
-  produção corrente** — a §3 migrou em 2026-09-17 e a **§5 em 2026-09-21**
-  (`notas/2026-09-21_migracao_secao_5.md`), com a §5.1 reestimada, a §5.2 nos
-  números novos, `fig:weak_iv_main` repintada e a §5.3 excluída. Sobra a §4, com
-  a janela 2013-01--2025-09, as oito figuras de `script/fig_section5.R` e a
-  legenda da `fig:curva`, a última que ainda diz *wild bootstrap* — método que
-  saiu do código em 2026-09-18 e não tem mais citação no corpo, com
-  `goncalveskilian2004` e `kilian1998small` fora dele.
-  ⚠⚠ **A §4 agora CONTRADIZ a §5, não apenas está atrasada:** a §4 diz que o
-  BRL/USD sobe $3{,}74\%$ e o CDS $30{,}7$ p.b. no impacto, e a §5.2 diz
-  $3{,}23\%$ e $30{,}5$ p.b. para as mesmas séries do mesmo modelo. A §4 é a
-  errada. Enquanto a rodada não acontece, `script/fig_section5.R` aborta sem
-  `--repaint-paper-figures`, de propósito.
-  Depende da leitura econômica das IRFs sob a escala LP, logo abaixo.
+- [ ] **Decidir se o resumo, a introdução e a conclusão absorvem a leitura da
+  §4 migrada.** A rodada de 2026-09-24 reescreveu a §4 e, fora dela, só trocou
+  números e datas, por decisão do autor. Três frases de argumento ficaram
+  enfraquecidas pela leitura nova e não foram tocadas: "o mercado de trabalho
+  responde com defasagem" na conclusão, quando as horas caem 1,23% já no impacto,
+  com 90% excluindo zero; a reversão "altamente sincronizada" do resumo, porque os
+  cruzamentos vão de h11 a h16, mas curva e risco soberano ainda estão no vale em
+  h36; e o silêncio do resumo e da conclusão sobre a atividade negativa por 36
+  meses (IBC-Br com 90% de h6 a h24) e sobre a NFSP primária positiva e
+  significativa de h18 a h32. Duas frases da conclusão foram corrigidas só no
+  fato: as ações ficaram "sem resposta de impacto significativa em nenhum dos sete
+  índices", e a inflação com repasse passou a ser a "inflação ao produtor".
+  Decisão editorial. Nota: `notas/2026-09-24_migracao_secao_4.md` §5.
 - [x] **O que o resumo diz sobre frequência — RESOLVIDO em 2026-09-22.**
   O resumo deixou de explicar a divergência com `goncalves2025` pela frequência ou
   pela agregação e passou a situá-la na **condição de identificação**: ela vale nas
@@ -182,16 +179,19 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   e cuja variação diária é exatamente zero em 23% dos dias. Construir o breakeven a
   partir de NTN-B e LTN é uma rodada de dados, não editorial.
   Nota: `2026-09-22_condicao_het_svars`.
-- [ ] **Ler as IRFs sob a escala de volatilidade COVID e escrever a §4.**
-  A rodada de 2026-09-17 ligou o tratamento em produção com veredito de
-  **viabilidade** — ξ_mp 6,847997, conjuntos `interval` a 68/90%, companheira
-  estável —, não de leitura econômica. A §4 ficou de fora por decisão do autor
-  e é o que falta. Nota: `notas/2026-09-17_volatilidade_covid_producao.md`.
 - [ ] **Confirmar o ótimo global de θ̂.** O perfil de
   `script/covid_volatility_theta.R` varre só ρ, em 101 pontos, sem multi-start
   em `(s̄0, s̄1, s̄2)`. Enquanto o tratamento estava desligado isso era lacuna
   sobre um exercício; desde 2026-09-17 é lacuna sobre o número publicado.
 ### Fechados (contexto)
+
+- [x] **§4, suas oito figuras e `irf_section.md` migrados para a produção
+  corrente, com a leitura das IRFs sob a escala LP — 2026-09-24.** Nada foi
+  reestimado. `fig_section5.R` perdeu a trava, a legenda *wild bootstrap* saiu, e
+  a contradição com a §5.2 some (BRL/USD 3,23%, CDS 30,5 p.b.). A leitura mudou:
+  o IBC-Br não fica positivo em 36 meses, e o IPCA não fica positivo em nenhum
+  horizonte. ⚠ A fase positiva das ações e a NFSP primária em h18–h32 são
+  significativas a 90% e estão no texto. Nota: `2026-09-24_migracao_secao_4`.
 
 - [x] **Resumo corrigido nas duas línguas — 2026-09-21.** Dizia que a importância
   do canal "pode depender da frequência dos dados e da estratégia de identificação";
@@ -424,8 +424,8 @@ coordenados" do e-mail do orientador de 2026-09-13
 - [ ] **Reportar o exercício de poda no paper como robustez que não
   confirmou a hipótese de Boivin-Ng**, com a ressalva de que a queda do
   Bai-Ng para `r=3` pode refletir perda de potência por N menor, não
-  confirmação do mecanismo. Passo 2/4. Depende da rodada editorial do
-  Tema A (paper ainda não sincronizado).
+  confirmação do mecanismo. Passo 2/4. Destravado em 2026-09-24, quando a
+  rodada editorial do Tema A sincronizou a §4.
 - [ ] **Refazer a tabela de sensibilidade `q = 2,...,5` (`r = 5` fixo) nas
   duas janelas — completa ajustada e pré-COVID — uma vez estabilizada a
   especificação principal.** Passo 4/4. ⚠ A perna da cheia ajustada foi
