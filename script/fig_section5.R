@@ -3,33 +3,19 @@
 #
 # Reads the cached production estimation object. NOTHING is re-estimated here.
 #
-# Every IRF figure runs to h = 36 and carries both bands. The eight figures in
-# the results section omit significance markers; the placebo figure retains
-# them. The script writes nine figures in total. The 68% band is read off the
-# darker ribbon.
+# Every IRF figure runs to h = 36 and carries the 68% and 90% Anderson-Rubin
+# sets. The eight figures in the results section omit significance markers;
+# the placebo figure retains them. The script writes nine figures in total.
+# The 68% set is read off the darker ribbon.
 #
 # Output: paper/fig_*.pdf — where paper_anpec.tex reads them (bare
 # filenames, no subdirectory). Repointed 2026-08-05: this used to write into
 # arquivo/tex/img/, so regenerating the figures never reached the canonical
 # paper and the PDFs beside it were stale manual copies.
-#
-# FROZEN since 2026-09-08. The cached estimation object it reads now carries
-# Anderson-Rubin sets, not wild-bootstrap bands, while the captions and the
-# prose in paper_anpec.tex still describe the bootstrap. Running this without
-# the flag would repaint the paper's figures with an inference the paper does
-# not announce. The flag belongs to the editorial round that syncs the two.
 # ===================================================================
 
 rm(list = ls())
 
-if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
-  stop(
-    "The results-section figures are frozen at the wild-bootstrap vintage. ",
-    "output/irf/irf_coherence_cell.rds now carries Anderson-Rubin sets, and ",
-    "paper_anpec.tex still says 'wild bootstrap'. Use ",
-    "--repaint-paper-figures only in the editorial round that syncs the two."
-  )
-}
 H_MAX <- 36L   # every IRF figure stops here
 
 cell  <- readRDS("output/irf/irf_coherence_cell.rds")
