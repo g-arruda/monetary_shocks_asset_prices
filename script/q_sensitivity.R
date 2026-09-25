@@ -15,8 +15,11 @@
 #
 # q = 5 carries its 68/90% Anderson-Rubin sets; q = 2, 3 and 4 are point
 # estimates only, following the Figure A3 design of Alessi and Kerssenfischer
-# (2019). The script only draws: output/factors/<stem>.pdf.
-# Note: notas/2026-09-14_inferencia_volatilidade_covid_q.md
+# (2019). The script only draws: output/factors/<stem>.pdf, the 20 variables
+# to h = 48, and, for --window=cheia, paper/fig_q_sensibilidade.pdf, the
+# paper's Anexo C figure: eight of them to h = 36, in the units of section 4.
+# Notes: notas/2026-09-14_inferencia_volatilidade_covid_q.md,
+# notas/2026-09-24_q_sensibilidade_anexo.md
 # ===================================================================
 
 source("R/modeling/factor_estimation.R")
@@ -55,6 +58,23 @@ VARS <- c(
 )
 H_FIG <- 48L
 OUT_DIR <- "output/factors"
+
+COHERENCE_PATH <- "output/irf/irf_coherence_h.csv"
+PAPER_FIG <- "paper/fig_q_sensibilidade.pdf"
+H_PAPER <- 36L
+# Labels and scales of script/fig_section5.R; an NA scale is its "pct", the
+# response as a percentage of the sample mean
+PAPER_PANELS <- tibble::tribble(
+  ~variable,     ~label,                     ~scale,
+  "yield_2y",    "DI 2 anos (p.b.)",         1e4,
+  "yield_5y",    "DI 5 anos (p.b.)",         1e4,
+  "cambio_usd",  "Câmbio BRL/USD (%)",       NA,
+  "cds_5y",      "CDS 5 anos (p.b.)",        1,
+  "ibc_br",      "IBC-Br (%)",               NA,
+  "price_ipca",  "IPCA cheio (p.p. ao mês)", 1,
+  "asset_ibov",  "Ibovespa (%)",             1,
+  "fiscal_dlsp", "DLSP (p.p. do PIB)",       1
+)
 
 # The pre-COVID window has no COVID month, so s_t = 1 throughout and
 # estimate_dfm() rejects the scale there: OLS is the treated fit
@@ -171,3 +191,44 @@ print(plot_dimension_overlay(
   h_max = H_FIG, ncol = 3, title = "Expectativas", subtitle = ""
 ))
 invisible(dev.off())
+
+if (WINDOW == "cheia") {
+  # The q = 5 line of the annex figure must be section 4's production line
+  production <- paths |>
+    dplyr::filter(q == Q_PRODUCTION, variable %in% PAPER_PANELS$variable, h <= H_PAPER) |>
+    dplyr::inner_join(
+      readr::read_csv(COHERENCE_PATH, show_col_types = FALSE),
+      by = c("variable" = "var", "h"),
+      suffix = c("", "_cache")
+    )
+  stopifnot(
+    nrow(production) == nrow(PAPER_PANELS) * (H_PAPER + 1L),
+    max(abs(production$point - production$point_cache)) < 1e-10,
+    max(abs(production$lo68 - production$lo68_cache)) < 1e-10,
+    max(abs(production$hi68 - production$hi68_cache)) < 1e-10,
+    max(abs(production$lo90 - production$lo90_cache)) < 1e-10,
+    max(abs(production$hi90 - production$hi90_cache)) < 1e-10
+  )
+
+  paper_panels <- PAPER_PANELS |>
+    dplyr::mutate(
+      scale = dplyr::coalesce(scale, 100 / colMeans(raw_data[variable]))
+    )
+  paper_data <- paths |>
+    dplyr::filter(h <= H_PAPER) |>
+    dplyr::inner_join(paper_panels, by = "variable") |>
+    dplyr::mutate(
+      dplyr::across(c(point, lo68, hi68, lo90, hi90), \(x) x * scale),
+      variable = label
+    )
+
+  ggplot2::ggsave(
+    PAPER_FIG,
+    plot_dimension_overlay(
+      paper_data, dplyr::filter(paper_data, q == Q_PRODUCTION), paper_panels$label,
+      palette = Q_PALETTE, linetypes = Q_LINETYPE,
+      h_max = H_PAPER, ncol = 4, title = NULL, subtitle = NULL
+    ),
+    width = 10.4, height = 5.8, device = cairo_pdf
+  )
+}
