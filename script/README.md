@@ -29,6 +29,31 @@ eles `R/data_download/{fred,fomc}.R`, que ficaram sem chamador. O `clean.R`
 passou a impor a ordem das colunas do painel e a tirar o `tcode` do manifesto de
 `infer_tcode_from_varnames()`.
 
+**2026-09-25 — segunda passada da `coding-style` nos 15 scripts de nível
+superior** (`validation/` ficou de fora). Todas as saídas reproduzem a execução
+dos scripts anteriores: CSV byte a byte, `.rds` por `identical()`, PDFs com os
+streams descomprimidos e só a data de criação diferente, o `.md` de
+`factor_selection_pruned.R` só na linha de data e o console de `run_all.R` igual.
+`download.R` não foi executado; os blocos com lógica nova foram conferidos contra
+o código antigo em dados offline. Nenhum script chama mais `rm(list = ls())`.
+Saíram as checagens redundantes:
+- `download.R`: a pré-checagem dos insumos externos fixos, que o preflight de
+  `run_all.R` já faz, e a recusa de argumentos;
+- `mosw_strength_grid.R`: a finitude e o `n_obs` do diagnóstico;
+- `q_sensitivity.R`: a normalização em h=0, que `ident_ext_instr()` garante por
+  construção;
+- `fig_section5.R`: o laço que conferia o `.rds` contra `irf_coherence_h.csv`,
+  que saem da mesma execução;
+- `fig_weak_iv.R`: a finitude e `lo > hi`;
+- `het_conditions.R`: as dimensões do painel e a raiz de produção, que
+  `validate_production_spec.R` declara;
+- `panel_pruning.R`: a contagem de 115 colunas.
+
+Ficaram as travas de decisão do autor, as asserções do método, os auto-testes
+pré-registrados, as checagens que impedem NA silencioso e a integridade dos
+dados baixados. `model_var.R` perdeu uma chamada a `mosw_svar_iv()` cujo
+resultado ninguém lia.
+
 Rodadas anteriores de limpeza:
 - **2026-08-01 e 2026-08-05:** saíram cinco scripts da investigação de
   contaminação de IRF e `diagnose_factor_space_F.R`.
@@ -52,7 +77,7 @@ grupo 1, na ordem em que aparecem.
 | script | o que faz |
 |---|---|
 | `run_all.R` | Orquestrador fim a fim. Roda 4 estágios nomeados (`download`, `clean`, `instrument`, `model`), cada um como subprocesso `Rscript` via `system2`, com `--list/--dry-run/--from/--to/--only/--skip/--skip-existing/--continue-on-error`. Confere as pré-condições de cada estágio (`requires`/`produces`). O estágio `model` só chama `model_alessi.R`: não roda `model_var.R` nem scripts de diagnóstico. |
-| `download.R` | Único ponto de entrada de downloads. Coleta SGS, Focus/Olinda, Yahoo, B3, IPEA e SIDRA, e valida os insumos externos fixos usados. Grava os quatro artefatos diários em `data/raw/` e monta `raw_data.csv`: 113 séries completas na amostra 2012-03–2025-12, incluindo os três indicadores fiscais e as quatro expectativas Focus da produção. `di.csv`, a curva e o CDS Bloomberg continuam externos e nunca são sobrescritos. |
+| `download.R` | Único ponto de entrada de downloads. Coleta SGS, Focus/Olinda, Yahoo, B3, IPEA e SIDRA e lê os insumos externos fixos, cuja presença o preflight de `run_all.R` confere. Grava os quatro artefatos diários em `data/raw/` e monta `raw_data.csv`: 113 séries completas na amostra 2012-03–2025-12, incluindo os três indicadores fiscais e as quatro expectativas Focus da produção. `di.csv`, a curva e o CDS Bloomberg continuam externos e nunca são sobrescritos. |
 | `clean.R` | Filtra 2012-03–2025-12 e aplica log e a cascata X-13 às 113 séries raw. Constrói e audita o ajuste cambial da DLSP e as três expectativas fiscais Focus. Grava a base histórica de 106 séries e monta o painel de produção de 115, removendo `juros_cdi` e `asset_mlcx`. Impõe a ordem de colunas com que todos os outputs foram estimados (preços depois de `epu_*`, fiscais e Focus antes), porque o ABC e o arredondamento da PCA dependem dela. Escreve o manifesto integral em `output/panel/production_series_manifest.csv`, com o `tcode` de `infer_tcode_from_varnames()`. |
 | `instrument.R` | Constrói, desde 2012-03, as três variantes mensais da `tab:first_stage` — `z_bruto`, `z_bs_purif` e a de produção `z_jk_bs_purif` — via `R/instrument/{di_surprise,build_variants}.R`, com antecedentes diários desde 2011-09 (`TARGET_BD=126`, soma JK). Escreve `data/processed/instrumentos_mensais.csv`, o legado `data/processed/instrument.csv` e o painel diário `copom_event_diagnostics.csv`. |
 | `model_alessi.R` | Script de produção do DFM principal. Traz a especificação de produção nos seus próprios literais, grava a superfície Bai--Ng BLL completa e estima `(r=5, q=5, p=4, choque=+50bp em yield_6m)` com a inferência de produção: conjuntos Anderson--Rubin desde 2026-09-08. Escreve `output/irf/irf_model_alessi_r5q5.pdf`. |
@@ -109,5 +134,5 @@ projeto: `Rscript script/validation/<arquivo>.R`.
 
 ## Notas cruzadas
 
-- **`rm(list=ls())`**: a maioria dos entry points limpa o ambiente; os que não o fazem são pensados para rodar em processo `Rscript` próprio, não para ser `source()`ados numa sessão existente.
+- **Um processo por script**: nenhum entry point limpa o ambiente. Todos são pensados para rodar em processo `Rscript` próprio, não para ser `source()`ados numa sessão existente.
 - Nenhum script daqui é chamado por outro script daqui, exceto através de `run_all.R` (estágios) ou de `source()` de módulos em `R/`.
