@@ -60,12 +60,57 @@ sdfm_results <- main_sdfm(
   ci_levels = CI_LEVELS
 )
 
-irf_plot <- plot_irf(
-  sdfm_results$irfs,
-  response_vars = RESPONSE_VARS,
-  horizon = HORIZON,
-  var_names = colnames(sdfm_results$data),
-  ci_to_plot = CI_LEVELS
+irfs <- sdfm_results$irfs
+var_names <- colnames(sdfm_results$data)
+horizons <- 0:HORIZON
+# Widest set first, so the narrower one is drawn on top of it
+bands <- tibble::tibble(
+  key = sprintf("%.2f", sort(CI_LEVELS, decreasing = TRUE)),
+  fill = c("grey90", "grey80"),
+  alpha = c(0.5, 0.45)
 )
 
-ggplot2::ggsave(IRF_OUT, irf_plot, width = 11, height = 9, dpi = 200)
+panels <- purrr::imap(RESPONSE_VARS, \(variable, label) {
+  response_row <- match(variable, var_names)
+  ribbons <- purrr::pmap(bands, \(key, fill, alpha) {
+    ggplot2::geom_ribbon(
+      data = tibble::tibble(
+        horizon = horizons,
+        lower = irfs$ci[[key]]$lower[response_row, horizons + 1],
+        upper = irfs$ci[[key]]$upper[response_row, horizons + 1]
+      ),
+      ggplot2::aes(ymin = lower, ymax = upper),
+      fill = fill,
+      alpha = alpha
+    )
+  })
+
+  tibble::tibble(
+    horizon = horizons,
+    point = irfs$irf_point_matrix[response_row, horizons + 1]
+  ) |>
+    ggplot2::ggplot(ggplot2::aes(x = horizon)) +
+    ribbons +
+    ggplot2::geom_line(
+      ggplot2::aes(y = point),
+      color = "black",
+      linewidth = 1
+    ) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+    ggplot2::theme_classic() +
+    ggplot2::labs(y = label) +
+    ggplot2::theme(
+      axis.title.x = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_text(size = ggplot2::rel(1.4)),
+      axis.text = ggplot2::element_text(size = ggplot2::rel(1.2)),
+      plot.title = ggplot2::element_blank()
+    )
+})
+
+ggplot2::ggsave(
+  IRF_OUT,
+  patchwork::wrap_plots(panels, ncol = 2),
+  width = 11,
+  height = 9,
+  dpi = 200
+)
