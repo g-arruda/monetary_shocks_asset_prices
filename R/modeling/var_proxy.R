@@ -28,23 +28,12 @@
 #' fit <- olea_rform_var(matrix(stats::rnorm(200), ncol = 2), p = 1L)
 olea_rform_var <- function(series, p, deterministic = c("constant", "trend")) {
   series <- as.matrix(series)
-  p <- as.integer(p)
   deterministic <- match.arg(deterministic)
 
-  if (length(p) != 1L || is.na(p) || p < 1L) {
-    stop("p must be a positive integer")
-  }
-  if (nrow(series) <= p || ncol(series) < 1L || any(!is.finite(series))) {
-    stop("series must be finite and have more rows than p")
-  }
-
   n_total <- nrow(series)
-  lags <- do.call(
-    cbind,
-    lapply(seq_len(p), function(lag) {
-      series[(p + 1L - lag):(n_total - lag), , drop = FALSE]
-    })
-  )
+  lags <- do.call(cbind, purrr::map(seq_len(p), \(lag_order) {
+    series[(p + 1L - lag_order):(n_total - lag_order), , drop = FALSE]
+  }))
   Y <- series[(p + 1L):n_total, , drop = FALSE]
   deterministic_terms <- if (deterministic == "constant") {
     matrix(1, nrow(Y), 1L, dimnames = list(NULL, "constant"))
@@ -82,57 +71,44 @@ olea_rform_var <- function(series, p, deterministic = c("constant", "trend")) {
 #' @param pmax Largest candidate lag order.
 #' @param deterministic Deterministic specification: `constant` or `trend`.
 #'
-#' @return Data frame with AIC and BIC for every candidate order.
+#' @return Tibble with the log determinant, AIC and BIC of every candidate
+#'   order, and which order each criterion selects.
 #'
 #' @examples
 #' criteria <- var_lag_criteria(matrix(stats::rnorm(400), ncol = 4), 12L)
-var_lag_criteria <- function(
-  series,
-  pmax = 12L,
-  deterministic = c("constant", "trend")
-) {
+var_lag_criteria <- function(series, pmax = 12L,
+                             deterministic = c("constant", "trend")) {
   series <- as.matrix(series)
-  pmax <- as.integer(pmax)
   deterministic <- match.arg(deterministic)
-
-  if (length(pmax) != 1L || is.na(pmax) || pmax < 1L) {
-    stop("pmax must be a positive integer")
-  }
-  if (nrow(series) <= pmax || ncol(series) < 1L || any(!is.finite(series))) {
-    stop("series must be finite and have more rows than pmax")
-  }
 
   T_common <- nrow(series) - pmax
   n <- ncol(series)
   n_deterministic <- if (deterministic == "constant") 1L else 2L
-  rows <- lapply(seq_len(pmax), function(p) {
-    series_p <- series[(pmax - p + 1L):nrow(series), , drop = FALSE]
-    fit <- olea_rform_var(series_p, p, deterministic = deterministic)
-    if (ncol(fit$eta) != T_common) {
-      stop("The common-sample construction failed at p = ", p)
-    }
 
-    logdet <- determinant(fit$Sigma, logarithm = TRUE)
-    if (logdet$sign <= 0L) {
-      stop("Residual covariance is not positive definite at p = ", p)
-    }
+  seq_len(pmax) |>
+    purrr::map(\(p) {
+      fit <- olea_rform_var(
+        series[(pmax - p + 1L):nrow(series), , drop = FALSE],
+        p,
+        deterministic = deterministic
+      )
+      logdet <- as.numeric(determinant(fit$Sigma, logarithm = TRUE)$modulus)
+      n_parameters <- n^2 * p + n * n_deterministic
 
-    n_parameters <- n^2 * p + n * n_deterministic
-    data.frame(
-      p = p,
-      n = n,
-      T_common = T_common,
-      deterministic = deterministic,
-      logdet = as.numeric(logdet$modulus),
-      n_parameters = n_parameters,
-      aic = as.numeric(logdet$modulus) + 2 * n_parameters / T_common,
-      bic = as.numeric(logdet$modulus) +
-        log(T_common) * n_parameters / T_common
+      tibble::tibble(
+        p = p,
+        n = n,
+        T_common = T_common,
+        deterministic = deterministic,
+        logdet = logdet,
+        n_parameters = n_parameters,
+        aic = logdet + 2 * n_parameters / T_common,
+        bic = logdet + log(T_common) * n_parameters / T_common
+      )
+    }) |>
+    purrr::list_rbind() |>
+    dplyr::mutate(
+      selected_aic = p == p[which.min(aic)],
+      selected_bic = p == p[which.min(bic)]
     )
-  })
-
-  out <- dplyr::bind_rows(rows)
-  out$selected_aic <- out$p == out$p[which.min(out$aic)]
-  out$selected_bic <- out$p == out$p[which.min(out$bic)]
-  out
 }
