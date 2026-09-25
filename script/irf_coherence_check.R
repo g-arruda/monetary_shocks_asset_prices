@@ -14,7 +14,7 @@
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
-source("R/identification/spec_sweep.R")
+source("R/modeling/dfm_pipeline.R")
 source("R/identification/irf_coherence.R")
 source("R/identification/weak_iv_ar.R")
 

@@ -35,7 +35,7 @@
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/factor_selection.R")
-source("R/identification/spec_sweep.R")
+source("R/reporting/markdown_report.R")
 
 PANEL_PATH    <- "data/processed/data_log_deseasonalized.csv"
 MANIFEST_PATH <- "output/panel_experimental/poda_correlacao/pruning_manifest.csv"
