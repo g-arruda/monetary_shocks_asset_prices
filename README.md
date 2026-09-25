@@ -118,8 +118,9 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   conjuntos Anderson-Rubin de `identification/weak_iv_ar.R`.
 - **`instrument/`** (2 arquivos) — `build_variants.R` (a cadeia de construção
   das 3 variantes da `tab:first_stage`, uma por camada; eram 10 até 2026-08-05
-  e 8 até 2026-09-18) e `di_surprise.R` (helper de surpresa de futuro de DI,
-  mais o carregador das datas de Copom). `event_tests.R`, a inferência das regressões
+  e 8 até 2026-09-18) e `di_surprise.R` (os carregadores do painel de DI e das
+  quartas de Copom e a surpresa quarta→quinta, compartilhados com
+  `identification/het_tests.R`). `event_tests.R`, a inferência das regressões
   diárias de evento, foi para `arquivo/R/instrument/` em 2026-09-18 com seu
   último consumidor, `fomc_coincidence.R`.
 - **`reporting/`** (2 arquivos) — `markdown_report.R`, com formatação estável

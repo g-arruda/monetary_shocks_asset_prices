@@ -67,7 +67,10 @@ passaram a carregar `R/modeling/dfm_pipeline.R` (`run_stage2_cell()`), e
 carregar `R/modeling/factor_selection.R` (`prune_correlated_series()`). Dois
 scripts ganharam o que só eles usavam: `irf_coherence_check.R` recebeu a tabela
 de teoria, antes `coherence_var_table()`, e `panel_pruning.R` a taxonomia de
-blocos, antes `base_block_taxonomy()`.
+blocos, antes `base_block_taxonomy()`. A passada em `R/instrument/` tirou os
+defaults de `di_surprise.R`: `instrument.R` passou a escrever o caminho de
+`copom_historico.csv`, e `R/identification/het_tests.R` passou a escrever
+`min_bd = 10`. `instrument.R` gera os três CSVs idênticos em bytes.
 O mapa está em `registro/mapa_renomeacoes.md`.
 
 Rodadas anteriores de limpeza:

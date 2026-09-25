@@ -13,6 +13,47 @@ mantidos em lugar e já usam os caminhos correntes.
 
 ---
 
+## 2026-09-25 — `coding-style` em `R/instrument/`
+
+Quarta passada da skill `coding-style`, agora sobre os dois arquivos de
+`R/instrument/`, que ficaram onde estavam. Nenhum número se moveu:
+- `build_instrument_variants()` saiu `identical()` à antiga em `monthly`,
+  `daily` e `diag`, no vértice de produção (126) e em 63;
+- `build_thursday_surprises()` saiu `identical()` em 20 combinações:
+  - vértice de 21 a 504;
+  - `min_bd` de 10 e 30;
+  - a grade de quintas do instrumento e a grade semanal do diagnóstico het.
+
+  Isso inclui as quintas em que dois contratos empatam na distância ao
+  vértice, que são 5 a 18 por vértice;
+- `script/instrument.R` gera os três CSVs de `data/processed/` idênticos em
+  bytes.
+
+Os números de linha de `R/instrument/*.R` citados antes desta data valem para a
+versão daquela data. O último estado antes da passada é `b654626`.
+
+| antes | agora |
+|---|---|
+| `surprise_wed_to_thu()` em `R/instrument/di_surprise.R` | dentro de `build_thursday_surprises()`, seu único chamador: um join quarta×quinta pelo ticker e `slice_min()` da distância ao vértice, em vez de um `for` por quinta |
+| `agg_monthly_sum()` em `R/instrument/build_variants.R` | um `summarise(.by = month)` com as três somas de Jarociński-Karadi |
+| `trail_change()`, `align_pre_event()`, `drop_na_series()` e `log_ret_100()`, internas a `build_instrument_variants()` | a tabela `pre_event_inputs` (série, janela, escala) e um `pmap`; os retornos diários escritos em linha |
+| defaults `path`, `from`, `to` de `load_di_panel()` e `load_copom_wednesdays()` | argumentos obrigatórios; `script/instrument.R` escreve o caminho de `copom_historico.csv` |
+| defaults `target_bd = 63`, `min_bd = 10` de `build_thursday_surprises()` | argumentos obrigatórios; `build_weekly_changes()` escreve `min_bd = 10` |
+
+Um defeito latente saiu junto. `align_pre_event()` fazia
+`ifelse(idx >= 1, val[idx], NA)`. Quando um corte de quarta caía antes da
+primeira observação da série, `idx` tinha zeros, `val[idx]` ficava mais curto e
+o `ifelse` reciclava a coluna inteira deslocada. Isso nunca aconteceu, porque
+toda série começa antes do primeiro corte. Num teste com o câmbio começando em
+2012-06, o `stop` de NA dos preditores pegava o caso por acaso: a coluna
+deslocada ainda carregava os NA da defasagem, 25 contra os 26 corretos. Agora o
+corte sem observação vira NA na posição certa.
+
+A regra de descarte de NA dos preditores também ficou uniforme. Cada série é
+lida no próprio calendário, e não só as três do Yahoo. Nos dados isso não muda
+nada: Ibovespa e câmbio já chegam filtrados, e Focus e inclinação do DI não têm
+NA.
+
 ## 2026-09-25 — `coding-style` em `R/identification/`
 
 Terceira passada da skill `coding-style`, agora sobre `R/identification/`, com
