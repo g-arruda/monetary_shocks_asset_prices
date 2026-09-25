@@ -1,5 +1,3 @@
-rm(list = ls())
-
 source("R/preprocessing/seasonality.R")
 source("R/preprocessing/production_extensions.R")
 source("R/modeling/impulse_response.R")
@@ -8,6 +6,7 @@ SAMPLE_START <- as.Date("2012-03-01")
 SAMPLE_END   <- as.Date("2025-12-01")
 BASE_PATH       <- "data/processed/data_log_deseasonalized_base_106.csv"
 PRODUCTION_PATH <- "data/processed/data_log_deseasonalized.csv"
+MANIFEST_PATH   <- "output/panel/production_series_manifest.csv"
 # The 115-series production panel is the 106-series base minus these two and
 # plus the fiscal and Focus-expectations extensions
 BASE_SERIES_REMOVED <- c("juros_cdi", "asset_mlcx")
@@ -24,104 +23,94 @@ PRODUCTION_SERIES_ADDED <- c(
   "expect_focus_fiscal_primary_balance_ny",
   "expect_focus_fiscal_nominal_balance_ny"
 )
-expected_dates <- seq(SAMPLE_START, SAMPLE_END, by = "month")
 # Column order of the panel every output was estimated on. The ABC selector
 # subsamples the cross-section in column order and the PCA rounds differently
 # under a permutation, so download.R's current order (prices after trab_*,
 # fiscal and Focus after epu_*) would move results
-price_order <- c(
+PRICE_ORDER <- c(
   "price_ipp", "price_ipca", "price_ipca_difusao", "price_core_ipca_dw",
   "price_igp_m", "price_ipc", "price_core_ipc", "price_incc", "price_inpc",
   "price_core_ipca_ex0", "price_core_ipca_ex1"
 )
+# X-13 specifications, tried in this order until one returns a full, finite
+# series; the manifest records which one worked
+X13_SPECS <- list(
+  ajustada_completo = list(
+    regression.aictest = c("td", "easter"),
+    outlier.types = c("AO", "LS", "TC")
+  ),
+  ajustada_sem_calendario = list(
+    regression.aictest = NULL,
+    outlier.types = c("AO", "LS", "TC")
+  ),
+  ajustada_minima = list(outlier = NULL, automdl = NULL)
+)
+
+expected_dates <- seq(SAMPLE_START, SAMPLE_END, by = "month")
+
 raw_data <- readr::read_csv("data/raw/raw_data.csv", show_col_types = FALSE) |>
   dplyr::mutate(ref.date = as.Date(ref.date)) |>
   dplyr::filter(ref.date >= SAMPLE_START, ref.date <= SAMPLE_END) |>
-  dplyr::relocate(dplyr::starts_with(c("fiscal_", "expect_")), .before = epu_brazil) |>
-  dplyr::relocate(dplyr::all_of(price_order), .after = epu_us)
+  dplyr::relocate(
+    dplyr::starts_with(c("fiscal_", "expect_")),
+    .before = epu_brazil
+  ) |>
+  dplyr::relocate(dplyr::all_of(PRICE_ORDER), .after = epu_us)
 
 data <- raw_data |>
   dplyr::mutate(
     dplyr::across(
-      .cols = c(
+      c(
         dplyr::contains("base_"),
         dplyr::contains("credit"),
         fin_inst_reserve_req,
         pib
       ),
-      .fns = log
+      log
     )
   )
 
 season_result <- check_seasonality(data)
-series_log <- setNames(
-  rep("nao_sazonal", ncol(data) - 1L),
-  setdiff(names(data), "ref.date")
-)
-adjusted_data <- data |>
+first_month <- min(data$ref.date)
+
+x13_results <- data |>
   dplyr::select(dplyr::all_of(season_result$season_vars)) |>
   purrr::imap(function(values, variable) {
     series <- ts(
       values,
-      start = c(
-        lubridate::year(min(data$ref.date)),
-        lubridate::month(min(data$ref.date))
-      ),
+      start = c(lubridate::year(first_month), lubridate::month(first_month)),
       frequency = 12L
     )
-    attempts <- list(
-      ajustada_completo = function() {
+    for (status in names(X13_SPECS)) {
+      adjusted <- tryCatch(
         seasonal::seas(
           series,
           x11 = "",
           transform.function = "none",
-          regression.aictest = c("td", "easter"),
-          outlier.types = c("AO", "LS", "TC")
+          list = X13_SPECS[[status]]
         ) |>
           seasonal::final() |>
-          as.numeric()
-      },
-      ajustada_sem_calendario = function() {
-        seasonal::seas(
-          series,
-          x11 = "",
-          transform.function = "none",
-          regression.aictest = NULL,
-          outlier.types = c("AO", "LS", "TC")
-        ) |>
-          seasonal::final() |>
-          as.numeric()
-      },
-      ajustada_minima = function() {
-        seasonal::seas(
-          series,
-          x11 = "",
-          transform.function = "none",
-          outlier = NULL,
-          automdl = NULL
-        ) |>
-          seasonal::final() |>
-          as.numeric()
-      }
-    )
-
-    for (status in names(attempts)) {
-      adjusted <- tryCatch(attempts[[status]](), error = function(error) NULL)
-      if (!is.null(adjusted) && length(adjusted) == length(values) &&
-          all(is.finite(adjusted))) {
-        series_log[[variable]] <<- status
-        return(adjusted)
+          as.numeric(),
+        error = function(error) NULL
+      )
+      if (length(adjusted) == length(values) && all(is.finite(adjusted))) {
+        return(list(status = status, adjusted = adjusted))
       }
     }
     stop("Every X-13 attempt failed for ", variable, ".")
-  }) |>
-  tibble::as_tibble()
+  })
+
+status_by_series <- purrr::set_names(
+  rep("nao_sazonal", ncol(data) - 1L),
+  setdiff(names(data), "ref.date")
+)
+status_by_series[names(x13_results)] <- purrr::map_chr(x13_results, "status")
 
 data <- data |>
   dplyr::mutate(
     dplyr::across(
       dplyr::all_of(season_result$season_vars),
-      ~ adjusted_data[[dplyr::cur_column()]]
+      \(values) x13_results[[dplyr::cur_column()]]$adjusted
     )
   )
 
@@ -136,21 +125,31 @@ production_data <- data |>
   dplyr::select(-dplyr::all_of(BASE_SERIES_REMOVED))
 
 dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
-dir.create("output/panel", showWarnings = FALSE, recursive = TRUE)
+dir.create(dirname(MANIFEST_PATH), showWarnings = FALSE, recursive = TRUE)
 readr::write_csv(base_data, BASE_PATH)
 readr::write_csv(production_data, PRODUCTION_PATH)
 
 raw_variables <- setdiff(names(production_data), "ref.date")
 logged_variables <- c(
-  grep("^(base_|credit)", raw_variables, value = TRUE),
-  "fin_inst_reserve_req", "pib"
+  stringr::str_subset(raw_variables, "^(base_|credit)"),
+  "fin_inst_reserve_req",
+  "pib"
 )
+fiscal_variables <- stringr::str_subset(
+  PRODUCTION_SERIES_ADDED,
+  "^fiscal_|^dlsp_"
+)
+expectation_variables <- stringr::str_subset(
+  PRODUCTION_SERIES_ADDED,
+  "^expect_"
+)
+
 raw_manifest <- tibble::tibble(
   variable = raw_variables,
   block = dplyr::case_when(
-    variable %in% grep("^fiscal_|^dlsp_", PRODUCTION_SERIES_ADDED, value = TRUE) ~ "fiscal",
-    variable %in% grep("^expect_", PRODUCTION_SERIES_ADDED, value = TRUE) ~ "expectativas",
-    TRUE ~ "painel_historico"
+    variable %in% fiscal_variables ~ "fiscal",
+    variable %in% expectation_variables ~ "expectativas",
+    .default = "painel_historico"
   ),
   source_file = "data/raw/raw_data.csv",
   source_sheet = NA_character_,
@@ -158,25 +157,29 @@ raw_manifest <- tibble::tibble(
   source_id = dplyr::case_when(
     variable == "spread_credito_pj_total" ~ "SGS 20784",
     variable == "spread_credito_pf_total" ~ "SGS 20785",
-    TRUE ~ NA_character_
+    .default = NA_character_
   ),
   unit = NA_character_,
-  transformation = ifelse(variable %in% logged_variables, "log_level", "level"),
+  transformation = dplyr::if_else(
+    variable %in% logged_variables,
+    "log_level",
+    "level"
+  ),
   tcode = infer_tcode_from_varnames(variable),
   n_months = length(expected_dates),
   first_month = min(expected_dates),
   last_month = max(expected_dates),
   is_seasonal = variable %in% season_result$season_vars,
-  seasonal_status = unname(series_log[variable])
+  seasonal_status = unname(status_by_series[variable])
 )
-production_manifest <- raw_manifest |>
-  dplyr::rows_update(
-    extensions$manifest |>
-      dplyr::mutate(
-        source_id = published_label,
-        is_seasonal = seasonal_status != "nao_sazonal"
-      ) |>
-      dplyr::select(dplyr::all_of(names(raw_manifest))),
-    by = "variable"
-  )
-readr::write_csv(production_manifest, "output/panel/production_series_manifest.csv")
+
+extension_manifest <- extensions$manifest |>
+  dplyr::mutate(
+    source_id = published_label,
+    is_seasonal = seasonal_status != "nao_sazonal"
+  ) |>
+  dplyr::select(dplyr::all_of(names(raw_manifest)))
+
+raw_manifest |>
+  dplyr::rows_update(extension_manifest, by = "variable") |>
+  readr::write_csv(MANIFEST_PATH)
