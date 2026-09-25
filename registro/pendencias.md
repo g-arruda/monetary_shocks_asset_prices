@@ -79,6 +79,7 @@ AR/MOSW próprios.
 | Tema | Item | Observação |
 |---|---|---|
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
+| B | Construir a figura de robustez das IRFs principais sob as três camadas do instrumento (`z_bruto`, `z_bs_purif`, `z_jk_bs_purif`) | aberto em 2026-09-25; o paper hoje só documenta as camadas em `tab:first_stage` (força), não nas respostas |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | D | Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala LP e reportar sem e com o tratamento | aberto em 2026-09-24, decisão do autor; θ próprio por vértice, não o θ̂ do DFM; mesmo caminho da linha fatorial nas duas versões; ⚠ se rejeitar, `sec:identificacao` muda; a linha diária fica sem tratamento |
@@ -391,6 +392,32 @@ do autor, sem ser executado.*
   Bai-Ng para `r=3` pode refletir perda de potência por N menor, não
   confirmação do mecanismo. Passo 2/4. Destravado em 2026-09-24, quando a
   rodada editorial do Tema A sincronizou a §4.
+
+- [ ] **Construir a figura de robustez das IRFs principais sob as três
+  camadas do instrumento da §3** — `z_bruto`, `z_bs_purif` e
+  `z_jk_bs_purif` (produção), as três linhas de `tab:first_stage`. Aberto em
+  2026-09-25. Motivo: o paper hoje documenta as camadas só na força
+  (`tab:first_stage`), não nas respostas; um parecerista que conheça JK e BS
+  pode objetar que a composição — a regra JK aplicada aos resíduos da
+  ortogonalização predeterminada — dirige o resultado, e não há IRF por
+  camada para responder. Desenho:
+  - três células de `run_stage2_cell()` nos moldes de
+    `script/irf_coherence_check.R` (mesma especificação `(5,5,4)`, escala LP,
+    +50 p.b. em `yield_6m`, h = 0--36), trocando só o literal `INSTRUMENT`;
+    a normalização comum torna as respostas comparáveis entre camadas;
+  - séries mínimas: bloco-manchete (BRL/USD, EMBI+, CDS de 5 anos) e curva
+    (3m/1a/2a/5a/10a); decidir se IBC-Br e IPCA entram;
+  - conjuntos AR 68/90 por camada na amostra completa; ξ_mp > 3,84 nas duas
+    janelas (6,68/6,16/6,85 cheia; 6,66/6,32/8,64 pré-COVID), de modo que a
+    força não é o que barraria;
+  - ⚠ ainda assim só a cheia recebe conjunto: `hac_dim < T` barra a pré-COVID
+    inteira em `p=4` (135 ≥ 90); se a pré-COVID entrar, é como ponto.
+  ⚠ Não reusar os `irf_spec_*.rds` de `output/irf/` nem os scripts
+  `arquivo/script/irf_*`: vintage pré-escala LP, painel e dimensões antigos, e
+  a nota `2026-07-15_sweep_instrumentos_irf` está SUPERADA. O que ela deixa
+  como hipótese a testar na vintage de produção: as formas se sobrepõem entre
+  instrumentos e a inclinação da curva não acompanha ξ_mp. Destino no paper
+  (Anexo B/C ou §5) é decisão editorial.
 
 ### Fechados (contexto)
 
