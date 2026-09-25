@@ -186,21 +186,17 @@ compute_factor_space_wald <- function(eta, Z, controls, nw_lags = 0L,
   Gamma <- colMeans(moments)
   moments_centered <- sweep(moments, 2, Gamma)
 
-  # Bartlett accumulation, transcribed from NW_hac_STATA.m: weight
-  # 1 - l/(lags+1), divisor T (no degrees-of-freedom correction). With
+  # Bartlett HAC of NW_hac_STATA.m, divisor T (no degrees-of-freedom
+  # correction): W = G_0 + sum_{l=1}^{L} (1 - l/(L+1)) (G_l + G_l'). With
   # nw_lags = 0 nothing is added and W is the Eicker-White estimator.
-  weighted_autocovariances <- purrr::map(seq_len(nw_lags), \(l) {
+  W <- crossprod(moments_centered) / T_eff
+  for (l in seq_len(nw_lags)) {
     autocovariance <- crossprod(
       moments_centered[seq_len(T_eff - l), , drop = FALSE],
       moments_centered[(1L + l):T_eff, , drop = FALSE]
     ) / T_eff
-    (1 - l / (nw_lags + 1)) * (autocovariance + t(autocovariance))
-  })
-  W <- purrr::reduce(
-    weighted_autocovariances,
-    `+`,
-    .init = crossprod(moments_centered) / T_eff
-  )
+    W <- W + (1 - l / (nw_lags + 1)) * (autocovariance + t(autocovariance))
+  }
 
   list(
     wald_k = T_eff * Gamma^2 / diag(W),

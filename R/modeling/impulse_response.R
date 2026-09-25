@@ -182,12 +182,13 @@ compute_irf_dfm <- function(dfm_results, instrument = dfm_results$instrument,
     inst_sel <- instrument
   }
 
-  # Reduced-form responses diag(sy) Lambda B_h K M, B_h the r x r block of A^h
-  powers <- purrr::accumulate(
-    seq_len(h),
-    \(power, step) power %*% A,
-    .init = diag(nrow(A))
-  )
+  # Reduced-form responses diag(sy) Lambda B_h K M, B_h the r x r block of
+  # A^h, and A^h = A^(h-1) A
+  powers <- vector("list", h + 1)
+  powers[[1]] <- diag(nrow(A))
+  for (horizon in seq_len(h)) {
+    powers[[horizon + 1]] <- powers[[horizon]] %*% A
+  }
   rawimp <- powers |>
     purrr::map(\(power) {
       sweep(
