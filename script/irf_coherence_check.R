@@ -1,10 +1,11 @@
 # ===================================================================
 # Point-by-point theory-coherence check of the production IRFs for every
-# variable of coherence_var_table() under the production specification, which
-# is written out below.
+# variable of the theory table below, under the production specification,
+# which is also written out below.
 # Bands are the Anderson-Rubin sets. For each variable, every horizon
 # h = 0..48 is checked for sign and for exclusion of zero at 68% and 90%
-# against the theory window defined in R/identification/irf_coherence.R.
+# against its theory window, by evaluate_irf_path()
+# (R/identification/irf_coherence.R).
 # Outputs: output/irf/irf_coherence_h.csv, irf_coherence_summary.csv,
 #          irf_coherence_cell.rds
 # The interpretive reading lives in output/irf/irf_coherence_leitura.md,
@@ -46,8 +47,59 @@ tcode <- infer_tcode_from_varnames(var_names)
 inst_panel <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE) |>
   dplyr::mutate(month = as.Date(month))
 
-spec_tbl <- coherence_var_table()
-missing_vars <- setdiff(spec_tbl$var, var_names)
+# Theory table: one row per group of variables sharing a sign, a tier and a
+# window [w_lo, w_hi]; evaluate_irf_path() documents what each tier means.
+theory_table <- tibble::tribble(
+  ~var, ~group, ~theory_sign, ~tier, ~w_lo, ~w_hi,
+  # yield_6m is the normalization variable: its h0 is MECHANICAL
+  # (= shock_bps/10000 by ident_ext_instr()), so 1 of the 7 points in the
+  # window is free and h1..h6 are what inform the verdict. It stays so the
+  # delivered +50bp is auditable in the output table.
+  c("yield_3m", "yield_6m", "yield_1y", "yield_2y", "yield_5y", "yield_10y"),
+  "curva_juros", 1, "scored", 0, 6,
+  "juros_selic", "curva_juros", 1, "scored", 1, 12,
+  c("asset_ibov", "asset_smll", "asset_idiv", "asset_imob", "asset_ifix"),
+  "acoes", -1, "scored", 0, 6,
+  c("asset_ifnc", "asset_imat"), "acoes_ambiguas", NA, "ambiguous", 0, 6,
+  c("cambio_usd", "cambio_eur", "embi_perc", "cds_5y"),
+  "risco_cambio_soft", -1, "soft", 0, 6,
+  c("ibc_br", "pib", "ind_transformacao", "ind_bens_duraveis",
+    "ind_bens_capital", "vendas_varejo", "vendas_servicos", "ind_automoveis",
+    "capacidade_instalada_industria"),
+  "atividade", -1, "scored", 3, 24,
+  "trab_tx_desemprego", "trabalho", 1, "scored", 6, 36,
+  c("trab_pop_ocupada", "trab_hrs_trabalhadas_industria"),
+  "trabalho", -1, "scored", 6, 36,
+  c("credit_outstanding", "credito_pessoa_fisica"),
+  "credito", -1, "scored", 6, 36,
+  c("spread_credito_pj_total", "spread_credito_pf_total"),
+  "credito", 1, "scored", 0, 12,
+  c("credito_comercio", "credito_transporte", "credito_industria_total"),
+  "credito_setorial", -1, "scored", 6, 36,
+  # Agriculture and construction credit is mostly earmarked (rural, SFH):
+  # attenuated transmission (Bonomo-Martins 2016), no strong prior
+  c("credito_agro", "credito_construcao"),
+  "credito_setorial", NA, "ambiguous", 6, 36,
+  c("price_ipca", "price_ipca_difusao", "price_core_ipca_ex0",
+    "price_core_ipca_ex1", "price_core_ipca_dw", "price_inpc"),
+  "precos", -1, "scored", 12, 48,
+  c("price_igp_m", "price_ipp"), "precos_ambiguos", NA, "ambiguous", 12, 48,
+  # commodity_metal is the BCB IC-Br, denominated in BRL: a DOMESTIC price
+  # that mechanically inherits the FX response, not an external placebo. In
+  # diagnostics/01_exogeneidade.R sec 1.6 the BRL index violates (+12.07,
+  # sig90 in 4 of h0-h4) while index/cambio_usd passes 25/25 horizons
+  # (+0.42, CI90 [-1.44, 1.88]): the violation is denomination, not the
+  # instrument's.
+  "commodity_metal", "commodity_domestica", NA, "ambiguous", 0, 24,
+  c("fiscal_dbgg", "fiscal_dlsp", "fiscal_primary_balance"),
+  "fiscal", NA, "ambiguous", 0, 48,
+  c("expect_focus_ipca12m", "expect_focus_selic_ny", "expect_focus_pib_ny",
+    "expect_focus_cambio_ny"),
+  "expectativas", NA, "ambiguous", 0, 48,
+  c("sp500_vix", "msci", "epu_us"), "placebo_externas", 0, "placebo", 0, 24
+) |>
+  tidyr::unnest(var)
+missing_vars <- setdiff(theory_table$var, var_names)
 if (length(missing_vars) > 0) {
   stop(
     "Variaveis da tabela de coerencia ausentes no painel: ",
@@ -92,8 +144,8 @@ stopifnot(
   "Set boundedness disagrees with xi_mp > critval" = all(bounded_as_predicted)
 )
 
-evaluations <- purrr::map(seq_len(nrow(spec_tbl)), function(i) {
-  spec <- spec_tbl[i, ]
+evaluations <- purrr::map(seq_len(nrow(theory_table)), function(i) {
+  spec <- theory_table[i, ]
   row <- match(spec$var, var_names)
   evaluate_irf_path(
     point[row, ],

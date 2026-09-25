@@ -1,79 +1,20 @@
 # ===================================================================
 # Point-by-point theory-coherence evaluation of IRF paths
 # For each variable: sign and CI68/CI90 significance at every horizon,
-# scored against a theory window. Consumed by script/irf_coherence_check.R.
+# scored against a theory window. The theory table and the loop over
+# variables live in script/irf_coherence_check.R.
 # ===================================================================
 
 
-#' Theory table for the horizon-coherence check
-#'
-#' Tiers: `scored` variables receive a hard verdict against `theory_sign`
-#' inside the window [w_lo, w_hi]; `soft` variables have a standard-channel
-#' sign but admit the fiscal-dominance reading (channel is recorded, never
-#' failed); `ambiguous` variables have no strong prior (trajectory reported
-#' only); `placebo` variables are external series that the Brazilian shock
-#' should NOT move (coherence = CI90 contains zero on ≥90% of the window).
-#'
-#' @return Data.frame with `var`, `group`, `theory_sign`, `tier`, `w_lo`, `w_hi`.
-coherence_var_table <- function() {
-  row <- function(var, group, sign, tier, w_lo, w_hi) {
-    data.frame(var = var, group = group, theory_sign = sign, tier = tier,
-               w_lo = w_lo, w_hi = w_hi, stringsAsFactors = FALSE)
-  }
-  rbind(
-    # yield_6m is the normalization variable: its h0 is MECHANICAL
-    # (= shock_bps/10000 by ident_ext_instr()), so 1 of the 7 points in
-    # the window is free and h1..h6 are what inform the verdict. Included so
-    # the delivered +50bp is auditable in the output table (B2, 2026-07-28).
-    row(c("yield_3m", "yield_6m", "yield_1y", "yield_2y", "yield_5y",
-          "yield_10y"), "curva_juros", 1, "scored", 0, 6),
-    row("juros_selic", "curva_juros", 1, "scored", 1, 12),
-    row(c("asset_ibov", "asset_smll", "asset_idiv", "asset_imob",
-          "asset_ifix"), "acoes", -1, "scored", 0, 6),
-    row(c("asset_ifnc", "asset_imat"), "acoes_ambiguas", NA, "ambiguous", 0, 6),
-    row(c("cambio_usd", "cambio_eur", "embi_perc", "cds_5y"),
-        "risco_cambio_soft", -1, "soft", 0, 6),
-    row(c("ibc_br", "pib", "ind_transformacao", "ind_bens_duraveis",
-          "ind_bens_capital", "vendas_varejo", "vendas_servicos",
-          "ind_automoveis", "capacidade_instalada_industria"),
-        "atividade", -1, "scored", 3, 24),
-    row("trab_tx_desemprego", "trabalho", 1, "scored", 6, 36),
-    row(c("trab_pop_ocupada", "trab_hrs_trabalhadas_industria"),
-        "trabalho", -1, "scored", 6, 36),
-    row(c("credit_outstanding", "credito_pessoa_fisica"),
-        "credito", -1, "scored", 6, 36),
-    row(c("spread_credito_pj_total", "spread_credito_pf_total"),
-        "credito", 1, "scored", 0, 12),
-    row(c("credito_comercio", "credito_transporte", "credito_industria_total"),
-        "credito_setorial", -1, "scored", 6, 36),
-    # agro/construcao: majoritariamente credito direcionado (rural/SFH) —
-    # transmissao atenuada (Bonomo-Martins 2016), sem prior forte
-    row(c("credito_agro", "credito_construcao"),
-        "credito_setorial", NA, "ambiguous", 6, 36),
-    row(c("price_ipca", "price_ipca_difusao", "price_core_ipca_ex0",
-          "price_core_ipca_ex1", "price_core_ipca_dw", "price_inpc"),
-        "precos", -1, "scored", 12, 48),
-    row(c("price_igp_m", "price_ipp"), "precos_ambiguos", NA, "ambiguous", 12, 48),
-    # commodity_metal is the BCB IC-Br, denominated in BRL — a DOMESTIC price
-    # that mechanically inherits the FX response, not an external placebo.
-    # Retiered from `placebo` on 2026-07-28 (B3): the augmented-panel test in
-    # diagnostics/01_exogeneidade.R sec 1.6 shows the BRL index violates
-    # (+12.07, sig90 in 4 of h0-h4) while index/cambio_usd passes 25/25
-    # horizons (+0.42, CI90 [-1.44, 1.88]). The violation was never the
-    # instrument's — it is denomination.
-    row("commodity_metal", "commodity_domestica", NA, "ambiguous", 0, 24),
-    row(c("fiscal_dbgg", "fiscal_dlsp", "fiscal_primary_balance"),
-        "fiscal", NA, "ambiguous", 0, 48),
-    row(c("expect_focus_ipca12m", "expect_focus_selic_ny",
-          "expect_focus_pib_ny", "expect_focus_cambio_ny"),
-        "expectativas", NA, "ambiguous", 0, 48),
-    row(c("sp500_vix", "msci", "epu_us"),
-        "placebo_externas", 0, "placebo", 0, 24)
-  )
-}
-
-
 #' Evaluate one IRF path point-by-point against its theory spec
+#'
+#' The tier of the spec decides the verdict. `scored` variables receive a
+#' hard verdict against `theory_sign` inside the window [w_lo, w_hi]; `soft`
+#' variables have a standard-channel sign but admit the fiscal-dominance
+#' reading (channel is recorded, never failed); `ambiguous` variables have no
+#' strong prior (trajectory reported only); `placebo` variables are external
+#' series that the Brazilian shock should NOT move (coherence = CI90 contains
+#' zero on >= 90% of the window).
 #'
 #' Significance is "the confidence set excludes zero". An Anderson-Rubin set
 #' need not be an interval, so its topology decides, through
@@ -82,19 +23,22 @@ coherence_var_table <- function() {
 #'
 #' @param path Numeric vector, IRF point estimate at h = 0..H.
 #' @param lo68,hi68,lo90,hi90 CI bounds, same length as `path`.
-#' @param spec One row of `coherence_var_table()`.
+#' @param spec One row of the theory table, with `var`, `group`,
+#'   `theory_sign`, `tier`, `w_lo` and `w_hi`.
 #' @param set_type68,set_type90 Character vectors of AR set topologies.
 #'
-#' @return List with `perh` (data.frame h x metrics) and `summary` (one row).
+#' @return List with `perh` (tibble h x metrics) and `summary` (one row).
 evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
                               set_type68, set_type90) {
   H <- length(path) - 1
-  h <- 0:H
   sgn <- sign(path)
 
-  excludes_zero <- function(set_type, lo, hi) {
-    drop(ar_excludes_zero(matrix(set_type, ncol = 1),
-                          matrix(lo, ncol = 1), matrix(hi, ncol = 1)))
+  excludes_zero <- \(set_type, lo, hi) {
+    drop(ar_excludes_zero(
+      matrix(set_type, ncol = 1),
+      matrix(lo, ncol = 1),
+      matrix(hi, ncol = 1)
+    ))
   }
   sig68 <- excludes_zero(set_type68, lo68, hi68)
   sig90 <- excludes_zero(set_type90, lo90, hi90)
@@ -104,35 +48,42 @@ evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
          "Inspect cell$irf$ar before coercing it to a verdict.")
   }
 
-  perh <- data.frame(
-    var = spec$var, h = h, point = path,
-    lo68 = lo68, hi68 = hi68, lo90 = lo90, hi90 = hi90,
-    set_type68 = set_type68, set_type90 = set_type90,
-    sign = sgn, sig68 = sig68, sig90 = sig90,
-    stringsAsFactors = FALSE
+  perh <- tibble::tibble(
+    var = spec$var,
+    h = 0:H,
+    point = path,
+    lo68 = lo68,
+    hi68 = hi68,
+    lo90 = lo90,
+    hi90 = hi90,
+    set_type68 = set_type68,
+    set_type90 = set_type90,
+    sign = sgn,
+    sig68 = sig68,
+    sig90 = sig90
   )
 
-  w <- seq(spec$w_lo, min(spec$w_hi, H)) + 1
+  window <- seq(spec$w_lo, min(spec$w_hi, H)) + 1
   peak_idx <- which.max(abs(path))
 
-  share_correct   <- NA_real_
+  share_correct <- NA_real_
   first_correct_h <- NA_integer_
-  wrong_sig90     <- NA
-  right_sig68     <- NA
-  right_sig90     <- NA
-  contain0_share  <- NA_real_
-  channel         <- NA_character_
+  wrong_sig90 <- NA
+  right_sig68 <- NA
+  right_sig90 <- NA
+  contain0_share <- NA_real_
+  channel <- NA_character_
 
   if (spec$tier %in% c("scored", "soft") && !is.na(spec$theory_sign)) {
-    correct <- sgn[w] == spec$theory_sign
+    correct <- sgn[window] == spec$theory_sign
     share_correct <- mean(correct)
-    if (any(correct)) first_correct_h <- (w[which(correct)[1]] - 1)
-    wrong_sig90 <- any(sig90[w] & !correct)
-    right_sig68 <- any(sig68[w] & correct)
-    right_sig90 <- any(sig90[w] & correct)
+    if (any(correct)) first_correct_h <- window[which(correct)[1]] - 1
+    wrong_sig90 <- any(sig90[window] & !correct)
+    right_sig68 <- any(sig68[window] & correct)
+    right_sig90 <- any(sig90[window] & correct)
   }
   if (spec$tier == "placebo") {
-    contain0_share <- mean(!sig90[w])
+    contain0_share <- mean(!sig90[window])
   }
   if (spec$tier == "soft") {
     # Channel read at impact: standard (appreciation / risk tightening) vs
@@ -160,18 +111,30 @@ evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
     "parcial"
   }
 
-  summary <- data.frame(
-    group = spec$group, var = spec$var, tier = spec$tier,
-    theory_sign = spec$theory_sign, w_lo = spec$w_lo, w_hi = spec$w_hi,
-    h0 = path[1], h3 = path[4], h6 = path[7], h12 = path[13],
-    h24 = path[min(25, H + 1)], h36 = path[min(37, H + 1)],
+  summary <- tibble::tibble(
+    group = spec$group,
+    var = spec$var,
+    tier = spec$tier,
+    theory_sign = spec$theory_sign,
+    w_lo = spec$w_lo,
+    w_hi = spec$w_hi,
+    h0 = path[1],
+    h3 = path[4],
+    h6 = path[7],
+    h12 = path[13],
+    h24 = path[min(25, H + 1)],
+    h36 = path[min(37, H + 1)],
     h48 = path[min(49, H + 1)],
-    peak_h = peak_idx - 1, peak_val = path[peak_idx],
-    share_correct = share_correct, first_correct_h = first_correct_h,
-    right_sig68 = right_sig68, right_sig90 = right_sig90,
-    wrong_sig90 = wrong_sig90, contain0_share = contain0_share,
-    channel = channel, verdict = verdict,
-    stringsAsFactors = FALSE
+    peak_h = peak_idx - 1,
+    peak_val = path[peak_idx],
+    share_correct = share_correct,
+    first_correct_h = first_correct_h,
+    right_sig68 = right_sig68,
+    right_sig90 = right_sig90,
+    wrong_sig90 = wrong_sig90,
+    contain0_share = contain0_share,
+    channel = channel,
+    verdict = verdict
   )
 
   list(perh = perh, summary = summary)
