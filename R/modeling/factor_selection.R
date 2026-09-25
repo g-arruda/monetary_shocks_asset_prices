@@ -2,9 +2,9 @@
 #'
 #' IC1, IC2 and IC3 over `r = 1..max_r`, from the residual variance `V(r)` of
 #' the rank-`r` principal-components fit. With `apply_bll = TRUE` the panel is
-#' first put in the Barigozzi-Lippi-Luciani form the production PCA reads:
-#' first differences, centered and divided by their standard deviation.
-#' Plain Bai-Ng on the levels would require stationarity.
+#' first put in the Barigozzi-Lippi-Luciani form the production PCA reads,
+#' `standardize_bll()` of `factor_estimation.R`. Plain Bai-Ng on the levels
+#' would require stationarity.
 #'
 #' @param X Numeric matrix T x N.
 #' @param max_r Largest number of factors considered.
@@ -15,39 +15,40 @@
 #'   three surfaces over `r = 1..max_r`) and `pca` (the `prcomp` object).
 #'
 #' @examples
-#' bn <- bai_ng_criteria(panel, max_r = 20L, apply_bll = TRUE)
-bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE, apply_bll = FALSE) {
+#' bai_ng <- bai_ng_criteria(panel, max_r = 20L, apply_bll = TRUE)
+bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE,
+                            apply_bll = FALSE) {
   X <- as.matrix(X)
-
-  if (apply_bll) {
-    y <- diff(X)
-    sy <- apply(y, 2, sd)
-    y_centered <- sweep(y, 2, colMeans(y), "-")
-    X_std <- sweep(y_centered, 2, sy, "/")
+  X_std <- if (apply_bll) {
+    standardize_bll(X)$yy
   } else if (standardize) {
-    X_std <- scale(X, center = TRUE, scale = TRUE)
+    scale(X, center = TRUE, scale = TRUE)
   } else {
-    X_std <- X
+    X
   }
 
   n_obs <- nrow(X_std)
-  n_ser <- ncol(X_std)
+  n_series <- ncol(X_std)
   pca <- prcomp(X_std, scale. = FALSE, center = FALSE)
 
-  V <- vapply(seq_len(max_r), function(r) {
-    resid <- X_std - pca$x[, 1:r] %*% t(pca$rotation[, 1:r])
-    sum(resid^2) / (n_ser * n_obs)
-  }, numeric(1))
+  V <- purrr::map_dbl(seq_len(max_r), \(r) {
+    idiosyncratic <- X_std - pca$x[, 1:r] %*% t(pca$rotation[, 1:r])
+    sum(idiosyncratic^2) / (n_series * n_obs)
+  })
 
   r <- seq_len(max_r)
-  e <- (n_ser + n_obs) / (n_ser * n_obs)
-  m <- min(n_ser, n_obs)
-  ic1 <- log(V) + r * e * log(1 / e)
-  ic2 <- log(V) + r * e * log(m)
-  ic3 <- log(V) + r * log(m) / m
+  nt_rate <- (n_series + n_obs) / (n_series * n_obs)
+  c_nt_squared <- min(n_series, n_obs)
+  ic1 <- log(V) + r * nt_rate * log(1 / nt_rate)
+  ic2 <- log(V) + r * nt_rate * log(c_nt_squared)
+  ic3 <- log(V) + r * log(c_nt_squared) / c_nt_squared
 
   list(
-    r_hat = list(IC1 = which.min(ic1), IC2 = which.min(ic2), IC3 = which.min(ic3)),
+    r_hat = list(
+      IC1 = which.min(ic1),
+      IC2 = which.min(ic2),
+      IC3 = which.min(ic3)
+    ),
     criteria = list(IC1 = ic1, IC2 = ic2, IC3 = ic3),
     pca = pca
   )
@@ -64,7 +65,7 @@ bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE, apply_bll = FALSE
 #' @param r Number of static factors.
 #' @param p Lags of the factors in the filtering regression.
 #' @param max_q Largest number of dynamic factors considered.
-#' @param scale Center and scale the columns when `apply_bll = FALSE`.
+#' @param standardize Center and scale the columns when `apply_bll = FALSE`.
 #' @param apply_bll Use the BLL standardization of the first differences.
 #' @param standardize_resid Standardize the residuals column by column before
 #'   the second-stage Bai-Ng, as Stock-Watson's `factor_estimation_ls.m` does.
@@ -75,65 +76,48 @@ bai_ng_criteria <- function(X, max_r = 15, standardize = TRUE, apply_bll = FALSE
 #'
 #' @examples
 #' aw <- amengual_watson(panel, r = 5L, p = 4L, apply_bll = TRUE)
-amengual_watson <- function(X, r, p = 4, max_q = r, scale = TRUE, apply_bll = FALSE,
-                            standardize_resid = FALSE) {
+amengual_watson <- function(X, r, p = 4, max_q = r, standardize = TRUE,
+                            apply_bll = FALSE, standardize_resid = FALSE) {
   X <- as.matrix(X)
-
-  if (apply_bll) {
-    y <- diff(X)
-    sy <- apply(y, 2, sd)
-    y_centered <- sweep(y, 2, colMeans(y), "-")
-    X_std <- sweep(y_centered, 2, sy, "/")
-  } else if (scale) {
-    X_std <- scale(X, center = TRUE, scale = TRUE)
+  X_std <- if (apply_bll) {
+    standardize_bll(X)$yy
+  } else if (standardize) {
+    scale(X, center = TRUE, scale = TRUE)
   } else {
-    X_std <- X
+    X
   }
 
-  F_hat <- prcomp(X_std, scale. = FALSE, center = FALSE)$x[, 1:r, drop = FALSE]
+  pca <- prcomp(X_std, scale. = FALSE, center = FALSE)
+  F_hat <- pca$x[, 1:r, drop = FALSE]
   n_obs <- nrow(X_std)
   Z <- cbind(1, stats::embed(F_hat, p + 1)[, -(1:r), drop = FALSE])
 
   # Series by series: one matrix solve for every column differs in the last
   # bits and would move the recorded surfaces
-  resid_mat <- vapply(seq_len(ncol(X_std)), function(i) {
-    y <- X_std[(p + 1):n_obs, i]
+  filtered <- apply(X_std[(p + 1):n_obs, , drop = FALSE], 2, \(y) {
     drop(y - Z %*% solve(crossprod(Z), crossprod(Z, y)))
-  }, numeric(n_obs - p))
+  })
 
-  bn <- bai_ng_criteria(resid_mat, max_r = max_q, standardize = standardize_resid)
+  bai_ng <- bai_ng_criteria(
+    filtered,
+    max_r = max_q,
+    standardize = standardize_resid
+  )
 
-  list(aw = bn$criteria$IC2, q_hat = bn$r_hat$IC2)
-}
-
-
-#' Eigenvalues of X'X/(NT), the spectrum Ahn-Horenstein and ABC both read
-#'
-#' Ahn & Horenstein (2013, sec. 2) define `mu_k = psi_k[X'X/(NT)]`; the Bai-Ng
-#' residual variance that Alessi, Barigozzi & Capasso (2010, eq. 2) inherit is
-#' the tail sum of the same spectrum. All `min(N, T)` eigenvalues are returned,
-#' because `V(k)` sums up to `m`, not up to `kmax + 1`.
-#'
-#' @param X Numeric matrix T x N, already transformed and standardized.
-#'
-#' @return Numeric vector of the `min(N, T)` eigenvalues in decreasing order.
-#'
-#' @examples
-#' mu <- panel_eigenvalues(matrix(rnorm(200), 20, 10))
-panel_eigenvalues <- function(X) {
-  svd(X, nu = 0, nv = 0)$d^2 / (nrow(X) * ncol(X))
+  list(aw = bai_ng$criteria$IC2, q_hat = bai_ng$r_hat$IC2)
 }
 
 
 #' Ahn & Horenstein (2013) eigenvalue-ratio and growth-ratio estimators
 #'
-#' `ER(k) = mu_k / mu_{k+1}` and `GR(k) = ln(1 + mu*_k) / ln(1 + mu*_{k+1})`,
-#' where `V(k) = sum_{j>k} mu_j` runs over the whole spectrum and
-#' `mu*_k = mu_k / V(k)` (sec. 2). Row `k = 0` carries the mock eigenvalue
-#' `mu_0 = V(0) / ln(m)` of eq. (4), which admits zero factors (Corollary 1).
-#' `k_er`/`k_gr` maximize over `k = 1..kmax` (Theorem 1), `k_er0`/`k_gr0` over
-#' `k = 0..kmax` (Corollary 1). `kmax2` is the paper's data-driven bound
-#' `min(#{k : mu_k >= V(0)/m}, 0.1 m)`.
+#' Reads the spectrum `mu_k = psi_k[X'X/(NT)]` (sec. 2), all `min(N, T)` of
+#' its eigenvalues. `ER(k) = mu_k / mu_{k+1}` and
+#' `GR(k) = ln(1 + mu*_k) / ln(1 + mu*_{k+1})`, where `V(k) = sum_{j>k} mu_j`
+#' runs over the whole spectrum and `mu*_k = mu_k / V(k)`. Row `k = 0` carries
+#' the mock eigenvalue `mu_0 = V(0) / ln(m)` of eq. (4), which admits zero
+#' factors (Corollary 1). `k_er`/`k_gr` maximize over `k = 1..kmax`
+#' (Theorem 1), `k_er0`/`k_gr0` over `k = 0..kmax` (Corollary 1). `kmax2` is
+#' the paper's data-driven bound `min(#{k : mu_k >= V(0)/m}, 0.1 m)`.
 #'
 #' @param X Numeric matrix T x N, already transformed and standardized.
 #' @param kmax Largest number of factors considered.
@@ -144,19 +128,28 @@ panel_eigenvalues <- function(X) {
 #' @examples
 #' ah <- ahn_horenstein(matrix(rnorm(2000), 100, 20), kmax = 8)
 ahn_horenstein <- function(X, kmax) {
-  mu <- panel_eigenvalues(X)
+  mu <- svd(X, nu = 0, nv = 0)$d^2 / (nrow(X) * ncol(X))
   m <- length(mu)
 
-  V <- rev(cumsum(rev(mu)))[seq_len(kmax + 2)]     # V(0), ..., V(kmax + 1)
-  mu_k <- c(V[1] / log(m), mu[seq_len(kmax + 1)])  # mu_0 (eq. 4), mu_1, ..., mu_{kmax+1}
+  # V(0), ..., V(kmax + 1), each summing the tail of the whole spectrum
+  V <- rev(cumsum(rev(mu)))[seq_len(kmax + 2)]
+  # mu_0 (eq. 4), mu_1, ..., mu_{kmax + 1}
+  mu_k <- c(V[1] / log(m), mu[seq_len(kmax + 1)])
   mu_star <- mu_k / V
-  pos <- seq_len(kmax + 1)                          # positions of k = 0..kmax
-  ER <- mu_k[pos] / mu_k[pos + 1]
-  GR <- log1p(mu_star[pos]) / log1p(mu_star[pos + 1])
+  # Positions of k = 0..kmax
+  position <- seq_len(kmax + 1)
+  ER <- mu_k[position] / mu_k[position + 1]
+  GR <- log1p(mu_star[position]) / log1p(mu_star[position + 1])
 
   list(
-    surface = tibble::tibble(k = 0:kmax, mu = mu_k[pos], V = V[pos],
-                             mu_star = mu_star[pos], ER = ER, GR = GR),
+    surface = tibble::tibble(
+      k = 0:kmax,
+      mu = mu_k[position],
+      V = V[position],
+      mu_star = mu_star[position],
+      ER = ER,
+      GR = GR
+    ),
     k_er = which.max(ER[-1]),
     k_gr = which.max(GR[-1]),
     k_er0 = which.max(ER) - 1L,
@@ -170,13 +163,15 @@ ahn_horenstein <- function(X, kmax) {
 #'
 #' For each nested cross-section subsample -- the first `n_j` columns of
 #' `X[, col_order]` -- and each tuning constant `c`, `r_hat(c, j)` minimizes
-#' `IC*(k) = log V(k) + c k g(n_j, T)` over `k = 0..kmax` (eq. 3, sec. 3). `S_c`
-#' is the variance of `r_hat(c, .)` across the subsamples; a stability interval
-#' is a run of consecutive grid values with `S_c = 0` and the same full-sample
-#' `r_hat`. The first interval sits at `r_max` and is not admissible, so the
-#' estimate is the first interval with `r_hat < kmax` -- the paper's "second
-#' stability interval". Subsamples run over the cross-section only and no
-#' minimum interval length is imposed, as in the paper's simulations (sec. 4).
+#' `IC*(k) = log V(k) + c k g(n_j, T)` over `k = 0..kmax` (eq. 3, sec. 3), with
+#' `V(k)` the tail sum of the spectrum of `X'X/(n_j T)` that ABC inherit from
+#' Bai-Ng (eq. 2). `S_c` is the variance of `r_hat(c, .)` across the
+#' subsamples; a stability interval is a run of consecutive grid values with
+#' `S_c = 0` and the same full-sample `r_hat`. The first interval sits at
+#' `r_max` and is not admissible, so the estimate is the first interval with
+#' `r_hat < kmax` -- the paper's "second stability interval". Subsamples run
+#' over the cross-section only and no minimum interval length is imposed, as in
+#' the paper's simulations (sec. 4).
 #'
 #' `IC2` reads the paper's `log(min{sqrt(n), sqrt(T)})^2` as
 #' `log C_nT^2 = log min(n, T)`, the Bai-Ng IC_p2 penalty that ABC rescale.
@@ -204,24 +199,39 @@ abc_criterion <- function(X, kmax, penalty, col_order,
                           n_sub = floor(3 * ncol(X) / 4):ncol(X)) {
   n_T <- nrow(X)
 
-  r_by_sub <- t(vapply(n_sub, function(n) {
-    V <- rev(cumsum(rev(panel_eigenvalues(X[, col_order[seq_len(n)]]))))[seq_len(kmax + 1)]
-    e <- (n + n_T) / (n * n_T)
-    g <- switch(penalty, IC1 = e * log(1 / e), IC2 = e * log(min(n, n_T)))
+  r_by_sub <- do.call(rbind, purrr::map(n_sub, \(n) {
+    X_sub <- X[, col_order[seq_len(n)]]
+    mu <- svd(X_sub, nu = 0, nv = 0)$d^2 / (nrow(X_sub) * ncol(X_sub))
+    V <- rev(cumsum(rev(mu)))[seq_len(kmax + 1)]
+    nt_rate <- (n + n_T) / (n * n_T)
+    g <- switch(
+      penalty,
+      IC1 = nt_rate * log(1 / nt_rate),
+      IC2 = nt_rate * log(min(n, n_T))
+    )
     ic <- log(V) + outer(0:kmax, c_grid) * g
     apply(ic, 2, which.min) - 1L
-  }, integer(length(c_grid))))
+  }))
 
   S_c <- colMeans(sweep(r_by_sub, 2, colMeans(r_by_sub))^2)
   r_full <- r_by_sub[length(n_sub), ]
   stable <- S_c == 0
   run <- cumsum(c(TRUE, diff(stable) != 0 | diff(r_full) != 0))
 
-  intervals <- tibble::tibble(c = c_grid, r = r_full, stable = stable, run = run) |>
+  intervals <- tibble::tibble(
+    c = c_grid,
+    r = r_full,
+    stable = stable,
+    run = run
+  ) |>
     dplyr::filter(stable) |>
-    dplyr::group_by(run) |>
-    dplyr::summarise(r = dplyr::first(r), c_lo = min(c), c_hi = max(c),
-                     n_grid = dplyr::n(), .groups = "drop") |>
+    dplyr::summarise(
+      r = dplyr::first(r),
+      c_lo = min(c),
+      c_hi = max(c),
+      n_grid = dplyr::n(),
+      .by = run
+    ) |>
     dplyr::select(-run)
   admissible <- intervals |>
     dplyr::filter(r < kmax)
@@ -234,9 +244,13 @@ abc_criterion <- function(X, kmax, penalty, col_order,
     c_interval = c(admissible$c_lo[1], admissible$c_hi[1]),
     first_at_kmax = intervals$r[1] == kmax,
     intervals = intervals,
-    path = tibble::tibble(c = c_grid, r_full = r_full, S_c = S_c,
-                          r_min = apply(r_by_sub, 2, min),
-                          r_max = apply(r_by_sub, 2, max)),
+    path = tibble::tibble(
+      c = c_grid,
+      r_full = r_full,
+      S_c = S_c,
+      r_min = apply(r_by_sub, 2, min),
+      r_max = apply(r_by_sub, 2, max)
+    ),
     r_by_sub = r_by_sub
   )
 }
