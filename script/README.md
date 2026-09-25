@@ -58,6 +58,16 @@ No mesmo dia, a passada em `R/modeling/` levou para `model_alessi.R` o código
 de `plot_irf()`, que só ele chamava, e fez `validate_hac_kernel.R` e
 `validate_olea_kilian.R` carregarem `R/identification/factor_space_diagnostics.R`,
 para onde foram `compute_factor_space_wald()` e `compute_robust_first_stage_F()`.
+A passada em `R/identification/` desmontou `spec_sweep.R` e
+`experimental_panel.R`. Com isso, `irf_coherence_check.R` e `q_sensitivity.R`
+passaram a carregar `R/modeling/dfm_pipeline.R` (`run_stage2_cell()`), e
+`q_sensitivity.R` também `R/reporting/figures.R` (`plot_dimension_overlay()`).
+`factor_selection_pruned.R` e `validate_amengual_watson.R` passaram a carregar
+`R/reporting/markdown_report.R` (`md_table()`), e `panel_pruning.R` passou a
+carregar `R/modeling/factor_selection.R` (`prune_correlated_series()`). Dois
+scripts ganharam o que só eles usavam: `irf_coherence_check.R` recebeu a tabela
+de teoria, antes `coherence_var_table()`, e `panel_pruning.R` a taxonomia de
+blocos, antes `base_block_taxonomy()`.
 O mapa está em `registro/mapa_renomeacoes.md`.
 
 Rodadas anteriores de limpeza:

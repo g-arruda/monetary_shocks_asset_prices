@@ -13,6 +13,53 @@ mantidos em lugar e já usam os caminhos correntes.
 
 ---
 
+## 2026-09-25 — `coding-style` em `R/identification/`
+
+Terceira passada da skill `coding-style`, agora sobre `R/identification/`, com
+reagrupamento por domínio (decisão do autor). `spec_sweep.R` e
+`experimental_panel.R` deixaram de existir. Nenhum número se moveu:
+- o smoke test saiu bit-idêntico, e o objeto de `main_sdfm()`, `identical()`;
+- cada função saiu `identical()` à antiga nos testes antigo-contra-novo,
+  incluindo os casos de erro;
+- nenhum `.csv` ou `.rds` rastreado mudou na re-rodada dos 17 comandos
+  offline e de `het_rigobon/0{1,2,3}`;
+- as 7 travas de `script/validation/` passam.
+
+Os números de linha de `R/identification/*.R` citados antes desta data valem
+para `main` em `3d2f757`. O parecer
+`2026-09-24_auditoria_fidelidade_olea_lenza.md` cita `weak_iv_ar.R` e traz uma
+nota de leitura.
+
+| antes | agora |
+|---|---|
+| `run_stage2_cell()` em `R/identification/spec_sweep.R` | `R/modeling/dfm_pipeline.R`, junto de `main_sdfm()` |
+| `norm_value_for()` em `R/identification/spec_sweep.R` | a conta escrita dentro de `run_stage2_cell()`, seu único chamador |
+| `md_table()` em `R/identification/spec_sweep.R` | `R/reporting/markdown_report.R`, junto de `md_tbl()`, sem unificar |
+| `plot_dimension_overlay()` em `R/identification/spec_sweep.R` | `R/reporting/figures.R` |
+| `coherence_var_table()` em `R/identification/irf_coherence.R` | a tabela `theory_table` de `script/irf_coherence_check.R`, seu único chamador; a descrição dos tiers foi para `evaluate_irf_path()` |
+| `base_block_taxonomy()` em `R/identification/experimental_panel.R` | código em `script/panel_pruning.R`, seu único chamador |
+| `prune_correlated_series()` em `R/identification/experimental_panel.R` | `R/modeling/factor_selection.R` |
+| `regime_indicator()` em `R/identification/het_tests.R` | escrito dentro de `fit_het_cv()`, com a explicação do bug de `id.cv.R:177` |
+| `mat_sym_sqrt()` e `mat_sym_inv_sqrt()` em `R/identification/het_tests.R` | escritos dentro de `het_column_closed_form()`, que `fit_het_cv()` passou a chamar para a guarda de autovalores |
+
+Uma única mensagem mudou. `ar_dfm_bands()` repetia o gate `hac_dim < T` que
+`mosw_rform_cov()` já aplica, logo depois do gate `par_dim < T`. Com a
+repetição removida, as células bloqueadas ((8,8) e o pré-COVID com `p = 4`)
+passam a parar na mensagem do gate `par_dim`. Em (8,8) ela diz "Parameter
+dimension is 300 >= T = 162". O bloqueio é o mesmo: os dois gates barram
+exatamente as mesmas células.
+
+Os `source()` de `irf_coherence_check.R`, `q_sensitivity.R`,
+`factor_selection_pruned.R`, `panel_pruning.R` e `validate_amengual_watson.R`
+passaram a apontar os novos arquivos. Os scripts de `arquivo/` que carregam
+`spec_sweep.R` ou `experimental_panel.R` deixam de rodar; o acervo não é
+mantido.
+
+A mesma rodada devolveu `for` a `compute_irf_dfm()` (potências de `A`) e a
+`compute_factor_space_wald()` (soma de Bartlett), no lugar do
+`purrr::accumulate` e do `map` + `reduce` da passada anterior. O critério novo
+da skill é que o laço que é passo da matemática fica laço.
+
 ## 2026-09-25 — `coding-style` em `R/modeling/`
 
 Segunda passada da skill `coding-style` sobre os arquivos de funções de
