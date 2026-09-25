@@ -162,4 +162,7 @@ readr::write_csv(
   file.path(OUT_DIR, "var_benchmark_lag_criteria.csv")
 )
 readr::write_csv(sets, file.path(OUT_DIR, "svar_iv_weak_robust.csv"))
-readr::write_csv(diagnostics, file.path(OUT_DIR, "svar_iv_weak_robust_diag.csv"))
+readr::write_csv(
+  diagnostics,
+  file.path(OUT_DIR, "svar_iv_weak_robust_diag.csv")
+)

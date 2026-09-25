@@ -417,7 +417,10 @@ job_search <- sidrar::get_sidra(
       \(values) spline(x = as.numeric(month), y = values, n = length(month))$y
     )
   ) |>
-  dplyr::mutate(ref.date = lubridate::floor_date(month, "month"), .before = 1) |>
+  dplyr::mutate(
+    ref.date = lubridate::floor_date(month, "month"),
+    .before = 1
+  ) |>
   dplyr::select(-month) |>
   dplyr::arrange(ref.date) |>
   dplyr::rename_with(\(name) paste0("trab_", name), -ref.date)

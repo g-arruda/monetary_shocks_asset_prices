@@ -145,7 +145,11 @@ response_panel <- function(variable, model_name, y_label) {
       colour = "red",
       linewidth = 0.35
     ) +
-    ggplot2::geom_line(ggplot2::aes(y = point), colour = "black", linewidth = 0.8) +
+    ggplot2::geom_line(
+      ggplot2::aes(y = point),
+      colour = "black",
+      linewidth = 0.8
+    ) +
     ggplot2::scale_x_continuous(
       breaks = seq(0, H_MAX, 6),
       limits = c(0, H_MAX),
@@ -155,8 +159,8 @@ response_panel <- function(variable, model_name, y_label) {
       limits = c(limits$y_min - limits$padding, limits$y_max + limits$padding)
     ) +
     ggplot2::labs(
-      title = if (variable == dplyr::first(series$var)) model_name else NULL,
-      x = if (variable == dplyr::last(series$var)) "Horizonte (meses)" else NULL,
+      title = if (variable == dplyr::first(series$var)) model_name,
+      x = if (variable == dplyr::last(series$var)) "Horizonte (meses)",
       y = y_label
     ) +
     ggplot2::theme_classic(base_size = 9) +

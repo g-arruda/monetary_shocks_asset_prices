@@ -85,7 +85,11 @@ profile_loglik <- purrr::map_dbl(seq(0, 1, by = 0.01), function(rho) {
   optim(
     fit$theta[c("s0", "s1", "s2")],
     function(s) {
-      path <- covid_volatility_path(residual_dates, COVID_START, c(s, rho = rho))
+      path <- covid_volatility_path(
+        residual_dates,
+        COVID_START,
+        c(s, rho = rho)
+      )
       estimate_var_wls(factors, P_LAGS, s = path)$loglik
     },
     method = "L-BFGS-B",

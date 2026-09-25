@@ -102,7 +102,11 @@ results <- purrr::imap(panels, function(X, panel_name) {
   #     surface
   e_NT <- (ncol(yy) + nrow(yy)) / (ncol(yy) * nrow(yy))
   min_dim <- min(dim(yy))
-  penalty <- c(e_NT * log(1 / e_NT), e_NT * log(min_dim), log(min_dim) / min_dim)
+  penalty <- c(
+    e_NT * log(1 / e_NT),
+    e_NT * log(min_dim),
+    log(min_dim) / min_dim
+  )
   surface_gap <- max(abs(
     log(ah_fit$surface$V[-1]) +
       outer(seq_len(KMAX), penalty) -
@@ -216,7 +220,9 @@ estimates <- dplyr::bind_rows(purrr::map(results, "estimates"))
 aw_tbl <- dplyr::bind_rows(purrr::map(results, "aw"))
 surfaces <- dplyr::bind_rows(purrr::map(results, "surface"))
 abc_intervals <- dplyr::bind_rows(purrr::map(results, "abc_intervals"))
-permutation_counts <- dplyr::bind_rows(purrr::map(results, "permutation_counts"))
+permutation_counts <- results |>
+  purrr::map("permutation_counts") |>
+  dplyr::bind_rows()
 surface_gap <- max(purrr::map_dbl(results, "surface_gap"))
 
 
@@ -249,7 +255,11 @@ self_tests <- tibble::tibble(
       "pior painel"
     )
   ),
-  valor = c(sum(check_a$r_hat == check_a$r_alt), sum(same_panel$ok), surface_gap),
+  valor = c(
+    sum(check_a$r_hat == check_a$r_alt),
+    sum(same_panel$ok),
+    surface_gap
+  ),
   criterio = c("= 7 de 7", sprintf("= %d", nrow(configs)), "< 1e-10")
 )
 

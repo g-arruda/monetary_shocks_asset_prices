@@ -188,7 +188,11 @@ irf_panel <- function(variable, label, scale, mark_sig90) {
       colour = "red",
       linewidth = 0.35
     ) +
-    ggplot2::geom_line(ggplot2::aes(y = irf), colour = "black", linewidth = 0.8) +
+    ggplot2::geom_line(
+      ggplot2::aes(y = irf),
+      colour = "black",
+      linewidth = 0.8
+    ) +
     sig_markers +
     ggplot2::scale_x_continuous(
       breaks = seq(0, H_MAX, 6),

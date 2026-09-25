@@ -179,7 +179,9 @@ if (length(unknown_args) > 0) {
 }
 
 if (flag("--help") || flag("-h")) {
-  cat(paste(readLines("script/run_all.R", n = HELP_LINES), collapse = "\n"), "\n")
+  readLines("script/run_all.R", n = HELP_LINES) |>
+    paste(collapse = "\n") |>
+    cat("\n")
   quit(save = "no", status = 0)
 }
 
@@ -350,7 +352,10 @@ for (name in selected) {
     all(file.exists(stage$produces))
 
   if (skip_existing && outputs_exist) {
-    cat(sprintf("\n--- [%s] pulado (--skip-existing, saidas presentes)\n", name))
+    cat(sprintf(
+      "\n--- [%s] pulado (--skip-existing, saidas presentes)\n",
+      name
+    ))
     results <- tibble::add_row(
       results,
       stage = name,
