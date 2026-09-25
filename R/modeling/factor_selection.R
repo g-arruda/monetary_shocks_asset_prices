@@ -193,7 +193,8 @@ ahn_horenstein <- function(X, kmax) {
 #'
 #' @examples
 #' X <- matrix(rnorm(4000), 100, 40)
-#' abc <- abc_criterion(X, kmax = 8, penalty = "IC1", col_order = sample.int(40))
+#' abc <- abc_criterion(X, kmax = 8, penalty = "IC1",
+#'                      col_order = sample.int(40))
 abc_criterion <- function(X, kmax, penalty, col_order,
                           c_grid = seq(0.01, 5, by = 0.01),
                           n_sub = floor(3 * ncol(X) / 4):ncol(X)) {
