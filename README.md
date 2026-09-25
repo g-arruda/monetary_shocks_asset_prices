@@ -87,17 +87,19 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   centralizada, foi apagada em 2026-09-21: cada script traz agora os seus
   literais, e θ̂ vem de `output/factors/covid_volatility_theta.csv` por
   `read_covid_volatility()`); e os motores `factor_estimation.R`
-  (estimação BLL do DFM e do VAR dos fatores), `factor_selection.R` (todos os
-  seletores do número de fatores: Bai-Ng BLL para r e Amengual-Watson para q,
-  mais ER/GR de Ahn-Horenstein e ABC, usados só como diagnóstico),
-  `impulse_response.R` (núcleo de
+  (padronização BLL em `standardize_bll()`, estimação do DFM e do VAR dos
+  fatores), `factor_selection.R` (todos os seletores do número de fatores:
+  Bai-Ng BLL para r e Amengual-Watson para q, mais ER/GR de Ahn-Horenstein e
+  ABC, usados só como diagnóstico), `impulse_response.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
-  `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
+  `cumimp_transform`, `compute_irf_dfm`) e `var_proxy.R` (motor do
   benchmark VAR pequeno observável, com as traduções de `RForm_VAR.m` e
   `bicaic.m` de Montiel Olea et al.). O órfão
   `svensson_model.R` foi para `arquivo/R/modeling/` em 2026-08-05.
 - **`identification/`** — a máquina de diagnóstico em torno do proxy-SVAR:
-  `spec_sweep.R`, `factor_space_diagnostics.R`,
+  `spec_sweep.R`, `factor_space_diagnostics.R` (as duas réguas de relevância
+  de MOSW, `compute_factor_space_wald` para ξ e
+  `compute_robust_first_stage_F`, desde 2026-09-25),
   `irf_coherence.R` (pontuação de coerência teórica), `experimental_panel.R`
   (taxonomia de blocos e poda por correlação, usadas por `panel_pruning.R`) e
   `weak_iv_ar.R` (MA, SVAR-IV, covariância e inversão AR, somente para VAR de

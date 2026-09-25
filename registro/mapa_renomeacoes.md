@@ -13,6 +13,39 @@ mantidos em lugar e já usam os caminhos correntes.
 
 ---
 
+## 2026-09-25 — `coding-style` em `R/modeling/`
+
+Segunda passada da skill `coding-style` sobre os arquivos de funções de
+`R/modeling/`, com reagrupamento por domínio (decisão do autor). Nenhum número
+se moveu:
+- o smoke test saiu bit-idêntico, e o objeto de `main_sdfm()`, `identical()`;
+- nenhum `.csv` ou `.rds` rastreado mudou na re-rodada dos 17 comandos offline
+  e de `het_rigobon/02_irf.R`;
+- os PDFs e `.md` só mudaram na data;
+- as 7 travas de `script/validation/` passam.
+
+Os números de linha de `R/modeling/*.R`,
+`R/identification/factor_space_diagnostics.R` e `script/*.R` citados antes desta
+data valem para `main` em `3d2f757`. O parecer
+`2026-09-24_auditoria_fidelidade_olea_lenza.md` cita vários e traz uma nota de
+leitura.
+
+| antes | agora |
+|---|---|
+| `compute_factor_space_wald()` em `R/modeling/impulse_response.R` | `R/identification/factor_space_diagnostics.R`, junto de `diagnose_instrument_in_factor_space()`, seu único chamador vivo |
+| `compute_robust_first_stage_F()` em `R/modeling/impulse_response.R` | `R/identification/factor_space_diagnostics.R` |
+| `plot_irf()` em `R/modeling/impulse_response.R` | código em linha em `script/model_alessi.R`, seu único chamador vivo |
+| `panel_eigenvalues()` em `R/modeling/factor_selection.R` | a conta `svd(X)$d^2 / (NT)` escrita em `ahn_horenstein()` e `abc_criterion()` |
+| três cópias da padronização BLL, em `estimate_static_factors()`, `bai_ng_criteria()` e `amengual_watson()` | `standardize_bll()` em `R/modeling/factor_estimation.R` |
+| `amengual_watson(scale = )` | `amengual_watson(standardize = )`, como em `bai_ng_criteria()` |
+| `var_lag_criteria()` devolvia `data.frame` | devolve tibble, com as mesmas colunas e valores |
+
+`validate_hac_kernel.R` e `validate_olea_kilian.R` passaram a carregar
+`factor_space_diagnostics.R`. Os scripts de `arquivo/` que chamam as funções
+movidas carregando só `impulse_response.R`, ou que chamam `plot_irf()` ou
+`panel_eigenvalues()`, deixam de rodar; o acervo não é mantido.
+
+
 ## 2026-09-21 — fim de `production_spec()`
 
 `R/modeling/production_spec.R` foi **apagado** (decisão do autor: a

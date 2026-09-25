@@ -1,5 +1,14 @@
 # Auditoria de fidelidade: Montiel Olea–Stock–Watson (2021) e Lenza–Primiceri (2022)
 
+> **Nota de leitura (2026-09-25).** Este parecer é mantido **verbatim**. Os números de linha que
+> ele cita em `R/modeling/*.R`, `R/identification/factor_space_diagnostics.R` e
+> `script/covid_volatility_theta.R` valem para `main` em `3d2f757`: as passadas de
+> `coding-style` de 2026-09-25 reformataram esses arquivos sem mover nenhum número.
+> `compute_robust_first_stage_F()` e `compute_factor_space_wald()` (`impulse_response.R:97` e
+> `:158` aqui) passaram a `R/identification/factor_space_diagnostics.R`, e o `plot_irf()` do
+> item 3 da §4 passou a ser código de `script/model_alessi.R`, com o mesmo sombreamento
+> `[lo, hi]`. Mapa completo em [`registro/mapa_renomeacoes.md`](../registro/mapa_renomeacoes.md).
+
 > **Data:** 2026-09-24. **Natureza:** auditoria metodológica e de código, somente leitura — nenhum
 > arquivo do repositório foi alterado, nenhum script com escrita foi executado. As verificações
 > rodadas em memória estão listadas na §1.3 com os números medidos.

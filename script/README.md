@@ -54,6 +54,12 @@ pré-registrados, as checagens que impedem NA silencioso e a integridade dos
 dados baixados. `model_var.R` perdeu uma chamada a `mosw_svar_iv()` cujo
 resultado ninguém lia.
 
+No mesmo dia, a passada em `R/modeling/` levou para `model_alessi.R` o código
+de `plot_irf()`, que só ele chamava, e fez `validate_hac_kernel.R` e
+`validate_olea_kilian.R` carregarem `R/identification/factor_space_diagnostics.R`,
+para onde foram `compute_factor_space_wald()` e `compute_robust_first_stage_F()`.
+O mapa está em `registro/mapa_renomeacoes.md`.
+
 Rodadas anteriores de limpeza:
 - **2026-08-01 e 2026-08-05:** saíram cinco scripts da investigação de
   contaminação de IRF e `diagnose_factor_space_F.R`.
