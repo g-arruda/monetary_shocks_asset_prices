@@ -29,7 +29,7 @@
 # ===================================================================
 
 source("R/modeling/factor_estimation.R")
-source("R/identification/experimental_panel.R")
+source("R/modeling/factor_selection.R")
 
 PANEL_PATH    <- "data/processed/data_log_deseasonalized.csv"
 OUT_DIR       <- "output/panel_experimental/poda_correlacao"
@@ -63,12 +63,46 @@ panel <- raw |>
   dplyr::select(-ref.date) |>
   as.matrix()
 pre_covid <- raw$ref.date <= PRE_COVID_END
-blocks <- base_block_taxonomy(colnames(panel))
+
+# The production panel's fine block taxonomy: the 104 base series plus the
+# fiscal block (fiscal_*, dlsp_exchange_adjustment) and the Focus
+# expectations block (expect_focus_*)
+series_names <- colnames(panel)
+blocks <- dplyr::case_when(
+  stringr::str_detect(series_names, "^cambio_") ~ "cambio",
+  stringr::str_detect(series_names, "^juros_") ~ "politica",
+  stringr::str_detect(series_names, "^yield_") ~ "curva",
+  stringr::str_detect(series_names, "^base_") ~ "monetario",
+  stringr::str_detect(
+    series_names,
+    "^credito_|^spread_|^credit_|^fin_inst_"
+  ) ~ "credito_existente",
+  stringr::str_detect(series_names, "^consumo_") ~ "combustiveis",
+  stringr::str_detect(series_names, "^ind_|^capacidade_") ~ "industria",
+  stringr::str_detect(series_names, "^energia_") ~ "energia",
+  stringr::str_detect(series_names, "^vendas_") ~ "vendas",
+  series_names %in% c("pib", "ibc_br") ~ "atividade_agregada",
+  series_names %in% c("icc", "ics") ~ "confianca",
+  stringr::str_detect(series_names, "^trab_") ~ "trabalho",
+  stringr::str_detect(series_names, "^price_") ~ "precos",
+  stringr::str_detect(series_names, "^commodity_") ~ "commodities",
+  stringr::str_detect(series_names, "^asset_") ~ "acoes",
+  series_names %in% c("embi_perc", "cds_5y", "msci", "sp500_vix") ~
+    "risco_externo",
+  stringr::str_detect(series_names, "^epu_") ~ "epu",
+  stringr::str_detect(series_names, "^fiscal_|^dlsp_") ~ "fiscal",
+  stringr::str_detect(series_names, "^expect_focus_") ~ "expectativas"
+) |>
+  purrr::set_names(series_names)
+if (anyNA(blocks)) {
+  stop("The production taxonomy does not classify: ",
+       paste(series_names[is.na(blocks)], collapse = ", "), ".")
+}
 
 cor_diff <- cor(diff(panel))
 cor_diff_pre_covid <- cor(diff(panel[pre_covid, ]))
 
-# (a) every production series has a block -- base_block_taxonomy() aborts
+# (a) every production series has a block -- the taxonomy above aborts
 #     otherwise
 # (b) the correlation of `yy`, the matrix the production PCA decomposes, is
 #     cor_diff

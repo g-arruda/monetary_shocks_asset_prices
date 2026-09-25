@@ -255,3 +255,80 @@ abc_criterion <- function(X, kmax, penalty, col_order,
     r_by_sub = r_by_sub
   )
 }
+
+
+#' Keep one series per group of highly correlated series
+#'
+#' Builds the correlation-pruned panels on which `script/panel_pruning.R` and
+#' `script/factor_selection_pruned.R` re-run the selectors above. Groups come
+#' from a hierarchical clustering of the distance `1 - |rho|` cut at height
+#' `1 - threshold`: under complete linkage every pair inside a group has
+#' `|rho| >= threshold`, under single linkage the pairs only chain. A
+#' correlation of either sign counts as redundancy. `within_blocks = TRUE`
+#' forbids groups that span blocks, the advisor's within-block version of the
+#' rule. Each group keeps the first series of `keep_priority` it contains,
+#' otherwise the member with the highest mean `|rho|` against the rest of its
+#' block, ties broken by column order.
+#'
+#' @param C Correlation matrix of the panel, series names as dimnames.
+#' @param blocks Named character vector of block labels, one per series.
+#' @param threshold Correlation above which two series are redundant.
+#' @param keep_priority Series kept whenever they sit in a group, in order of
+#'   precedence.
+#' @param linkage `"complete"` or `"single"`, passed to `hclust()`.
+#' @param within_blocks Whether a group must stay inside one block.
+#'
+#' @return Tibble with one row per series, in the column order of `C`:
+#'   `series`, `block`, `group` (`NA` outside any group, otherwise numbered by
+#'   the column order of its first member), `group_size`, `kept` and `reason`
+#'   (`"prioridade"`, `"medoide"`, `"descartada"` or `"sem_grupo"`).
+#'
+#' @examples
+#' C <- cor(matrix(rnorm(400), 40, 10, dimnames = list(NULL, letters[1:10])))
+#' prune_correlated_series(C, setNames(rep("x", 10), letters[1:10]), 0.9, "a")
+prune_correlated_series <- function(C, blocks, threshold, keep_priority,
+                                    linkage = "complete",
+                                    within_blocks = FALSE) {
+  blocks <- unname(blocks[colnames(C)])
+  same_block <- outer(blocks, blocks, "==")
+
+  distance <- 1 - abs(C)
+  # A distance above the cut height can never be merged under either linkage
+  if (within_blocks) distance[!same_block] <- 2
+  cluster <- as.dist(distance) |>
+    hclust(method = linkage) |>
+    cutree(h = 1 - threshold)
+
+  diag(same_block) <- FALSE
+  block_score <- rowSums(abs(C) * same_block) / rowSums(same_block)
+
+  tibble::tibble(
+    series = colnames(C),
+    block = blocks,
+    cluster = cluster,
+    priority = match(
+      colnames(C),
+      keep_priority,
+      nomatch = length(keep_priority) + 1L
+    ),
+    block_score = block_score,
+    position = seq_along(blocks)
+  ) |>
+    dplyr::arrange(cluster, priority, dplyr::desc(block_score), position) |>
+    dplyr::mutate(
+      group_size = dplyr::n(),
+      kept = dplyr::row_number() == 1L,
+      .by = cluster
+    ) |>
+    dplyr::arrange(position) |>
+    dplyr::mutate(
+      group = match(cluster, unique(cluster[group_size > 1L])),
+      reason = dplyr::case_when(
+        group_size == 1L ~ "sem_grupo",
+        !kept ~ "descartada",
+        priority <= length(keep_priority) ~ "prioridade",
+        .default = "medoide"
+      )
+    ) |>
+    dplyr::select(series, block, group, group_size, kept, reason)
+}
