@@ -1,9 +1,8 @@
 # ===================================================================
 # End-to-end pipeline orchestrator.
 #
-# Runs the ordered stages of the project, one OS process per stage. A
-# separate process is mandatory because most stage scripts start with
-# `rm(list = ls())` and must not share mutable state.
+# Runs the ordered stages of the project, one Rscript process per stage, so
+# that no stage sees another stage's workspace.
 #
 # Usage (always from the repository root):
 #   Rscript script/run_all.R                     # full chain, network included
@@ -21,43 +20,40 @@
 # advisor: it is the curve the panel is built on, `script/download.R`
 # consumes it as given, and nothing here can regenerate it. The `download`
 # stage declares it as a hard requirement so preflight aborts with a pointer
-# if it ever goes missing. (`script/yield_curve.R`, an in-house Svensson fit
-# on the DI contracts, was deleted on 2026-07-26 — it never produced good
-# results and its output fed no stage; see `registro/historico_decisoes.md`
-# section 4.)
+# if it ever goes missing (`registro/historico_decisoes.md` section 4).
 # ===================================================================
 
+HELP_LINES <- 24L   # the header above, printed by --help
 RSCRIPT <- file.path(R.home("bin"), "Rscript")
 LOG_DIR <- "output/logs"
 
-# Canonical artefacts of the chain, written here rather than resolved from a
-# spec object. `covid_volatility_theta.csv` has no stage: script/
-# covid_volatility_theta.R estimates theta and the preflight reports it missing.
-PANEL_BASE  <- "data/processed/data_log_deseasonalized_base_106.csv"
-PANEL       <- "data/processed/data_log_deseasonalized.csv"
-INSTRUMENT  <- "data/processed/instrument.csv"
-THETA       <- "output/factors/covid_volatility_theta.csv"
-MODEL_IRF   <- "output/irf/irf_model_alessi_r5q5.pdf"
-BAI_NG      <- "output/factors/production_bai_ng_bll_surface.csv"
+# Canonical artefacts of the chain. `covid_volatility_theta.csv` has no
+# stage: script/covid_volatility_theta.R estimates theta and the preflight
+# reports it missing.
+PANEL_BASE <- "data/processed/data_log_deseasonalized_base_106.csv"
+PANEL      <- "data/processed/data_log_deseasonalized.csv"
+INSTRUMENT <- "data/processed/instrument.csv"
+THETA      <- "output/factors/covid_volatility_theta.csv"
+MODEL_IRF  <- "output/irf/irf_model_alessi_r5q5.pdf"
+BAI_NG     <- "output/factors/production_bai_ng_bll_surface.csv"
 
-
-# ---- Stage table ---------------------------------------------------
 # requires: inputs with no producer inside the selected run (checked in
 #           preflight); produces: outputs used by --skip-existing and by
 #           the post-run report.
-
 STAGES <- list(
-  list(
-    name     = "download",
-    desc     = "Download and merge every reproducible raw input",
-    file     = "script/download.R",
-    network  = TRUE,
-    requires = c("data/raw/yields/yields_dia.csv",
-                 "data/raw/banco_central_rep_dominicana/embi_brasil.csv",
-                 "data/raw/investing/cds5y.csv",
-                 "data/raw/investing/msci.csv",
-                 "data/raw/investing/sp500_vix.csv",
-                 "data/raw/epu/economic_policy_uncertainty.xlsx"),
+  download = list(
+    name = "download",
+    desc = "Download and merge every reproducible raw input",
+    file = "script/download.R",
+    network = TRUE,
+    requires = c(
+      "data/raw/yields/yields_dia.csv",
+      "data/raw/banco_central_rep_dominicana/embi_brasil.csv",
+      "data/raw/investing/cds5y.csv",
+      "data/raw/investing/msci.csv",
+      "data/raw/investing/sp500_vix.csv",
+      "data/raw/epu/economic_policy_uncertainty.xlsx"
+    ),
     produces = c(
       "data/raw/raw_data.csv",
       "data/raw/focus_daily.csv",
@@ -67,11 +63,11 @@ STAGES <- list(
       "data/raw/investing/external_factors_daily.csv"
     )
   ),
-  list(
-    name     = "clean",
-    desc     = "Log transforms + X-13 seasonal adjustment of the monthly panel",
-    file     = "script/clean.R",
-    network  = FALSE,
+  clean = list(
+    name = "clean",
+    desc = "Log transforms + X-13 seasonal adjustment of the monthly panel",
+    file = "script/clean.R",
+    network = FALSE,
     requires = c(
       "data/raw/raw_data.csv",
       "data/raw/focus_fiscal_expectations.csv",
@@ -83,37 +79,42 @@ STAGES <- list(
       "output/panel/production_series_manifest.csv"
     )
   ),
-  list(
-    name     = "instrument",
-    desc     = "Copom-day DI surprises to the three monthly instrument variants",
-    file     = "script/instrument.R",
-    network  = FALSE,
-    requires = c("data/raw/di.csv", "data/raw/copom_historico.csv",
-                 "data/raw/ibov_daily.csv",
-                 "data/raw/investing/external_factors_daily.csv",
-                 "data/raw/brl_usd_daily.csv",
-                 "data/raw/focus_daily.csv"),
-    produces = c("data/processed/instrument.csv",
-                 "data/processed/instrumentos_mensais.csv")
+  instrument = list(
+    name = "instrument",
+    desc = "Copom-day DI surprises to the three monthly instrument variants",
+    file = "script/instrument.R",
+    network = FALSE,
+    requires = c(
+      "data/raw/di.csv",
+      "data/raw/copom_historico.csv",
+      "data/raw/ibov_daily.csv",
+      "data/raw/investing/external_factors_daily.csv",
+      "data/raw/brl_usd_daily.csv",
+      "data/raw/focus_daily.csv"
+    ),
+    produces = c(
+      "data/processed/instrument.csv",
+      "data/processed/instrumentos_mensais.csv"
+    )
   ),
-  list(
-    name     = "model",
-    desc     = "Production DFM (r=5, q=5) + Anderson-Rubin IRF sets",
-    file     = "script/model_alessi.R",
-    network  = FALSE,
+  model = list(
+    name = "model",
+    desc = "Production DFM (r=5, q=5) + Anderson-Rubin IRF sets",
+    file = "script/model_alessi.R",
+    network = FALSE,
     requires = c(PANEL, INSTRUMENT, THETA),
     produces = c(MODEL_IRF, BAI_NG)
   )
 )
 
-names(STAGES) <- vapply(STAGES, `[[`, character(1), "name")
-STAGE_NAMES   <- names(STAGES)
+stage_names <- names(STAGES)
 
 # Which stage produces a given file, if any — drives the preflight so that
 # a requirement satisfied earlier in the same run is not reported missing.
-PRODUCER <- unlist(lapply(unname(STAGES), function(s) {
-  setNames(rep(s$name, length(s$produces)), s$produces)
-}))
+producer_of <- purrr::map(unname(STAGES), function(stage) {
+  purrr::set_names(rep(stage$name, length(stage$produces)), stage$produces)
+}) |>
+  purrr::list_c()
 
 
 # ---- Argument parsing ----------------------------------------------
@@ -133,29 +134,12 @@ flag <- function(x) x %in% args
 #'
 #' @return The value as a string, or `NULL` if the option was not passed.
 opt <- function(key) {
-  hit <- grep(sprintf("^--%s=", key), args, value = TRUE)
-  if (length(hit) == 0) return(NULL)
-  sub(sprintf("^--%s=", key), "", hit[length(hit)])
+  hit <- stringr::str_subset(args, sprintf("^--%s=", key))
+  if (length(hit) == 0) {
+    return(NULL)
+  }
+  stringr::str_remove(dplyr::last(hit), sprintf("^--%s=", key))
 }
-
-known <- c("--list", "--dry-run", "--skip-existing", "--continue-on-error",
-           "--help", "-h")
-unknown <- args[!(args %in% known) &
-                  !grepl("^--(from|to|only|skip)=", args)]
-if (length(unknown) > 0) {
-  stop("Argumento nao reconhecido: ", paste(unknown, collapse = ", "),
-       "\nUse --help para a lista.", call. = FALSE)
-}
-
-if (flag("--help") || flag("-h")) {
-  cat(paste(readLines("script/run_all.R", n = 38), collapse = "\n"), "\n")
-  quit(save = "no", status = 0)
-}
-
-do_list      <- flag("--list")
-dry_run      <- flag("--dry-run")
-skip_existing <- flag("--skip-existing")
-keep_going   <- flag("--continue-on-error")
 
 #' Abort on stage names that are not in the stage table
 #'
@@ -164,20 +148,56 @@ keep_going   <- flag("--continue-on-error")
 #'
 #' @return `x`, unchanged, when every name is a known stage.
 check_names <- function(x, what) {
-  bad <- setdiff(x, STAGE_NAMES)
-  if (length(bad) > 0) {
-    stop(sprintf("%s: estagio desconhecido: %s\nEstagios validos: %s",
-                 what, paste(bad, collapse = ", "),
-                 paste(STAGE_NAMES, collapse = ", ")), call. = FALSE)
+  unknown_stages <- setdiff(x, stage_names)
+  if (length(unknown_stages) > 0) {
+    stop(
+      sprintf(
+        "%s: estagio desconhecido: %s\nEstagios validos: %s",
+        what,
+        paste(unknown_stages, collapse = ", "),
+        paste(stage_names, collapse = ", ")
+      ),
+      call. = FALSE
+    )
   }
   x
 }
 
-selected <- STAGE_NAMES
+known_flags <- c(
+  "--list", "--dry-run", "--skip-existing", "--continue-on-error",
+  "--help", "-h"
+)
+unknown_args <- args[
+  !(args %in% known_flags) & !grepl("^--(from|to|only|skip)=", args)
+]
+if (length(unknown_args) > 0) {
+  stop(
+    "Argumento nao reconhecido: ", paste(unknown_args, collapse = ", "),
+    "\nUse --help para a lista.",
+    call. = FALSE
+  )
+}
+
+if (flag("--help") || flag("-h")) {
+  readLines("script/run_all.R", n = HELP_LINES) |>
+    paste(collapse = "\n") |>
+    cat("\n")
+  quit(save = "no", status = 0)
+}
+
+do_list       <- flag("--list")
+dry_run       <- flag("--dry-run")
+skip_existing <- flag("--skip-existing")
+keep_going    <- flag("--continue-on-error")
+
+selected <- stage_names
 
 if (!is.null(opt("only"))) {
-  only <- check_names(trimws(strsplit(opt("only"), ",", fixed = TRUE)[[1]]), "--only")
-  selected <- STAGE_NAMES[STAGE_NAMES %in% only]
+  only <- check_names(
+    trimws(strsplit(opt("only"), ",", fixed = TRUE)[[1]]),
+    "--only"
+  )
+  selected <- stage_names[stage_names %in% only]
 } else {
   if (!is.null(opt("from"))) {
     from <- check_names(opt("from"), "--from")
@@ -197,7 +217,9 @@ if (!is.null(opt("skip"))) {
   selected <- setdiff(selected, check_names(skipped, "--skip"))
 }
 
-if (length(selected) == 0) stop("Nenhum estagio selecionado.", call. = FALSE)
+if (length(selected) == 0) {
+  stop("Nenhum estagio selecionado.", call. = FALSE)
+}
 
 
 # ---- --list --------------------------------------------------------
@@ -208,22 +230,27 @@ if (length(selected) == 0) stop("Nenhum estagio selecionado.", call. = FALSE)
 #'
 #' @return One string: each path tagged `[ok]` or `[FALTA]`, or `"-"` if empty.
 file_state <- function(paths) {
-  if (length(paths) == 0) return("-")
-  paste(vapply(paths, function(p) {
-    if (file.exists(p)) sprintf("%s [ok]", p) else sprintf("%s [FALTA]", p)
-  }, character(1)), collapse = ", ")
+  if (length(paths) == 0) {
+    return("-")
+  }
+  status <- dplyr::if_else(file.exists(paths), "[ok]", "[FALTA]")
+  paste(paths, status, collapse = ", ")
 }
 
 if (do_list) {
   cat("\nEstagios do pipeline (ordem de execucao):\n\n")
-  for (i in seq_along(STAGE_NAMES)) {
-    s <- STAGES[[i]]
-    cat(sprintf("%d. %-17s %s%s\n", i, s$name, s$desc,
-                if (s$network) "  [rede]" else ""))
-    cat(sprintf("   cmd      : Rscript %s\n", s$file))
-    cat(sprintf("   requer   : %s\n", file_state(s$requires)))
-    cat(sprintf("   produz   : %s\n\n", file_state(s$produces)))
-  }
+  purrr::iwalk(unname(STAGES), function(stage, i) {
+    cat(sprintf(
+      "%d. %-17s %s%s\n",
+      i,
+      stage$name,
+      stage$desc,
+      if (stage$network) "  [rede]" else ""
+    ))
+    cat(sprintf("   cmd      : Rscript %s\n", stage$file))
+    cat(sprintf("   requer   : %s\n", file_state(stage$requires)))
+    cat(sprintf("   produz   : %s\n\n", file_state(stage$produces)))
+  })
   cat("Selecao atual: ", paste(selected, collapse = " -> "), "\n\n", sep = "")
   quit(save = "no", status = 0)
 }
@@ -235,25 +262,30 @@ if (do_list) {
 # stage starts, so a 40-minute download never fails on a missing input at
 # the end.
 
-checks <- do.call(rbind, lapply(selected, function(nm) {
-  s <- STAGES[[nm]]
-  data.frame(stage = nm, file = c(s$requires, s$file),
-             producer = c(unname(PRODUCER[s$requires]), NA_character_))
-}))
+checks <- purrr::map(selected, function(name) {
+  spec <- STAGES[[name]]
+  tibble::tibble(
+    stage = name,
+    file = c(spec$requires, spec$file),
+    producer = c(unname(producer_of[spec$requires]), NA_character_)
+  )
+}) |>
+  purrr::list_rbind()
 made_here <- !is.na(checks$producer) &
   checks$producer %in% selected &
   match(checks$producer, selected) < match(checks$stage, selected)
-missing <- checks[!file.exists(checks$file) & !made_here, ]
+missing_inputs <- checks[!file.exists(checks$file) & !made_here, ]
 
-if (nrow(missing) > 0) {
+if (nrow(missing_inputs) > 0) {
   cat("\n[ABORTADO] Preflight: entradas ausentes. Nada foi executado.\n\n")
-  for (i in seq_len(nrow(missing))) {
-    m <- missing[i, ]
-    cat(sprintf("  - estagio '%s' precisa de: %s\n", m$stage, m$file))
-    if (!is.na(m$producer)) {
-      cat(sprintf("      produzido pelo estagio '%s' (inclua-o na selecao)\n",
-                  m$producer))
-    } else if (identical(m$file, "data/raw/yields/yields_dia.csv")) {
+  purrr::pwalk(missing_inputs, function(stage, file, producer) {
+    cat(sprintf("  - estagio '%s' precisa de: %s\n", stage, file))
+    if (!is.na(producer)) {
+      cat(sprintf(
+        "      produzido pelo estagio '%s' (inclua-o na selecao)\n",
+        producer
+      ))
+    } else if (identical(file, "data/raw/yields/yields_dia.csv")) {
       cat("      INSUMO EXTERNO FIXO, fornecido pelo orientador. Nenhum script\n")
       cat("      deste repositorio escreve esse arquivo e nenhum deveria — e a\n")
       cat("      curva sobre a qual o painel e construido, e nao e reproduzivel\n")
@@ -261,7 +293,7 @@ if (nrow(missing) > 0) {
     } else {
       cat("      entrada externa sem produtor no repositorio.\n")
     }
-  }
+  })
   cat("\n")
   quit(save = "no", status = 1)
 }
@@ -269,25 +301,32 @@ if (nrow(missing) > 0) {
 
 # ---- Plan ----------------------------------------------------------
 
-net_stages <- selected[vapply(selected, function(n) STAGES[[n]]$network, logical(1))]
+network_stages <- selected[purrr::map_lgl(STAGES[selected], "network")]
 
 cat("\n=== run_all.R ===\n")
 cat(sprintf("Estagios: %s\n", paste(selected, collapse = " -> ")))
-if (length(net_stages) > 0) {
-  cat(sprintf("[!] %d estagio(s) batem em rede (%s) — a cadeia pode levar dezenas de minutos.\n",
-              length(net_stages), paste(net_stages, collapse = ", ")))
+if (length(network_stages) > 0) {
+  cat(sprintf(
+    "[!] %d estagio(s) batem em rede (%s) — a cadeia pode levar dezenas de minutos.\n",
+    length(network_stages),
+    paste(network_stages, collapse = ", ")
+  ))
 }
 if (skip_existing) cat("[i] --skip-existing ativo.\n")
-if (keep_going)    cat("[i] --continue-on-error ativo.\n")
+if (keep_going) cat("[i] --continue-on-error ativo.\n")
 
 if (dry_run) {
   cat("\n[--dry-run] Preflight passou. Comandos que seriam executados:\n\n")
-  for (nm in selected) {
-    s <- STAGES[[nm]]
-    tag <- if (skip_existing && length(s$produces) > 0 &&
-               all(file.exists(s$produces))) "  [seria pulado: saidas existem]" else ""
-    cat(sprintf("  Rscript %s%s\n", s$file, tag))
-  }
+  purrr::walk(STAGES[selected], function(stage) {
+    outputs_exist <- length(stage$produces) > 0 &&
+      all(file.exists(stage$produces))
+    skip_tag <- if (skip_existing && outputs_exist) {
+      "  [seria pulado: saidas existem]"
+    } else {
+      ""
+    }
+    cat(sprintf("  Rscript %s%s\n", stage$file, skip_tag))
+  })
   cat("\n")
   quit(save = "no", status = 0)
 }
@@ -298,54 +337,79 @@ if (dry_run) {
 dir.create(LOG_DIR, showWarnings = FALSE, recursive = TRUE)
 stamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
 
-results <- data.frame(stage = character(), status = character(),
-                      minutes = numeric(), log = character(),
-                      stringsAsFactors = FALSE)
+# Stages run one after another and a failure stops the chain, so this stays a
+# loop; each stage adds one row to `results`.
+results <- tibble::tibble(
+  stage = character(),
+  status = character(),
+  minutes = numeric(),
+  log = character()
+)
 
-for (nm in selected) {
-  s <- STAGES[[nm]]
+for (name in selected) {
+  stage <- STAGES[[name]]
+  outputs_exist <- length(stage$produces) > 0 &&
+    all(file.exists(stage$produces))
 
-  if (skip_existing && length(s$produces) > 0 && all(file.exists(s$produces))) {
-    cat(sprintf("\n--- [%s] pulado (--skip-existing, saidas presentes)\n", nm))
-    results <- rbind(results, data.frame(stage = nm, status = "skipped",
-                                         minutes = 0, log = "-",
-                                         stringsAsFactors = FALSE))
+  if (skip_existing && outputs_exist) {
+    cat(sprintf(
+      "\n--- [%s] pulado (--skip-existing, saidas presentes)\n",
+      name
+    ))
+    results <- tibble::add_row(
+      results,
+      stage = name,
+      status = "skipped",
+      minutes = 0,
+      log = "-"
+    )
     next
   }
 
-  log_file <- file.path(LOG_DIR, sprintf("run_all_%s_%s.log", stamp, nm))
-  cat(sprintf("\n--- [%s] Rscript %s\n", nm, s$file))
+  log_file <- file.path(LOG_DIR, sprintf("run_all_%s_%s.log", stamp, name))
+  cat(sprintf("\n--- [%s] Rscript %s\n", name, stage$file))
   cat(sprintf("    log: %s\n", log_file))
 
-  t0  <- Sys.time()
+  started <- Sys.time()
   # stdout streams to the console AND to the log; stderr is merged in.
-  code <- system2("sh", c("-c", shQuote(sprintf("%s %s 2>&1 | tee %s",
-                                                shQuote(RSCRIPT), shQuote(s$file),
-                                                shQuote(log_file)))))
-  mins <- as.numeric(Sys.time() - t0, units = "mins")
+  exit_code <- system2("sh", c("-c", shQuote(sprintf(
+    "%s %s 2>&1 | tee %s",
+    shQuote(RSCRIPT),
+    shQuote(stage$file),
+    shQuote(log_file)
+  ))))
+  minutes <- as.numeric(Sys.time() - started, units = "mins")
 
-  ok <- identical(code, 0L)
-  cat(sprintf("--- [%s] %s em %.1f min\n", nm,
-              if (ok) "OK" else sprintf("FALHOU (exit %s)", code), mins))
+  ok <- identical(exit_code, 0L)
+  cat(sprintf(
+    "--- [%s] %s em %.1f min\n",
+    name,
+    if (ok) "OK" else sprintf("FALHOU (exit %s)", exit_code),
+    minutes
+  ))
 
-  results <- rbind(results, data.frame(
-    stage = nm, status = if (ok) "ok" else sprintf("failed(%s)", code),
-    minutes = round(mins, 2), log = log_file, stringsAsFactors = FALSE))
+  results <- tibble::add_row(
+    results,
+    stage = name,
+    status = if (ok) "ok" else sprintf("failed(%s)", exit_code),
+    minutes = round(minutes, 2),
+    log = log_file
+  )
 
   if (!ok && !keep_going) {
     cat("\n=== RESUMO (interrompido) ===\n")
-    print(results, row.names = FALSE)
-    cat(sprintf("\nEstagio '%s' falhou. Veja %s\n", nm, log_file))
-    cat("Retome com --from=", nm, " apos corrigir.\n", sep = "")
+    print(as.data.frame(results), row.names = FALSE)
+    cat(sprintf("\nEstagio '%s' falhou. Veja %s\n", name, log_file))
+    cat("Retome com --from=", name, " apos corrigir.\n", sep = "")
     quit(save = "no", status = 1)
   }
 }
 
 cat("\n=== RESUMO ===\n")
-print(results, row.names = FALSE)
+print(as.data.frame(results), row.names = FALSE)
 cat(sprintf("\nTotal: %.1f min\n", sum(results$minutes)))
 
-failed <- results$stage[grepl("^failed", results$status)]
+failed <- results$stage[stringr::str_starts(results$status, "failed")]
 if (length(failed) > 0) {
   cat(sprintf("Estagios com falha: %s\n", paste(failed, collapse = ", ")))
   quit(save = "no", status = 1)

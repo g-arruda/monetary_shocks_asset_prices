@@ -82,26 +82,33 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   reconstruía os painéis experimentais da escolha de blocos, foi para
   `arquivo/R/preprocessing/` em 2026-09-18.
 - **`modeling/`** (5 arquivos) — `dfm_pipeline.R`, a composição do fluxo
-  estimativo, cujos defaults são os valores de produção escritos na própria
-  assinatura de `main_sdfm()` (`production_spec.R`, a especificação
+  estimativo: `main_sdfm()`, cujos defaults são os valores de produção
+  escritos na própria assinatura (`production_spec.R`, a especificação
   centralizada, foi apagada em 2026-09-21: cada script traz agora os seus
   literais, e θ̂ vem de `output/factors/covid_volatility_theta.csv` por
-  `read_covid_volatility()`); e os motores `factor_estimation.R`
-  (estimação BLL do DFM e do VAR dos fatores), `factor_selection.R` (todos os
-  seletores do número de fatores: Bai-Ng BLL para r e Amengual-Watson para q,
-  mais ER/GR de Ahn-Horenstein e ABC, usados só como diagnóstico),
+  `read_covid_volatility()`), e `run_stage2_cell()`, uma célula de janela,
+  dimensão e variante dadas; e os motores `factor_estimation.R`
+  (padronização BLL em `standardize_bll()`, estimação do DFM e do VAR dos
+  fatores), `factor_selection.R` (todos os seletores do número de fatores:
+  Bai-Ng BLL para r e Amengual-Watson para q, mais ER/GR de Ahn-Horenstein e
+  ABC, usados só como diagnóstico, e `prune_correlated_series()`, a poda por
+  correlação dos painéis em que esses seletores são refeitos),
   `impulse_response.R` (núcleo de
   IRF/identificação: `sel_ext_inst_sample`, `ident_ext_instr`,
-  `compute_irf_dfm`, `compute_factor_space_wald`) e `var_proxy.R` (motor do
+  `cumimp_transform`, `compute_irf_dfm`) e `var_proxy.R` (motor do
   benchmark VAR pequeno observável, com as traduções de `RForm_VAR.m` e
   `bicaic.m` de Montiel Olea et al.). O órfão
   `svensson_model.R` foi para `arquivo/R/modeling/` em 2026-08-05.
-- **`identification/`** — a máquina de diagnóstico em torno do proxy-SVAR:
-  `spec_sweep.R`, `factor_space_diagnostics.R`,
-  `irf_coherence.R` (pontuação de coerência teórica), `experimental_panel.R`
-  (taxonomia de blocos e poda por correlação, usadas por `panel_pruning.R`) e
-  `weak_iv_ar.R` (MA, SVAR-IV, covariância e inversão AR, somente para VAR de
-  observáveis).
+- **`identification/`** (4 arquivos) — a inferência e os diagnósticos em
+  torno do proxy-SVAR: `weak_iv_ar.R` (MA, SVAR-IV, covariância e inversão
+  AR de MOSW, para o VAR de observáveis e, com `Load`/`Inner`, para o DFM:
+  são os conjuntos de produção), `factor_space_diagnostics.R` (ξ_mp e as duas
+  réguas de relevância de MOSW, `compute_factor_space_wald` e
+  `compute_robust_first_stage_F`), `irf_coherence.R` (pontuação de coerência
+  teórica; a tabela de teoria mora em `script/irf_coherence_check.R`) e
+  `het_tests.R` (o teste de identificação por heterocedasticidade do `svars`,
+  publicado em §3.3 e no Anexo B). `spec_sweep.R` e `experimental_panel.R`
+  foram desmontados por domínio em 2026-09-25 (`registro/mapa_renomeacoes.md`).
   Os ramos het e não-gaussiano saíram do código ativo em 2026-08-17. O código
   dedicado à heterocedasticidade foi removido em 2026-09-01; seus artefatos e
   vereditos permanecem em `arquivo/heterocedasticidade/`. Em 2026-09-17,
@@ -111,12 +118,16 @@ Nunca importado por `script/` na direção contrária (nada em `R/` faz
   conjuntos Anderson-Rubin de `identification/weak_iv_ar.R`.
 - **`instrument/`** (2 arquivos) — `build_variants.R` (a cadeia de construção
   das 3 variantes da `tab:first_stage`, uma por camada; eram 10 até 2026-08-05
-  e 8 até 2026-09-18) e `di_surprise.R` (helper de surpresa de futuro de DI,
-  mais o carregador das datas de Copom). `event_tests.R`, a inferência das regressões
+  e 8 até 2026-09-18) e `di_surprise.R` (os carregadores do painel de DI e das
+  quartas de Copom e a surpresa quarta→quinta, compartilhados com
+  `identification/het_tests.R`). `event_tests.R`, a inferência das regressões
   diárias de evento, foi para `arquivo/R/instrument/` em 2026-09-18 com seu
   último consumidor, `fomc_coincidence.R`.
-- **`reporting/`** (1 arquivo) — `markdown_report.R`, com formatação estável
-  para tabelas e números dos relatórios Markdown gerados.
+- **`reporting/`** (2 arquivos) — `markdown_report.R`, com formatação estável
+  para tabelas (`md_tbl()` e `md_table()`, que imprimem dígitos diferentes e
+  não se trocam) e números dos relatórios Markdown gerados, e `figures.R`,
+  com o leiaute sobreposto da figura A3 (`plot_dimension_overlay()`) que
+  `q_sensitivity.R` usa.
 
 ## `output/` — artefatos de estimação versionados
 

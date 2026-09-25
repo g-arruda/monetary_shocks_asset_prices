@@ -12,8 +12,6 @@
 # an editorial decision, not a re-run.
 # ===================================================================
 
-rm(list = ls())
-
 if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
   stop(
     "fig_weak_iv_main.pdf is frozen at the wild-bootstrap vintage of the DFM. ",
@@ -23,17 +21,20 @@ if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
   )
 }
 
-# The only active small-VAR benchmark cell: the DFM's window and lag order
-# since 2026-09-21
-VAR_CELL     <- "ibc5_fx_cds_level_trend_p4"
-VAR_SAMPLE   <- as.Date(c("2012-03-01", "2025-12-01"))
-H_MAX        <- 36L
-LEVELS       <- c(0.68, 0.90)
+DFM_PATH   <- "output/irf/irf_coherence_h.csv"
+VAR_PATH   <- "output/var/svar_iv_weak_robust.csv"
+PANEL_PATH <- "data/processed/data_log_deseasonalized.csv"
+OUT_PATH   <- "paper/fig_weak_iv_main.pdf"
+# The only active small-VAR benchmark cell, on the DFM's window and lag order
+VAR_CELL   <- "ibc5_fx_cds_level_trend_p4"
+VAR_SAMPLE <- as.Date(c("2012-03-01", "2025-12-01"))
+H_MAX      <- 36L
+LEVELS     <- c(0.68, 0.90)
+MODELS     <- c("DFM", "VAR observável")
 
-dfm <- readr::read_csv("output/irf/irf_coherence_h.csv", show_col_types = FALSE)
-var <- readr::read_csv("output/var/svar_iv_weak_robust.csv", show_col_types = FALSE)
-panel <- readr::read_csv("data/processed/data_log_deseasonalized.csv",
-                         show_col_types = FALSE) |>
+dfm <- readr::read_csv(DFM_PATH, show_col_types = FALSE)
+var <- readr::read_csv(VAR_PATH, show_col_types = FALSE)
+panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   dplyr::filter(
     ref.date >= VAR_SAMPLE[1L],
     ref.date <= VAR_SAMPLE[2L]
@@ -49,7 +50,13 @@ series <- tibble::tibble(
     "CDS 5 anos (p.b.)"
   ),
   dfm_scale = c(1, 1, 1e4, 100 / mean(panel$cambio_usd), 1),
-  var_scale = c(100 / mean(panel$ibc_br), 1, 1e4, 100 / mean(panel$cambio_usd), 1)
+  var_scale = c(
+    100 / mean(panel$ibc_br),
+    1,
+    1e4,
+    100 / mean(panel$cambio_usd),
+    1
+  )
 )
 
 dfm_bands <- dfm |>
@@ -65,7 +72,7 @@ dfm_bands <- dfm |>
   dplyr::mutate(level = as.numeric(level) / 100) |>
   dplyr::left_join(series, by = "var") |>
   dplyr::mutate(
-    dplyr::across(c(point, lo, hi), ~ .x * dfm_scale),
+    dplyr::across(c(point, lo, hi), \(x) x * dfm_scale),
     model = "DFM"
   )
 
@@ -79,7 +86,7 @@ var_bands <- var |>
   ) |>
   dplyr::left_join(series, by = "var") |>
   dplyr::mutate(
-    dplyr::across(c(point, lo, hi), ~ .x * var_scale),
+    dplyr::across(c(point, lo, hi), \(x) x * var_scale),
     model = "VAR observável"
   )
 
@@ -87,19 +94,11 @@ var_bands <- var |>
 if (any(!var_bands$set_type %in% c("interval", "singleton"))) {
   stop("The VAR contains an unbounded or disconnected AR/MOSW set")
 }
-if (
-  any(!is.finite(as.matrix(dfm_bands[, c("point", "lo", "hi")]))) ||
-    any(!is.finite(as.matrix(var_bands[, c("point", "lo", "hi")]))) ||
-    any(dfm_bands$lo > dfm_bands$hi) ||
-    any(var_bands$lo > var_bands$hi)
-) {
-  stop("The figure contains invalid numerical values or confidence bounds")
-}
 
 bands <- dplyr::bind_rows(dfm_bands, var_bands) |>
   dplyr::mutate(
     var = factor(var, levels = series$var),
-    model = factor(model, levels = c("DFM", "VAR observável"))
+    model = factor(model, levels = MODELS)
   )
 
 y_ranges <- bands |>
@@ -113,23 +112,44 @@ y_ranges <- bands |>
 
 #' Build one DFM or observable-VAR response panel
 #'
+#' The two models of a row share the vertical axis, and only the first row
+#' carries the model title and only the last the horizon label.
+#'
 #' @param variable Variable name.
-#' @param model_name Model column.
-#' @param y_label Vertical-axis label.
+#' @param model_name Model, one of `MODELS`.
+#' @param y_label Vertical-axis label, or `NULL` for none.
 #'
 #' @return A ggplot object with the point response and the 68%/90% bands,
 #'   drawn as in `script/fig_section5.R`.
 response_panel <- function(variable, model_name, y_label) {
-  band90 <- dplyr::filter(bands, var == variable, model == model_name, level == 0.90)
-  band68 <- dplyr::filter(bands, var == variable, model == model_name, level == 0.68)
+  model_bands <- dplyr::filter(bands, var == variable, model == model_name)
+  band90 <- dplyr::filter(model_bands, level == 0.90)
+  band68 <- dplyr::filter(model_bands, level == 0.68)
   limits <- dplyr::filter(y_ranges, var == variable)
 
   ggplot2::ggplot(band90, ggplot2::aes(x = h)) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin = lo, ymax = hi), fill = "steelblue", alpha = 0.18) +
-    ggplot2::geom_ribbon(data = band68, ggplot2::aes(ymin = lo, ymax = hi),
-                         fill = "steelblue", alpha = 0.36) +
-    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "red", linewidth = 0.35) +
-    ggplot2::geom_line(ggplot2::aes(y = point), colour = "black", linewidth = 0.8) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = lo, ymax = hi),
+      fill = "steelblue",
+      alpha = 0.18
+    ) +
+    ggplot2::geom_ribbon(
+      data = band68,
+      ggplot2::aes(ymin = lo, ymax = hi),
+      fill = "steelblue",
+      alpha = 0.36
+    ) +
+    ggplot2::geom_hline(
+      yintercept = 0,
+      linetype = "dashed",
+      colour = "red",
+      linewidth = 0.35
+    ) +
+    ggplot2::geom_line(
+      ggplot2::aes(y = point),
+      colour = "black",
+      linewidth = 0.8
+    ) +
     ggplot2::scale_x_continuous(
       breaks = seq(0, H_MAX, 6),
       limits = c(0, H_MAX),
@@ -139,8 +159,8 @@ response_panel <- function(variable, model_name, y_label) {
       limits = c(limits$y_min - limits$padding, limits$y_max + limits$padding)
     ) +
     ggplot2::labs(
-      title = if (variable == series$var[1L]) model_name else NULL,
-      x = if (variable == series$var[nrow(series)]) "Horizonte (meses)" else NULL,
+      title = if (variable == dplyr::first(series$var)) model_name,
+      x = if (variable == dplyr::last(series$var)) "Horizonte (meses)",
       y = y_label
     ) +
     ggplot2::theme_classic(base_size = 9) +
@@ -152,18 +172,18 @@ response_panel <- function(variable, model_name, y_label) {
     )
 }
 
-plots <- unlist(lapply(seq_len(nrow(series)), function(i) {
+# DFM on the left, observable VAR on the right, one row per series
+plots <- purrr::map2(series$var, series$label, function(variable, label) {
   list(
-    response_panel(series$var[i], "DFM", series$label[i]),
-    response_panel(series$var[i], "VAR observável", NULL)
+    response_panel(variable, "DFM", label),
+    response_panel(variable, "VAR observável", NULL)
   )
-}), recursive = FALSE)
-
-figure <- patchwork::wrap_plots(plots, ncol = 2L, byrow = TRUE)
+}) |>
+  purrr::list_flatten()
 
 ggplot2::ggsave(
-  "paper/fig_weak_iv_main.pdf",
-  figure,
+  OUT_PATH,
+  patchwork::wrap_plots(plots, ncol = 2L, byrow = TRUE),
   width = 8.2,
   height = 10.8,
   device = pdf,

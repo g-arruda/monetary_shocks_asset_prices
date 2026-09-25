@@ -69,5 +69,5 @@ normalization does reach ξ_mp 21.54**, so the argument is a full-sample argumen
 111-series `(5,5)` production `juros_selic` is no longer inert as a *response* either, rising 23.8 bp
 on impact with the 90% band excluding zero through h=11.
 
-The downloaders guard on `sys.nframe() == 0`, and the stage scripts `rm(list = ls())`, so `run_all.R`
-runs one `Rscript` process per stage.
+`run_all.R` runs one `Rscript` process per stage, so no stage sees another stage's workspace; the
+stage scripts do not clear the environment themselves.

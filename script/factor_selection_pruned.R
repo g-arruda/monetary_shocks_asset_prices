@@ -10,8 +10,8 @@
 # pruning_manifest.csv (script/panel_pruning.R): the production panel minus
 # the series each configuration drops. The principal one is complete linkage
 # at 0.90. Every estimator reads the BLL object production reads, exactly as
-# arquivo/script/factor_selection_alt.R does; self-test (a) reproduces that round on
-# the current panel.
+# arquivo/script/factor_selection_alt.R does; self-test (a) reproduces that
+# round on the current panel.
 #
 # THE READING RULE IS PRE-REGISTERED (plan of 2026-09-10), fixed before any
 # estimate on a pruned panel was looked at:
@@ -33,13 +33,14 @@
 #          output/factors/factor_selection_pruned_aw.csv
 # ===================================================================
 
-rm(list = ls())
-
 source("R/modeling/factor_estimation.R")
 source("R/modeling/factor_selection.R")
-source("R/identification/spec_sweep.R")
+source("R/reporting/markdown_report.R")
 
 PANEL_PATH    <- "data/processed/data_log_deseasonalized.csv"
+MANIFEST_PATH <- "output/panel_experimental/poda_correlacao/pruning_manifest.csv"
+ALT_PATH      <- "output/factors/factor_selection_alt_summary.csv"
+OUT_DIR       <- "output/factors"
 SAMPLE        <- as.Date(c("2012-03-01", "2025-12-01"))
 R_FACTORS     <- 5L    # the production r
 P_LAGS        <- 4L
@@ -49,8 +50,8 @@ N_PERM        <- 100L
 PERM_SEED     <- 123L  # the seed stream of arquivo/script/factor_selection_alt.R
 AW_R          <- 5L    # the production r, where the q comparison is read
 AW_R_GRID     <- 4:8   # spans the (5,2), (7,5) and (8,8) cells of the e-mail
-MANIFEST_PATH <- "output/panel_experimental/poda_correlacao/pruning_manifest.csv"
-OUT_DIR       <- "output/factors"
+PRODUCTION_PANEL <-
+  "drop_setor_externo__eua__credito__imoveis_fiscal_expectations"
 
 
 # ---- Panels ------------------------------------------------------------
@@ -61,133 +62,211 @@ panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   as.matrix()
 
 manifest <- readr::read_csv(MANIFEST_PATH, show_col_types = FALSE)
-configs  <- manifest |>
+configs <- manifest |>
   dplyr::distinct(config, principal) |>
   dplyr::arrange(dplyr::desc(principal), config)
-PRINCIPAL <- configs$config[configs$principal]
+principal_config <- configs$config[configs$principal]
 
 panels <- c(
   list(atual = panel),
-  purrr::map(purrr::set_names(configs$config), function(cfg) {
-    rows <- dplyr::filter(manifest, config == cfg)
+  purrr::map(purrr::set_names(configs$config), function(config_name) {
+    rows <- dplyr::filter(manifest, config == config_name)
     panel[, rows$series[rows$kept], drop = FALSE]
   })
 )
 
 # (b) every configuration of the manifest describes this production panel
 same_panel <- manifest |>
-  dplyr::group_by(config) |>
-  dplyr::summarise(ok = identical(series, colnames(panel)))
-stopifnot(all(same_panel$ok), MP_VAR %in% colnames(panels[[PRINCIPAL]]))
+  dplyr::summarise(ok = identical(series, colnames(panel)), .by = config)
+stopifnot(
+  all(same_panel$ok),
+  MP_VAR %in% colnames(panels[[principal_config]])
+)
 
 
 # ---- The battery, panel by panel ---------------------------------------
 
-results <- purrr::imap(panels, function(X, name) {
+results <- purrr::imap(panels, function(X, panel_name) {
   yy <- estimate_static_factors(X, r = R_FACTORS)$yy
-  bn <- bai_ng_criteria(X, max_r = KMAX, apply_bll = TRUE)
-  ah <- ahn_horenstein(yy, KMAX)
+  bai_ng <- bai_ng_criteria(X, max_r = KMAX, apply_bll = TRUE)
+  ah_fit <- ahn_horenstein(yy, KMAX)
 
-  # The first draw of that seed stream is the pre-registered primary nesting order
+  # The first draw of that seed stream is the pre-registered primary nesting
+  # order
   set.seed(PERM_SEED)
-  perms <- replicate(N_PERM, sample.int(ncol(X)), simplify = FALSE)
-  abc1  <- abc_criterion(yy, KMAX, "IC1", perms[[1]])
-  abc2  <- abc_criterion(yy, KMAX, "IC2", perms[[1]])
+  permutations <- replicate(N_PERM, sample.int(ncol(X)), simplify = FALSE)
+  abc_ic1 <- abc_criterion(yy, KMAX, "IC1", permutations[[1]])
+  abc_ic2 <- abc_criterion(yy, KMAX, "IC2", permutations[[1]])
 
-  # (c) log V(k) of `yy` plus the Bai-Ng penalties is this panel's Bai-Ng surface
-  e_NT    <- (ncol(yy) + nrow(yy)) / (ncol(yy) * nrow(yy))
-  m       <- min(dim(yy))
-  penalty <- c(e_NT * log(1 / e_NT), e_NT * log(m), log(m) / m)
-  dev_c   <- max(abs(log(ah$surface$V[-1]) + outer(seq_len(KMAX), penalty) -
-                       do.call(cbind, bn$criteria)))
+  # (c) log V(k) of `yy` plus the Bai-Ng penalties is this panel's Bai-Ng
+  #     surface
+  e_NT <- (ncol(yy) + nrow(yy)) / (ncol(yy) * nrow(yy))
+  min_dim <- min(dim(yy))
+  penalty <- c(
+    e_NT * log(1 / e_NT),
+    e_NT * log(min_dim),
+    log(min_dim) / min_dim
+  )
+  surface_gap <- max(abs(
+    log(ah_fit$surface$V[-1]) +
+      outer(seq_len(KMAX), penalty) -
+      do.call(cbind, bai_ng$criteria)
+  ))
 
-  aw <- tidyr::expand_grid(r = sort(unique(c(AW_R_GRID, bn$r_hat$IC2))),
-                           standardize_resid = c(FALSE, TRUE)) |>
-    dplyr::mutate(fit = purrr::map2(r, standardize_resid, function(r, s) {
-      amengual_watson(X, r = r, p = P_LAGS, apply_bll = TRUE, standardize_resid = s)
-    })) |>
+  aw <- tidyr::expand_grid(
+    r = sort(unique(c(AW_R_GRID, bai_ng$r_hat$IC2))),
+    standardize_resid = c(FALSE, TRUE)
+  ) |>
     dplyr::mutate(
+      fit = purrr::map2(r, standardize_resid, function(r, standardize) {
+        amengual_watson(
+          X,
+          r = r,
+          p = P_LAGS,
+          apply_bll = TRUE,
+          standardize_resid = standardize
+        )
+      }),
       q_hat = purrr::map_int(fit, "q_hat"),
-      surface = purrr::map(fit, function(f) tibble::tibble(q = seq_along(f$aw), aw_ic2 = f$aw))
+      surface = purrr::map(fit, function(aw_fit) {
+        tibble::tibble(q = seq_along(aw_fit$aw), aw_ic2 = aw_fit$aw)
+      })
     ) |>
     dplyr::select(-fit) |>
     tidyr::unnest(surface) |>
-    dplyr::mutate(painel = name, escolhido = q == q_hat, .before = 1)
+    dplyr::mutate(painel = panel_name, escolhido = q == q_hat, .before = 1)
 
-  q_aw5     <- aw$q_hat[aw$r == AW_R & !aw$standardize_resid][1]
+  q_aw5 <- aw$q_hat[aw$r == AW_R & !aw$standardize_resid][1]
   q_aw5_std <- aw$q_hat[aw$r == AW_R & aw$standardize_resid][1]
-  q_awic2   <- aw$q_hat[aw$r == bn$r_hat$IC2 & !aw$standardize_resid][1]
+  q_awic2 <- aw$q_hat[aw$r == bai_ng$r_hat$IC2 & !aw$standardize_resid][1]
 
-  summary <- tibble::tribble(
-    ~codigo,   ~estimador,                                        ~r_hat,       ~no_veredito,
-    "IC1",     "Bai-Ng IC1",                                      bn$r_hat$IC1, FALSE,
-    "IC2",     "Bai-Ng IC2",                                      bn$r_hat$IC2, TRUE,
-    "IC3",     "Bai-Ng IC3",                                      bn$r_hat$IC3, FALSE,
-    "ER",      "AH ER",                                           ah$k_er,      TRUE,
-    "GR",      "AH GR",                                           ah$k_gr,      TRUE,
-    "ABC1",    "ABC IC*1",                                        abc1$r_hat,   TRUE,
-    "ABC2",    "ABC IC*2",                                        abc2$r_hat,   FALSE,
-    "AW5",     "Amengual-Watson q, r = 5",                        q_aw5,        TRUE,
-    "AW5_std", "Amengual-Watson q, r = 5, resíduos padronizados", q_aw5_std,    FALSE,
-    "AWIC2",   "Amengual-Watson q, r = r̂_IC2",                    q_awic2,      FALSE
-  ) |>
-    dplyr::mutate(painel = name, n_series = ncol(X), .before = 1)
+  estimates <- tibble::tibble(
+    painel = panel_name,
+    n_series = ncol(X),
+    codigo = c(
+      "IC1", "IC2", "IC3", "ER", "GR", "ABC1", "ABC2", "AW5", "AW5_std",
+      "AWIC2"
+    ),
+    estimador = c(
+      "Bai-Ng IC1",
+      "Bai-Ng IC2",
+      "Bai-Ng IC3",
+      "AH ER",
+      "AH GR",
+      "ABC IC*1",
+      "ABC IC*2",
+      "Amengual-Watson q, r = 5",
+      "Amengual-Watson q, r = 5, resíduos padronizados",
+      "Amengual-Watson q, r = r̂_IC2"
+    ),
+    r_hat = c(
+      bai_ng$r_hat$IC1,
+      bai_ng$r_hat$IC2,
+      bai_ng$r_hat$IC3,
+      ah_fit$k_er,
+      ah_fit$k_gr,
+      abc_ic1$r_hat,
+      abc_ic2$r_hat,
+      q_aw5,
+      q_aw5_std,
+      q_awic2
+    ),
+    no_veredito = c(
+      FALSE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE
+    )
+  )
 
-  perm_freq <- if (name %in% c("atual", PRINCIPAL)) {
-    purrr::map(perms, function(p) {
-      tibble::tibble(IC1 = abc_criterion(yy, KMAX, "IC1", p)$r_hat,
-                     IC2 = abc_criterion(yy, KMAX, "IC2", p)$r_hat)
+  permutation_counts <- if (panel_name %in% c("atual", principal_config)) {
+    purrr::map(permutations, function(permutation) {
+      tibble::tibble(
+        IC1 = abc_criterion(yy, KMAX, "IC1", permutation)$r_hat,
+        IC2 = abc_criterion(yy, KMAX, "IC2", permutation)$r_hat
+      )
     }) |>
       dplyr::bind_rows() |>
-      tidyr::pivot_longer(dplyr::everything(), names_to = "penalidade", values_to = "r_hat") |>
+      tidyr::pivot_longer(
+        dplyr::everything(),
+        names_to = "penalidade",
+        values_to = "r_hat"
+      ) |>
       dplyr::count(penalidade, r_hat) |>
-      dplyr::mutate(painel = name, .before = 1)
+      dplyr::mutate(painel = panel_name, .before = 1)
   }
 
   list(
-    summary = summary,
+    estimates = estimates,
     aw = aw,
-    surface = tibble::tibble(painel = name, k = seq_len(KMAX), ER = ah$surface$ER[-1],
-                             GR = ah$surface$GR[-1], IC1 = bn$criteria$IC1,
-                             IC2 = bn$criteria$IC2, IC3 = bn$criteria$IC3),
-    abc_intervals = dplyr::bind_rows(`IC*1` = abc1$intervals, `IC*2` = abc2$intervals,
-                                     .id = "penalidade") |>
-      dplyr::mutate(painel = name, .before = 1),
-    perm_freq = perm_freq,
-    dev_c = dev_c
+    surface = tibble::tibble(
+      painel = panel_name,
+      k = seq_len(KMAX),
+      ER = ah_fit$surface$ER[-1],
+      GR = ah_fit$surface$GR[-1],
+      IC1 = bai_ng$criteria$IC1,
+      IC2 = bai_ng$criteria$IC2,
+      IC3 = bai_ng$criteria$IC3
+    ),
+    abc_intervals = dplyr::bind_rows(
+      `IC*1` = abc_ic1$intervals,
+      `IC*2` = abc_ic2$intervals,
+      .id = "penalidade"
+    ) |>
+      dplyr::mutate(painel = panel_name, .before = 1),
+    permutation_counts = permutation_counts,
+    surface_gap = surface_gap
   )
 })
 
-summary       <- dplyr::bind_rows(purrr::map(results, "summary"))
-aw_tbl        <- dplyr::bind_rows(purrr::map(results, "aw"))
-surfaces      <- dplyr::bind_rows(purrr::map(results, "surface"))
+estimates <- dplyr::bind_rows(purrr::map(results, "estimates"))
+aw_tbl <- dplyr::bind_rows(purrr::map(results, "aw"))
+surfaces <- dplyr::bind_rows(purrr::map(results, "surface"))
 abc_intervals <- dplyr::bind_rows(purrr::map(results, "abc_intervals"))
-perm_freq     <- dplyr::bind_rows(purrr::map(results, "perm_freq"))
-dev_c         <- max(purrr::map_dbl(results, "dev_c"))
+permutation_counts <- results |>
+  purrr::map("permutation_counts") |>
+  dplyr::bind_rows()
+surface_gap <- max(purrr::map_dbl(results, "surface_gap"))
 
 
 # ---- Self-tests --------------------------------------------------------
 
 # (a) on the current panel the battery is the round of 2026-09-10
-alt <- readr::read_csv("output/factors/factor_selection_alt_summary.csv", show_col_types = FALSE) |>
-  dplyr::filter(variante %in% c("produção (BLL)", "Teorema 1", "permutação principal")) |>
+alt_round <- readr::read_csv(ALT_PATH, show_col_types = FALSE) |>
+  dplyr::filter(
+    variante %in% c("produção (BLL)", "Teorema 1", "permutação principal")
+  ) |>
   dplyr::select(estimador, r_alt = r_hat)
-chk_a <- summary |>
+check_a <- estimates |>
   dplyr::filter(painel == "atual") |>
-  dplyr::inner_join(alt, by = "estimador")
-stopifnot(nrow(chk_a) == 7L, all(chk_a$r_hat == chk_a$r_alt), dev_c < 1e-10)
+  dplyr::inner_join(alt_round, by = "estimador")
+stopifnot(
+  nrow(check_a) == 7L,
+  all(check_a$r_hat == check_a$r_alt),
+  surface_gap < 1e-10
+)
 
-self_tests <- tibble::tribble(
-  ~teste,                                                                          ~valor,                       ~criterio,
-  "(a) painel atual contra factor_selection_alt_summary.csv: estatísticas iguais", sum(chk_a$r_hat == chk_a$r_alt), "= 7 de 7",
-  "(b) configurações do manifesto que descrevem este painel de produção",         sum(same_panel$ok),           sprintf("= %d", nrow(configs)),
-  "(c) log V(k) + penalidades contra bai_ng_criteria(apply_bll = TRUE), pior painel", dev_c,                    "< 1e-10"
+self_tests <- tibble::tibble(
+  teste = c(
+    paste(
+      "(a) painel atual contra factor_selection_alt_summary.csv:",
+      "estatísticas iguais"
+    ),
+    "(b) configurações do manifesto que descrevem este painel de produção",
+    paste(
+      "(c) log V(k) + penalidades contra bai_ng_criteria(apply_bll = TRUE),",
+      "pior painel"
+    )
+  ),
+  valor = c(
+    sum(check_a$r_hat == check_a$r_alt),
+    sum(same_panel$ok),
+    surface_gap
+  ),
+  criterio = c("= 7 de 7", sprintf("= %d", nrow(configs)), "< 1e-10")
 )
 
 
 # ---- The pre-registered reading ------------------------------------------
 
-readings <- summary |>
+readings <- estimates |>
   dplyr::select(painel, n_series, codigo, r_hat) |>
   tidyr::pivot_wider(names_from = codigo, values_from = r_hat) |>
   dplyr::mutate(
@@ -198,22 +277,25 @@ readings <- summary |>
       painel == "atual" ~ "referência",
       D < D[painel == "atual"] ~ "diminui",
       D == D[painel == "atual"] ~ "não muda",
-      TRUE ~ "aumenta"
+      .default = "aumenta"
     ),
     R2 = dplyr::case_when(
       painel == "atual" ~ "referência",
       d_r == 0 & d_q == 0 ~ "inalterada",
       d_r >= 0 & d_q >= 0 ~ "consistente",
       d_r <= 0 & d_q <= 0 ~ "contrária",
-      TRUE ~ "mista"
+      .default = "mista"
     ),
-    decide = painel == PRINCIPAL
+    decide = painel == principal_config
   )
 
-ref     <- dplyr::filter(readings, painel == "atual")
+current <- dplyr::filter(readings, painel == "atual")
 verdict <- dplyr::filter(readings, decide)
 
-readr::write_csv(readings, file.path(OUT_DIR, "factor_selection_pruned_summary.csv"))
+readr::write_csv(
+  readings,
+  file.path(OUT_DIR, "factor_selection_pruned_summary.csv")
+)
 readr::write_csv(aw_tbl, file.path(OUT_DIR, "factor_selection_pruned_aw.csv"))
 
 
@@ -221,47 +303,90 @@ readr::write_csv(aw_tbl, file.path(OUT_DIR, "factor_selection_pruned_aw.csv"))
 
 panels_tbl <- manifest |>
   dplyr::group_by(config, principal) |>
-  dplyr::summarise(n_series = sum(kept), descartadas = paste(series[!kept], collapse = ", "),
-                   .groups = "drop") |>
+  dplyr::summarise(
+    n_series = sum(kept),
+    descartadas = paste(series[!kept], collapse = ", "),
+    .groups = "drop"
+  ) |>
   dplyr::arrange(dplyr::desc(principal), config)
 
 aw_wide <- aw_tbl |>
   dplyr::distinct(painel, standardize_resid, r, q_hat) |>
-  dplyr::mutate(convencao = dplyr::if_else(standardize_resid, "residuos_padronizados", "projeto")) |>
-  tidyr::pivot_wider(id_cols = c(painel, convencao), names_from = r, values_from = q_hat,
-                     names_prefix = "r=", names_sort = TRUE) |>
+  dplyr::mutate(
+    convencao = dplyr::if_else(
+      standardize_resid,
+      "residuos_padronizados",
+      "projeto"
+    )
+  ) |>
+  tidyr::pivot_wider(
+    id_cols = c(painel, convencao),
+    names_from = r,
+    values_from = q_hat,
+    names_prefix = "r=",
+    names_sort = TRUE
+  ) |>
   dplyr::arrange(convencao != "projeto", match(painel, names(panels)))
 
 aw_r5 <- aw_tbl |>
-  dplyr::filter(r == AW_R, !standardize_resid, painel %in% c("atual", PRINCIPAL)) |>
+  dplyr::filter(
+    r == AW_R,
+    !standardize_resid,
+    painel %in% c("atual", principal_config)
+  ) |>
   tidyr::pivot_wider(id_cols = q, names_from = painel, values_from = aw_ic2)
 
 surface_wide <- surfaces |>
-  dplyr::filter(painel %in% c("atual", PRINCIPAL), k <= 10) |>
-  dplyr::mutate(painel = dplyr::if_else(painel == "atual", "atual", "podado")) |>
-  tidyr::pivot_wider(id_cols = k, names_from = painel, values_from = c(ER, GR, IC2))
+  dplyr::filter(painel %in% c("atual", principal_config), k <= 10) |>
+  dplyr::mutate(
+    painel = dplyr::if_else(painel == "atual", "atual", "podado")
+  ) |>
+  tidyr::pivot_wider(
+    id_cols = k,
+    names_from = painel,
+    values_from = c(ER, GR, IC2)
+  )
 
-perm_wide <- perm_freq |>
+permutation_wide <- permutation_counts |>
   tidyr::pivot_wider(names_from = painel, values_from = n, values_fill = 0L) |>
   dplyr::arrange(penalidade, r_hat)
 
 sections <- c(
-  "# Número de fatores no painel podado por correlação: Bai-Ng, Ahn-Horenstein, ABC e Amengual-Watson",
+  paste(
+    "# Número de fatores no painel podado por correlação: Bai-Ng,",
+    "Ahn-Horenstein, ABC e Amengual-Watson"
+  ),
   "",
-  sprintf("Gerado por `script/factor_selection_pruned.R` em %s.", format(Sys.Date(), "%Y-%m-%d")),
-  paste("**Corpo gerado — não escrever prosa aqui.** A leitura vive em",
-        "`notas/2026-09-10_poda_correlacao_painel.md`."),
+  sprintf(
+    "Gerado por `script/factor_selection_pruned.R` em %s.",
+    format(Sys.Date(), "%Y-%m-%d")
+  ),
+  paste(
+    "**Corpo gerado — não escrever prosa aqui.** A leitura vive em",
+    "`notas/2026-09-10_poda_correlacao_painel.md`."
+  ),
   "",
   "## Painéis",
   "",
-  sprintf(paste("Painel atual: produção `%s`, %s a %s, %d séries. Os podados saem de `%s`",
-                "(`script/panel_pruning.R`). Todos os estimadores leem o objeto BLL da produção,",
-                "primeiras diferenças padronizadas (T = %d). Grade k = 1..%d. ABC: c ∈ (0, 5]",
-                "com passo 0,01 e subamostras aninhadas n_j = ⌊3N/4⌋..N numa permutação fixa",
-                "(seed %d). Amengual-Watson BLL com p = %d."),
-          "drop_setor_externo__eua__credito__imoveis_fiscal_expectations",
-          SAMPLE[1], SAMPLE[2], ncol(panel), MANIFEST_PATH,
-          nrow(panel) - 1, KMAX, PERM_SEED, P_LAGS),
+  sprintf(
+    paste(
+      "Painel atual: produção `%s`, %s a %s, %d séries. Os podados saem de",
+      "`%s` (`script/panel_pruning.R`). Todos os estimadores leem o objeto",
+      "BLL da produção, primeiras diferenças padronizadas (T = %d). Grade",
+      "k = 1..%d. ABC: c ∈ (0, 5] com passo 0,01 e subamostras aninhadas",
+      "n_j = ⌊3N/4⌋..N numa permutação fixa (seed %d). Amengual-Watson BLL",
+      "com p = %d."
+    ),
+    PRODUCTION_PANEL,
+    SAMPLE[1],
+    SAMPLE[2],
+    ncol(panel),
+    MANIFEST_PATH,
+    nrow(panel) - 1,
+    KMAX,
+    PERM_SEED,
+    P_LAGS
+  ),
   "",
   md_table(as.data.frame(panels_tbl)),
   "",
@@ -271,51 +396,89 @@ sections <- c(
   "",
   "## Regra de leitura pré-registrada",
   "",
-  paste("**R1, divergência em relação a Bai-Ng:** D = |ER − IC2| + |GR − IC2| + |ABC-IC*1 − IC2|;",
-        "podado abaixo do atual → *diminui*; igual → *não muda*; acima → *aumenta*."),
+  paste(
+    "**R1, divergência em relação a Bai-Ng:** D = |ER − IC2| + |GR − IC2| +",
+    "|ABC-IC*1 − IC2|; podado abaixo do atual → *diminui*; igual → *não",
+    "muda*; acima → *aumenta*."
+  ),
   "",
-  paste("**R2, subestimação por correlação intra-bloco:** direção de r̂_IC2 e de q̂_AW(r = 5)",
-        "do painel atual para o podado; *inalterada* se os dois ficam, *consistente* se nenhum",
-        "cai e ao menos um sobe, *contrária* se nenhum sobe e ao menos um cai, *mista* no resto."),
+  paste(
+    "**R2, subestimação por correlação intra-bloco:** direção de r̂_IC2 e de",
+    "q̂_AW(r = 5) do painel atual para o podado; *inalterada* se os dois",
+    "ficam, *consistente* se nenhum cai e ao menos um sobe, *contrária* se",
+    "nenhum sobe e ao menos um cai, *mista* no resto."
+  ),
   "",
-  sprintf("Só o painel `%s` decide; os demais são sensibilidade.", PRINCIPAL),
+  sprintf(
+    "Só o painel `%s` decide; os demais são sensibilidade.",
+    principal_config
+  ),
   "",
   "## Resultado",
   "",
-  paste("IC1-IC3: Bai-Ng BLL. ER, GR: Ahn-Horenstein, Teorema 1, kmax = 20. ABC1, ABC2: IC*1 e",
-        "IC*2 na permutação principal. AW5: q̂ de Amengual-Watson em r = 5; AW5_std: o mesmo com",
-        "os resíduos padronizados coluna a coluna (convenção do MATLAB de Stock-Watson); AWIC2:",
-        "em r = r̂_IC2 do painel."),
+  paste(
+    "IC1-IC3: Bai-Ng BLL. ER, GR: Ahn-Horenstein, Teorema 1, kmax = 20.",
+    "ABC1, ABC2: IC*1 e IC*2 na permutação principal. AW5: q̂ de",
+    "Amengual-Watson em r = 5; AW5_std: o mesmo com os resíduos padronizados",
+    "coluna a coluna (convenção do MATLAB de Stock-Watson); AWIC2: em",
+    "r = r̂_IC2 do painel."
+  ),
   "",
   md_table(as.data.frame(dplyr::select(readings, -decide))),
   "",
-  sprintf(paste("**Vereditos no painel principal `%s` (N = %d): R1 = %s** (D = %d contra %d no",
-                "atual); **R2 = %s** (r̂_IC2 %d → %d; q̂_AW(r = 5) %d → %d)."),
-          PRINCIPAL, verdict$n_series, verdict$R1, verdict$D, ref$D, verdict$R2,
-          ref$IC2, verdict$IC2, ref$AW5, verdict$AW5),
+  sprintf(
+    paste(
+      "**Vereditos no painel principal `%s` (N = %d): R1 = %s** (D = %d",
+      "contra %d no atual); **R2 = %s** (r̂_IC2 %d → %d; q̂_AW(r = 5)",
+      "%d → %d)."
+    ),
+    principal_config,
+    verdict$n_series,
+    verdict$R1,
+    verdict$D,
+    current$D,
+    verdict$R2,
+    current$IC2,
+    verdict$IC2,
+    current$AW5,
+    verdict$AW5
+  ),
   "",
   "## Amengual-Watson: q̂ por r",
   "",
-  paste("`projeto` é o padrão de `amengual_watson()`; `residuos_padronizados` padroniza os",
-        "resíduos do VAR coluna a coluna antes do Bai-Ng do 2º estágio, como",
-        "`factor_estimation_ls.m`."),
+  paste(
+    "`projeto` é o padrão de `amengual_watson()`; `residuos_padronizados`",
+    "padroniza os resíduos do VAR coluna a coluna antes do Bai-Ng do 2º",
+    "estágio, como `factor_estimation_ls.m`."
+  ),
   "",
   md_table(as.data.frame(aw_wide)),
   "",
-  sprintf("### Critério IC2 de Amengual-Watson em r = %d, convenção do projeto", AW_R),
+  sprintf(
+    "### Critério IC2 de Amengual-Watson em r = %d, convenção do projeto",
+    AW_R
+  ),
   "",
   md_table(as.data.frame(aw_r5), digits = 6),
   "",
   "## ABC: intervalos de estabilidade",
   "",
-  paste("Intervalo = sequência de c consecutivos com S_c = 0 e o mesmo r̂ na amostra cheia; o",
-        "escolhido é o primeiro com r̂ < 20. `n_grid` é o número de pontos da grade no intervalo."),
+  paste(
+    "Intervalo = sequência de c consecutivos com S_c = 0 e o mesmo r̂ na",
+    "amostra cheia; o escolhido é o primeiro com r̂ < 20. `n_grid` é o",
+    "número de pontos da grade no intervalo."
+  ),
   "",
-  md_table(as.data.frame(dplyr::filter(abc_intervals, painel %in% c("atual", PRINCIPAL)))),
+  md_table(as.data.frame(
+    dplyr::filter(abc_intervals, painel %in% c("atual", principal_config))
+  )),
   "",
-  sprintf("### Sensibilidade à ordem das colunas: %d permutações do mesmo fluxo de seed", N_PERM),
+  sprintf(
+    "### Sensibilidade à ordem das colunas: %d permutações do mesmo fluxo de seed",
+    N_PERM
+  ),
   "",
-  md_table(as.data.frame(perm_wide)),
+  md_table(as.data.frame(permutation_wide)),
   "",
   "## Superfícies ER, GR e IC2, k = 1..10",
   "",
@@ -329,30 +492,54 @@ writeLines(sections, file.path(OUT_DIR, "factor_selection_pruned.md"))
 
 # ---- Figure ----------------------------------------------------------
 
-panel_label <- setNames(
-  c(sprintf("atual (N = %d)", ncol(panel)),
-    sprintf("podado, %s (N = %d)", PRINCIPAL, ncol(panels[[PRINCIPAL]]))),
-  c("atual", PRINCIPAL)
+panel_label <- purrr::set_names(
+  c(
+    sprintf("atual (N = %d)", ncol(panel)),
+    sprintf(
+      "podado, %s (N = %d)",
+      principal_config,
+      ncol(panels[[principal_config]])
+    )
+  ),
+  c("atual", principal_config)
 )
 
-fig_df <- surfaces |>
+criteria_long <- surfaces |>
   dplyr::filter(painel %in% names(panel_label)) |>
   dplyr::select(painel, k, ER, GR, IC2) |>
-  tidyr::pivot_longer(c(ER, GR, IC2), names_to = "criterio", values_to = "valor") |>
+  tidyr::pivot_longer(
+    c(ER, GR, IC2),
+    names_to = "criterio",
+    values_to = "valor"
+  ) |>
   dplyr::mutate(
     painel = factor(panel_label[painel], levels = panel_label),
-    criterio = factor(criterio, levels = c("ER", "GR", "IC2"),
-                      labels = c("ER(k): maximo", "GR(k): maximo", "Bai-Ng IC2 BLL: minimo"))
+    criterio = factor(
+      criterio,
+      levels = c("ER", "GR", "IC2"),
+      labels = c("ER(k): maximo", "GR(k): maximo", "Bai-Ng IC2 BLL: minimo")
+    )
   )
 
-chosen_k <- fig_df |>
-  dplyr::group_by(painel, criterio) |>
-  dplyr::filter(dplyr::if_else(criterio == "Bai-Ng IC2 BLL: minimo",
-                               valor == min(valor), valor == max(valor))) |>
-  dplyr::ungroup()
+chosen_k <- criteria_long |>
+  dplyr::filter(
+    dplyr::if_else(
+      criterio == "Bai-Ng IC2 BLL: minimo",
+      valor == min(valor),
+      valor == max(valor)
+    ),
+    .by = c(painel, criterio)
+  )
 
-p_k <- ggplot2::ggplot(fig_df, ggplot2::aes(k, valor, colour = painel)) +
-  ggplot2::geom_vline(xintercept = R_FACTORS, linetype = "dotted", colour = "grey50") +
+criteria_plot <- ggplot2::ggplot(
+  criteria_long,
+  ggplot2::aes(k, valor, colour = painel)
+) +
+  ggplot2::geom_vline(
+    xintercept = R_FACTORS,
+    linetype = "dotted",
+    colour = "grey50"
+  ) +
   ggplot2::geom_line() +
   ggplot2::geom_point(data = chosen_k, size = 2.5) +
   ggplot2::facet_wrap(~criterio, scales = "free_y") +
@@ -360,12 +547,24 @@ p_k <- ggplot2::ggplot(fig_df, ggplot2::aes(k, valor, colour = painel)) +
   ggplot2::scale_x_continuous(breaks = c(1, 5, 10, 15, 20)) +
   ggplot2::labs(
     title = "Numero de fatores: painel atual contra o podado por correlacao",
-    subtitle = sprintf(paste("Primeiras diferencas padronizadas BLL, T = %d; pontos marcam o k",
-                             "escolhido; pontilhado em r = %d (producao)"),
-                       nrow(panel) - 1, R_FACTORS),
-    x = "numero de fatores k", y = NULL, colour = NULL
+    subtitle = sprintf(
+      paste(
+        "Primeiras diferencas padronizadas BLL, T = %d; pontos marcam o k",
+        "escolhido; pontilhado em r = %d (producao)"
+      ),
+      nrow(panel) - 1,
+      R_FACTORS
+    ),
+    x = "numero de fatores k",
+    y = NULL,
+    colour = NULL
   ) +
   ggplot2::theme_classic(base_size = 10) +
   ggplot2::theme(legend.position = "bottom")
 
-ggplot2::ggsave(file.path(OUT_DIR, "factor_selection_pruned.pdf"), p_k, width = 10, height = 4.5)
+ggplot2::ggsave(
+  file.path(OUT_DIR, "factor_selection_pruned.pdf"),
+  criteria_plot,
+  width = 10,
+  height = 4.5
+)

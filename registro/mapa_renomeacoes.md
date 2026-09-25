@@ -13,6 +13,133 @@ mantidos em lugar e já usam os caminhos correntes.
 
 ---
 
+## 2026-09-25 — `coding-style` em `R/instrument/`
+
+Quarta passada da skill `coding-style`, agora sobre os dois arquivos de
+`R/instrument/`, que ficaram onde estavam. Nenhum número se moveu:
+- `build_instrument_variants()` saiu `identical()` à antiga em `monthly`,
+  `daily` e `diag`, no vértice de produção (126) e em 63;
+- `build_thursday_surprises()` saiu `identical()` em 20 combinações:
+  - vértice de 21 a 504;
+  - `min_bd` de 10 e 30;
+  - a grade de quintas do instrumento e a grade semanal do diagnóstico het.
+
+  Isso inclui as quintas em que dois contratos empatam na distância ao
+  vértice, que são 5 a 18 por vértice;
+- `script/instrument.R` gera os três CSVs de `data/processed/` idênticos em
+  bytes.
+
+Os números de linha de `R/instrument/*.R` citados antes desta data valem para a
+versão daquela data. O último estado antes da passada é `b654626`.
+
+| antes | agora |
+|---|---|
+| `surprise_wed_to_thu()` em `R/instrument/di_surprise.R` | dentro de `build_thursday_surprises()`, seu único chamador: um join quarta×quinta pelo ticker e `slice_min()` da distância ao vértice, em vez de um `for` por quinta |
+| `agg_monthly_sum()` em `R/instrument/build_variants.R` | um `summarise(.by = month)` com as três somas de Jarociński-Karadi |
+| `trail_change()`, `align_pre_event()`, `drop_na_series()` e `log_ret_100()`, internas a `build_instrument_variants()` | a tabela `pre_event_inputs` (série, janela, escala) e um `pmap`; os retornos diários escritos em linha |
+| defaults `path`, `from`, `to` de `load_di_panel()` e `load_copom_wednesdays()` | argumentos obrigatórios; `script/instrument.R` escreve o caminho de `copom_historico.csv` |
+| defaults `target_bd = 63`, `min_bd = 10` de `build_thursday_surprises()` | argumentos obrigatórios; `build_weekly_changes()` escreve `min_bd = 10` |
+
+Um defeito latente saiu junto. `align_pre_event()` fazia
+`ifelse(idx >= 1, val[idx], NA)`. Quando um corte de quarta caía antes da
+primeira observação da série, `idx` tinha zeros, `val[idx]` ficava mais curto e
+o `ifelse` reciclava a coluna inteira deslocada. Isso nunca aconteceu, porque
+toda série começa antes do primeiro corte. Num teste com o câmbio começando em
+2012-06, o `stop` de NA dos preditores pegava o caso por acaso: a coluna
+deslocada ainda carregava os NA da defasagem, 25 contra os 26 corretos. Agora o
+corte sem observação vira NA na posição certa.
+
+A regra de descarte de NA dos preditores também ficou uniforme. Cada série é
+lida no próprio calendário, e não só as três do Yahoo. Nos dados isso não muda
+nada: Ibovespa e câmbio já chegam filtrados, e Focus e inclinação do DI não têm
+NA.
+
+## 2026-09-25 — `coding-style` em `R/identification/`
+
+Terceira passada da skill `coding-style`, agora sobre `R/identification/`, com
+reagrupamento por domínio (decisão do autor). `spec_sweep.R` e
+`experimental_panel.R` deixaram de existir. Nenhum número se moveu:
+- o smoke test saiu bit-idêntico, e o objeto de `main_sdfm()`, `identical()`;
+- cada função saiu `identical()` à antiga nos testes antigo-contra-novo,
+  incluindo os casos de erro;
+- nenhum `.csv` ou `.rds` rastreado mudou na re-rodada dos 17 comandos
+  offline e de `het_rigobon/0{1,2,3}`;
+- as 7 travas de `script/validation/` passam.
+
+Os números de linha de `R/identification/*.R` citados antes desta data valem
+para `main` em `3d2f757`. O parecer
+`2026-09-24_auditoria_fidelidade_olea_lenza.md` cita `weak_iv_ar.R` e traz uma
+nota de leitura.
+
+| antes | agora |
+|---|---|
+| `run_stage2_cell()` em `R/identification/spec_sweep.R` | `R/modeling/dfm_pipeline.R`, junto de `main_sdfm()` |
+| `norm_value_for()` em `R/identification/spec_sweep.R` | a conta escrita dentro de `run_stage2_cell()`, seu único chamador |
+| `md_table()` em `R/identification/spec_sweep.R` | `R/reporting/markdown_report.R`, junto de `md_tbl()`, sem unificar |
+| `plot_dimension_overlay()` em `R/identification/spec_sweep.R` | `R/reporting/figures.R` |
+| `coherence_var_table()` em `R/identification/irf_coherence.R` | a tabela `theory_table` de `script/irf_coherence_check.R`, seu único chamador; a descrição dos tiers foi para `evaluate_irf_path()` |
+| `base_block_taxonomy()` em `R/identification/experimental_panel.R` | código em `script/panel_pruning.R`, seu único chamador |
+| `prune_correlated_series()` em `R/identification/experimental_panel.R` | `R/modeling/factor_selection.R` |
+| `regime_indicator()` em `R/identification/het_tests.R` | escrito dentro de `fit_het_cv()`, com a explicação do bug de `id.cv.R:177` |
+| `mat_sym_sqrt()` e `mat_sym_inv_sqrt()` em `R/identification/het_tests.R` | escritos dentro de `het_column_closed_form()`, que `fit_het_cv()` passou a chamar para a guarda de autovalores |
+
+Uma única mensagem mudou. `ar_dfm_bands()` repetia o gate `hac_dim < T` que
+`mosw_rform_cov()` já aplica, logo depois do gate `par_dim < T`. Com a
+repetição removida, as células bloqueadas ((8,8) e o pré-COVID com `p = 4`)
+passam a parar na mensagem do gate `par_dim`. Em (8,8) ela diz "Parameter
+dimension is 300 >= T = 162". O bloqueio é o mesmo: os dois gates barram
+exatamente as mesmas células.
+
+Os `source()` de `irf_coherence_check.R`, `q_sensitivity.R`,
+`factor_selection_pruned.R`, `panel_pruning.R` e `validate_amengual_watson.R`
+passaram a apontar os novos arquivos. Os scripts de `arquivo/` que carregam
+`spec_sweep.R` ou `experimental_panel.R` deixam de rodar; o acervo não é
+mantido.
+
+A mesma rodada devolveu `for` a `compute_irf_dfm()` (potências de `A`) e a
+`compute_factor_space_wald()` (soma de Bartlett), no lugar do
+`purrr::accumulate` e do `map` + `reduce` da passada anterior. O critério novo
+da skill é que o laço que é passo da matemática fica laço. Uma revisão de todos
+os laços de `script/` e `R/modeling/` pelo mesmo critério não achou outro passo
+de matemática: o resto percorre itens independentes e fica `map`. Ficam `for`
+dois laços sequenciais que não são matemática, porque a ordem importa e param
+cedo: as especificações do X-13 em `clean.R` e os estágios de `run_all.R`. O
+índice da recursão de `A` passou de `horizon` a `j` (`h` é o argumento do
+horizonte máximo), com a citação de `DFMest_BLL.m:41-45`.
+
+## 2026-09-25 — `coding-style` em `R/modeling/`
+
+Segunda passada da skill `coding-style` sobre os arquivos de funções de
+`R/modeling/`, com reagrupamento por domínio (decisão do autor). Nenhum número
+se moveu:
+- o smoke test saiu bit-idêntico, e o objeto de `main_sdfm()`, `identical()`;
+- nenhum `.csv` ou `.rds` rastreado mudou na re-rodada dos 17 comandos offline
+  e de `het_rigobon/02_irf.R`;
+- os PDFs e `.md` só mudaram na data;
+- as 7 travas de `script/validation/` passam.
+
+Os números de linha de `R/modeling/*.R`,
+`R/identification/factor_space_diagnostics.R` e `script/*.R` citados antes desta
+data valem para `main` em `3d2f757`. O parecer
+`2026-09-24_auditoria_fidelidade_olea_lenza.md` cita vários e traz uma nota de
+leitura.
+
+| antes | agora |
+|---|---|
+| `compute_factor_space_wald()` em `R/modeling/impulse_response.R` | `R/identification/factor_space_diagnostics.R`, junto de `diagnose_instrument_in_factor_space()`, seu único chamador vivo |
+| `compute_robust_first_stage_F()` em `R/modeling/impulse_response.R` | `R/identification/factor_space_diagnostics.R` |
+| `plot_irf()` em `R/modeling/impulse_response.R` | código em linha em `script/model_alessi.R`, seu único chamador vivo |
+| `panel_eigenvalues()` em `R/modeling/factor_selection.R` | a conta `svd(X)$d^2 / (NT)` escrita em `ahn_horenstein()` e `abc_criterion()` |
+| três cópias da padronização BLL, em `estimate_static_factors()`, `bai_ng_criteria()` e `amengual_watson()` | `standardize_bll()` em `R/modeling/factor_estimation.R` |
+| `amengual_watson(scale = )` | `amengual_watson(standardize = )`, como em `bai_ng_criteria()` |
+| `var_lag_criteria()` devolvia `data.frame` | devolve tibble, com as mesmas colunas e valores |
+
+`validate_hac_kernel.R` e `validate_olea_kilian.R` passaram a carregar
+`factor_space_diagnostics.R`. Os scripts de `arquivo/` que chamam as funções
+movidas carregando só `impulse_response.R`, ou que chamam `plot_irf()` ou
+`panel_eigenvalues()`, deixam de rodar; o acervo não é mantido.
+
+
 ## 2026-09-21 — fim de `production_spec()`
 
 `R/modeling/production_spec.R` foi **apagado** (decisão do autor: a

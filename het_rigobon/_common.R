@@ -57,7 +57,7 @@ N_BOOT <- 500L   # a contagem de Rigobon: reamostragem dentro de regime
 
 # Vertices DI em dias uteis. 63/126/252 sao 3m/6m/12m, tres das quatro
 # colunas de GRG (90d, 180d, 360d); 504 e o de 2 anos. O vertice de 30 dias
-# de GRG fica de fora: abaixo do min_bd = 10 de surprise_wed_to_thu() a
+# de GRG fica de fora: abaixo do min_bd = 10 de build_thursday_surprises() a
 # escolha de contrato fica instavel perto do vencimento.
 DI_VERTICES <- c(di_3m = 63L, di_6m = 126L, di_12m = 252L, di_2y = 504L)
 

@@ -1,11 +1,32 @@
+#' Standardize a level panel as Barigozzi, Lippi & Luciani (2016)
+#'
+#' Takes first differences, centers them and divides each series by the
+#' standard deviation of its differences. The static-factor PCA and the BLL
+#' variants of the Bai-Ng and Amengual-Watson criteria all read this object,
+#' never the levels, which are non-stationary by design.
+#'
+#' @param data Numeric matrix of the level panel (T x N).
+#'
+#' @return List with `yy`, the standardized first differences (T - 1 x N), and
+#'   `sy`, the standard deviation of each series' first differences.
+#'
+#' @examples
+#' yy <- standardize_bll(panel)$yy
+standardize_bll <- function(data) {
+  y <- diff(data)
+  sy <- apply(y, 2, sd)
+
+  list(yy = sweep(sweep(y, 2, colMeans(y), "-"), 2, sy, "/"), sy = sy)
+}
+
+
 #' Extract static factors under BLL standardization
 #'
-#' Standardizes the level panel by the standard deviation of its first
-#' differences (Barigozzi, Lippi & Luciani 2016), removes a linear trend
-#' series by series, and takes the leading `r` eigenvectors of the covariance
-#' of the standardized differences. SVD rather than `eigen()`, and each
-#' eigenvector signed so that its largest entry is positive, make the
-#' decomposition bit-reproducible.
+#' Removes a linear trend series by series, scales the detrended levels by the
+#' `sy` of `standardize_bll()`, and projects them on the leading `r`
+#' eigenvectors of the covariance of the standardized differences. SVD rather
+#' than `eigen()`, and each eigenvector signed so that its largest entry is
+#' positive, make the decomposition bit-reproducible.
 #'
 #' @param data Numeric matrix of the level panel (T x N).
 #' @param r Number of static factors.
@@ -17,19 +38,22 @@
 #' @examples
 #' static <- estimate_static_factors(panel, r = 5L)
 estimate_static_factors <- function(data, r) {
-  y <- diff(data)
-  sy <- apply(y, 2, sd)
-  yy <- sweep(sweep(y, 2, colMeans(y), "-"), 2, sy, "/")
+  standardized <- standardize_bll(data)
 
   trend <- cbind(1, seq_len(nrow(data)))
   beta <- solve(crossprod(trend)) %*% crossprod(trend, data)
-  Z <- sweep(data - trend %*% beta, 2, sy, "/")
+  Z <- sweep(data - trend %*% beta, 2, standardized$sy, "/")
 
-  lambda <- svd(cov(yy))$u[, 1:r, drop = FALSE]
+  lambda <- svd(cov(standardized$yy))$u[, 1:r, drop = FALSE]
   flip <- lambda[cbind(apply(abs(lambda), 2, which.max), seq_len(r))] < 0
-  lambda <- sweep(lambda, 2, ifelse(flip, -1, 1), "*")
+  lambda <- sweep(lambda, 2, dplyr::if_else(flip, -1, 1), "*")
 
-  list(factors = Z %*% lambda, loadings = lambda, sy = sy, yy = yy)
+  list(
+    factors = Z %*% lambda,
+    loadings = lambda,
+    sy = standardized$sy,
+    yy = standardized$yy
+  )
 }
 
 
@@ -92,23 +116,26 @@ estimate_var_wls <- function(data, p, s = 1) {
   RHS <- cbind(stats::embed(data, p + 1)[, -(1:K), drop = FALSE], 1)
   LHS <- data[(p + 1):nrow(data), , drop = FALSE]
 
-  bet <- solve(crossprod(RHS / s)) %*% crossprod(RHS / s, LHS / s)
-  u <- LHS - RHS %*% bet
-  e <- u / s
-  sigma_mle <- crossprod(e) / n_eff
+  B <- solve(crossprod(RHS / s)) %*% crossprod(RHS / s, LHS / s)
+  u <- LHS - RHS %*% B
+  u_standardized <- u / s
+  sigma_mle <- crossprod(u_standardized) / n_eff
+  log_det_sigma <- as.numeric(
+    determinant(sigma_mle, logarithm = TRUE)$modulus
+  )
 
   list(
-    coefficients = bet,
+    coefficients = B,
     residuals = u,
-    residuals_standardized = e,
+    residuals_standardized = u_standardized,
     companion = rbind(
-      t(bet[1:(p * K), ]),
+      t(B[1:(p * K), ]),
       cbind(diag((p - 1) * K), matrix(0, (p - 1) * K, K))
     ),
-    covariance_matrix = crossprod(e) / (n_eff - p * K - 1),
+    covariance_matrix = crossprod(u_standardized) / (n_eff - p * K - 1),
     sigma_mle = sigma_mle,
     loglik = -n_eff * K / 2 * (1 + log(2 * pi)) - K * sum(log(s)) -
-      n_eff / 2 * as.numeric(determinant(sigma_mle, logarithm = TRUE)$modulus)
+      n_eff / 2 * log_det_sigma
   )
 }
 
@@ -146,18 +173,30 @@ estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
 
   # Row i of abs_change is the change into residual month i + 1, on the VAR's
   # left-hand side as in bvarGLP_covid.m
-  abs_change <- rowMeans(abs(diff(factors[(p + 1):nrow(factors), , drop = FALSE])))
+  abs_change <- factors[(p + 1):nrow(factors), , drop = FALSE] |>
+    diff() |>
+    abs() |>
+    rowMeans()
   t_star <- match(covid_start, residual_dates)
-  start <- c(abs_change[t_star - 1 + 0:2] / mean(abs_change[1:(t_star - 2)]), 0.8)
-  names(start) <- c("s0", "s1", "s2", "rho")
+  start <- c(
+    abs_change[t_star - 1 + 0:2] / mean(abs_change[1:(t_star - 2)]),
+    0.8
+  ) |>
+    purrr::set_names(c("s0", "s1", "s2", "rho"))
   lower <- lower[names(start)]
   upper <- upper[names(start)]
   start <- pmin(pmax(start, lower), upper)
 
   # factr = 1e3: the default 1e7 stops while the first-order conditions of s0
   # and s1 are still 1e-3 away from closing in simulated data
-  fit <- optim(start, loglik_at, method = "L-BFGS-B", lower = lower,
-               upper = upper, control = list(fnscale = -1, factr = 1e3))
+  fit <- optim(
+    start,
+    loglik_at,
+    method = "L-BFGS-B",
+    lower = lower,
+    upper = upper,
+    control = list(fnscale = -1, factr = 1e3)
+  )
 
   list(
     theta = fit$par,
@@ -168,14 +207,17 @@ estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
     path = covid_volatility_path(residual_dates, covid_start, fit$par)
   )
 }
+
+
 #' Read the estimated COVID volatility scale of the factor VAR
 #'
 #' Returns the `covid_volatility` list that `estimate_dfm()` expects, with
-#' `covid_start` and theta read from the CSV that `script/covid_volatility_theta.R`
-#' writes. Theta is an estimate, not a decision, so it is never typed as a
-#' literal: `readr` writes doubles at shortest-round-trip precision, so the four
-#' values come back bit-identical to the maximizer of (B5). `innovations` is the
-#' author's decision of 2026-09-14 and is not in the CSV.
+#' `covid_start` and theta read from the CSV that
+#' `script/covid_volatility_theta.R` writes. Theta is an estimate, not a
+#' decision, so it is never typed as a literal: `readr` writes doubles at
+#' shortest-round-trip precision, so the four values come back bit-identical
+#' to the maximizer of (B5). `innovations` is an author decision and is not in
+#' the CSV.
 #'
 #' @param path CSV written by `script/covid_volatility_theta.R`, with columns
 #'   `covid_start`, `s0`, `s1`, `s2` and `rho`. No default: every call site
@@ -189,15 +231,13 @@ estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
 #' cv <- read_covid_volatility("output/factors/covid_volatility_theta.csv")
 read_covid_volatility <- function(path, innovations = "standardized") {
   if (!file.exists(path)) {
-    stop("COVID volatility scale not found at '", path,
-         "'. Run script/covid_volatility_theta.R, which estimates theta by ",
-         "maximum likelihood and writes it.")
+    stop(
+      "COVID volatility scale not found at '", path,
+      "'. Run script/covid_volatility_theta.R, which estimates theta by ",
+      "maximum likelihood and writes it."
+    )
   }
   fit <- readr::read_csv(path, show_col_types = FALSE)
-  if (nrow(fit) != 1L ||
-      !all(c("covid_start", "s0", "s1", "s2", "rho") %in% names(fit))) {
-    stop("'", path, "' must carry one row with covid_start, s0, s1, s2 and rho.")
-  }
 
   list(
     covid_start = as.Date(fit$covid_start),
@@ -231,7 +271,7 @@ estimate_dynamic_factors <- function(var_residuals, q, sigma_u) {
   svd_u <- svd(sigma_u)
   K <- svd_u$u[, 1:q, drop = FALSE]
   flip <- K[cbind(apply(abs(K), 2, which.max), seq_len(q))] < 0
-  K <- sweep(K, 2, ifelse(flip, -1, 1), "*")
+  K <- sweep(K, 2, dplyr::if_else(flip, -1, 1), "*")
   # nrow = q: with q = 1, diag() would read the scalar as a dimension
   M <- diag(sqrt(svd_u$d[1:q]), nrow = q)
 
@@ -278,6 +318,8 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
     keep <- dates %in% instrument$month
     data <- data[keep, , drop = FALSE]
     dates <- dates[keep]
+    # Base subsetting, not dplyr::filter(): a data.frame instrument keeps its
+    # row names, and the cached estimation cells carry them
     instrument <- instrument[instrument$month %in% dates, ]
     instrument <- instrument[order(instrument$month), ]
   }
@@ -286,27 +328,38 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
   volatility_path <- 1
   if (!is.null(covid_volatility)) {
     missing_fields <- c(
-      setdiff(c("covid_start", "theta", "innovations"), names(covid_volatility)),
+      setdiff(
+        c("covid_start", "theta", "innovations"),
+        names(covid_volatility)
+      ),
       setdiff(c("s0", "s1", "s2", "rho"), names(covid_volatility$theta))
     )
     if (length(missing_fields) > 0) {
-      stop("covid_volatility sem ", paste(missing_fields, collapse = ", "),
-           ": escolhas do autor, sem default ",
-           "(notas/2026-09-14_volatilidade_covid_lenza_primiceri.md)")
+      stop(
+        "covid_volatility sem ", paste(missing_fields, collapse = ", "),
+        ": escolhas do autor, sem default ",
+        "(notas/2026-09-14_volatilidade_covid_lenza_primiceri.md)"
+      )
     }
     if (!isTRUE(covid_volatility$innovations %in% c("raw", "standardized"))) {
-      stop("covid_volatility$innovations deve ser 'raw' (u_t) ou ",
-           "'standardized' (u_t/s_t)")
+      stop(
+        "covid_volatility$innovations deve ser 'raw' (u_t) ou ",
+        "'standardized' (u_t/s_t)"
+      )
     }
     residual_dates <- dates[(p + 1):length(dates)]
     if (!isTRUE(covid_volatility$covid_start %in% residual_dates)) {
-      stop("covid_start (", format(covid_volatility$covid_start),
-           ") nao e um mes dos residuos do VAR (", format(residual_dates[1]),
-           " a ", format(residual_dates[length(residual_dates)]), ")")
+      stop(
+        "covid_start (", format(covid_volatility$covid_start),
+        ") nao e um mes dos residuos do VAR (", format(residual_dates[1]),
+        " a ", format(residual_dates[length(residual_dates)]), ")"
+      )
     }
-    volatility_path <- covid_volatility_path(residual_dates,
-                                             covid_volatility$covid_start,
-                                             covid_volatility$theta)
+    volatility_path <- covid_volatility_path(
+      residual_dates,
+      covid_volatility$covid_start,
+      covid_volatility$theta
+    )
   }
 
   static <- estimate_static_factors(data, r)
@@ -346,8 +399,10 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
     instrument = instrument,
     covid_volatility = covid_volatility,
     volatility_path = volatility_path,
-    diagnostics = list(max_eigenvalue = max_eigenvalue,
-                       is_stable = max_eigenvalue < 1)
+    diagnostics = list(
+      max_eigenvalue = max_eigenvalue,
+      is_stable = max_eigenvalue < 1
+    )
   )
 }
 
@@ -361,6 +416,7 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
 #' @examples
 #' eta <- extract_dynamic_innovations(dfm)
 extract_dynamic_innovations <- function(dfm_results) {
-  dfm_results$var_residuals %*% dfm_results$dynamic_loadings %*%
+  dfm_results$var_residuals %*%
+    dfm_results$dynamic_loadings %*%
     solve(dfm_results$dynamic_scaling)
 }

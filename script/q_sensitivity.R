@@ -24,29 +24,36 @@
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
-source("R/identification/spec_sweep.R")
+source("R/modeling/dfm_pipeline.R")
+source("R/reporting/figures.R")
 source("R/identification/weak_iv_ar.R")
 
-WINDOW <- sub("^--window=", "", grep("^--window=", commandArgs(trailingOnly = TRUE), value = TRUE))
+WINDOW <- commandArgs(trailingOnly = TRUE) |>
+  stringr::str_subset("^--window=") |>
+  stringr::str_remove("^--window=")
 if (length(WINDOW) != 1L || !WINDOW %in% c("cheia", "pre_covid")) {
-  stop("Pass --window=cheia or --window=pre_covid: the two windows of step 4/4 ",
-       "differ in sample, p and the COVID volatility, and neither is a default.")
+  stop(
+    "Pass --window=cheia or --window=pre_covid: the two windows of step 4/4 ",
+    "differ in sample, p and the COVID volatility, and neither is a default."
+  )
 }
 
 PANEL_PATH      <- "data/processed/data_log_deseasonalized.csv"
 INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
 THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
-R_FACTORS  <- 5L
+COHERENCE_PATH  <- "output/irf/irf_coherence_h.csv"
+OUT_DIR         <- "output/factors"
+PAPER_FIG       <- "paper/fig_q_sensibilidade.pdf"
+R_FACTORS    <- 5L
 Q_PRODUCTION <- 5L
-INSTRUMENT <- "z_jk_bs_purif"
-MP_VAR     <- "yield_6m"
-HORIZON    <- 48L
-SHOCK_BPS  <- 50
-NORMALIZE_VALUE <- 0.005      # +50bp on yield_6m, a decimal proportion
-CI_LEVELS  <- c(0.68, 0.90)
-AR_NW_LAGS <- 0L
-
-Q_VALUES <- c(5L, 4L, 3L, 2L)
+Q_VALUES     <- c(5L, 4L, 3L, 2L)
+INSTRUMENT   <- "z_jk_bs_purif"
+MP_VAR       <- "yield_6m"
+HORIZON      <- 48L
+SHOCK_BPS    <- 50
+CI_LEVELS    <- c(0.68, 0.90)
+AR_NW_LAGS   <- 0L
+H_PAPER      <- 36L
 VARS <- c(
   "yield_6m", "yield_2y", "yield_5y", "cambio_usd", "embi_perc",
   "cds_5y", "expect_focus_ipca12m", "ibc_br", "price_ipca", "asset_ibov",
@@ -56,14 +63,8 @@ VARS <- c(
   "expect_focus_fiscal_dlsp_ny", "expect_focus_fiscal_primary_balance_ny",
   "expect_focus_fiscal_nominal_balance_ny"
 )
-H_FIG <- 48L
-OUT_DIR <- "output/factors"
-
-COHERENCE_PATH <- "output/irf/irf_coherence_h.csv"
-PAPER_FIG <- "paper/fig_q_sensibilidade.pdf"
-H_PAPER <- 36L
-# Labels and scales of script/fig_section5.R; an NA scale is its "pct", the
-# response as a percentage of the sample mean
+# Labels and scales of script/fig_section5.R; an NA scale is the response as
+# a percentage of the sample mean
 PAPER_PANELS <- tibble::tribble(
   ~variable,     ~label,                     ~scale,
   "yield_2y",    "DI 2 anos (p.b.)",         1e4,
@@ -75,6 +76,13 @@ PAPER_PANELS <- tibble::tribble(
   "asset_ibov",  "Ibovespa (%)",             1,
   "fiscal_dlsp", "DLSP (p.p. do PIB)",       1
 )
+Q_PALETTE <- c(
+  "q=5" = "black",
+  "q=4" = "firebrick",
+  "q=3" = "darkgreen",
+  "q=2" = "steelblue"
+)
+Q_LINETYPE <- c("q=5" = "solid", "q=4" = "42", "q=3" = "22", "q=2" = "11")
 
 # The pre-COVID window has no COVID month, so s_t = 1 throughout and
 # estimate_dfm() rejects the scale there: OLS is the treated fit
@@ -84,22 +92,37 @@ CELL <- switch(WINDOW,
     p = 4L,
     covid_volatility = read_covid_volatility(THETA_PATH),
     stem = "q_narrative_r5p4_covid",
-    title = "Sensibilidade à dimensão dinâmica q: r = 5, p = 4, cheia com a volatilidade COVID (2012-03 a 2025-12)"
+    title = paste(
+      "Sensibilidade à dimensão dinâmica q: r = 5, p = 4, cheia com a",
+      "volatilidade COVID (2012-03 a 2025-12)"
+    )
   ),
   pre_covid = list(
     sample = as.Date(c("2012-03-01", "2019-12-01")),
     p = 2L,
     covid_volatility = NULL,
     stem = "q_narrative_r5p2_precovid",
-    title = "Sensibilidade à dimensão dinâmica q: r = 5, p = 2, pré-COVID (2012-03 a 2019-12)"
+    title = paste(
+      "Sensibilidade à dimensão dinâmica q: r = 5, p = 2, pré-COVID",
+      "(2012-03 a 2019-12)"
+    )
   )
 )
-OUT_STEM <- file.path(OUT_DIR, CELL$stem)
-
-Q_PALETTE <- c("q=5" = "black", "q=4" = "firebrick", "q=3" = "darkgreen", "q=2" = "steelblue")
-Q_LINETYPE <- c("q=5" = "solid", "q=4" = "42", "q=3" = "22", "q=2" = "11")
-
-dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
+# One page of the narrative PDF per row
+PAGES <- tibble::tibble(
+  variables = list(VARS[1:6], VARS[7:10], VARS[11:14], VARS[15:20]),
+  ncol = c(3, 2, 2, 3),
+  title = c(CELL$title, "", "Variáveis fiscais", "Expectativas"),
+  subtitle = c(
+    paste(
+      "z_jk_bs_purif × yield_6m, choque de +50 pb; bandas Anderson-Rubin",
+      "68/90% apenas para q=5"
+    ),
+    "",
+    "",
+    ""
+  )
+)
 
 raw_data <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   tidyr::drop_na()
@@ -110,16 +133,23 @@ data_mat <- raw_data |>
 var_names <- colnames(data_mat)
 tcode <- infer_tcode_from_varnames(var_names)
 
-inst_panel <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE)
-inst_panel$month <- as.Date(inst_panel$month)
+inst_panel <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE) |>
+  dplyr::mutate(month = as.Date(month))
 
 cells <- purrr::map(Q_VALUES, function(q) {
   run_stage2_cell(
-    data_mat, dates, inst_panel,
+    data_mat,
+    dates,
+    inst_panel,
     sample_window = CELL$sample,
-    r = R_FACTORS, q = q, p = CELL$p,
-    instrument = INSTRUMENT, mp_var = MP_VAR,
-    h = HORIZON, shock_bps = SHOCK_BPS, tcode = tcode,
+    r = R_FACTORS,
+    q = q,
+    p = CELL$p,
+    instrument = INSTRUMENT,
+    mp_var = MP_VAR,
+    h = HORIZON,
+    shock_bps = SHOCK_BPS,
+    tcode = tcode,
     ci_levels = CI_LEVELS,
     inference = if (q == Q_PRODUCTION) "ar" else "none",
     ar_nw_lags = AR_NW_LAGS,
@@ -129,85 +159,84 @@ cells <- purrr::map(Q_VALUES, function(q) {
 
 # The bands draw [lo, hi], which is the set only for an interval and, at the
 # normalization point, for the singleton {normalize_value}
-set90 <- cells[[match(Q_PRODUCTION, Q_VALUES)]]$irf$ar$by_level[["0.90"]]$set_type
-set90 <- set90[match(VARS, var_names), ]
-at_norm <- row(set90) == match(MP_VAR, VARS) & col(set90) == 1L
-stopifnot(all(set90[!at_norm] == "interval"), all(set90[at_norm] == "singleton"))
+production_cell <- cells[[match(Q_PRODUCTION, Q_VALUES)]]
+set_type90 <- production_cell$irf$ar$by_level[["0.90"]]$set_type
+set_type90 <- set_type90[match(VARS, var_names), ]
+at_normalization <- row(set_type90) == match(MP_VAR, VARS) &
+  col(set_type90) == 1L
+stopifnot(
+  all(set_type90[!at_normalization] == "interval"),
+  all(set_type90[at_normalization] == "singleton")
+)
 
-paths <- purrr::map2_dfr(cells, Q_VALUES, function(cell, q) {
-  ar_ref <- q == Q_PRODUCTION
+paths <- purrr::map2(cells, Q_VALUES, function(cell, q) {
+  with_bands <- q == Q_PRODUCTION
   point <- cell$irf$irf_point_matrix
   ci68 <- cell$irf$ci[["0.68"]]
   ci90 <- cell$irf$ci[["0.90"]]
 
-  purrr::map_dfr(VARS, function(variable) {
-    i <- match(variable, var_names)
-    data.frame(
+  purrr::map(VARS, function(variable) {
+    row <- match(variable, var_names)
+    tibble::tibble(
       r = R_FACTORS,
       q = q,
       p = CELL$p,
       variable = variable,
       h = 0:HORIZON,
-      point = point[i, ],
-      lo68 = if (ar_ref) ci68$lower[i, ] else NA_real_,
-      hi68 = if (ar_ref) ci68$upper[i, ] else NA_real_,
-      lo90 = if (ar_ref) ci90$lower[i, ] else NA_real_,
-      hi90 = if (ar_ref) ci90$upper[i, ] else NA_real_,
-      stringsAsFactors = FALSE
+      point = point[row, ],
+      lo68 = if (with_bands) ci68$lower[row, ] else NA_real_,
+      hi68 = if (with_bands) ci68$upper[row, ] else NA_real_,
+      lo90 = if (with_bands) ci90$lower[row, ] else NA_real_,
+      hi90 = if (with_bands) ci90$upper[row, ] else NA_real_
     )
-  })
+  }) |>
+    purrr::list_rbind()
+}) |>
+  purrr::list_rbind() |>
+  dplyr::mutate(
+    cell = factor(paste0("q=", q), levels = paste0("q=", Q_VALUES))
+  )
+
+band_data <- dplyr::filter(paths, q == Q_PRODUCTION)
+
+dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
+pdf(file.path(OUT_DIR, paste0(CELL$stem, ".pdf")), width = 11, height = 7.5)
+purrr::pwalk(PAGES, function(variables, ncol, title, subtitle) {
+  print(plot_dimension_overlay(
+    paths,
+    band_data,
+    variables,
+    palette = Q_PALETTE,
+    linetypes = Q_LINETYPE,
+    h_max = HORIZON,
+    ncol = ncol,
+    title = title,
+    subtitle = subtitle
+  ))
 })
-
-# The AR branch's own 1e-10 point guard (R/modeling/impulse_response.R) already
-# confirms the re-derived point agrees with ident_ext_instr() at the production q;
-# here we only confirm the shock stays normalized in every cell.
-mp_h0 <- dplyr::filter(paths, variable == MP_VAR, h == 0)$point
-stopifnot(max(abs(mp_h0 - NORMALIZE_VALUE)) < 1e-12)
-
-paths <- paths |>
-  dplyr::mutate(cell = factor(paste0("q=", q), levels = paste0("q=", Q_VALUES)))
-
-plot_data <- paths |>
-  dplyr::filter(h <= H_FIG)
-band_data <- plot_data |>
-  dplyr::filter(q == Q_PRODUCTION)
-
-pdf(paste0(OUT_STEM, ".pdf"), width = 11, height = 7.5)
-print(plot_dimension_overlay(
-  plot_data, band_data, VARS[1:6], palette = Q_PALETTE, linetypes = Q_LINETYPE,
-  h_max = H_FIG, ncol = 3, title = CELL$title,
-  subtitle = "z_jk_bs_purif × yield_6m, choque de +50 pb; bandas Anderson-Rubin 68/90% apenas para q=5"
-))
-print(plot_dimension_overlay(
-  plot_data, band_data, VARS[7:10], palette = Q_PALETTE, linetypes = Q_LINETYPE,
-  h_max = H_FIG, ncol = 2, title = "", subtitle = ""
-))
-print(plot_dimension_overlay(
-  plot_data, band_data, VARS[11:14], palette = Q_PALETTE, linetypes = Q_LINETYPE,
-  h_max = H_FIG, ncol = 2, title = "Variáveis fiscais", subtitle = ""
-))
-print(plot_dimension_overlay(
-  plot_data, band_data, VARS[15:20], palette = Q_PALETTE, linetypes = Q_LINETYPE,
-  h_max = H_FIG, ncol = 3, title = "Expectativas", subtitle = ""
-))
 invisible(dev.off())
 
 if (WINDOW == "cheia") {
   # The q = 5 line of the annex figure must be section 4's production line
+  band_columns <- c("point", "lo68", "hi68", "lo90", "hi90")
   production <- paths |>
-    dplyr::filter(q == Q_PRODUCTION, variable %in% PAPER_PANELS$variable, h <= H_PAPER) |>
+    dplyr::filter(
+      q == Q_PRODUCTION,
+      variable %in% PAPER_PANELS$variable,
+      h <= H_PAPER
+    ) |>
     dplyr::inner_join(
       readr::read_csv(COHERENCE_PATH, show_col_types = FALSE),
       by = c("variable" = "var", "h"),
       suffix = c("", "_cache")
     )
+  deviation <- abs(
+    as.matrix(production[band_columns]) -
+      as.matrix(production[paste0(band_columns, "_cache")])
+  )
   stopifnot(
     nrow(production) == nrow(PAPER_PANELS) * (H_PAPER + 1L),
-    max(abs(production$point - production$point_cache)) < 1e-10,
-    max(abs(production$lo68 - production$lo68_cache)) < 1e-10,
-    max(abs(production$hi68 - production$hi68_cache)) < 1e-10,
-    max(abs(production$lo90 - production$lo90_cache)) < 1e-10,
-    max(abs(production$hi90 - production$hi90_cache)) < 1e-10
+    max(deviation) < 1e-10
   )
 
   paper_panels <- PAPER_PANELS |>
@@ -218,17 +247,25 @@ if (WINDOW == "cheia") {
     dplyr::filter(h <= H_PAPER) |>
     dplyr::inner_join(paper_panels, by = "variable") |>
     dplyr::mutate(
-      dplyr::across(c(point, lo68, hi68, lo90, hi90), \(x) x * scale),
+      dplyr::across(dplyr::all_of(band_columns), \(x) x * scale),
       variable = label
     )
 
   ggplot2::ggsave(
     PAPER_FIG,
     plot_dimension_overlay(
-      paper_data, dplyr::filter(paper_data, q == Q_PRODUCTION), paper_panels$label,
-      palette = Q_PALETTE, linetypes = Q_LINETYPE,
-      h_max = H_PAPER, ncol = 4, title = NULL, subtitle = NULL
+      paper_data,
+      dplyr::filter(paper_data, q == Q_PRODUCTION),
+      paper_panels$label,
+      palette = Q_PALETTE,
+      linetypes = Q_LINETYPE,
+      h_max = H_PAPER,
+      ncol = 4,
+      title = NULL,
+      subtitle = NULL
     ),
-    width = 10.4, height = 5.8, device = cairo_pdf
+    width = 10.4,
+    height = 5.8,
+    device = cairo_pdf
   )
 }

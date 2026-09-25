@@ -4,11 +4,10 @@
 # the static factors and on p, not on q, so one estimate serves the whole q
 # table. This script is the sole producer of the production theta, which the
 # estimation scripts read back through read_covid_volatility(); it is therefore
-# the one place that must not read it. Production since 2026-09-17;
-# nothing here computes an IRF. s_t follows from theta-hat through
-# covid_volatility_path(); the profile in rho is a check and is not written.
-# A multi-start over the whole box checks that theta-hat is the global maximum
-# and writes where every start ended.
+# the one place that must not read it. Nothing here computes an IRF. s_t
+# follows from theta-hat through covid_volatility_path(); the profile in rho is
+# a check and is not written. A multi-start over the whole box checks that
+# theta-hat is the global maximum and writes where every start ended.
 # Output: output/factors/covid_volatility_theta.csv (theta-hat and likelihoods)
 #         output/factors/covid_volatility_multistart.csv (one row per start)
 # Notes: notas/2026-09-14_estimacao_theta_volatilidade_covid.md
@@ -16,11 +15,11 @@
 
 source("R/modeling/factor_estimation.R")
 
-PANEL_PATH <- "data/processed/data_log_deseasonalized.csv"
-THETA_OUT  <- "output/factors/covid_volatility_theta.csv"
+PANEL_PATH     <- "data/processed/data_log_deseasonalized.csv"
+THETA_OUT      <- "output/factors/covid_volatility_theta.csv"
 MULTISTART_OUT <- "output/factors/covid_volatility_multistart.csv"
-R_FACTORS  <- 5L
-P_LAGS     <- 4L
+R_FACTORS <- 5L
+P_LAGS    <- 4L
 # The author's design of 2026-09-14. The floor s >= 1 is what makes the
 # maximum exist (notas/2026-09-14_estimacao_theta_volatilidade_covid.md).
 COVID_START <- as.Date("2020-03-01")
@@ -41,25 +40,40 @@ data_mat <- panel |>
 residual_dates <- dates[(P_LAGS + 1):length(dates)]
 factors <- estimate_static_factors(data_mat, R_FACTORS)$factors
 
-fit <- estimate_covid_theta(factors, P_LAGS, residual_dates, COVID_START,
-                            THETA_LOWER, THETA_UPPER)
+fit <- estimate_covid_theta(
+  factors,
+  P_LAGS,
+  residual_dates,
+  COVID_START,
+  THETA_LOWER,
+  THETA_UPPER
+)
 wls <- estimate_var_wls(factors, P_LAGS, s = fit$path)
-neutral <- estimate_var_wls(factors, P_LAGS, s = rep(1, length(residual_dates)))
+neutral <- estimate_var_wls(
+  factors,
+  P_LAGS,
+  s = rep(1, length(residual_dates))
+)
 
 # Squared Mahalanobis size per dimension of the standardized WLS residuals
 # against (B4). At an interior maximum the envelope condition sets it to one in
 # t* and t* + 1, the months that s0 and s1 govern alone.
-mahal_wls <- rowSums((wls$residuals_standardized %*% solve(wls$sigma_mle)) *
-                       wls$residuals_standardized) / R_FACTORS
+standardized <- wls$residuals_standardized
+mahalanobis_per_dim <- rowSums(
+  (standardized %*% solve(wls$sigma_mle)) * standardized
+) / R_FACTORS
 
 t_star <- match(COVID_START, residual_dates)
 single_month <- c(s0 = t_star, s1 = t_star + 1L)
 interior <- fit$theta[names(single_month)] > THETA_LOWER[names(single_month)]
-foc_gap <- abs(mahal_wls[single_month] - 1)
+foc_gap <- abs(mahalanobis_per_dim[single_month] - 1)
 if (fit$convergence != 0 || any(interior & foc_gap > 1e-4)) {
-  stop("estimate_covid_theta did not reach the maximum: convergence ",
-       fit$convergence, ", |m - 1| at t* and t* + 1 = ",
-       paste(signif(foc_gap, 3), collapse = ", "))
+  stop(
+    "estimate_covid_theta did not reach the maximum: convergence ",
+    fit$convergence,
+    ", |m - 1| at t* and t* + 1 = ",
+    paste(signif(foc_gap, 3), collapse = ", ")
+  )
 }
 
 loglik_tol <- 1e-6 * abs(fit$loglik)
@@ -71,7 +85,11 @@ profile_loglik <- purrr::map_dbl(seq(0, 1, by = 0.01), function(rho) {
   optim(
     fit$theta[c("s0", "s1", "s2")],
     function(s) {
-      path <- covid_volatility_path(residual_dates, COVID_START, c(s, rho = rho))
+      path <- covid_volatility_path(
+        residual_dates,
+        COVID_START,
+        c(s, rho = rho)
+      )
       estimate_var_wls(factors, P_LAGS, s = path)$loglik
     },
     method = "L-BFGS-B",
@@ -81,8 +99,10 @@ profile_loglik <- purrr::map_dbl(seq(0, 1, by = 0.01), function(rho) {
   )$value
 })
 if (max(profile_loglik) > fit$loglik + loglik_tol) {
-  stop("The rho profile reaches ", max(profile_loglik), ", above the free ",
-       "maximum ", fit$loglik, ": estimate_covid_theta stopped at a local peak")
+  stop(
+    "The rho profile reaches ", max(profile_loglik), ", above the free ",
+    "maximum ", fit$loglik, ": estimate_covid_theta stopped at a local peak"
+  )
 }
 
 # Multi-start over the whole box, with the optimizer settings of
@@ -109,7 +129,10 @@ multistart <- tidyr::expand_grid(
       control = list(fnscale = -1, factr = 1e3)
     )
     tibble::tibble(
-      start_s0, start_s1, start_s2, start_rho,
+      start_s0,
+      start_s1,
+      start_s2,
+      start_rho,
       s0 = end$par[["s0"]],
       s1 = end$par[["s1"]],
       s2 = end$par[["s2"]],
@@ -131,17 +154,23 @@ multistart <- tidyr::expand_grid(
 
 best_start <- dplyr::slice_max(multistart, loglik, n = 1, with_ties = FALSE)
 if (best_start$loglik > fit$loglik + loglik_tol) {
-  stop("A multi-start ends at ", best_start$loglik, ", above the free maximum ",
-       fit$loglik, ", at (s0, s1, s2, rho) = (",
-       paste(signif(unlist(best_start[c("s0", "s1", "s2", "rho")]), 7),
-             collapse = ", "),
-       "): theta-hat is not the global maximum")
+  stop(
+    "A multi-start ends at ", best_start$loglik, ", above the free maximum ",
+    fit$loglik, ", at (s0, s1, s2, rho) = (",
+    paste(
+      signif(unlist(best_start[c("s0", "s1", "s2", "rho")]), 7),
+      collapse = ", "
+    ),
+    "): theta-hat is not the global maximum"
+  )
 }
 level_elsewhere <- multistart$loglik >= fit$loglik - loglik_tol &
   multistart$distance_to_hat > 0.05
 if (any(level_elsewhere)) {
-  stop(sum(level_elsewhere), " multi-starts end level with the free maximum ",
-       "more than 5% away from theta-hat: the maximum is not unique")
+  stop(
+    sum(level_elsewhere), " multi-starts end level with the free maximum ",
+    "more than 5% away from theta-hat: the maximum is not unique"
+  )
 }
 
 tibble::tibble(

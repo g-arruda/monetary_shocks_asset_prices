@@ -30,8 +30,7 @@ rm(list = ls())
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/factor_selection.R")
-source("R/identification/spec_sweep.R")   # md_table
-source("R/reporting/markdown_report.R")   # fmt
+source("R/reporting/markdown_report.R")   # md_table, fmt
 
 R_FACTORS  <- 5L   # the production r
 Q_DYNAMIC  <- 5L

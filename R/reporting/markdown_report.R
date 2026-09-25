@@ -1,9 +1,9 @@
 # ===================================================================
-# RENDERIZAÇÃO DE NÚMEROS PARA OS RELATÓRIOS .md GERADOS
-# Não confundir `md_tbl()` com `md_table()` de R/identification/spec_sweep.R:
-# aquele arredonda (`round`) e devolve um vetor de linhas; este usa
-# `formatC(signif(...))` e devolve uma string única. Os dígitos impressos
-# diferem, então trocar um pelo outro re-renderiza artefatos já commitados.
+# Number rendering for the generated .md reports.
+# Two table renderers live here and are not interchangeable: md_tbl()
+# rounds (`round`) and returns a vector of lines; md_table() uses
+# `formatC(signif(...))` and returns a single string. The printed digits
+# differ, so swapping one for the other re-renders committed artefacts.
 # ===================================================================
 
 #' Render a data.frame as markdown table lines
@@ -24,6 +24,30 @@ md_tbl <- function(df, digits = 4) {
   sep <- paste0("|", paste(rep("---", ncol(df)), collapse = "|"), "|")
   body <- apply(df, 1, function(r) paste0("| ", paste(r, collapse = " | "), " |"))
   c(hdr, sep, body, "")
+}
+
+#' Render a data.frame as a GitHub-flavored markdown table
+#'
+#' Numeric columns are rounded to `digits` significant figures.
+#'
+#' @param df Data.frame to render.
+#' @param digits Significant digits for numeric columns.
+#'
+#' @return Character scalar with the markdown table.
+md_table <- function(df, digits = 4) {
+  cells <- purrr::map(df, \(column) {
+    if (is.numeric(column)) {
+      formatC(signif(column, digits), format = "g", digits = digits)
+    } else {
+      as.character(column)
+    }
+  })
+  header <- paste0("| ", paste(names(df), collapse = " | "), " |")
+  separator <- paste0("|", paste(rep("---", ncol(df)), collapse = "|"), "|")
+  rows <- purrr::pmap_chr(unname(cells), \(...) {
+    paste0("| ", paste(c(...), collapse = " | "), " |")
+  })
+  paste(c(header, separator, rows), collapse = "\n")
 }
 
 #' Format a number for inline use in a generated report
