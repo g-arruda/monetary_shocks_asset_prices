@@ -60,7 +60,11 @@ focus_daily <- readr::read_csv(
     focus_selic_ny = as.numeric(focus_selic_ny)
   )
 
-copom_wed <- load_copom_wednesdays(from = LOAD_START, to = SAMPLE_END)
+copom_wed <- load_copom_wednesdays(
+  "data/raw/copom_historico.csv",
+  from = LOAD_START,
+  to = SAMPLE_END
+)
 
 built <- build_instrument_variants(
   inputs = list(

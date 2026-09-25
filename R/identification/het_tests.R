@@ -152,7 +152,8 @@ build_weekly_changes <- function(from, to, di_vertices, prices,
       build_thursday_surprises(
         di_panel,
         weeks$thu_date,
-        target_bd = business_days
+        target_bd = business_days,
+        min_bd = 10
       )$delta_di
     }) |>
     tibble::as_tibble()
