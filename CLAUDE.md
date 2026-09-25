@@ -99,7 +99,7 @@ condition, not in the frequency of the data.
 (`sec:identificacao`) as the reason the paper does not use that identification: one paragraph
 plus one footnote, right after the proxy-identification paragraph. §5 Robustez kept its title and
 lost its only subsection (`sec:weak_iv` now labels §5 itself); the introduction points at
-`sec:identificacao`. The appendix is split into **Anexo A** (`tab:lista_variaveis`) and **Anexo B** (`anexo-B`), which carries **two tables**: `tab:het_variance` (Rigobon--Sack
+`sec:identificacao`. The appendix is split into **Anexo A** (`tab:lista_variaveis`), **Anexo B** (`anexo-B`) and, since 2026-09-24, **Anexo C** (`anexo-C`, the `q` sensitivity figure, below). Anexo B carries **two tables**: `tab:het_variance` (Rigobon--Sack
 variance ratio per series, from `output/het/het_variance_ratios.csv`) and `tab:het_frequency` (the
 `Qr(λ₁=λ₂)` summary with the DI variance ratio `a`, SEs, corrected and uncorrected statistic; the
 `det` column left it the same day, and so did `tab:het_sequencia`, the full sequential table, by
@@ -110,7 +110,7 @@ Holm across the three daily vertices keeps the 3-month rejection (p 0.010). The 
 kurtosis sensitivities travel in the footnote. The paragraph keeps the non-decomposition
 sentence: the advisor's reading ("aggregation dilutes the variance") is exactly what the
 2026-09-22 prohibition forbids, and was not written. `rigobonsack2004` entered the bib (23 of
-the 25 keys).
+the 25 keys; `amengual2007consistent` made it 24 on 2026-09-24).
 That round migrated `sec:weak_iv` to the production vintage, re-estimated
 `sec:het_frequency` at `(5,5,4)` under the LP scale, repainted
 `fig:weak_iv_main` with Anderson--Rubin sets on both sides, and **deleted §5.3**
@@ -130,6 +130,15 @@ positive and significant from h18 to h32. Outside §4 only numbers and dates cha
 abstract, introduction and conclusion. The argument sentences that the new reading weakens are
 an open author decision in Tema A. Note: `2026-09-24_migracao_secao_4`. See `notas/_indice.md`
 before citing paper numbers as current.
+
+**`q = r` is defended in §3.1 since 2026-09-24**, in two sentences anchored in Stock-Watson (2016,
+§7.2) and AK (footnote 4), with Amengual-Watson now cited. **Anexo C** carries
+`fig:q_sensibilidade`, AK's Figure A3 exercise on the production cell: `q = 5` with its AR sets,
+`q = 4, 3, 2` as points, eight series to h36. `script/q_sensitivity.R --window=cheia` writes it
+and checks the `q = 5` line against `irf_coherence_h.csv`. By author decision **the text cites
+no number** from the exercise, and the defense is SW and AK, **not insensitivity**: at `q ≤ 3`
+the FX, CDS and Ibovespa impacts grow (Ibovespa 8.6× at `q = 3`). The untreated model stays out
+of the paper. Note: `2026-09-24_q_sensibilidade_anexo`.
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
@@ -201,6 +210,8 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Battery cut to the `svars` test; §5.1 and `tab:het_frequency` rebuilt on `goncalves2025`'s own series | `het_conditions.R`, `het_rigobon/` | `2026-09-22_condicao_het_svars` | Rigobon's single rank condition, tested by the sequential `Qr` of Lütkepohl et al. (2021) via `svars`. Both frequencies now carry **their** three series — DI, BRL/USD, 5y CDS; no Ibovespa, no 2-year DI. Daily rejects at the 3-month vertex (p 0.003, λ₁ 7.55 vs 1.36); **the same three series monthly reject at no vertex** (p 0.917--0.988, λ₁ ≈ λ₂, det 40.8 → −0.03). The two differences between the rows — frequency and announcement window against calendar variation — are **not decomposed**: the summed-window object that had separated them was deleted the same day by author decision, and the only monthly aggregation is the panel's own. Factor innovations 0.076. ⚠ the daily result depends on the vertex (0.003/0.084/0.147) and on the test's kurtosis correction (÷4.9). Five home-grown statistics retired; `svars` installed |
 | Rigobon het: replicação de GRG e IRFs (quarentena) | `het_rigobon/` | `2026-09-22_condicao_het_svars` | a réplica diária **bate** com GRG (razões 3,45/0,98/0,89 contra 3,40/0,92/0,85; ponto deles no IC 95% nas 6 células de câmbio e CDS); o CDS de GRG **fecha**, não é nulo, e a unidade é inferida — §2 corrigida. Na célula diária identificada um aperto de 50 p.b. **fecha** o CDS 4,2 p.b. e **aprecia** o real 1,53%, o sinal deles nas duas séries; o VAR mensal não identifica em nenhum vértice e as inovações fatoriais dão +9,6 p.b. e +1,52% contra +30,5 e +3,23% do proxy, sem rejeitar a 5% |
 | §4 migrated, eight figures repainted | `fig_section5.R` | `2026-09-24_migracao_secao_4` | nothing re-estimated; §4 and §5.2 agree; IBC-Br negative for 36 months and IPCA never positive, so the old hump and recovery prose was false; the positive equity phase and the primary NFSP at h18–h32 are significant at 90% and are in the text |
+| `q = r` defended in §3.1, `q` sensitivity in Anexo C | `q_sensitivity.R` | `2026-09-24_q_sensibilidade_anexo` | two sentences on SW (2016) and AK, Amengual-Watson cited (24/25 keys); `fig:q_sensibilidade` with 8 series to h36, `q = 5` checked against `irf_coherence_h.csv`; no number in the text; at h ≤ 36, 16/5/4 of 20 series stay inside the 90% set at `q` = 4/3/2 |
+| Global optimum of θ̂ | `covid_volatility_theta.R` | `2026-09-24_otimo_global_theta` | confirmed: 750 starts over the whole box, none above θ̂, θ̂ byte-identical; three local maxima — θ̂ (137 starts), ρ = 0 (−2.62) and a new ridge on the floor s̄2 = 1 where ρ is unidentified (−4.79); no start with ρ0 ≤ 0.4 reaches θ̂, so the one-start estimator relied on LP's ρ0 = 0.8; the multi-start is now a guard of the producer |
 
 ## ⚠ Prohibitions
 
@@ -378,7 +389,7 @@ Rscript script/mosw_strength_grid.R          # ξ_mp over (r,q) × sample × ins
 
 # IRF inference, coherence and q sensitivity
 Rscript script/irf_coherence_check.R         # 58 vars scored point-by-point (feeds §5)
-Rscript script/q_sensitivity.R --window=cheia   # q = 2..5 narrative; --window=pre_covid for the other
+Rscript script/q_sensitivity.R --window=cheia   # q = 2..5 narrative + paper/fig_q_sensibilidade.pdf; --window=pre_covid for the other
 Rscript script/fig_section5.R                # paper/fig_*.pdf from the cached .rds
 
 Rscript script/model_alessi.R                # main DFM: Bai-Ng surface + IRF figure

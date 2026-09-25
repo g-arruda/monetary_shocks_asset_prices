@@ -21,8 +21,10 @@ subsection, only the VAR benchmark, labelled both `sec:robustez` and `sec:weak_i
 `sec:het_frequency` (rebuilt on 2026-09-22 around the `svars` test) was deleted that day; the
 five home-grown statistics may not come back; `sec:fomc` was deleted on 2026-09-21, and `sec:exogeneidade`,
 `sec:invertibilidade` and `sec:confound` had already gone. Concluding remarks is §6.
-`script/fig_section5.R` writes §4's eight figures, while `script/fig_weak_iv.R` writes
-the weak-IV figure.
+Anexo C (`anexo-C`, since 2026-09-24) carries `fig:q_sensibilidade`, the `q = 2..5` figure that
+§3.1's two-sentence defense of `q = r` points to; the text cites no number from it.
+`script/fig_section5.R` writes §4's eight figures, `script/fig_weak_iv.R` writes
+the weak-IV figure, and `script/q_sensitivity.R --window=cheia` writes `fig_q_sensibilidade.pdf`.
 
 **The paper is on the production vintage again since 2026-09-24.** It was fully
 synchronized on 2026-08-25 and then fell behind twice, in (i) the window, which

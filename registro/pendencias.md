@@ -78,13 +78,10 @@ AR/MOSW próprios.
 
 | Tema | Item | Observação |
 |---|---|---|
-| B | Avaliar `r=q=8` como especificação principal (com (5,2)/(7,5)/(8,8) como robustez) | sugestão 4/5; ⚠ conflita com a especificação corrente (`r=5,q=5`, Bai-Ng BLL) — decisão do autor pendente; ⚠ a poda de 2026-09-10 deu veredito contrário à hipótese de subestimação que o e-mail usava como amarração |
-| B | Verificar se `(5,5,4)` cruza o limiar mínimo de Anderson-Rubin e comunicar ao orientador | passo 1/4 do e-mail de 13-09; ⚠ a produção já responde isso (ξ_mp = 6,847997 > 3,84 sob a escala LP; 2841 de 2842 conjuntos `interval` por nível em `irf_coherence_h.csv`) — falta formalizar e decidir se fecha o item acima |
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
-| B | Refazer a tabela de sensibilidade `q=2,...,5` (`r=5`) nas duas janelas, uma vez estabilizada a especificação | passo 4/4 do e-mail de 13-09; ⚠ perna da cheia tratada feita em 2026-09-14 (`q_narrative_r5p4_covid.*`), a pré-COVID já existia; falta a leitura do autor e o passo 1/4 |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
-| B | Confirmar o ótimo global de θ̂ | aberto em 2026-09-17; o perfil varre só ρ, sem multi-start em (s̄0,s̄1,s̄2); deixou de ser lacuna sobre um exercício e virou lacuna sobre o número publicado |
+| D | Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala LP e reportar sem e com o tratamento | aberto em 2026-09-24, decisão do autor; θ próprio por vértice, não o θ̂ do DFM; mesmo caminho da linha fatorial nas duas versões; ⚠ se rejeitar, `sec:identificacao` muda; a linha diária fica sem tratamento |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -179,11 +176,15 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   e cuja variação diária é exatamente zero em 23% dos dias. Construir o breakeven a
   partir de NTN-B e LTN é uma rodada de dados, não editorial.
   Nota: `2026-09-22_condicao_het_svars`.
-- [ ] **Confirmar o ótimo global de θ̂.** O perfil de
-  `script/covid_volatility_theta.R` varre só ρ, em 101 pontos, sem multi-start
-  em `(s̄0, s̄1, s̄2)`. Enquanto o tratamento estava desligado isso era lacuna
-  sobre um exercício; desde 2026-09-17 é lacuna sobre o número publicado.
+
 ### Fechados (contexto)
+
+- [x] **`q = r` justificado na §3.1 e sensibilidade a `q` no Anexo C —
+  2026-09-24.** Defesa em duas frases, ancorada em Stock-Watson (2016, §7.2) e AK,
+  com Amengual-Watson citado (24 de 25 chaves; a entrada já estava no `.bib`, só
+  não era citada). Por decisão do autor, o texto não cita números. ⚠ Em `q ≤ 3`
+  câmbio, CDS e Ibovespa se ampliam (Ibovespa 8,6× em `q = 3`), e o modelo sem LP
+  fica fora do paper. Nota: `2026-09-24_q_sensibilidade_anexo`.
 
 - [x] **§4, suas oito figuras e `irf_section.md` migrados para a produção
   corrente, com a leitura das IRFs sob a escala LP — 2026-09-24.** Nada foi
@@ -369,7 +370,9 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 orientador (`email/email_professor_04-09_16h42.md`), que fundamenta a
 hipótese de que correlação intra-bloco subestima `r` e `q` em Boivin & Ng
 (2006, JE 132(1), 169-194). A sugestão 5/5 foi feita no mesmo dia; a 1/5, a 2/5
-e a 3/5, em 2026-09-10. As quatro estão fechadas abaixo, e só a 4/5 segue aberta. Os itens que estavam aqui antes da zeragem de
+e a 3/5, em 2026-09-10. As quatro estão fechadas abaixo. A 4/5 (`r=q=8` como
+especificação principal) foi removida em 2026-09-24 por decisão do autor, sem
+ser executada. Os itens que estavam aqui antes da zeragem de
 2026-09-08 (reavaliação do canal de prêmio de risco, purificação FOMC
 intradiária, sensibilidade sem superquarta, placebo S&P 500, decomposição
 diário-vs-mensal da curva, discriminação choque-vs-Λ, leave-one-out sobre a
@@ -377,65 +380,33 @@ IRF, tabela cross-instrumento do bloco-manchete, preditor fiscal em
 Bauer-Swanson) não foram executados, testados nem decididos — apenas
 removidos do registro. Recuperáveis no histórico do git.*
 
-- [ ] **Avaliar `r=q=8` como especificação principal**, não por maximizar a
-  força do instrumento mas porque é o valor de Alessi & Kerssenfischer
-  (2019, nota de rodapé 4), o que permite comparação direta com o
-  benchmark; reportar a tabela de sensibilidade `(5,2)`, `(7,5)`, `(8,8)`
-  como confirmação de estabilidade de sinal (magnitude variando), não como
-  processo de escolha da especificação; e reportar explicitamente que
-  `(5,2)` fica abaixo do mínimo para as bandas Anderson-Rubin. Sugestão 4/5.
-  ⚠ Conflita com a especificação corrente (`r=5, q=5`, Bai-Ng BLL) tabelada
-  acima — não muda produção sem decisão do autor. Dependia da poda e da
-  releitura de `(r,q)` para ter a leitura de divergência que o orientador pede
-  como amarração. ⚠ **As duas fecharam em 2026-09-10 sem entregá-la:** no
-  painel atual, AH/ABC dão veredito misto (ER = GR = 2, ABC-IC*₁ = 9
-  instável); no podado, Bai-Ng cai de 5 para 3 e o veredito pré-registrado é
-  *contrário* à subestimação. Amengual-Watson dá `q = 2` em `r = 8` (3 na
-  convenção do MATLAB). Resta a justificativa por comparabilidade com AK.
-  ⚠ **Desde 2026-09-10, `q = r` tem apoio próprio:** Stock-Watson (2016, §7.2)
-  fixam `q = r` mesmo com Amengual-Watson indicando menos choques, e o
-  truncamento `q < r` distorce na amostra cheia mas não na pré-COVID
-  (`notas/2026-09-10_truncamento_q.md`).
-  ⚠ **Desde 2026-09-17, `(5,2)` não fica mais abaixo do mínimo na produção:**
-  sob a escala COVID ele tem ξ_mp = 5,124 e é limitado a 68, 90 e 95%
-  (`output/factors/q_truncation_cells.csv`, célula `cheia_p4_lp`). O 2,339 da
-  demonstração de 2026-09-08 é do modelo sem tratamento, e o script que a fez
-  foi arquivado em 2026-09-18 (`arquivo/script/ar_bands.R`).
-  ⚠ **Restrição nova, medida em 2026-09-08:** a metade do pedido que
-  trata de `(5,2)` foi entregue, mas `r=q=8` como principal é hoje incompatível
-  com a inferência de produção — a covariância de MOSW exige `hac_dim < T` e em
-  `(8,8)` com `p=4` dá 336 ≥ 162, sem pseudo-inversa nem fallback. Só cabe em
-  `p=1` (144). Adotar `(8,8)` exige, junto, decidir a inferência daquela célula.
+*O item abaixo transcreve o passo 2/4 dos "próximos passos coordenados" do
+e-mail do orientador de 2026-09-13 (`email/email_professor_13-09_10h45.md`),
+resposta às sugestões 1/5, 2/5 e 3/5 acima (fechadas em 2026-09-10). Os passos
+3/4 e 4/4 estão fechados abaixo; o 1/4 foi removido em 2026-09-24 por decisão
+do autor, sem ser executado.*
 
-*Os quatro itens abaixo transcrevem, na ordem, os "próximos passos
-coordenados" do e-mail do orientador de 2026-09-13
-(`email/email_professor_13-09_10h45.md`), resposta às sugestões 1/5, 2/5 e
-3/5 acima (fechadas em 2026-09-10).*
-
-- [ ] **Verificar se a especificação `(5,5,4)` cruza o limiar mínimo de
-  Anderson-Rubin e comunicar ao orientador**, com a citação de Stock-Watson
-  (2016, §7.2) como justificativa pré-especificada de fixar `q = r` no teto
-  viável. Passo 1/4. ⚠ A produção já responde a pergunta central: ξ_mp =
-  6,057014 > 3,84, e as 5.635 células de produção saem `interval` a
-  68/90/95% (`notas/2026-09-08_bandas_anderson_rubin_producao.md`). Falta
-  formalizar essa resposta e decidir — **decisão do autor, não decidida
-  aqui** — se isso fecha o item `r=q=8` acima em favor de `(5,5,4)` como
-  especificação principal.
 - [ ] **Reportar o exercício de poda no paper como robustez que não
   confirmou a hipótese de Boivin-Ng**, com a ressalva de que a queda do
   Bai-Ng para `r=3` pode refletir perda de potência por N menor, não
   confirmação do mecanismo. Passo 2/4. Destravado em 2026-09-24, quando a
   rodada editorial do Tema A sincronizou a §4.
-- [ ] **Refazer a tabela de sensibilidade `q = 2,...,5` (`r = 5` fixo) nas
-  duas janelas — completa ajustada e pré-COVID — uma vez estabilizada a
-  especificação principal.** Passo 4/4. ⚠ A perna da cheia ajustada foi
-  calculada em 2026-09-14 (hoje `script/q_sensitivity.R --window=cheia`,
-  `output/factors/q_narrative_r5p4_covid.*`); a pré-COVID já existia
-  (`output/factors/q_narrative_r5p2_precovid.*`, em `p = 2`). Falta a
-  leitura do autor e a especificação principal (passo 1/4). Nota:
-  `notas/2026-09-14_inferencia_volatilidade_covid_q.md`.
 
 ### Fechados (contexto)
+
+- [x] **Ótimo global de θ̂ confirmado — 2026-09-24.** Multi-start de 750 inícios na
+  caixa inteira, virou trava de `covid_volatility_theta.R`. Nenhum início passa de θ̂
+  (+3,8e-7 log-ponto, precisão do otimizador), e há três máximos: θ̂ (137 inícios),
+  ρ = 0 (−2,62) e uma crista nova no piso s̄2 = 1 (−4,79). θ̂ sai byte-idêntico.
+  ⚠ Nenhum início com ρ0 ≤ 0,4 chega a θ̂: o de produção dependia do ρ0 = 0,8 de LP.
+  Nota: `2026-09-24_otimo_global_theta`; `output/factors/covid_volatility_multistart.csv`.
+
+- [x] **Figura de sensibilidade `q = 2,…,5` (`r = 5`) no Anexo C — FEITA em
+  2026-09-24.** Passo 4/4. `q_sensitivity.R --window=cheia` escreve
+  `paper/fig_q_sensibilidade.pdf`: oito séries até h36, com `q = 5` guardado contra
+  `irf_coherence_h.csv` a 1e-10. Em h ≤ 36, 16, 5 e 4 das 20 séries ficam inteiras
+  na banda de 90% (as mesmas contagens de 0–48). As pernas sem tratamento e
+  pré-COVID ficam no registro. Nota: `2026-09-24_q_sensibilidade_anexo`.
 
 - [x] **Sistema mensal de quatro observáveis identificado por heterocedasticidade —
   autorizado em 2026-09-21, reavaliado com o teste do `svars` em 2026-09-22.**
@@ -642,7 +613,46 @@ ela abriu são **editoriais** e estão no Tema A.
 
 ## D. Diagnósticos e comparações pendentes
 
-*Nenhum item aberto neste tema.*
+- [ ] **Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala
+  COVID de Lenza-Primiceri e reportar a linha sem e com o tratamento.** Aberto
+  em 2026-09-24, por decisão do autor. Hoje o Sistema 2 de
+  `script/het_conditions.R` (DI, câmbio e CDS no painel mensal) é MQO, `p=4`,
+  com constante e tendência, enquanto a linha das inovações fatoriais já lê as
+  inovações padronizadas `u_t/s_t` do DFM de produção. As duas linhas mensais
+  do Anexo B diferem, portanto, também no tratamento da COVID. Desenho:
+  - θ **próprio** de cada VAR, um por vértice (3, 6 e 12 meses), por
+    verossimilhança concentrada, com `t*` = 2020-03 — não o θ̂ de
+    `output/factors/covid_volatility_theta.csv`, que é do VAR fatorial;
+  - `Qr` sobre os resíduos padronizados `u_t/s_t`, pelo mesmo caminho da linha
+    fatorial (`p = 1`, `inert_lag = TRUE`);
+  - as duas versões lado a lado, nos três vértices. Mudam as linhas do VAR em
+    `tab:het_variance` e em `tab:het_frequency`, inclusive a razão `a` do DI,
+    porque todas saem das mesmas `Σ_C`/`Σ_NC`.
+
+  ⚠ O motivo é amostral, não teórico: a escala é proporcional
+  (`Σ_t = s_t² Σ`) e não identifica nada, mas se concentra em poucos meses que
+  caem em regimes definidos — março/2020 (Copom em 18/03) em C e abril/2020 em
+  NC, com variância ≈ 44× e ≈ 155× pelo θ̂ do DFM, numa amostra NC de 54 meses.
+  ⚠ O efeito não tem sinal previsto. Se o VAR tratado rejeitar `λ₁ = λ₂` em
+  algum vértice, o parágrafo e a nota de rodapé de `sec:identificacao` mudam, e
+  o número entra no texto.
+  ⚠ Para que a diferença seja só o tratamento, a versão sem tratamento deve
+  passar pelo mesmo caminho com `s = 1`: o caminho da linha fatorial perde uma
+  observação pela defasagem formal (161, não 162). Conferir quanto isso move a
+  linha publicada hoje e declarar.
+  ⚠ Cada θ por vértice precisa do multi-start que trava o θ̂ do DFM desde
+  2026-09-24. No VAR fatorial, (B5) tem três máximos, e o L-BFGS-B de um início
+  só chega ao global apenas com ρ0 ≥ 0,6 (`2026-09-24_otimo_global_theta` §4).
+  ⚠ `estimate_var_wls()` e `estimate_covid_theta()`
+  (`R/modeling/factor_estimation.R`) só têm constante; o VAR da tabela tem
+  constante **e** tendência. Estender, não escrever uma segunda
+  implementação, e manter bit-idênticos o smoke test e
+  `script/validation/validate_covid_volatility.R`.
+  ⚠ O benchmark `ibc5_fx_cds_level_trend_p4` segue sem escala; o Sistema 2, que
+  herdava dele janela, `p` e determinísticos, passa a divergir nesse ponto.
+  A linha diária **não** recebe o tratamento: não há dinâmica a filtrar, as
+  variações Qua→Qui já são inovações (autocorrelação de primeira ordem entre
+  janelas abaixo de 0,1 em módulo), e Lenza-Primiceri não tem versão diária.
 
 ### Fechados (contexto)
 

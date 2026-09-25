@@ -8,6 +8,8 @@
 >   `2026-09-16_fidelidade_lenza_primiceri`, cuja auditoria equação por equação segue valendo
 >   integralmente — nada nela mudou, porque nenhuma equação mudou.
 > - Escrita na branch `feature/lp-volatilidade-producao`.
+> - **Fechado em 2026-09-24:** o "não verificado" 6.2, o ótimo global de θ̂, foi confirmado por
+>   multi-start em `2026-09-24_otimo_global_theta`. θ̂ não mudou.
 
 ## 1. O veredito
 

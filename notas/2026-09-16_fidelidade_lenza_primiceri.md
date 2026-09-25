@@ -19,6 +19,9 @@
 >   tratamento segue desligado, sem veredito — o autor lê as IRFs a olho.
 > - **Fora do escopo:** prosa de paper, `registro/pendencias.md`, e qualquer proposta de mudança
 >   de produção. Esta nota reporta; não defende e não recomenda.
+> - **Fechado em 2026-09-24:** o "não verificado" 3, a otimalidade global de θ̂, foi confirmado
+>   por multi-start em `2026-09-24_otimo_global_theta`. Os máximos conhecidos passaram de dois a
+>   três.
 
 ## 0. As caixas
 

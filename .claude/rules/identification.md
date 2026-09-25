@@ -50,7 +50,12 @@ unedited (`diagnostics/README.md`).
 `s_t` of LP's Appendix B into the factor VAR:
 - `covid_volatility_path()` builds `s_t`;
 - `estimate_var_wls(s=)` runs (B2) and returns (B4) and (B5); `s = 1`, its default, is OLS;
-- `estimate_covid_theta()` maximizes (B5) by L-BFGS-B inside the design's box.
+- `estimate_covid_theta()` maximizes (B5) by L-BFGS-B inside the design's box, from one start.
+  (B5) has three local maxima, and that start reaches the global one only because LP's
+  `rho0 = 0.8` sits in its basin. Since 2026-09-24 `script/covid_volatility_theta.R` guards θ̂
+  with a 750-start multi-start over the whole box
+  (`output/factors/covid_volatility_multistart.csv`, `notas/2026-09-24_otimo_global_theta.md`).
+  Any other θ estimated with this function needs the same check.
 
 **Since 2026-09-21 θ̂ is read, not typed.** `read_covid_volatility(path)`
 (`R/modeling/factor_estimation.R`) builds the `covid_volatility` list from
