@@ -64,10 +64,9 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h, mpind, normalize_value,
   Z_mat <- as.matrix(Z_sel)
   H <- drop(crossprod(Z_mat, rsh_id)) / drop(crossprod(Z_mat))
 
-  n_vars <- dim(rawimp)[1]
-  irf_mp <- vapply(seq_len(h + 1), function(j) {
-    drop(matrix(rawimp[, , j], nrow = n_vars) %*% H)
-  }, numeric(n_vars))
+  # One column per horizon 0..h; apply() hands each n_vars x q slice over as a
+  # matrix even when q = 1
+  irf_mp <- apply(rawimp, 3, \(impact) impact %*% H)
 
   cumimp_transform(irf_mp / irf_mp[mpind, 1] * normalize_value, tcode)
 }
@@ -90,15 +89,15 @@ ident_ext_instr <- function(rawimp, rsh_sel, Z_sel, h, mpind, normalize_value,
 #' @examples
 #' irf <- cumimp_transform(irf_raw, infer_tcode_from_varnames(var_names))
 cumimp_transform <- function(Imp, tcode) {
-  cum <- t(apply(Imp, 1, cumsum))
+  cumulated <- t(apply(Imp, 1, cumsum))
 
-  CC <- Imp
-  CC[tcode == 2, ] <- cum[tcode == 2, ] * 100
-  CC[tcode == 3, ] <- t(apply(cum, 1, cumsum))[tcode == 3, ]
-  CC[tcode == 4, ] <- (exp(Imp[tcode == 4, ]) - 1) * 100
-  CC[tcode == 5, ] <- (exp(cum[tcode == 5, ]) - 1) * 100
-  CC[tcode == 6, ] <- Imp[tcode == 6, ] * 100
-  CC
+  transformed <- Imp
+  transformed[tcode == 2, ] <- cumulated[tcode == 2, ] * 100
+  transformed[tcode == 3, ] <- t(apply(cumulated, 1, cumsum))[tcode == 3, ]
+  transformed[tcode == 4, ] <- (exp(Imp[tcode == 4, ]) - 1) * 100
+  transformed[tcode == 5, ] <- (exp(cumulated[tcode == 5, ]) - 1) * 100
+  transformed[tcode == 6, ] <- Imp[tcode == 6, ] * 100
+  transformed
 }
 
 
@@ -106,9 +105,8 @@ cumimp_transform <- function(Imp, tcode) {
 #'
 #' Everything is a level (1) except `base_*`, `credit*`/`credito_*`,
 #' `fin_inst_reserve_req` and `pib` (log-level, 4) and `asset_*` (6). The
-#' `asset_*` series are monthly returns (`download.R`: `prod(1 + r) - 1`); the
-#' `cumsum` of code 2, used until 2026-08-17, integrated the sampling error
-#' with the signal. h = 0 is invariant to that change.
+#' `asset_*` series are monthly returns (`download.R`: `prod(1 + r) - 1`), so
+#' their responses are put on the percent scale without being accumulated.
 #'
 #' @param var_names Character vector of panel column names.
 #'
@@ -117,20 +115,20 @@ cumimp_transform <- function(Imp, tcode) {
 #' @examples
 #' tcode <- infer_tcode_from_varnames(colnames(panel))
 infer_tcode_from_varnames <- function(var_names) {
-  tcode <- rep(1L, length(var_names))
-  tcode[grepl("^(base_|credit|credito_)", var_names) |
-          var_names %in% c("fin_inst_reserve_req", "pib")] <- 4L
-  tcode[grepl("^asset_", var_names)] <- 6L
-  tcode
+  dplyr::case_when(
+    stringr::str_detect(var_names, "^asset_") ~ 6L,
+    stringr::str_detect(var_names, "^(base_|credit|credito_)") ~ 4L,
+    var_names %in% c("fin_inst_reserve_req", "pib") ~ 4L,
+    .default = 1L
+  )
 }
 
 
 #' Impulse responses of the DFM, identified, with Anderson-Rubin sets
 #'
 #' The main entry point of the identification stage. Identification is by
-#' external instrument (Gertler-Karadi / Alessi-Kerssenfischer) — the single
-#' branch since the heteroskedasticity and non-Gaussian routes were abandoned on
-#' 2026-08-17.
+#' external instrument (Gertler-Karadi / Alessi-Kerssenfischer), the only
+#' branch.
 #'
 #' @param dfm_results List returned by `estimate_dfm()`. When it carries
 #'   `covid_volatility`, the point projects on the uncentered moment and the
@@ -148,10 +146,9 @@ infer_tcode_from_varnames <- function(var_names) {
 #' @param ci_levels Confidence levels of the sets.
 #' @param identification Identification branch; `"proxy"` is the only one.
 #' @param inference What fills `ci`, with no default: `"ar"` inverts the
-#'   Anderson-Rubin test (`ar_dfm_bands()`, the inference of the DFM since
-#'   2026-09-08); `"none"` returns the point alone,
-#'   with `lower = upper = point` at every level, for cells that are compared
-#'   point by point.
+#'   Anderson-Rubin test (`ar_dfm_bands()`, the DFM's inference); `"none"`
+#'   returns the point alone, with `lower = upper = point` at every level, for
+#'   cells that are compared point by point.
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #'
 #' @return List with `irf_point_matrix` (vars x horizons), `ci` (one entry per
@@ -173,55 +170,85 @@ compute_irf_dfm <- function(dfm_results, instrument = dfm_results$instrument,
   inference <- match.arg(inference, c("ar", "none"))
 
   Lambda <- dfm_results$static_loadings
-  A      <- dfm_results$companion_matrix
-  r      <- ncol(Lambda)
+  A <- dfm_results$companion_matrix
+  r <- ncol(Lambda)
 
   if (is.data.frame(instrument)) {
-    align       <- sel_ext_inst_sample(dfm_results$dates, dfm_results$p, instrument)
+    align <- sel_ext_inst_sample(dfm_results$dates, dfm_results$p, instrument)
     rsh_sel_ind <- align$rsh_sel_ind
-    inst_sel    <- align$inst_sel
+    inst_sel <- align$inst_sel
   } else {
     rsh_sel_ind <- rep(TRUE, nrow(dfm_results$var_residuals))
-    inst_sel    <- instrument
+    inst_sel <- instrument
   }
 
   # Reduced-form responses diag(sy) Lambda B_h K M, B_h the r x r block of A^h
-  powers <- Reduce(function(B, i) B %*% A, seq_len(h), accumulate = TRUE,
-                   init = diag(nrow(A)))
-  rawimp <- simplify2array(lapply(powers, function(B) {
-    sweep(Lambda %*% B[1:r, 1:r] %*% dfm_results$dynamic_loadings %*%
-            dfm_results$dynamic_scaling, 1, dfm_results$data_sd, "*")
-  }))
+  powers <- purrr::accumulate(
+    seq_len(h),
+    \(power, step) power %*% A,
+    .init = diag(nrow(A))
+  )
+  rawimp <- powers |>
+    purrr::map(\(power) {
+      sweep(
+        Lambda %*% power[1:r, 1:r] %*% dfm_results$dynamic_loadings %*%
+          dfm_results$dynamic_scaling,
+        1,
+        dfm_results$data_sd,
+        "*"
+      )
+    }) |>
+    simplify2array()
 
   eta <- extract_dynamic_innovations(dfm_results)
 
   # Under the COVID volatility, no centering: MOSW's Gamma (SVARIV.m:128)
-  irf_point <- ident_ext_instr(rawimp, eta[rsh_sel_ind, , drop = FALSE], inst_sel,
-                               h, mpind, normalize_value, tcode,
-                               center = is.null(dfm_results$covid_volatility))
+  irf_point <- ident_ext_instr(
+    rawimp,
+    eta[rsh_sel_ind, , drop = FALSE],
+    inst_sel,
+    h,
+    mpind,
+    normalize_value,
+    tcode,
+    center = is.null(dfm_results$covid_volatility)
+  )
 
-  ar <- NULL
+  ar_sets <- NULL
   if (inference == "ar") {
-    ar <- ar_dfm_bands(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
-                       normalize_value, tcode, ci_levels, nw_lags = ar_nw_lags)
+    ar_sets <- ar_dfm_bands(
+      dfm_results,
+      rsh_sel_ind,
+      inst_sel,
+      mpind,
+      h,
+      normalize_value,
+      tcode,
+      ci_levels,
+      nw_lags = ar_nw_lags
+    )
 
     # The inversion re-derives the point response from its own moment vector.
     # It has to land on the production point, or the two paths disagree about
     # the identification itself.
-    dev_point <- max(abs(ar$by_level[[1L]]$point - irf_point))
-    if (!is.finite(dev_point) || dev_point > 1e-10) {
-      stop("The Anderson-Rubin point deviates from ident_ext_instr by ",
-           format(dev_point, digits = 3), " (tolerance 1e-10)")
+    point_deviation <- max(abs(ar_sets$by_level[[1L]]$point - irf_point))
+    if (!is.finite(point_deviation) || point_deviation > 1e-10) {
+      stop(
+        "The Anderson-Rubin point deviates from ident_ext_instr by ",
+        format(point_deviation, digits = 3), " (tolerance 1e-10)"
+      )
     }
   }
 
-  level_keys <- sprintf("%.2f", ci_levels)
-  ci <- purrr::map2(ci_levels, level_keys, function(lvl, key) {
-    list(level = lvl,
-         lower = if (is.null(ar)) irf_point else ar$by_level[[key]]$lo,
-         upper = if (is.null(ar)) irf_point else ar$by_level[[key]]$hi)
-  })
-  names(ci) <- level_keys
+  ci <- ci_levels |>
+    purrr::set_names(sprintf("%.2f", ci_levels)) |>
+    purrr::imap(\(level, key) {
+      list(
+        level = level,
+        lower = if (is.null(ar_sets)) irf_point else ar_sets$by_level[[key]]$lo,
+        upper = if (is.null(ar_sets)) irf_point else ar_sets$by_level[[key]]$hi
+      )
+    })
 
   list(
     irf_point_matrix = irf_point,
@@ -229,6 +256,6 @@ compute_irf_dfm <- function(dfm_results, instrument = dfm_results$instrument,
     ci_levels = ci_levels,
     identification = identification,
     inference = inference,
-    ar = ar
+    ar = ar_sets
   )
 }
