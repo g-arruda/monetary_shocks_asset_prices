@@ -182,12 +182,12 @@ compute_irf_dfm <- function(dfm_results, instrument = dfm_results$instrument,
     inst_sel <- instrument
   }
 
-  # Reduced-form responses diag(sy) Lambda B_h K M, B_h the r x r block of
-  # A^h, and A^h = A^(h-1) A
+  # Reduced-form responses diag(sy) Lambda B_j K M at horizons j = 0..h, B_j
+  # the r x r block of A^j, with A^j = A^(j-1) A (DFMest_BLL.m:41-45)
   powers <- vector("list", h + 1)
   powers[[1]] <- diag(nrow(A))
-  for (horizon in seq_len(h)) {
-    powers[[horizon + 1]] <- powers[[horizon]] %*% A
+  for (j in seq_len(h)) {
+    powers[[j + 1]] <- powers[[j]] %*% A
   }
   rawimp <- powers |>
     purrr::map(\(power) {

@@ -99,7 +99,13 @@ mantido.
 A mesma rodada devolveu `for` a `compute_irf_dfm()` (potências de `A`) e a
 `compute_factor_space_wald()` (soma de Bartlett), no lugar do
 `purrr::accumulate` e do `map` + `reduce` da passada anterior. O critério novo
-da skill é que o laço que é passo da matemática fica laço.
+da skill é que o laço que é passo da matemática fica laço. Uma revisão de todos
+os laços de `script/` e `R/modeling/` pelo mesmo critério não achou outro passo
+de matemática: o resto percorre itens independentes e fica `map`. Ficam `for`
+dois laços sequenciais que não são matemática, porque a ordem importa e param
+cedo: as especificações do X-13 em `clean.R` e os estágios de `run_all.R`. O
+índice da recursão de `A` passou de `horizon` a `j` (`h` é o argumento do
+horizonte máximo), com a citação de `DFMest_BLL.m:41-45`.
 
 ## 2026-09-25 — `coding-style` em `R/modeling/`
 
