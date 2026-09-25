@@ -7,13 +7,18 @@
 # the one place that must not read it. Production since 2026-09-17;
 # nothing here computes an IRF. s_t follows from theta-hat through
 # covid_volatility_path(); the profile in rho is a check and is not written.
+# A multi-start over the whole box checks that theta-hat is the global maximum
+# and writes where every start ended.
 # Output: output/factors/covid_volatility_theta.csv (theta-hat and likelihoods)
-# Note: notas/2026-09-14_estimacao_theta_volatilidade_covid.md
+#         output/factors/covid_volatility_multistart.csv (one row per start)
+# Notes: notas/2026-09-14_estimacao_theta_volatilidade_covid.md
+#        notas/2026-09-24_otimo_global_theta.md
 
 source("R/modeling/factor_estimation.R")
 
 PANEL_PATH <- "data/processed/data_log_deseasonalized.csv"
 THETA_OUT  <- "output/factors/covid_volatility_theta.csv"
+MULTISTART_OUT <- "output/factors/covid_volatility_multistart.csv"
 R_FACTORS  <- 5L
 P_LAGS     <- 4L
 # The author's design of 2026-09-14. The floor s >= 1 is what makes the
@@ -21,6 +26,11 @@ P_LAGS     <- 4L
 COVID_START <- as.Date("2020-03-01")
 THETA_LOWER <- c(s0 = 1, s1 = 1, s2 = 1, rho = 0)
 THETA_UPPER <- c(s0 = Inf, s1 = Inf, s2 = Inf, rho = 1)
+# Starting grid of the multi-start, 5^3 x 6 = 750 points. Any s -> Inf sends
+# (B5) to -Inf, since -K log s grows while Sigma-hat stays bounded, so a top
+# start of 40, three times the largest component of theta-hat, covers the box.
+MULTISTART_S   <- exp(seq(0, log(40), length.out = 5))
+MULTISTART_RHO <- seq(0, 1, by = 0.2)
 
 panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   tidyr::drop_na()
@@ -52,6 +62,8 @@ if (fit$convergence != 0 || any(interior & foc_gap > 1e-4)) {
        paste(signif(foc_gap, 3), collapse = ", "))
 }
 
+loglik_tol <- 1e-6 * abs(fit$loglik)
+
 # Profile log-likelihood in rho, (s0, s1, s2) re-maximized at each grid point.
 # The free maximum has to dominate the grid, or the optimizer stopped at a
 # local peak.
@@ -68,9 +80,68 @@ profile_loglik <- purrr::map_dbl(seq(0, 1, by = 0.01), function(rho) {
     control = list(fnscale = -1, factr = 1e3)
   )$value
 })
-if (max(profile_loglik) > fit$loglik + 1e-6 * abs(fit$loglik)) {
+if (max(profile_loglik) > fit$loglik + loglik_tol) {
   stop("The rho profile reaches ", max(profile_loglik), ", above the free ",
        "maximum ", fit$loglik, ": estimate_covid_theta stopped at a local peak")
+}
+
+# Multi-start over the whole box, with the optimizer settings of
+# estimate_covid_theta(). No start may end above the free maximum, and none may
+# end level with it away from theta-hat, or theta-hat is not the unique global
+# maximum. distance_to_hat is the largest relative gap across the four
+# components.
+multistart <- tidyr::expand_grid(
+  start_s0 = MULTISTART_S,
+  start_s1 = MULTISTART_S,
+  start_s2 = MULTISTART_S,
+  start_rho = MULTISTART_RHO
+) |>
+  purrr::pmap(function(start_s0, start_s1, start_s2, start_rho) {
+    end <- optim(
+      c(s0 = start_s0, s1 = start_s1, s2 = start_s2, rho = start_rho),
+      function(theta) {
+        path <- covid_volatility_path(residual_dates, COVID_START, theta)
+        estimate_var_wls(factors, P_LAGS, s = path)$loglik
+      },
+      method = "L-BFGS-B",
+      lower = THETA_LOWER,
+      upper = THETA_UPPER,
+      control = list(fnscale = -1, factr = 1e3)
+    )
+    tibble::tibble(
+      start_s0, start_s1, start_s2, start_rho,
+      s0 = end$par[["s0"]],
+      s1 = end$par[["s1"]],
+      s2 = end$par[["s2"]],
+      rho = end$par[["rho"]],
+      loglik = end$value,
+      convergence = end$convergence
+    )
+  }) |>
+  purrr::list_rbind() |>
+  dplyr::mutate(
+    loglik_gap = loglik - fit$loglik,
+    distance_to_hat = pmax(
+      abs(s0 / fit$theta[["s0"]] - 1),
+      abs(s1 / fit$theta[["s1"]] - 1),
+      abs(s2 / fit$theta[["s2"]] - 1),
+      abs(rho / fit$theta[["rho"]] - 1)
+    )
+  )
+
+best_start <- dplyr::slice_max(multistart, loglik, n = 1, with_ties = FALSE)
+if (best_start$loglik > fit$loglik + loglik_tol) {
+  stop("A multi-start ends at ", best_start$loglik, ", above the free maximum ",
+       fit$loglik, ", at (s0, s1, s2, rho) = (",
+       paste(signif(unlist(best_start[c("s0", "s1", "s2", "rho")]), 7),
+             collapse = ", "),
+       "): theta-hat is not the global maximum")
+}
+level_elsewhere <- multistart$loglik >= fit$loglik - loglik_tol &
+  multistart$distance_to_hat > 0.05
+if (any(level_elsewhere)) {
+  stop(sum(level_elsewhere), " multi-starts end level with the free maximum ",
+       "more than 5% away from theta-hat: the maximum is not unique")
 }
 
 tibble::tibble(
@@ -90,3 +161,5 @@ tibble::tibble(
   start_rho = fit$start[["rho"]]
 ) |>
   readr::write_csv(THETA_OUT)
+
+readr::write_csv(multistart, MULTISTART_OUT)
