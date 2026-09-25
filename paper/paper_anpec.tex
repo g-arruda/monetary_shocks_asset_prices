@@ -222,11 +222,11 @@ O segundo termo é o jacobiano da reescala. A maximização é restrita a $\bar{
 
 Dividir \ref{eq:5} por $\hat{s}_t$ restaura a homocedasticidade, e o VAR fatorial é estimado por mínimos quadrados ponderados, com peso $1/\hat{s}_t$ aplicado a cada linha, inclusive à coluna do intercepto. A reescala não alcança a extração dos fatores, que recebe o painel na forma original, e nem as cargas $\Lambda$ nem os desvios $s_{iy}$ que multiplicam cada resposta ao impulso são reponderados. Com $t^*$ fixado em março de 2020, a estimativa é $\hat{\theta} = (6{,}611;\ 12{,}468;\ 1{,}760;\ 0{,}944)$. O decaimento é lento, com meia-vida de doze meses para $s_t - 1$. O escalar difere de um em 70 dos 162 meses de inovação, e o total reponderado equivale a 19,1 meses. Na janela pré-COVID $s_t = 1$ em todos os meses.
 
-A especificação de produção é $(r, q, p) = (5, 5, 4)$. O IC2 de \cite{bai-ng}, na versão padronizada de \cite{barigozzi2016non}, seleciona $r = 5$ na amostra completa. O valor $q = 5$ é decisão explícita, e o critério de Amengual--Watson condicionado a $r = 5$ e $p = 4$ seleciona $q = 2$, resultado reportado mas não usado para governar a dimensão. O AIC seleciona $p = 4$ (8,231267) na amostra comum de 154 observações com constante e tendência, em que a tendência pertence somente ao critério, porque o VAR fatorial estimado mantém apenas o intercepto. As funções de impulso-resposta pontuais cobrem horizontes de 0 a 36 meses.
+A especificação de produção é $(r, q, p) = (5, 5, 4)$. O IC2 de \cite{bai-ng}, na versão padronizada de \cite{barigozzi2016non}, seleciona $r = 5$ na amostra completa. O critério de \cite{amengual2007consistent}, condicionado a $r = 5$ e $p = 4$, seleciona $q = 2$, mas a especificação fixa $q = r$, como \cite{STOCK2016415}, que diante do mesmo conflito preferem sobre-especificar o espaço das inovações para que ele contenha o dos choques de interesse, e como \cite{alessi}. O Anexo C repete o exercício de sensibilidade de \cite{alessi}, com $q$ de 2 a 5 (\autoref{fig:q_sensibilidade}). O AIC seleciona $p = 4$ (8,231267) na amostra comum de 154 observações com constante e tendência, em que a tendência pertence somente ao critério, porque o VAR fatorial estimado mantém apenas o intercepto. As funções de impulso-resposta pontuais cobrem horizontes de 0 a 36 meses.
 
 \subsection{Base de dados}
 
-A base reúne 115 séries mensais da economia brasileira entre março de 2012 e dezembro de 2025, totalizando 166 observações alinhadas e 162 inovações fatoriais após as quatro defasagens do VAR. Além dos blocos fiscal e de expectativas, o painel incorpora o ajuste cambial da DLSP e as medianas Focus para dívida líquida, resultado primário e resultado nominal no ano seguinte. As séries vêm do Banco Central do Brasil, IBGE, B3, Tesouro Nacional e ANBIMA, complementadas por indicadores de risco soberano e mercado externo, como EMBI, CDS de cinco anos e MSCI, e pelo índice de incerteza de política econômica (EPU).
+A base reúne 115 séries mensais da economia brasileira entre março de 2012 e dezembro de 2025, totalizando 166 observações alinhadas e 162 inovações fatoriais após as quatro defasagens do VAR. Além dos blocos fiscal e de expectativas, o painel incorpora o ajuste cambial da DLSP e as medianas Focus para dívida líquida, resultado primário e resultado nominal no ano seguinte. As séries vêm do Banco Central do Brasil, do IBGE, do IPEA e da B3, complementadas por quatro indicadores de risco soberano e de mercado externo, o EMBI+, o CDS soberano de cinco anos, o MSCI de mercados emergentes e o VIX, e pelo índice de incerteza de política econômica (EPU) de oito países.
 
 As taxas de juros de maturidade fixa, de 3 meses a 10 anos, são obtidas do ajuste de \cite{svensson1994estimating} aos contratos de DI futuro em cada data. As séries nominais entram em logaritmo e recebem ajuste X-13ARIMA-SEATS quando os testes indicam componente sazonal \cite{sax2018seasonal}. O Anexo A (\autoref{tab:lista_variaveis}) lista as séries, suas fontes e transformações.
 
@@ -476,213 +476,241 @@ Do ponto de vista de política econômica, nossos resultados indicam que, em eco
 
 \section*{Anexo A. Lista de variáveis}\label{anexo-A}
 
-\begin{ThreePartTable}
-\begin{TableNotes}
-\footnotesize
-\item[*] Código de transformação com que a série entra na extração de fatores e é recuperada em unidades econômicas na função de impulso-resposta. 1 = nível. 2 = retorno mensal, com a função de impulso-resposta acumulada para recuperar a resposta de nível de preço. 4 = log-nível. Os índices de mercado da B3 entram como retorno mensal. Os volumes nominais (base monetária, agregados, crédito, PIB e recolhimentos compulsórios) entram em logaritmo. As séries com sazonalidade detectada são ajustadas por X-13ARIMA-SEATS \cite{sax2018seasonal}. Todas as séries são padronizadas pelo desvio padrão da primeira diferença \cite{barigozzi2016non} antes da extração de fatores. As séries em nível não são diferenciadas, a não-estacionariedade é acomodada pela padronização.
-\end{TableNotes}
+O painel tem 115 séries mensais, de março de 2012 a dezembro de 2025. Na \autoref{tab:lista_variaveis}, a coluna Código traz o identificador da série na fonte, e a coluna Transf. dá a forma com que a série entra no painel e a conversão da resposta ao impulso para unidades econômicas. Com código 1 a série entra na unidade original e a resposta sai nessa unidade, com código 4 a série entra em logaritmo e a resposta sai em variação percentual, e com código 6 a série é o retorno mensal composto dos retornos diários e a resposta sai em pontos percentuais do retorno do mês, sem acumular ao longo dos horizontes. A marca na coluna X-13 indica ajuste sazonal por X-13ARIMA-SEATS \citep{sax2018seasonal}. As taxas de câmbio, em reais por unidade de moeda estrangeira, são médias mensais das cotações diárias, e as cotações cruzadas dividem BRL=X pela cotação da moeda em dólares. A curva de DI, o EMBI+, o CDS, o MSCI e o VIX entram pela última cotação do mês, e as expectativas Focus pela última mediana divulgada no mês. As quatro séries de tempo de procura, trimestrais, são interpoladas para a frequência mensal por spline cúbica.
 
+\begingroup
 \footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{longtable}{@{}p{5.2cm} l l c@{}}
-\caption{Lista de Variáveis Utilizadas}\label{tab:lista_variaveis} \\
+\begin{longtable}{@{}p{0.37\textwidth} p{0.23\textwidth} p{0.15\textwidth} >{\centering\arraybackslash}p{0.08\textwidth} >{\centering\arraybackslash}p{0.078\textwidth}@{}}
+\caption{\textbf{Séries do painel, fontes e transformações}}\label{tab:lista_variaveis} \\
 \toprule
-\textbf{Variável} & \textbf{Fonte} & \textbf{Grupo} & \textbf{Código} \\
+Série & Fonte & Código & Transf. & X-13 \\
 \midrule
 \endfirsthead
 
+\caption[]{\textbf{Séries do painel, fontes e transformações} (continuação)} \\
 \toprule
-\textbf{Variável} & \textbf{Fonte} & \textbf{Grupo} & \textbf{Código} \\
+Série & Fonte & Código & Transf. & X-13 \\
 \midrule
 \endhead
 
-
+\midrule
+\multicolumn{5}{r@{}}{\textit{continua na próxima página}} \\
+\endfoot
 
 \bottomrule
-\insertTableNotes
 \endlastfoot
 
-Câmbio USD/BRL & Yahoo Finance & Câmbio & 1 \\
-Câmbio EUR/BRL & Yahoo Finance & Câmbio & 1 \\
-Câmbio CNY/BRL & Yahoo Finance & Câmbio & 1 \\
-Câmbio ARS/BRL & Yahoo Finance & Câmbio & 1 \\
-Câmbio INR/BRL & Yahoo Finance & Câmbio & 1 \\
-Selic (meta acumulada) & BCB (4189) & Juros e curva & 1 \\
-CDI acumulado & BCB (4392) & Juros e curva & 1 \\
-DI 3 meses & Svensson/B3 & Juros e curva & 1 \\
-DI 6 meses & Svensson/B3 & Juros e curva & 1 \\
-DI 1 ano & Svensson/B3 & Juros e curva & 1 \\
-DI 2 anos & Svensson/B3 & Juros e curva & 1 \\
-DI 5 anos & Svensson/B3 & Juros e curva & 1 \\
-DI 10 anos & Svensson/B3 & Juros e curva & 1 \\
-Base monetária & BCB (1788) & Agregados monetários & 4 \\
-Meios de pagamento & BCB (27789) & Agregados monetários & 4 \\
-Depósitos à vista & BCB (27790) & Agregados monetários & 4 \\
-Depósitos de poupança & BCB (1835) & Agregados monetários & 4 \\
-M1 & BCB (27791) & Agregados monetários & 4 \\
-M2 & BCB (27810) & Agregados monetários & 4 \\
-M3 & BCB (27813) & Agregados monetários & 4 \\
-Crédito agropecuário & BCB (22027) & Crédito & 4 \\
-Crédito indústria & BCB (22043) & Crédito & 4 \\
-Crédito construção & BCB (22030) & Crédito & 4 \\
-Crédito comércio & BCB (22036) & Crédito & 4 \\
-Crédito transporte & BCB (22037) & Crédito & 4 \\
-Crédito pessoa física & BCB (22050) & Crédito & 4 \\
-Spread ICC pessoa jurídica & BCB (27444) & Crédito & 1 \\
-Spread ICC pessoa física & BCB (27445) & Crédito & 1 \\
-Saldo de crédito total & BCB (20542) & Crédito & 4 \\
-Recolhimentos compulsórios & BCB (17633) & Crédito & 4 \\
-Consumo de gasolina & BCB (1393) & Atividade econômica & 1 \\
-Consumo de GLP & BCB (1394) & Atividade econômica & 1 \\
-Consumo de óleo combustível & BCB (1395) & Atividade econômica & 1 \\
-Consumo de óleo diesel & BCB (1396) & Atividade econômica & 1 \\
-Consumo de demais derivados & BCB (1397) & Atividade econômica & 1 \\
-Consumo de álcool & BCB (1401) & Atividade econômica & 1 \\
-Utilização da capacidade instalada (CNI) & BCB (28554) & Atividade econômica & 1 \\
-Vendas no varejo & BCB (1455) & Atividade econômica & 1 \\
-Vendas de serviços & BCB (23982) & Atividade econômica & 1 \\
-Produção de automóveis & BCB (7384) & Atividade econômica & 1 \\
-Produção de veículos leves & BCB (7385) & Atividade econômica & 1 \\
-Produção de caminhões & BCB (7386) & Atividade econômica & 1 \\
-Produção de ônibus & BCB (7387) & Atividade econômica & 1 \\
-Produção de bens de consumo & BCB (21865) & Atividade econômica & 1 \\
-Produção de bens duráveis & BCB (21866) & Atividade econômica & 1 \\
-Produção de bens não duráveis & BCB (21867) & Atividade econômica & 1 \\
-Produção de bens de capital & BCB (21863) & Atividade econômica & 1 \\
-Produção da indústria de transformação & BCB (21862) & Atividade econômica & 1 \\
-Produção da indústria extrativa & BCB (21861) & Atividade econômica & 1 \\
-Utilização da capacidade instalada (FGV) & BCB (24352) & Atividade econômica & 1 \\
-Consumo de energia comercial & BCB (1402) & Atividade econômica & 1 \\
-Consumo de energia residencial & BCB (1403) & Atividade econômica & 1 \\
-Consumo de energia industrial & BCB (1404) & Atividade econômica & 1 \\
-Consumo de energia outros & BCB (1405) & Atividade econômica & 1 \\
-PIB acumulado no ano & BCB (4381) & Atividade econômica & 4 \\
-IBC-Br & BCB (24364) & Atividade econômica & 1 \\
-Índice de confiança do consumidor & BCB (4393) & Atividade econômica & 1 \\
-Índice de confiança de serviços & BCB (17660) & Atividade econômica & 1 \\
-Emprego formal Sudeste & BCB (13901) & Mercado de trabalho & 1 \\
-Emprego formal Sul & BCB (13564) & Mercado de trabalho & 1 \\
-Emprego formal Nordeste & BCB (13941) & Mercado de trabalho & 1 \\
-Emprego formal Norte & BCB (28152) & Mercado de trabalho & 1 \\
-Emprego formal Centro-Oeste & BCB (21991) & Mercado de trabalho & 1 \\
-Salário mínimo & BCB (1619) & Mercado de trabalho & 1 \\
-População na força de trabalho & BCB (24378) & Mercado de trabalho & 1 \\
-População ocupada & BCB (28543) & Mercado de trabalho & 1 \\
-Taxa de desemprego & BCB (24369) & Mercado de trabalho & 1 \\
-Horas trabalhadas na indústria & BCB (28556) & Mercado de trabalho & 1 \\
-Tempo de procura: até 1 mês & IBGE/SIDRA (1616) & Mercado de trabalho & 1 \\
-Tempo de procura: 1 mês a 1 ano & IBGE/SIDRA (1616) & Mercado de trabalho & 1 \\
-Tempo de procura: 1 a 2 anos & IBGE/SIDRA (1616) & Mercado de trabalho & 1 \\
-Tempo de procura: 2 anos ou mais & IBGE/SIDRA (1616) & Mercado de trabalho & 1 \\
-IPCA & BCB (433) & Inflação & 1 \\
-IPCA índice de difusão & BCB (21379) & Inflação & 1 \\
-IPCA núcleo EX0 & BCB (29677) & Inflação & 1 \\
-IPCA núcleo EX1 & BCB (29678) & Inflação & 1 \\
-IPCA núcleo médias aparadas & BCB (16122) & Inflação & 1 \\
-IGP-M & BCB (189) & Inflação & 1 \\
-IPC & BCB (191) & Inflação & 1 \\
-IPC núcleo & BCB (4467) & Inflação & 1 \\
-INCC & BCB (192) & Inflação & 1 \\
-INPC & BCB (188) & Inflação & 1 \\
-IPP & IPEA (IPP12\_IPPCG12) & Inflação & 1 \\
-Índice de commodities agropecuária & BCB (27575) & Commodities & 1 \\
-Índice de commodities metal & BCB (27576) & Commodities & 1 \\
-Índice de commodities energia & BCB (27577) & Commodities & 1 \\
-Ibovespa (retorno mensal) & B3 & Índices de mercado & 2 \\
-IDIV (retorno mensal) & B3 & Índices de mercado & 2 \\
-IFIX (retorno mensal) & B3 & Índices de mercado & 2 \\
-IFNC (retorno mensal) & B3 & Índices de mercado & 2 \\
-IMAT (retorno mensal) & B3 & Índices de mercado & 2 \\
-IMOB (retorno mensal) & B3 & Índices de mercado & 2 \\
-MLCX (retorno mensal) & B3 & Índices de mercado & 2 \\
-SMLL (retorno mensal) & B3 & Índices de mercado & 2 \\
-EMBI+ Brasil & JP Morgan & Risco e incerteza & 1 \\
-CDS soberano 5 anos & Investing.com & Risco e incerteza & 1 \\
-MSCI mercados emergentes & Investing.com & Risco e incerteza & 1 \\
-VIX & CBOE & Risco e incerteza & 1 \\
-EPU Brasil & policyuncertainty.com & Risco e incerteza & 1 \\
-EPU Canadá & policyuncertainty.com & Risco e incerteza & 1 \\
-EPU Chile & policyuncertainty.com & Risco e incerteza & 1 \\
-EPU China & policyuncertainty.com & Risco e incerteza & 1 \\
-EPU Alemanha & policyuncertainty.com & Risco e incerteza & 1 \\
-EPU Índia & policyuncertainty.com & Risco e incerteza & 1 \\
-EPU Rússia & policyuncertainty.com & Risco e incerteza & 1 \\
-EPU Estados Unidos & policyuncertainty.com & Risco e incerteza & 1 \\
-
+\multicolumn{5}{@{}l}{\textit{Câmbio}} \\
+BRL/USD & Yahoo Finance & BRL=X & 1 &  \\
+BRL/EUR & Yahoo Finance & EUR=X & 1 &  \\
+BRL/CNY & Yahoo Finance & CNY=X & 1 &  \\
+BRL/ARS & Yahoo Finance & ARS=X & 1 &  \\
+BRL/INR & Yahoo Finance & INR=X & 1 &  \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Juros e curva de DI}} \\
+Selic acumulada no mês, anualizada & BCB/SGS & 4189 & 1 &  \\
+DI, 3 meses & B3, ajuste Svensson &  & 1 &  \\
+DI, 6 meses & B3, ajuste Svensson &  & 1 &  \\
+DI, 1 ano & B3, ajuste Svensson &  & 1 &  \\
+DI, 2 anos & B3, ajuste Svensson &  & 1 &  \\
+DI, 5 anos & B3, ajuste Svensson &  & 1 &  \\
+DI, 10 anos & B3, ajuste Svensson &  & 1 &  \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Agregados monetários}} \\
+Base monetária & BCB/SGS & 1788 & 4 & $\checkmark$ \\
+Meios de pagamento & BCB/SGS & 27789 & 4 & $\checkmark$ \\
+Depósitos à vista & BCB/SGS & 27790 & 4 & $\checkmark$ \\
+Depósitos de poupança & BCB/SGS & 1835 & 4 & $\checkmark$ \\
+M1 & BCB/SGS & 27791 & 4 & $\checkmark$ \\
+M2 & BCB/SGS & 27810 & 4 & $\checkmark$ \\
+M3 & BCB/SGS & 27813 & 4 & $\checkmark$ \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Crédito}} \\
+Crédito agropecuário & BCB/SGS & 22027 & 4 & $\checkmark$ \\
+Crédito à indústria & BCB/SGS & 22043 & 4 & $\checkmark$ \\
+Crédito à construção & BCB/SGS & 22030 & 4 & $\checkmark$ \\
+Crédito ao comércio & BCB/SGS & 22036 & 4 & $\checkmark$ \\
+Crédito ao transporte & BCB/SGS & 22037 & 4 & $\checkmark$ \\
+Crédito à pessoa física & BCB/SGS & 22050 & 4 & $\checkmark$ \\
+Spread médio de crédito, pessoa jurídica & BCB/SGS & 20784 & 1 & $\checkmark$ \\
+Spread médio de crédito, pessoa física & BCB/SGS & 20785 & 1 & $\checkmark$ \\
+Saldo de crédito total & BCB/SGS & 20542 & 4 & $\checkmark$ \\
+Recolhimentos compulsórios & BCB/SGS & 17633 & 4 &  \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Atividade econômica}} \\
+Consumo de gasolina & BCB/SGS & 1393 & 1 & $\checkmark$ \\
+Consumo de GLP & BCB/SGS & 1394 & 1 & $\checkmark$ \\
+Consumo de óleo combustível & BCB/SGS & 1395 & 1 &  \\
+Consumo de óleo diesel & BCB/SGS & 1396 & 1 & $\checkmark$ \\
+Consumo de demais derivados & BCB/SGS & 1397 & 1 & $\checkmark$ \\
+Consumo de álcool & BCB/SGS & 1401 & 1 & $\checkmark$ \\
+Utilização da capacidade instalada (CNI) & BCB/SGS & 28554 & 1 &  \\
+Vendas no varejo & BCB/SGS & 1455 & 1 & $\checkmark$ \\
+Vendas de serviços & BCB/SGS & 23982 & 1 & $\checkmark$ \\
+Produção de automóveis & BCB/SGS & 7384 & 1 & $\checkmark$ \\
+Produção de veículos leves & BCB/SGS & 7385 & 1 & $\checkmark$ \\
+Produção de caminhões & BCB/SGS & 7386 & 1 & $\checkmark$ \\
+Produção de ônibus & BCB/SGS & 7387 & 1 & $\checkmark$ \\
+Produção de bens de consumo & BCB/SGS & 21865 & 1 & $\checkmark$ \\
+Produção de bens duráveis & BCB/SGS & 21866 & 1 & $\checkmark$ \\
+Produção de bens não duráveis & BCB/SGS & 21867 & 1 & $\checkmark$ \\
+Produção de bens de capital & BCB/SGS & 21863 & 1 & $\checkmark$ \\
+Produção da indústria de transformação & BCB/SGS & 21862 & 1 & $\checkmark$ \\
+Produção da indústria extrativa & BCB/SGS & 21861 & 1 & $\checkmark$ \\
+Utilização da capacidade instalada (FGV) & BCB/SGS & 24352 & 1 & $\checkmark$ \\
+Consumo de energia, comercial & BCB/SGS & 1402 & 1 & $\checkmark$ \\
+Consumo de energia, residencial & BCB/SGS & 1403 & 1 & $\checkmark$ \\
+Consumo de energia, industrial & BCB/SGS & 1404 & 1 & $\checkmark$ \\
+Consumo de energia, outros & BCB/SGS & 1405 & 1 & $\checkmark$ \\
+PIB acumulado no ano & BCB/SGS & 4381 & 4 & $\checkmark$ \\
+IBC-Br & BCB/SGS & 24364 & 1 &  \\
+Índice de confiança do consumidor & BCB/SGS & 4393 & 1 & $\checkmark$ \\
+Índice de confiança de serviços & BCB/SGS & 17660 & 1 &  \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Mercado de trabalho}} \\
+Emprego formal, Sudeste & BCB/SGS & 13901 & 1 & $\checkmark$ \\
+Emprego formal, Sul & BCB/SGS & 13564 & 1 & $\checkmark$ \\
+Emprego formal, Nordeste & BCB/SGS & 13941 & 1 & $\checkmark$ \\
+Emprego formal, Norte & BCB/SGS & 28152 & 1 & $\checkmark$ \\
+Emprego formal, Centro-Oeste & BCB/SGS & 21991 & 1 & $\checkmark$ \\
+Salário mínimo & BCB/SGS & 1619 & 1 & $\checkmark$ \\
+População na força de trabalho & BCB/SGS & 24378 & 1 &  \\
+População ocupada & BCB/SGS & 28543 & 1 & $\checkmark$ \\
+Taxa de desemprego & BCB/SGS & 24369 & 1 & $\checkmark$ \\
+Horas trabalhadas na indústria & BCB/SGS & 28556 & 1 &  \\
+Tempo de procura, menos de 1 mês & IBGE/SIDRA & 1616 & 1 & $\checkmark$ \\
+Tempo de procura, de 1 mês a menos de 1 ano & IBGE/SIDRA & 1616 & 1 & $\checkmark$ \\
+Tempo de procura, de 1 ano a menos de 2 anos & IBGE/SIDRA & 1616 & 1 &  \\
+Tempo de procura, 2 anos ou mais & IBGE/SIDRA & 1616 & 1 & $\checkmark$ \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Preços}} \\
+IPCA & BCB/SGS & 433 & 1 &  \\
+IPCA, índice de difusão & BCB/SGS & 21379 & 1 & $\checkmark$ \\
+IPCA, núcleo EX0 & BCB/SGS & 11427 & 1 & $\checkmark$ \\
+IPCA, núcleo EX1 & BCB/SGS & 16121 & 1 & $\checkmark$ \\
+IPCA, núcleo de dupla ponderação & BCB/SGS & 16122 & 1 & $\checkmark$ \\
+IGP-M & BCB/SGS & 189 & 1 &  \\
+IPC & BCB/SGS & 191 & 1 & $\checkmark$ \\
+IPC, núcleo & BCB/SGS & 4467 & 1 &  \\
+INCC & BCB/SGS & 192 & 1 & $\checkmark$ \\
+INPC & BCB/SGS & 188 & 1 &  \\
+IPP & IPEA & IPP12\_IPPCG12 & 1 &  \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Commodities}} \\
+Índice de commodities, agropecuária & BCB/SGS & 27575 & 1 &  \\
+Índice de commodities, metal & BCB/SGS & 27576 & 1 &  \\
+Índice de commodities, energia & BCB/SGS & 27577 & 1 &  \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Índices da B3}} \\
+Ibovespa & B3 & IBOV & 6 &  \\
+Índice de dividendos & B3 & IDIV & 6 &  \\
+Índice de fundos imobiliários & B3 & IFIX & 6 &  \\
+Índice financeiro & B3 & IFNC & 6 &  \\
+Índice de materiais básicos & B3 & IMAT & 6 &  \\
+Índice imobiliário & B3 & IMOB & 6 &  \\
+Índice de small caps & B3 & SMLL & 6 &  \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Risco e incerteza}} \\
+EMBI+ Brasil (JP Morgan) & BC da Rep. Dominicana &  & 1 &  \\
+CDS soberano, 5 anos & Investing.com &  & 1 &  \\
+MSCI mercados emergentes & Investing.com &  & 1 & $\checkmark$ \\
+VIX (CBOE) & Investing.com &  & 1 &  \\
+EPU, Brasil & policyuncertainty.com &  & 1 &  \\
+EPU, Canadá & policyuncertainty.com &  & 1 &  \\
+EPU, Chile & policyuncertainty.com &  & 1 &  \\
+EPU, China & policyuncertainty.com &  & 1 & $\checkmark$ \\
+EPU, Alemanha & policyuncertainty.com &  & 1 &  \\
+EPU, Índia & policyuncertainty.com &  & 1 &  \\
+EPU, Rússia & policyuncertainty.com &  & 1 &  \\
+EPU, Estados Unidos & policyuncertainty.com &  & 1 &  \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Fiscal}} \\
+Dívida bruta do governo geral, \% do PIB & BCB/SGS & 13762 & 1 &  \\
+Dívida líquida do setor público, \% do PIB & BCB/SGS & 4513 & 1 & $\checkmark$ \\
+NFSP primária, fluxo mensal & BCB/SGS & 4649 & 1 & $\checkmark$ \\
+Ajuste cambial da DLSP, fluxo mensal & BCB, Evolução da DLSP &  & 1 &  \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textit{Expectativas Focus}} \\
+IPCA, 12 meses à frente, suavizada & BCB, Focus &  & 1 &  \\
+Selic, ano seguinte & BCB, Focus &  & 1 &  \\
+PIB, ano seguinte & BCB, Focus &  & 1 & $\checkmark$ \\
+Câmbio, ano seguinte & BCB, Focus &  & 1 &  \\
+DLSP, ano seguinte & BCB, Focus &  & 1 &  \\
+Resultado primário, ano seguinte & BCB, Focus &  & 1 &  \\
+Resultado nominal, ano seguinte & BCB, Focus &  & 1 &  \\
 \end{longtable}
-\end{ThreePartTable}
+\endgroup
 
 \section*{Anexo B. Identificação por heterocedasticidade}\label{anexo-B}
 
 \begin{table}[H]
-\begin{center}
+\centering
 \footnotesize
-\setlength{\tabcolsep}{5pt}
 \begin{threeparttable}
-\begin{tabular*}{0.75\textwidth}{@{\extracolsep{\fill}}l l c c c c@{}}
+\begin{tabular*}{0.62\textwidth}{@{\extracolsep{\fill}}l c c c@{}}
 \toprule
-\textbf{Sistema} & \textbf{Vértice} & \textbf{$n_C/n_{NC}$} & \textbf{DI} & \textbf{BRL/USD} & \textbf{CDS} \\
+ & DI & BRL/USD & CDS \\
 \midrule
-\multicolumn{6}{@{}l}{\textit{Variação de quarta para quinta-feira}} \\
-\quad Diária & 3 meses  & 102/553 & 5{,}54 & 1{,}04 & 0{,}80 \\
-\quad Diária & 6 meses  & 102/553 & 2{,}84 & 1{,}04 & 0{,}77 \\
-\quad Diária & 12 meses & 102/553 & 2{,}66 & 1{,}04 & 0{,}78 \\
+\multicolumn{4}{@{}l}{\textit{Diário, variação de quarta para quinta-feira}} \\
+\quad DI de 3 meses  & 5{,}54 & 1{,}04 & 0{,}80 \\
+\quad DI de 6 meses  & 2{,}84 & 1{,}04 & 0{,}77 \\
+\quad DI de 12 meses & 2{,}66 & 1{,}04 & 0{,}78 \\
 \addlinespace
-\multicolumn{6}{@{}l}{\textit{Resíduos do VAR mensal em nível}} \\
-\quad Mensal & 3 meses  & 108/54 & 2{,}26 & 1{,}85 & 2{,}42 \\
-\quad Mensal & 6 meses  & 108/54 & 2{,}98 & 1{,}86 & 2{,}59 \\
-\quad Mensal & 12 meses & 108/54 & 2{,}52 & 1{,}74 & 2{,}59 \\
+\multicolumn{4}{@{}l}{\textit{Mensal, resíduos do VAR em nível}} \\
+\quad DI de 3 meses  & 2{,}26 & 1{,}85 & 2{,}42 \\
+\quad DI de 6 meses  & 2{,}98 & 1{,}86 & 2{,}59 \\
+\quad DI de 12 meses & 2{,}52 & 1{,}74 & 2{,}59 \\
 \bottomrule
 \end{tabular*}
-\begin{tablenotes}[flushleft]
-\footnotesize
-\item \textit{Notas:} Razão entre a variância da série nos períodos com reunião do Copom ($C$) e sem reunião ($NC$) \citep{rigobonsack2004}. A coluna DI traz o vértice da linha. No diário, $C$ são semanas com reunião e a série é a variação de quarta para quinta-feira. No mensal, $C$ são meses com reunião e a série é o resíduo de um VAR em nível com constante, tendência e quatro defasagens. As séries são as de \cite{goncalves2025}, sem a expectativa de inflação de mercado, que o painel não contém. Janela 2012:03--2025:12.
-\end{tablenotes}
-\end{threeparttable}
-\caption{\textbf{Razão de variância entre regimes}}
+\caption{\textbf{Razão de variância entre períodos com e sem reunião do Copom}\\{Cada célula é a razão entre a variância da série nos períodos com reunião do Copom ($C$) e nos períodos sem reunião ($NC$) \citep{rigobonsack2004}. Cada linha é um sistema com o vértice do DI indicado, o câmbio BRL/USD e o CDS soberano de cinco anos. São as séries de \cite{goncalves2025}, exceto a expectativa de inflação de mercado, que o painel não contém. No painel diário, a série é a variação de quarta para quinta-feira, e há 102 semanas com reunião e 553 sem. No painel mensal, a série é o resíduo de um VAR das três séries em nível, com constante, tendência e quatro defasagens, e há 108 meses com reunião e 54 sem. Janela de março de 2012 a dezembro de 2025.}}
 \label{tab:het_variance}
-\end{center}
+\end{threeparttable}
 \end{table}
 
 \begin{table}[H]
-\begin{center}
+\centering
 \footnotesize
-\setlength{\tabcolsep}{4pt}
 \begin{threeparttable}
-\begin{tabular}{@{}l l c c c c c c c c@{}}
+\begin{tabular*}{0.85\textwidth}{@{\extracolsep{\fill}}l D{,}{{,}}{2} D{,}{{,}}{3} D{,}{{,}}{3} D{,}{{,}}{2} D{,}{{,}}{3} D{,}{{,}}{2} D{,}{{,}}{3}@{}}
 \toprule
- & & & & & & \multicolumn{2}{c}{\textbf{Corrigido}} & \multicolumn{2}{c}{\textbf{Sem correção}} \\
-\cmidrule(lr){7-8} \cmidrule(lr){9-10}
-\textbf{Sistema} & \textbf{Vértice} & \textbf{$n_C/n_{NC}$} & \textbf{$a$} & \textbf{$\hat{\lambda}_1$} & \textbf{$\hat{\lambda}_2$} & \textbf{$Q_r$} & \textbf{$p$} & \textbf{$Q_r$} & \textbf{$p$} \\
+ & & & & \multicolumn{2}{c}{Com correção} & \multicolumn{2}{c}{Sem correção} \\
+\cmidrule(lr){5-6} \cmidrule(l){7-8}
+ & \multicolumn{1}{c}{$a$} & \multicolumn{1}{c}{$\hat{\lambda}_1$} & \multicolumn{1}{c}{$\hat{\lambda}_2$} & \multicolumn{1}{c}{$Q_r$} & \multicolumn{1}{c}{$p$} & \multicolumn{1}{c}{$Q_r$} & \multicolumn{1}{c}{$p$} \\
 \midrule
-\multicolumn{10}{@{}l}{\textit{Variação de quarta para quinta-feira}} \\
-\quad Diária & 3 meses & 102/553 & 5{,}54 & 7{,}55 & 1{,}36 & 11{,}43 & 0{,}003 & 55{,}77 & $<0{,}001$ \\
- & & & & (1{,}15) & (0{,}21) & & & & \\
-\quad Diária & 6 meses & 102/553 & 2{,}84 & 4{,}06 & 1{,}36 & 4{,}95 & 0{,}084 & 24{,}29 & $<0{,}001$ \\
- & & & & (0{,}62) & (0{,}21) & & & & \\
-\quad Diária & 12 meses & 102/553 & 2{,}66 & 3{,}63 & 1{,}40 & 3{,}83 & 0{,}147 & 18{,}51 & $<0{,}001$ \\
- & & & & (0{,}55) & (0{,}21) & & & & \\
+\multicolumn{8}{@{}l}{\textit{Diário, variação de quarta para quinta-feira}} \\
+\quad DI de 3 meses  & 5,54 & 7,55   & 1,36   & 11,43 & 0,003 & 55,77 & {<}0,001 \\
+                     &      & (1,15) & (0,21) &       &       &       &          \\
+\quad DI de 6 meses  & 2,84 & 4,06   & 1,36   & 4,95  & 0,084 & 24,29 & {<}0,001 \\
+                     &      & (0,62) & (0,21) &       &       &       &          \\
+\quad DI de 12 meses & 2,66 & 3,63   & 1,40   & 3,83  & 0,147 & 18,51 & {<}0,001 \\
+                     &      & (0,55) & (0,21) &       &       &       &          \\
 \addlinespace
-\multicolumn{10}{@{}l}{\textit{VAR mensal em nível}} \\
-\quad Mensal & 3 meses & 108/54 & 2{,}26 & 2{,}51 & 2{,}36 & 0{,}02 & 0{,}988 & 0{,}03 & 0{,}983 \\
- & & & & (0{,}59) & (0{,}56) & & & & \\
-\quad Mensal & 6 meses & 108/54 & 2{,}98 & 3{,}07 & 2{,}59 & 0{,}17 & 0{,}917 & 0{,}27 & 0{,}876 \\
- & & & & (0{,}73) & (0{,}61) & & & & \\
-\quad Mensal & 12 meses & 108/54 & 2{,}52 & 2{,}85 & 2{,}44 & 0{,}14 & 0{,}931 & 0{,}22 & 0{,}896 \\
- & & & & (0{,}67) & (0{,}58) & & & & \\
+\multicolumn{8}{@{}l}{\textit{Mensal, VAR em nível}} \\
+\quad DI de 3 meses  & 2,26 & 2,51   & 2,36   & 0,02  & 0,988 & 0,03  & 0,983 \\
+                     &      & (0,59) & (0,56) &       &       &       &       \\
+\quad DI de 6 meses  & 2,98 & 3,07   & 2,59   & 0,17  & 0,917 & 0,27  & 0,876 \\
+                     &      & (0,73) & (0,61) &       &       &       &       \\
+\quad DI de 12 meses & 2,52 & 2,85   & 2,44   & 0,14  & 0,931 & 0,22  & 0,896 \\
+                     &      & (0,67) & (0,58) &       &       &       &       \\
 \addlinespace
-Cinco inovações fatoriais & --- & 107/54 & --- & 4{,}03 & 1{,}68 & 5{,}15 & 0{,}076 & 6{,}72 & 0{,}035 \\
- & & & & (0{,}95) & (0{,}40) & & & & \\
+\multicolumn{8}{@{}l}{\textit{Mensal, inovações fatoriais do DFM}} \\
+\quad $\eta_1,\dots,\eta_5$ &  & 4,03 & 1,68 & 5,15 & 0,076 & 6,72 & 0,035 \\
+                     &      & (0,95) & (0,40) &       &       &       &       \\
 \bottomrule
-\end{tabular}
-\begin{tablenotes}[flushleft]
-\footnotesize
-\item \textit{Notas:} $\hat{\lambda}_1$ e $\hat{\lambda}_2$ são os dois maiores autovalores de $\Lambda$, com erro padrão entre parênteses, e $a$ é a razão entre a variância do DI nos períodos com e sem reunião. $Q_r$ testa $H_0\colon\lambda_1=\lambda_2$ com dois graus de liberdade \citep{lutkepohl2021,lange2021}, e não rejeitar é não identificar a coluna do choque monetário. A versão corrigida divide a estatística pela curtose dos resíduos e é a válida sob não normalidade. Com a correção de Holm para os três vértices, o $p$ diário de três meses é $0{,}010$. A linha fatorial usa as inovações padronizadas de $(r,q,p)=(5,5,4)$ e tem 161 observações, e não 162, por causa da defasagem formal que o teste impõe. Nela $\lambda_1=\dots=\lambda_4$ e $\lambda_1=\dots=\lambda_5$ rejeitam a 5\%, com $p$ de $0{,}021$ e $0{,}013$, mas $\lambda_1=\lambda_2$ não. Sistemas como na \autoref{tab:het_variance}.
-\end{tablenotes}
-\end{threeparttable}
-\caption{\textbf{Teste da condição de posto}}
+\end{tabular*}
+\caption{\textbf{Teste da condição de posto, $H_0\colon\lambda_1=\lambda_2$}\\{Os valores $\hat{\lambda}_1$ e $\hat{\lambda}_2$ são os dois maiores autovalores de $\Lambda$ em $\Sigma_{NC}=BB'$ e $\Sigma_C=B\Lambda B'$, com erro padrão entre parênteses, e $a$ é a razão de variância do DI da \autoref{tab:het_variance}. A estatística $Q_r$ testa $H_0$ com dois graus de liberdade \citep{lutkepohl2021,lange2021}, e sob $H_0$ a coluna do choque monetário não é identificada. A versão com correção divide a estatística por um fator que depende da curtose dos resíduos e é a válida quando os resíduos não são normais. Com a correção de Holm para os três vértices, o $p$ diário do vértice de três meses é $0{,}010$. A linha fatorial usa as cinco inovações padronizadas de $(r,q,p)=(5,5,4)$ e tem 107 meses com reunião e 54 sem, 161 no total e não 162, porque o teste exige ao menos uma defasagem. Nessa linha o teste rejeita $\lambda_1=\dots=\lambda_4$ e $\lambda_1=\dots=\lambda_5$ a 5\%, com $p$ de $0{,}021$ e $0{,}013$, mas não rejeita $\lambda_1=\lambda_2$. Séries, contagens e janela dos painéis diário e mensal como na \autoref{tab:het_variance}.}}
 \label{tab:het_frequency}
-\end{center}
+\end{threeparttable}
 \end{table}
+
+\section*{Anexo C. Sensibilidade à dimensão dinâmica}\label{anexo-C}
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{fig_q_sensibilidade.pdf}
+\caption{\textbf{Sensibilidade ao número de choques dinâmicos}\\{Especificação de produção, com $r = 5$ e $p = 4$, e $q$ de 2 a 5. A linha preta mostra a estimativa pontual com $q = 5$, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 68\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com $q = 4$, 3 e 2, sem conjuntos. Câmbio e IBC-Br são divididos pela respectiva média amostral e expressos em percentual.}}
+\label{fig:q_sensibilidade}
+\end{center}
+\end{figure}
 
 \end{document}
