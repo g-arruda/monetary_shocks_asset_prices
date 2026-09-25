@@ -35,7 +35,7 @@ leg is half the sign rule.
 
 ## ξ_mp is the strength ruler of record
 
-`compute_factor_space_wald` (`R/modeling/impulse_response.R`) — the MOSW Wald in the
+`compute_factor_space_wald` (`R/identification/factor_space_diagnostics.R`) — the MOSW Wald in the
 `yield_6m`-impact direction, validated against the authors' official code. The 95% AR set is a
 bounded interval **iff ξ_mp > 3.84**; conventional bands are approximately valid at ξ_mp ≥ 10.
 Since 2026-08-18 that boundedness prediction is no longer only a flag: `mosw_ar_bounds`

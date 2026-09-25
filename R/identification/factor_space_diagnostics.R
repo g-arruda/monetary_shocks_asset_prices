@@ -2,6 +2,8 @@
 # Factor-space diagnostics for proxy-SVAR identification
 # Reports MOSW relevance and impact response of the policy variable
 # for arbitrary (DFM, instrument) pairs without building the IRF sets.
+# Also holds the two relevance statistics: the MOSW Wald (xi) and the
+# robust first-stage F.
 # ===================================================================
 
 
@@ -133,5 +135,133 @@ diagnose_instrument_in_factor_space <- function(dfm_results, instrument_df,
     wald_mp    = wald_mp,
     nw_lags    = nw_lags,
     moment_inputs = moment_inputs
+  )
+}
+
+
+#' Montiel Olea-Stock-Watson Wald statistic for instrument relevance
+#'
+#' Implements the relevance diagnostics of Montiel Olea, Stock & Watson
+#' (2021, J. Econometrics, sec. 4.2) against the q factor innovations, with
+#' `Gamma = (1/T) sum_t z_t eta_t` and `W` the Eicker-White covariance of the
+#' moment `z_t eta_t` (Newey-West with 0 lags, `NWlags = 0` in the authors'
+#' applications). z is residualized on the factor-VAR regressors first, which
+#' reproduces the Shat correction of `CovAhat_Sigmahat_Gamma.m`. Called with
+#' the scalar innovation of the policy variable, `wald_joint` is `xi_mp`.
+#'
+#' @param eta Matrix of factor innovations (T x q).
+#' @param Z Instrument vector or column matrix (T x 1), aligned to eta.
+#' @param controls Matrix of factor-VAR regressors aligned to eta.
+#' @param nw_lags Newey-West truncation lag for W. The default 0 is the
+#'   Eicker-White estimator and reproduces `NWlags = 0` of the oil application
+#'   (`codigos_externos/codigo_olea/OilSVARIV.m:50`), which every published
+#'   number assumes. Values > 0 apply the Bartlett kernel of
+#'   `codigos_externos/codigo_olea/functions/RForm/NW_hac_STATA.m`, needed only
+#'   when the moment is serially correlated; the tax application uses
+#'   `NWlags = 8` (`TaxSVARIV.m:52`).
+#' @param intercept Add a constant to `controls` before residualizing z, as
+#'   the OLS factor VAR carries one. FALSE when `controls` already hold the
+#'   deterministic column: under the COVID volatility treatment the regressors
+#'   are divided by `s_t` and the constant becomes `1/s_t`.
+#'
+#' @return List with `wald_k` (length-q vector), `wald_joint`, `q`, `T_eff`,
+#'   and `nw_lags`.
+#'
+#' @examples
+#' xi_mp <- compute_factor_space_wald(eta_mp, z, controls = X_lags)$wald_joint
+compute_factor_space_wald <- function(eta, Z, controls, nw_lags = 0L,
+                                      intercept = TRUE) {
+  eta <- as.matrix(eta)
+  Z <- as.numeric(Z)
+  T_eff <- length(Z)
+
+  regressors <- if (intercept) {
+    cbind(1, as.matrix(controls))
+  } else {
+    as.matrix(controls)
+  }
+  z_residual <- as.numeric(qr.resid(qr(regressors), Z))
+
+  # T x q, row t is z_t eta_t'
+  moments <- z_residual * eta
+  Gamma <- colMeans(moments)
+  moments_centered <- sweep(moments, 2, Gamma)
+
+  # Bartlett accumulation, transcribed from NW_hac_STATA.m: weight
+  # 1 - l/(lags+1), divisor T (no degrees-of-freedom correction). With
+  # nw_lags = 0 nothing is added and W is the Eicker-White estimator.
+  weighted_autocovariances <- purrr::map(seq_len(nw_lags), \(l) {
+    autocovariance <- crossprod(
+      moments_centered[seq_len(T_eff - l), , drop = FALSE],
+      moments_centered[(1L + l):T_eff, , drop = FALSE]
+    ) / T_eff
+    (1 - l / (nw_lags + 1)) * (autocovariance + t(autocovariance))
+  })
+  W <- purrr::reduce(
+    weighted_autocovariances,
+    `+`,
+    .init = crossprod(moments_centered) / T_eff
+  )
+
+  list(
+    wald_k = T_eff * Gamma^2 / diag(W),
+    wald_joint = T_eff * drop(t(Gamma) %*% solve(W, Gamma)),
+    q = ncol(eta),
+    T_eff = T_eff,
+    nw_lags = nw_lags
+  )
+}
+
+
+#' Robust first-stage F in the policy-variable normalization direction
+#'
+#' Regresses the factor-implied innovation of the policy variable on the
+#' external instrument and the factor-VAR controls. The statistic is the
+#' squared robust t-statistic on the instrument. HC1 reproduces the finite-
+#' sample convention behind the first-stage F reported by Montiel Olea, Stock
+#' and Watson; positive `nw_lags` use a Bartlett Newey-West covariance.
+#'
+#' @param target_innovation Numeric vector `c_mp' eta_t` aligned with `Z`.
+#' @param Z Instrument vector or one-column matrix.
+#' @param controls Matrix of factor-VAR regressors aligned with `Z`.
+#' @param nw_lags Newey-West truncation lag. Zero uses HC1.
+#' @param intercept Include an intercept. FALSE when `controls` already carry
+#'   the deterministic column, as the regressors of the COVID volatility
+#'   treatment do (divided by `s_t`, the constant becomes `1/s_t`).
+#'
+#' @return List with `f_statistic`, `beta`, `se`, `p_value`, `n_obs`, and
+#'   `nw_lags`.
+#'
+#' @examples
+#' fs <- compute_robust_first_stage_F(eta_mp, z, controls = X_lags)
+compute_robust_first_stage_F <- function(target_innovation, Z, controls,
+                                         nw_lags = 0L, intercept = TRUE) {
+  y <- as.numeric(target_innovation)
+  z <- as.numeric(Z)
+  controls <- as.matrix(controls)
+
+  fit <- if (intercept) lm(y ~ z + controls) else lm(y ~ 0 + z + controls)
+  covariance <- if (nw_lags == 0L) {
+    sandwich::vcovHC(fit, type = "HC1")
+  } else {
+    sandwich::NeweyWest(fit, lag = nw_lags, prewhite = FALSE, adjust = TRUE)
+  }
+
+  beta <- unname(coef(fit)["z"])
+  se <- sqrt(covariance["z", "z"])
+  f_statistic <- (beta / se)^2
+
+  list(
+    f_statistic = f_statistic,
+    beta = beta,
+    se = se,
+    p_value = pf(
+      f_statistic,
+      df1 = 1,
+      df2 = df.residual(fit),
+      lower.tail = FALSE
+    ),
+    n_obs = nobs(fit),
+    nw_lags = nw_lags
   )
 }

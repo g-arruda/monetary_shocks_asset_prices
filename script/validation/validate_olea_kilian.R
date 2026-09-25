@@ -21,7 +21,7 @@
 # (oil production), NWlags = 0.
 # ============================================================
 
-source("R/modeling/impulse_response.R")
+source("R/identification/factor_space_diagnostics.R")
 
 fx <- readRDS("output/validation/olea_oil_fixture.rds")
 Y  <- fx$Y                              # T x n, LHS do VAR (já sem as p defasagens)
