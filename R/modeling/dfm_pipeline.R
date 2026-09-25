@@ -1,19 +1,16 @@
 # ===================================================================
-# PIPELINE DO SDFM: painel -> fatores -> IRFs identificadas
-# Encadeia estimate_dfm() (factor_estimation.R) e compute_irf_dfm()
-# (impulse_response.R) sob a especificação de produção.
-# Requer: R/modeling/factor_estimation.R, R/modeling/impulse_response.R.
+# SDFM pipeline: panel -> factors -> identified IRFs. Chains estimate_dfm()
+# (factor_estimation.R) and compute_irf_dfm() (impulse_response.R) under the
+# production specification; the Anderson-Rubin sets need
+# R/identification/weak_iv_ar.R sourced as well.
 # ===================================================================
 
 #' Estimate the DFM and its impulse responses
 #'
 #' Reads the processed panel, infers transformation codes, resolves the
 #' monetary-policy column, estimates the factor model and returns the
-#' identified IRFs with their Anderson-Rubin sets.
-#'
-#' `"proxy"` (external instrument) is the only identification branch. The
-#' heteroskedasticity and non-Gaussian branches were abandoned on 2026-08-17.
-#' Their negative results remain documented under `arquivo/`.
+#' identified IRFs with their Anderson-Rubin sets. `"proxy"` (external
+#' instrument) is the only identification branch.
 #'
 #' Every default is the production value, written here: the 115-series panel of
 #' 2012-03--2025-12, `(r, q, p) = (5, 5, 4)`, a +50bp shock normalized on
@@ -33,12 +30,12 @@
 #'   names when NULL.
 #' @param ci_levels Confidence levels.
 #' @param identification Identification branch; `"proxy"` is the only one.
-#' @param inference `"ar"`, the production inference since 2026-09-08, or
-#'   `"none"` for the point alone. See `compute_irf_dfm()`.
+#' @param inference `"ar"`, the production inference, or `"none"` for the point
+#'   alone. See `compute_irf_dfm()`.
 #' @param ar_nw_lags Newey-West truncation of the AR moment covariance.
 #' @param covid_volatility COVID volatility scale of the factor VAR, passed to
-#'   `estimate_dfm()`; the estimated production scale by default, which is
-#'   production since 2026-09-17. NULL runs the untreated OLS factor VAR.
+#'   `estimate_dfm()`; the estimated production scale by default. NULL runs the
+#'   untreated OLS factor VAR.
 #'
 #' @return List with the fitted DFM, IRFs, panel, transformations, and
 #'   normalization.
@@ -48,16 +45,20 @@
 #'                  mp_var = "yield_6m")
 main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
                       instrument_path = "data/processed/instrument.csv",
-                      r = 5L, q = 5L, p = 4L,
+                      r = 5L,
+                      q = 5L,
+                      p = 4L,
                       h = 48L,
-                      mp_var = "yield_6m", shock_size_bps = 50,
-                      tcode = NULL, ci_levels = c(0.68, 0.90),
+                      mp_var = "yield_6m",
+                      shock_size_bps = 50,
+                      tcode = NULL,
+                      ci_levels = c(0.68, 0.90),
                       identification = "proxy",
                       inference = "ar",
                       ar_nw_lags = 0L,
                       covid_volatility = read_covid_volatility(
-                        "output/factors/covid_volatility_theta.csv")) {
-
+                        "output/factors/covid_volatility_theta.csv"
+                      )) {
   identification <- match.arg(identification)
 
   raw_data <- readr::read_csv(data_path, show_col_types = FALSE) |>
@@ -74,7 +75,10 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
   # A misspelled name would otherwise normalize on NA and return NaN IRFs
   mpind <- match(mp_var, colnames(data))
   if (is.na(mpind)) {
-    stop("Variavel de politica monetaria '", mp_var, "' nao encontrada nos dados")
+    stop(
+      "Variavel de politica monetaria '", mp_var,
+      "' nao encontrada nos dados"
+    )
   }
 
   # `yield_6m` is a decimal proportion (0.0975 = 9.75%): +50bp is 0.005
@@ -84,8 +88,15 @@ main_sdfm <- function(data_path = "data/processed/data_log_deseasonalized.csv",
   instrument <- readr::read_csv(instrument_path, show_col_types = FALSE)
 
   # The instrument trims the panel to their common months
-  dfm_results <- estimate_dfm(data, r, q, p, dates = dates, instrument = instrument,
-                              covid_volatility = covid_volatility)
+  dfm_results <- estimate_dfm(
+    data,
+    r,
+    q,
+    p,
+    dates = dates,
+    instrument = instrument,
+    covid_volatility = covid_volatility
+  )
 
   irf_results <- compute_irf_dfm(
     dfm_results,
