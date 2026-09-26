@@ -80,6 +80,7 @@ AR/MOSW próprios.
 |---|---|---|
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
+| A | Trocar as bandas das IRFs de 68/90% para 80/90%, como em Alessi-Kerssenfischer | aberto em 2026-09-26, decisão do autor; significância continua a 90%, o nível de direção e magnitude passa de 68% para 80% (mais exigente); toca `CI_LEVELS` em cinco scripts, `evaluate_irf_path()`, as figuras, a §3.4, a §4 e o `CLAUDE.md`; decidir se o benchmark VAR acompanha; convém fazer junto com a promoção do Tema D |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | D | Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala LP e reportar sem e com o tratamento | aberto em 2026-09-24, decisão do autor; θ próprio por vértice, não o θ̂ do DFM; mesmo caminho da linha fatorial nas duas versões; ⚠ se rejeitar, `sec:identificacao` muda; a linha diária fica sem tratamento |
 | D | Promover a ortogonalização BS só nas reuniões (Tabela 3 + S&P 500 e VIX) e migrar o paper | construção escolhida pelo autor em 2026-09-26 na branch `feature/bs-copom-surpresas-macro`; ξ_mp de produção 6,85 → 5,01 (pré-COVID 8,64 → 4,73), conjuntos todos `interval`; a promoção migra o paper inteiro |
@@ -177,6 +178,37 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   e cuja variação diária é exatamente zero em 23% dos dias. Construir o breakeven a
   partir de NTN-B e LTN é uma rodada de dados, não editorial.
   Nota: `2026-09-22_condicao_het_svars`.
+- [ ] **Trocar os níveis das bandas das IRFs de 68/90% para 80/90%, como em
+  Alessi-Kerssenfischer.** Aberto em 2026-09-26, por decisão do autor. AK (2019)
+  sombreiam 80% e 90% em todas as figuras (1–3 e A1–A4). O projeto usa 68/90%
+  desde a regra de dois níveis de 2026-07-30.
+  - **Regra de dois níveis:** o nível de significância continua em 90%. O nível
+    inferior, que só dá direção e magnitude, passa de 68% para 80%, no
+    `CLAUDE.md`, na §3.4 e na prosa da §4. O critério fica **mais exigente**:
+    um conjunto de 80% é mais largo que um de 68%. Na produção de `main`, até
+    h36, o DI de 2 anos passa de 27 horizontes a 68% para 23 a 80%, o câmbio de
+    26 para 21 e o Ibovespa de 22 para 16. O conjunto AR de 80% é limitado se e
+    só se ξ_mp > 1,64.
+  - **Código:**
+    - `CI_LEVELS` em `irf_coherence_check.R`, `model_alessi.R`,
+      `q_sensitivity.R`, `p_sensitivity.R` e `instrument_layers_irf.R`;
+    - o default de `main_sdfm()` em `R/modeling/dfm_pipeline.R`;
+    - as colunas `lo68`/`hi68`/`set_type68`/`sig68` de `irf_coherence_h.csv`,
+      que vêm de `evaluate_irf_path()` (`R/identification/irf_coherence.R`);
+    - as colunas `lo68`/`hi68` de `R/reporting/sensitivity.R` e as faixas de
+      `R/reporting/figures.R` e de `fig_section5.R`.
+  - **Paper:** as legendas das oito figuras da §4 e dos Anexos C e D, a
+    descrição dos conjuntos na §3.4 e cada frase que hoje cita 68%.
+  - **Benchmark VAR:** decidir se `model_var.R` e `fig_weak_iv.R` também passam
+    a 80/90%. Os níveis do benchmark foram fixados em 68/90% em 2026-08-22
+    (`historico_decisoes.md` §10), justamente para coincidir com os da figura.
+    `validate_mosw_ar.R` continua a validar em 68/95%, os níveis do código de
+    referência.
+
+  Convém fazer junto com a promoção do Tema D, que repinta as mesmas figuras.
+  ⚠ Proposto depois de ver, no scratchpad, como a branch se comporta a 80%.
+  Como o nível de significância não muda e o inferior fica mais exigente,
+  nenhum resultado ganha status com a troca.
 
 ### Fechados (contexto)
 
@@ -694,6 +726,8 @@ ela abriu são **editoriais** e estão no Tema A.
     `validate_covid_volatility.R`, o smoke test e o `CLAUDE.md`.
 
   Nota: `2026-09-26_bs_lista_tabela3_externas` §5.
+  Convém incorporar a troca das bandas para 80/90% (Tema A), que repinta as
+  mesmas figuras.
   ⚠ Até a migração, a legenda de `tab:bs_ortogonalizacao` em `main` diz "como na
   Tabela 3" de BS sobre uma regressão com tendência nas 638 quintas, que a
   Tabela 3 não é.
