@@ -130,6 +130,23 @@ O que muda na leitura da §4:
   zero. Só h1 segue significativo.
 - Cinco variáveis trocam de sinal em h0: `asset_imat`, `msci`, `price_core_ipca_ex1`, `price_inpc` e
   `fiscal_dbgg`.
+- **As ações:** os sete índices da B3 passam a ser significativos a 90% no impacto, todos negativos,
+  de −3,0% (IFIX) a −10,8% (IFNC). Em `main` nenhum era, e a conclusão do paper diz isso. ⚠ Parte do
+  sinal é mecânica, porque o filtro de sinal retém os dias em que DI e Ibovespa andam em sentidos
+  opostos.
+- **As expectativas Focus** perdem significância: de 12 a 13 horizontes a 90% até h36 para 1 a 7.
+
+⚠ **Os placebos externos passam a responder.** São variáveis que um choque monetário brasileiro não
+deveria mover. Em `main` nenhum era significativo a 90% em horizonte curto (o VIX só em h34–h41). Na
+branch:
+- a incerteza de política econômica dos EUA (`epu_us`) sobe de h1 a h6 (+18 pontos em h1, 90%
+  [6,0; 56,5]);
+- o MSCI emergentes sobe de h2 a h8 (+3,2% em h2);
+- o VIX (`sp500_vix`) sobe em h0 (+2,7).
+
+A exposição do filtro às super quartas não explica isso: elas são 23 dos dias retidos nas duas
+versões e carregam 32,5% de Σ|z| em `main` contra 30,9% na branch. Das 21 reuniões que trocam de
+classe, 4 são super quartas (2 entram e 2 saem). A causa não foi investigada.
 
 **O Anexo D volta a ser desenhado.** `paper/fig_instrumento_camadas.pdf` e `instrument_layers_irf.csv`
 foram regravados. A frase de `main` de que nenhum ponto das camadas alternativas sai do conjunto de
@@ -150,6 +167,8 @@ changed") e o N2 de `validate_covid_volatility.R`.
   para 4,73 na pré-COVID.
 - **A §4 e suas oito figuras:** números e as três leituras acima (IPCA, Ibovespa, resultado primário).
 - **Resumo, introdução e conclusão:** números e as frases de argumento que dependem dessas leituras.
+  A frase da conclusão de que o mercado acionário não tem resposta de impacto significativa em
+  nenhum dos sete índices se inverte.
 - **Anexo C:** re-rodar `q_sensitivity.R` e `p_sensitivity.R`.
 - **Anexo D:** tabela e texto; a figura já está redesenhada na branch.
 - **O benchmark VAR e `fig:weak_iv_main`**, que usam o mesmo instrumento.

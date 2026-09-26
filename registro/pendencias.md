@@ -81,9 +81,11 @@ AR/MOSW próprios.
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Trocar as bandas das IRFs de 68/90% para 80/90%, como em Alessi-Kerssenfischer | aberto em 2026-09-26, decisão do autor; significância continua a 90%, o nível de direção e magnitude passa de 68% para 80% (mais exigente); toca `CI_LEVELS` em cinco scripts, `evaluate_irf_path()`, as figuras, a §3.4, a §4 e o `CLAUDE.md`; decidir se o benchmark VAR acompanha; convém fazer junto com a promoção do Tema D |
+| A | Migrar o paper para a ortogonalização Bauer-Swanson da branch | aberto em 2026-09-26; **depende** da promoção do Tema D; lista por seção: §3.3 (regressão, preditores, frase do `R²`, 62/40), §3.4 (ξ_mp 5,01/4,73, F_rob abaixo de 10, camadas invertidas), `tab:first_stage`, `tab:bs_ortogonalizacao`, §4 (sete leituras mudam, incluindo ações significativas no impacto), §5, resumo, introdução, conclusão e Anexos C e D |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | D | Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala LP e reportar sem e com o tratamento | aberto em 2026-09-24, decisão do autor; θ próprio por vértice, não o θ̂ do DFM; mesmo caminho da linha fatorial nas duas versões; ⚠ se rejeitar, `sec:identificacao` muda; a linha diária fica sem tratamento |
-| D | Promover a ortogonalização BS só nas reuniões (Tabela 3 + S&P 500 e VIX) e migrar o paper | construção escolhida pelo autor em 2026-09-26 na branch `feature/bs-copom-surpresas-macro`; ξ_mp de produção 6,85 → 5,01 (pré-COVID 8,64 → 4,73), conjuntos todos `interval`; a promoção migra o paper inteiro |
+| D | Promover a ortogonalização BS só nas reuniões (Tabela 3 + S&P 500 e VIX) e migrar o paper | construção escolhida pelo autor em 2026-09-26 na branch `feature/bs-copom-surpresas-macro`; ξ_mp de produção 6,85 → 5,01 (pré-COVID 8,64 → 4,73), conjuntos todos `interval`; a promoção cobre código, validadores e `CLAUDE.md` e destrava a migração do paper (Tema A); recomendado resolver antes o item dos placebos |
+| D | Investigar por que os placebos externos respondem sob a construção da branch | aberto em 2026-09-26; EPU dos EUA h1–h6, MSCI emergentes h2–h8 e VIX h0 significativos a 90% na branch, nenhum em horizonte curto em `main`; a exposição às super quartas não explica; primeiro teste: cruzar máscaras e valores de `main` e da branch |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -209,6 +211,70 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   ⚠ Proposto depois de ver, no scratchpad, como a branch se comporta a 80%.
   Como o nível de significância não muda e o inferior fica mais exigente,
   nenhum resultado ganha status com a troca.
+- [ ] **Migrar o paper para a ortogonalização Bauer-Swanson da branch.** Aberto
+  em 2026-09-26. **Depende** da promoção do Tema D, que fornece os números.
+  Convém fazer junto com a troca das bandas para 80/90% (item acima). Cruza com
+  o item "Decidir se o resumo, a introdução e a conclusão absorvem a leitura
+  da §4 migrada". Nota: `2026-09-26_bs_lista_tabela3_externas`.
+  O que muda, por seção:
+  - **§3.3, segunda camada:**
+    - a regressão passa a rodar nas 102 reuniões, só com a constante, e sai a
+      "tendência temporal";
+    - os preditores passam a ser Ibovespa, S&P 500, VIX, Brent e inclinação do
+      DI em 65 pregões, mais as surpresas de IPCA e de PIB (na primeira
+      divulgação), a aceleração do núcleo EX0 e o IPCA esperado;
+    - saem o câmbio e as revisões Focus;
+    - a frase final, `R²` de 0,022 contra 0,12–0,20 de BS "sem contrapartida em
+      frequência diária no Brasil", deixa de valer: a contrapartida foi
+      construída, e o `R²` é 0,124.
+  - **§3.3, terceira camada:** 67 monetárias e 35 de informação (34,3%) passam
+    a 62 e 40 (39,2%). A frase "próxima do terço" precisa ser reavaliada.
+  - **§3.4:**
+    - ξ_mp 6,85 / 8,64 → 5,01 / 4,73; F_rob,mp 11,77 / 13,81 → 7,59 / 7,78;
+    - "F_rob o supera nas duas janelas [...] evidência mista" deixa de valer:
+      as duas estatísticas ficam abaixo de 10 nas duas janelas;
+    - o parágrafo das camadas se inverte. A ortogonalização passa a elevar
+      ξ_mp (6,68 → 7,02), e o filtro de sinal a reduzi-lo (→ 5,01), junto com
+      o F_rob (8,62 → 7,59). Os meses não nulos vão de 65 para 60, e a
+      pré-COVID fica em 6,66 / 6,84 / 4,73.
+  - **`tab:first_stage`:** linhas 2 e 3, de `instrument_diagnostics.csv` e
+    `mosw_strength_grid.csv`.
+  - **`tab:bs_ortogonalizacao` (Anexo D):** refazer a partir de
+    `bs_orthogonalization.csv`.
+    - 102 observações, em dois blocos: notícias financeiras em 65 pregões e
+      notícias macroeconômicas. Saem o bloco de revisões Focus e o câmbio.
+    - Linhas de rodapé: `R²`, Wald conjunto dos nove preditores e Wald do bloco
+      macro.
+    - Na legenda, o índice passa a ser a reunião e sai a tendência, e "como na
+      Tabela 3" passa a ser verdade. Descrever a construção e o timing das
+      notícias macro: divulgações desde o Copom anterior, PIB na primeira
+      divulgação, mediana Focus da última pesquisa como expectativa. Dar as
+      unidades.
+  - **§4 (oito subseções e figuras):** todos os números, tirados de
+    `irf_coherence_cell.rds`, e `fig_section5.R` re-rodado. Leituras que se
+    invertem ou mudam:
+    - curva e risco soberano: a reversão de h29–h36 deixa de ser significativa
+      a 90%;
+    - câmbio: significativo de h0 a h6 (era h0 a h4);
+    - fiscais: o resultado primário perde h18–h32;
+    - expectativas Focus: de 12 ou 13 horizontes significativos para 1 a 7;
+    - atividade: o IBC-Br é significativo de h0 a h26;
+    - preços: o IPCA perde toda a significância e fica positivo em h4 e h5;
+    - ações: os sete índices ficam significativos e negativos no impacto, de
+      −3,0% a −10,8%; em `main` nenhum era.
+  - **§5 Robustez:** re-rodar `model_var.R` com o instrumento novo e
+    `fig_weak_iv.R`, e refazer os números dos dois lados, DFM e VAR.
+  - **Resumo (PT e EN), introdução e conclusão:**
+    - 3,23% → 4,56%;
+    - a "reversão altamente sincronizada" não se sustenta a 90%;
+    - a frase da conclusão de que nenhum dos sete índices tem resposta de
+      impacto significativa se inverte.
+  - **Anexo C:** re-rodar `q_sensitivity.R --window=cheia` e `p_sensitivity.R`.
+    O texto não cita números.
+  - **Anexo D:** a figura já foi redesenhada na branch; falta a tabela.
+
+  ⚠ O item dos placebos externos (Tema D) pode mudar o que a §4 e a §5 podem
+  afirmar.
 
 ### Fechados (contexto)
 
@@ -713,21 +779,28 @@ ela abriu são **editoriais** e estão no Tema A.
     pré-COVID.
   - Todos os conjuntos de 68 e 90% seguem `interval`, e nenhum ponto das oito
     séries da §4 sai do conjunto de 90% de `main`.
-  - Três leituras da §4 mudam: o IPCA perde a significância, o Ibovespa passa a
-    ser significativo e negativo no impacto, e o resultado primário deixa de ser
-    significativo em h18–h32.
+  - Várias leituras da §4 mudam; a lista está no item de migração do paper, no
+    Tema A.
 
-  A promoção migra:
-  - §3.3, `tab:first_stage`, `tab:bs_ortogonalizacao` e §3.4;
-  - a §4 e suas oito figuras, com resumo, introdução e conclusão;
-  - os Anexos C e D;
-  - o benchmark VAR e `fig:weak_iv_main`;
+  A promoção, do lado do código e do registro:
+  - merge da branch em `main`, seguido de `Rscript script/instrument.R`;
+  - re-rodar `model_var.R`, `fig_section5.R`, `fig_weak_iv.R`,
+    `q_sensitivity.R --window=cheia` e `p_sensitivity.R`;
   - os pins de `validate_production_spec.R` e do N2 de
-    `validate_covid_volatility.R`, o smoke test e o `CLAUDE.md`.
+    `validate_covid_volatility.R`, `production_spec_impact_smoke.csv`, o smoke
+    test e o parágrafo da especificação de produção no `CLAUDE.md`
+    (ξ_mp 6,848035 / 8,643436, F_rob, impactos em h0).
 
+  O lado do paper é o item "Migrar o paper para a ortogonalização
+  Bauer-Swanson da branch", no Tema A, que depende deste.
+  Recomendado resolver antes: o item dos placebos externos, logo abaixo.
   Nota: `2026-09-26_bs_lista_tabela3_externas` §5.
   Convém incorporar a troca das bandas para 80/90% (Tema A), que repinta as
   mesmas figuras.
+  ⚠ Na branch deixa de valer o achado "a força mora na máscara"
+  (`.claude/rules/instrument.md`, `historico_decisoes.md` §2): o filtro de
+  sinal agora **reduz** ξ_mp, de 7,02 sem máscara para 5,01 com ela. Em `main`
+  ele elevava, de 6,16 para 6,85.
   ⚠ Até a migração, a legenda de `tab:bs_ortogonalizacao` em `main` diz "como na
   Tabela 3" de BS sobre uma regressão com tendência nas 638 quintas, que a
   Tabela 3 não é.
@@ -736,6 +809,25 @@ ela abriu são **editoriais** e estão no Tema A.
   contemporânea, que nenhuma camada trata.
   ⚠ `data/processed/` não troca com a branch: rodar `script/instrument.R` ao
   voltar para `main`.
+
+- [ ] **Investigar por que os placebos externos respondem sob a construção da
+  branch.** Aberto em 2026-09-26. Recomendado antes da promoção do item acima,
+  porque decide o que a §4 e a §5 podem afirmar. São variáveis que um choque
+  monetário brasileiro não deveria mover, e na branch elas ficam
+  significativas a 90%:
+  - a incerteza de política econômica dos EUA (`epu_us`) sobe de h1 a h6, com
+    +18 pontos em h1 e conjunto [6,0; 56,5];
+  - o MSCI emergentes sobe de h2 a h8;
+  - o VIX sobe em h0.
+
+  Em `main` nenhum placebo era significativo em horizonte curto; o VIX só
+  aparecia em h34–h41. A exposição às super quartas não explica: elas são 23
+  dos dias retidos nas duas versões (32,5% de Σ|z| em `main`, 30,9% na branch),
+  e só 4 das 21 reuniões que trocam de classe são super quartas.
+  Primeiro teste sugerido, a decomposição de sempre do projeto: cruzar a
+  máscara de `main` com os valores da branch e vice-versa, para separar o
+  efeito da máscara do efeito dos resíduos.
+  Nota: `2026-09-26_bs_lista_tabela3_externas` §4.
 
 ### Fechados (contexto)
 
