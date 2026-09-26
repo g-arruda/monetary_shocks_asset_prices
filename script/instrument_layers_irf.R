@@ -1,13 +1,13 @@
 # ===================================================================
-# Impulse responses of the production DFM under each of the three
+# Impulse responses of the production DFM under each of the two
 # construction layers of the instrument, the rows of tab:first_stage:
-# z_bruto (raw Wed->Thu DI surprise), z_bs_purif (+ Bauer-Swanson pre-event
-# orthogonalization, production) and z_jk_bs_purif (+ Jarocinski-Karadi sign
-# filter). Only the instrument changes: (5,5,4), 2012-03..2025-12, the
-# Lenza-Primiceri scale, +50bp on yield_6m. Every layer carries its 80/90%
-# Anderson-Rubin sets (xi_mp > 3.84 in all three), written to the CSV; the
-# paper's Anexo D figure bands only production, as in Figure A3 of Alessi and
-# Kerssenfischer (2019), with the other two layers in point.
+# z_bruto (raw Wed->Thu DI surprise) and z_bs_purif (+ Bauer-Swanson
+# pre-event orthogonalization, production). Only the instrument changes:
+# (5,5,4), 2012-03..2025-12, the Lenza-Primiceri scale, +50bp on yield_6m.
+# Both layers carry their 80/90% Anderson-Rubin sets (xi_mp > 3.84 in both),
+# written to the CSV; the paper's Anexo D figure bands only production, as in
+# Figure A3 of Alessi and Kerssenfischer (2019), with the raw surprise in
+# point.
 # Output: output/irf/instrument_layers_irf.csv
 #         paper/fig_instrumento_camadas.pdf
 # Note: notas/2026-09-25_anexo_d_instrumento.md
@@ -35,10 +35,9 @@ HORIZON       <- 36L
 SHOCK_BPS     <- 50
 CI_LEVELS     <- c(0.80, 0.90)
 AR_NW_LAGS    <- 0L
-LAYERS <- c("z_bs_purif", "z_jk_bs_purif", "z_bruto")
+LAYERS <- c("z_bs_purif", "z_bruto")
 LAYER_LABELS <- c(
   z_bs_purif = "Produção (ortogonalizada)",
-  z_jk_bs_purif = "+ filtro de sinal",
   z_bruto = "Surpresa bruta"
 )
 PRODUCTION_LABEL <- LAYER_LABELS[["z_bs_purif"]]
@@ -56,11 +55,11 @@ PAPER_PANELS <- tibble::tribble(
   "fiscal_dlsp", "DLSP (p.p. do PIB)",       1
 )
 LAYER_PALETTE <- purrr::set_names(
-  c("black", "firebrick", "steelblue"),
+  c("black", "steelblue"),
   LAYER_LABELS[LAYERS]
 )
 LAYER_LINETYPE <- purrr::set_names(
-  c("solid", "42", "22"),
+  c("solid", "22"),
   LAYER_LABELS[LAYERS]
 )
 
