@@ -14,6 +14,17 @@ values and keeps **all** I/O. Production vertex is `TARGET_BD = 126` ≈ 6m DI;
 `PRODUCTION_VARIANT` in that script picks the column written to the legacy single-column
 `data/processed/instrument.csv`.
 
+**On branch `feature/bs-copom-surpresas-macro` (2026-09-25, not production)** the BS regressions
+run on the 102 Copom events alone, with a constant and no trend, as BS Table 3 does. On top of the
+eight financial and Focus predictors (`pre_*`) they take four macro news regressors (`news_*`):
+- the IPCA surprise and the GDP surprise, GDP as first released;
+- the EX0 core acceleration;
+- the Focus median for the next IPCA.
+
+Their inputs come from `script/download_macro_news.R`. Production ξ_mp falls to 1.78, so the 90% AR
+sets are unbounded. `notas/2026-09-25_bs_copom_surpresas_macro.md` has the numbers; whether to
+promote is open in `pendencias.md`, Theme D.
+
 **Only the three variants of `tab:first_stage` exist in live code since 2026-09-18**, one per
 construction layer: `z_bruto` (raw Wed→Thu surprise), `z_bs_purif` (+ Bauer-Swanson pre-event
 orthogonalization) and `z_jk_bs_purif` (+ Jarociński-Karadi sign filter on the BS residuals,
@@ -24,7 +35,7 @@ fn. 11 conditions its weighting on a *monthly-average* policy indicator while `y
 end-of-month, and the GK scheme on this panel collapsed ξ_mp from 10.43 to 0.30 (the GK aggregator
 left the code on 2026-09-18). **The same-session S&P/VIX/Brent filter on the Thursday panel stays**:
 those changes enter no regression any more, but dropping a Thursday without them is what defines
-the sample of the BS regressions.
+the sample of the BS regressions (on the branch, which 102 of the 111 Copom Wednesdays enter).
 
 **The finding that governs variant choice: strength lives in the *mask*, not the purified values.**
 Predetermined masks (raw or BS-pre-event) exclude the 2020-03-19 COVID panic day that

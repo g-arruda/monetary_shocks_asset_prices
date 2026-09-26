@@ -182,7 +182,10 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
 
 1. **`script/download.R`** → `data/raw/raw_data.csv` with 113 monthly series plus every reproducible
    daily raw input (BCB, Focus, Yahoo, B3, IPEA, SIDRA). Auxiliary functions in
-   `R/data_download/` never execute or write on source.
+   `R/data_download/` never execute or write on source. On branch
+   `feature/bs-copom-surpresas-macro`, **`script/download_macro_news.R`** (stage `macro_news`) adds
+   the Focus, SGS and first-release GDP inputs of the BS macro news block, in a network stage of
+   its own so that it never refreshes the panel.
 2. **`script/clean.R`** → `data/processed/data_log_deseasonalized.csv` (log + X-13).
 3. **`script/instrument.R`** → the 3 monthly variants of `tab:first_stage` (`z_bruto`, `z_bs_purif`,
    production `z_jk_bs_purif`) via `R/instrument/build_variants.R`.
@@ -233,6 +236,7 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | `q = r` defended in §3.1, `q` sensitivity in Anexo C | `q_sensitivity.R` | `2026-09-24_q_sensibilidade_anexo` | two sentences on SW (2016) and AK, Amengual-Watson cited (24/25 keys); `fig:q_sensibilidade` with 8 series to h36, `q = 5` checked against `irf_coherence_h.csv`; no number in the text; at h ≤ 36, 16/5/4 of 20 series stay inside the 90% set at `q` = 4/3/2 |
 | Global optimum of θ̂ | `covid_volatility_theta.R` | `2026-09-24_otimo_global_theta` | confirmed: 750 starts over the whole box, none above θ̂, θ̂ byte-identical; three local maxima — θ̂ (137 starts), ρ = 0 (−2.62) and a new ridge on the floor s̄2 = 1 where ρ is unidentified (−4.79); no start with ρ0 ≤ 0.4 reaches θ̂, so the one-start estimator relied on LP's ρ0 = 0.8; the multi-start is now a guard of the producer |
 | BS Table 3 analogue and IRFs by instrument layer, Anexo D | `instrument.R`, `instrument_layers_irf.R` | `2026-09-25_anexo_d_instrumento` | Table 3 of Bauer-Swanson confirmed as the model; pre-event predictability not jointly significant (p 0.131 DI, 0.326 Ibovespa, R² 0.022/0.015); the three layers draw the same shape, 0/4255 alternative points outside the production 90% set; the JK filter widens FX/CDS/long-rate impacts 12--36% and flips the Ibovespa impact sign, mechanically |
+| BS orthogonalization on the Copom events only, with the macro news block (**branch `feature/bs-copom-surpresas-macro`, not production**) | `download_macro_news.R`, `instrument.R` | `2026-09-25_bs_copom_surpresas_macro` | estimated as BS Table 3 does (102 meetings, constant only, IPCA and first-release GDP surprises, core acceleration, expected IPCA; labor market and BBK left out): the Copom surprise is predictable (Wald p 0.009, R² 0.273, driven by the Focus Selic revision), and removing that component removes the strength — production ξ_mp 6.85 → 1.78 full, 8.64 → 3.22 pre-COVID, 90% AR sets unbounded; the macro block is not jointly significant (p 0.159); paper, validators and smoke test not migrated; promotion open in `pendencias.md` Theme D |
 | `p` sensitivity in Anexo C; θ̂ re-estimated at a finer gradient step | `covid_volatility_theta.R`, `p_sensitivity.R` | `2026-09-25_p_sensibilidade_anexo` | the FOC guard stopped θ̂ at `p = 5` (optim's default `ndeps` 1e-3 stops short); author chose `ndeps = 1e-6` everywhere: production θ̂ moved in the 4th--5th digit, ξ_mp 6.847997 → 6.848035, IRFs ≤ 8e-5 of scale, no paper number, significance flag or set type changed; `p = 2..6` all stable and inside the `p = 4` 90% set |
 
 ## ⚠ Prohibitions

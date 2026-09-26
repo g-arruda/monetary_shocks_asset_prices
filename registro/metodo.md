@@ -298,6 +298,18 @@ Produto: resíduos `e_DI_t` e `e_Ibov_t` — surpresas purificadas.
 > tendência da regressão pré-evento do projeto, portanto, não vem de BS. O bloco de 2026-07-14
 > em "Status histórico" e `notas/2026-07-14_auditoria_fidelidade_jk_bs.md:42` ficam verbatim
 > com a atribuição antiga.
+>
+> **2026-09-25 (branch `feature/bs-copom-surpresas-macro`, não produção):** a regressão
+> pré-evento roda só nas 102 quintas pós-Copom, com a constante e sem tendência, como a Tabela 3.
+> Aos oito preditores financeiros e Focus somam-se quatro notícias macro:
+> - a surpresa do IPCA e a do PIB na primeira divulgação, cada uma menos a mediana Focus da última
+>   pesquisa antes dela e somada desde o Copom anterior;
+> - a aceleração do núcleo EX0 em t−2/t−8/t−14;
+> - a mediana Focus do próximo IPCA.
+>
+> Emprego e BBK ficam como lacunas. ξ_mp de produção cai para 1,78. Nota
+> `notas/2026-09-25_bs_copom_surpresas_macro.md`; a promoção é decisão aberta em
+> `pendencias.md`, Tema D.
 
 ---
 
