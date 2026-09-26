@@ -10,7 +10,8 @@
 >
 > - Fecha o item de migração do Tema A de `registro/pendencias.md`. Com isso, o texto e as figuras
 >   voltam a concordar na branch.
-> - `main` segue com o paper antigo (`z_jk_bs_purif`, 68/90%). A promoção continua aberta no Tema D.
+> - **Promovida para `main` no mesmo dia**, por fast-forward da branch (`63eea36..20a5f42`), a
+>   pedido do autor. Até lá, `main` tinha o paper antigo (`z_jk_bs_purif`, 68/90%).
 > - Base de comparação: a branch em `c3a6536`. Commits da rodada: `3b9e402` (o commit da migração
 >   do código, que estava pendente), `c3a6536` (Anexo D), `acbfcf5` (paper).
 
@@ -110,8 +111,7 @@ conferidos com dez dígitos. Por isso a expectativa Focus de IPCA fica em 0,174 
 
 ## 5. O que fica aberto
 
-- **Tema D:** promover a produção da branch para `main`. O paper da branch já está pronto para ir
-  junto.
+- **Tema D:** promover a produção da branch para `main`. Feito no mesmo dia, depois desta nota.
 - **Tema D:** o placebo EPU dos EUA viola a 90% em h1–h3. O paper não publica placebos, e nada no
   texto depende dele.
 - **Tema A:** absorver a leitura da §4 no resumo, na introdução e na conclusão.

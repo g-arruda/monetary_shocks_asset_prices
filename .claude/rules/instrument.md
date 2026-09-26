@@ -14,8 +14,8 @@ values and keeps **all** I/O. Production vertex is `TARGET_BD = 126` ≈ 6m DI;
 `PRODUCTION_VARIANT` in that script picks the column written to the legacy single-column
 `data/processed/instrument.csv`.
 
-**On branch `feature/bs-copom-surpresas-macro` (the author's chosen construction since 2026-09-26,
-not yet promoted)** the BS regressions run on the 102 Copom events alone, with a constant and no
+**Since 2026-09-26 (the author's chosen construction, built on `feature/bs-copom-surpresas-macro` and
+fast-forwarded into `main` the same day)** the BS regressions run on the 102 Copom events alone, with a constant and no
 trend, as BS Table 3 does. The predictors are the Table 3 counterparts plus two external trends:
 - the 65-day trends in the Ibovespa, the DI 2y−3m slope and Brent (`pre_*`);
 - four macro news regressors (`news_*`): the IPCA and GDP surprises, GDP as first released; the EX0
@@ -25,13 +25,12 @@ trend, as BS Table 3 does. The predictors are the Table 3 counterparts plus two 
 The 20-day Focus revisions (IPCA and Selic) and the BRL trend are **out**: the Focus revisions come
 from BS Table 2, not Table 3. By author decision the variant with the Selic revision (production
 ξ_mp 1.78) is not reported in the paper; its numbers stay in `notas/2026-09-25_bs_copom_surpresas_macro.md`.
-Macro inputs come from `script/download_macro_news.R`. **Since 2026-09-26 the branch's production
+Macro inputs come from `script/download_macro_news.R`. **Since 2026-09-26 production
 is `z_bs_purif`**, the orthogonalized surprise without the JK sign filter (author decision, for
 now): in this construction the filter *lowers* ξ_mp, 7.02 → 5.01 full and 6.84 → 4.73 pre-COVID.
 Production ξ_mp is therefore 7.02 full / 6.84 pre-COVID, every AR set `interval` at 80 and 90%.
 `notas/2026-09-26_bs_lista_tabela3_externas.md` and
-`notas/2026-09-26_producao_bs_purif_bandas_80_90.md` have the numbers; promotion is open in
-`pendencias.md` Theme D. **The branch's paper migrated the same day and reports no JK layer at
+`notas/2026-09-26_producao_bs_purif_bandas_80_90.md` have the numbers. **The paper migrated the same day and reports no JK layer at
 all** (author decision): `tab:first_stage` has two rows, `tab:bs_ortogonalizacao` only the DI column,
 and `fig:instrumento_camadas` only production and `z_bruto`
 (`notas/2026-09-26_migracao_paper_bs_purif.md`). `z_jk_bs_purif` is still built, because the
@@ -39,18 +38,19 @@ strength grid and the diagnostics use all three layers.
 
 **Only the three variants of `tab:first_stage` exist in live code since 2026-09-18**, one per
 construction layer: `z_bruto` (raw Wed→Thu surprise), `z_bs_purif` (+ Bauer-Swanson pre-event
-orthogonalization; production on the branch since 2026-09-26) and `z_jk_bs_purif`
-(+ Jarociński-Karadi sign filter on the BS residuals; production on `main`). The contemporaneous purification, the raw-sign mask, the UST 2y control and the FOMC
+orthogonalization; production since 2026-09-26) and `z_jk_bs_purif`
+(+ Jarociński-Karadi sign filter on the BS residuals; production until 2026-09-26). The contemporaneous purification, the raw-sign mask, the UST 2y control and the FOMC
 flag left with the variants and tests they fed. Monthly aggregation is JK's within-month sum,
 **not** GK's moving-average scheme — a justified choice since 2026-07-27, not a deviation: GK's
 fn. 11 conditions its weighting on a *monthly-average* policy indicator while `yield_6m` here is
 end-of-month, and the GK scheme on this panel collapsed ξ_mp from 10.43 to 0.30 (the GK aggregator
 left the code on 2026-09-18). **The same-session S&P/VIX/Brent filter on the Thursday panel stays**:
 those changes enter no regression any more, but dropping a Thursday without them is what defines
-the sample of the BS regressions (on the branch, which 102 of the 111 Copom Wednesdays enter).
+the sample of the BS regressions (which 102 of the 111 Copom Wednesdays enter).
 
-**The finding that governed variant choice on `main`: strength lives in the *mask*, not the purified
-values.** It does not survive the branch's construction, where the mask lowers ξ_mp (above).
+**The finding that governed variant choice until 2026-09-26: strength lives in the *mask*, not the
+purified values.** It does not survive the current BS construction, where the mask lowers ξ_mp
+(above).
 Predetermined masks (raw or BS-pre-event) exclude the 2020-03-19 COVID panic day that
 contemporaneous residual-sign classification mislabels as monetary. Quantified by the FOMC round:
 orthogonalizing the **values** costs ~0.2 of ξ_mp; **re-deriving the mask** costs ~2.5 — twelve times

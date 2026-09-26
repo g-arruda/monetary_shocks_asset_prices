@@ -41,24 +41,21 @@ on 2026-09-22 before moving to §3.3 as one paragraph on 2026-09-24. §4, its ei
 figures and captions, and the numbers and dates in the abstract, §1 and the
 conclusion caught up on 2026-09-24 (`2026-09-24_migracao_secao_4`). *Wild
 bootstrap* is now uncited in the body, captions included.
-**On branch `feature/bs-copom-surpresas-macro` the whole `.tex` follows the branch's production
-since 2026-09-26** (`2026-09-26_migracao_paper_bs_purif`): `z_bs_purif`, AR sets at 80/90% in every
+**Since 2026-09-26 the whole `.tex` follows the current production**
+(`2026-09-26_migracao_paper_bs_purif`, migrated on `feature/bs-copom-surpresas-macro` and
+fast-forwarded into `main` the same day): `z_bs_purif`, AR sets at 80/90% in every
 caption and in §3.4, and **no JK sign filter anywhere in the paper**. §3.3 has two layers,
 `tab:first_stage` two rows, `tab:bs_ortogonalizacao` one DI column (coefficient and SE) over the
-102 meetings, and `fig:instrumento_camadas` only production and the raw surprise. `main` keeps the
-old paper until the promotion (Theme D).
-`tab:rq_sweep` no longer exists. The sign-filter subsections report only
-exercises that hold the production mask fixed; the rederived-mask diagnostics
-remain in the generated outputs and living record.
+102 meetings, and `fig:instrumento_camadas` only production and the raw surprise.
+`tab:rq_sweep` no longer exists.
 
 §4's prose reports **points**, by author decision of 2026-09-24. It cites the
 Anderson--Rubin sets only where the earlier text cited bands, under the two-tier
 rule. Its numbers come from `irf_coherence_cell.rds` at the figures' scales
 (`irf_panel()` in `script/fig_section5.R`), and its horizons stop at 36, as §3.1
 says. When a paper number and the cache disagree, the cache is right. Quote
-`output/irf/irf_coherence_h.csv` for inference; its `set_type68`/`set_type90` (`set_type80` on
-branch `feature/bs-copom-surpresas-macro`, where the lower level is 80% since 2026-09-26)
-columns say what kind of set each band is.
+`output/irf/irf_coherence_h.csv` for inference; its `set_type80`/`set_type90` columns (the
+lower level is 80% since 2026-09-26, 68% before) say what kind of set each band is.
 
 **Engineering a reader of the field would deduce gets no comment at all, and an
 extension of a published method gets no appendix.** The 2026-09-16 decision on

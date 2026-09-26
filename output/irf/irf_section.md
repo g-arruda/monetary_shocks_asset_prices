@@ -1,11 +1,11 @@
 # Resultados das IRFs na rodada de produção
 
-> **CURRENT na branch `feature/bs-copom-surpresas-macro` — 2026-09-26.** Lido de
-> `output/irf/irf_coherence_cell.rds` e `output/irf/irf_coherence_h.csv`, escritos por
-> `script/irf_coherence_check.R` na produção da branch (`z_bs_purif`, conjuntos de 80% e 90%). É a
-> fonte dos números da §4 e da §5 de `paper/paper_anpec.tex`, migrado nesta data
-> (`notas/2026-09-26_migracao_paper_bs_purif.md`). `main` segue com a leitura de
-> `z_jk_bs_purif` a 68/90% (`notas/2026-09-24_migracao_secao_4.md`) até a promoção.
+> **CURRENT — 2026-09-26.** Lido de `output/irf/irf_coherence_cell.rds` e
+> `output/irf/irf_coherence_h.csv`, escritos por `script/irf_coherence_check.R` na produção corrente
+> (`z_bs_purif`, conjuntos de 80% e 90%), promovida para `main` nesta data. É a fonte dos números da
+> §4 e da §5 de `paper/paper_anpec.tex`, migrado nesta data
+> (`notas/2026-09-26_migracao_paper_bs_purif.md`). A leitura anterior, de `z_jk_bs_purif` a 68/90%,
+> está em `notas/2026-09-24_migracao_secao_4.md`.
 > As bandas abaixo são **conjuntos Anderson--Rubin**, e as colunas `set_type80`/`set_type90` do CSV
 > dizem que tipo de conjunto é cada uma. Nas 58 séries pontuadas, todos são `interval` a 80% e 90%,
 > com exceção do `singleton` que a normalização fixa em `yield_6m`, `h=0`.
@@ -68,7 +68,7 @@ Os conjuntos de 90% excluem zero no impacto para Selic, PIB, câmbio, DLSP e res
 Esses conjuntos são inferência robusta a instrumento fraco sobre o DFM e não estabelecem a validade do
 instrumento.
 
-## O que mudou contra `main`
+## O que mudou contra a produção anterior
 
 Contra `z_jk_bs_purif` a 68/90%, a forma se mantém:
 - todos os vértices da curva têm pico em h=3;

@@ -19,13 +19,11 @@
 
 > A produção usa o painel de 115 séries, 166 meses entre 2012-03 e 2025-12,
 > `(r,q,p)=(5,5,4)`,
-> `z_jk_bs_purif`, normalização de +50 pb em `yield_6m`, horizonte 0--48 e
-> conjuntos Anderson-Rubin de 68% e 90% com NW(0) desde 2026-09-08 (na branch
-> `feature/bs-copom-surpresas-macro`, desde 2026-09-26, `z_bs_purif` sem o
-> filtro JK e conjuntos de 80% e 90%; nota
-> `2026-09-26_producao_bs_purif_bandas_80_90`; o paper da branch migrou no mesmo
-> dia e não reporta mais o filtro JK em nenhuma parte, nota
-> `2026-09-26_migracao_paper_bs_purif`) — o wild
+> `z_bs_purif` desde 2026-09-26 (antes, `z_jk_bs_purif`), normalização de +50 pb em `yield_6m`,
+> horizonte 0--48 e conjuntos Anderson-Rubin com NW(0) desde 2026-09-08, a 80% e 90% desde
+> 2026-09-26 (antes, 68% e 90%). A troca foi feita na branch `feature/bs-copom-surpresas-macro` e
+> promovida para `main` no mesmo dia; o filtro JK saiu da produção e do paper (notas
+> `2026-09-26_producao_bs_purif_bandas_80_90` e `2026-09-26_migracao_paper_bs_purif`) — o wild
 > bootstrap de 800 réplicas com semente 123 saiu da produção e, em 2026-09-18,
 > também do código, junto com a correção de Kilian. Bai--Ng BLL seleciona
 > IC1=5, IC2=5 e IC3=20; `q=r=5` permanece a decisão operacional. `p=4` é
@@ -81,8 +79,8 @@
 > `RForm_VAR.m` com o termo de tendência, o impacto é
 > `B_1=0,005 Gamma/Gamma_yield` e cada ponto é `C_h B_1`, sem soma por
 > horizonte. A única inferência do VAR observável são conjuntos
-> Anderson--Rubin/MOSW de 68% e 90% com NW(0) (80% e 90% na branch desde
-> 2026-09-26). Não há wild bootstrap, correção
+> Anderson--Rubin/MOSW de 80% e 90% com NW(0) desde 2026-09-26 (68% e
+> 90% antes). Não há wild bootstrap, correção
 > de Kilian ou fallback OLS nesse benchmark. A inferência do DFM era outra
 > quando isto foi escrito; desde 2026-09-08 os dois modelos usam conjuntos AR,
 > o que **não** os torna o mesmo objeto nem transfere cobertura de um para o
@@ -305,7 +303,7 @@ Produto: resíduos `e_DI_t` e `e_Ibov_t` — surpresas purificadas.
 > em "Status histórico" e `notas/2026-07-14_auditoria_fidelidade_jk_bs.md:42` ficam verbatim
 > com a atribuição antiga.
 >
-> **2026-09-25 (branch `feature/bs-copom-surpresas-macro`, não produção):** a regressão
+> **2026-09-25 (branch `feature/bs-copom-surpresas-macro`, não produção; superada no dia seguinte):** a regressão
 > pré-evento roda só nas 102 quintas pós-Copom, com a constante e sem tendência, como a Tabela 3.
 > Aos oito preditores financeiros e Focus somam-se quatro notícias macro:
 > - a surpresa do IPCA e a do PIB na primeira divulgação, cada uma menos a mediana Focus da última
@@ -317,8 +315,7 @@ Produto: resíduos `e_DI_t` e `e_Ibov_t` — surpresas purificadas.
 > `notas/2026-09-25_bs_copom_surpresas_macro.md`. A lista de preditores foi superada no dia
 > seguinte.
 >
-> **2026-09-26 (branch `feature/bs-copom-surpresas-macro`, construção escolhida pelo autor, ainda
-> não promovida):** a regressão pré-evento fica com os preditores da Tabela 3 que têm contrapartida
+> **2026-09-26 (construção escolhida pelo autor, promovida para `main` no mesmo dia):** a regressão pré-evento fica com os preditores da Tabela 3 que têm contrapartida
 > brasileira:
 > - tendências de 65 pregões do Ibovespa (o S&P 500 de BS), da inclinação do DI 2 anos − 3 meses
 >   e do Brent (as commodities);
@@ -326,9 +323,9 @@ Produto: resíduos `e_DI_t` e `e_Ibov_t` — surpresas purificadas.
 >
 > Somam-se as tendências de 65 pregões do S&P 500 e do VIX, como condições externas. As revisões
 > Focus de 20 pregões saem, porque são da Tabela 2, e o câmbio sai junto. ξ_mp de produção fica em
-> 5,01 na cheia e 4,73 na pré-COVID, com todos os conjuntos `interval`. Nota
-> `notas/2026-09-26_bs_lista_tabela3_externas.md`. A promoção está aberta em `pendencias.md`,
-> Tema D, e o paper da branch já migrou (`notas/2026-09-26_migracao_paper_bs_purif.md`).
+> 5,01 na cheia e 4,73 na pré-COVID com o filtro JK, e 7,02 e 6,84 sem ele, que é a produção desde
+> 2026-09-26. Notas `notas/2026-09-26_bs_lista_tabela3_externas.md` e
+> `notas/2026-09-26_migracao_paper_bs_purif.md`.
 
 ---
 
