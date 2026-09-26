@@ -100,8 +100,6 @@ STAGES <- list(
       "data/raw/copom_historico.csv",
       "data/raw/ibov_daily.csv",
       "data/raw/investing/external_factors_daily.csv",
-      "data/raw/brl_usd_daily.csv",
-      "data/raw/focus_daily.csv",
       "data/raw/focus_macro_expectations.csv",
       "data/raw/macro_released.csv"
     ),

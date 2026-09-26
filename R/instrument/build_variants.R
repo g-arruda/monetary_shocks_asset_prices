@@ -10,11 +10,14 @@
 #
 # The BS regressions run on the Copom events alone, with a constant and no
 # trend, as their Table 3 does with the FOMC months (table_3.m). Their
-# predictors are the financial trends and Focus revisions before the meeting
-# and the macroeconomic news of Table 3 that Brazil has a public survey for:
-# IPCA and GDP surprises, the acceleration of core inflation and the expected
-# next IPCA (constructomittedvars.m). Labor market news has no survey
-# covering the sample and BBK no Brazilian analogue; both are left out.
+# predictors are those of Table 3 that Brazil has a counterpart for
+# (constructomittedvars.m): the 13-week trends in the stock market (the
+# Ibovespa for the S&P 500), in the slope of the curve and in commodities
+# (Brent), and the macroeconomic news with a public survey behind it -- IPCA
+# and GDP surprises, the acceleration of core inflation and the expected next
+# IPCA. Labor market news has no survey covering the sample and BBK no
+# Brazilian analogue; both are left out. The 13-week S&P 500 and VIX trends
+# are added as the external conditions a small open economy responds to.
 #
 # Monthly aggregation is Jarocinski-Karadi (2020, sec. II.A): m_t adds up the
 # event surprises of month t and is zero in months without a meeting, as in
@@ -26,9 +29,9 @@
 #' Build the three monthly instrument variants of tab:first_stage
 #'
 #' @param inputs Named list of daily inputs, all tibbles with a `date`
-#'   column: `di_panel`, `ibov_daily`, `ext_daily`, `brl_daily`,
-#'   `focus_daily`, `focus_macro` (Focus medians by `indicator`, survey
-#'   `date` and `reference` period); plus `macro_released` (released values
+#'   column: `di_panel`, `ibov_daily`, `ext_daily`, `focus_macro` (Focus
+#'   medians by `indicator`, survey `date` and `reference` period); plus
+#'   `macro_released` (released values
 #'   by `indicator` and `reference`, GDP as first released) and `copom_wed`
 #'   (Date vector, starting before the sample so that its first meeting has a
 #'   predecessor).
@@ -69,11 +72,11 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
       r_brent = 100 * (log(brent) - log(dplyr::lag(brent)))
     )
 
-  # Pre-event predictors (Bauer-Swanson eq. 7 analogue): financial trends over
-  # the 13 weeks (65 trading days) ending at the Wednesday close, i.e. strictly
-  # predetermined at the announcement; Focus median revisions over ~4 weeks
-  # (20 survey days), the analogue of the Blue Chip revision cadence. The DI
-  # slope is hard-wired to 504bd - 63bd, so it does not move with target_bd.
+  # Pre-event predictors: financial trends over the 13 weeks (65 trading days)
+  # ending at the Wednesday close, BS's 3-month changes (sp5003mchg in
+  # constructomittedvars.m), strictly predetermined at the announcement. The
+  # DI slope is hard-wired to 504bd - 63bd, so it does not move with
+  # target_bd.
   di_slope_daily <- inputs$di_panel |>
     dplyr::summarise(
       slope = 100 * (close_rate[which.min(abs(bdays - 504))] -
@@ -83,15 +86,12 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
     dplyr::arrange(date)
 
   pre_event_inputs <- tibble::tribble(
-    ~predictor,        ~daily,             ~column,          ~window, ~log_scale,
-    "pre_ibov",        inputs$ibov_daily,  "ibov",           65,      TRUE,
-    "pre_sp500",       inputs$ext_daily,   "sp500",          65,      TRUE,
-    "pre_vix",         inputs$ext_daily,   "vix",            65,      FALSE,
-    "pre_brent",       inputs$ext_daily,   "brent",          65,      TRUE,
-    "pre_brl",         inputs$brl_daily,   "brl",            65,      TRUE,
-    "pre_slope",       di_slope_daily,     "slope",          65,      FALSE,
-    "pre_focus_ipca",  inputs$focus_daily, "focus_ipca12m",  20,      FALSE,
-    "pre_focus_selic", inputs$focus_daily, "focus_selic_ny", 20,      FALSE
+    ~predictor,  ~daily,            ~column, ~log_scale,
+    "pre_ibov",  inputs$ibov_daily, "ibov",  TRUE,
+    "pre_sp500", inputs$ext_daily,  "sp500", TRUE,
+    "pre_vix",   inputs$ext_daily,  "vix",   FALSE,
+    "pre_brent", inputs$ext_daily,  "brent", TRUE,
+    "pre_slope", di_slope_daily,    "slope", FALSE
   )
 
   # Wednesday: the last close before the announcement
@@ -99,15 +99,15 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
 
   pre_event <- pre_event_inputs |>
     dplyr::select(-predictor) |>
-    purrr::pmap(\(daily, column, window, log_scale) {
+    purrr::pmap(\(daily, column, log_scale) {
       # Each series on its own calendar (Yahoo closes have scattered gaps)
       series <- daily |>
         dplyr::filter(!is.na(.data[[column]]))
       x <- series[[column]]
       change <- if (log_scale) {
-        100 * (log(x) - log(dplyr::lag(x, window)))
+        100 * (log(x) - log(dplyr::lag(x, 65)))
       } else {
-        x - dplyr::lag(x, window)
+        x - dplyr::lag(x, 65)
       }
       # Last observation on or before the cutoff; none yet -> NA
       last_obs <- findInterval(as.numeric(pre_cutoff), as.numeric(series$date))
@@ -219,12 +219,10 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
     )
   }
 
-  # Bauer-Swanson (2023) eq. 7: regress the surprise on PREDETERMINED news only
-  # (financial trends, survey revisions and macroeconomic news) and keep the
-  # residual.
-  bs_formula <- ~ pre_ibov + pre_sp500 + pre_vix + pre_brent + pre_brl +
-    pre_slope + pre_focus_ipca + pre_focus_selic + news_ipca + news_gdp +
-    news_core_accel + news_ipca_expected
+  # Bauer-Swanson (2023) Table 3: regress the surprise on PREDETERMINED news
+  # only (financial trends and macroeconomic news) and keep the residual.
+  bs_formula <- ~ pre_ibov + pre_sp500 + pre_vix + pre_brent + pre_slope +
+    news_ipca + news_gdp + news_core_accel + news_ipca_expected
   lm_di_bs <- lm(update(bs_formula, delta_di ~ .), data = events)
   lm_ibov_bs <- lm(update(bs_formula, r_ibov ~ .), data = events)
 

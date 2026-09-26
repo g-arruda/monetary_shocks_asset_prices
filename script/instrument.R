@@ -44,23 +44,6 @@ ext_daily <- readr::read_csv(
     brent = as.numeric(brent)
   )
 
-brl_daily <- readr::read_csv(
-  "data/raw/brl_usd_daily.csv",
-  show_col_types = FALSE
-) |>
-  dplyr::transmute(date = as.Date(date), brl = as.numeric(brl)) |>
-  dplyr::filter(!is.na(brl))
-
-focus_daily <- readr::read_csv(
-  "data/raw/focus_daily.csv",
-  show_col_types = FALSE
-) |>
-  dplyr::transmute(
-    date = as.Date(date),
-    focus_ipca12m = as.numeric(focus_ipca12m),
-    focus_selic_ny = as.numeric(focus_selic_ny)
-  )
-
 focus_macro <- readr::read_csv(
   "data/raw/focus_macro_expectations.csv",
   show_col_types = FALSE
@@ -82,8 +65,6 @@ built <- build_instrument_variants(
     di_panel = di_panel,
     ibov_daily = ibov_daily,
     ext_daily = ext_daily,
-    brl_daily = brl_daily,
-    focus_daily = focus_daily,
     focus_macro = focus_macro,
     macro_released = macro_released,
     copom_wed = copom_wed
@@ -115,7 +96,7 @@ built$daily |>
 
 # Anexo D, the analogue of Bauer-Swanson (2023) Table 3: coefficients of the
 # two pre-event regressions with HC1 standard errors, the HC1 joint Wald of
-# all twelve predictors and that of the four macroeconomic news alone (the
+# all nine predictors and that of the four macroeconomic news alone (the
 # constant stays in the restricted model)
 built$bs_fits |>
   purrr::imap(function(fit, dependent) {
