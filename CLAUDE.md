@@ -39,8 +39,13 @@ prior vintage rather than reselected — the AIC check on the extended common
 sample (`T=154`, constant and trend in the selection only) still picks `p=4`
 (8.231267), and BIC still picks `p=2`. The estimated factor VAR remains
 intercept-only. **Since 2026-09-17 the factor VAR carries the Lenza-Primiceri
-(2022) COVID volatility scale `s_t`** — θ̂ = (6.611429, 12.468338, 1.760352,
-0.943926), `t*` = 2020-03, `innovations = "standardized"`. Since 2026-09-21 θ̂
+(2022) COVID volatility scale `s_t`** — θ̂ = (6.611488, 12.468194, 1.760038,
+0.943951), `t*` = 2020-03, `innovations = "standardized"`. **Since 2026-09-25**
+`estimate_covid_theta()` differentiates with `ndeps = 1e-6` (the default 1e-3
+stopped the optimizer short of the maximum, tripping the first-order guard at
+`p = 5`); θ̂ moved in the 4th--5th digit (it was 6.611429, 12.468338, 1.760352,
+0.943926; loglik +5e-7), every production IRF by at most 8e-5 of its series'
+scale, and no number printed in the paper changed. Since 2026-09-21 θ̂
 is read from `output/factors/covid_volatility_theta.csv` through
 `read_covid_volatility()` (`R/modeling/factor_estimation.R`), never typed as a
 literal: `script/covid_volatility_theta.R` is its sole producer and the only
@@ -52,14 +57,14 @@ every month of it has `s_t = 1`, so the weighted fit *is* the unweighted one
 `estimate_dfm()` rejects a `covid_start` outside its residual months. Contrasts
 between the two windows stay contrasts of window, not of estimator.
 
-The production cell has **ξ_mp = 6.847997 full / 8.643436 pre-COVID**,
-F_rob,mp = 11.765250 / 13.809985; both companion matrices are stable
-(0.983677 / 0.993359). The treatment **raised** ξ_mp (it was 6.057014 full,
+The production cell has **ξ_mp = 6.848035 full / 8.643436 pre-COVID**,
+F_rob,mp = 11.765564 / 13.809985; both companion matrices are stable
+(0.983676 / 0.993359). The treatment **raised** ξ_mp (it was 6.057014 full,
 F_rob 9.625428, root 0.970090 untreated) and left the pre-COVID numbers
 untouched, as it must. **ξ_mp is the strength ruler of record** — the AR set is
 bounded iff ξ_mp > 3.84, conventional bands approximately valid at ξ_mp ≥ 10,
 which 6.85 still is not. Since 2026-09-08 that boundedness is no longer a
-prediction: `ar_dfm_bands()` builds the sets, its `xi_den` reproduces 6.847997
+prediction: `ar_dfm_bands()` builds the sets, its `xi_den` reproduces 6.848035
 through the MOSW covariance, and every set in `output/irf/irf_coherence_h.csv`
 comes back `interval` at 68 and 90% — 2841 of 2842 rows per level, the one
 exception being the `singleton` the normalization pins at h=0. Legacy
@@ -99,7 +104,7 @@ condition, not in the frequency of the data.
 (`sec:identificacao`) as the reason the paper does not use that identification: one paragraph
 plus one footnote, right after the proxy-identification paragraph. §5 Robustez kept its title and
 lost its only subsection (`sec:weak_iv` now labels §5 itself); the introduction points at
-`sec:identificacao`. The appendix is split into **Anexo A** (`tab:lista_variaveis`), **Anexo B** (`anexo-B`) and, since 2026-09-24, **Anexo C** (`anexo-C`, the `q` sensitivity figure, below). Anexo B carries **two tables**: `tab:het_variance` (Rigobon--Sack
+`sec:identificacao`. The appendix is split into **Anexo A** (`tab:lista_variaveis`), **Anexo B** (`anexo-B`), since 2026-09-24 **Anexo C** (`anexo-C`, the `q` sensitivity figure, below, joined on 2026-09-25 by the `p` one) and, since 2026-09-25, **Anexo D** (`anexo-D`, the instrument construction, below). Anexo B carries **two tables**: `tab:het_variance` (Rigobon--Sack
 variance ratio per series, from `output/het/het_variance_ratios.csv`) and `tab:het_frequency` (the
 `Qr(λ₁=λ₂)` summary with the DI variance ratio `a`, SEs, corrected and uncorrected statistic; the
 `det` column left it the same day, and so did `tab:het_sequencia`, the full sequential table, by
@@ -139,6 +144,21 @@ and checks the `q = 5` line against `irf_coherence_h.csv`. By author decision **
 no number** from the exercise, and the defense is SW and AK, **not insensitivity**: at `q ≤ 3`
 the FX, CDS and Ibovespa impacts grow (Ibovespa 8.6× at `q = 3`). The untreated model stays out
 of the paper. Note: `2026-09-24_q_sensibilidade_anexo`.
+
+**Since 2026-09-25 the appendix carries two more exhibits, and the body cites neither** (author
+decision: "apenas coloque os anexos"). Anexo C adds `fig:p_sensibilidade`, the same design over
+`p = 2..6` at `r = q = 5`, θ re-estimated at each `p` by `covid_volatility_theta.R` (the caption says
+only that), written by `script/p_sensitivity.R`: every companion stable (0.976--0.990), no `p ≠ 4`
+point outside the `p = 4` 90% set in the eight series to h36. **Anexo D** (`anexo-D`, "Construção do
+instrumento") carries `tab:bs_ortogonalizacao`, the analogue of **Bauer-Swanson (2023) Table 3**
+(the pre-event regressions of the DI surprise and of the Ibovespa return, HC1, 638 Thursdays; joint
+Wald p 0.131 and 0.326), written by `script/instrument.R` into
+`output/instrument/bs_orthogonalization.csv`, and `fig:instrumento_camadas`, the production
+responses under the three layers of `tab:first_stage`, written by `script/instrument_layers_irf.R`:
+no point of `z_bruto` or `z_bs_purif` leaves the production 90% set (0 of 4255 each), and ⚠ the
+Ibovespa impact flips sign with the JK filter (+0.19/+0.27% → −1.50%), mechanically. The three
+annex scripts share `R/reporting/sensitivity.R`. Notes: `2026-09-25_p_sensibilidade_anexo`,
+`2026-09-25_anexo_d_instrumento`.
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
@@ -212,6 +232,8 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | §4 migrated, eight figures repainted | `fig_section5.R` | `2026-09-24_migracao_secao_4` | nothing re-estimated; §4 and §5.2 agree; IBC-Br negative for 36 months and IPCA never positive, so the old hump and recovery prose was false; the positive equity phase and the primary NFSP at h18–h32 are significant at 90% and are in the text |
 | `q = r` defended in §3.1, `q` sensitivity in Anexo C | `q_sensitivity.R` | `2026-09-24_q_sensibilidade_anexo` | two sentences on SW (2016) and AK, Amengual-Watson cited (24/25 keys); `fig:q_sensibilidade` with 8 series to h36, `q = 5` checked against `irf_coherence_h.csv`; no number in the text; at h ≤ 36, 16/5/4 of 20 series stay inside the 90% set at `q` = 4/3/2 |
 | Global optimum of θ̂ | `covid_volatility_theta.R` | `2026-09-24_otimo_global_theta` | confirmed: 750 starts over the whole box, none above θ̂, θ̂ byte-identical; three local maxima — θ̂ (137 starts), ρ = 0 (−2.62) and a new ridge on the floor s̄2 = 1 where ρ is unidentified (−4.79); no start with ρ0 ≤ 0.4 reaches θ̂, so the one-start estimator relied on LP's ρ0 = 0.8; the multi-start is now a guard of the producer |
+| BS Table 3 analogue and IRFs by instrument layer, Anexo D | `instrument.R`, `instrument_layers_irf.R` | `2026-09-25_anexo_d_instrumento` | Table 3 of Bauer-Swanson confirmed as the model; pre-event predictability not jointly significant (p 0.131 DI, 0.326 Ibovespa, R² 0.022/0.015); the three layers draw the same shape, 0/4255 alternative points outside the production 90% set; the JK filter widens FX/CDS/long-rate impacts 12--36% and flips the Ibovespa impact sign, mechanically |
+| `p` sensitivity in Anexo C; θ̂ re-estimated at a finer gradient step | `covid_volatility_theta.R`, `p_sensitivity.R` | `2026-09-25_p_sensibilidade_anexo` | the FOC guard stopped θ̂ at `p = 5` (optim's default `ndeps` 1e-3 stops short); author chose `ndeps = 1e-6` everywhere: production θ̂ moved in the 4th--5th digit, ξ_mp 6.847997 → 6.848035, IRFs ≤ 8e-5 of scale, no paper number, significance flag or set type changed; `p = 2..6` all stable and inside the `p = 4` 90% set |
 
 ## ⚠ Prohibitions
 
@@ -420,12 +442,12 @@ P[match(c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd"), vn), 
 ```
 
 Expected h0 (matches `output/validation/production_spec_impact_smoke.csv`),
-**under the Lenza-Primiceri scale since 2026-09-17**:
-`yield_6m` 0.005, `yield_2y` 0.00700903, `yield_5y` 0.00729005,
-`asset_ibov` −1.5020158, `cambio_usd` 0.12942167. Full precision, for a
-bit-identical check: `0.0050000000000000001`, `0.0070090326083686542`,
-`0.0072900543327283655`, `-1.5020158375666013`,
-`0.12942167379213612`. The untreated point (`covid_volatility = NULL`) is still
+**under the Lenza-Primiceri scale, with θ̂ as re-estimated on 2026-09-25**:
+`yield_6m` 0.005, `yield_2y` 0.00700904, `yield_5y` 0.00729006,
+`asset_ibov` −1.5019377, `cambio_usd` 0.12942378. Full precision, for a
+bit-identical check: `0.0050000000000000001`, `0.0070090429740256857`,
+`0.0072900596216797665`, `-1.5019377453868872`,
+`0.12942378112688835`. The untreated point (`covid_volatility = NULL`) is still
 pinned, as the degeneracy reference, in `script/validation/validate_covid_volatility.R`.
 
 ## Conventions

@@ -47,7 +47,7 @@ fechar ou comprimir um item.
 | Dimensão | **r = 5, q = 5**, VAR(p = 4) nos fatores; Bai--Ng BLL dá IC1=5, IC2=5 e IC3=20; `q=r=5`; `p=4` herdado, com nova checagem AIC/BIC separada em `T=154` |
 | Painel | **115 séries**, variante `drop_setor_externo__eua__credito__imoveis_fiscal_expectations`, 2012-03 a 2025-12 (166 observações alinhadas; 162 inovações fatoriais após p=4) |
 | Inferência | **conjuntos Anderson-Rubin por inversão de teste** (MOSW 2021), NW(0), níveis 68/90, h = 0-48, desde 2026-09-08. O wild bootstrap Gonçalves-Kilian e a correção de Kilian saíram do código em 2026-09-18. ⚠ `hac_dim < T` barra `(8,8)` em `p=4` e a janela pré-COVID inteira |
-| Força | ξ_mp/F_rob,mp = **6,847997/11,765250** full, sob a escala COVID de Lenza-Primiceri desde 2026-09-17, e **8,643436/13,809985** pré-COVID; raiz máxima 0,983677 full e 0,993359 pré-COVID; ambas estáveis |
+| Força | ξ_mp/F_rob,mp = **6,848035/11,765564** full, sob a escala COVID de Lenza-Primiceri desde 2026-09-17 (θ̂ reestimado com `ndeps = 1e-6` em 2026-09-25; antes 6,847997/11,765250), e **8,643436/13,809985** pré-COVID; raiz máxima 0,983676 full e 0,993359 pré-COVID; ambas estáveis |
 | Benchmark VAR do paper | `{ibc_br, price_ipca, yield_6m, cambio_usd, cds_5y}` em nível, com constante e tendência linear; desde 2026-09-21 na **janela e no `p` do DFM** (2012-03--2025-12, `p=4`, `T_eff=162`), decisão de comparabilidade e **não** do AIC, que em `T=154` ainda escolhe `p=2` (BIC, `p=1`); respostas `C_h B_1`; `xi_var=7,258325`, raiz máxima `0,976522`; AR/MOSW 68%/90% com NW(0) |
 
 Esta tabela combina a produção vigente do DFM com a produção corrente do
@@ -79,10 +79,11 @@ AR/MOSW próprios.
 | Tema | Item | Observação |
 |---|---|---|
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
-| B | Construir a figura de robustez das IRFs principais sob as três camadas do instrumento (`z_bruto`, `z_bs_purif`, `z_jk_bs_purif`) | aberto em 2026-09-25; o paper hoje só documenta as camadas em `tab:first_stage` (força), não nas respostas |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | D | Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala LP e reportar sem e com o tratamento | aberto em 2026-09-24, decisão do autor; θ próprio por vértice, não o θ̂ do DFM; mesmo caminho da linha fatorial nas duas versões; ⚠ se rejeitar, `sec:identificacao` muda; a linha diária fica sem tratamento |
+| D | Estimar a ortogonalização BS só nos dias de Copom, sem tendência | aberto em 2026-09-25; BS (Tabela 3) usam só as datas de FOMC e só constante, o projeto usa 638 quintas com tendência; destrava o item seguinte; ⚠ move máscara JK, ξ_mp e Anexo D |
+| D | Acrescentar surpresas macro à ortogonalização BS | aberto em 2026-09-25; depende do item anterior; IPCA e PIB viáveis pelo Focus, mercado de trabalho só pela Bloomberg ou como lacuna declarada |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -393,33 +394,19 @@ do autor, sem ser executado.*
   confirmação do mecanismo. Passo 2/4. Destravado em 2026-09-24, quando a
   rodada editorial do Tema A sincronizou a §4.
 
-- [ ] **Construir a figura de robustez das IRFs principais sob as três
-  camadas do instrumento da §3** — `z_bruto`, `z_bs_purif` e
-  `z_jk_bs_purif` (produção), as três linhas de `tab:first_stage`. Aberto em
-  2026-09-25. Motivo: o paper hoje documenta as camadas só na força
-  (`tab:first_stage`), não nas respostas; um parecerista que conheça JK e BS
-  pode objetar que a composição — a regra JK aplicada aos resíduos da
-  ortogonalização predeterminada — dirige o resultado, e não há IRF por
-  camada para responder. Desenho:
-  - três células de `run_stage2_cell()` nos moldes de
-    `script/irf_coherence_check.R` (mesma especificação `(5,5,4)`, escala LP,
-    +50 p.b. em `yield_6m`, h = 0--36), trocando só o literal `INSTRUMENT`;
-    a normalização comum torna as respostas comparáveis entre camadas;
-  - séries mínimas: bloco-manchete (BRL/USD, EMBI+, CDS de 5 anos) e curva
-    (3m/1a/2a/5a/10a); decidir se IBC-Br e IPCA entram;
-  - conjuntos AR 68/90 por camada na amostra completa; ξ_mp > 3,84 nas duas
-    janelas (6,68/6,16/6,85 cheia; 6,66/6,32/8,64 pré-COVID), de modo que a
-    força não é o que barraria;
-  - ⚠ ainda assim só a cheia recebe conjunto: `hac_dim < T` barra a pré-COVID
-    inteira em `p=4` (135 ≥ 90); se a pré-COVID entrar, é como ponto.
-  ⚠ Não reusar os `irf_spec_*.rds` de `output/irf/` nem os scripts
-  `arquivo/script/irf_*`: vintage pré-escala LP, painel e dimensões antigos, e
-  a nota `2026-07-15_sweep_instrumentos_irf` está SUPERADA. O que ela deixa
-  como hipótese a testar na vintage de produção: as formas se sobrepõem entre
-  instrumentos e a inclinação da curva não acompanha ξ_mp. Destino no paper
-  (Anexo B/C ou §5) é decisão editorial.
-
 ### Fechados (contexto)
+
+- [x] **IRFs por camada do instrumento e tabela de Bauer-Swanson no Anexo D — 2026-09-25.**
+  `instrument_layers_irf.R` e `fig:instrumento_camadas`: nenhum ponto de `z_bruto` ou
+  `z_bs_purif` sai do conjunto de 90% da produção (0/4255 cada), e o filtro JK amplia câmbio,
+  CDS e juros longos em 12% a 36%. ⚠ O impacto do Ibovespa troca de sinal com o filtro
+  (+0,19/+0,27% → −1,50%), por construção. `tab:bs_ortogonalizacao`, análoga à Tabela 3 de BS,
+  tem Wald conjunta p 0,131 (DI) e 0,326 (Ibovespa). Nota: `2026-09-25_anexo_d_instrumento`.
+- [x] **Sensibilidade a `p` no Anexo C; θ̂ reestimado com gradiente mais fino — 2026-09-25.**
+  `p = 2..6`, θ reestimado em cada `p`, e todos os pontos dentro do conjunto de 90% de `p = 4`.
+  A trava da condição de primeira ordem barrou `p = 5` com o `ndeps` padrão do `optim`, e o
+  autor escolheu `ndeps = 1e-6` em todo `p`. ξ_mp 6,847997 → 6,848035, IRFs ≤ 8e-5 da escala,
+  nenhum número do paper mudou. Nota: `2026-09-25_p_sensibilidade_anexo`.
 
 - [x] **Ótimo global de θ̂ confirmado — 2026-09-24.** Multi-start de 750 inícios na
   caixa inteira, virou trava de `covid_volatility_theta.R`. Nenhum início passa de θ̂
@@ -680,6 +667,64 @@ ela abriu são **editoriais** e estão no Tema A.
   A linha diária **não** recebe o tratamento: não há dinâmica a filtrar, as
   variações Qua→Qui já são inovações (autocorrelação de primeira ordem entre
   janelas abaixo de 0,1 em módulo), e Lenza-Primiceri não tem versão diária.
+
+- [ ] **Estimar a ortogonalização Bauer-Swanson só nos dias de Copom, sem
+  tendência.** Aberto em 2026-09-25, a partir de uma leitura de BS (2023) e do
+  código deles (`table_3.m`, `constructomittedvars.m`). A Tabela 3 regride
+  `mps_t = α + β'news_t` com **só a constante** (o `trend` é criado em
+  `table_3.m`, mas não entra no `X`) e **uma observação por mês com FOMC**
+  (N = 217, 1990-01 a 2019-06). `R/instrument/build_variants.R` estima nas
+  **638 quintas-feiras** válidas (102 pós-Copom), com tendência. O instrumento
+  só soma resíduos de dias de Copom, mas os coeficientes vêm sobretudo dos 536
+  dias sem reunião. Por isso o Wald conjunto de `tab:bs_ortogonalizacao`
+  (p 0,131 no DI, 0,326 no Ibovespa) responde se a variação Qua→Qui do DI é
+  previsível numa quinta qualquer, não se a **surpresa do Copom** é previsível,
+  que é a pergunta de BS. Primeiro passo, barato: a mesma regressão, com os
+  preditores atuais, só nos 102 dias. Destrava o item seguinte (surpresas
+  macro).
+  ⚠ 102 observações contra ~10–13 regressores (BS: 217 contra 10).
+  ⚠ A máscara JK lê esses resíduos: mudar a amostra move `z_bs_purif`,
+  `z_jk_bs_purif`, ξ_mp, `tab:first_stage`, o Anexo D e as figuras. É decisão
+  de método, não higiene.
+  ⚠ `notas/2026-07-14_auditoria_fidelidade_jk_bs.md:42` e `registro/metodo.md`
+  atribuem à Tabela 3 "constante + tendência + revisão defasada do Blue Chip".
+  Pelo código, a tendência e a revisão defasada são da **Tabela 2**. A tendência
+  do projeto não é de BS.
+
+- [ ] **Acrescentar à ortogonalização Bauer-Swanson o bloco de surpresas
+  macro.** Aberto em 2026-09-25. Depende do item anterior (amostra só de
+  Copom). É o bloco da Tabela 3 que falta inteiro no projeto, e o que BS
+  destacam depois de ações e commodities (payrolls e PIB). O que eles usam:
+  surpresa = divulgado − mediana MMS logo antes da divulgação, para desemprego
+  e payrolls (relatório do mês t, só se anterior ao FOMC; senão 0; payrolls
+  ÷ 1000), PIB (divulgação do fim de t−1) e CPI core; o índice BBK (t−1;
+  resultados robustos a tirá-lo); aceleração do core,
+  ((log CPIX_{t−2} − log CPIX_{t−8}) − (log CPIX_{t−8} − log CPIX_{t−14})) × 200;
+  e a expectativa MMS do próximo CPI core. Disponibilidade no Brasil,
+  consultada na API Olinda em 2026-09-25:
+  - **IPCA**: Focus mensal (`ExpectativaMercadoMensais`, "IPCA") desde
+    2000-01. Surpresa = IPCA do SIDRA − mediana do último Focus antes da
+    divulgação. Usar o IPCA cheio, porque a expectativa mensal de núcleo não
+    cobre a amostra. Reprodutível por `R/data_download/focus.R`.
+  - **PIB**: Focus trimestral (`ExpectativasMercadoTrimestrais`, "PIB Total")
+    de 2001-11 a hoje. ⚠ Conferir se a unidade da mediana é a mesma da
+    divulgação do IBGE antes de subtrair.
+  - **Aceleração do núcleo e expectativa do próximo IPCA**: núcleo pelo SGS; a
+    expectativa é a mesma mediana do Focus mensal.
+  - **Mercado de trabalho**: sem cobertura pública. A desocupação no Focus
+    mensal/trimestral começa em 2021-09, a produção industrial vai de 2001-11
+    a 2021-09 e o CAGED não tem expectativa. Única saída: consenso Bloomberg
+    (ECO) para CAGED, PNAD, IBC-Br e PIM, como entrada externa fixa, igual ao
+    CDS. Decisão do autor: Bloomberg ou lacuna declarada.
+  - **BBK**: sem análogo pronto. Pode sair, pelo próprio BS.
+  ⚠ É preciso fixar a janela de divulgação. Em BS é do início do mês até o
+  anúncio; aqui a candidata natural é o intervalo desde a reunião anterior do
+  Copom, com a divulgação estritamente antes da quarta.
+  ⚠ Parte da notícia já está nos preditores atuais (`pre_focus_ipca`,
+  `pre_slope`); em BS as surpresas seguem significativas além dos preços, mas
+  aqui isso é empírico.
+  ⚠ As mesmas consequências em cadeia do item anterior (máscara JK, ξ_mp,
+  Anexo D).
 
 ### Fechados (contexto)
 

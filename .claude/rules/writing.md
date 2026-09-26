@@ -22,9 +22,15 @@ subsection, only the VAR benchmark, labelled both `sec:robustez` and `sec:weak_i
 five home-grown statistics may not come back; `sec:fomc` was deleted on 2026-09-21, and `sec:exogeneidade`,
 `sec:invertibilidade` and `sec:confound` had already gone. Concluding remarks is §6.
 Anexo C (`anexo-C`, since 2026-09-24) carries `fig:q_sensibilidade`, the `q = 2..5` figure that
-§3.1's two-sentence defense of `q = r` points to; the text cites no number from it.
+§3.1's two-sentence defense of `q = r` points to, and since 2026-09-25 `fig:p_sensibilidade`
+(`p = 2..6`); the text cites no number from either. Anexo D (`anexo-D`, since 2026-09-25) carries
+`tab:bs_ortogonalizacao` (the Bauer-Swanson Table 3 analogue) and `fig:instrumento_camadas`; no
+body sentence points to it, by author decision.
 `script/fig_section5.R` writes §4's eight figures, `script/fig_weak_iv.R` writes
-the weak-IV figure, and `script/q_sensitivity.R --window=cheia` writes `fig_q_sensibilidade.pdf`.
+the weak-IV figure, `script/q_sensitivity.R --window=cheia` writes `fig_q_sensibilidade.pdf`,
+`script/p_sensitivity.R` writes `fig_p_sensibilidade.pdf` and `script/instrument_layers_irf.R`
+writes `fig_instrumento_camadas.pdf`; the table's numbers are typed from
+`output/instrument/bs_orthogonalization.csv`.
 
 **The paper is on the production vintage again since 2026-09-24.** It was fully
 synchronized on 2026-08-25 and then fell behind twice, in (i) the window, which

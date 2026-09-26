@@ -703,13 +703,71 @@ Resultado nominal, ano seguinte & BCB, Focus &  & 1 &  \\
 \end{threeparttable}
 \end{table}
 
-\section*{Anexo C. Sensibilidade à dimensão dinâmica}\label{anexo-C}
+\section*{Anexo C. Sensibilidade à dimensão dinâmica e à ordem do VAR}\label{anexo-C}
 
 \begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.7]{fig_q_sensibilidade.pdf}
 \caption{\textbf{Sensibilidade ao número de choques dinâmicos}\\{Especificação de produção, com $r = 5$ e $p = 4$, e $q$ de 2 a 5. A linha preta mostra a estimativa pontual com $q = 5$, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 68\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com $q = 4$, 3 e 2, sem conjuntos. Câmbio e IBC-Br são divididos pela respectiva média amostral e expressos em percentual.}}
 \label{fig:q_sensibilidade}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{fig_p_sensibilidade.pdf}
+\caption{\textbf{Sensibilidade à ordem do VAR fatorial}\\{Especificação de produção, com $r = q = 5$, e $p$ de 2 a 6. A linha preta mostra a estimativa pontual com $p = 4$, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 68\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com $p = 2$, 3, 5 e 6, sem conjuntos. O parâmetro $\theta$ da escala de volatilidade é reestimado em cada $p$. Câmbio e IBC-Br são divididos pela respectiva média amostral e expressos em percentual.}}
+\label{fig:p_sensibilidade}
+\end{center}
+\end{figure}
+
+\section*{Anexo D. Construção do instrumento}\label{anexo-D}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{threeparttable}
+\begin{tabular*}{0.62\textwidth}{@{\extracolsep{\fill}}l c c@{}}
+\toprule
+ & Surpresa do DI & Retorno do \\
+ & de 6 meses & Ibovespa \\
+ & (1) & (2) \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Notícias financeiras, 65 pregões}} \\
+\quad Ibovespa            & $-0{,}033$  & $-0{,}016$  \\
+                          & $(0{,}053)$ & $(0{,}007)$ \\
+\quad S\&P 500            & $0{,}066$   & $-0{,}014$  \\
+                          & $(0{,}083)$ & $(0{,}017)$ \\
+\quad VIX                 & $0{,}040$   & $-0{,}018$  \\
+                          & $(0{,}072)$ & $(0{,}026)$ \\
+\quad Petróleo Brent      & $0{,}050$   & $0{,}004$   \\
+                          & $(0{,}023)$ & $(0{,}004)$ \\
+\quad Câmbio BRL/USD      & $0{,}119$   & $-0{,}010$  \\
+                          & $(0{,}087)$ & $(0{,}011)$ \\
+\quad Inclinação do DI    & $-0{,}920$  & $-0{,}096$  \\
+                          & $(0{,}498)$ & $(0{,}072)$ \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{Revisões Focus, 20 pregões}} \\
+\quad IPCA em 12 meses    & $-0{,}366$  & $-0{,}007$  \\
+                          & $(1{,}577)$ & $(0{,}297)$ \\
+\quad Selic, ano seguinte & $1{,}209$   & $0{,}016$   \\
+                          & $(0{,}605)$ & $(0{,}093)$ \\
+\midrule
+$R^2$                     & $0{,}022$   & $0{,}015$   \\
+Wald conjunto, $p$        & $0{,}131$   & $0{,}326$   \\
+Observações               & 638 & 638 \\
+\bottomrule
+\end{tabular*}
+\caption{\textbf{Notícias anteriores ao anúncio e surpresas do Copom}\\{Coeficientes $\beta$ da regressão $y_t = \alpha + \delta t + \beta' x_t + e_t$, em que $t$ indexa as quintas-feiras, como na Tabela 3 de \cite{bauer2023}. Na coluna (1), $y_t$ é a variação do DI de 6 meses entre o fechamento da quarta e o da quinta-feira, em pontos-base, e na coluna (2) é o retorno do Ibovespa no mesmo dia, em percentual. As notícias financeiras são variações acumuladas em 65 pregões até o fechamento da quarta-feira, em percentual para Ibovespa, S\&P 500, Brent e câmbio, em pontos para o VIX e em pontos percentuais para a inclinação do DI, a diferença entre os vértices de 2 anos e 3 meses. As revisões Focus são as variações das medianas em 20 pregões, em pontos percentuais. Constante e tendência linear estão incluídas e não são reportadas. Erros-padrão HC1 entre parênteses. A linha Wald reporta o $p$ do teste conjunto HC1 de que os oito coeficientes são nulos. A amostra tem as 638 quintas-feiras com cotações válidas entre março de 2012 e dezembro de 2025, 102 delas após reunião do Copom. O resíduo da coluna (1), somado nas semanas de reunião de cada mês, é a surpresa ortogonalizada, e os resíduos das duas colunas definem o filtro de sinal.}}
+\label{tab:bs_ortogonalizacao}
+\end{threeparttable}
+\end{table}
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{fig_instrumento_camadas.pdf}
+\caption{\textbf{Respostas por camada de construção do instrumento}\\{Especificação de produção, com $(r, q, p) = (5, 5, 4)$, e o choque normalizado para elevar o DI de 6 meses em 50 pontos-base no impacto sob cada instrumento. A linha preta mostra a estimativa pontual com o instrumento de produção, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 68\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com a surpresa bruta e com a surpresa ortogonalizada sem o filtro de sinal, as duas primeiras linhas da \autoref{tab:first_stage}. Câmbio e IBC-Br são divididos pela respectiva média amostral e expressos em percentual.}}
+\label{fig:instrumento_camadas}
 \end{center}
 \end{figure}
 
