@@ -1,9 +1,10 @@
 # ============================================================
 # External instrument for proxy-SVAR: Copom-day DI surprises.
 # Produces the three monthly variants of tab:first_stage
-# (R/instrument/build_variants.R): z_bruto, z_bs_purif and the
-# production z_jk_bs_purif, whose JK mask reads Bauer-Swanson
-# pre-event residuals (notas/2026-07-14_auditoria_fidelidade_jk_bs.md).
+# (R/instrument/build_variants.R): z_bruto, the production z_bs_purif
+# (Bauer-Swanson pre-event orthogonalization) and z_jk_bs_purif, whose
+# JK mask reads the Bauer-Swanson residuals
+# (notas/2026-07-14_auditoria_fidelidade_jk_bs.md).
 # Requires the daily raw inputs written by `script/download.R` and the
 # macroeconomic news inputs written by `script/download_macro_news.R`.
 # ============================================================
@@ -18,7 +19,7 @@ SAMPLE_END   <- as.Date("2025-12-31")
 LOAD_START   <- as.Date("2011-09-01")
 TARGET_BD    <- 126 # ~6 months in business days
 # The column of the single-column legacy CSV
-PRODUCTION_VARIANT <- "z_jk_bs_purif"
+PRODUCTION_VARIANT <- "z_bs_purif"
 
 di_panel <- load_di_panel(
   "data/raw/di.csv",

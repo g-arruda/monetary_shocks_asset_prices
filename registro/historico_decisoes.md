@@ -1024,3 +1024,27 @@ resultado contra a decomposição generalizada em forma fechada.
 **A identificação segue abandonada** para o artigo (§0, 2026-08-17). O que esta decisão
 muda é a estatística do diagnóstico que a §5.1 publica, e o conteúdo da pasta em quarentena
 `het_rigobon/`. Nota: `2026-09-22_condicao_het_svars`.
+
+---
+
+## 19. O filtro de sinal JK sai da produção, e as bandas passam a 80/90% (2026-09-26, branch)
+
+**Decisões do autor de 2026-09-26, na branch `feature/bs-copom-surpresas-macro`.** Duas
+coisas mudam juntas, e nenhuma delas toca `main` antes da promoção (Tema D de
+`pendencias.md`).
+
+**Filtro JK fora da produção, por ora.** A produção deixa `z_jk_bs_purif` e passa a
+`z_bs_purif`, a surpresa ortogonalizada sem o filtro de sinal. Na construção BS da branch
+(102 reuniões, lista da Tabela 3 mais S&P 500 e VIX) o filtro **reduz** ξ_mp, de 7,02 para
+5,01 na cheia e de 6,84 para 4,73 na pré-COVID, ao contrário do que fazia em `main` (de 6,16
+para 6,85). O achado "a força mora na máscara" (§2) é, portanto, da construção de `main`, e
+não sobrevive à da branch. O filtro continua construído, como camada alternativa da
+`tab:first_stage` e do Anexo D.
+
+**Nível inferior das bandas de 68% para 80%.** Reverte, para o DFM, a escolha da regra de
+dois níveis de 2026-07-30 e, para o benchmark VAR, a fixação em 68/90% de 2026-08-22 (§10),
+que existia para casar com a figura. AK (2019) sombreiam 80% e 90%. A significância segue a
+90%; o nível de direção e magnitude fica mais exigente, e nenhum resultado ganha status com
+a troca. A validação contra o fixture de MOSW continua em 68/95%.
+
+Nota: `2026-09-26_producao_bs_purif_bandas_80_90`.

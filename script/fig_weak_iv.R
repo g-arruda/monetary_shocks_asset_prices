@@ -29,7 +29,7 @@ OUT_PATH   <- "paper/fig_weak_iv_main.pdf"
 VAR_CELL   <- "ibc5_fx_cds_level_trend_p4"
 VAR_SAMPLE <- as.Date(c("2012-03-01", "2025-12-01"))
 H_MAX      <- 36L
-LEVELS     <- c(0.68, 0.90)
+LEVELS     <- c(0.80, 0.90)
 MODELS     <- c("DFM", "VAR observável")
 
 dfm <- readr::read_csv(DFM_PATH, show_col_types = FALSE)
@@ -61,11 +61,11 @@ series <- tibble::tibble(
 
 dfm_bands <- dfm |>
   dplyr::filter(var %in% series$var, h >= 0L, h <= H_MAX) |>
-  dplyr::select(var, h, point, lo68, hi68, lo90, hi90) |>
+  dplyr::select(var, h, point, lo80, hi80, lo90, hi90) |>
   tidyr::pivot_longer(
-    cols = c(lo68, hi68, lo90, hi90),
+    cols = c(lo80, hi80, lo90, hi90),
     names_to = c("bound", "level"),
-    names_pattern = "(lo|hi)(68|90)",
+    names_pattern = "(lo|hi)(80|90)",
     values_to = "value"
   ) |>
   tidyr::pivot_wider(names_from = bound, values_from = value) |>
@@ -119,12 +119,12 @@ y_ranges <- bands |>
 #' @param model_name Model, one of `MODELS`.
 #' @param y_label Vertical-axis label, or `NULL` for none.
 #'
-#' @return A ggplot object with the point response and the 68%/90% bands,
+#' @return A ggplot object with the point response and the 80%/90% bands,
 #'   drawn as in `script/fig_section5.R`.
 response_panel <- function(variable, model_name, y_label) {
   model_bands <- dplyr::filter(bands, var == variable, model == model_name)
   band90 <- dplyr::filter(model_bands, level == 0.90)
-  band68 <- dplyr::filter(model_bands, level == 0.68)
+  band80 <- dplyr::filter(model_bands, level == 0.80)
   limits <- dplyr::filter(y_ranges, var == variable)
 
   ggplot2::ggplot(band90, ggplot2::aes(x = h)) +
@@ -134,7 +134,7 @@ response_panel <- function(variable, model_name, y_label) {
       alpha = 0.18
     ) +
     ggplot2::geom_ribbon(
-      data = band68,
+      data = band80,
       ggplot2::aes(ymin = lo, ymax = hi),
       fill = "steelblue",
       alpha = 0.36

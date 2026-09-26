@@ -25,14 +25,18 @@ trend, as BS Table 3 does. The predictors are the Table 3 counterparts plus two 
 The 20-day Focus revisions (IPCA and Selic) and the BRL trend are **out**: the Focus revisions come
 from BS Table 2, not Table 3. By author decision the variant with the Selic revision (production
 ξ_mp 1.78) is not reported in the paper; its numbers stay in `notas/2026-09-25_bs_copom_surpresas_macro.md`.
-Macro inputs come from `script/download_macro_news.R`. Production ξ_mp is 5.01 full / 4.73
-pre-COVID, every AR set `interval`. `notas/2026-09-26_bs_lista_tabela3_externas.md` has the numbers;
-promotion and the paper migration are open in `pendencias.md`, Theme D.
+Macro inputs come from `script/download_macro_news.R`. **Since 2026-09-26 the branch's production
+is `z_bs_purif`**, the orthogonalized surprise without the JK sign filter (author decision, for
+now): in this construction the filter *lowers* ξ_mp, 7.02 → 5.01 full and 6.84 → 4.73 pre-COVID.
+Production ξ_mp is therefore 7.02 full / 6.84 pre-COVID, every AR set `interval` at 80 and 90%.
+`notas/2026-09-26_bs_lista_tabela3_externas.md` and
+`notas/2026-09-26_producao_bs_purif_bandas_80_90.md` have the numbers; promotion is open in
+`pendencias.md` Theme D, the paper migration in Theme A.
 
 **Only the three variants of `tab:first_stage` exist in live code since 2026-09-18**, one per
 construction layer: `z_bruto` (raw Wed→Thu surprise), `z_bs_purif` (+ Bauer-Swanson pre-event
-orthogonalization) and `z_jk_bs_purif` (+ Jarociński-Karadi sign filter on the BS residuals,
-production). The contemporaneous purification, the raw-sign mask, the UST 2y control and the FOMC
+orthogonalization; production on the branch since 2026-09-26) and `z_jk_bs_purif`
+(+ Jarociński-Karadi sign filter on the BS residuals; production on `main`). The contemporaneous purification, the raw-sign mask, the UST 2y control and the FOMC
 flag left with the variants and tests they fed. Monthly aggregation is JK's within-month sum,
 **not** GK's moving-average scheme — a justified choice since 2026-07-27, not a deviation: GK's
 fn. 11 conditions its weighting on a *monthly-average* policy indicator while `yield_6m` here is
@@ -41,7 +45,8 @@ left the code on 2026-09-18). **The same-session S&P/VIX/Brent filter on the Thu
 those changes enter no regression any more, but dropping a Thursday without them is what defines
 the sample of the BS regressions (on the branch, which 102 of the 111 Copom Wednesdays enter).
 
-**The finding that governs variant choice: strength lives in the *mask*, not the purified values.**
+**The finding that governed variant choice on `main`: strength lives in the *mask*, not the purified
+values.** It does not survive the branch's construction, where the mask lowers ξ_mp (above).
 Predetermined masks (raw or BS-pre-event) exclude the 2020-03-19 COVID panic day that
 contemporaneous residual-sign classification mislabels as monetary. Quantified by the FOMC round:
 orthogonalizing the **values** costs ~0.2 of ξ_mp; **re-deriving the mask** costs ~2.5 — twelve times

@@ -1,9 +1,9 @@
 # ===================================================================
 # Sensitivity of the production responses to the lag order of the factor VAR:
-# p = 2, ..., 6 at r = q = 5, full window 2012-03..2025-12, z_jk_bs_purif,
+# p = 2, ..., 6 at r = q = 5, full window 2012-03..2025-12, z_bs_purif,
 # +50bp on yield_6m. The Lenza-Primiceri theta is re-estimated at each p by
 # script/covid_volatility_theta.R, and each cell reads its own. p = 4 carries
-# its 68/90% Anderson-Rubin sets; the other orders are point estimates only,
+# its 80/90% Anderson-Rubin sets; the other orders are point estimates only,
 # the Figure A3 design of Alessi and Kerssenfischer (2019) that
 # script/q_sensitivity.R applies to q.
 # Output: output/factors/p_sensitivity.csv
@@ -32,11 +32,11 @@ P_PRODUCTION  <- 4L
 P_VALUES      <- c(4L, 2L, 3L, 5L, 6L)
 P_LABELS      <- paste0("p=", P_VALUES)
 PRODUCTION_LABEL <- paste0("p=", P_PRODUCTION)
-INSTRUMENT    <- "z_jk_bs_purif"
+INSTRUMENT    <- "z_bs_purif"
 MP_VAR        <- "yield_6m"
 HORIZON       <- 36L
 SHOCK_BPS     <- 50
-CI_LEVELS     <- c(0.68, 0.90)
+CI_LEVELS     <- c(0.80, 0.90)
 AR_NW_LAGS    <- 0L
 # Labels and scales of script/fig_section5.R; an NA scale is the response as
 # a percentage of the sample mean

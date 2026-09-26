@@ -12,11 +12,11 @@
 #' @param cells List of `run_stage2_cell()` results, one per alternative.
 #' @param labels Label of each cell, in the order of `cells`; becomes the
 #'   factor `cell`, with the levels in this order.
-#' @param band_label The label whose 68/90% bounds are kept. The other cells
+#' @param band_label The label whose 80/90% bounds are kept. The other cells
 #'   get NA bounds, as they are drawn in point only.
 #' @param vars Variables to keep, by panel name.
 #'
-#' @return Tibble with `cell`, `variable`, `h`, `point`, `lo68`, `hi68`,
+#' @return Tibble with `cell`, `variable`, `h`, `point`, `lo80`, `hi80`,
 #'   `lo90`, `hi90`.
 #'
 #' @examples
@@ -26,7 +26,7 @@ stack_cell_paths <- function(cells, labels, band_label, vars) {
     with_bands <- label == band_label
     rows <- match(vars, cell$var_names)
     point <- cell$irf$irf_point_matrix
-    ci68 <- cell$irf$ci[["0.68"]]
+    ci80 <- cell$irf$ci[["0.80"]]
     ci90 <- cell$irf$ci[["0.90"]]
 
     purrr::map2(vars, rows, function(variable, row) {
@@ -35,8 +35,8 @@ stack_cell_paths <- function(cells, labels, band_label, vars) {
         variable = variable,
         h = seq_len(ncol(point)) - 1L,
         point = point[row, ],
-        lo68 = if (with_bands) ci68$lower[row, ] else NA_real_,
-        hi68 = if (with_bands) ci68$upper[row, ] else NA_real_,
+        lo80 = if (with_bands) ci80$lower[row, ] else NA_real_,
+        hi80 = if (with_bands) ci80$upper[row, ] else NA_real_,
         lo90 = if (with_bands) ci90$lower[row, ] else NA_real_,
         hi90 = if (with_bands) ci90$upper[row, ] else NA_real_
       )
@@ -77,7 +77,7 @@ stop_unless_interval_sets <- function(cell, vars) {
 #' Stop unless the banded cell reproduces the production cache
 #'
 #' The production line of an annex figure must be section 4's line: its point
-#' and 68/90% bounds are compared with `output/irf/irf_coherence_h.csv` to
+#' and 80/90% bounds are compared with `output/irf/irf_coherence_h.csv` to
 #' 1e-10 at every variable and horizon drawn.
 #'
 #' @param band_paths Rows of `stack_cell_paths()` for the banded cell.
@@ -92,7 +92,7 @@ stop_unless_interval_sets <- function(cell, vars) {
 #'                           "cds_5y", 36L)
 stop_unless_matches_cache <- function(band_paths, coherence_path, vars,
                                       h_max) {
-  band_columns <- c("point", "lo68", "hi68", "lo90", "hi90")
+  band_columns <- c("point", "lo80", "hi80", "lo90", "hi90")
   production <- band_paths |>
     dplyr::filter(variable %in% vars, h <= h_max) |>
     dplyr::inner_join(
@@ -134,7 +134,7 @@ rescale_to_paper_units <- function(paths, panels, panel, h_max) {
     dplyr::filter(h <= h_max) |>
     dplyr::inner_join(panels, by = "variable") |>
     dplyr::mutate(
-      dplyr::across(c(point, lo68, hi68, lo90, hi90), \(x) x * scale),
+      dplyr::across(c(point, lo80, hi80, lo90, hi90), \(x) x * scale),
       variable = label
     )
 }

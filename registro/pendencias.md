@@ -42,13 +42,13 @@ fechar ou comprimir um item.
 | item | valor |
 |---|---|
 | Identificação | proxy-SVAR (instrumento externo), `H = (Z'η)/(Z'Z)` |
-| Instrumento | **`z_jk_bs_purif`** — surpresa DI Qua→Qui no vértice 126 du + ortogonalização Bauer-Swanson **pré-evento** + máscara JK em resíduos predeterminados |
+| Instrumento | **`z_bs_purif`** desde 2026-09-26, na branch `feature/bs-copom-surpresas-macro` — surpresa DI Qua→Qui no vértice 126 du + ortogonalização Bauer-Swanson **pré-evento** nas 102 reuniões (Tabela 3 + S&P 500 e VIX); o filtro de sinal JK saiu da produção, por ora, por decisão do autor. Em `main` a produção segue `z_jk_bs_purif` até a promoção (Tema D) |
 | Variável de política | `yield_6m`, choque +50bp no impacto (+0,005 em proporção decimal) |
 | Dimensão | **r = 5, q = 5**, VAR(p = 4) nos fatores; Bai--Ng BLL dá IC1=5, IC2=5 e IC3=20; `q=r=5`; `p=4` herdado, com nova checagem AIC/BIC separada em `T=154` |
 | Painel | **115 séries**, variante `drop_setor_externo__eua__credito__imoveis_fiscal_expectations`, 2012-03 a 2025-12 (166 observações alinhadas; 162 inovações fatoriais após p=4) |
-| Inferência | **conjuntos Anderson-Rubin por inversão de teste** (MOSW 2021), NW(0), níveis 68/90, h = 0-48, desde 2026-09-08. O wild bootstrap Gonçalves-Kilian e a correção de Kilian saíram do código em 2026-09-18. ⚠ `hac_dim < T` barra `(8,8)` em `p=4` e a janela pré-COVID inteira |
-| Força | ξ_mp/F_rob,mp = **6,848035/11,765564** full, sob a escala COVID de Lenza-Primiceri desde 2026-09-17 (θ̂ reestimado com `ndeps = 1e-6` em 2026-09-25; antes 6,847997/11,765250), e **8,643436/13,809985** pré-COVID; raiz máxima 0,983676 full e 0,993359 pré-COVID; ambas estáveis |
-| Benchmark VAR do paper | `{ibc_br, price_ipca, yield_6m, cambio_usd, cds_5y}` em nível, com constante e tendência linear; desde 2026-09-21 na **janela e no `p` do DFM** (2012-03--2025-12, `p=4`, `T_eff=162`), decisão de comparabilidade e **não** do AIC, que em `T=154` ainda escolhe `p=2` (BIC, `p=1`); respostas `C_h B_1`; `xi_var=7,258325`, raiz máxima `0,976522`; AR/MOSW 68%/90% com NW(0) |
+| Inferência | **conjuntos Anderson-Rubin por inversão de teste** (MOSW 2021), NW(0), h = 0-48, desde 2026-09-08; níveis **80/90** desde 2026-09-26 na branch (eram 68/90). O wild bootstrap Gonçalves-Kilian e a correção de Kilian saíram do código em 2026-09-18. ⚠ `hac_dim < T` barra `(8,8)` em `p=4` e a janela pré-COVID inteira |
+| Força | Na branch, com `z_bs_purif`: ξ_mp/F_rob,mp = **7,018990/8,616330** full e **6,836682/8,306648** pré-COVID, as duas abaixo de 10 nas duas janelas. Em `main` (`z_jk_bs_purif`): **6,848035/11,765564** full, sob a escala COVID de Lenza-Primiceri desde 2026-09-17 (θ̂ reestimado com `ndeps = 1e-6` em 2026-09-25; antes 6,847997/11,765250), e **8,643436/13,809985** pré-COVID. Raiz máxima 0,983676 full e 0,993359 pré-COVID, que não dependem do instrumento; ambas estáveis |
+| Benchmark VAR do paper | `{ibc_br, price_ipca, yield_6m, cambio_usd, cds_5y}` em nível, com constante e tendência linear; desde 2026-09-21 na **janela e no `p` do DFM** (2012-03--2025-12, `p=4`, `T_eff=162`), decisão de comparabilidade e **não** do AIC, que em `T=154` ainda escolhe `p=2` (BIC, `p=1`); respostas `C_h B_1`; raiz máxima `0,976522`; AR/MOSW com NW(0). Na branch: `z_bs_purif`, `xi_var=7,189765`, níveis 80/90%; em `main`: `z_jk_bs_purif`, `xi_var=7,258325`, 68/90% |
 
 Esta tabela combina a produção vigente do DFM com a produção corrente do
 benchmark VAR do paper. O código, os artefatos em `output/var/`, a figura e a
@@ -66,7 +66,10 @@ apenas os exercícios que mantêm fixa a máscara de produção, por decisão do
 autor em 2026-08-25.
 
 Desde 2026-09-24 o paper inteiro, as figuras da §4 e `output/irf/irf_section.md`
-estão na vintage de produção (`notas/2026-09-24_migracao_secao_4.md`). Grades
+estão na vintage de produção (`notas/2026-09-24_migracao_secao_4.md`). ⚠ Na
+branch `feature/bs-copom-surpresas-macro`, desde 2026-09-26, as figuras
+`paper/fig_*.pdf` estão na produção nova (`z_bs_purif`, 80/90%) e o `.tex` não:
+o texto ainda traz os números de `main` até a migração do Tema A. Grades
 históricas de painel, `(r,q)` e instrumento condicionadas a `p=6` permanecem
 evidência datada e não foram reestimadas. O benchmark VAR em níveis continua
 separado, na janela e no `p=4` do DFM desde 2026-09-21, com seus conjuntos
@@ -80,12 +83,11 @@ AR/MOSW próprios.
 |---|---|---|
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
-| A | Trocar as bandas das IRFs de 68/90% para 80/90%, como em Alessi-Kerssenfischer | aberto em 2026-09-26, decisão do autor; significância continua a 90%, o nível de direção e magnitude passa de 68% para 80% (mais exigente); toca `CI_LEVELS` em cinco scripts, `evaluate_irf_path()`, as figuras, a §3.4, a §4 e o `CLAUDE.md`; decidir se o benchmark VAR acompanha; convém fazer junto com a promoção do Tema D |
-| A | Migrar o paper para a ortogonalização Bauer-Swanson da branch | aberto em 2026-09-26; **depende** da promoção do Tema D; lista por seção: §3.3 (regressão, preditores, frase do `R²`, 62/40), §3.4 (ξ_mp 5,01/4,73, F_rob abaixo de 10, camadas invertidas), `tab:first_stage`, `tab:bs_ortogonalizacao`, §4 (sete leituras mudam, incluindo ações significativas no impacto), §5, resumo, introdução, conclusão e Anexos C e D |
+| A | Migrar o paper para a produção da branch: `z_bs_purif` sem filtro JK e bandas 80/90% | reescrito em 2026-09-26, quando o código e as figuras migraram na branch e o `.tex` ficou intocado por decisão do autor; **depende** da promoção do Tema D; lista por seção: §3.3 (regressão BS, preditores, `R²`, a terceira camada sai da produção), §3.4 (ξ_mp 7,02/6,84, F_rob abaixo de 10, camadas, "68%" → "80%"), `tab:first_stage`, `tab:bs_ortogonalizacao`, as 12 legendas, §4 (magnitudes e trechos de significância), §5, resumo, introdução, conclusão e Anexos C e D |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | D | Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala LP e reportar sem e com o tratamento | aberto em 2026-09-24, decisão do autor; θ próprio por vértice, não o θ̂ do DFM; mesmo caminho da linha fatorial nas duas versões; ⚠ se rejeitar, `sec:identificacao` muda; a linha diária fica sem tratamento |
-| D | Promover a ortogonalização BS só nas reuniões (Tabela 3 + S&P 500 e VIX) e migrar o paper | construção escolhida pelo autor em 2026-09-26 na branch `feature/bs-copom-surpresas-macro`; ξ_mp de produção 6,85 → 5,01 (pré-COVID 8,64 → 4,73), conjuntos todos `interval`; a promoção cobre código, validadores e `CLAUDE.md` e destrava a migração do paper (Tema A); recomendado resolver antes o item dos placebos |
-| D | Investigar por que os placebos externos respondem sob a construção da branch | aberto em 2026-09-26; EPU dos EUA h1–h6, MSCI emergentes h2–h8 e VIX h0 significativos a 90% na branch, nenhum em horizonte curto em `main`; a exposição às super quartas não explica; primeiro teste: cruzar máscaras e valores de `main` e da branch |
+| D | Promover a produção da branch para `main`: ortogonalização BS só nas reuniões (Tabela 3 + S&P 500 e VIX), `z_bs_purif` sem filtro JK, bandas 80/90% | construção escolhida pelo autor em 2026-09-26 na branch `feature/bs-copom-surpresas-macro`; ξ_mp de produção 6,85 → 7,02 (pré-COVID 8,64 → 6,84), conjuntos todos `interval` a 80 e 90%; código, validadores e figuras já migrados na branch; falta o merge e o `instrument.R` em `main`; destrava a migração do paper (Tema A); recomendado resolver antes o item dos placebos |
+| D | Investigar por que o placebo EPU dos EUA responde sob a produção da branch | aberto em 2026-09-26 sob `z_jk_bs_purif` (EPU h1–h6, MSCI h2–h8, VIX h0); sob `z_bs_purif` resta o EPU, significativo a 90% de h1 a h3 (`placebo_viola`), e MSCI e VIX só em horizontes longos; primeiro teste: cruzar valores de `main` e da branch |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -180,103 +182,120 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
   e cuja variação diária é exatamente zero em 23% dos dias. Construir o breakeven a
   partir de NTN-B e LTN é uma rodada de dados, não editorial.
   Nota: `2026-09-22_condicao_het_svars`.
-- [ ] **Trocar os níveis das bandas das IRFs de 68/90% para 80/90%, como em
-  Alessi-Kerssenfischer.** Aberto em 2026-09-26, por decisão do autor. AK (2019)
-  sombreiam 80% e 90% em todas as figuras (1–3 e A1–A4). O projeto usa 68/90%
-  desde a regra de dois níveis de 2026-07-30.
-  - **Regra de dois níveis:** o nível de significância continua em 90%. O nível
-    inferior, que só dá direção e magnitude, passa de 68% para 80%, no
-    `CLAUDE.md`, na §3.4 e na prosa da §4. O critério fica **mais exigente**:
-    um conjunto de 80% é mais largo que um de 68%. Na produção de `main`, até
-    h36, o DI de 2 anos passa de 27 horizontes a 68% para 23 a 80%, o câmbio de
-    26 para 21 e o Ibovespa de 22 para 16. O conjunto AR de 80% é limitado se e
-    só se ξ_mp > 1,64.
-  - **Código:**
-    - `CI_LEVELS` em `irf_coherence_check.R`, `model_alessi.R`,
-      `q_sensitivity.R`, `p_sensitivity.R` e `instrument_layers_irf.R`;
-    - o default de `main_sdfm()` em `R/modeling/dfm_pipeline.R`;
-    - as colunas `lo68`/`hi68`/`set_type68`/`sig68` de `irf_coherence_h.csv`,
-      que vêm de `evaluate_irf_path()` (`R/identification/irf_coherence.R`);
-    - as colunas `lo68`/`hi68` de `R/reporting/sensitivity.R` e as faixas de
-      `R/reporting/figures.R` e de `fig_section5.R`.
-  - **Paper:** as legendas das oito figuras da §4 e dos Anexos C e D, a
-    descrição dos conjuntos na §3.4 e cada frase que hoje cita 68%.
-  - **Benchmark VAR:** decidir se `model_var.R` e `fig_weak_iv.R` também passam
-    a 80/90%. Os níveis do benchmark foram fixados em 68/90% em 2026-08-22
-    (`historico_decisoes.md` §10), justamente para coincidir com os da figura.
-    `validate_mosw_ar.R` continua a validar em 68/95%, os níveis do código de
-    referência.
-
-  Convém fazer junto com a promoção do Tema D, que repinta as mesmas figuras.
-  ⚠ Proposto depois de ver, no scratchpad, como a branch se comporta a 80%.
-  Como o nível de significância não muda e o inferior fica mais exigente,
-  nenhum resultado ganha status com a troca.
-- [ ] **Migrar o paper para a ortogonalização Bauer-Swanson da branch.** Aberto
-  em 2026-09-26. **Depende** da promoção do Tema D, que fornece os números.
-  Convém fazer junto com a troca das bandas para 80/90% (item acima). Cruza com
-  o item "Decidir se o resumo, a introdução e a conclusão absorvem a leitura
-  da §4 migrada". Nota: `2026-09-26_bs_lista_tabela3_externas`.
-  O que muda, por seção:
+- [ ] **Migrar o paper para a produção da branch: ortogonalização BS nas
+  reuniões, `z_bs_purif` sem filtro JK e bandas de 80/90%.** Aberto em
+  2026-09-26 e reescrito no mesmo dia, quando o autor tirou o filtro JK da
+  produção, por ora, e trocou as bandas de 68/90% para 80/90%, como em AK. O
+  código, os outputs e todas as figuras `paper/fig_*.pdf` já estão na produção
+  nova, na branch; **o `.tex` não foi tocado**, por decisão do autor, e ainda
+  traz os números de `main` (`z_jk_bs_purif`, 68/90%). Até a migração, figuras
+  e texto divergem. **Depende** da promoção do Tema D. Cruza com o item "Decidir
+  se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada".
+  Notas: `2026-09-26_bs_lista_tabela3_externas`,
+  `2026-09-26_producao_bs_purif_bandas_80_90`. Todo número sai de
+  `irf_coherence_cell.rds`, `irf_coherence_h.csv`, `mosw_strength_grid.csv`,
+  `instrument_diagnostics.csv`, `bs_orthogonalization.csv` e
+  `output/var/svar_iv_weak_robust.csv`. O que muda, por seção:
+  - **Resumo (PT e EN) e introdução (`:152`):**
+    - 3,23% → 3,53% no BRL/USD;
+    - a descrição do instrumento perde o "filtro de sinal que separa choques de
+      política monetária de choques de informação";
+    - a "reversão altamente sincronizada": no ramo negativo, a curva exclui
+      zero a 90% a partir de h26 a h29, conforme o vértice, EMBI+ e CDS a
+      partir de h28, e o câmbio volta a excluir de h32 a h36, no ramo da
+      apreciação.
+  - **§2 (`:179`):** o parágrafo que motiva o filtro pelo co-movimento de mesmo
+    sinal nos anúncios do FOMC; avaliar se fica.
   - **§3.3, segunda camada:**
-    - a regressão passa a rodar nas 102 reuniões, só com a constante, e sai a
-      "tendência temporal";
+    - a regressão roda nas 102 reuniões, só com a constante; sai a "tendência
+      temporal";
     - os preditores passam a ser Ibovespa, S&P 500, VIX, Brent e inclinação do
       DI em 65 pregões, mais as surpresas de IPCA e de PIB (na primeira
       divulgação), a aceleração do núcleo EX0 e o IPCA esperado;
     - saem o câmbio e as revisões Focus;
-    - a frase final, `R²` de 0,022 contra 0,12–0,20 de BS "sem contrapartida em
-      frequência diária no Brasil", deixa de valer: a contrapartida foi
-      construída, e o `R²` é 0,124.
-  - **§3.3, terceira camada:** 67 monetárias e 35 de informação (34,3%) passam
-    a 62 e 40 (39,2%). A frase "próxima do terço" precisa ser reavaliada.
+    - a frase do `R²` de 0,022 contra 0,12–0,20 de BS "sem contrapartida em
+      frequência diária no Brasil" deixa de valer: a contrapartida foi
+      construída, e o `R²` é 0,124;
+    - **o resíduo desta regressão passa a ser o instrumento de produção.**
+  - **§3.3, terceira camada (`:246`, com a nota de rodapé):** sai da produção.
+    Decisão editorial: cortar o parágrafo ou mantê-lo como camada alternativa
+    (62 monetárias e 40 de informação na branch).
   - **§3.4:**
-    - ξ_mp 6,85 / 8,64 → 5,01 / 4,73; F_rob,mp 11,77 / 13,81 → 7,59 / 7,78;
+    - ξ_mp 6,85 / 8,64 → **7,02 / 6,84**; F_rob,mp 11,77 / 13,81 → **8,62 /
+      8,31**;
     - "F_rob o supera nas duas janelas [...] evidência mista" deixa de valer:
       as duas estatísticas ficam abaixo de 10 nas duas janelas;
-    - o parágrafo das camadas se inverte. A ortogonalização passa a elevar
-      ξ_mp (6,68 → 7,02), e o filtro de sinal a reduzi-lo (→ 5,01), junto com
-      o F_rob (8,62 → 7,59). Os meses não nulos vão de 65 para 60, e a
-      pré-COVID fica em 6,66 / 6,84 / 4,73.
-  - **`tab:first_stage`:** linhas 2 e 3, de `instrument_diagnostics.csv` e
-    `mosw_strength_grid.csv`.
+    - o parágrafo das camadas: a ortogonalização **eleva** ξ_mp de 6,68 para
+      7,02 (pré-COVID, 6,66 → 6,84) e reduz o F_rob de 9,37 para 8,62; o
+      filtro, agora fora da produção, levaria a 5,01 / 4,73. Meses não nulos:
+      95 na bruta, 99 na ortogonalizada, 60 com o filtro;
+    - "em 68\% e 90\%" → "em 80\% e 90\%" (`:254`); a condição de
+      limitação continua satisfeita (7,02 > 2,71 > 1,64).
+  - **`tab:first_stage`:** o rótulo "(produção)" passa da linha 3 para a
+    linha 2; linhas 2 e 3 com os números novos.
   - **`tab:bs_ortogonalizacao` (Anexo D):** refazer a partir de
-    `bs_orthogonalization.csv`.
-    - 102 observações, em dois blocos: notícias financeiras em 65 pregões e
-      notícias macroeconômicas. Saem o bloco de revisões Focus e o câmbio.
-    - Linhas de rodapé: `R²`, Wald conjunto dos nove preditores e Wald do bloco
-      macro.
-    - Na legenda, o índice passa a ser a reunião e sai a tendência, e "como na
-      Tabela 3" passa a ser verdade. Descrever a construção e o timing das
-      notícias macro: divulgações desde o Copom anterior, PIB na primeira
-      divulgação, mediana Focus da última pesquisa como expectativa. Dar as
-      unidades.
-  - **§4 (oito subseções e figuras):** todos os números, tirados de
-    `irf_coherence_cell.rds`, e `fig_section5.R` re-rodado. Leituras que se
-    invertem ou mudam:
-    - curva e risco soberano: a reversão de h29–h36 deixa de ser significativa
-      a 90%;
-    - câmbio: significativo de h0 a h6 (era h0 a h4);
-    - fiscais: o resultado primário perde h18–h32;
-    - expectativas Focus: de 12 ou 13 horizontes significativos para 1 a 7;
-    - atividade: o IBC-Br é significativo de h0 a h26;
-    - preços: o IPCA perde toda a significância e fica positivo em h4 e h5;
-    - ações: os sete índices ficam significativos e negativos no impacto, de
-      −3,0% a −10,8%; em `main` nenhum era.
-  - **§5 Robustez:** re-rodar `model_var.R` com o instrumento novo e
-    `fig_weak_iv.R`, e refazer os números dos dois lados, DFM e VAR.
-  - **Resumo (PT e EN), introdução e conclusão:**
-    - 3,23% → 4,56%;
-    - a "reversão altamente sincronizada" não se sustenta a 90%;
-    - a frase da conclusão de que nenhum dos sete índices tem resposta de
-      impacto significativa se inverte.
-  - **Anexo C:** re-rodar `q_sensitivity.R --window=cheia` e `p_sensitivity.R`.
-    O texto não cita números.
-  - **Anexo D:** a figura já foi redesenhada na branch; falta a tabela.
+    `bs_orthogonalization.csv`: 102 observações, blocos de notícias financeiras
+    em 65 pregões e macroeconômicas; rodapé com `R²`, Wald conjunto dos nove
+    preditores e Wald do bloco macro; na legenda, o índice passa a ser a
+    reunião, sai a tendência, e "como na Tabela 3" passa a ser verdade;
+    descrever a construção e o timing das notícias macro e dar as unidades.
+  - **As 12 legendas que dizem "68\% e 90\%"** (`:295, 314, 331, 349, 367,
+    384, 402, 421, 446, 711, 719, 769`) → 80%.
+  - **§4, números:** todos mudam de magnitude, com a mesma forma. No impacto:
+    curva 40,0 / 61,7 / 72,1 / 77,3 / 70,7 p.b. (3m, 1a, 2a, 5a, 10a), Selic
+    26,8; BRL/USD 3,53%, BRL/EUR 2,65%; EMBI+ 28,3 e CDS 34,0 p.b.; DLSP −0,74,
+    DBGG −0,14; IBC-Br −0,77%; IPCA −0,077; Ibovespa −2,47%. Os picos da curva
+    continuam em h3, e os cruzamentos de zero antecipam um mês (h13–h16).
+  - **§4, leituras que mudam:**
+    - câmbio: o pico do BRL/USD passa de h3 para h1 (4,45%);
+    - Selic: o pico passa de h5 para h3;
+    - NFSP primária: 90% em h1 e **h16–h33** (era h1 e h18–h32);
+    - ajuste cambial (`:326`): o conjunto de 80% no impacto, [−71,7; 1,5]
+      bilhões, **contém zero**, e o de 90% passa a excluir zero em h35–h36; a
+      frase inteira muda;
+    - primário esperado (`:344`): o conjunto de 80% exclui zero só em h2 (o de
+      68% excluía de h1 a h5); o de 90% continua contendo zero;
+    - nominal esperado: 90% em h0–h5 e h27–h36 (era h0–h6 e a partir de h30);
+    - IBC-Br: 90% em h0 e **h3–h25** (era h0, h3 e h6–h24); serviços, h13–h29
+      (era h16–h27);
+    - ações: **os sete índices caem no impacto**, porque o IMAT passa a
+      −0,39% (era +0,09%), o que derruba a frase sobre a receita em dólar
+      amortecendo o impacto; nenhum é significativo a 90% no impacto, como antes;
+      a fase positiva do Ibovespa fica em h5–h9 (era h5–h10), e ele passa a
+      excluir zero também em h34–h36, com sinal negativo; o IDIV, em h8 e
+      h34–h36 (era h5, h8 e h9); IMOB e IFNC, que
+      não excluíam zero em nenhum horizonte, excluem em h35–h36 e h33–h36, com
+      sinal negativo; IFIX, h1 e h11–h13.
+  - **§5 Robustez:** a figura já foi repintada. Lado DFM: IBC-Br −0,77%, IPCA
+    −0,077, câmbio 3,53%, CDS 34,0 p.b. no impacto; picos 4,45% e 36,7 p.b. em
+    h1; 90% do câmbio em h0–h4 e h32–h36, do yield em h0–h5 e h27–h36, do CDS
+    em h0–h6 e h28–h36, do IPCA em h17–h36. Lado VAR (`xi_var` 7,19): IBC-Br
+    −1,28%, IPCA −0,080, câmbio 2,49%, CDS 23,3 p.b.; picos 3,95% e 29,5 p.b.
+    em h1, yield 94,5 p.b. em h6; 90% do IBC-Br em h0–h1, do yield até h6, do
+    câmbio até h9, do CDS até h17 sem lacuna; o *price puzzle* do VAR passa
+    para h4–h5.
+  - **Conclusão:** 3,23% → 3,53%; "o câmbio perde significância estatística bem
+    antes dessa reversão" deixa de valer, porque o conjunto de 90% do câmbio
+    volta a excluir zero de h32 a h36; a frase das ações segue verdadeira.
+  - **Anexos C e D:** figuras já repintadas; legendas "68%" → "80%"; na de
+    `fig:instrumento_camadas`, a linha preta passa a ser a surpresa
+    ortogonalizada e as tracejadas a bruta e a com filtro de sinal (linhas 1
+    e 3 da `tab:first_stage`).
+  - **`output/irf/irf_section.md`:** leitura de `main`, com oito menções a 68%.
 
-  ⚠ O item dos placebos externos (Tema D) pode mudar o que a §4 e a §5 podem
-  afirmar.
+  ⚠ O placebo EPU dos EUA viola a 90% em h1–h3 (Tema D). Pode mudar o que a
+  §4 e a §5 afirmam sobre a exogeneidade.
 
 ### Fechados (contexto)
+
+- [x] **Bandas das IRFs em 80/90%, como em AK, do lado do código — 2026-09-26,
+  na branch.** `CI_LEVELS`, o default de `main_sdfm()`, as colunas `*80` de
+  `irf_coherence_h.csv` e `instrument_layers_irf.csv`, as faixas das figuras e o
+  benchmark VAR (`model_var.R`, `fig_weak_iv.R`) passaram a 80/90%;
+  `validate_mosw_ar.R` fica em 68/95%, os níveis do oráculo. Todos os conjuntos
+  seguem `interval` a 80 e 90% (2841 + o `singleton` da normalização). O lado do
+  paper está no item de migração acima. Nota:
+  `2026-09-26_producao_bs_purif_bandas_80_90`.
 
 - [x] **`q = r` justificado na §3.1 e sensibilidade a `q` no Anexo C —
   2026-09-24.** Defesa em duas frases, ancorada em Stock-Watson (2016, §7.2) e AK,
@@ -765,42 +784,46 @@ ela abriu são **editoriais** e estão no Tema A.
   variações Qua→Qui já são inovações (autocorrelação de primeira ordem entre
   janelas abaixo de 0,1 em módulo), e Lenza-Primiceri não tem versão diária.
 
-- [ ] **Promover a ortogonalização Bauer-Swanson só nas reuniões, com a lista da
-  Tabela 3 mais S&P 500 e VIX, e migrar o paper.** Aberto em 2026-09-25 na
-  branch `feature/bs-copom-surpresas-macro`. Em 2026-09-26 o autor escolheu a
+- [ ] **Promover a produção da branch para `main`: ortogonalização Bauer-Swanson
+  só nas reuniões, com a lista da Tabela 3 mais S&P 500 e VIX, `z_bs_purif` sem
+  filtro JK e bandas de 80/90%.** Aberto em 2026-09-25 na branch
+  `feature/bs-copom-surpresas-macro`. Em 2026-09-26 o autor escolheu a
   construção:
   - 102 reuniões, só constante;
   - tendências de 65 pregões de Ibovespa, inclinação do DI, Brent, S&P 500 e VIX;
   - surpresas de IPCA e PIB, aceleração do núcleo e IPCA esperado.
 
   As revisões Focus, que eram da Tabela 2, e o câmbio saíram. A variante com a
-  revisão da Selic não vai para o paper, por decisão do autor.
-  - ξ_mp de produção vai de 6,85 para **5,01** na cheia e de 8,64 para 4,73 na
-    pré-COVID.
-  - Todos os conjuntos de 68 e 90% seguem `interval`, e nenhum ponto das oito
-    séries da §4 sai do conjunto de 90% de `main`.
-  - Várias leituras da §4 mudam; a lista está no item de migração do paper, no
-    Tema A.
+  revisão da Selic não vai para o paper, por decisão do autor. No mesmo dia o
+  autor tirou o filtro de sinal JK da produção, por ora, e passou as bandas
+  para 80/90%.
+  - ξ_mp de produção vai de 6,85 para **7,02** na cheia e de 8,64 para **6,84**
+    na pré-COVID; F_rob,mp de 11,77 / 13,81 para 8,62 / 8,31. Com o filtro, na
+    mesma construção, seria 5,01 / 4,73.
+  - Todos os conjuntos de 80 e 90% seguem `interval`.
+  - As leituras da §4 que mudam estão no item de migração do paper, no Tema A.
 
-  A promoção, do lado do código e do registro:
-  - merge da branch em `main`, seguido de `Rscript script/instrument.R`;
-  - re-rodar `model_var.R`, `fig_section5.R`, `fig_weak_iv.R`,
-    `q_sensitivity.R --window=cheia` e `p_sensitivity.R`;
-  - os pins de `validate_production_spec.R` e do N2 de
-    `validate_covid_volatility.R`, `production_spec_impact_smoke.csv`, o smoke
-    test e o parágrafo da especificação de produção no `CLAUDE.md`
-    (ξ_mp 6,848035 / 8,643436, F_rob, impactos em h0).
+  **Já feito na branch** em 2026-09-26: o código (instrumento e níveis), os
+  re-runs de `irf_coherence_check.R`, `fig_section5.R`,
+  `instrument_layers_irf.R`, `model_var.R`, `fig_weak_iv.R`, `q_sensitivity.R`
+  nas duas janelas, `p_sensitivity.R` e `model_alessi.R`, os pins de
+  `validate_production_spec.R` e do N2 de `validate_covid_volatility.R`,
+  `production_spec_impact_smoke.csv`, os sete validadores passando e o smoke
+  test do `CLAUDE.md`. Falta:
+  - merge da branch em `main`, seguido de `Rscript script/instrument.R` e dos
+    validadores;
+  - o parágrafo "Completed rounds" do `CLAUDE.md`, se o autor quiser a rodada
+    registrada lá.
 
-  O lado do paper é o item "Migrar o paper para a ortogonalização
-  Bauer-Swanson da branch", no Tema A, que depende deste.
-  Recomendado resolver antes: o item dos placebos externos, logo abaixo.
-  Nota: `2026-09-26_bs_lista_tabela3_externas` §5.
-  Convém incorporar a troca das bandas para 80/90% (Tema A), que repinta as
-  mesmas figuras.
+  O lado do paper é o item "Migrar o paper para a produção da branch", no
+  Tema A, que depende deste.
+  Recomendado resolver antes: o item do placebo EPU, logo abaixo.
+  Notas: `2026-09-26_bs_lista_tabela3_externas` §5,
+  `2026-09-26_producao_bs_purif_bandas_80_90`.
   ⚠ Na branch deixa de valer o achado "a força mora na máscara"
   (`.claude/rules/instrument.md`, `historico_decisoes.md` §2): o filtro de
-  sinal agora **reduz** ξ_mp, de 7,02 sem máscara para 5,01 com ela. Em `main`
-  ele elevava, de 6,16 para 6,85.
+  sinal **reduz** ξ_mp, de 7,02 sem máscara para 5,01 com ela. Em `main`
+  ele elevava, de 6,16 para 6,85. É o que motivou tirá-lo da produção.
   ⚠ Até a migração, a legenda de `tab:bs_ortogonalizacao` em `main` diz "como na
   Tabela 3" de BS sobre uma regressão com tendência nas 638 quintas, que a
   Tabela 3 não é.
@@ -810,24 +833,29 @@ ela abriu são **editoriais** e estão no Tema A.
   ⚠ `data/processed/` não troca com a branch: rodar `script/instrument.R` ao
   voltar para `main`.
 
-- [ ] **Investigar por que os placebos externos respondem sob a construção da
+- [ ] **Investigar por que o placebo EPU dos EUA responde sob a produção da
   branch.** Aberto em 2026-09-26. Recomendado antes da promoção do item acima,
   porque decide o que a §4 e a §5 podem afirmar. São variáveis que um choque
-  monetário brasileiro não deveria mover, e na branch elas ficam
-  significativas a 90%:
-  - a incerteza de política econômica dos EUA (`epu_us`) sobe de h1 a h6, com
+  monetário brasileiro não deveria mover. Sob `z_jk_bs_purif` da branch, três
+  ficavam significativas a 90%:
+  - a incerteza de política econômica dos EUA (`epu_us`) subia de h1 a h6, com
     +18 pontos em h1 e conjunto [6,0; 56,5];
-  - o MSCI emergentes sobe de h2 a h8;
-  - o VIX sobe em h0.
+  - o MSCI emergentes subia de h2 a h8;
+  - o VIX subia em h0.
 
+  **Sob `z_bs_purif`, a produção desde 2026-09-26, resta o EPU**: +11,8 pontos
+  em h1, conjunto de 90% [0,7; 31,9], significativo de h1 a h3, e o veredito
+  segue `placebo_viola` (88% da janela com zero no conjunto, contra os 90%
+  exigidos). O MSCI e o VIX passam a `placebo_ok`: o MSCI só exclui zero em
+  h36, e o VIX em h29–h36.
   Em `main` nenhum placebo era significativo em horizonte curto; o VIX só
-  aparecia em h34–h41. A exposição às super quartas não explica: elas são 23
-  dos dias retidos nas duas versões (32,5% de Σ|z| em `main`, 30,9% na branch),
-  e só 4 das 21 reuniões que trocam de classe são super quartas.
-  Primeiro teste sugerido, a decomposição de sempre do projeto: cruzar a
-  máscara de `main` com os valores da branch e vice-versa, para separar o
-  efeito da máscara do efeito dos resíduos.
-  Nota: `2026-09-26_bs_lista_tabela3_externas` §4.
+  aparecia em h34–h41. A exposição às super quartas não explicava a versão com
+  JK: eram 23 dos dias retidos nas duas versões (32,5% de Σ|z| em `main`,
+  30,9% na branch), e só 4 das 21 reuniões que trocavam de classe eram super
+  quartas. Sem o filtro, a máscara deixa de existir, e o teste que sobra é
+  cruzar os valores ortogonalizados de `main` e da branch.
+  Notas: `2026-09-26_bs_lista_tabela3_externas` §4,
+  `2026-09-26_producao_bs_purif_bandas_80_90`.
 
 ### Fechados (contexto)
 

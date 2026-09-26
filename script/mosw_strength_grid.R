@@ -20,8 +20,8 @@ P_LAGS <- 4L
 MP_VAR <- "yield_6m"
 
 # The three construction layers reported in the paper's first-stage table
-# (tab:first_stage): raw DI surprise, + predetermined orthogonalization,
-# + signal filter (production).
+# (tab:first_stage): raw DI surprise, + predetermined orthogonalization
+# (production), + signal filter.
 INSTRUMENTS <- c("z_bruto", "z_bs_purif", "z_jk_bs_purif")
 
 SAMPLES <- list(

@@ -20,7 +20,10 @@
 > A produção usa o painel de 115 séries, 166 meses entre 2012-03 e 2025-12,
 > `(r,q,p)=(5,5,4)`,
 > `z_jk_bs_purif`, normalização de +50 pb em `yield_6m`, horizonte 0--48 e
-> conjuntos Anderson-Rubin de 68% e 90% com NW(0) desde 2026-09-08 — o wild
+> conjuntos Anderson-Rubin de 68% e 90% com NW(0) desde 2026-09-08 (na branch
+> `feature/bs-copom-surpresas-macro`, desde 2026-09-26, `z_bs_purif` sem o
+> filtro JK e conjuntos de 80% e 90%; nota
+> `2026-09-26_producao_bs_purif_bandas_80_90`) — o wild
 > bootstrap de 800 réplicas com semente 123 saiu da produção e, em 2026-09-18,
 > também do código, junto com a correção de Kilian. Bai--Ng BLL seleciona
 > IC1=5, IC2=5 e IC3=20; `q=r=5` permanece a decisão operacional. `p=4` é
@@ -76,7 +79,8 @@
 > `RForm_VAR.m` com o termo de tendência, o impacto é
 > `B_1=0,005 Gamma/Gamma_yield` e cada ponto é `C_h B_1`, sem soma por
 > horizonte. A única inferência do VAR observável são conjuntos
-> Anderson--Rubin/MOSW de 68% e 90% com NW(0). Não há wild bootstrap, correção
+> Anderson--Rubin/MOSW de 68% e 90% com NW(0) (80% e 90% na branch desde
+> 2026-09-26). Não há wild bootstrap, correção
 > de Kilian ou fallback OLS nesse benchmark. A inferência do DFM era outra
 > quando isto foi escrito; desde 2026-09-08 os dois modelos usam conjuntos AR,
 > o que **não** os torna o mesmo objeto nem transfere cobertura de um para o

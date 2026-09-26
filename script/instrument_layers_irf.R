@@ -2,9 +2,9 @@
 # Impulse responses of the production DFM under each of the three
 # construction layers of the instrument, the rows of tab:first_stage:
 # z_bruto (raw Wed->Thu DI surprise), z_bs_purif (+ Bauer-Swanson pre-event
-# orthogonalization) and z_jk_bs_purif (+ Jarocinski-Karadi sign filter,
-# production). Only the instrument changes: (5,5,4), 2012-03..2025-12, the
-# Lenza-Primiceri scale, +50bp on yield_6m. Every layer carries its 68/90%
+# orthogonalization, production) and z_jk_bs_purif (+ Jarocinski-Karadi sign
+# filter). Only the instrument changes: (5,5,4), 2012-03..2025-12, the
+# Lenza-Primiceri scale, +50bp on yield_6m. Every layer carries its 80/90%
 # Anderson-Rubin sets (xi_mp > 3.84 in all three), written to the CSV; the
 # paper's Anexo D figure bands only production, as in Figure A3 of Alessi and
 # Kerssenfischer (2019), with the other two layers in point.
@@ -33,15 +33,15 @@ P_LAGS        <- 4L
 MP_VAR        <- "yield_6m"
 HORIZON       <- 36L
 SHOCK_BPS     <- 50
-CI_LEVELS     <- c(0.68, 0.90)
+CI_LEVELS     <- c(0.80, 0.90)
 AR_NW_LAGS    <- 0L
-LAYERS <- c("z_jk_bs_purif", "z_bs_purif", "z_bruto")
+LAYERS <- c("z_bs_purif", "z_jk_bs_purif", "z_bruto")
 LAYER_LABELS <- c(
-  z_jk_bs_purif = "Produção (+ filtro de sinal)",
-  z_bs_purif = "+ ortogonalização",
+  z_bs_purif = "Produção (ortogonalizada)",
+  z_jk_bs_purif = "+ filtro de sinal",
   z_bruto = "Surpresa bruta"
 )
-PRODUCTION_LABEL <- LAYER_LABELS[["z_jk_bs_purif"]]
+PRODUCTION_LABEL <- LAYER_LABELS[["z_bs_purif"]]
 # Labels and scales of script/fig_section5.R; an NA scale is the response as
 # a percentage of the sample mean
 PAPER_PANELS <- tibble::tribble(
@@ -109,11 +109,11 @@ purrr::map2(cells, LAYERS, function(cell, layer) {
     variable = rep(var_names, times = HORIZON + 1L),
     h = rep(0:HORIZON, each = length(var_names)),
     point = c(cell$irf$irf_point_matrix),
-    lo68 = c(cell$irf$ci[["0.68"]]$lower),
-    hi68 = c(cell$irf$ci[["0.68"]]$upper),
+    lo80 = c(cell$irf$ci[["0.80"]]$lower),
+    hi80 = c(cell$irf$ci[["0.80"]]$upper),
     lo90 = c(cell$irf$ci[["0.90"]]$lower),
     hi90 = c(cell$irf$ci[["0.90"]]$upper),
-    set_type68 = c(ar_levels[["0.68"]]$set_type),
+    set_type80 = c(ar_levels[["0.80"]]$set_type),
     set_type90 = c(ar_levels[["0.90"]]$set_type)
   )
 }) |>

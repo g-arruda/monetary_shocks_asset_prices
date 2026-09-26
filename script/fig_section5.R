@@ -3,9 +3,9 @@
 #
 # Reads the cached production estimation object. NOTHING is re-estimated here.
 #
-# Every IRF figure runs to h = 36 and carries the 68% and 90% Anderson-Rubin
+# Every IRF figure runs to h = 36 and carries the 80% and 90% Anderson-Rubin
 # sets. The eight figures in the results section omit significance markers;
-# the placebo figure retains them. The 68% set is the darker ribbon.
+# the placebo figure retains them. The 80% set is the darker ribbon.
 #
 # Output: paper/fig_*.pdf, where paper_anpec.tex reads them (bare filenames,
 # no subdirectory).
@@ -120,7 +120,7 @@ cell <- readRDS(CELL_PATH)
 panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE)
 
 point <- cell$irf$irf_point_matrix
-ci68 <- cell$irf$ci[["0.68"]]
+ci80 <- cell$irf$ci[["0.80"]]
 ci90 <- cell$irf$ci[["0.90"]]
 var_names <- cell$var_names
 
@@ -132,7 +132,7 @@ var_names <- cell$var_names
 #'   percentage of the variable's sample mean.
 #' @param mark_sig90 Whether to mark horizons whose 90% set excludes zero.
 #'
-#' @return A ggplot object with the point response and the 68%/90% sets.
+#' @return A ggplot object with the point response and the 80%/90% sets.
 irf_panel <- function(variable, label, scale, mark_sig90) {
   row <- match(variable, var_names)
   if (is.na(row)) {
@@ -152,8 +152,8 @@ irf_panel <- function(variable, label, scale, mark_sig90) {
   responses <- tibble::tibble(
     h = 0:H_MAX,
     irf = multiplier * point[row, columns],
-    lo68 = multiplier * ci68$lower[row, columns],
-    hi68 = multiplier * ci68$upper[row, columns],
+    lo80 = multiplier * ci80$lower[row, columns],
+    hi80 = multiplier * ci80$upper[row, columns],
     lo90 = multiplier * ci90$lower[row, columns],
     hi90 = multiplier * ci90$upper[row, columns],
     sig = ci90$lower[row, columns] > 0 | ci90$upper[row, columns] < 0
@@ -178,7 +178,7 @@ irf_panel <- function(variable, label, scale, mark_sig90) {
       alpha = 0.18
     ) +
     ggplot2::geom_ribbon(
-      ggplot2::aes(ymin = lo68, ymax = hi68),
+      ggplot2::aes(ymin = lo80, ymax = hi80),
       fill = "steelblue",
       alpha = 0.36
     ) +

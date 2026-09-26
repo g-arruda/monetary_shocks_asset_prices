@@ -50,7 +50,8 @@ Anderson--Rubin sets only where the earlier text cited bands, under the two-tier
 rule. Its numbers come from `irf_coherence_cell.rds` at the figures' scales
 (`irf_panel()` in `script/fig_section5.R`), and its horizons stop at 36, as §3.1
 says. When a paper number and the cache disagree, the cache is right. Quote
-`output/irf/irf_coherence_h.csv` for inference; its `set_type68`/`set_type90`
+`output/irf/irf_coherence_h.csv` for inference; its `set_type68`/`set_type90` (`set_type80` on
+branch `feature/bs-copom-surpresas-macro`, where the lower level is 80% since 2026-09-26)
 columns say what kind of set each band is.
 
 **Engineering a reader of the field would deduce gets no comment at all, and an

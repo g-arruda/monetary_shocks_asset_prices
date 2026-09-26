@@ -1,6 +1,6 @@
 # ===================================================================
 # Point-by-point theory-coherence evaluation of IRF paths
-# For each variable: sign and CI68/CI90 significance at every horizon,
+# For each variable: sign and CI80/CI90 significance at every horizon,
 # scored against a theory window. The theory table and the loop over
 # variables live in script/irf_coherence_check.R.
 # ===================================================================
@@ -22,14 +22,14 @@
 #' gap; a `real_line` set never does; an `empty` set gives `NA`.
 #'
 #' @param path Numeric vector, IRF point estimate at h = 0..H.
-#' @param lo68,hi68,lo90,hi90 CI bounds, same length as `path`.
+#' @param lo80,hi80,lo90,hi90 CI bounds, same length as `path`.
 #' @param spec One row of the theory table, with `var`, `group`,
 #'   `theory_sign`, `tier`, `w_lo` and `w_hi`.
-#' @param set_type68,set_type90 Character vectors of AR set topologies.
+#' @param set_type80,set_type90 Character vectors of AR set topologies.
 #'
 #' @return List with `perh` (tibble h x metrics) and `summary` (one row).
-evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
-                              set_type68, set_type90) {
+evaluate_irf_path <- function(path, lo80, hi80, lo90, hi90, spec,
+                              set_type80, set_type90) {
   H <- length(path) - 1
   sgn <- sign(path)
 
@@ -40,9 +40,9 @@ evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
       matrix(hi, ncol = 1)
     ))
   }
-  sig68 <- excludes_zero(set_type68, lo68, hi68)
+  sig80 <- excludes_zero(set_type80, lo80, hi80)
   sig90 <- excludes_zero(set_type90, lo90, hi90)
-  if (anyNA(sig68) || anyNA(sig90)) {
+  if (anyNA(sig80) || anyNA(sig90)) {
     stop("Empty Anderson-Rubin set in '", spec$var, "': the inversion rejects ",
          "every value of the response, which scoring cannot read as a sign. ",
          "Inspect cell$irf$ar before coercing it to a verdict.")
@@ -52,14 +52,14 @@ evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
     var = spec$var,
     h = 0:H,
     point = path,
-    lo68 = lo68,
-    hi68 = hi68,
+    lo80 = lo80,
+    hi80 = hi80,
     lo90 = lo90,
     hi90 = hi90,
-    set_type68 = set_type68,
+    set_type80 = set_type80,
     set_type90 = set_type90,
     sign = sgn,
-    sig68 = sig68,
+    sig80 = sig80,
     sig90 = sig90
   )
 
@@ -69,7 +69,7 @@ evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
   share_correct <- NA_real_
   first_correct_h <- NA_integer_
   wrong_sig90 <- NA
-  right_sig68 <- NA
+  right_sig80 <- NA
   right_sig90 <- NA
   contain0_share <- NA_real_
   channel <- NA_character_
@@ -79,7 +79,7 @@ evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
     share_correct <- mean(correct)
     if (any(correct)) first_correct_h <- window[which(correct)[1]] - 1
     wrong_sig90 <- any(sig90[window] & !correct)
-    right_sig68 <- any(sig68[window] & correct)
+    right_sig80 <- any(sig80[window] & correct)
     right_sig90 <- any(sig90[window] & correct)
   }
   if (spec$tier == "placebo") {
@@ -103,7 +103,7 @@ evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
     paste0("soft_", channel)
   } else if (isTRUE(wrong_sig90) || share_correct < 0.5) {
     "incoerente"
-  } else if (share_correct >= 0.8 && isTRUE(right_sig68)) {
+  } else if (share_correct >= 0.8 && isTRUE(right_sig80)) {
     "coerente_forte"
   } else if (share_correct >= 0.8) {
     "coerente"
@@ -129,7 +129,7 @@ evaluate_irf_path <- function(path, lo68, hi68, lo90, hi90, spec,
     peak_val = path[peak_idx],
     share_correct = share_correct,
     first_correct_h = first_correct_h,
-    right_sig68 = right_sig68,
+    right_sig80 = right_sig80,
     right_sig90 = right_sig90,
     wrong_sig90 = wrong_sig90,
     contain0_share = contain0_share,

@@ -26,10 +26,10 @@ R_FACTORS  <- 5L
 Q_DYNAMIC  <- 5L
 P_LAGS     <- 4L
 HORIZON    <- 48L
-INSTRUMENT <- "z_jk_bs_purif"
+INSTRUMENT <- "z_bs_purif"
 MP_VAR     <- "yield_6m"
 NORMALIZE_VALUE <- 0.005
-CI_LEVELS  <- c(0.68, 0.90)
+CI_LEVELS  <- c(0.80, 0.90)
 N_SERIES      <- 115L
 N_BASE_SERIES <- 106L
 N_MONTHS <- 166L
@@ -133,8 +133,8 @@ if (!identical(instrument_wide$month, expected_dates) ||
   stop("The instrument variants must cover all 166 production months.")
 }
 first_instrument <- c(
-  -22.017543058626288, 0, -3.96538127126775, 0,
-  0, 7.955274952337614, 0, -2.465187498734114
+  -22.022780871483423, -19.657534015830727, -5.2528948250458516, 0,
+  7.2624960719803342, 6.4545813094945652, 0, -4.4561851757103943
 )
 if (max(abs(instrument_wide[[INSTRUMENT]][seq_along(first_instrument)] -
     first_instrument)) > 1e-12) {
@@ -146,16 +146,16 @@ event_diagnostics <- readr::read_csv(
 ) |>
   dplyr::mutate(month = lubridate::floor_date(as.Date(date), "month")) |>
   dplyr::group_by(month) |>
-  dplyr::summarise(kept_events = sum(copom_day & jk_monetary_bs), .groups = "drop")
+  dplyr::summarise(copom_events = dplyr::n(), .groups = "drop")
 zero_contract <- tibble::tibble(month = expected_dates) |>
   dplyr::left_join(event_diagnostics, by = "month") |>
-  dplyr::mutate(kept_events = tidyr::replace_na(kept_events, 0L))
-if (sum(instrument_wide[[INSTRUMENT]] == 0) != 99L ||
+  dplyr::mutate(copom_events = tidyr::replace_na(copom_events, 0L))
+if (sum(instrument_wide[[INSTRUMENT]] == 0) != 64L ||
     !identical(
       instrument_wide[[INSTRUMENT]] == 0,
-      zero_contract$kept_events == 0
+      zero_contract$copom_events == 0
     )) {
-  stop("The JK monthly zeros do not match months without retained events.")
+  stop("The monthly zeros do not match months without a Copom meeting.")
 }
 instrument <- instrument_wide |>
   dplyr::transmute(month = as.Date(month), shock = .data[[INSTRUMENT]]) |>
@@ -201,11 +201,14 @@ samples <- list(full = SAMPLE, pre_covid = PRE_COVID_SAMPLE)
 # The full window runs the production Lenza-Primiceri scale since 2026-09-17;
 # the pre-COVID window has s_t = 1 in every month, so its numbers are the same
 # treated or not, and they did not move when the treatment was switched on.
+# xi_mp and F_rob are those of z_bs_purif since 2026-09-26, equal to its (5,5)
+# rows of output/instrument/mosw_strength_grid.csv; the companion roots do not
+# depend on the instrument.
 expected <- tibble::tibble(
   sample = c("full", "pre_covid"),
   n_innovations = c(162L, 90L),
-  xi_mp = c(6.848034677287512, 8.643436347247281),
-  f_robust_mp = c(11.76556400341498, 13.809985106266108),
+  xi_mp = c(7.0189895200649515, 6.8366817810330156),
+  f_robust_mp = c(8.6163300983816562, 8.3066479428861566),
   max_companion_root = c(0.9836760960674927, 0.9933587954932864),
   stable = c(TRUE, TRUE)
 )
@@ -275,17 +278,15 @@ point_irf <- compute_irf_dfm(
 )
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
 # Under the production Lenza-Primiceri scale since 2026-09-17, with theta-hat
-# re-estimated on 2026-09-25 at the finer finite-difference step of
-# estimate_covid_theta(). The treated values before that were
-# 0.007009032608368654, 0.007290054332728366, -1.502015837566601 and
-# 0.1294216737921361; the untreated ones 0.007026364233969990,
-# 0.007245719448835893, -0.9965048308800585 and 0.1342419094791832.
+# re-estimated on 2026-09-25, and z_bs_purif since 2026-09-26. Under
+# z_jk_bs_purif the values were 0.0070090429740256857, 0.0072900596216797665,
+# -1.5019377453868872 and 0.12942378112688835.
 expected_impacts <- c(
   0.005,
-  0.0070090429740256857,
-  0.0072900596216797665,
-  -1.5019377453868872,
-  0.12942378112688835
+  0.0072069426647632393,
+  0.00773053809800818,
+  -2.4654264316584382,
+  0.14142146175048584
 )
 impact_smoke <- tibble::tibble(
   variable = headline,

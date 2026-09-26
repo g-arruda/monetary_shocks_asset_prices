@@ -13,7 +13,7 @@
 #                       (hac_dim 85 < T = 92, the `pre_p2` cell of the archived
 #                       arquivo/script/q_truncation.R).
 #
-# q = 5 carries its 68/90% Anderson-Rubin sets; q = 2, 3 and 4 are point
+# q = 5 carries its 80/90% Anderson-Rubin sets; q = 2, 3 and 4 are point
 # estimates only, following the Figure A3 design of Alessi and Kerssenfischer
 # (2019). The script only draws: output/factors/<stem>.pdf, the 20 variables
 # to h = 48, and, for --window=cheia, paper/fig_q_sensibilidade.pdf, the
@@ -50,11 +50,11 @@ Q_PRODUCTION <- 5L
 Q_VALUES     <- c(5L, 4L, 3L, 2L)
 Q_LABELS     <- paste0("q=", Q_VALUES)
 PRODUCTION_LABEL <- paste0("q=", Q_PRODUCTION)
-INSTRUMENT   <- "z_jk_bs_purif"
+INSTRUMENT   <- "z_bs_purif"
 MP_VAR       <- "yield_6m"
 HORIZON      <- 48L
 SHOCK_BPS    <- 50
-CI_LEVELS    <- c(0.68, 0.90)
+CI_LEVELS    <- c(0.80, 0.90)
 AR_NW_LAGS   <- 0L
 H_PAPER      <- 36L
 VARS <- c(
@@ -118,8 +118,8 @@ PAGES <- tibble::tibble(
   title = c(CELL$title, "", "Variáveis fiscais", "Expectativas"),
   subtitle = c(
     paste(
-      "z_jk_bs_purif × yield_6m, choque de +50 pb; bandas Anderson-Rubin",
-      "68/90% apenas para q=5"
+      "z_bs_purif × yield_6m, choque de +50 pb; bandas Anderson-Rubin",
+      "80/90% apenas para q=5"
     ),
     "",
     "",

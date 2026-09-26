@@ -23,7 +23,7 @@ if (!"--reestimate-current-instrument" %in% commandArgs(trailingOnly = TRUE)) {
 PANEL_PATH      <- "data/processed/data_log_deseasonalized.csv"
 INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
 OUT_DIR         <- "output/var"
-INSTRUMENT      <- "z_jk_bs_purif"
+INSTRUMENT      <- "z_bs_purif"
 
 # The only active small-VAR benchmark cell: five series in levels, constant
 # and linear trend in every equation, on the DFM's own window and lag order
@@ -39,7 +39,7 @@ VAR_SAMPLE    <- as.Date(c("2012-03-01", "2025-12-01"))
 MAX_LAG       <- 12L
 P_LAGS        <- 4L
 HORIZON       <- 36L
-AR_LEVELS     <- c(0.68, 0.90)
+AR_LEVELS     <- c(0.80, 0.90)
 NW_LAGS       <- 0L
 MP_VAR        <- "yield_6m"
 SCALE         <- 0.005     # +50bp on yield_6m, a decimal proportion

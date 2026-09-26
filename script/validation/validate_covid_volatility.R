@@ -98,18 +98,19 @@ if (!all(n2)) {
        "beyond 1e-12 in ", sum(!n2), " of ", length(n2), " cells")
 }
 
-# The untreated reference, at full precision. These were the CLAUDE.md smoke
-# constants until 2026-09-17, when the Lenza-Primiceri scale became production;
-# `reference` is built with covid_volatility = NULL, so it is still exactly this
-# OLS point, and pinning it is what proves the treated branch degenerates to the
-# untreated one. The current production constants are the treated ones, in
-# output/validation/production_spec_impact_smoke.csv.
+# The untreated reference, at full precision: the OLS point of the production
+# instrument in data/processed/instrument.csv, z_bs_purif since 2026-09-26
+# (under z_jk_bs_purif it was 0.0070263642339699903, 0.0072457194488358932,
+# -0.99650483088005848 and 0.13424190947918324). `reference` is built with
+# covid_volatility = NULL, so pinning it is what proves the treated branch
+# degenerates to the untreated one. The production constants are the treated
+# ones, in output/validation/production_spec_impact_smoke.csv.
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
-untreated_h0 <- c(0.0050000000000000001, 0.0070263642339699903,
-                  0.0072457194488358932, -0.99650483088005848,
-                  0.13424190947918324)
+untreated_h0 <- c(0.0050000000000000001, 0.0081785146707394098,
+                  0.0094570470135525789, -4.46629862738589,
+                  0.19440255381521024)
 if (!identical(reference[["5"]][match(headline, colnames(data_mat)), 1], untreated_h0)) {
-  stop("N2: the untreated reference point moved; it must stay the pre-2026-09-17 OLS point")
+  stop("N2: the untreated reference point moved from the OLS point of the production instrument")
 }
 
 # N3 — (B5) at neutral theta against the Gaussian log-likelihood summed row by row

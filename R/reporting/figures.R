@@ -15,8 +15,8 @@
 #'
 #' @param df Long data.frame with `variable`, `h`, `point` and the factor
 #'   `cell` used for colour and linetype.
-#' @param band_df Same shape restricted to the production cell, plus `lo68`,
-#'   `hi68`, `lo90`, `hi90`.
+#' @param band_df Same shape restricted to the production cell, plus `lo80`,
+#'   `hi80`, `lo90`, `hi90`.
 #' @param vars Variables to draw, one panel each, in this order.
 #' @param palette,linetypes Named vectors keyed by the levels of `cell`.
 #' @param h_max Last horizon on the x axis (breaks every 6 months).
@@ -37,7 +37,7 @@ plot_dimension_overlay <- function(df, band_df, vars, palette, linetypes,
       ) +
       ggplot2::geom_ribbon(
         data = bands,
-        ggplot2::aes(ymin = lo68, ymax = hi68),
+        ggplot2::aes(ymin = lo80, ymax = hi80),
         fill = "steelblue",
         alpha = 0.36
       ) +

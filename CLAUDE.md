@@ -21,7 +21,11 @@ with the advisor.
 
 ## Production spec — the invariant that costs most to get wrong
 
-**`z_jk_bs_purif` × `yield_6m` × (r=5, q=5, p=4), +50bp**. Since **2026-09-21 there is no spec
+**`z_jk_bs_purif` × `yield_6m` × (r=5, q=5, p=4), +50bp** on `main`. **On branch
+`feature/bs-copom-surpresas-macro`, since 2026-09-26, the production instrument is `z_bs_purif`**
+(the JK sign filter left production, for now, by author decision) and the AR sets are at **80/90%**
+(were 68/90%); code, outputs, validators and `paper/fig_*.pdf` follow it there, the `.tex` does not
+yet. Note `2026-09-26_producao_bs_purif_bandas_80_90`. Since **2026-09-21 there is no spec
 object**: `R/modeling/production_spec.R` was deleted and every path, dimension, window and switch
 is written as a literal in the script that uses it, in a constants block at its top (author
 decision — a centralized spec made every number a second lookup). The one value that is not a
@@ -69,6 +73,10 @@ through the MOSW covariance, and every set in `output/irf/irf_coherence_h.csv`
 comes back `interval` at 68 and 90% — 2841 of 2842 rows per level, the one
 exception being the `singleton` the normalization pins at h=0. Legacy
 first-stage F rulers still print but stopped deciding on 2026-07-26.
+**On the branch (`z_bs_purif`)**: ξ_mp = **7.018990 full / 6.836682 pre-COVID**, F_rob,mp =
+8.616330 / 8.306648 (both below 10 in both windows), same roots, and every set is `interval` at
+80 and 90% (2841 + the h=0 `singleton` per level). With the JK filter, in the branch's
+construction, ξ_mp would be 5.01 / 4.73: the filter lowers it there.
 
 **Under the scale, `r ≥ 7` is explosive on the full window** (max root 1.001362
 at r=7, 1.001318 at r=8, every q), so `script/mosw_strength_grid.R` sweeps
@@ -173,7 +181,8 @@ is deliberate. The migrated cell is stronger: ξ_var 6.797335 → **7.258325**,
 max root 0.9765222 (stable), `hac_dim` 140 < 162 so the gate passes, AR sets
 bounded at 90%. Published responses are
 horizon-specific `C_h B_1` estimates with VAR-only AR/MOSW sets at 68% and 90%
-under NW(0). Do not add sensitivity cells, sum responses across horizons, or
+under NW(0) — on the branch, at 80% and 90% with `z_bs_purif`, ξ_var 7.189765. Do not add
+sensitivity cells, sum responses across horizons, or
 restore bootstrap inference for this benchmark.
 
 ## Pipeline
@@ -188,13 +197,14 @@ Three ordered stages plus estimation, one `Rscript` process each, orchestrated b
    its own so that it never refreshes the panel.
 2. **`script/clean.R`** → `data/processed/data_log_deseasonalized.csv` (log + X-13).
 3. **`script/instrument.R`** → the 3 monthly variants of `tab:first_stage` (`z_bruto`, `z_bs_purif`,
-   production `z_jk_bs_purif`) via `R/instrument/build_variants.R`.
+   `z_jk_bs_purif`; production is `z_jk_bs_purif` on `main`, `z_bs_purif` on the branch) via
+   `R/instrument/build_variants.R`.
 4. **Estimation** — `script/model_alessi.R` (main DFM; the pipeline itself is `main_sdfm()` in
    `R/modeling/dfm_pipeline.R`) and `script/model_var.R` (small-VAR
    **benchmark**; it does not use the factors).
 
 `script/irf_coherence_check.R` runs the production spec once and writes
-`output/irf/irf_coherence_h.csv` — point + 68/90 Anderson–Rubin sets + `set_type` + flags, **the
+`output/irf/irf_coherence_h.csv` — point + 68/90 (80/90 on the branch) Anderson–Rubin sets + `set_type` + flags, **the
 source of §5** — plus `irf_coherence_cell.rds`, the cached estimation object follow-up analyses
 reuse instead of re-estimating. The inference swap was documented by `arquivo/script/ar_bands.R`,
 archived on 2026-09-18 with the bootstrap it compared against; its outputs stay in
@@ -237,6 +247,7 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Global optimum of θ̂ | `covid_volatility_theta.R` | `2026-09-24_otimo_global_theta` | confirmed: 750 starts over the whole box, none above θ̂, θ̂ byte-identical; three local maxima — θ̂ (137 starts), ρ = 0 (−2.62) and a new ridge on the floor s̄2 = 1 where ρ is unidentified (−4.79); no start with ρ0 ≤ 0.4 reaches θ̂, so the one-start estimator relied on LP's ρ0 = 0.8; the multi-start is now a guard of the producer |
 | BS Table 3 analogue and IRFs by instrument layer, Anexo D | `instrument.R`, `instrument_layers_irf.R` | `2026-09-25_anexo_d_instrumento` | Table 3 of Bauer-Swanson confirmed as the model; pre-event predictability not jointly significant (p 0.131 DI, 0.326 Ibovespa, R² 0.022/0.015); the three layers draw the same shape, 0/4255 alternative points outside the production 90% set; the JK filter widens FX/CDS/long-rate impacts 12--36% and flips the Ibovespa impact sign, mechanically |
 | BS orthogonalization on the Copom events only, Table 3 counterparts plus S&P 500 and VIX (**branch `feature/bs-copom-surpresas-macro`, author's chosen construction, not yet promoted**) | `instrument.R` | `2026-09-26_bs_lista_tabela3_externas` | the 20-day Focus revisions leave the regression (they are BS Table 2, not Table 3), and so does the BRL trend; kept: 65-day Ibovespa, DI slope and Brent trends, the four macro news, plus 65-day S&P 500 and VIX. DI R² 0.124, joint Wald p 0.122; production ξ_mp 5.01 full / 4.73 pre-COVID, every AR set `interval`, 0/296 points of the eight §4 series outside main's 90% set; IPCA loses its 90% significance, the Ibovespa impact becomes significant (−8.17%), the primary balance loses h18–h32. By author decision the Selic-revision variant is not reported in the paper. ⚠ The external placebos turn significant at 90% (US EPU h1–h6, MSCI EM h2–h8, VIX h0), which they were not in main; cause not investigated. Promotion open in Theme D, paper migration in Theme A |
+| JK filter out of production (`z_bs_purif`) and AR sets at 80/90% (**branch, code and figures migrated, `.tex` not**) | `instrument.R`, `irf_coherence_check.R`, `model_var.R`, every figure script, both validators with pins | `2026-09-26_producao_bs_purif_bandas_80_90` | in the branch's construction the JK filter lowers ξ_mp (7.02 → 5.01 full, 6.84 → 4.73 pre-COVID), so production became the orthogonalized surprise: ξ_mp 7.018990 / 6.836682, F_rob 8.62 / 8.31; the new point equals the old `z_bs_purif` layer to 0, nothing else moved; every set `interval` at 80 and 90%; BRL/USD +3.53%, CDS +34.0 bp at impact; same shapes, larger magnitudes; the VAR follows at 80/90%, ξ_var 7.19. ⚠ US EPU placebo violates at 90% in h1–h3. What the paper must change is listed in Theme A of `pendencias.md` |
 | BS orthogonalization on the Copom events only, with the macro news block (**branch, superseded on 2026-09-26 as to the predictor list**) | `download_macro_news.R`, `instrument.R` | `2026-09-25_bs_copom_surpresas_macro` | estimated as BS Table 3 does (102 meetings, constant only, IPCA and first-release GDP surprises, core acceleration, expected IPCA; labor market and BBK left out): the Copom surprise is predictable (Wald p 0.009, R² 0.273, driven by the Focus Selic revision), and removing that component removes the strength — production ξ_mp 6.85 → 1.78 full, 8.64 → 3.22 pre-COVID, 90% AR sets unbounded; the macro block is not jointly significant (p 0.159); paper, validators and smoke test not migrated; promotion open in `pendencias.md` Theme D |
 | `p` sensitivity in Anexo C; θ̂ re-estimated at a finer gradient step | `covid_volatility_theta.R`, `p_sensitivity.R` | `2026-09-25_p_sensibilidade_anexo` | the FOC guard stopped θ̂ at `p = 5` (optim's default `ndeps` 1e-3 stops short); author chose `ndeps = 1e-6` everywhere: production θ̂ moved in the 4th--5th digit, ξ_mp 6.847997 → 6.848035, IRFs ≤ 8e-5 of scale, no paper number, significance flag or set type changed; `p = 2..6` all stable and inside the `p = 4` 90% set |
 
@@ -246,9 +257,10 @@ These govern what may be **said**, so they apply even when no file is open.
 
 ### What the paper may not claim
 
-- **68% bands are never "significant".** Two-tier rule: 90% band excluding zero → *significativo*;
-  68% only → **direction and magnitude**, labelled as such.
-- **The 68%/90% Anderson–Rubin sets are the sole operational inference for the DFM** since
+- **The lower band is never "significant".** Two-tier rule: 90% band excluding zero →
+  *significativo*; the lower level only → **direction and magnitude**, labelled as such. The lower
+  level is 68% on `main` and **80% on the branch since 2026-09-26** (AK's levels, stricter).
+- **The 68%/90% (80/90% on the branch) Anderson–Rubin sets are the sole operational inference for the DFM** since
   **2026-09-08** (author decision; it reverses the 2026-08-12 withdrawal, `historico_decisoes.md`
   §7). `compute_irf_dfm(inference=)` is the single switch (`"ar"`, or `"none"` for the point
   alone) and has no default; every production call site writes `"ar"`. The wild bootstrap and the Kilian
@@ -454,6 +466,9 @@ bit-identical check: `0.0050000000000000001`, `0.0070090429740256857`,
 `0.0072900596216797665`, `-1.5019377453868872`,
 `0.12942378112688835`. The untreated point (`covid_volatility = NULL`) is still
 pinned, as the degeneracy reference, in `script/validation/validate_covid_volatility.R`.
+**On the branch, with `z_bs_purif` in `data/processed/instrument.csv`**, the expected h0 is
+`0.0050000000000000001`, `0.0072069426647632393`, `0.00773053809800818`,
+`-2.4654264316584382`, `0.14142146175048584` (verified bit-identical on 2026-09-26).
 
 ## Conventions
 

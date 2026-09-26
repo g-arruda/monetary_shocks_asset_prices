@@ -158,7 +158,7 @@ infer_tcode_from_varnames <- function(var_names) {
 #'
 #' @examples
 #' irf <- compute_irf_dfm(dfm, h = 48L, mpind = mp_idx, normalize_value = 0.005,
-#'                        tcode = tcode, ci_levels = c(0.68, 0.90),
+#'                        tcode = tcode, ci_levels = c(0.80, 0.90),
 #'                        inference = "ar")
 compute_irf_dfm <- function(dfm_results, instrument = dfm_results$instrument,
                             h = 24, mpind, normalize_value,

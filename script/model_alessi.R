@@ -1,7 +1,7 @@
 # ===================================================================
 # Main DFM: the production specification on the 115-series panel, r = q = 5.
-# Instrument: data/processed/instrument.csv = z_jk_bs_purif (JK mask on
-# Bauer-Swanson pre-event residuals). Inference: Anderson-Rubin sets.
+# Instrument: data/processed/instrument.csv = z_bs_purif (Bauer-Swanson
+# pre-event orthogonalization). Inference: Anderson-Rubin sets.
 # Outputs: output/factors/production_bai_ng_bll_surface.csv
 #          output/irf/irf_model_alessi_r5q5.pdf
 # ===================================================================
@@ -22,7 +22,7 @@ P_LAGS     <- 4L
 HORIZON    <- 48L
 MP_VAR     <- "yield_6m"
 SHOCK_BPS  <- 50
-CI_LEVELS  <- c(0.68, 0.90)
+CI_LEVELS  <- c(0.80, 0.90)
 RESPONSE_VARS <- c(
   "ipca"              = "price_ipca",
   "ipca difusao"      = "price_ipca_difusao",
