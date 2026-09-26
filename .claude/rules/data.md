@@ -36,7 +36,9 @@ from "the collection came back empty", and the error only surfaces months later,
 - `data/processed/instrument.csv` — single-column instrument consumed by both estimation scripts.
 - `data/processed/instrumentos_mensais.csv` — the 3 variants of `tab:first_stage` side-by-side:
   `z_bruto`, `z_bs_purif`, `z_jk_bs_purif`.
-- `data/raw/focus_daily.csv` — Focus pre-event predictors from `R/data_download/focus.R`.
+- `data/raw/focus_daily.csv` — Focus pre-event predictors from `R/data_download/focus.R`. On branch
+  `feature/bs-copom-surpresas-macro` the instrument no longer reads it (the Focus revisions left the
+  BS regression on 2026-09-26); `het_rigobon/_common.R` still does.
 - `data/raw/focus_macro_expectations.csv` and `data/raw/macro_released.csv` — the macro news
   block of the BS regression, from `script/download_macro_news.R` (branch
   `feature/bs-copom-surpresas-macro`, 2026-09-25). They hold:

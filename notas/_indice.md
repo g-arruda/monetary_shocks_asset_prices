@@ -145,9 +145,20 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Ortogonalização Bauer-Swanson com a lista da Tabela 3, mais S&P 500 e VIX (2026-09-26, branch):**
+[`2026-09-26_bs_lista_tabela3_externas`](2026-09-26_bs_lista_tabela3_externas.md)
+**Branch `feature/bs-copom-surpresas-macro`: construção escolhida pelo autor, paper não migrado.** A
+regressão das 102 reuniões fica com os análogos brasileiros da Tabela 3: tendências de Ibovespa,
+inclinação do DI e Brent, mais o bloco macro. Somam-se S&P 500 e VIX. As revisões Focus, que eram da
+Tabela 2, e o câmbio saem. O `R²` do DI é 0,124 e a Wald não rejeita (p 0,122). O ξ_mp de produção
+fica em 5,01 na cheia e 4,73 na pré-COVID. Todos os conjuntos seguem `interval`, e nenhum ponto das
+oito séries da §4 sai do conjunto de 90% de `main`. Mudam três leituras da §4: IPCA, Ibovespa no
+impacto e resultado primário. A promoção está aberta no Tema D.
+
 **Ortogonalização Bauer-Swanson só nas reuniões, com surpresas macro (2026-09-25, branch):**
 [`2026-09-25_bs_copom_surpresas_macro`](2026-09-25_bs_copom_surpresas_macro.md)
-**Branch `feature/bs-copom-surpresas-macro`, não produção.** A regressão pré-evento passa a ser
+**Superada em 2026-09-26 quanto à lista de preditores; seguem valendo a amostra, os dados e o
+bloco macro.** A regressão pré-evento passa a ser
 estimada como a Tabela 3 de BS: 102 reuniões, só constante, mais as surpresas de IPCA e PIB (primeira
 divulgação), a aceleração do núcleo e o IPCA esperado. A surpresa do Copom é previsível (Wald
 p 0,009, `R²` 0,273), sobretudo pela revisão Focus da Selic. Com esse componente sai a força: ξ_mp
@@ -353,7 +364,8 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
-| [`2026-09-25_bs_copom_surpresas_macro`](2026-09-25_bs_copom_surpresas_macro.md) | 09-25 | **BRANCH — medição sem promoção; o paper segue a produção de `main`** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, conjuntos AR 68/90; branch `feature/bs-copom-surpresas-macro` | Tudo, como medição: a surpresa do Copom é previsível nas reuniões (Wald p 0,005 sem o bloco macro, 0,009 com ele); o bloco macro não é significativo em conjunto (p 0,159); ξ_mp de produção 1,78 na cheia e 3,22 na pré-COVID; os conjuntos de 90% ficam `real_line`/`two_rays`; os impactos crescem com o denominador menor. ⚠ Só vale para a produção se o autor promover. ⚠ Quatro divulgações caem na quinta do Copom. ⚠ Não foi testado se a queda sobrevive sem a revisão da Selic |
+| [`2026-09-26_bs_lista_tabela3_externas`](2026-09-26_bs_lista_tabela3_externas.md) | 09-26 | **BRANCH — construção escolhida pelo autor, não promovida; o paper segue a produção de `main`** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, conjuntos AR 68/90; branch `feature/bs-copom-surpresas-macro` | A regressão pré-evento com os análogos da Tabela 3 (Ibovespa, inclinação do DI, Brent, bloco macro) mais S&P 500 e VIX; `R²` do DI 0,124, Wald p 0,122; ξ_mp de produção 5,01 cheia e 4,73 pré-COVID; todos os conjuntos `interval`; 0 de 296 pontos das oito séries da §4 fora do conjunto de 90% de `main`; o que a promoção migra (§5). ⚠ Só vale para a produção depois da promoção. ⚠ S&P e VIX em 65 pregões não tratam a super quarta (34 das 102 reuniões). ⚠ A lista foi fixada depois de medir a variante com a revisão da Selic |
+| [`2026-09-25_bs_copom_surpresas_macro`](2026-09-25_bs_copom_surpresas_macro.md) | 09-25 | **BRANCH — superada em 09-26 quanto à lista de preditores; amostra, dados e bloco macro seguem valendo** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, conjuntos AR 68/90; branch `feature/bs-copom-surpresas-macro` | Tudo, como medição: a surpresa do Copom é previsível nas reuniões (Wald p 0,005 sem o bloco macro, 0,009 com ele); o bloco macro não é significativo em conjunto (p 0,159); ξ_mp de produção 1,78 na cheia e 3,22 na pré-COVID; os conjuntos de 90% ficam `real_line`/`two_rays`; os impactos crescem com o denominador menor. ⚠ Só vale para a produção se o autor promover. ⚠ Quatro divulgações caem na quinta do Copom. ⚠ Não foi testado se a queda sobrevive sem a revisão da Selic |
 | [`2026-09-25_anexo_d_instrumento`](2026-09-25_anexo_d_instrumento.md) | 09-25 | **CURRENT — rodada de apêndice; tabela nova, respostas sob o θ̂ de 09-25** | `paper/paper_anpec.tex` sob a produção de 115 séries, 2012-03--2025-12, `(5,5,4)`, escala LP, conjuntos AR 68/90 | Tudo: a `tab:bs_ortogonalizacao` como análoga da Tabela 3 de Bauer-Swanson (HC1, 638 quintas, Wald p 0,131/0,326); a `fig:instrumento_camadas` com 0/4255 pontos alternativos fora do conjunto de 90%; os impactos por camada. ⚠ O sinal do Ibovespa troca com o filtro JK, por construção. ⚠ A amostra da regressão são todas as quintas válidas, não só as semanas de reunião |
 | [`2026-09-25_p_sensibilidade_anexo`](2026-09-25_p_sensibilidade_anexo.md) | 09-25 | **CURRENT — θ̂ de produção reestimado (`ndeps = 1e-6`); nenhum número do paper mudou** | painel 115, 2012-03--2025-12, `(r,q) = (5,5)`, `p = 2..6`, escala LP | Tudo: o diagnóstico da trava em `p = 5`; θ̂ por `p`; o θ̂ novo (6,611488; 12,468194; 1,760038; 0,943951); ξ_mp 6,848035, F_rob 11,765564, raiz 0,983676; os impactos do smoke test; a figura com todos os pontos dentro do conjunto de 90% de `p = 4` |
 | [`2026-09-24_otimo_global_theta`](2026-09-24_otimo_global_theta.md) | 09-24 | **CURRENT — θ̂ confirmado como máximo global; produção não mudou** (⚠ θ̂ reestimado com gradiente mais fino em 09-25, ver `2026-09-25_p_sensibilidade_anexo`) | painel 115, 2012-03--2025-12, `(r,p) = (5,4)`, `t*` = 2020-03, s̄ ≥ 1, ρ ∈ [0,1] | Tudo: o multi-start de 750 inícios como trava de `covid_volatility_theta.R`, com a tabela em `covid_volatility_multistart.csv`; nenhum início acima de θ̂ (+3,8e-7, precisão do otimizador); os três máximos, θ̂, ρ = 0 (−2,6211) e a crista no piso s̄2 = 1 (−4,7925, máximo local fraco só para ρ < 0,8346); θ̂ byte-idêntico, smoke test e `validate_production_spec.R` inalterados; os dois mutantes pegos. ⚠ Nenhum início com ρ0 ≤ 0,4 chega a θ̂: o estimador de um início só dependia do ρ0 = 0,8 de LP. ⚠ Grade finita e um otimizador só. ⚠ Os θ por vértice do item D não estão cobertos |

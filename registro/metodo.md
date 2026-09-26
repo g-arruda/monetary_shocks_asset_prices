@@ -308,7 +308,20 @@ Produto: resíduos `e_DI_t` e `e_Ibov_t` — surpresas purificadas.
 > - a mediana Focus do próximo IPCA.
 >
 > Emprego e BBK ficam como lacunas. ξ_mp de produção cai para 1,78. Nota
-> `notas/2026-09-25_bs_copom_surpresas_macro.md`; a promoção é decisão aberta em
+> `notas/2026-09-25_bs_copom_surpresas_macro.md`. A lista de preditores foi superada no dia
+> seguinte.
+>
+> **2026-09-26 (branch `feature/bs-copom-surpresas-macro`, construção escolhida pelo autor, ainda
+> não promovida):** a regressão pré-evento fica com os preditores da Tabela 3 que têm contrapartida
+> brasileira:
+> - tendências de 65 pregões do Ibovespa (o S&P 500 de BS), da inclinação do DI 2 anos − 3 meses
+>   e do Brent (as commodities);
+> - as quatro notícias macro acima.
+>
+> Somam-se as tendências de 65 pregões do S&P 500 e do VIX, como condições externas. As revisões
+> Focus de 20 pregões saem, porque são da Tabela 2, e o câmbio sai junto. ξ_mp de produção fica em
+> 5,01 na cheia e 4,73 na pré-COVID, com todos os conjuntos `interval`. Nota
+> `notas/2026-09-26_bs_lista_tabela3_externas.md`; promoção e migração do paper abertas em
 > `pendencias.md`, Tema D.
 
 ---

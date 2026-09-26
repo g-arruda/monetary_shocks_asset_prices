@@ -1,5 +1,15 @@
 # Ortogonalização Bauer-Swanson só nas reuniões do Copom, com o bloco de surpresas macro
 
+> **SUPERADA em 2026-09-26 quanto à lista de preditores** por
+> `2026-09-26_bs_lista_tabela3_externas`. O autor fixou a lista nos análogos da Tabela 3 mais S&P 500
+> e VIX. Saíram as revisões Focus, que eram da Tabela 2, e o câmbio. Com isso o ξ_mp de produção fica
+> em 5,01 na cheia e 4,73 na pré-COVID, e os conjuntos de 90% voltam a ser intervalos.
+> - Continuam valendo: a amostra (§1), os dados, o timing e as definições do bloco macro (§3).
+> - Os números das §§2 e 4–7 são da lista com as revisões Focus. Por decisão do autor, essa variante
+>   não é reportada no paper.
+> - O ⚠ da §6 sobre a retirada da revisão da Selic foi respondido: sem ela, o ξ_mp de produção seria
+>   4,79 na cheia.
+
 > **BRANCH `feature/bs-copom-surpresas-macro`, 2026-09-25 — NÃO é produção.**
 > - Fecha os dois itens do Tema D de `registro/pendencias.md` abertos no mesmo dia: estimar a
 >   ortogonalização só nos dias de Copom, sem tendência, e acrescentar o bloco de surpresas macro.

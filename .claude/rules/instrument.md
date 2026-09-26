@@ -14,16 +14,20 @@ values and keeps **all** I/O. Production vertex is `TARGET_BD = 126` ≈ 6m DI;
 `PRODUCTION_VARIANT` in that script picks the column written to the legacy single-column
 `data/processed/instrument.csv`.
 
-**On branch `feature/bs-copom-surpresas-macro` (2026-09-25, not production)** the BS regressions
-run on the 102 Copom events alone, with a constant and no trend, as BS Table 3 does. On top of the
-eight financial and Focus predictors (`pre_*`) they take four macro news regressors (`news_*`):
-- the IPCA surprise and the GDP surprise, GDP as first released;
-- the EX0 core acceleration;
-- the Focus median for the next IPCA.
+**On branch `feature/bs-copom-surpresas-macro` (the author's chosen construction since 2026-09-26,
+not yet promoted)** the BS regressions run on the 102 Copom events alone, with a constant and no
+trend, as BS Table 3 does. The predictors are the Table 3 counterparts plus two external trends:
+- the 65-day trends in the Ibovespa, the DI 2y−3m slope and Brent (`pre_*`);
+- four macro news regressors (`news_*`): the IPCA and GDP surprises, GDP as first released; the EX0
+  core acceleration; the Focus median for the next IPCA;
+- the 65-day S&P 500 and VIX trends, as external conditions.
 
-Their inputs come from `script/download_macro_news.R`. Production ξ_mp falls to 1.78, so the 90% AR
-sets are unbounded. `notas/2026-09-25_bs_copom_surpresas_macro.md` has the numbers; whether to
-promote is open in `pendencias.md`, Theme D.
+The 20-day Focus revisions (IPCA and Selic) and the BRL trend are **out**: the Focus revisions come
+from BS Table 2, not Table 3. By author decision the variant with the Selic revision (production
+ξ_mp 1.78) is not reported in the paper; its numbers stay in `notas/2026-09-25_bs_copom_surpresas_macro.md`.
+Macro inputs come from `script/download_macro_news.R`. Production ξ_mp is 5.01 full / 4.73
+pre-COVID, every AR set `interval`. `notas/2026-09-26_bs_lista_tabela3_externas.md` has the numbers;
+promotion and the paper migration are open in `pendencias.md`, Theme D.
 
 **Only the three variants of `tab:first_stage` exist in live code since 2026-09-18**, one per
 construction layer: `z_bruto` (raw Wed→Thu surprise), `z_bs_purif` (+ Bauer-Swanson pre-event

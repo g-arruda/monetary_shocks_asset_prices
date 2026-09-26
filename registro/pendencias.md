@@ -82,7 +82,7 @@ AR/MOSW próprios.
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | D | Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala LP e reportar sem e com o tratamento | aberto em 2026-09-24, decisão do autor; θ próprio por vértice, não o θ̂ do DFM; mesmo caminho da linha fatorial nas duas versões; ⚠ se rejeitar, `sec:identificacao` muda; a linha diária fica sem tratamento |
-| D | Decidir se a ortogonalização BS só nas reuniões, com surpresas macro, vira produção | aberto em 2026-09-25 na branch `feature/bs-copom-surpresas-macro`, que fechou os dois itens de BS e parou na medição; ξ_mp de produção 6,85 → 1,78 (pré-COVID 8,64 → 3,22), conjuntos de 90% ilimitados; promover migra o paper inteiro |
+| D | Promover a ortogonalização BS só nas reuniões (Tabela 3 + S&P 500 e VIX) e migrar o paper | construção escolhida pelo autor em 2026-09-26 na branch `feature/bs-copom-surpresas-macro`; ξ_mp de produção 6,85 → 5,01 (pré-COVID 8,64 → 4,73), conjuntos todos `interval`; a promoção migra o paper inteiro |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -667,31 +667,36 @@ ela abriu são **editoriais** e estão no Tema A.
   variações Qua→Qui já são inovações (autocorrelação de primeira ordem entre
   janelas abaixo de 0,1 em módulo), e Lenza-Primiceri não tem versão diária.
 
-- [ ] **Decidir se a ortogonalização Bauer-Swanson só nas reuniões, com o
-  bloco de surpresas macro, vira produção.** Aberto em 2026-09-25, quando a
-  branch `feature/bs-copom-surpresas-macro` fechou os dois itens abaixo e parou
-  na medição, por decisão do autor. Estimada como BS a estimam (102 reuniões, só
-  constante, surpresas de IPCA e PIB), a ortogonalização remove o componente
-  previsível pela revisão Focus da Selic, e com ele a força do instrumento:
-  - ξ_mp de produção cai de 6,85 para **1,78** na cheia e de 8,64 para 3,22 na
-    pré-COVID;
-  - nenhuma célula da grade cheia passa de 3,84;
-  - os conjuntos de 90% viram `real_line`/`two_rays` em toda a IRF.
+- [ ] **Promover a ortogonalização Bauer-Swanson só nas reuniões, com a lista da
+  Tabela 3 mais S&P 500 e VIX, e migrar o paper.** Aberto em 2026-09-25 na
+  branch `feature/bs-copom-surpresas-macro`. Em 2026-09-26 o autor escolheu a
+  construção:
+  - 102 reuniões, só constante;
+  - tendências de 65 pregões de Ibovespa, inclinação do DI, Brent, S&P 500 e VIX;
+  - surpresas de IPCA e PIB, aceleração do núcleo e IPCA esperado.
 
-  Promover exige migrar:
+  As revisões Focus, que eram da Tabela 2, e o câmbio saíram. A variante com a
+  revisão da Selic não vai para o paper, por decisão do autor.
+  - ξ_mp de produção vai de 6,85 para **5,01** na cheia e de 8,64 para 4,73 na
+    pré-COVID.
+  - Todos os conjuntos de 68 e 90% seguem `interval`, e nenhum ponto das oito
+    séries da §4 sai do conjunto de 90% de `main`.
+  - Três leituras da §4 mudam: o IPCA perde a significância, o Ibovespa passa a
+    ser significativo e negativo no impacto, e o resultado primário deixa de ser
+    significativo em h18–h32.
+
+  A promoção migra:
   - §3.3, `tab:first_stage`, `tab:bs_ortogonalizacao` e §3.4;
-  - a §4 e suas oito figuras, e os Anexos C e D, cujas figuras exigem
-    conjuntos `interval`;
-  - o benchmark VAR;
+  - a §4 e suas oito figuras, com resumo, introdução e conclusão;
+  - os Anexos C e D;
+  - o benchmark VAR e `fig:weak_iv_main`;
   - os pins de `validate_production_spec.R` e do N2 de
     `validate_covid_volatility.R`, o smoke test e o `CLAUDE.md`.
 
-  Nota: `2026-09-25_bs_copom_surpresas_macro` §7.
-  ⚠ Não promover também deixa algo em aberto: a legenda de
-  `tab:bs_ortogonalizacao` em `main` diz "como na Tabela 3" de BS sobre uma
-  regressão com tendência nas 638 quintas, que a Tabela 3 não é.
-  ⚠ Não foi testado se a queda sobrevive a outra janela de revisão Focus ou à
-  retirada da revisão da Selic.
+  Nota: `2026-09-26_bs_lista_tabela3_externas` §5.
+  ⚠ Até a migração, a legenda de `tab:bs_ortogonalizacao` em `main` diz "como na
+  Tabela 3" de BS sobre uma regressão com tendência nas 638 quintas, que a
+  Tabela 3 não é.
   ⚠ Quatro divulgações (PIB de 4T2013, 4T2015 e 1T2017; IPCA de 01/2018) caem
   na própria quinta do Copom, dentro da janela do evento. É contaminação
   contemporânea, que nenhuma camada trata.
