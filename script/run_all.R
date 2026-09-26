@@ -63,6 +63,17 @@ STAGES <- list(
       "data/raw/investing/external_factors_daily.csv"
     )
   ),
+  macro_news = list(
+    name = "macro_news",
+    desc = "Focus, SGS and IBGE first releases for the BS macro news block",
+    file = "script/download_macro_news.R",
+    network = TRUE,
+    requires = character(),
+    produces = c(
+      "data/raw/focus_macro_expectations.csv",
+      "data/raw/macro_released.csv"
+    )
+  ),
   clean = list(
     name = "clean",
     desc = "Log transforms + X-13 seasonal adjustment of the monthly panel",
