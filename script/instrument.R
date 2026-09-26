@@ -4,7 +4,8 @@
 # (R/instrument/build_variants.R): z_bruto, z_bs_purif and the
 # production z_jk_bs_purif, whose JK mask reads Bauer-Swanson
 # pre-event residuals (notas/2026-07-14_auditoria_fidelidade_jk_bs.md).
-# Requires the daily raw inputs written by `script/download.R`.
+# Requires the daily raw inputs written by `script/download.R` and the
+# macroeconomic news inputs written by `script/download_macro_news.R`.
 # ============================================================
 
 source("R/instrument/di_surprise.R")
@@ -60,6 +61,16 @@ focus_daily <- readr::read_csv(
     focus_selic_ny = as.numeric(focus_selic_ny)
   )
 
+focus_macro <- readr::read_csv(
+  "data/raw/focus_macro_expectations.csv",
+  show_col_types = FALSE
+)
+
+macro_released <- readr::read_csv(
+  "data/raw/macro_released.csv",
+  show_col_types = FALSE
+)
+
 copom_wed <- load_copom_wednesdays(
   "data/raw/copom_historico.csv",
   from = LOAD_START,
@@ -73,6 +84,8 @@ built <- build_instrument_variants(
     ext_daily = ext_daily,
     brl_daily = brl_daily,
     focus_daily = focus_daily,
+    focus_macro = focus_macro,
+    macro_released = macro_released,
     copom_wed = copom_wed
   ),
   target_bd = TARGET_BD,
@@ -101,16 +114,23 @@ built$daily |>
   readr::write_csv("data/processed/copom_event_diagnostics.csv")
 
 # Anexo D, the analogue of Bauer-Swanson (2023) Table 3: coefficients of the
-# two pre-event regressions with HC1 standard errors, and the HC1 joint Wald
-# of the eight predictors (the constant stays in the restricted model)
+# two pre-event regressions with HC1 standard errors, the HC1 joint Wald of
+# all twelve predictors and that of the four macroeconomic news alone (the
+# constant stays in the restricted model)
 built$bs_fits |>
   purrr::imap(function(fit, dependent) {
     vcov_hc1 <- sandwich::vcovHC(fit, type = "HC1")
-    predictors <- stringr::str_subset(names(coef(fit)), "^pre_")
-    beta <- coef(fit)[predictors]
-    joint_f <- drop(
-      t(beta) %*% solve(vcov_hc1[predictors, predictors], beta)
-    ) / length(predictors)
+    wald <- purrr::map(c(joint = "^(pre|news)_", macro = "^news_"), \(block) {
+      predictors <- stringr::str_subset(names(coef(fit)), block)
+      beta <- coef(fit)[predictors]
+      f <- drop(
+        t(beta) %*% solve(vcov_hc1[predictors, predictors], beta)
+      ) / length(predictors)
+      c(
+        f = f,
+        p = pf(f, length(predictors), df.residual(fit), lower.tail = FALSE)
+      )
+    })
     lmtest::coeftest(fit, vcov = vcov_hc1)[, ] |>
       tibble::as_tibble(rownames = "term") |>
       purrr::set_names(c("term", "estimate", "se", "t", "p")) |>
@@ -118,13 +138,10 @@ built$bs_fits |>
         dependent = dependent,
         n = nobs(fit),
         r2 = summary(fit)$r.squared,
-        joint_f = joint_f,
-        joint_p = pf(
-          joint_f,
-          length(predictors),
-          df.residual(fit),
-          lower.tail = FALSE
-        ),
+        joint_f = wald$joint[["f"]],
+        joint_p = wald$joint[["p"]],
+        macro_f = wald$macro[["f"]],
+        macro_p = wald$macro[["p"]],
         .before = 1
       )
   }) |>

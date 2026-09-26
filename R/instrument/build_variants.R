@@ -9,7 +9,12 @@
 #                  residuals (production).
 #
 # The BS regressions run on the Copom events alone, with a constant and no
-# trend, as their Table 3 does with the FOMC months (table_3.m).
+# trend, as their Table 3 does with the FOMC months (table_3.m). Their
+# predictors are the financial trends and Focus revisions before the meeting
+# and the macroeconomic news of Table 3 that Brazil has a public survey for:
+# IPCA and GDP surprises, the acceleration of core inflation and the expected
+# next IPCA (constructomittedvars.m). Labor market news has no survey
+# covering the sample and BBK no Brazilian analogue; both are left out.
 #
 # Monthly aggregation is Jarocinski-Karadi (2020, sec. II.A): m_t adds up the
 # event surprises of month t and is zero in months without a meeting, as in
@@ -22,7 +27,11 @@
 #'
 #' @param inputs Named list of daily inputs, all tibbles with a `date`
 #'   column: `di_panel`, `ibov_daily`, `ext_daily`, `brl_daily`,
-#'   `focus_daily`; plus `copom_wed` (Date vector).
+#'   `focus_daily`, `focus_macro` (Focus medians by `indicator`, survey
+#'   `date` and `reference` period); plus `macro_released` (released values
+#'   by `indicator` and `reference`, GDP as first released) and `copom_wed`
+#'   (Date vector, starting before the sample so that its first meeting has a
+#'   predecessor).
 #' @param target_bd DI vertex in business days.
 #' @param sample_start,sample_end Sample bounds.
 #'
@@ -120,24 +129,102 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
   valid <- thursday_panel |>
     tidyr::drop_na(delta_di, r_ibov, r_sp500, d_vix, r_brent)
 
+  # Macroeconomic news of BS Table 3, predetermined at the Wednesday close. The
+  # Focus panel stops surveying a reference period the day before its release,
+  # so a release is out by Wednesday W iff its last survey is before W (BS
+  # count a release on the FOMC day itself, mmsdy <= mpdy). A release is news
+  # for the first meeting after it: last survey in [W_{k-1}, W_k). The
+  # surprise is the release minus the median of that last survey.
+  meetings <- tibble::tibble(
+    wednesday = inputs$copom_wed,
+    previous_wednesday = dplyr::lag(inputs$copom_wed)
+  )
+
+  survey_ends <- inputs$focus_macro |>
+    dplyr::slice_max(date, n = 1, by = c(indicator, reference)) |>
+    dplyr::select(indicator, reference, last_survey = date, expected = median)
+
+  # Two releases between meetings add up; a meeting with no GDP release since
+  # the previous one has zero GDP news, as in BS
+  release_news <- survey_ends |>
+    dplyr::inner_join(
+      inputs$macro_released,
+      by = c("indicator", "reference")
+    ) |>
+    dplyr::inner_join(
+      meetings,
+      by = dplyr::join_by(
+        between(last_survey, previous_wednesday, wednesday, bounds = "[)")
+      )
+    ) |>
+    dplyr::summarise(
+      surprise = sum(value - expected),
+      .by = c(indicator, wednesday)
+    ) |>
+    tidyr::pivot_wider(
+      names_from = indicator,
+      names_prefix = "news_",
+      values_from = surprise,
+      values_fill = 0
+    )
+
+  # Focus median, as of the Wednesday, for the next IPCA still to be released
+  ipca_expected <- survey_ends |>
+    dplyr::filter(indicator == "ipca") |>
+    dplyr::inner_join(
+      meetings,
+      by = dplyr::join_by(last_survey >= wednesday)
+    ) |>
+    dplyr::slice_min(reference, n = 1, by = wednesday) |>
+    dplyr::inner_join(
+      inputs$focus_macro,
+      by = dplyr::join_by(indicator, reference, closest(wednesday >= date))
+    ) |>
+    dplyr::select(wednesday, news_ipca_expected = median)
+
+  # BS's acceleration of core inflation, t the month of the meeting:
+  # ((c_{t-2} - c_{t-8}) - (c_{t-8} - c_{t-14})) x 200, c the log EX0 index
+  core_acceleration <- inputs$macro_released |>
+    dplyr::filter(indicator == "ipca_ex0") |>
+    dplyr::arrange(reference) |>
+    dplyr::mutate(log_core = cumsum(log1p(value / 100))) |>
+    dplyr::transmute(
+      meeting_month = reference,
+      news_core_accel = 200 * (
+        (dplyr::lag(log_core, 2) - dplyr::lag(log_core, 8)) -
+          (dplyr::lag(log_core, 8) - dplyr::lag(log_core, 14))
+      )
+    )
+
   events <- valid |>
-    dplyr::filter(copom_day)
+    dplyr::filter(copom_day) |>
+    dplyr::mutate(wednesday = date - 1) |>
+    dplyr::left_join(release_news, by = "wednesday") |>
+    dplyr::left_join(ipca_expected, by = "wednesday") |>
+    dplyr::mutate(meeting_month = lubridate::floor_date(wednesday, "month")) |>
+    dplyr::left_join(core_acceleration, by = "meeting_month")
 
   # lm() would drop an incomplete row silently and move the regression sample
-  n_missing <- colSums(is.na(events[pre_event_inputs$predictor]))
+  n_missing <- events |>
+    dplyr::select(dplyr::starts_with(c("pre_", "news_"))) |>
+    is.na() |>
+    colSums()
   n_missing <- n_missing[n_missing > 0]
   if (length(n_missing) > 0) {
     stop(
       "NA in pre-event predictors on the Copom events: ",
       paste(sprintf("%s=%d", names(n_missing), n_missing), collapse = ", "),
-      ". Check daily input coverage or rerun script/download.R."
+      ". Check input coverage or rerun script/download.R and ",
+      "script/download_macro_news.R."
     )
   }
 
   # Bauer-Swanson (2023) eq. 7: regress the surprise on PREDETERMINED news only
-  # (financial trends + survey revisions) and keep the residual.
+  # (financial trends, survey revisions and macroeconomic news) and keep the
+  # residual.
   bs_formula <- ~ pre_ibov + pre_sp500 + pre_vix + pre_brent + pre_brl +
-    pre_slope + pre_focus_ipca + pre_focus_selic
+    pre_slope + pre_focus_ipca + pre_focus_selic + news_ipca + news_gdp +
+    news_core_accel + news_ipca_expected
   lm_di_bs <- lm(update(bs_formula, delta_di ~ .), data = events)
   lm_ibov_bs <- lm(update(bs_formula, r_ibov ~ .), data = events)
 
