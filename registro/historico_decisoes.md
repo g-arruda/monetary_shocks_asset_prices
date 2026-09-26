@@ -1038,8 +1038,14 @@ coisas mudam juntas, e nenhuma delas toca `main` antes da promoção (Tema D de
 (102 reuniões, lista da Tabela 3 mais S&P 500 e VIX) o filtro **reduz** ξ_mp, de 7,02 para
 5,01 na cheia e de 6,84 para 4,73 na pré-COVID, ao contrário do que fazia em `main` (de 6,16
 para 6,85). O achado "a força mora na máscara" (§2) é, portanto, da construção de `main`, e
-não sobrevive à da branch. O filtro continua construído, como camada alternativa da
-`tab:first_stage` e do Anexo D.
+não sobrevive à da branch. O filtro continua construído, porque a grade de força e os
+diagnósticos usam as três camadas.
+
+**No mesmo dia o filtro saiu também do paper**, por decisão do autor, e não ficou como
+camada alternativa. Saíram o parágrafo da §3.3 e a nota de rodapé, a linha 3 da
+`tab:first_stage`, a coluna do Ibovespa da `tab:bs_ortogonalizacao`, a camada JK da
+`fig:instrumento_camadas` e as frases de JK da §2, do resumo e da introdução. Nota:
+`2026-09-26_migracao_paper_bs_purif`.
 
 **Nível inferior das bandas de 68% para 80%.** Reverte, para o DFM, a escolha da regra de
 dois níveis de 2026-07-30 e, para o benchmark VAR, a fixação em 68/90% de 2026-08-22 (§10),

@@ -1,5 +1,10 @@
 # Produção sem o filtro JK (`z_bs_purif`) e bandas de 80/90%
 
+> **O `.tex` migrou no mesmo dia, sem o filtro JK em nenhuma parte do paper:
+> `2026-09-26_migracao_paper_bs_purif`.** Os números abaixo seguem valendo. A figura do Anexo D
+> deixou de desenhar a camada JK, e a frase "as tracejadas, a bruta e a com filtro de sinal" da §2
+> ficou superada.
+>
 > **BRANCH `feature/bs-copom-surpresas-macro`, 2026-09-26: código, outputs e figuras migrados; o
 > `.tex` NÃO foi tocado, por decisão do autor.**
 > - Duas decisões do autor, executadas juntas: o instrumento de produção passa de `z_jk_bs_purif` a

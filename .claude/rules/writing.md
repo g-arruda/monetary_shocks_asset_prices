@@ -41,6 +41,12 @@ on 2026-09-22 before moving to §3.3 as one paragraph on 2026-09-24. §4, its ei
 figures and captions, and the numbers and dates in the abstract, §1 and the
 conclusion caught up on 2026-09-24 (`2026-09-24_migracao_secao_4`). *Wild
 bootstrap* is now uncited in the body, captions included.
+**On branch `feature/bs-copom-surpresas-macro` the whole `.tex` follows the branch's production
+since 2026-09-26** (`2026-09-26_migracao_paper_bs_purif`): `z_bs_purif`, AR sets at 80/90% in every
+caption and in §3.4, and **no JK sign filter anywhere in the paper**. §3.3 has two layers,
+`tab:first_stage` two rows, `tab:bs_ortogonalizacao` one DI column (coefficient and SE) over the
+102 meetings, and `fig:instrumento_camadas` only production and the raw surprise. `main` keeps the
+old paper until the promotion (Theme D).
 `tab:rq_sweep` no longer exists. The sign-filter subsections report only
 exercises that hold the production mask fixed; the rederived-mask diagnostics
 remain in the generated outputs and living record.

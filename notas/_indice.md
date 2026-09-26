@@ -145,14 +145,25 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Paper migrado para a produção da branch (2026-09-26, branch):**
+[`2026-09-26_migracao_paper_bs_purif`](2026-09-26_migracao_paper_bs_purif.md)
+**Branch `feature/bs-copom-surpresas-macro`: o `.tex` segue a produção da branch.** O filtro JK sai
+do paper inteiro, por decisão do autor: §2, §3.3, a linha 3 da `tab:first_stage`, a coluna do
+Ibovespa da `tab:bs_ortogonalizacao` e a camada JK da `fig:instrumento_camadas`. A §3 passa a
+ξ_mp 7,02/6,84 e F_rob 8,62/8,31, com a regressão BS nas 102 reuniões (`R²` 0,124). As legendas passam
+a 80/90%. A §4 e a §5 foram re-derivadas do cache, com 143 e 20 números conferidos por script. Sete
+passagens foram reescritas, entre elas o ajuste cambial, que contém zero a 80% no impacto, os sete
+índices negativos no impacto e o câmbio, que volta a excluir zero a 90% em h32–h36. Fora da §4,
+mudaram só números e frases falsas, e o item do Tema A de absorver a leitura da §4 segue aberto.
+
 **Produção sem o filtro JK e bandas de 80/90% (2026-09-26, branch):**
 [`2026-09-26_producao_bs_purif_bandas_80_90`](2026-09-26_producao_bs_purif_bandas_80_90.md)
-**Branch `feature/bs-copom-surpresas-macro`: código, outputs e figuras migrados, `.tex` não.** O
+**Branch `feature/bs-copom-surpresas-macro`: código, outputs e figuras migrados; o `.tex` migrou no
+mesmo dia, em `2026-09-26_migracao_paper_bs_purif`.** O
 instrumento de produção passa a `z_bs_purif`, a surpresa ortogonalizada sem o filtro de sinal, e as
 bandas passam a 80/90%, como em AK; o benchmark VAR acompanha. ξ_mp de produção 7,02 na cheia e 6,84
 na pré-COVID, F_rob 8,62 e 8,31. Todos os conjuntos `interval` a 80 e 90%. BRL/USD 3,53% e CDS
-+34,0 p.b. no impacto. ⚠ O placebo EPU dos EUA viola a 90% em h1–h3. O que o paper precisa mudar está
-no item de migração do Tema A.
++34,0 p.b. no impacto. ⚠ O placebo EPU dos EUA viola a 90% em h1–h3.
 
 **Ortogonalização Bauer-Swanson com a lista da Tabela 3, mais S&P 500 e VIX (2026-09-26, branch):**
 [`2026-09-26_bs_lista_tabela3_externas`](2026-09-26_bs_lista_tabela3_externas.md)
@@ -375,7 +386,8 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
-| [`2026-09-26_producao_bs_purif_bandas_80_90`](2026-09-26_producao_bs_purif_bandas_80_90.md) | 09-26 | **BRANCH — produção da branch; código e figuras migrados, `.tex` não** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, `z_bs_purif`, conjuntos AR 80/90; branch `feature/bs-copom-surpresas-macro` | Tudo: a produção sem filtro JK, ξ_mp 7,02 / 6,84, F_rob 8,62 / 8,31, todos os conjuntos `interval` a 80 e 90%; os impactos novos (BRL/USD 3,53%, CDS +34,0 p.b.); o VAR em 80/90% com `xi_var` 7,19; o ponto novo é a camada `z_bs_purif` anterior, a 0. ⚠ Só vale para `main` depois da promoção. ⚠ Placebo EPU dos EUA viola a 90% em h1–h3 |
+| [`2026-09-26_migracao_paper_bs_purif`](2026-09-26_migracao_paper_bs_purif.md) | 09-26 | **BRANCH — CURRENT na branch; o paper segue a produção da branch** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, `z_bs_purif`, conjuntos AR 80/90; branch `feature/bs-copom-surpresas-macro`; sem reestimação | O que mudou no `.tex`, seção por seção; o filtro JK fora do paper inteiro; as sete passagens da §4 reescritas; a auditoria de 143 + 20 números contra o cache. ⚠ `main` segue com o paper antigo até a promoção (Tema D) |
+| [`2026-09-26_producao_bs_purif_bandas_80_90`](2026-09-26_producao_bs_purif_bandas_80_90.md) | 09-26 | **BRANCH — produção da branch; código e figuras migrados, `.tex` migrado no mesmo dia (`2026-09-26_migracao_paper_bs_purif`)** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, `z_bs_purif`, conjuntos AR 80/90; branch `feature/bs-copom-surpresas-macro` | Tudo: a produção sem filtro JK, ξ_mp 7,02 / 6,84, F_rob 8,62 / 8,31, todos os conjuntos `interval` a 80 e 90%; os impactos novos (BRL/USD 3,53%, CDS +34,0 p.b.); o VAR em 80/90% com `xi_var` 7,19; o ponto novo é a camada `z_bs_purif` anterior, a 0. ⚠ Só vale para `main` depois da promoção. ⚠ Placebo EPU dos EUA viola a 90% em h1–h3 |
 | [`2026-09-26_bs_lista_tabela3_externas`](2026-09-26_bs_lista_tabela3_externas.md) | 09-26 | **BRANCH — construção escolhida pelo autor, não promovida; superada no mesmo dia quanto à camada de produção (sem JK desde `2026-09-26_producao_bs_purif_bandas_80_90`)** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, conjuntos AR 68/90; branch `feature/bs-copom-surpresas-macro` | A regressão pré-evento com os análogos da Tabela 3 (Ibovespa, inclinação do DI, Brent, bloco macro) mais S&P 500 e VIX; `R²` do DI 0,124, Wald p 0,122; ξ_mp de produção 5,01 cheia e 4,73 pré-COVID; todos os conjuntos `interval`; 0 de 296 pontos das oito séries da §4 fora do conjunto de 90% de `main`; o que a promoção migra (§5). ⚠ Só vale para a produção depois da promoção. ⚠ S&P e VIX em 65 pregões não tratam a super quarta (34 das 102 reuniões). ⚠ A lista foi fixada depois de medir a variante com a revisão da Selic. ⚠ Os placebos externos (EPU dos EUA h1–h6, MSCI emergentes h2–h8, VIX h0) ficam significativos a 90%, o que não acontecia em `main`; causa não investigada |
 | [`2026-09-25_bs_copom_surpresas_macro`](2026-09-25_bs_copom_surpresas_macro.md) | 09-25 | **BRANCH — superada em 09-26 quanto à lista de preditores; amostra, dados e bloco macro seguem valendo** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, conjuntos AR 68/90; branch `feature/bs-copom-surpresas-macro` | Tudo, como medição: a surpresa do Copom é previsível nas reuniões (Wald p 0,005 sem o bloco macro, 0,009 com ele); o bloco macro não é significativo em conjunto (p 0,159); ξ_mp de produção 1,78 na cheia e 3,22 na pré-COVID; os conjuntos de 90% ficam `real_line`/`two_rays`; os impactos crescem com o denominador menor. ⚠ Só vale para a produção se o autor promover. ⚠ Quatro divulgações caem na quinta do Copom. ⚠ Não foi testado se a queda sobrevive sem a revisão da Selic |
 | [`2026-09-25_anexo_d_instrumento`](2026-09-25_anexo_d_instrumento.md) | 09-25 | **CURRENT — rodada de apêndice; tabela nova, respostas sob o θ̂ de 09-25** | `paper/paper_anpec.tex` sob a produção de 115 séries, 2012-03--2025-12, `(5,5,4)`, escala LP, conjuntos AR 68/90 | Tudo: a `tab:bs_ortogonalizacao` como análoga da Tabela 3 de Bauer-Swanson (HC1, 638 quintas, Wald p 0,131/0,326); a `fig:instrumento_camadas` com 0/4255 pontos alternativos fora do conjunto de 90%; os impactos por camada. ⚠ O sinal do Ibovespa troca com o filtro JK, por construção. ⚠ A amostra da regressão são todas as quintas válidas, não só as semanas de reunião |

@@ -23,7 +23,9 @@
 > conjuntos Anderson-Rubin de 68% e 90% com NW(0) desde 2026-09-08 (na branch
 > `feature/bs-copom-surpresas-macro`, desde 2026-09-26, `z_bs_purif` sem o
 > filtro JK e conjuntos de 80% e 90%; nota
-> `2026-09-26_producao_bs_purif_bandas_80_90`) — o wild
+> `2026-09-26_producao_bs_purif_bandas_80_90`; o paper da branch migrou no mesmo
+> dia e não reporta mais o filtro JK em nenhuma parte, nota
+> `2026-09-26_migracao_paper_bs_purif`) — o wild
 > bootstrap de 800 réplicas com semente 123 saiu da produção e, em 2026-09-18,
 > também do código, junto com a correção de Kilian. Bai--Ng BLL seleciona
 > IC1=5, IC2=5 e IC3=20; `q=r=5` permanece a decisão operacional. `p=4` é
@@ -325,8 +327,8 @@ Produto: resíduos `e_DI_t` e `e_Ibov_t` — surpresas purificadas.
 > Somam-se as tendências de 65 pregões do S&P 500 e do VIX, como condições externas. As revisões
 > Focus de 20 pregões saem, porque são da Tabela 2, e o câmbio sai junto. ξ_mp de produção fica em
 > 5,01 na cheia e 4,73 na pré-COVID, com todos os conjuntos `interval`. Nota
-> `notas/2026-09-26_bs_lista_tabela3_externas.md`; promoção e migração do paper abertas em
-> `pendencias.md`, Tema D.
+> `notas/2026-09-26_bs_lista_tabela3_externas.md`. A promoção está aberta em `pendencias.md`,
+> Tema D, e o paper da branch já migrou (`notas/2026-09-26_migracao_paper_bs_purif.md`).
 
 ---
 
