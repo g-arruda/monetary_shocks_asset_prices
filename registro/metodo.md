@@ -292,6 +292,13 @@ Produto: resíduos `e_DI_t` e `e_Ibov_t` — surpresas purificadas.
 
 > **2026-07-14 (auditoria):** esta regressão usa variações **contemporâneas** da mesma janela qua→qui — é uma limpeza de fator global (justificada pela exogeneidade de economia pequena), **não** a ortogonalização de Bauer-Swanson, que usa apenas preditores **pré-anúncio**. A versão fiel a BS (Δ65d financeiro + Δ20d Focus + tendência, tudo predeterminado na quarta) está implementada em `script/instrument.R` como `e_di_bs`/`e_ibov_bs` (variantes `z_bs_purif`, `z_jk_bs_purif`; insumos brutos produzidos por `script/download.R`). Nunca incluir variáveis domésticas contemporâneas (BRL, EMBI, curva DI da janela) — bad control.
 
+> **2026-09-25 (correção de atribuição):** a Tabela 3 de BS **não** tem tendência. Em `table_3.m` o
+> `trend` é criado, mas não entra no `X`: a regressão tem só a constante, com uma observação por
+> mês com FOMC (N = 217). A tendência e a revisão defasada do Blue Chip são da **Tabela 2**. A
+> tendência da regressão pré-evento do projeto, portanto, não vem de BS. O bloco de 2026-07-14
+> em "Status histórico" e `notas/2026-07-14_auditoria_fidelidade_jk_bs.md:42` ficam verbatim
+> com a atribuição antiga.
+
 ---
 
 ## Etapa 4 — Diagnóstico
