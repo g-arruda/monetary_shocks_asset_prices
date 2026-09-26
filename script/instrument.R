@@ -100,3 +100,34 @@ built$daily |>
     jk_monetary_bs
   ) |>
   readr::write_csv("data/processed/copom_event_diagnostics.csv")
+
+# Anexo D, the analogue of Bauer-Swanson (2023) Table 3: coefficients of the
+# two pre-event regressions with HC1 standard errors, and the HC1 joint Wald
+# of the eight predictors (constant and trend stay in the restricted model)
+built$bs_fits |>
+  purrr::imap(function(fit, dependent) {
+    vcov_hc1 <- sandwich::vcovHC(fit, type = "HC1")
+    predictors <- stringr::str_subset(names(coef(fit)), "^pre_")
+    beta <- coef(fit)[predictors]
+    joint_f <- drop(
+      t(beta) %*% solve(vcov_hc1[predictors, predictors], beta)
+    ) / length(predictors)
+    lmtest::coeftest(fit, vcov = vcov_hc1)[, ] |>
+      tibble::as_tibble(rownames = "term") |>
+      purrr::set_names(c("term", "estimate", "se", "t", "p")) |>
+      dplyr::mutate(
+        dependent = dependent,
+        n = nobs(fit),
+        r2 = summary(fit)$r.squared,
+        joint_f = joint_f,
+        joint_p = pf(
+          joint_f,
+          length(predictors),
+          df.residual(fit),
+          lower.tail = FALSE
+        ),
+        .before = 1
+      )
+  }) |>
+  purrr::list_rbind() |>
+  readr::write_csv("output/instrument/bs_orthogonalization.csv")

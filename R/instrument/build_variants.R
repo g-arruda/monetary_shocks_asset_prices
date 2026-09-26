@@ -25,7 +25,8 @@
 #'
 #' @return List with `monthly` (tibble: `month`, `z_bruto`, `z_bs_purif`,
 #'   `z_jk_bs_purif`), `daily` (the valid Thursday panel with residuals and
-#'   the mask) and `diag` (counts and R2 of the BS regressions).
+#'   the mask), `bs_fits` (the two BS `lm` fits, `delta_di` and `r_ibov`) and
+#'   `diag` (counts and R2 of the BS regressions).
 #'
 #' @examples
 #' built <- build_instrument_variants(inputs, 126, as.Date("2012-03-01"),
@@ -171,6 +172,7 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
   list(
     monthly = instruments,
     daily = valid,
+    bs_fits = list(delta_di = lm_di_bs, r_ibov = lm_ibov_bs),
     diag = list(
       target_bd = target_bd,
       n_thursdays = nrow(thursday_panel),

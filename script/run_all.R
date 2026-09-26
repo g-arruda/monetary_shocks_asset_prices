@@ -94,7 +94,8 @@ STAGES <- list(
     ),
     produces = c(
       "data/processed/instrument.csv",
-      "data/processed/instrumentos_mensais.csv"
+      "data/processed/instrumentos_mensais.csv",
+      "output/instrument/bs_orthogonalization.csv"
     )
   ),
   model = list(

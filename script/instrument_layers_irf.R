@@ -1,0 +1,157 @@
+# ===================================================================
+# Impulse responses of the production DFM under each of the three
+# construction layers of the instrument, the rows of tab:first_stage:
+# z_bruto (raw Wed->Thu DI surprise), z_bs_purif (+ Bauer-Swanson pre-event
+# orthogonalization) and z_jk_bs_purif (+ Jarocinski-Karadi sign filter,
+# production). Only the instrument changes: (5,5,4), 2012-03..2025-12, the
+# Lenza-Primiceri scale, +50bp on yield_6m. Every layer carries its 68/90%
+# Anderson-Rubin sets (xi_mp > 3.84 in all three), written to the CSV; the
+# paper's Anexo D figure bands only production, as in Figure A3 of Alessi and
+# Kerssenfischer (2019), with the other two layers in point.
+# Output: output/irf/instrument_layers_irf.csv
+#         paper/fig_instrumento_camadas.pdf
+# Note: notas/2026-09-25_anexo_d_instrumento.md
+# ===================================================================
+
+source("R/modeling/factor_estimation.R")
+source("R/modeling/impulse_response.R")
+source("R/modeling/dfm_pipeline.R")
+source("R/reporting/figures.R")
+source("R/reporting/sensitivity.R")
+source("R/identification/weak_iv_ar.R")
+
+PANEL_PATH      <- "data/processed/data_log_deseasonalized.csv"
+INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
+THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
+COHERENCE_PATH  <- "output/irf/irf_coherence_h.csv"
+OUT_CSV         <- "output/irf/instrument_layers_irf.csv"
+PAPER_FIG       <- "paper/fig_instrumento_camadas.pdf"
+SAMPLE_WINDOW <- as.Date(c("2012-03-01", "2025-12-01"))
+R_FACTORS     <- 5L
+Q_DYNAMIC     <- 5L
+P_LAGS        <- 4L
+MP_VAR        <- "yield_6m"
+HORIZON       <- 36L
+SHOCK_BPS     <- 50
+CI_LEVELS     <- c(0.68, 0.90)
+AR_NW_LAGS    <- 0L
+LAYERS <- c("z_jk_bs_purif", "z_bs_purif", "z_bruto")
+LAYER_LABELS <- c(
+  z_jk_bs_purif = "Produção (+ filtro de sinal)",
+  z_bs_purif = "+ ortogonalização",
+  z_bruto = "Surpresa bruta"
+)
+PRODUCTION_LABEL <- LAYER_LABELS[["z_jk_bs_purif"]]
+# Labels and scales of script/fig_section5.R; an NA scale is the response as
+# a percentage of the sample mean
+PAPER_PANELS <- tibble::tribble(
+  ~variable,     ~label,                     ~scale,
+  "yield_2y",    "DI 2 anos (p.b.)",         1e4,
+  "yield_5y",    "DI 5 anos (p.b.)",         1e4,
+  "cambio_usd",  "Câmbio BRL/USD (%)",       NA,
+  "cds_5y",      "CDS 5 anos (p.b.)",        1,
+  "ibc_br",      "IBC-Br (%)",               NA,
+  "price_ipca",  "IPCA cheio (p.p. ao mês)", 1,
+  "asset_ibov",  "Ibovespa (%)",             1,
+  "fiscal_dlsp", "DLSP (p.p. do PIB)",       1
+)
+LAYER_PALETTE <- purrr::set_names(
+  c("black", "firebrick", "steelblue"),
+  LAYER_LABELS[LAYERS]
+)
+LAYER_LINETYPE <- purrr::set_names(
+  c("solid", "42", "22"),
+  LAYER_LABELS[LAYERS]
+)
+
+raw_data <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
+  tidyr::drop_na()
+dates <- as.Date(raw_data$ref.date)
+data_mat <- raw_data |>
+  dplyr::select(-ref.date) |>
+  as.matrix()
+var_names <- colnames(data_mat)
+tcode <- infer_tcode_from_varnames(var_names)
+
+inst_panel <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE) |>
+  dplyr::mutate(month = as.Date(month))
+
+cells <- purrr::map(LAYERS, function(layer) {
+  run_stage2_cell(
+    data_mat,
+    dates,
+    inst_panel,
+    sample_window = SAMPLE_WINDOW,
+    r = R_FACTORS,
+    q = Q_DYNAMIC,
+    p = P_LAGS,
+    instrument = layer,
+    mp_var = MP_VAR,
+    h = HORIZON,
+    shock_bps = SHOCK_BPS,
+    tcode = tcode,
+    ci_levels = CI_LEVELS,
+    inference = "ar",
+    ar_nw_lags = AR_NW_LAGS,
+    covid_volatility = read_covid_volatility(THETA_PATH)
+  )
+})
+
+purrr::walk(cells, \(cell) {
+  stop_unless_interval_sets(cell, PAPER_PANELS$variable)
+})
+
+# Every variable, horizon and layer, with the set topology beside the bounds
+purrr::map2(cells, LAYERS, function(cell, layer) {
+  ar_levels <- cell$irf$ar$by_level
+  tibble::tibble(
+    instrument = layer,
+    variable = rep(var_names, times = HORIZON + 1L),
+    h = rep(0:HORIZON, each = length(var_names)),
+    point = c(cell$irf$irf_point_matrix),
+    lo68 = c(cell$irf$ci[["0.68"]]$lower),
+    hi68 = c(cell$irf$ci[["0.68"]]$upper),
+    lo90 = c(cell$irf$ci[["0.90"]]$lower),
+    hi90 = c(cell$irf$ci[["0.90"]]$upper),
+    set_type68 = c(ar_levels[["0.68"]]$set_type),
+    set_type90 = c(ar_levels[["0.90"]]$set_type)
+  )
+}) |>
+  purrr::list_rbind() |>
+  readr::write_csv(OUT_CSV)
+
+paths <- stack_cell_paths(
+  cells,
+  unname(LAYER_LABELS[LAYERS]),
+  PRODUCTION_LABEL,
+  PAPER_PANELS$variable
+)
+band_data <- dplyr::filter(paths, cell == PRODUCTION_LABEL)
+
+# The production line of the annex figure must be section 4's line
+stop_unless_matches_cache(
+  band_data,
+  COHERENCE_PATH,
+  PAPER_PANELS$variable,
+  HORIZON
+)
+
+paper_data <- rescale_to_paper_units(paths, PAPER_PANELS, raw_data, HORIZON)
+
+ggplot2::ggsave(
+  PAPER_FIG,
+  plot_dimension_overlay(
+    paper_data,
+    dplyr::filter(paper_data, cell == PRODUCTION_LABEL),
+    PAPER_PANELS$label,
+    palette = LAYER_PALETTE,
+    linetypes = LAYER_LINETYPE,
+    h_max = HORIZON,
+    ncol = 4,
+    title = NULL,
+    subtitle = NULL
+  ),
+  width = 10.4,
+  height = 5.8,
+  device = cairo_pdf
+)
