@@ -117,8 +117,9 @@ GRG_ROLLING_FX <- tibble::tribble(
 )
 
 # Raiz maxima da celula de producao, para provar que o DFM estimado aqui e
-# o mesmo de output/irf/irf_coherence_cell.rds.
-PRODUCAO_ROOT <- 0.9836766921623673
+# o mesmo de output/irf/irf_coherence_cell.rds. Sob o theta-hat reestimado em
+# 2026-09-25 com o passo de diferenca finita mais fino (era 0.9836766921623673).
+PRODUCAO_ROOT <- 0.9836760960674927
 
 
 # ---- Series diarias de preco, nas unidades das tabelas de GRG ------

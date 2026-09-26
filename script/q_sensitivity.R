@@ -26,6 +26,7 @@ source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/dfm_pipeline.R")
 source("R/reporting/figures.R")
+source("R/reporting/sensitivity.R")
 source("R/identification/weak_iv_ar.R")
 
 WINDOW <- commandArgs(trailingOnly = TRUE) |>
@@ -47,6 +48,8 @@ PAPER_FIG       <- "paper/fig_q_sensibilidade.pdf"
 R_FACTORS    <- 5L
 Q_PRODUCTION <- 5L
 Q_VALUES     <- c(5L, 4L, 3L, 2L)
+Q_LABELS     <- paste0("q=", Q_VALUES)
+PRODUCTION_LABEL <- paste0("q=", Q_PRODUCTION)
 INSTRUMENT   <- "z_jk_bs_purif"
 MP_VAR       <- "yield_6m"
 HORIZON      <- 48L
@@ -130,8 +133,7 @@ dates <- as.Date(raw_data$ref.date)
 data_mat <- raw_data |>
   dplyr::select(-ref.date) |>
   as.matrix()
-var_names <- colnames(data_mat)
-tcode <- infer_tcode_from_varnames(var_names)
+tcode <- infer_tcode_from_varnames(colnames(data_mat))
 
 inst_panel <- readr::read_csv(INSTRUMENT_PATH, show_col_types = FALSE) |>
   dplyr::mutate(month = as.Date(month))
@@ -157,47 +159,11 @@ cells <- purrr::map(Q_VALUES, function(q) {
   )
 })
 
-# The bands draw [lo, hi], which is the set only for an interval and, at the
-# normalization point, for the singleton {normalize_value}
 production_cell <- cells[[match(Q_PRODUCTION, Q_VALUES)]]
-set_type90 <- production_cell$irf$ar$by_level[["0.90"]]$set_type
-set_type90 <- set_type90[match(VARS, var_names), ]
-at_normalization <- row(set_type90) == match(MP_VAR, VARS) &
-  col(set_type90) == 1L
-stopifnot(
-  all(set_type90[!at_normalization] == "interval"),
-  all(set_type90[at_normalization] == "singleton")
-)
+stop_unless_interval_sets(production_cell, VARS)
 
-paths <- purrr::map2(cells, Q_VALUES, function(cell, q) {
-  with_bands <- q == Q_PRODUCTION
-  point <- cell$irf$irf_point_matrix
-  ci68 <- cell$irf$ci[["0.68"]]
-  ci90 <- cell$irf$ci[["0.90"]]
-
-  purrr::map(VARS, function(variable) {
-    row <- match(variable, var_names)
-    tibble::tibble(
-      r = R_FACTORS,
-      q = q,
-      p = CELL$p,
-      variable = variable,
-      h = 0:HORIZON,
-      point = point[row, ],
-      lo68 = if (with_bands) ci68$lower[row, ] else NA_real_,
-      hi68 = if (with_bands) ci68$upper[row, ] else NA_real_,
-      lo90 = if (with_bands) ci90$lower[row, ] else NA_real_,
-      hi90 = if (with_bands) ci90$upper[row, ] else NA_real_
-    )
-  }) |>
-    purrr::list_rbind()
-}) |>
-  purrr::list_rbind() |>
-  dplyr::mutate(
-    cell = factor(paste0("q=", q), levels = paste0("q=", Q_VALUES))
-  )
-
-band_data <- dplyr::filter(paths, q == Q_PRODUCTION)
+paths <- stack_cell_paths(cells, Q_LABELS, PRODUCTION_LABEL, VARS)
+band_data <- dplyr::filter(paths, cell == PRODUCTION_LABEL)
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 pdf(file.path(OUT_DIR, paste0(CELL$stem, ".pdf")), width = 11, height = 7.5)
@@ -218,45 +184,20 @@ invisible(dev.off())
 
 if (WINDOW == "cheia") {
   # The q = 5 line of the annex figure must be section 4's production line
-  band_columns <- c("point", "lo68", "hi68", "lo90", "hi90")
-  production <- paths |>
-    dplyr::filter(
-      q == Q_PRODUCTION,
-      variable %in% PAPER_PANELS$variable,
-      h <= H_PAPER
-    ) |>
-    dplyr::inner_join(
-      readr::read_csv(COHERENCE_PATH, show_col_types = FALSE),
-      by = c("variable" = "var", "h"),
-      suffix = c("", "_cache")
-    )
-  deviation <- abs(
-    as.matrix(production[band_columns]) -
-      as.matrix(production[paste0(band_columns, "_cache")])
+  stop_unless_matches_cache(
+    band_data,
+    COHERENCE_PATH,
+    PAPER_PANELS$variable,
+    H_PAPER
   )
-  stopifnot(
-    nrow(production) == nrow(PAPER_PANELS) * (H_PAPER + 1L),
-    max(deviation) < 1e-10
-  )
-
-  paper_panels <- PAPER_PANELS |>
-    dplyr::mutate(
-      scale = dplyr::coalesce(scale, 100 / colMeans(raw_data[variable]))
-    )
-  paper_data <- paths |>
-    dplyr::filter(h <= H_PAPER) |>
-    dplyr::inner_join(paper_panels, by = "variable") |>
-    dplyr::mutate(
-      dplyr::across(dplyr::all_of(band_columns), \(x) x * scale),
-      variable = label
-    )
+  paper_data <- rescale_to_paper_units(paths, PAPER_PANELS, raw_data, H_PAPER)
 
   ggplot2::ggsave(
     PAPER_FIG,
     plot_dimension_overlay(
       paper_data,
-      dplyr::filter(paper_data, q == Q_PRODUCTION),
-      paper_panels$label,
+      dplyr::filter(paper_data, cell == PRODUCTION_LABEL),
+      PAPER_PANELS$label,
       palette = Q_PALETTE,
       linetypes = Q_LINETYPE,
       h_max = H_PAPER,

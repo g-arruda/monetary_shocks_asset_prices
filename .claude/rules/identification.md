@@ -55,12 +55,17 @@ unedited (`diagnostics/README.md`).
   `rho0 = 0.8` sits in its basin. Since 2026-09-24 `script/covid_volatility_theta.R` guards θ̂
   with a 750-start multi-start over the whole box
   (`output/factors/covid_volatility_multistart.csv`, `notas/2026-09-24_otimo_global_theta.md`).
-  Any other θ estimated with this function needs the same check.
+  Any other θ estimated with this function needs the same check. Since 2026-09-25 the script
+  also estimates θ at `p = 2..6` for `script/p_sensitivity.R`, every guard at every `p`, into
+  `output/factors/theta_by_p/`, and the optimizer differentiates with `ndeps = 1e-6`: the default
+  1e-3 made the numerical gradient vanish before the true one, and the first-order guard stopped
+  `p = 5` (`notas/2026-09-25_p_sensibilidade_anexo.md`).
 
 **Since 2026-09-21 θ̂ is read, not typed.** `read_covid_volatility(path)`
 (`R/modeling/factor_estimation.R`) builds the `covid_volatility` list from
 `output/factors/covid_volatility_theta.csv`, the committed CSV that
-`script/covid_volatility_theta.R` writes: θ̂ = (6.611429, 12.468338, 1.760352, 0.943926),
+`script/covid_volatility_theta.R` writes: θ̂ = (6.611488, 12.468194, 1.760038, 0.943951) since
+2026-09-25 (before, 6.611429, 12.468338, 1.760352, 0.943926),
 `covid_start` = 2020-03, `innovations = "standardized"` supplied by the loader, since it is a
 design decision and not in the CSV. `readr` writes doubles at shortest-round-trip precision, so
 the four values come back bit-identical — verified, the treated point did not move. `path` has no

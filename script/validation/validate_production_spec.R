@@ -204,9 +204,9 @@ samples <- list(full = SAMPLE, pre_covid = PRE_COVID_SAMPLE)
 expected <- tibble::tibble(
   sample = c("full", "pre_covid"),
   n_innovations = c(162L, 90L),
-  xi_mp = c(6.847996589177567, 8.643436347247281),
-  f_robust_mp = c(11.76524968812349, 13.809985106266108),
-  max_companion_root = c(0.9836766921623673, 0.9933587954932864),
+  xi_mp = c(6.848034677287512, 8.643436347247281),
+  f_robust_mp = c(11.76556400341498, 13.809985106266108),
+  max_companion_root = c(0.9836760960674927, 0.9933587954932864),
   stable = c(TRUE, TRUE)
 )
 
@@ -274,15 +274,18 @@ point_irf <- compute_irf_dfm(
   inference = "none"
 )
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
-# Under the production Lenza-Primiceri scale since 2026-09-17. The previous,
-# untreated values were 0.007026364233969990, 0.007245719448835893,
-# -0.9965048308800585 and 0.1342419094791832.
+# Under the production Lenza-Primiceri scale since 2026-09-17, with theta-hat
+# re-estimated on 2026-09-25 at the finer finite-difference step of
+# estimate_covid_theta(). The treated values before that were
+# 0.007009032608368654, 0.007290054332728366, -1.502015837566601 and
+# 0.1294216737921361; the untreated ones 0.007026364233969990,
+# 0.007245719448835893, -0.9965048308800585 and 0.1342419094791832.
 expected_impacts <- c(
   0.005,
-  0.007009032608368654,
-  0.007290054332728366,
-  -1.502015837566601,
-  0.1294216737921361
+  0.0070090429740256857,
+  0.0072900596216797665,
+  -1.5019377453868872,
+  0.12942378112688835
 )
 impact_smoke <- tibble::tibble(
   variable = headline,

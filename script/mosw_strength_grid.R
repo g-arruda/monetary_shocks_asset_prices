@@ -31,7 +31,7 @@ SAMPLES <- list(
 
 # The full window runs the production Lenza-Primiceri scale, and under it the
 # factor VAR is explosive from r = 7 up at every q (max root 1.001362 at r = 7,
-# 1.001318 at r = 8, against 0.983677 at the production r = 5). Those cells
+# 1.001318 at r = 8, against 0.983676 at the production r = 5). Those cells
 # cannot be reported, so the full window sweeps r = 4:6; the pre-COVID window
 # has s_t = 1 in every month, is stable throughout, and keeps r = 4:8.
 RQ_GRID_BY_SAMPLE <- list(

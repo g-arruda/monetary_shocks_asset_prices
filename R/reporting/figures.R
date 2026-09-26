@@ -1,6 +1,7 @@
 # ===================================================================
 # Figure layouts shared by more than one page or output. Consumed by
-# script/q_sensitivity.R.
+# script/q_sensitivity.R, script/p_sensitivity.R and
+# script/instrument_layers_irf.R.
 # ===================================================================
 
 

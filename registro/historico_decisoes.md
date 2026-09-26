@@ -842,7 +842,7 @@ literal e checado contra o que `data/processed/` e `output/` contêm. Quando um 
 e esse arquivo discordarem, esse arquivo é o certo. A cópia independente é o que dá valor à
 trava — um validador que lesse os valores do próprio produtor não provaria nada.
 
-**A exceção que não é literal.** θ̂ = (6,611429; 12,468338; 1,760352; 0,943926) é estimativa, não
+**A exceção que não é literal.** θ̂ = (6,611488; 12,468194; 1,760038; 0,943951) desde 2026-09-25, quando o otimizador passou a derivar com `ndeps = 1e-6` (antes, 6,611429; 12,468338; 1,760352; 0,943926), é estimativa, não
 decisão, e não é digitado em lugar nenhum: `read_covid_volatility()`
 (`R/modeling/factor_estimation.R`) o lê de `output/factors/covid_volatility_theta.csv`, o CSV
 commitado que `script/covid_volatility_theta.R` escreve — único produtor e, por isso, único

@@ -314,7 +314,7 @@ profile_sim <- purrr::map_dbl(seq(0, 1, by = 0.05), function(rho) {
   optim(fit_theta$theta[c("s0", "s1", "s2")],
         function(s) loglik_sim(c(s, rho = rho)),
         method = "L-BFGS-B", lower = lower_sim[1:3], upper = upper_sim[1:3],
-        control = list(fnscale = -1, factr = 1e3))$value
+        control = list(fnscale = -1, factr = 1e3, ndeps = rep(1e-6, 3)))$value
 })
 bound_fit <- estimate_covid_theta(Y, p_sim, sim_residual_dates, covid_sim,
                                   replace(lower_sim, "s0", 20), upper_sim)

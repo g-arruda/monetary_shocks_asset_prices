@@ -188,14 +188,17 @@ estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
   start <- pmin(pmax(start, lower), upper)
 
   # factr = 1e3: the default 1e7 stops while the first-order conditions of s0
-  # and s1 are still 1e-3 away from closing in simulated data
+  # and s1 are still 1e-3 away from closing in simulated data. ndeps = 1e-6:
+  # with the default finite-difference step of 1e-3 the numerical gradient
+  # vanishes before the true one, and at p = 5 of the production panel the
+  # optimizer stopped with those conditions 1e-3 away (2026-09-25)
   fit <- optim(
     start,
     loglik_at,
     method = "L-BFGS-B",
     lower = lower,
     upper = upper,
-    control = list(fnscale = -1, factr = 1e3)
+    control = list(fnscale = -1, factr = 1e3, ndeps = rep(1e-6, 4))
   )
 
   list(

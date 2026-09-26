@@ -1,6 +1,11 @@
 # O ótimo global de θ̂: multi-start na caixa inteira
 
 > **CURRENT — 2026-09-24. θ̂ confirmado como máximo global; nada da produção mudou.**
+> - ⚠ **Atualização de 2026-09-25:** o "+3,8e-7, precisão do otimizador" era o passo
+>   de diferença finita padrão do `optim`, e θ̂ foi reestimado com `ndeps = 1e-6` para
+>   (6,611488; 12,468194; 1,760038; 0,943951), no mesmo máximo. Os números de θ̂ e as
+>   contagens do multi-start abaixo são da vintage anterior. Ver
+>   `2026-09-25_p_sensibilidade_anexo`.
 > - Produção de 115 séries, 2012-03 a 2025-12, `(r, p) = (5, 4)`, 162 meses de resíduo, `t*` =
 >   2020-03, s̄ ≥ 1 e ρ ∈ [0, 1] (desenho do autor de 2026-09-14). θ̂ não depende de `q`.
 > - Fecha o item "Confirmar o ótimo global de θ̂" de `registro/pendencias.md` (Tema B). Fecha
