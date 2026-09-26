@@ -8,6 +8,9 @@
 #   z_jk_bs_purif  + Jarocinski-Karadi (2020) sign filter on the BS
 #                  residuals (production).
 #
+# The BS regressions run on the Copom events alone, with a constant and no
+# trend, as their Table 3 does with the FOMC months (table_3.m).
+#
 # Monthly aggregation is Jarocinski-Karadi (2020, sec. II.A): m_t adds up the
 # event surprises of month t and is zero in months without a meeting, as in
 # Bauer-Swanson's loadhfmpdata.m. yield_6m is an end-of-month observation, so
@@ -24,9 +27,10 @@
 #' @param sample_start,sample_end Sample bounds.
 #'
 #' @return List with `monthly` (tibble: `month`, `z_bruto`, `z_bs_purif`,
-#'   `z_jk_bs_purif`), `daily` (the valid Thursday panel with residuals and
-#'   the mask), `bs_fits` (the two BS `lm` fits, `delta_di` and `r_ibov`) and
-#'   `diag` (counts and R2 of the BS regressions).
+#'   `z_jk_bs_purif`), `daily` (the valid post-Copom Thursdays, the sample of
+#'   the BS regressions, with residuals and the mask), `bs_fits` (the two BS
+#'   `lm` fits, `delta_di` and `r_ibov`) and `diag` (counts and R2 of the BS
+#'   regressions).
 #'
 #' @examples
 #' built <- build_instrument_variants(inputs, 126, as.Date("2012-03-01"),
@@ -108,48 +112,47 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
     dplyr::left_join(ibov_returns, by = "date") |>
     dplyr::left_join(external_changes, by = "date") |>
     dplyr::left_join(pre_event, by = "date") |>
-    dplyr::mutate(
-      copom_day = (date - 1) %in% inputs$copom_wed,
-      trend = as.numeric(date - min(date)) / 365.25
-    )
+    dplyr::mutate(copom_day = (date - 1) %in% inputs$copom_wed)
 
   # The same-session S&P, VIX and Brent changes enter no regression; a Thursday
-  # without them is still dropped, because that is what defines the sample of
-  # the BS regressions below.
+  # without them is still dropped, because that is what fixes the 102 events
+  # of the BS regressions below.
   valid <- thursday_panel |>
     tidyr::drop_na(delta_di, r_ibov, r_sp500, d_vix, r_brent)
 
+  events <- valid |>
+    dplyr::filter(copom_day)
+
   # lm() would drop an incomplete row silently and move the regression sample
-  n_missing <- colSums(is.na(valid[pre_event_inputs$predictor]))
+  n_missing <- colSums(is.na(events[pre_event_inputs$predictor]))
   n_missing <- n_missing[n_missing > 0]
   if (length(n_missing) > 0) {
     stop(
-      "NA in pre-event predictors on the valid panel: ",
+      "NA in pre-event predictors on the Copom events: ",
       paste(sprintf("%s=%d", names(n_missing), n_missing), collapse = ", "),
       ". Check daily input coverage or rerun script/download.R."
     )
   }
 
   # Bauer-Swanson (2023) eq. 7: regress the surprise on PREDETERMINED news only
-  # (financial trends + survey revisions + trend) and keep the residual.
-  bs_formula <- ~ trend + pre_ibov + pre_sp500 + pre_vix + pre_brent +
-    pre_brl + pre_slope + pre_focus_ipca + pre_focus_selic
-  lm_di_bs <- lm(update(bs_formula, delta_di ~ .), data = valid)
-  lm_ibov_bs <- lm(update(bs_formula, r_ibov ~ .), data = valid)
+  # (financial trends + survey revisions) and keep the residual.
+  bs_formula <- ~ pre_ibov + pre_sp500 + pre_vix + pre_brent + pre_brl +
+    pre_slope + pre_focus_ipca + pre_focus_selic
+  lm_di_bs <- lm(update(bs_formula, delta_di ~ .), data = events)
+  lm_ibov_bs <- lm(update(bs_formula, r_ibov ~ .), data = events)
 
   # Jarocinski-Karadi sign filter on the BS residuals: a monetary shock moves
   # residual DI and residual Ibovespa in opposite directions; an information
   # shock moves them together and is zeroed out.
-  valid <- valid |>
+  events <- events |>
     dplyr::mutate(
       e_di_bs = residuals(lm_di_bs),
       e_ibov_bs = residuals(lm_ibov_bs),
-      jk_monetary_bs = copom_day & sign(e_di_bs) * sign(e_ibov_bs) == -1,
+      jk_monetary_bs = sign(e_di_bs) * sign(e_ibov_bs) == -1,
       month = lubridate::floor_date(date, "month")
     )
 
-  monthly_shocks <- valid |>
-    dplyr::filter(copom_day) |>
+  monthly_shocks <- events |>
     dplyr::summarise(
       z_bruto = sum(delta_di),
       z_bs_purif = sum(e_di_bs),
@@ -171,14 +174,14 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
 
   list(
     monthly = instruments,
-    daily = valid,
+    daily = events,
     bs_fits = list(delta_di = lm_di_bs, r_ibov = lm_ibov_bs),
     diag = list(
       target_bd = target_bd,
       n_thursdays = nrow(thursday_panel),
       n_valid = nrow(valid),
-      n_copom = sum(valid$copom_day),
-      n_jk_bs = sum(valid$jk_monetary_bs),
+      n_copom = nrow(events),
+      n_jk_bs = sum(events$jk_monetary_bs),
       r2_di_bs = summary(lm_di_bs)$r.squared,
       r2_ibov_bs = summary(lm_ibov_bs)$r.squared
     )

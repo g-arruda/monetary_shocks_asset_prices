@@ -96,14 +96,13 @@ built$daily |>
     r_ibov,
     e_di_bs,
     e_ibov_bs,
-    copom_day,
     jk_monetary_bs
   ) |>
   readr::write_csv("data/processed/copom_event_diagnostics.csv")
 
 # Anexo D, the analogue of Bauer-Swanson (2023) Table 3: coefficients of the
 # two pre-event regressions with HC1 standard errors, and the HC1 joint Wald
-# of the eight predictors (constant and trend stay in the restricted model)
+# of the eight predictors (the constant stays in the restricted model)
 built$bs_fits |>
   purrr::imap(function(fit, dependent) {
     vcov_hc1 <- sandwich::vcovHC(fit, type = "HC1")
