@@ -14,7 +14,7 @@ paths:
 The canonical paper is `paper/paper_anpec.tex` (class `elsarticle`). §3 Metodologia has four
 subsections since 2026-09-17 — `Modelo e estimação`, `Base de dados`, `Identificação e construção
 do instrumento`, `Relevância do instrumento e inferência`; §4 Resultados has eight subsections, one per figure;
-§3.3 (`sec:identificacao`) carries, since 2026-09-24, one paragraph and one footnote on why the
+§3.3 (`sec:identificacao`) opens, since 2026-09-26, with one narrative paragraph and no footnote on why the
 paper does not use heteroskedasticity identification, and Anexo B carries its two tables (Anexo A is the variable list)
 (`tab:het_variance`, `tab:het_frequency`; `tab:het_sequencia` was cut the same day); §5 Robustez has **no**
 subsection, only the VAR benchmark, labelled both `sec:robustez` and `sec:weak_iv`;
@@ -23,9 +23,11 @@ five home-grown statistics may not come back; `sec:fomc` was deleted on 2026-09-
 `sec:invertibilidade` and `sec:confound` had already gone. Concluding remarks is §6.
 Anexo C (`anexo-C`, since 2026-09-24) carries `fig:q_sensibilidade`, the `q = 2..5` figure that
 §3.1's two-sentence defense of `q = r` points to, and since 2026-09-25 `fig:p_sensibilidade`
-(`p = 2..6`); the text cites no number from either. Anexo D (`anexo-D`, since 2026-09-25) carries
-`tab:bs_ortogonalizacao` (the Bauer-Swanson Table 3 analogue) and `fig:instrumento_camadas`; no
-body sentence points to it, by author decision.
+(`p = 2..6`), and since 2026-09-26 `fig:instrumento_camadas`, under the title "Sensibilidade das
+respostas"; the text cites no number from any of them. Anexo D (`anexo-D`, since 2026-09-25)
+carries `tab:bs_ortogonalizacao` alone, in BS Table 3's layout since 2026-09-26, and §3.3's last
+sentence points to it. Captions and `\autoref` print "Figura/Tabela", and the body never puts a
+reference in parentheses: it goes inside the sentence or not at all.
 `script/fig_section5.R` writes §4's eight figures, `script/fig_weak_iv.R` writes
 the weak-IV figure, `script/q_sensitivity.R --window=cheia` writes `fig_q_sensibilidade.pdf`,
 `script/p_sensitivity.R` writes `fig_p_sensibilidade.pdf` and `script/instrument_layers_irf.R`

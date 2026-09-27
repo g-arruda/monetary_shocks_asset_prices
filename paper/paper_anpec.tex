@@ -97,6 +97,10 @@
 \makeatother
 
 \begin{document}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabela}
+\renewcommand{\figureautorefname}{Figura}
+\renewcommand{\tableautorefname}{Tabela}
 
 \begin{frontmatter}
 \title{Uncovered Interest Parity, Inverted: Risk-Premium Transmission of Monetary Policy Shocks in Brazil}
@@ -222,32 +226,32 @@ O segundo termo é o jacobiano da reescala. A maximização é restrita a $\bar{
 
 Dividir \ref{eq:5} por $\hat{s}_t$ restaura a homocedasticidade, e o VAR fatorial é estimado por mínimos quadrados ponderados, com peso $1/\hat{s}_t$ aplicado a cada linha, inclusive à coluna do intercepto. A reescala não alcança a extração dos fatores, que recebe o painel na forma original, e nem as cargas $\Lambda$ nem os desvios $s_{iy}$ que multiplicam cada resposta ao impulso são reponderados. Com $t^*$ fixado em março de 2020, a estimativa é $\hat{\theta} = (6{,}611;\ 12{,}468;\ 1{,}760;\ 0{,}944)$. O decaimento é lento, com meia-vida de doze meses para $s_t - 1$. O escalar difere de um em 70 dos 162 meses de inovação, e o total reponderado equivale a 19,1 meses. Na janela pré-COVID $s_t = 1$ em todos os meses.
 
-A especificação de produção é $(r, q, p) = (5, 5, 4)$. O IC2 de \cite{bai-ng}, na versão padronizada de \cite{barigozzi2016non}, seleciona $r = 5$ na amostra completa. O critério de \cite{amengual2007consistent}, condicionado a $r = 5$ e $p = 4$, seleciona $q = 2$, mas a especificação fixa $q = r$, como \cite{STOCK2016415}, que diante do mesmo conflito preferem sobre-especificar o espaço das inovações para que ele contenha o dos choques de interesse, e como \cite{alessi}. O Anexo C repete o exercício de sensibilidade de \cite{alessi}, com $q$ de 2 a 5 (\autoref{fig:q_sensibilidade}). O AIC seleciona $p = 4$ (8,231267) na amostra comum de 154 observações com constante e tendência, em que a tendência pertence somente ao critério, porque o VAR fatorial estimado mantém apenas o intercepto. As funções de impulso-resposta pontuais cobrem horizontes de 0 a 36 meses.
+A especificação de produção é $(r, q, p) = (5, 5, 4)$. O IC2 de \cite{bai-ng}, na versão padronizada de \cite{barigozzi2016non}, seleciona $r = 5$ na amostra completa. O critério de \cite{amengual2007consistent}, condicionado a $r = 5$ e $p = 4$, seleciona $q = 2$, mas a especificação fixa $q = r$, como \cite{STOCK2016415}, que diante do mesmo conflito preferem sobre-especificar o espaço das inovações para que ele contenha o dos choques de interesse, e como \cite{alessi}. A \autoref{fig:q_sensibilidade}, no Anexo C, repete o exercício de sensibilidade de \cite{alessi}, com $q$ de 2 a 5. O AIC seleciona $p = 4$ (8,231267) na amostra comum de 154 observações com constante e tendência, em que a tendência pertence somente ao critério, porque o VAR fatorial estimado mantém apenas o intercepto. As funções de impulso-resposta pontuais cobrem horizontes de 0 a 36 meses.
 
 \subsection{Base de dados}
 
 A base reúne 115 séries mensais da economia brasileira entre março de 2012 e dezembro de 2025, totalizando 166 observações alinhadas e 162 inovações fatoriais após as quatro defasagens do VAR. Além dos blocos fiscal e de expectativas, o painel incorpora o ajuste cambial da DLSP e as medianas Focus para dívida líquida, resultado primário e resultado nominal no ano seguinte. As séries vêm do Banco Central do Brasil, do IBGE, do IPEA e da B3, complementadas por quatro indicadores de risco soberano e de mercado externo, o EMBI+, o CDS soberano de cinco anos, o MSCI de mercados emergentes e o VIX, e pelo índice de incerteza de política econômica (EPU) de oito países.
 
-As taxas de juros de maturidade fixa, de 3 meses a 10 anos, são obtidas do ajuste de \cite{svensson1994estimating} aos contratos de DI futuro em cada data. As séries nominais entram em logaritmo e recebem ajuste X-13ARIMA-SEATS quando os testes indicam componente sazonal \cite{sax2018seasonal}. O Anexo A (\autoref{tab:lista_variaveis}) lista as séries, suas fontes e transformações.
+As taxas de juros de maturidade fixa, de 3 meses a 10 anos, são obtidas do ajuste de \cite{svensson1994estimating} aos contratos de DI futuro em cada data. As séries nominais entram em logaritmo e recebem ajuste X-13ARIMA-SEATS quando os testes indicam componente sazonal \cite{sax2018seasonal}. A \autoref{tab:lista_variaveis}, no Anexo A, lista as séries, suas fontes e transformações.
 
 \subsection{Identificação e construção do instrumento}
 \label{sec:identificacao}
 
-A identificação do choque de política monetária usa um instrumento externo no arcabouço proxy-SVAR de \cite{stockwatson2018} e \cite{gertler2015}, transposto para o DFM por \cite{alessi}. Em vez de impor uma ordenação recursiva entre os fatores, essa estratégia usa uma variável observada fora do modelo, correlacionada com o choque de interesse e ortogonal aos demais choques estruturais. Seja $z_t$ o instrumento e $\varepsilon_t^{p}$ o choque de política monetária. A identificação exige relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, e exogeneidade contemporânea, $E[z_t \varepsilon_t^{j}] = 0$ para todo choque estrutural $j \neq p$ \cite{stockwatson2018}. Quando essas condições e a invertibilidade do sistema são satisfeitas, a projeção das inovações fatoriais $\eta_t$ sobre o instrumento identifica, a menos de escala, a coluna de $H$ associada ao choque de política monetária, estimada na amostra alinhada por $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$.
+A evidência mais próxima para o Brasil, \cite{goncalves2025}, identifica o choque monetário por heterocedasticidade, comparando variações diárias em semanas com e sem reunião do Copom. Essa identificação exige que a reunião altere a variância do choque monetário em proporção diferente da dos demais choques \citep{rigobon2003}. Testamos essa condição em três das séries dos autores, o DI, o câmbio BRL/USD e o CDS soberano de cinco anos. Nos dados diários, em que só a variância do DI sobe nas semanas com reunião, a condição vale com o DI de três meses, embora o resultado dependa do vértice. No painel mensal, em que as variâncias das três séries sobem juntas, ela não vale em nenhum vértice, nem nas inovações fatoriais do modelo. As estatísticas estão nas tabelas do Anexo B. Como a condição falha no painel mensal, adotar essa identificação exigiria abandonar a representação fatorial.
 
-A identificação por heterocedasticidade de \cite{goncalves2025} não identifica o choque no painel mensal, porque a condição de posto de \cite{rigobon2003}, que exige autovalores distintos de $\Lambda$ em $\Sigma_{NC}=BB'$ e $\Sigma_C=B\Lambda B'$, falha nas séries mensais. Na variação diária do DI de três meses, do câmbio BRL/USD e do CDS de cinco anos, o teste $Q_r$ de \cite{lutkepohl2021} rejeita $\lambda_1=\lambda_2$ com $p=0{,}003$, porque nas semanas com reunião só a variância do DI sobe, $5{,}54$ vezes, contra $1{,}04$ no câmbio e $0{,}80$ no CDS \citep{rigobonsack2004}. Nos resíduos do VAR mensal, no mesmo vértice, as três variâncias sobem juntas, de $1{,}85$ a $2{,}42$ vezes, os dois maiores autovalores de $\Lambda$ ficam praticamente iguais, $2{,}51$ contra $2{,}36$, perto da proporcionalidade das covariâncias dos dois regimes em que a condição falha (\autoref{tab:het_frequency}), e o teste não rejeita em nenhum vértice, com $p\geq 0{,}917$, nem nas cinco inovações fatoriais, com $p=0{,}076$. Como a condição só vale na janela diária do anúncio, usá-la exigiria abandonar a representação fatorial mensal.\footnote{A rejeição diária depende do vértice e da correção de curtose do teste. Nos vértices de seis e doze meses $p$ é $0{,}084$ e $0{,}147$, e sem a correção as três células diárias rejeitariam. Entre as duas janelas mudam juntos a frequência e o objeto medido, e a comparação não separa um do outro. As estatísticas estão no Anexo B.}
+O choque é identificado por um instrumento externo, no arcabouço proxy-SVAR de \cite{stockwatson2018} e \cite{gertler2015}, que \cite{alessi} transpõem para o DFM. O instrumento $z_t$ é uma variável observada fora do modelo, correlacionada com o choque de política monetária $\varepsilon_t^{p}$ e não correlacionada com os demais choques estruturais, o que exige relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, e exogeneidade contemporânea, $E[z_t \varepsilon_t^{j}] = 0$ para todo $j \neq p$. Sob essas condições e sob invertibilidade, a projeção das inovações fatoriais $\eta_t$ sobre o instrumento identifica, a menos de escala, a coluna de $H$ associada ao choque monetário, estimada na amostra alinhada por $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$.
 
-O instrumento e a normalização usam o mesmo vértice da curva de DI, de cerca de seis meses, pela distinção de \cite{gertler2015} entre o instrumento de política, a taxa overnight, e o indicador de política, uma taxa de prazo mais longo que incorpora a revisão das expectativas de juros embutida na decisão. No Brasil o Copom anuncia sua decisão após o fechamento do mercado, de modo que a surpresa aparece na curva de DI entre a quarta e a quinta-feira e não na taxa overnight. Como a Selic mensal é uma média do overnight dentro do mês, ela quase não incorpora essa surpresa. A surpresa é medida no vértice de 126 dias úteis, e o choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal.
+Como em \cite{gertler2015}, que distinguem o instrumento de política, a taxa \textit{overnight}, do indicador de política, uma taxa de prazo mais longo que contém a revisão das expectativas de juros trazida pela decisão, o instrumento e a normalização usam o mesmo vértice da curva de DI, de 126 dias úteis, cerca de seis meses. O Copom anuncia a decisão depois do fechamento do mercado, de modo que a surpresa aparece na curva de DI entre a quarta e a quinta-feira, e a Selic mensal, média da taxa \textit{overnight} no mês, quase não a registra. O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal.
 
-O instrumento combina duas camadas que tratam objetos distintos. A primeira mede a surpresa pela variação do DI futuro nesse vértice entre o fechamento da quarta-feira da reunião e o da quinta-feira seguinte, janela de um dia que captura a primeira sessão em que os preços incorporam a decisão. A amostra contém 102 reuniões entre 2012 e 2025. As surpresas são somadas dentro de cada mês, como em \cite{jarocinski2020}, e o instrumento é zero nos meses sem reunião.
+O instrumento tem duas camadas. A primeira é a surpresa, a variação do DI nesse vértice entre o fechamento da quarta-feira da reunião e o da quinta-feira seguinte, a primeira sessão depois do anúncio. A amostra tem 102 reuniões entre 2012 e 2025. As surpresas são somadas dentro de cada mês, e o instrumento vale zero nos meses sem reunião.
 
-A segunda camada remove o componente previsível da surpresa. \cite{bauer2023} mostram que surpresas de alta frequência podem refletir informação pública anterior ao anúncio, porque o mercado subestima a resposta do banco central às notícias, o que compromete a exogeneidade do instrumento. Como na Tabela 3 dos autores, a surpresa de cada uma das 102 reuniões é regredida sobre uma constante e notícias observadas até o fechamento da quarta-feira. As notícias financeiras são as variações acumuladas em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent e da inclinação da curva de DI, medida pela diferença entre os vértices de 2 anos e 3 meses. As notícias macroeconômicas são as surpresas das divulgações do IPCA e do PIB, este na primeira divulgação, ocorridas desde a reunião anterior e medidas contra a mediana Focus da última pesquisa antes de cada divulgação, a aceleração do núcleo EX0 e a mediana Focus do próximo IPCA a ser divulgado. O retorno do Ibovespa entra porque a regra de política estimada por \cite{castelnuovo} responde às condições do mercado acionário. O resíduo dessa regressão, somado dentro de cada mês, é o instrumento de produção, e o $R^2$ é $0{,}124$, no limite inferior da faixa de $0{,}12$ a $0{,}20$ que os autores obtêm para o Federal Reserve.
+A segunda camada remove da surpresa o componente previsível pela informação pública anterior ao anúncio, que \cite{bauer2023} atribuem à subestimação, pelo mercado, da resposta do banco central às notícias, e que compromete a exogeneidade do instrumento. Como na Tabela 3 dos autores, a surpresa de cada reunião é regredida sobre uma constante e as notícias observadas até o fechamento da quarta-feira. As notícias financeiras são as variações em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent e da inclinação da curva de DI, a diferença entre os vértices de 2 anos e 3 meses. As notícias macroeconômicas são as surpresas das divulgações do IPCA e do PIB, este na primeira divulgação, feitas desde a reunião anterior e medidas contra a mediana Focus da última pesquisa antes de cada divulgação, a aceleração do núcleo EX0, a variação anualizada nos seis meses encerrados dois meses antes da reunião menos a dos seis meses anteriores, e a mediana Focus do próximo IPCA a ser divulgado. O Ibovespa entra porque a regra de política estimada por \cite{castelnuovo} responde às condições do mercado acionário. O resíduo, somado dentro de cada mês, é o instrumento de produção. O $R^2$ é $0{,}124$, no limite inferior da faixa de $0{,}12$ a $0{,}20$ que os autores obtêm para o Federal Reserve, e as estimativas estão na \autoref{tab:bs_ortogonalizacao}, no Anexo D.
 
 \subsection{Relevância do instrumento e inferência}
 
 A relevância do instrumento é medida por duas estatísticas de \cite{montielolea}. A Wald no espaço dos fatores, $\xi_{mp}$, vale $7{,}02$ na amostra completa e $6{,}84$ na janela pré-COVID, enquanto o primeiro estágio robusto, $F^{rob}_{mp}$, vale $8{,}62$ e $8{,}31$. Ambas projetam o instrumento na combinação das inovações fatoriais que determina a normalização no DI de seis meses, e ambas têm o mesmo parâmetro de não centralidade sob a aproximação de instrumento fraco, embora a Wald tenda a valores menores em amostras finitas. O valor $10$ é uma referência convencional, e não um limiar que classifica o instrumento. As duas estatísticas ficam abaixo dele nas duas janelas.
 
-A ortogonalização eleva $\xi_{mp}$ de $6{,}68$ para $7{,}02$ na amostra completa e de $6{,}66$ para $6{,}84$ na janela pré-COVID (\autoref{tab:first_stage}). Sobre $F^{rob}_{mp}$ o efeito depende da janela, com queda de $9{,}37$ para $8{,}62$ na amostra completa e alta de $7{,}79$ para $8{,}31$ na pré-COVID.
+Na \autoref{tab:first_stage}, a ortogonalização eleva $\xi_{mp}$ de $6{,}68$ para $7{,}02$ na amostra completa e de $6{,}66$ para $6{,}84$ na janela pré-COVID. Sobre $F^{rob}_{mp}$ o efeito depende da janela, com queda de $9{,}37$ para $8{,}62$ na amostra completa e alta de $7{,}79$ para $8{,}31$ na pré-COVID.
 
 A inferência sobre as respostas usa os conjuntos de confiança Anderson--Rubin de \cite{montielolea}, obtidos por inversão de teste em cada série e horizonte, em 80\% e 90\%, com Newey--West de ordem zero. O conjunto é limitado no nível de confiança $1-\alpha$ quando $\xi_{mp}$ excede o quantil $1-\alpha$ da distribuição $\chi^2_1$, condição satisfeita nos dois níveis reportados.
 
@@ -280,7 +284,7 @@ Um aperto de 50 pontos-base no DI de 6 meses eleva a curva de juros, deprecia o 
 
 \subsection{Estrutura a termo}
 
-A curva inteira sobe no impacto, com repasse crescente até o vértice de cinco anos. Os vértices de 3 meses, 1 ano, 2 anos, 5 anos e 10 anos aumentam $40{,}0$, $61{,}7$, $72{,}1$, $77{,}3$ e $70{,}7$ pontos-base, enquanto o DI de 6 meses sobe os 50 pontos-base impostos pela normalização (\autoref{fig:curva}). A Selic mensal aumenta $26{,}8$ pontos-base. O choque alcança tanto a taxa \textit{overnight} quanto os contratos longos, e a resposta da ponta de cinco anos supera em cerca de metade a variação normalizada no vértice de seis meses.
+Na \autoref{fig:curva}, a curva inteira sobe no impacto, com repasse crescente até o vértice de cinco anos. Os vértices de 3 meses, 1 ano, 2 anos, 5 anos e 10 anos aumentam $40{,}0$, $61{,}7$, $72{,}1$, $77{,}3$ e $70{,}7$ pontos-base, enquanto o DI de 6 meses sobe os 50 pontos-base impostos pela normalização. A Selic mensal aumenta $26{,}8$ pontos-base. O choque alcança tanto a taxa \textit{overnight} quanto os contratos longos, e a resposta da ponta de cinco anos supera em cerca de metade a variação normalizada no vértice de seis meses.
 
 A elevação da curva se intensifica até o terceiro mês, quando todos os vértices atingem o pico, com $59{,}9$, $74{,}0$, $88{,}7$, $97{,}4$, $94{,}2$ e $84{,}2$ pontos-base do vértice de 3 meses ao de 10 anos. No pico, o maior repasse passa ao vértice de 2 anos. A Selic atinge $40{,}8$ pontos-base também no terceiro mês.
 
@@ -296,11 +300,11 @@ Os vértices de 1, 2, 5 e 10 anos cruzam zero no décimo terceiro mês, seguidos
 \end{figure}
 
 \subsection{Câmbio e risco soberano}\label{sec:cambio}
-O real se deprecia no impacto contra as cinco moedas observadas, o que indica um movimento da moeda brasileira e não apenas do par com o dólar. As respostas são $3{,}53\%$ no BRL/USD, $2{,}64\%$ no BRL/EUR, $3{,}32\%$ no BRL/CNY, $2{,}87\%$ no BRL/INR e $3{,}88\%$ no BRL/ARS.
+O real se deprecia no impacto contra as cinco moedas da \autoref{fig:cambio}, o que indica um movimento da moeda brasileira e não apenas do par com o dólar. As respostas são $3{,}53\%$ no BRL/USD, $2{,}64\%$ no BRL/EUR, $3{,}32\%$ no BRL/CNY, $2{,}87\%$ no BRL/INR e $3{,}88\%$ no BRL/ARS.
 
 A depreciação se intensifica no curto prazo e depois reverte. BRL/USD, BRL/EUR, BRL/CNY e BRL/INR atingem picos de $4{,}45\%$, $3{,}44\%$, $4{,}27\%$ e $3{,}74\%$ no mês seguinte, e o BRL/ARS alcança $4{,}86\%$ no terceiro mês. As cinco respostas mudam de sinal entre o décimo primeiro e o décimo terceiro mês e, no trigésimo sexto, indicam apreciação do real entre $1{,}51\%$ no BRL/EUR e $4{,}28\%$ no BRL/ARS, sem retornar ao eixo dentro da janela da figura. %Para o BRL/USD, a banda de 90\% permanece acima de zero até o quarto mês e a de 68\% até o sétimo. Esta última fica abaixo de zero entre o vigésimo segundo e o trigésimo segundo meses, mas a banda de 90\% abrange zero durante toda a apreciação. Ao final dos quatro anos, o ponto do BRL/USD volta a ser levemente positivo e se aproxima do eixo.
 
-O EMBI+ e o CDS de cinco anos acompanham o câmbio, com alta de $28{,}3$ e $34{,}0$ pontos-base no impacto (\autoref{fig:cambio}) e picos de $29{,}4$ e $36{,}7$ no mês seguinte. Os dois cruzam zero no décimo quarto mês, um mês depois do BRL/USD e do BRL/ARS, e continuam a cair até o fim do horizonte, com $-18{,}9$ e $-25{,}9$ pontos-base no trigésimo sexto mês.
+O EMBI+ e o CDS de cinco anos acompanham o câmbio, com alta de $28{,}3$ e $34{,}0$ pontos-base no impacto e picos de $29{,}4$ e $36{,}7$ no mês seguinte. Os dois cruzam zero no décimo quarto mês, um mês depois do BRL/USD e do BRL/ARS, e continuam a cair até o fim do horizonte, com $-18{,}9$ e $-25{,}9$ pontos-base no trigésimo sexto mês.
 
 
 %  A resposta cambial de impacto equivale a $7{,}48\%$ de depreciação por 100 pontos-base de choque, enquanto \cite{goncalves2025} estimam apreciação entre $3{,}4\%$ e $5{,}6\%$ com dados diários. Como frequência, amostra e estratégia de identificação diferem simultaneamente, essa divergência de sinal não permite atribuir o contraste a um único mecanismo.
@@ -316,7 +320,7 @@ O EMBI+ e o CDS de cinco anos acompanham o câmbio, com alta de $28{,}3$ e $34{,
 
 \subsection{Variáveis fiscais}
 
-A DLSP cai $0{,}74$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}82$ no terceiro mês, cruza zero no décimo quinto e chega a $0{,}73$ no trigésimo sexto. A DBGG cai $0{,}14$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}43$ no quinto mês, cruza zero no décimo sétimo e alcança $0{,}65$ no trigésimo sexto (\autoref{fig:fiscal}).
+Na \autoref{fig:fiscal}, a DLSP cai $0{,}74$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}82$ no terceiro mês, cruza zero no décimo quinto e chega a $0{,}73$ no trigésimo sexto. A DBGG cai $0{,}14$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}43$ no quinto mês, cruza zero no décimo sétimo e alcança $0{,}65$ no trigésimo sexto.
 
 A NFSP primária cai R\$ $1{,}77$ bilhão no impacto, atinge o vale de R\$ $-3{,}64$ bilhões no mês seguinte, cruza zero no sétimo mês e alcança o pico de R\$ $5{,}06$ bilhões no vigésimo sexto, com R\$ $4{,}50$ bilhões no trigésimo sexto. O conjunto de 90\% exclui zero no mês seguinte ao choque e do décimo sexto ao trigésimo terceiro mês.
 
@@ -332,7 +336,7 @@ O ajuste cambial cai R\$ $28{,}5$ bilhões no impacto, mas o conjunto de 80\% co
 
 \subsection{Expectativas Focus}
 
-No impacto, a expectativa de IPCA para 12 meses sobe $0{,}077$ ponto percentual, atinge $0{,}174$ no terceiro mês, cruza zero no décimo primeiro e chega a $-0{,}381$ no trigésimo sexto. A expectativa da Selic para o ano seguinte aumenta $0{,}471$ ponto percentual no impacto, chega a $0{,}652$ no terceiro mês, cruza zero no décimo quinto e atinge $-0{,}776$ no trigésimo sexto. A expectativa de PIB para o ano seguinte cai $0{,}189$ ponto percentual no impacto, atinge o vale de $-0{,}270$ no terceiro mês, cruza zero no décimo sexto e chega a $0{,}303$ no trigésimo sexto (\autoref{fig:expectativas}).
+Na \autoref{fig:expectativas}, a expectativa de IPCA para 12 meses sobe $0{,}077$ ponto percentual no impacto, atinge $0{,}174$ no terceiro mês, cruza zero no décimo primeiro e chega a $-0{,}381$ no trigésimo sexto. A expectativa da Selic para o ano seguinte aumenta $0{,}471$ ponto percentual no impacto, chega a $0{,}652$ no terceiro mês, cruza zero no décimo quinto e atinge $-0{,}776$ no trigésimo sexto. A expectativa de PIB para o ano seguinte cai $0{,}189$ ponto percentual no impacto, atinge o vale de $-0{,}270$ no terceiro mês, cruza zero no décimo sexto e chega a $0{,}303$ no trigésimo sexto.
 
 Para o câmbio do ano seguinte, a expectativa sobe R\$ $0{,}075$/US\$ no impacto, alcança R\$ $0{,}112$/US\$ no terceiro mês, cruza zero no décimo segundo e chega a R\$ $-0{,}125$/US\$ no trigésimo sexto.
 
@@ -350,7 +354,7 @@ O resultado primário esperado cai $0{,}014$ ponto percentual do PIB no impacto,
 
 \subsection{Atividade e mercado de trabalho}
 
-A atividade recua no impacto em todas as medidas, embora a magnitude varie entre produção, consumo, serviços e utilização de insumos. O IBC-Br cai $0{,}77\%$, a indústria de transformação $2{,}35\%$, os bens duráveis $6{,}67\%$ e os bens de capital $3{,}88\%$. No consumo, as vendas no varejo recuam $1{,}40\%$ e as vendas de serviços $0{,}82\%$, enquanto a utilização da capacidade cai $0{,}26$ ponto percentual e as horas trabalhadas na indústria, $1{,}37\%$ (\autoref{fig:atividade}).
+A atividade recua no impacto em todas as medidas da \autoref{fig:atividade}, embora a magnitude varie entre produção, consumo, serviços e utilização de insumos. O IBC-Br cai $0{,}77\%$, a indústria de transformação $2{,}35\%$, os bens duráveis $6{,}67\%$ e os bens de capital $3{,}88\%$. No consumo, as vendas no varejo recuam $1{,}40\%$ e as vendas de serviços $0{,}82\%$, enquanto a utilização da capacidade cai $0{,}26$ ponto percentual e as horas trabalhadas na indústria, $1{,}37\%$.
 
 O IBC-Br não muda de sinal em nenhum horizonte. A contração se atenua para $-0{,}45\%$ no segundo mês, volta a se aprofundar a partir do terceiro e alcança um segundo vale de $-0{,}67\%$ no décimo quinto mês, menor que o impacto em valor absoluto. A recuperação posterior é gradual, e a resposta ainda está em $-0{,}59\%$ depois de dois anos e em $-0{,}35\%$ depois de três. O conjunto de 90\% exclui zero no impacto e do terceiro ao vigésimo quinto mês.
 
@@ -369,7 +373,7 @@ As vendas de serviços têm o vale mais tardio do bloco, de $-1{,}10\%$ no vigé
 
 \subsection{Crédito}
 
-O crédito cresce de forma generalizada no impacto. O saldo total aumenta $0{,}53\%$, e as altas setoriais alcançam $0{,}93\%$ no agropecuário, $1{,}25\%$ no transporte, $0{,}76\%$ na indústria, $0{,}64\%$ no comércio e $0{,}58\%$ na construção. O crédito à pessoa física aumenta $0{,}26\%$, a menor resposta inicial do bloco (\autoref{fig:credito}).
+O crédito cresce no impacto em todos os segmentos da \autoref{fig:credito}. O saldo total aumenta $0{,}53\%$, e as altas setoriais alcançam $0{,}93\%$ no agropecuário, $1{,}25\%$ no transporte, $0{,}76\%$ na indústria, $0{,}64\%$ no comércio e $0{,}58\%$ na construção. O crédito à pessoa física aumenta $0{,}26\%$, a menor resposta inicial do bloco.
 
 Essa expansão continua até o terceiro mês, quando saldo total, agropecuária, indústria, comércio, construção e pessoa física chegam a $0{,}71\%$, $1{,}14\%$, $0{,}95\%$, $0{,}95\%$, $0{,}94\%$ e $0{,}44\%$, enquanto o transporte atinge o pico de $1{,}51\%$ no mês seguinte ao choque. As respostas permanecem positivas nos dez primeiros meses em todos os segmentos.
 
@@ -386,7 +390,7 @@ O comércio cruza zero no décimo primeiro mês, seguido por agropecuária, tran
 
 \subsection{Preços}
 
-Os preços ao produtor sobem no impacto, enquanto os preços ao consumidor não exibem a mesma resposta. O IPP aumenta $0{,}397$ ponto percentual e o IGP-M, $0{,}039$, mas o IPCA cheio cai $0{,}077$ ponto percentual, os núcleos EX0 e de médias aparadas ficam próximos de zero, com $0{,}019$ e $-0{,}004$, o núcleo EX1 cai $0{,}028$ e o INPC, $0{,}095$ (\autoref{fig:precos}). A diferença entre esses grupos de preços organiza a dinâmica posterior do bloco.
+Na \autoref{fig:precos}, os preços ao produtor sobem no impacto, enquanto os preços ao consumidor não exibem a mesma resposta. O IPP aumenta $0{,}397$ ponto percentual e o IGP-M, $0{,}039$, mas o IPCA cheio cai $0{,}077$ ponto percentual, os núcleos EX0 e de médias aparadas ficam próximos de zero, com $0{,}019$ e $-0{,}004$, o núcleo EX1 cai $0{,}028$ e o INPC, $0{,}095$. A diferença entre esses grupos de preços organiza a dinâmica posterior do bloco.
 
 Os preços ao produtor atingem o pico no mês seguinte e mudam de sinal no sétimo e no oitavo mês. O IPP chega a $0{,}524$ ponto percentual no pico e ao vale de $-0{,}365$ no vigésimo terceiro mês, com $-0{,}301$ no trigésimo sexto. O IGP-M chega a $0{,}155$ no pico e ao vale de $-0{,}508$ no vigésimo nono mês.
 
@@ -404,7 +408,7 @@ O IPCA permanece negativo em todos os horizontes, e a queda se aprofunda a parti
 
 \subsection{Ações}
 
-Os sete índices da B3 têm retorno mensal negativo no impacto. As respostas são $-2{,}47\%$ no Ibovespa, $-3{,}48\%$ no SMLL, $-2{,}82\%$ no IDIV, $-3{,}72\%$ no IMOB, $-3{,}85\%$ no IFNC, $-0{,}39\%$ no IMAT e $-1{,}37\%$ no IFIX (\autoref{fig:acoes}).
+Na \autoref{fig:acoes}, os sete índices da B3 têm retorno mensal negativo no impacto. As respostas são $-2{,}47\%$ no Ibovespa, $-3{,}48\%$ no SMLL, $-2{,}82\%$ no IDIV, $-3{,}72\%$ no IMOB, $-3{,}85\%$ no IFNC, $-0{,}39\%$ no IMAT e $-1{,}37\%$ no IFIX.
 
 Ibovespa, SMLL, IDIV, IMOB e IFNC continuam negativos no mês seguinte e passam ao campo positivo no segundo mês. Depois de uma oscilação entre o terceiro e o quinto mês, em que SMLL e IMOB voltam brevemente ao campo negativo, a fase positiva se firma, com picos de $2{,}14\%$ no Ibovespa, $1{,}78\%$ no IDIV, $1{,}69\%$ no IMOB e $1{,}85\%$ no IFNC no oitavo mês e de $1{,}64\%$ no SMLL no nono. O retorno do IFIX cai a $-1{,}43\%$ no mês seguinte, só se torna positivo no sexto mês e alcança $0{,}48\%$ no décimo segundo.
 
@@ -425,7 +429,7 @@ O IMAT segue trajetória própria, pois seu retorno cai $0{,}39\%$ no impacto, f
 \label{sec:robustez}
 \label{sec:weak_iv}
 
-Os cinco sinais de impacto coincidem entre o DFM e um VAR de cinco observáveis estimado com o mesmo instrumento, e as magnitudes diferem (\autoref{fig:weak_iv_main}). O VAR contém IBC-Br, IPCA, yield de 6 meses, câmbio BRL/USD e CDS soberano de cinco anos em nível, com constante e tendência linear em cada equação, e recebe a mesma normalização de 50 pontos-base. Os conjuntos Anderson--Rubin de \cite{montielolea} são a inferência dos dois lados.
+Na \autoref{fig:weak_iv_main}, os cinco sinais de impacto coincidem entre o DFM e um VAR de cinco observáveis estimado com o mesmo instrumento, e as magnitudes diferem. O VAR contém IBC-Br, IPCA, yield de 6 meses, câmbio BRL/USD e CDS soberano de cinco anos em nível, com constante e tendência linear em cada equação, e recebe a mesma normalização de 50 pontos-base. Os conjuntos Anderson--Rubin de \cite{montielolea} são a inferência dos dois lados.
 
 A coincidência entre os modelos não testa a exogeneidade do instrumento. Ambos usam o mesmo $z_t$, e um instrumento contaminado falha nos dois, de modo que o acordo entre eles autoriza apenas dizer que o padrão central sobrevive à inferência robusta a instrumento fraco em uma especificação alternativa de dimensão menor.
 
@@ -473,168 +477,168 @@ Do ponto de vista de política econômica, nossos resultados indicam que, em eco
 
 \section*{Anexo A. Lista de variáveis}\label{anexo-A}
 
-O painel tem 115 séries mensais, de março de 2012 a dezembro de 2025. Na \autoref{tab:lista_variaveis}, a coluna Código traz o identificador da série na fonte, e a coluna Transf. dá a forma com que a série entra no painel e a conversão da resposta ao impulso para unidades econômicas. Com código 1 a série entra na unidade original e a resposta sai nessa unidade, com código 4 a série entra em logaritmo e a resposta sai em variação percentual, e com código 6 a série é o retorno mensal composto dos retornos diários e a resposta sai em pontos percentuais do retorno do mês, sem acumular ao longo dos horizontes. A marca na coluna X-13 indica ajuste sazonal por X-13ARIMA-SEATS \citep{sax2018seasonal}. As taxas de câmbio, em reais por unidade de moeda estrangeira, são médias mensais das cotações diárias, e as cotações cruzadas dividem BRL=X pela cotação da moeda em dólares. A curva de DI, o EMBI+, o CDS, o MSCI e o VIX entram pela última cotação do mês, e as expectativas Focus pela última mediana divulgada no mês. As quatro séries de tempo de procura, trimestrais, são interpoladas para a frequência mensal por spline cúbica.
+O painel tem 115 séries mensais, de março de 2012 a dezembro de 2025. Na \autoref{tab:lista_variaveis}, a coluna Código traz o identificador da série na fonte, e a coluna Transf. dá a forma com que a série entra no painel e a conversão da resposta ao impulso para unidades econômicas. Com código 1 a série entra na unidade original e a resposta sai nessa unidade, com código 4 a série entra em logaritmo e a resposta sai em variação percentual, e com código 6 a série é o retorno mensal composto dos retornos diários e a resposta sai em pontos percentuais do retorno do mês, sem acumular ao longo dos horizontes. As taxas de câmbio, em reais por unidade de moeda estrangeira, são médias mensais das cotações diárias, e as cotações cruzadas dividem BRL=X pela cotação da moeda em dólares. A curva de DI, o EMBI+, o CDS, o MSCI e o VIX entram pela última cotação do mês, e as expectativas Focus pela última mediana divulgada no mês. As quatro séries de tempo de procura, trimestrais, são interpoladas para a frequência mensal por spline cúbica.
 
 \begingroup
 \footnotesize
-\begin{longtable}{@{}p{0.37\textwidth} p{0.23\textwidth} p{0.15\textwidth} >{\centering\arraybackslash}p{0.08\textwidth} >{\centering\arraybackslash}p{0.078\textwidth}@{}}
+\begin{longtable}{@{}p{0.40\textwidth} p{0.26\textwidth} p{0.17\textwidth} >{\centering\arraybackslash}p{0.08\textwidth}@{}}
 \caption{\textbf{Séries do painel, fontes e transformações}}\label{tab:lista_variaveis} \\
 \toprule
-Série & Fonte & Código & Transf. & X-13 \\
+Série & Fonte & Código & Transf. \\
 \midrule
 \endfirsthead
 
 \caption[]{\textbf{Séries do painel, fontes e transformações} (continuação)} \\
 \toprule
-Série & Fonte & Código & Transf. & X-13 \\
+Série & Fonte & Código & Transf. \\
 \midrule
 \endhead
 
 \midrule
-\multicolumn{5}{r@{}}{\textit{continua na próxima página}} \\
+\multicolumn{4}{r@{}}{\textit{continua na próxima página}} \\
 \endfoot
 
 \bottomrule
 \endlastfoot
 
-\multicolumn{5}{@{}l}{\textit{Câmbio}} \\
-BRL/USD & Yahoo Finance & BRL=X & 1 &  \\
-BRL/EUR & Yahoo Finance & EUR=X & 1 &  \\
-BRL/CNY & Yahoo Finance & CNY=X & 1 &  \\
-BRL/ARS & Yahoo Finance & ARS=X & 1 &  \\
-BRL/INR & Yahoo Finance & INR=X & 1 &  \\
+\multicolumn{4}{@{}l}{\textit{Câmbio}} \\
+BRL/USD & Yahoo Finance & BRL=X & 1 \\
+BRL/EUR & Yahoo Finance & EUR=X & 1 \\
+BRL/CNY & Yahoo Finance & CNY=X & 1 \\
+BRL/ARS & Yahoo Finance & ARS=X & 1 \\
+BRL/INR & Yahoo Finance & INR=X & 1 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Juros e curva de DI}} \\
-Selic acumulada no mês, anualizada & BCB/SGS & 4189 & 1 &  \\
-DI, 3 meses & B3, ajuste Svensson &  & 1 &  \\
-DI, 6 meses & B3, ajuste Svensson &  & 1 &  \\
-DI, 1 ano & B3, ajuste Svensson &  & 1 &  \\
-DI, 2 anos & B3, ajuste Svensson &  & 1 &  \\
-DI, 5 anos & B3, ajuste Svensson &  & 1 &  \\
-DI, 10 anos & B3, ajuste Svensson &  & 1 &  \\
+\multicolumn{4}{@{}l}{\textit{Juros e curva de DI}} \\
+Selic acumulada no mês, anualizada & BCB/SGS & 4189 & 1 \\
+DI, 3 meses & B3, ajuste Svensson &  & 1 \\
+DI, 6 meses & B3, ajuste Svensson &  & 1 \\
+DI, 1 ano & B3, ajuste Svensson &  & 1 \\
+DI, 2 anos & B3, ajuste Svensson &  & 1 \\
+DI, 5 anos & B3, ajuste Svensson &  & 1 \\
+DI, 10 anos & B3, ajuste Svensson &  & 1 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Agregados monetários}} \\
-Base monetária & BCB/SGS & 1788 & 4 & $\checkmark$ \\
-Meios de pagamento & BCB/SGS & 27789 & 4 & $\checkmark$ \\
-Depósitos à vista & BCB/SGS & 27790 & 4 & $\checkmark$ \\
-Depósitos de poupança & BCB/SGS & 1835 & 4 & $\checkmark$ \\
-M1 & BCB/SGS & 27791 & 4 & $\checkmark$ \\
-M2 & BCB/SGS & 27810 & 4 & $\checkmark$ \\
-M3 & BCB/SGS & 27813 & 4 & $\checkmark$ \\
+\multicolumn{4}{@{}l}{\textit{Agregados monetários}} \\
+Base monetária & BCB/SGS & 1788 & 4 \\
+Meios de pagamento & BCB/SGS & 27789 & 4 \\
+Depósitos à vista & BCB/SGS & 27790 & 4 \\
+Depósitos de poupança & BCB/SGS & 1835 & 4 \\
+M1 & BCB/SGS & 27791 & 4 \\
+M2 & BCB/SGS & 27810 & 4 \\
+M3 & BCB/SGS & 27813 & 4 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Crédito}} \\
-Crédito agropecuário & BCB/SGS & 22027 & 4 & $\checkmark$ \\
-Crédito à indústria & BCB/SGS & 22043 & 4 & $\checkmark$ \\
-Crédito à construção & BCB/SGS & 22030 & 4 & $\checkmark$ \\
-Crédito ao comércio & BCB/SGS & 22036 & 4 & $\checkmark$ \\
-Crédito ao transporte & BCB/SGS & 22037 & 4 & $\checkmark$ \\
-Crédito à pessoa física & BCB/SGS & 22050 & 4 & $\checkmark$ \\
-Spread médio de crédito, pessoa jurídica & BCB/SGS & 20784 & 1 & $\checkmark$ \\
-Spread médio de crédito, pessoa física & BCB/SGS & 20785 & 1 & $\checkmark$ \\
-Saldo de crédito total & BCB/SGS & 20542 & 4 & $\checkmark$ \\
-Recolhimentos compulsórios & BCB/SGS & 17633 & 4 &  \\
+\multicolumn{4}{@{}l}{\textit{Crédito}} \\
+Crédito agropecuário & BCB/SGS & 22027 & 4 \\
+Crédito à indústria & BCB/SGS & 22043 & 4 \\
+Crédito à construção & BCB/SGS & 22030 & 4 \\
+Crédito ao comércio & BCB/SGS & 22036 & 4 \\
+Crédito ao transporte & BCB/SGS & 22037 & 4 \\
+Crédito à pessoa física & BCB/SGS & 22050 & 4 \\
+Spread médio de crédito, pessoa jurídica & BCB/SGS & 20784 & 1 \\
+Spread médio de crédito, pessoa física & BCB/SGS & 20785 & 1 \\
+Saldo de crédito total & BCB/SGS & 20542 & 4 \\
+Recolhimentos compulsórios & BCB/SGS & 17633 & 4 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Atividade econômica}} \\
-Consumo de gasolina & BCB/SGS & 1393 & 1 & $\checkmark$ \\
-Consumo de GLP & BCB/SGS & 1394 & 1 & $\checkmark$ \\
-Consumo de óleo combustível & BCB/SGS & 1395 & 1 &  \\
-Consumo de óleo diesel & BCB/SGS & 1396 & 1 & $\checkmark$ \\
-Consumo de demais derivados & BCB/SGS & 1397 & 1 & $\checkmark$ \\
-Consumo de álcool & BCB/SGS & 1401 & 1 & $\checkmark$ \\
-Utilização da capacidade instalada (CNI) & BCB/SGS & 28554 & 1 &  \\
-Vendas no varejo & BCB/SGS & 1455 & 1 & $\checkmark$ \\
-Vendas de serviços & BCB/SGS & 23982 & 1 & $\checkmark$ \\
-Produção de automóveis & BCB/SGS & 7384 & 1 & $\checkmark$ \\
-Produção de veículos leves & BCB/SGS & 7385 & 1 & $\checkmark$ \\
-Produção de caminhões & BCB/SGS & 7386 & 1 & $\checkmark$ \\
-Produção de ônibus & BCB/SGS & 7387 & 1 & $\checkmark$ \\
-Produção de bens de consumo & BCB/SGS & 21865 & 1 & $\checkmark$ \\
-Produção de bens duráveis & BCB/SGS & 21866 & 1 & $\checkmark$ \\
-Produção de bens não duráveis & BCB/SGS & 21867 & 1 & $\checkmark$ \\
-Produção de bens de capital & BCB/SGS & 21863 & 1 & $\checkmark$ \\
-Produção da indústria de transformação & BCB/SGS & 21862 & 1 & $\checkmark$ \\
-Produção da indústria extrativa & BCB/SGS & 21861 & 1 & $\checkmark$ \\
-Utilização da capacidade instalada (FGV) & BCB/SGS & 24352 & 1 & $\checkmark$ \\
-Consumo de energia, comercial & BCB/SGS & 1402 & 1 & $\checkmark$ \\
-Consumo de energia, residencial & BCB/SGS & 1403 & 1 & $\checkmark$ \\
-Consumo de energia, industrial & BCB/SGS & 1404 & 1 & $\checkmark$ \\
-Consumo de energia, outros & BCB/SGS & 1405 & 1 & $\checkmark$ \\
-PIB acumulado no ano & BCB/SGS & 4381 & 4 & $\checkmark$ \\
-IBC-Br & BCB/SGS & 24364 & 1 &  \\
-Índice de confiança do consumidor & BCB/SGS & 4393 & 1 & $\checkmark$ \\
-Índice de confiança de serviços & BCB/SGS & 17660 & 1 &  \\
+\multicolumn{4}{@{}l}{\textit{Atividade econômica}} \\
+Consumo de gasolina & BCB/SGS & 1393 & 1 \\
+Consumo de GLP & BCB/SGS & 1394 & 1 \\
+Consumo de óleo combustível & BCB/SGS & 1395 & 1 \\
+Consumo de óleo diesel & BCB/SGS & 1396 & 1 \\
+Consumo de demais derivados & BCB/SGS & 1397 & 1 \\
+Consumo de álcool & BCB/SGS & 1401 & 1 \\
+Utilização da capacidade instalada (CNI) & BCB/SGS & 28554 & 1 \\
+Vendas no varejo & BCB/SGS & 1455 & 1 \\
+Vendas de serviços & BCB/SGS & 23982 & 1 \\
+Produção de automóveis & BCB/SGS & 7384 & 1 \\
+Produção de veículos leves & BCB/SGS & 7385 & 1 \\
+Produção de caminhões & BCB/SGS & 7386 & 1 \\
+Produção de ônibus & BCB/SGS & 7387 & 1 \\
+Produção de bens de consumo & BCB/SGS & 21865 & 1 \\
+Produção de bens duráveis & BCB/SGS & 21866 & 1 \\
+Produção de bens não duráveis & BCB/SGS & 21867 & 1 \\
+Produção de bens de capital & BCB/SGS & 21863 & 1 \\
+Produção da indústria de transformação & BCB/SGS & 21862 & 1 \\
+Produção da indústria extrativa & BCB/SGS & 21861 & 1 \\
+Utilização da capacidade instalada (FGV) & BCB/SGS & 24352 & 1 \\
+Consumo de energia, comercial & BCB/SGS & 1402 & 1 \\
+Consumo de energia, residencial & BCB/SGS & 1403 & 1 \\
+Consumo de energia, industrial & BCB/SGS & 1404 & 1 \\
+Consumo de energia, outros & BCB/SGS & 1405 & 1 \\
+PIB acumulado no ano & BCB/SGS & 4381 & 4 \\
+IBC-Br & BCB/SGS & 24364 & 1 \\
+Índice de confiança do consumidor & BCB/SGS & 4393 & 1 \\
+Índice de confiança de serviços & BCB/SGS & 17660 & 1 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Mercado de trabalho}} \\
-Emprego formal, Sudeste & BCB/SGS & 13901 & 1 & $\checkmark$ \\
-Emprego formal, Sul & BCB/SGS & 13564 & 1 & $\checkmark$ \\
-Emprego formal, Nordeste & BCB/SGS & 13941 & 1 & $\checkmark$ \\
-Emprego formal, Norte & BCB/SGS & 28152 & 1 & $\checkmark$ \\
-Emprego formal, Centro-Oeste & BCB/SGS & 21991 & 1 & $\checkmark$ \\
-Salário mínimo & BCB/SGS & 1619 & 1 & $\checkmark$ \\
-População na força de trabalho & BCB/SGS & 24378 & 1 &  \\
-População ocupada & BCB/SGS & 28543 & 1 & $\checkmark$ \\
-Taxa de desemprego & BCB/SGS & 24369 & 1 & $\checkmark$ \\
-Horas trabalhadas na indústria & BCB/SGS & 28556 & 1 &  \\
-Tempo de procura, menos de 1 mês & IBGE/SIDRA & 1616 & 1 & $\checkmark$ \\
-Tempo de procura, de 1 mês a menos de 1 ano & IBGE/SIDRA & 1616 & 1 & $\checkmark$ \\
-Tempo de procura, de 1 ano a menos de 2 anos & IBGE/SIDRA & 1616 & 1 &  \\
-Tempo de procura, 2 anos ou mais & IBGE/SIDRA & 1616 & 1 & $\checkmark$ \\
+\multicolumn{4}{@{}l}{\textit{Mercado de trabalho}} \\
+Emprego formal, Sudeste & BCB/SGS & 13901 & 1 \\
+Emprego formal, Sul & BCB/SGS & 13564 & 1 \\
+Emprego formal, Nordeste & BCB/SGS & 13941 & 1 \\
+Emprego formal, Norte & BCB/SGS & 28152 & 1 \\
+Emprego formal, Centro-Oeste & BCB/SGS & 21991 & 1 \\
+Salário mínimo & BCB/SGS & 1619 & 1 \\
+População na força de trabalho & BCB/SGS & 24378 & 1 \\
+População ocupada & BCB/SGS & 28543 & 1 \\
+Taxa de desemprego & BCB/SGS & 24369 & 1 \\
+Horas trabalhadas na indústria & BCB/SGS & 28556 & 1 \\
+Tempo de procura, menos de 1 mês & IBGE/SIDRA & 1616 & 1 \\
+Tempo de procura, de 1 mês a menos de 1 ano & IBGE/SIDRA & 1616 & 1 \\
+Tempo de procura, de 1 ano a menos de 2 anos & IBGE/SIDRA & 1616 & 1 \\
+Tempo de procura, 2 anos ou mais & IBGE/SIDRA & 1616 & 1 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Preços}} \\
-IPCA & BCB/SGS & 433 & 1 &  \\
-IPCA, índice de difusão & BCB/SGS & 21379 & 1 & $\checkmark$ \\
-IPCA, núcleo EX0 & BCB/SGS & 11427 & 1 & $\checkmark$ \\
-IPCA, núcleo EX1 & BCB/SGS & 16121 & 1 & $\checkmark$ \\
-IPCA, núcleo de dupla ponderação & BCB/SGS & 16122 & 1 & $\checkmark$ \\
-IGP-M & BCB/SGS & 189 & 1 &  \\
-IPC & BCB/SGS & 191 & 1 & $\checkmark$ \\
-IPC, núcleo & BCB/SGS & 4467 & 1 &  \\
-INCC & BCB/SGS & 192 & 1 & $\checkmark$ \\
-INPC & BCB/SGS & 188 & 1 &  \\
-IPP & IPEA & IPP12\_IPPCG12 & 1 &  \\
+\multicolumn{4}{@{}l}{\textit{Preços}} \\
+IPCA & BCB/SGS & 433 & 1 \\
+IPCA, índice de difusão & BCB/SGS & 21379 & 1 \\
+IPCA, núcleo EX0 & BCB/SGS & 11427 & 1 \\
+IPCA, núcleo EX1 & BCB/SGS & 16121 & 1 \\
+IPCA, núcleo de dupla ponderação & BCB/SGS & 16122 & 1 \\
+IGP-M & BCB/SGS & 189 & 1 \\
+IPC & BCB/SGS & 191 & 1 \\
+IPC, núcleo & BCB/SGS & 4467 & 1 \\
+INCC & BCB/SGS & 192 & 1 \\
+INPC & BCB/SGS & 188 & 1 \\
+IPP & IPEA & IPP12\_IPPCG12 & 1 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Commodities}} \\
-Índice de commodities, agropecuária & BCB/SGS & 27575 & 1 &  \\
-Índice de commodities, metal & BCB/SGS & 27576 & 1 &  \\
-Índice de commodities, energia & BCB/SGS & 27577 & 1 &  \\
+\multicolumn{4}{@{}l}{\textit{Commodities}} \\
+Índice de commodities, agropecuária & BCB/SGS & 27575 & 1 \\
+Índice de commodities, metal & BCB/SGS & 27576 & 1 \\
+Índice de commodities, energia & BCB/SGS & 27577 & 1 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Índices da B3}} \\
-Ibovespa & B3 & IBOV & 6 &  \\
-Índice de dividendos & B3 & IDIV & 6 &  \\
-Índice de fundos imobiliários & B3 & IFIX & 6 &  \\
-Índice financeiro & B3 & IFNC & 6 &  \\
-Índice de materiais básicos & B3 & IMAT & 6 &  \\
-Índice imobiliário & B3 & IMOB & 6 &  \\
-Índice de small caps & B3 & SMLL & 6 &  \\
+\multicolumn{4}{@{}l}{\textit{Índices da B3}} \\
+Ibovespa & B3 & IBOV & 6 \\
+Índice de dividendos & B3 & IDIV & 6 \\
+Índice de fundos imobiliários & B3 & IFIX & 6 \\
+Índice financeiro & B3 & IFNC & 6 \\
+Índice de materiais básicos & B3 & IMAT & 6 \\
+Índice imobiliário & B3 & IMOB & 6 \\
+Índice de small caps & B3 & SMLL & 6 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Risco e incerteza}} \\
-EMBI+ Brasil (JP Morgan) & BC da Rep. Dominicana &  & 1 &  \\
-CDS soberano, 5 anos & Investing.com &  & 1 &  \\
-MSCI mercados emergentes & Investing.com &  & 1 & $\checkmark$ \\
-VIX (CBOE) & Investing.com &  & 1 &  \\
-EPU, Brasil & policyuncertainty.com &  & 1 &  \\
-EPU, Canadá & policyuncertainty.com &  & 1 &  \\
-EPU, Chile & policyuncertainty.com &  & 1 &  \\
-EPU, China & policyuncertainty.com &  & 1 & $\checkmark$ \\
-EPU, Alemanha & policyuncertainty.com &  & 1 &  \\
-EPU, Índia & policyuncertainty.com &  & 1 &  \\
-EPU, Rússia & policyuncertainty.com &  & 1 &  \\
-EPU, Estados Unidos & policyuncertainty.com &  & 1 &  \\
+\multicolumn{4}{@{}l}{\textit{Risco e incerteza}} \\
+EMBI+ Brasil (JP Morgan) & BC da Rep. Dominicana &  & 1 \\
+CDS soberano, 5 anos & Investing.com &  & 1 \\
+MSCI mercados emergentes & Investing.com &  & 1 \\
+VIX (CBOE) & Investing.com &  & 1 \\
+EPU, Brasil & policyuncertainty.com &  & 1 \\
+EPU, Canadá & policyuncertainty.com &  & 1 \\
+EPU, Chile & policyuncertainty.com &  & 1 \\
+EPU, China & policyuncertainty.com &  & 1 \\
+EPU, Alemanha & policyuncertainty.com &  & 1 \\
+EPU, Índia & policyuncertainty.com &  & 1 \\
+EPU, Rússia & policyuncertainty.com &  & 1 \\
+EPU, Estados Unidos & policyuncertainty.com &  & 1 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Fiscal}} \\
-Dívida bruta do governo geral, \% do PIB & BCB/SGS & 13762 & 1 &  \\
-Dívida líquida do setor público, \% do PIB & BCB/SGS & 4513 & 1 & $\checkmark$ \\
-NFSP primária, fluxo mensal & BCB/SGS & 4649 & 1 & $\checkmark$ \\
-Ajuste cambial da DLSP, fluxo mensal & BCB, Evolução da DLSP &  & 1 &  \\
+\multicolumn{4}{@{}l}{\textit{Fiscal}} \\
+Dívida bruta do governo geral, \% do PIB & BCB/SGS & 13762 & 1 \\
+Dívida líquida do setor público, \% do PIB & BCB/SGS & 4513 & 1 \\
+NFSP primária, fluxo mensal & BCB/SGS & 4649 & 1 \\
+Ajuste cambial da DLSP, fluxo mensal & BCB, Evolução da DLSP &  & 1 \\
 \addlinespace
-\multicolumn{5}{@{}l}{\textit{Expectativas Focus}} \\
-IPCA, 12 meses à frente, suavizada & BCB, Focus &  & 1 &  \\
-Selic, ano seguinte & BCB, Focus &  & 1 &  \\
-PIB, ano seguinte & BCB, Focus &  & 1 & $\checkmark$ \\
-Câmbio, ano seguinte & BCB, Focus &  & 1 &  \\
-DLSP, ano seguinte & BCB, Focus &  & 1 &  \\
-Resultado primário, ano seguinte & BCB, Focus &  & 1 &  \\
-Resultado nominal, ano seguinte & BCB, Focus &  & 1 &  \\
+\multicolumn{4}{@{}l}{\textit{Expectativas Focus}} \\
+IPCA, 12 meses à frente, suavizada & BCB, Focus &  & 1 \\
+Selic, ano seguinte & BCB, Focus &  & 1 \\
+PIB, ano seguinte & BCB, Focus &  & 1 \\
+Câmbio, ano seguinte & BCB, Focus &  & 1 \\
+DLSP, ano seguinte & BCB, Focus &  & 1 \\
+Resultado primário, ano seguinte & BCB, Focus &  & 1 \\
+Resultado nominal, ano seguinte & BCB, Focus &  & 1 \\
 \end{longtable}
 \endgroup
 
@@ -695,12 +699,12 @@ Resultado nominal, ano seguinte & BCB, Focus &  & 1 &  \\
                      &      & (0,95) & (0,40) &       &       &       &       \\
 \bottomrule
 \end{tabular*}
-\caption{\textbf{Teste da condição de posto, $H_0\colon\lambda_1=\lambda_2$}\\{Os valores $\hat{\lambda}_1$ e $\hat{\lambda}_2$ são os dois maiores autovalores de $\Lambda$ em $\Sigma_{NC}=BB'$ e $\Sigma_C=B\Lambda B'$, com erro padrão entre parênteses, e $a$ é a razão de variância do DI da \autoref{tab:het_variance}. A estatística $Q_r$ testa $H_0$ com dois graus de liberdade \citep{lutkepohl2021,lange2021}, e sob $H_0$ a coluna do choque monetário não é identificada. A versão com correção divide a estatística por um fator que depende da curtose dos resíduos e é a válida quando os resíduos não são normais. Com a correção de Holm para os três vértices, o $p$ diário do vértice de três meses é $0{,}010$. A linha fatorial usa as cinco inovações padronizadas de $(r,q,p)=(5,5,4)$ e tem 107 meses com reunião e 54 sem, 161 no total e não 162, porque o teste exige ao menos uma defasagem. Nessa linha o teste rejeita $\lambda_1=\dots=\lambda_4$ e $\lambda_1=\dots=\lambda_5$ a 5\%, com $p$ de $0{,}021$ e $0{,}013$, mas não rejeita $\lambda_1=\lambda_2$. Séries, contagens e janela dos painéis diário e mensal como na \autoref{tab:het_variance}.}}
+\caption{\textbf{Teste da condição de posto, $H_0\colon\lambda_1=\lambda_2$}\\{Os valores $\hat{\lambda}_1$ e $\hat{\lambda}_2$ são os dois maiores autovalores de $\Lambda$ em $\Sigma_{NC}=BB'$ e $\Sigma_C=B\Lambda B'$, com erro padrão entre parênteses, e $a$ é a razão de variância do DI da \autoref{tab:het_variance}. A estatística $Q_r$ testa $H_0$ com dois graus de liberdade \citep{lutkepohl2021,lange2021}, e sob $H_0$ a coluna do choque monetário não é identificada. A versão com correção divide a estatística por um fator que depende da curtose dos resíduos e é a válida quando os resíduos não são normais. Com a correção de Holm para os três vértices, o $p$ diário do vértice de três meses é $0{,}010$. A linha fatorial usa as cinco inovações padronizadas de $(r,q,p)=(5,5,4)$ e tem 107 meses com reunião e 54 sem, 161 no total e não 162, porque o teste exige ao menos uma defasagem. Nessa linha o teste rejeita $\lambda_1=\dots=\lambda_4$ e $\lambda_1=\dots=\lambda_5$ a 5\%, com $p$ de $0{,}021$ e $0{,}013$, mas não rejeita $\lambda_1=\lambda_2$. Entre os painéis diário e mensal mudam juntos a frequência e o objeto medido, e a comparação não separa um do outro. Séries, contagens e janela dos painéis diário e mensal como na \autoref{tab:het_variance}.}}
 \label{tab:het_frequency}
 \end{threeparttable}
 \end{table}
 
-\section*{Anexo C. Sensibilidade à dimensão dinâmica e à ordem do VAR}\label{anexo-C}
+\section*{Anexo C. Sensibilidade das respostas}\label{anexo-C}
 
 \begin{figure}[H]
 \begin{center}
@@ -718,40 +722,6 @@ Resultado nominal, ano seguinte & BCB, Focus &  & 1 &  \\
 \end{center}
 \end{figure}
 
-\section*{Anexo D. Construção do instrumento}\label{anexo-D}
-
-\begin{table}[H]
-\centering
-\footnotesize
-\begin{threeparttable}
-\begin{tabular*}{0.75\textwidth}{@{\extracolsep{\fill}}l c c@{}}
-\toprule
- & Coeficiente & EP \\
-\midrule
-\multicolumn{3}{@{}l}{\textit{Notícias financeiras, 65 pregões}} \\
-\quad Ibovespa             & $-0{,}130$ & $0{,}167$ \\
-\quad S\&P 500             & $-0{,}229$ & $0{,}357$ \\
-\quad VIX                  & $-0{,}025$ & $0{,}240$ \\
-\quad Petróleo Brent       & $0{,}188$  & $0{,}104$ \\
-\quad Inclinação do DI     & $-1{,}091$ & $1{,}628$ \\
-\addlinespace
-\multicolumn{3}{@{}l}{\textit{Notícias macroeconômicas}} \\
-\quad Surpresa do IPCA     & $14{,}557$ & $15{,}030$ \\
-\quad Surpresa do PIB      & $6{,}740$  & $3{,}074$ \\
-\quad Aceleração do núcleo & $-0{,}648$ & $0{,}700$ \\
-\quad IPCA esperado        & $5{,}852$  & $4{,}990$ \\
-\midrule
-$R^2$                        & \multicolumn{2}{c}{$0{,}124$} \\
-Wald conjunto, $p$           & \multicolumn{2}{c}{$0{,}122$} \\
-Wald das notícias macro, $p$ & \multicolumn{2}{c}{$0{,}059$} \\
-Observações                  & \multicolumn{2}{c}{102} \\
-\bottomrule
-\end{tabular*}
-\caption{\textbf{Notícias anteriores ao anúncio e surpresas do Copom}\\{Coeficientes $\beta$ da regressão $y_k = \alpha + \beta' x_k + e_k$, como na Tabela 3 de \cite{bauer2023}, em que $k$ indexa as 102 reuniões do Copom entre março de 2012 e dezembro de 2025 e $y_k$ é a variação do DI de 6 meses entre o fechamento da quarta-feira da reunião e o da quinta-feira seguinte, em pontos-base. As notícias financeiras são variações acumuladas em 65 pregões até o fechamento da quarta-feira, em variação logarítmica percentual para Ibovespa, S\&P 500 e Brent, em pontos para o VIX e em pontos percentuais para a inclinação do DI, a diferença entre os vértices de 2 anos e 3 meses. As surpresas de IPCA e de PIB somam, nas divulgações feitas depois da quarta-feira da reunião anterior e até a da reunião corrente, a diferença entre o valor divulgado e a mediana Focus da última pesquisa antes da divulgação, e valem zero sem divulgação. Estão em pontos percentuais da variação mensal do IPCA e da variação do PIB contra o mesmo trimestre do ano anterior, este na primeira divulgação. A aceleração do núcleo EX0 é a variação em seis meses encerrada dois meses antes da reunião menos a dos seis meses anteriores, anualizada, em pontos percentuais. O IPCA esperado é a mediana Focus, na quarta-feira da reunião, da variação mensal do próximo IPCA a ser divulgado, em percentual. A constante está incluída e não é reportada. EP é o erro-padrão HC1. As linhas Wald reportam o $p$ dos testes HC1 de que os nove coeficientes e os quatro das notícias macroeconômicas são nulos. O resíduo, somado nas reuniões de cada mês, é o instrumento de produção.}}
-\label{tab:bs_ortogonalizacao}
-\end{threeparttable}
-\end{table}
-
 \begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.7]{fig_instrumento_camadas.pdf}
@@ -759,5 +729,48 @@ Observações                  & \multicolumn{2}{c}{102} \\
 \label{fig:instrumento_camadas}
 \end{center}
 \end{figure}
+
+\section*{Anexo D. Construção do instrumento}\label{anexo-D}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{threeparttable}
+\begin{tabular*}{0.62\textwidth}{@{\extracolsep{\fill}}l D{,}{{,}}{-1}@{}}
+\toprule
+ & \multicolumn{1}{c}{Surpresa do DI de 6 meses} \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Notícias macroeconômicas}} \\
+\quad Surpresa do PIB      & 6,740 \\
+                           & (3,074) \\
+\quad Aceleração do núcleo & -0,648 \\
+                           & (0,700) \\
+\quad IPCA esperado        & 5,852 \\
+                           & (4,990) \\
+\quad Surpresa do IPCA     & 14,557 \\
+                           & (15,030) \\
+\addlinespace
+\multicolumn{2}{@{}l}{\textit{Notícias financeiras}} \\
+\quad Ibovespa             & -0,130 \\
+                           & (0,167) \\
+\quad Inclinação do DI     & -1,091 \\
+                           & (1,628) \\
+\quad Petróleo Brent       & 0,188 \\
+                           & (0,104) \\
+\quad S\&P 500             & -0,229 \\
+                           & (0,357) \\
+\quad VIX                  & -0,025 \\
+                           & (0,240) \\
+\midrule
+$R^2$                                   & 0,124 \\
+Wald conjunto, $p$                      & 0,122 \\
+Wald das notícias macroeconômicas, $p$  & 0,059 \\
+Observações                             & 102 \\
+\bottomrule
+\end{tabular*}
+\caption{\textbf{Notícias anteriores ao anúncio e surpresas do Copom}\\{Coeficientes $\beta$ e $R^2$ da regressão $y_k = \alpha + \beta' x_k + e_k$, em que $k$ indexa as 102 reuniões do Copom de março de 2012 a dezembro de 2025, $y_k$ é a surpresa do DI de 6 meses em pontos-base e $x_k$ contém as notícias das linhas, descritas na Seção~\ref{sec:identificacao}. Ibovespa, S\&P 500 e Brent em variação logarítmica percentual, VIX em pontos, e inclinação e notícias macroeconômicas em pontos percentuais. Erros-padrão HC1 entre parênteses. As linhas Wald dão o $p$ de que os nove coeficientes, e os quatro macroeconômicos, são nulos.}}
+\label{tab:bs_ortogonalizacao}
+\end{threeparttable}
+\end{table}
 
 \end{document}

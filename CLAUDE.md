@@ -115,18 +115,26 @@ condition, not in the frequency of the data.
 (`sec:identificacao`) as the reason the paper does not use that identification: one paragraph
 plus one footnote, right after the proxy-identification paragraph. §5 Robustez kept its title and
 lost its only subsection (`sec:weak_iv` now labels §5 itself); the introduction points at
-`sec:identificacao`. The appendix is split into **Anexo A** (`tab:lista_variaveis`), **Anexo B** (`anexo-B`), since 2026-09-24 **Anexo C** (`anexo-C`, the `q` sensitivity figure, below, joined on 2026-09-25 by the `p` one) and, since 2026-09-25, **Anexo D** (`anexo-D`, the instrument construction, below). Anexo B carries **two tables**: `tab:het_variance` (Rigobon--Sack
+`sec:identificacao`. The appendix is split into **Anexo A** (`tab:lista_variaveis`), **Anexo B** (`anexo-B`), since 2026-09-24 **Anexo C** (`anexo-C`, the `q` sensitivity figure, below, joined on 2026-09-25 by the `p` one and on 2026-09-26 by the instrument-layer one) and, since 2026-09-25, **Anexo D** (`anexo-D`, the instrument construction, below). Anexo B carries **two tables**: `tab:het_variance` (Rigobon--Sack
 variance ratio per series, from `output/het/het_variance_ratios.csv`) and `tab:het_frequency` (the
 `Qr(λ₁=λ₂)` summary with the DI variance ratio `a`, SEs, corrected and uncorrected statistic; the
 `det` column left it the same day, and so did `tab:het_sequencia`, the full sequential table, by
 author decision). The summary prints the factor row's uncorrected p 0.035, and its note prints the
 inconvenient factor-row rejections of `λ₁=…=λ₄` (p 0.021) and `λ₁=…=λ₅` (p 0.013) and why that row
 has 161 observations, not 162 (the formal lag the test imposes).
-Holm across the three daily vertices keeps the 3-month rejection (p 0.010). The vertex and
-kurtosis sensitivities travel in the footnote. The paragraph keeps the non-decomposition
-sentence: the advisor's reading ("aggregation dilutes the variance") is exactly what the
+Holm across the three daily vertices keeps the 3-month rejection (p 0.010). The non-decomposition
+sentence stays: the advisor's reading ("aggregation dilutes the variance") is exactly what the
 2026-09-22 prohibition forbids, and was not written. `rigobonsack2004` entered the bib (23 of
 the 25 keys; `amengual2007consistent` made it 24 on 2026-09-24).
+**Since 2026-09-26 §3.3 was rewritten** by author request: the het paragraph comes **first** and is
+**narrative, with no statistic and no footnote** — it says the condition was tested on three of
+`goncalves2025`'s series, holds daily with the 3-month DI "embora o resultado dependa do vértice"
+(the vertex sensitivity travels as that clause), fails in the monthly panel and in the factor
+innovations, and points to Anexo B. The kurtosis sensitivity travels in `tab:het_frequency`'s
+corrected/uncorrected columns, and the non-decomposition sentence moved into that table's note.
+The same round removed `\cite{jarocinski2020}` from §3.3 (23 keys in the body), dropped the X-13
+column from `tab:lista_variaveis`, set captions and `\autoref` to "Figura/Tabela", and replaced
+every parenthetical "(\autoref{…})" in the body with a reference inside the sentence.
 That round migrated `sec:weak_iv` to the production vintage, re-estimated
 `sec:het_frequency` at `(5,5,4)` under the LP scale, repainted
 `fig:weak_iv_main` with Anderson--Rubin sets on both sides, and **deleted §5.3**
@@ -173,6 +181,12 @@ annex scripts share `R/reporting/sensitivity.R`. Notes: `2026-09-25_p_sensibilid
 `tab:bs_ortogonalizacao` is the DI column only, over the 102 meetings (constant only, nine
 predictors, R² 0.124, joint Wald p 0.122, macro block p 0.059), and `fig:instrumento_camadas`
 draws production (`z_bs_purif`) and `z_bruto` only (`2026-09-26_migracao_paper_bs_purif`).
+**Later on 2026-09-26** `fig:instrumento_camadas` moved to **Anexo C**, renamed "Sensibilidade das
+respostas", so Anexo D carries `tab:bs_ortogonalizacao` alone, now laid out like BS Table 3 (one
+column, SE in parentheses under each coefficient, macro block before financial, each predictor
+beside its BS analogue, R², both Wald p and N at the foot, a four-sentence note). The
+definitions and timing of the news moved from the note into §3.3, which now ends pointing to the
+table — the first body pointer to Anexo D.
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
