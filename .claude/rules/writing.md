@@ -55,7 +55,10 @@ caption and in §3.4, and **no JK sign filter anywhere in the paper**. §3.3 has
 Anderson--Rubin sets only where the earlier text cited bands, under the two-tier
 rule. Its numbers come from `irf_coherence_cell.rds` at the figures' scales
 (`irf_panel()` in `script/fig_section5.R`), and its horizons stop at 36, as §3.1
-says. When a paper number and the cache disagree, the cache is right. Quote
+says. Since 2026-09-27 the level series (tcode 1) keep their own units in every figure and
+sentence — FX in R$ per unit of currency, activity indices in index points — and nothing is
+divided by the sample mean (`2026-09-27_unidades_nativas`). A comparison of magnitudes across
+series must be re-checked in those units, because the ordering does not survive the change of scale. When a paper number and the cache disagree, the cache is right. Quote
 `output/irf/irf_coherence_h.csv` for inference; its `set_type80`/`set_type90` columns (the
 lower level is 80% since 2026-09-26, 68% before) say what kind of set each band is.
 

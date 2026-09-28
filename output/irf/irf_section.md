@@ -9,6 +9,8 @@
 > As bandas abaixo são **conjuntos Anderson--Rubin**, e as colunas `set_type80`/`set_type90` do CSV
 > dizem que tipo de conjunto é cada uma. Nas 58 séries pontuadas, todos são `interval` a 80% e 90%,
 > com exceção do `singleton` que a normalização fixa em `yield_6m`, `h=0`.
+> Desde 2026-09-27 as séries em nível saem na própria unidade: o câmbio em R$/US$, não mais em %
+> da média amostral (`notas/2026-09-27_unidades_nativas.md`).
 
 ## Especificação
 
@@ -39,7 +41,7 @@ conjuntos.
 | DI 2 anos (p.b.) | 72,1 | [59,5; 87,9] | [54,9; 95,9] |
 | DI 5 anos (p.b.) | 77,3 | [55,8; 107,0] | [48,6; 123,0] |
 | Ibovespa (%, retorno mensal) | -2,465 | [-8,106; 1,781] | [-11,055; 3,260] |
-| BRL/USD (% da média) | 3,53 | [2,15; 5,65] | [1,72; 6,86] |
+| BRL/USD (R$/US$) | 0,141 | [0,086; 0,226] | [0,069; 0,275] |
 | EMBI+ (p.b.) | 28,27 | [14,87; 48,19] | [10,61; 59,32] |
 | CDS 5 anos (p.b.) | 34,02 | [20,01; 55,46] | [15,67; 67,63] |
 

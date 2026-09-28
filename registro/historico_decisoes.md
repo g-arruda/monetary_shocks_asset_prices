@@ -1054,3 +1054,34 @@ que existia para casar com a figura. AK (2019) sombreiam 80% e 90%. A significâ
 a troca. A validação contra o fixture de MOSW continua em 68/95%.
 
 Nota: `2026-09-26_producao_bs_purif_bandas_80_90`.
+
+---
+
+## 20. Painel em log recusado e divisão pela média abandonada (2026-09-27)
+
+**O problema.** As séries com tcode 1 (câmbio, IBC-Br, produção, vendas, horas) saíam do modelo na
+unidade original, e as figuras e a prosa as dividiam pela média amostral e as chamavam de "%".
+Nenhum artigo usa essa normalização.
+
+**Primeira tentativa, recusada: pôr as séries em log.** Na branch `feature/painel-log-ak`,
+apagada no mesmo dia, foram estimadas duas regras. Os números abaixo são os que a sessão reportou
+ao autor e não foram reproduzidos depois. O código da regra ampla está no commit `33aab66`, que
+não pertence a nenhuma branch. Uma reestimação não commitada dessa branch ficou em `stash@{0}`.
+- **Regra ampla, de AK e do FRED-MD** (72 séries em log). O IC2 passou a escolher `r = 3` e o AIC
+  `p = 2`. O θ̂ de partida única falhou nas guardas, os placebos pioraram e a curva passou a ter
+  pico em dois anos.
+- **Regra restrita** (29 séries em log: câmbio, IBC-Br e os sete `asset_*`, com os spreads em
+  nível). O IC2 passou a 3, e o θ̂ só saiu pelo máximo global, porque a partida de
+  Lenza-Primiceri parou em ρ = 0. ξ_mp subiu para 7,77 / 8,25. O impacto na curva deixou de
+  crescer até cinco anos, e o BRL/USD perdeu a significância em h32–h36. A linha fatorial do teste
+  het passou a rejeitar λ₁ = λ₂ (p 0,006), e os placebos MSCI (h2–h7) e EPU (h24–h36) violaram.
+
+O autor recusou as duas regras pelos resultados, e `main` segue com o painel em nível. **Não
+reabrir sem evidência nova.**
+
+**Decisão: unidade nativa.** Sem mexer no modelo, a divisão pela média sai das figuras e da prosa.
+O câmbio passa a reais por unidade de moeda, e os índices a pontos do índice. BRL/CNY, BRL/INR e
+BRL/ARS saem da prosa da §4.2, porque em unidade nativa não são comparáveis entre si. Nada foi
+reestimado.
+
+Nota: `2026-09-27_unidades_nativas`.
