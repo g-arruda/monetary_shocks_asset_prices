@@ -41,15 +41,14 @@ LAYER_LABELS <- c(
   z_bruto = "Surpresa bruta"
 )
 PRODUCTION_LABEL <- LAYER_LABELS[["z_bs_purif"]]
-# Labels and scales of script/fig_section5.R; an NA scale is the response as
-# a percentage of the sample mean
+# Labels and scales of script/fig_section5.R
 PAPER_PANELS <- tibble::tribble(
   ~variable,     ~label,                     ~scale,
   "yield_2y",    "DI 2 anos (p.b.)",         1e4,
   "yield_5y",    "DI 5 anos (p.b.)",         1e4,
-  "cambio_usd",  "Câmbio BRL/USD (%)",       NA,
+  "cambio_usd",  "Câmbio BRL/USD (R$/US$)",  1,
   "cds_5y",      "CDS 5 anos (p.b.)",        1,
-  "ibc_br",      "IBC-Br (%)",               NA,
+  "ibc_br",      "IBC-Br (pontos)",          1,
   "price_ipca",  "IPCA cheio (p.p. ao mês)", 1,
   "asset_ibov",  "Ibovespa (%)",             1,
   "fiscal_dlsp", "DLSP (p.p. do PIB)",       1
@@ -135,7 +134,7 @@ stop_unless_matches_cache(
   HORIZON
 )
 
-paper_data <- rescale_to_paper_units(paths, PAPER_PANELS, raw_data, HORIZON)
+paper_data <- rescale_to_paper_units(paths, PAPER_PANELS, HORIZON)
 
 ggplot2::ggsave(
   PAPER_FIG,

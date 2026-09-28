@@ -21,42 +21,29 @@ if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
   )
 }
 
-DFM_PATH   <- "output/irf/irf_coherence_h.csv"
-VAR_PATH   <- "output/var/svar_iv_weak_robust.csv"
-PANEL_PATH <- "data/processed/data_log_deseasonalized.csv"
-OUT_PATH   <- "paper/fig_weak_iv_main.pdf"
+DFM_PATH <- "output/irf/irf_coherence_h.csv"
+VAR_PATH <- "output/var/svar_iv_weak_robust.csv"
+OUT_PATH <- "paper/fig_weak_iv_main.pdf"
 # The only active small-VAR benchmark cell, on the DFM's window and lag order
-VAR_CELL   <- "ibc5_fx_cds_level_trend_p4"
-VAR_SAMPLE <- as.Date(c("2012-03-01", "2025-12-01"))
-H_MAX      <- 36L
-LEVELS     <- c(0.80, 0.90)
-MODELS     <- c("DFM", "VAR observável")
+VAR_CELL <- "ibc5_fx_cds_level_trend_p4"
+H_MAX    <- 36L
+LEVELS   <- c(0.80, 0.90)
+MODELS   <- c("DFM", "VAR observável")
 
 dfm <- readr::read_csv(DFM_PATH, show_col_types = FALSE)
 var <- readr::read_csv(VAR_PATH, show_col_types = FALSE)
-panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
-  dplyr::filter(
-    ref.date >= VAR_SAMPLE[1L],
-    ref.date <= VAR_SAMPLE[2L]
-  )
 
+# Both models share the units of each series; the levels keep their own
 series <- tibble::tibble(
   var = c("ibc_br", "price_ipca", "yield_6m", "cambio_usd", "cds_5y"),
   label = c(
-    "IBC-Br (% da média)",
+    "IBC-Br (pontos)",
     "IPCA cheio (p.p. ao mês)",
     "DI 6 meses (p.b.)",
-    "Câmbio BRL/USD (% da média)",
+    "Câmbio BRL/USD (R$/US$)",
     "CDS 5 anos (p.b.)"
   ),
-  dfm_scale = c(1, 1, 1e4, 100 / mean(panel$cambio_usd), 1),
-  var_scale = c(
-    100 / mean(panel$ibc_br),
-    1,
-    1e4,
-    100 / mean(panel$cambio_usd),
-    1
-  )
+  scale = c(1, 1, 1e4, 1, 1)
 )
 
 dfm_bands <- dfm |>
@@ -72,7 +59,7 @@ dfm_bands <- dfm |>
   dplyr::mutate(level = as.numeric(level) / 100) |>
   dplyr::left_join(series, by = "var") |>
   dplyr::mutate(
-    dplyr::across(c(point, lo, hi), \(x) x * dfm_scale),
+    dplyr::across(c(point, lo, hi), \(x) x * scale),
     model = "DFM"
   )
 
@@ -86,7 +73,7 @@ var_bands <- var |>
   ) |>
   dplyr::left_join(series, by = "var") |>
   dplyr::mutate(
-    dplyr::across(c(point, lo, hi), \(x) x * var_scale),
+    dplyr::across(c(point, lo, hi), \(x) x * scale),
     model = "VAR observável"
   )
 

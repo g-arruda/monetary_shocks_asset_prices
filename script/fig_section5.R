@@ -11,8 +11,7 @@
 # no subdirectory).
 # ===================================================================
 
-CELL_PATH  <- "output/irf/irf_coherence_cell.rds"
-PANEL_PATH <- "data/processed/data_log_deseasonalized.csv"
+CELL_PATH <- "output/irf/irf_coherence_cell.rds"
 H_MAX <- 36L   # every IRF figure stops here
 
 # One figure per row, written to paper/fig_<figure>.pdf
@@ -30,7 +29,7 @@ FIGURES <- tibble::tribble(
 )
 
 # The panels of each figure, in plotting order. The response is multiplied by
-# `scale`; an NA scale is the response as a percentage of the sample mean.
+# `scale`; the level series (tcode 1) keep their own units, scale 1.
 PANELS <- list(
   curva = tibble::tribble(
     ~variable,     ~label,                   ~scale,
@@ -43,11 +42,11 @@ PANELS <- list(
     "juros_selic", "Selic overnight (p.b.)", 100
   ),
   cambio_risco = tibble::tribble(
-    ~variable,    ~label,                ~scale,
-    "cambio_usd", "Câmbio BRL/USD (%)",  NA,
-    "cambio_eur", "Câmbio BRL/EUR (%)",  NA,
-    "embi_perc",  "EMBI+ Brasil (p.b.)", 100,
-    "cds_5y",     "CDS 5 anos (p.b.)",   1
+    ~variable,    ~label,                    ~scale,
+    "cambio_usd", "Câmbio BRL/USD (R$/US$)", 1,
+    "cambio_eur", "Câmbio BRL/EUR (R$/€)",   1,
+    "embi_perc",  "EMBI+ Brasil (p.b.)",     100,
+    "cds_5y",     "CDS 5 anos (p.b.)",       1
   ),
   fiscal = tibble::tribble(
     ~variable,                  ~label,                   ~scale,
@@ -67,15 +66,15 @@ PANELS <- list(
     "expect_focus_fiscal_nominal_balance_ny", "Focus nominal (p.p. do PIB)",  1
   ),
   atividade = tibble::tribble(
-    ~variable,                        ~label,                      ~scale,
-    "ibc_br",                         "IBC-Br (%)",                NA,
-    "ind_transformacao",              "Ind. transformação (%)",    NA,
-    "ind_bens_duraveis",              "Bens duráveis (%)",         NA,
-    "ind_bens_capital",               "Bens de capital (%)",       NA,
-    "vendas_varejo",                  "Vendas no varejo (%)",      NA,
-    "vendas_servicos",                "Vendas de serviços (%)",    NA,
-    "capacidade_instalada_industria", "Utiliz. capacidade (p.p.)", 1,
-    "trab_hrs_trabalhadas_industria", "Horas na indústria (%)",    NA
+    ~variable,                        ~label,                        ~scale,
+    "ibc_br",                         "IBC-Br (pontos)",             1,
+    "ind_transformacao",              "Ind. transformação (pontos)", 1,
+    "ind_bens_duraveis",              "Bens duráveis (pontos)",      1,
+    "ind_bens_capital",               "Bens de capital (pontos)",    1,
+    "vendas_varejo",                  "Vendas no varejo (pontos)",   1,
+    "vendas_servicos",                "Vendas de serviços (pontos)", 1,
+    "capacidade_instalada_industria", "Utiliz. capacidade (p.p.)",   1,
+    "trab_hrs_trabalhadas_industria", "Horas na indústria (pontos)", 1
   ),
   credito = tibble::tribble(
     ~variable,                 ~label,                      ~scale,
@@ -117,7 +116,6 @@ PANELS <- list(
 )
 
 cell <- readRDS(CELL_PATH)
-panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE)
 
 point <- cell$irf$irf_point_matrix
 ci80 <- cell$irf$ci[["0.80"]]
@@ -128,8 +126,8 @@ var_names <- cell$var_names
 #'
 #' @param variable Variable name in the production cache.
 #' @param label Label for the vertical axis.
-#' @param scale Multiplicative constant, or `NA` to express the response as a
-#'   percentage of the variable's sample mean.
+#' @param scale Multiplicative constant that puts the response in the units of
+#'   the label.
 #' @param mark_sig90 Whether to mark horizons whose 90% set excludes zero.
 #'
 #' @return A ggplot object with the point response and the 80%/90% sets.
@@ -141,21 +139,17 @@ irf_panel <- function(variable, label, scale, mark_sig90) {
       variable
     ))
   }
-  multiplier <- dplyr::coalesce(
-    scale,
-    100 / mean(panel[[variable]], na.rm = TRUE)
-  )
   columns <- 0:H_MAX + 1
 
   # Significance comes from the 90% set itself: irf_coherence_h.csv covers
   # only the scored series, and the figures also plot series outside it.
   responses <- tibble::tibble(
     h = 0:H_MAX,
-    irf = multiplier * point[row, columns],
-    lo80 = multiplier * ci80$lower[row, columns],
-    hi80 = multiplier * ci80$upper[row, columns],
-    lo90 = multiplier * ci90$lower[row, columns],
-    hi90 = multiplier * ci90$upper[row, columns],
+    irf = scale * point[row, columns],
+    lo80 = scale * ci80$lower[row, columns],
+    hi80 = scale * ci80$upper[row, columns],
+    lo90 = scale * ci90$lower[row, columns],
+    hi90 = scale * ci90$upper[row, columns],
     sig = ci90$lower[row, columns] > 0 | ci90$upper[row, columns] < 0
   )
 

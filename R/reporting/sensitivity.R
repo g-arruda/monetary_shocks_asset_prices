@@ -115,21 +115,16 @@ stop_unless_matches_cache <- function(band_paths, coherence_path, vars,
 #' Put stacked responses in the units and labels of section 4
 #'
 #' @param paths Output of `stack_cell_paths()`.
-#' @param panels Tibble with `variable`, `label` and `scale`; an NA scale is
-#'   the response as a percentage of the variable's sample mean in `panel`.
-#' @param panel Data frame of the panel in levels, one column per variable.
+#' @param panels Tibble with `variable`, `label` and `scale`, the constant
+#'   that puts the response in the units of the label.
 #' @param h_max Last horizon kept.
 #'
 #' @return `paths` restricted to `panels$variable` and `h <= h_max`, with the
 #'   point and bounds rescaled and `variable` replaced by its label.
 #'
 #' @examples
-#' paper_data <- rescale_to_paper_units(paths, PAPER_PANELS, raw_data, 36L)
-rescale_to_paper_units <- function(paths, panels, panel, h_max) {
-  panels <- panels |>
-    dplyr::mutate(
-      scale = dplyr::coalesce(scale, 100 / colMeans(panel[variable]))
-    )
+#' paper_data <- rescale_to_paper_units(paths, PAPER_PANELS, 36L)
+rescale_to_paper_units <- function(paths, panels, h_max) {
   paths |>
     dplyr::filter(h <= h_max) |>
     dplyr::inner_join(panels, by = "variable") |>
