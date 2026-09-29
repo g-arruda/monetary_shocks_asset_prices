@@ -115,11 +115,17 @@ condition, not in the frequency of the data.
 (`sec:identificacao`) as the reason the paper does not use that identification: one paragraph
 plus one footnote, right after the proxy-identification paragraph. §5 Robustez kept its title and
 lost its only subsection (`sec:weak_iv` now labels §5 itself); the introduction points at
-`sec:identificacao`. The appendix is split into **Anexo A** (`tab:lista_variaveis`), **Anexo B** (`anexo-B`), since 2026-09-24 **Anexo C** (`anexo-C`, the `q` sensitivity figure, below, joined on 2026-09-25 by the `p` one and on 2026-09-26 by the instrument-layer one) and, since 2026-09-25, **Anexo D** (`anexo-D`, the instrument construction, below). Anexo B carries **two tables**: `tab:het_variance` (Rigobon--Sack
-variance ratio per series, from `output/het/het_variance_ratios.csv`) and `tab:het_frequency` (the
-`Qr(λ₁=λ₂)` summary with the DI variance ratio `a`, SEs, corrected and uncorrected statistic; the
-`det` column left it the same day, and so did `tab:het_sequencia`, the full sequential table, by
-author decision). The summary prints the factor row's uncorrected p 0.035, and its note prints the
+`sec:identificacao`. The appendix is split into **Anexo A** (`tab:lista_variaveis`), **Anexo B** (`anexo-B`), since 2026-09-24 **Anexo C** (`anexo-C`, the `q` sensitivity figure, below, joined on 2026-09-25 by the `p` one and on 2026-09-26 by the instrument-layer one) and, since 2026-09-25, **Anexo D** (`anexo-D`, the instrument construction, below). Anexo B carries **one table since 2026-09-27**, `tab:het_frequency`: the
+Rigobon--Sack variance ratio of each of the three series (from
+`output/het/het_variance_ratios.csv`) beside the `Qr(λ₁=λ₂)` summary with SEs, corrected and
+uncorrected statistic. `tab:het_variance`, which carried the ratios alone, was merged into it by
+author decision, because §3.3's "only the DI variance rises daily, all three rise monthly" rests on
+the FX and CDS ratios; the `det` column and `tab:het_sequencia` had left on 2026-09-24. **Since
+2026-09-27 the table's monthly VAR is the treated one**: under the Lenza-Primiceri scale with a θ
+of its own per vertex (`output/het/het_var_theta.csv`), tested on `u_t/s_t` by the factor row's
+path (`p = 1`, inert, 107 C / 54 NC), the treatment stated in the note. The untreated (OLS, `s = 1`) version is still written to the CSVs but
+left the paper by author decision the same day; neither rejects, and §3.3 did not change
+(`2026-09-27_het_var_escala_covid`). The summary prints the factor row's uncorrected p 0.035, and its note prints the
 inconvenient factor-row rejections of `λ₁=…=λ₄` (p 0.021) and `λ₁=…=λ₅` (p 0.013) and why that row
 has 161 observations, not 162 (the formal lag the test imposes).
 Holm across the three daily vertices keeps the 3-month rejection (p 0.010). The non-decomposition
@@ -274,6 +280,7 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Paper migrated to the branch's production, JK filter out of the paper entirely (**promoted to `main` on 2026-09-26**) | `paper_anpec.tex`, `instrument_layers_irf.R` | `2026-09-26_migracao_paper_bs_purif` | nothing re-estimated; §3.3 two layers (BS regression on the 102 meetings, R² 0.124), §3.4 ξ_mp 7.02 / 6.84 and F_rob 8.62 / 8.31, both below 10, `tab:first_stage` two rows, `tab:bs_ortogonalizacao` DI column only, `fig:instrumento_camadas` production and `z_bruto` only, every caption at 80/90%; 143 §4 and 20 §5 numbers checked by script against the cache; seven passages rewritten (FX peak at h1, exchange adjustment 80% set contains zero at impact, IMAT negative at impact so all seven indices fall, FX 90% set excludes zero again at h32–h36 in the conclusion); outside §4 only numbers and false sentences |
 | BS orthogonalization on the Copom events only, with the macro news block (**superseded on 2026-09-26 as to the predictor list**) | `download_macro_news.R`, `instrument.R` | `2026-09-25_bs_copom_surpresas_macro` | estimated as BS Table 3 does (102 meetings, constant only, IPCA and first-release GDP surprises, core acceleration, expected IPCA; labor market and BBK left out): the Copom surprise is predictable (Wald p 0.009, R² 0.273, driven by the Focus Selic revision), and removing that component removes the strength — production ξ_mp 6.85 → 1.78 full, 8.64 → 3.22 pre-COVID, 90% AR sets unbounded; the macro block is not jointly significant (p 0.159); paper, validators and smoke test not migrated; promotion open in `pendencias.md` Theme D |
 | `p` sensitivity in Anexo C; θ̂ re-estimated at a finer gradient step | `covid_volatility_theta.R`, `p_sensitivity.R` | `2026-09-25_p_sensibilidade_anexo` | the FOC guard stopped θ̂ at `p = 5` (optim's default `ndeps` 1e-3 stops short); author chose `ndeps = 1e-6` everywhere: production θ̂ moved in the 4th--5th digit, ξ_mp 6.847997 → 6.848035, IRFs ≤ 8e-5 of scale, no paper number, significance flag or set type changed; `p = 2..6` all stable and inside the `p = 4` 90% set |
+| Monthly het VAR of Anexo B under the Lenza-Primiceri scale (branch `feature/unidades-nativas`) | `het_conditions.R`, `R/modeling/factor_estimation.R` (`estimate_var_wls(type=)`, `verify_covid_theta()`), `covid_volatility_theta.R`, `paper_anpec.tex` | `2026-09-27_het_var_escala_covid` | own θ per vertex, a single maximum across 750 starts (s̄0 ≈ 4.5–4.9, ρ ≈ 0.94–0.95); the treated VAR rejects `λ₁ = λ₂` nowhere (p 0.965/0.824/0.966), all three variance ratios stay above 1 (FX 1.21–1.27), §3.3 unchanged; the treated VAR replaced the untreated one in the paper (side by side refused by the author), its treatment stated in the note, and Anexo B's two tables merged into `tab:het_frequency`; the untreated row moved with the switch to the factor row's path (p 0.988/0.917/0.931 → 0.948/0.881/0.970, 162 → 161 months); factor θ̂ CSVs byte-identical after the guards moved into `verify_covid_theta()`, smoke test bit-identical. ⚠ Treated, `λ₂ = λ₃` falls to p 0.104 at the 3-month vertex |
 | Level series in their own units; log panel refused (branch `feature/unidades-nativas`) | `fig_section5.R`, `fig_weak_iv.R`, `R/reporting/sensitivity.R`, the three annex scripts, `paper_anpec.tex` | `2026-09-27_unidades_nativas` | nothing re-estimated, annex CSVs byte-identical; FX in R$ per unit of currency (BRL/USD R$ 0,141/US$ at impact), activity indices in index points; BRL/CNY/INR/ARS out of §4.2; 31 prose numbers checked against the cache; the h36 cross-series ordering in §4.5 changed; a DFM IBC-Br mislabel in `fig:weak_iv_main` fixed. Both log panels (broad AK rule, restricted rule) were estimated and refused the same day, `historico_decisoes.md` §20. ⚠ BRL/ARS impact (R$ 0,0063/peso) exceeds its own end-of-sample level |
 
 ## ⚠ Prohibitions
@@ -392,10 +399,12 @@ These govern what may be **said**, so they apply even when no file is open.
   the dimension the authors themselves vary and is reported as a row.
   **What the round established, and what may be written.** Daily, the three series reject
   `λ₁ = λ₂` at the 3-month vertex (`Qr` 11.43, p 0.003, λ₁ 7.55 against 1.36). **The same
-  three series in the monthly panel do not reject at any vertex** (p 0.917 to 0.988), and
-  their two largest eigenvalues nearly coincide (2.51 against 2.36): the normalized rank
-  determinant falls from 40.8 to −0.03, which is the proportionality Rigobon names as the
-  failure mode. **The two frequencies are not decomposed, and no claim may decompose them.**
+  three series in the monthly panel do not reject at any vertex** — p 0.881 to 0.970 by OLS
+  and 0.824 to 0.966 under the Lenza-Primiceri scale with its own θ per vertex, both on the
+  factor row's path since 2026-09-27 (`2026-09-27_het_var_escala_covid`; 0.917 to 0.988 on the
+  old GLS path) — and their two largest eigenvalues nearly coincide (2.33 against 2.05 at the
+  3-month vertex): the normalized rank determinant falls from 40.8 to 0.019 (0.011 treated),
+  which is the proportionality Rigobon names as the failure mode. **The two frequencies are not decomposed, and no claim may decompose them.**
   Between the daily row and the monthly one, the observation frequency and the measured object
   change together — announcement window against calendar variation — and nothing measures
   either apart from the other. **The only monthly aggregation is the panel's own** (author

@@ -49,13 +49,18 @@ unedited (`diagnostics/README.md`).
 `estimate_dfm(covid_volatility=)` and `main_sdfm(covid_volatility=)` put the common volatility scale
 `s_t` of LP's Appendix B into the factor VAR:
 - `covid_volatility_path()` builds `s_t`;
-- `estimate_var_wls(s=)` runs (B2) and returns (B4) and (B5); `s = 1`, its default, is OLS;
+- `estimate_var_wls(type=, s=)` runs (B2) and returns (B4) and (B5); `s = 1`, its default, is OLS.
+  `type` has no default: `"const"` for the factor VAR, `"both"` (constant and trend, divided by
+  `s_t` like every row) for the monthly het VAR of Anexo B, since 2026-09-27;
 - `estimate_covid_theta()` maximizes (B5) by L-BFGS-B inside the design's box, from one start.
   (B5) has three local maxima, and that start reaches the global one only because LP's
-  `rho0 = 0.8` sits in its basin. Since 2026-09-24 `script/covid_volatility_theta.R` guards θ̂
-  with a 750-start multi-start over the whole box
-  (`output/factors/covid_volatility_multistart.csv`, `notas/2026-09-24_otimo_global_theta.md`).
-  Any other θ estimated with this function needs the same check. Since 2026-09-25 the script
+  `rho0 = 0.8` sits in its basin. Since 2026-09-24 θ̂ is guarded by a 750-start multi-start over
+  the whole box (`output/factors/covid_volatility_multistart.csv`,
+  `notas/2026-09-24_otimo_global_theta.md`). Since 2026-09-27 the three guards (first-order
+  conditions, ρ profile, multi-start) are `verify_covid_theta()`, and every θ estimated with this
+  function goes through it: the factor VAR's in `script/covid_volatility_theta.R`, and the three
+  of the monthly het VAR in `script/het_conditions.R`, where (B5) has a single maximum
+  (`notas/2026-09-27_het_var_escala_covid.md`). Since 2026-09-25 the script
   also estimates θ at `p = 2..6` for `script/p_sensitivity.R`, every guard at every `p`, into
   `output/factors/theta_by_p/`, and the optimizer differentiates with `ndeps = 1e-6`: the default
   1e-3 made the numerical gradient vanish before the true one, and the first-order guard stopped

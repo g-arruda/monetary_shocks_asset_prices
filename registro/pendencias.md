@@ -1,5 +1,8 @@
 # Pendências
 
+**Atualização de 2026-09-29:** quatro itens e um teste entraram do e-mail do
+orientador de 28-09 (Temas A, B e D); nenhum foi executado.
+
 **Última revisão:** 2026-09-08 — **todos os itens abertos foram zerados por
 decisão do autor**, para conter o acúmulo que vinha tomando o foco do
 projeto. Nenhum foi marcado como feito: nenhum foi executado, testado ou
@@ -84,8 +87,11 @@ AR/MOSW próprios.
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
-| D | Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala LP e reportar sem e com o tratamento | aberto em 2026-09-24, decisão do autor; θ próprio por vértice, não o θ̂ do DFM; mesmo caminho da linha fatorial nas duas versões; ⚠ se rejeitar, `sec:identificacao` muda; a linha diária fica sem tratamento |
-| D | Investigar por que o placebo EPU dos EUA responde sob a produção corrente | aberto em 2026-09-26 sob `z_jk_bs_purif` (EPU h1–h6, MSCI h2–h8, VIX h0); sob `z_bs_purif` resta o EPU, significativo a 90% de h1 a h3 (`placebo_viola`), e MSCI e VIX só em horizontes longos; primeiro teste: cruzar valores de `main` e da branch |
+| A | Incluir a figura de placebos e o parágrafo na §3.3 | e-mail do orientador de 28-09; EPU significativo em h1–h3 e VIX em h28+ não é placebo limpo: explicar, não só reportar; depende do teste do EPU como controle (Tema D) |
+| A | Nota sobre o filtro Jarociński-Karadi, com os números antes e depois | e-mail de 28-09; decisão documentada em vez de omissão; conflita com a saída do JK do paper em 2026-09-26 |
+| A | Figura de sensibilidade com e sem Lenza-Primiceri no Anexo C | e-mail de 28-09; evidência para a afirmação de que MQO deslocaria os coeficientes AR |
+| B | Robustez à pandemia: curva e câmbio/risco na subamostra pré-COVID | sugestão aberta do orientador em 28-09, não obrigatória; `hac_dim < T` bloqueia bandas AR pré-COVID |
+| D | Investigar por que o placebo EPU dos EUA responde sob a produção corrente | aberto em 2026-09-26 sob `z_jk_bs_purif` (EPU h1–h6, MSCI h2–h8, VIX h0); sob `z_bs_purif` resta o EPU, significativo a 90% de h1 a h3 (`placebo_viola`), e MSCI e VIX só em horizontes longos; primeiro teste: cruzar valores de `main` e da branch; em 28-09 o orientador pediu testar o EPU como controle na ortogonalização |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -133,6 +139,34 @@ comparação do IPCA no Tema D e o bloqueador no Tema E. **Nada na auditoria
 contradiz o fato central** — as cinco moedas, a janela pré-COVID e a constelação
 dos placebos empurram câmbio + risco soberano na direção do paper.*
 
+*Três itens transcritos em 2026-09-29 do e-mail do orientador de 28-09
+(`email/email_professor_28-09_21h15.md`), resposta a `email_meu_28-09_9h38.md`.
+Nenhum foi executado.*
+
+- [ ] **Incluir a figura de placebos (VIX, MSCI emergentes, EPU dos EUA) e o
+  parágrafo correspondente na §3.3 (`sec:identificacao`).** `paper/fig_placebos.pdf`
+  existe, mas o `.tex` não a referencia. O parágrafo deve explicar o resultado,
+  não só reportá-lo: o EPU dos EUA é significativo já no impacto (h1–h3) e o VIX
+  só no longo prazo (a partir de ~h28), logo o placebo não é inteiramente limpo.
+  O desfecho tem de estar no artigo antes da submissão, numa de três formas:
+  passou; passou com o controle adicional; ou limitação reconhecida no texto.
+  Depende do teste do EPU como controle (Tema D). Reportar o número inconveniente
+  em qualquer caso.
+- [ ] **Nota sobre a remoção do filtro Jarociński-Karadi.** Rodapé ou frase no
+  corpo: o filtro foi testado, piorou a força do instrumento (números antes e
+  depois; ξ_mp 7,02 → 5,01 na janela cheia e 6,84 → 4,73 pré-COVID, F_rob
+  incluído), sem alterar os resultados, e por isso não entra na produção. O
+  orientador pede que a omissão vire decisão documentada, porque os autores são
+  citados com destaque na revisão de literatura. ⚠ A migração de 2026-09-26 tirou
+  o JK do paper por inteiro; a nota reintroduz uma menção mínima e o autor decide
+  a forma. Fonte dos números: `notas/2026-09-26_producao_bs_purif_bandas_80_90.md`.
+- [ ] **Figura de sensibilidade com e sem o tratamento de Lenza-Primiceri, no
+  Anexo C.** Evidência concreta para a afirmação do texto de que MQO trataria os
+  meses da pandemia como variação regular e deslocaria os coeficientes
+  autorregressivos. Companheira de `fig:q_sensibilidade`, `fig:p_sensibilidade` e
+  `fig:instrumento_camadas`; o texto não cita número, como nas demais. O modelo sem
+  tratamento é `covid_volatility = NULL`; reusar `R/reporting/sensitivity.R` e o
+  desenho de `script/p_sensitivity.R`.
 - [ ] **Decidir se o resumo, a introdução e a conclusão absorvem a leitura da
   §4 migrada.** A rodada de 2026-09-24 reescreveu a §4 e, fora dela, só trocou
   números e datas, por decisão do autor. Três frases de argumento ficaram
@@ -418,6 +452,13 @@ resposta às sugestões 1/5, 2/5 e 3/5 acima (fechadas em 2026-09-10). Os passos
 3/4 e 4/4 estão fechados abaixo; o 1/4 foi removido em 2026-09-24 por decisão
 do autor, sem ser executado.*
 
+- [ ] **Sugestão aberta do orientador (28-09), não obrigatória: robustez à
+  pandemia.** Mostrar que os resultados principais (curva e câmbio/risco) também
+  se sustentam na subamostra pré-COVID, complemento de custo marginal baixo à
+  figura de Lenza-Primiceri: a força do instrumento já está nas duas janelas na
+  Tabela 1. Ele mesmo não a empurra como item desta rodada; fica a critério do
+  autor. ⚠ `hac_dim < T` bloqueia conjuntos AR pré-COVID em `p=4` (135 ≥ 90), então
+  só haveria pontos, e nenhuma banda pré-COVID pode ser publicada.
 - [ ] **Reportar o exercício de poda no paper como robustez que não
   confirmou a hipótese de Boivin-Ng**, com a ressalva de que a queda do
   Bai-Ng para `r=3` pode refletir perda de potência por N menor, não
@@ -657,47 +698,6 @@ ela abriu são **editoriais** e estão no Tema A.
 
 ## D. Diagnósticos e comparações pendentes
 
-- [ ] **Estimar o VAR mensal das tabelas de heterocedasticidade sob a escala
-  COVID de Lenza-Primiceri e reportar a linha sem e com o tratamento.** Aberto
-  em 2026-09-24, por decisão do autor. Hoje o Sistema 2 de
-  `script/het_conditions.R` (DI, câmbio e CDS no painel mensal) é MQO, `p=4`,
-  com constante e tendência, enquanto a linha das inovações fatoriais já lê as
-  inovações padronizadas `u_t/s_t` do DFM de produção. As duas linhas mensais
-  do Anexo B diferem, portanto, também no tratamento da COVID. Desenho:
-  - θ **próprio** de cada VAR, um por vértice (3, 6 e 12 meses), por
-    verossimilhança concentrada, com `t*` = 2020-03 — não o θ̂ de
-    `output/factors/covid_volatility_theta.csv`, que é do VAR fatorial;
-  - `Qr` sobre os resíduos padronizados `u_t/s_t`, pelo mesmo caminho da linha
-    fatorial (`p = 1`, `inert_lag = TRUE`);
-  - as duas versões lado a lado, nos três vértices. Mudam as linhas do VAR em
-    `tab:het_variance` e em `tab:het_frequency`, inclusive a razão `a` do DI,
-    porque todas saem das mesmas `Σ_C`/`Σ_NC`.
-
-  ⚠ O motivo é amostral, não teórico: a escala é proporcional
-  (`Σ_t = s_t² Σ`) e não identifica nada, mas se concentra em poucos meses que
-  caem em regimes definidos — março/2020 (Copom em 18/03) em C e abril/2020 em
-  NC, com variância ≈ 44× e ≈ 155× pelo θ̂ do DFM, numa amostra NC de 54 meses.
-  ⚠ O efeito não tem sinal previsto. Se o VAR tratado rejeitar `λ₁ = λ₂` em
-  algum vértice, o parágrafo e a nota de rodapé de `sec:identificacao` mudam, e
-  o número entra no texto.
-  ⚠ Para que a diferença seja só o tratamento, a versão sem tratamento deve
-  passar pelo mesmo caminho com `s = 1`: o caminho da linha fatorial perde uma
-  observação pela defasagem formal (161, não 162). Conferir quanto isso move a
-  linha publicada hoje e declarar.
-  ⚠ Cada θ por vértice precisa do multi-start que trava o θ̂ do DFM desde
-  2026-09-24. No VAR fatorial, (B5) tem três máximos, e o L-BFGS-B de um início
-  só chega ao global apenas com ρ0 ≥ 0,6 (`2026-09-24_otimo_global_theta` §4).
-  ⚠ `estimate_var_wls()` e `estimate_covid_theta()`
-  (`R/modeling/factor_estimation.R`) só têm constante; o VAR da tabela tem
-  constante **e** tendência. Estender, não escrever uma segunda
-  implementação, e manter bit-idênticos o smoke test e
-  `script/validation/validate_covid_volatility.R`.
-  ⚠ O benchmark `ibc5_fx_cds_level_trend_p4` segue sem escala; o Sistema 2, que
-  herdava dele janela, `p` e determinísticos, passa a divergir nesse ponto.
-  A linha diária **não** recebe o tratamento: não há dinâmica a filtrar, as
-  variações Qua→Qui já são inovações (autocorrelação de primeira ordem entre
-  janelas abaixo de 0,1 em módulo), e Lenza-Primiceri não tem versão diária.
-
 - [ ] **Investigar por que o placebo EPU dos EUA responde sob a produção
   corrente.** Aberto em 2026-09-26. Era recomendado antes da promoção para
   `main`, que o autor fez no mesmo dia sem esperar por ele. Decide o que a §4 e
@@ -724,7 +724,26 @@ ela abriu são **editoriais** e estão no Tema A.
   Notas: `2026-09-26_bs_lista_tabela3_externas` §4,
   `2026-09-26_producao_bs_purif_bandas_80_90`.
 
+  **Teste pedido pelo orientador em 2026-09-28**
+  (`email/email_professor_28-09_21h15.md`), antes de escrever o parágrafo de
+  placebos na §3.3: incluir o EPU dos EUA como controle adicional na
+  ortogonalização, junto de Ibovespa, S&P 500, VIX, Brent e inclinação do DI, e ver
+  se absorve a resposta de impacto (h1–h3). Se absorver, fortalece a exogeneidade e
+  entra na narrativa do teste; se não, o texto reconhece a limitação. ⚠ Muda a
+  construção do instrumento em `script/instrument.R`: rodar como variante, sem
+  trocar a produção sem decisão do autor, e checar antes se há série de EPU em
+  `data/raw` na frequência da ortogonalização.
+
 ### Fechados (contexto)
+
+- [x] **VAR mensal do Anexo B sob a escala COVID de Lenza-Primiceri — 2026-09-27.** Duas versões
+  do VAR de DI, câmbio e CDS, MQO e MQP com θ próprio por vértice (máximo único em 750 inícios),
+  ambas pelo caminho da linha fatorial (161 meses). O tratado não rejeita `λ₁ = λ₂` (p 0,965 /
+  0,824 / 0,966), as três variâncias seguem subindo juntas, e a §3.3 não muda. O paper traz
+  só o VAR tratado (lado a lado recusado pelo autor), e as duas tabelas do Anexo B viraram
+  `tab:het_frequency`. ⚠ A linha sem tratamento se deslocou pela troca de caminho (p 0,988 /
+  0,917 / 0,931 → 0,948 / 0,881 / 0,970), e o benchmark VAR segue sem escala. Nota:
+  `2026-09-27_het_var_escala_covid`.
 
 - [x] **Produção da branch promovida para `main` — 2026-09-26.** Fast-forward de
   `feature/bs-copom-surpresas-macro` (`63eea36..20a5f42`, 14 commits), a pedido do autor, antes

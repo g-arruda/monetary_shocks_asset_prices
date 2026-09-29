@@ -148,6 +148,18 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**VAR mensal do Anexo B sob a escala COVID (2026-09-27, branch `feature/unidades-nativas`):**
+[`2026-09-27_het_var_escala_covid`](2026-09-27_het_var_escala_covid.md)
+O VAR mensal de DI, câmbio e CDS das tabelas de heterocedasticidade passa a ter duas versões, MQO e
+MQP sob a escala de Lenza-Primiceri com θ próprio por vértice. As duas chegam ao `Qr` pelo caminho
+da linha fatorial, com 161 meses. O tratado não rejeita `λ₁ = λ₂` em nenhum vértice (p 0,965 /
+0,824 / 0,966), e as três variâncias seguem subindo juntas. A §3.3 não muda. Por decisão do
+autor, o paper traz só o VAR tratado, com o tratamento na nota, a versão MQO fica nos CSVs, e as
+duas tabelas do Anexo B viraram uma, `tab:het_frequency`, com as três razões de variância.
+A versão sem tratamento se deslocou pela troca de caminho (p 0,988 / 0,917 / 0,931 → 0,948 / 0,881 / 0,970).
+Nesses VARs, (B5) tem um só máximo. As guardas de θ̂ viraram `verify_covid_theta()`, e o θ̂ fatorial
+saiu byte-idêntico.
+
 **Séries em nível na própria unidade (2026-09-27, branch `feature/unidades-nativas`):**
 [`2026-09-27_unidades_nativas`](2026-09-27_unidades_nativas.md)
 Sem reestimação. A divisão pela média amostral sai das figuras e da prosa, por decisão do autor.
@@ -397,6 +409,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-09-27_het_var_escala_covid`](2026-09-27_het_var_escala_covid.md) | 09-27 | **CURRENT — diagnóstico; produção intocada** | produção de 2026-09-26 (`(5,5,4)`, escala LP), painel mensal 2012-03--2025-12, 107 C / 54 NC; branch `feature/unidades-nativas` | Tudo: θ̂ por vértice (s̄0 ≈ 4,5–4,9, ρ ≈ 0,94–0,95, máximo único em 750 inícios); o VAR tratado não rejeita `λ₁ = λ₂` (p 0,824–0,966); razões C/NC 1,99–2,32 no DI, 1,21–1,27 no câmbio e 1,89–1,92 no CDS; o deslocamento declarado da linha sem tratamento pela troca de caminho (GLS `p = 4`, 162 meses → MQO com resíduos como inovações, 161 meses). ⚠ Com o tratamento, `λ₂ = λ₃` cai a p 0,104 no vértice de 3 meses |
 | [`2026-09-27_unidades_nativas`](2026-09-27_unidades_nativas.md) | 09-27 | **CURRENT — rodada de apresentação; nada reestimado** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/unidades-nativas` | Tudo: o fim da divisão pela média amostral; a tabela antes/depois de cada número da prosa; a comparação entre séries que mudou no h36 da §4.5; o rótulo corrigido da `fig:weak_iv_main`. ⚠ BRL/ARS: impacto de R$ 0,0063/peso, acima do nível do fim da amostra (0,0038) |
 | [`2026-09-26_migracao_paper_bs_purif`](2026-09-26_migracao_paper_bs_purif.md) | 09-26 | **CURRENT — o paper segue a produção; feita na branch, promovida para `main` em 2026-09-26** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, `z_bs_purif`, conjuntos AR 80/90; branch `feature/bs-copom-surpresas-macro`; sem reestimação | O que mudou no `.tex`, seção por seção; o filtro JK fora do paper inteiro; as sete passagens da §4 reescritas; a auditoria de 143 + 20 números contra o cache. |
 | [`2026-09-26_producao_bs_purif_bandas_80_90`](2026-09-26_producao_bs_purif_bandas_80_90.md) | 09-26 | **CURRENT — é a produção desde a promoção para `main` em 2026-09-26; `.tex` migrado no mesmo dia (`2026-09-26_migracao_paper_bs_purif`)** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, `z_bs_purif`, conjuntos AR 80/90; branch `feature/bs-copom-surpresas-macro` | Tudo: a produção sem filtro JK, ξ_mp 7,02 / 6,84, F_rob 8,62 / 8,31, todos os conjuntos `interval` a 80 e 90%; os impactos novos (BRL/USD 3,53%, CDS +34,0 p.b.); o VAR em 80/90% com `xi_var` 7,19; o ponto novo é a camada `z_bs_purif` anterior, a 0. ⚠ Placebo EPU dos EUA viola a 90% em h1–h3 |

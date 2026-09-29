@@ -15,8 +15,11 @@ The canonical paper is `paper/paper_anpec.tex` (class `elsarticle`). §3 Metodol
 subsections since 2026-09-17 — `Modelo e estimação`, `Base de dados`, `Identificação e construção
 do instrumento`, `Relevância do instrumento e inferência`; §4 Resultados has eight subsections, one per figure;
 §3.3 (`sec:identificacao`) opens, since 2026-09-26, with one narrative paragraph and no footnote on why the
-paper does not use heteroskedasticity identification, and Anexo B carries its two tables (Anexo A is the variable list)
-(`tab:het_variance`, `tab:het_frequency`; `tab:het_sequencia` was cut the same day); §5 Robustez has **no**
+paper does not use heteroskedasticity identification, and Anexo B carries its one table (Anexo A is the variable list)
+(`tab:het_frequency`, the three variance ratios beside the `Qr` summary since 2026-09-27, when
+`tab:het_variance` was merged into it; `tab:het_sequencia` was cut on 2026-09-24; its monthly VAR
+is the one under the Lenza-Primiceri rescale, stated in the note, typed from
+`output/het/het_conditions.csv` and `het_variance_ratios.csv`); §5 Robustez has **no**
 subsection, only the VAR benchmark, labelled both `sec:robustez` and `sec:weak_iv`;
 `sec:het_frequency` (rebuilt on 2026-09-22 around the `svars` test) was deleted that day; the
 five home-grown statistics may not come back; `sec:fomc` was deleted on 2026-09-21, and `sec:exogeneidade`,
