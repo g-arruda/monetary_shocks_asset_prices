@@ -89,31 +89,42 @@ covid_volatility_path <- function(dates, covid_start, theta) {
 }
 
 
-#' Factor VAR by weighted least squares
+#' VAR by weighted least squares
 #'
 #' `F_t = c + A(L) F_{t-1} + s_t eps_t`, `eps_t ~ N(0, Sigma)`: every row,
-#' constant included, is divided by `s_t`, which is (B2) of Lenza & Primiceri
-#' (2022, JAE, Appendix B). With `s = 1` this is OLS, the direct equivalent of
-#' `DFMest_BLL.m` lines 29-50. Nothing here chooses `s`.
+#' deterministic terms included, is divided by `s_t`, which is (B2) of Lenza &
+#' Primiceri (2022, JAE, Appendix B). With `s = 1` this is OLS, the direct
+#' equivalent of `DFMest_BLL.m` lines 29-50 for the factor VAR and of
+#' `vars::VAR()` for any other. Nothing here chooses `s`.
 #'
-#' @param data Numeric matrix of factors (T x K).
+#' @param data Numeric matrix of the variables (T x K).
 #' @param p Lag order.
+#' @param type Deterministic terms, as in `vars::VAR()`: `"const"` (the factor
+#'   VAR) or `"both"`, a constant and the trend `p + 1, ..., T`. No default:
+#'   the deterministic terms are a modelling choice of each caller.
 #' @param s Volatility scale: one positive value per residual row (length
 #'   T - p) from `covid_volatility_path()`, or 1 for OLS.
 #'
-#' @return List with `coefficients` (lags first, constant last), `residuals`
-#'   `u_t = y_t - B'x_t`, `residuals_standardized` (`u_t / s_t`), `companion`,
-#'   `covariance_matrix` (of `u_t / s_t`, degrees-of-freedom divisor),
-#'   `sigma_mle` (B4, divisor T - p) and `loglik` (B5, constants included).
+#' @return List with `coefficients` (lags first, then the constant and, with
+#'   `"both"`, the trend), `residuals` `u_t = y_t - B'x_t`,
+#'   `residuals_standardized` (`u_t / s_t`), `companion`, `covariance_matrix`
+#'   (of `u_t / s_t`, degrees-of-freedom divisor), `sigma_mle` (B4, divisor
+#'   T - p) and `loglik` (B5, constants included).
 #'
 #' @examples
-#' ols <- estimate_var_wls(factors, p = 4L)
-#' wls <- estimate_var_wls(factors, p = 4L, s = covid_volatility_path(...))
-estimate_var_wls <- function(data, p, s = 1) {
+#' ols <- estimate_var_wls(factors, p = 4L, type = "const")
+#' wls <- estimate_var_wls(factors, p = 4L, type = "const",
+#'                         s = covid_volatility_path(...))
+estimate_var_wls <- function(data, p, type, s = 1) {
   K <- ncol(data)
   n_eff <- nrow(data) - p
 
-  RHS <- cbind(stats::embed(data, p + 1)[, -(1:K), drop = FALSE], 1)
+  deterministic <- switch(
+    match.arg(type, c("const", "both")),
+    const = 1,
+    both = cbind(1, seq(p + 1, nrow(data)))
+  )
+  RHS <- cbind(stats::embed(data, p + 1)[, -(1:K), drop = FALSE], deterministic)
   LHS <- data[(p + 1):nrow(data), , drop = FALSE]
 
   B <- solve(crossprod(RHS / s)) %*% crossprod(RHS / s, LHS / s)
@@ -132,7 +143,7 @@ estimate_var_wls <- function(data, p, s = 1) {
       t(B[1:(p * K), ]),
       cbind(diag((p - 1) * K), matrix(0, (p - 1) * K, K))
     ),
-    covariance_matrix = crossprod(u_standardized) / (n_eff - p * K - 1),
+    covariance_matrix = crossprod(u_standardized) / (n_eff - ncol(RHS)),
     sigma_mle = sigma_mle,
     loglik = -n_eff * K / 2 * (1 + log(2 * pi)) - K * sum(log(s)) -
       n_eff / 2 * log_det_sigma
@@ -147,12 +158,19 @@ estimate_var_wls <- function(data, p, s = 1) {
 #' `[lower, upper]`. The floor is not cosmetic: with any scale free to approach
 #' zero, the WLS fits that month exactly and (B5) grows as `-n log s`, so the
 #' unrestricted maximum does not exist. The starting values are the authors'
-#' rule (`bvarGLP_covid.m:60-68`) on the factors: the cross-factor mean
-#' absolute change into `covid_start` and the two months after it, over the
-#' same mean before `covid_start`, and `rho = 0.8`, projected on the box.
+#' rule (`bvarGLP_covid.m:60-68`) on the data: the cross-series mean absolute
+#' change into `covid_start` and the two months after it, over the same mean
+#' before `covid_start`, and `rho = 0.8`, projected on the box. The rule reads
+#' the series in their own units; theta-hat does not, being invariant to any
+#' rescaling of the columns.
 #'
-#' @param factors Numeric matrix of static factors (T x K).
-#' @param p Lag order of the factor VAR.
+#' One start does not settle the maximum: (B5) has three local maxima on the
+#' production factors (notas/2026-09-24_otimo_global_theta.md), so every
+#' estimate goes through [verify_covid_theta()].
+#'
+#' @param data Numeric matrix of the VAR's variables (T x K).
+#' @param p Lag order of the VAR.
+#' @param type Deterministic terms of the VAR, as in [estimate_var_wls()].
 #' @param residual_dates Date vector of the T - p residual months.
 #' @param covid_start First month of abnormal volatility (Date), one of
 #'   `residual_dates`.
@@ -162,18 +180,18 @@ estimate_var_wls <- function(data, p, s = 1) {
 #'   `optim`'s `convergence` code and `message`, and the path `s_t` at `theta`.
 #'
 #' @examples
-#' fit <- estimate_covid_theta(factors, 4L, residual_dates,
+#' fit <- estimate_covid_theta(factors, 4L, "const", residual_dates,
 #'                             as.Date("2020-03-01"), lower, upper)
-estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
+estimate_covid_theta <- function(data, p, type, residual_dates, covid_start,
                                  lower, upper) {
   loglik_at <- function(theta) {
     s <- covid_volatility_path(residual_dates, covid_start, theta)
-    estimate_var_wls(factors, p, s = s)$loglik
+    estimate_var_wls(data, p, type = type, s = s)$loglik
   }
 
   # Row i of abs_change is the change into residual month i + 1, on the VAR's
   # left-hand side as in bvarGLP_covid.m
-  abs_change <- factors[(p + 1):nrow(factors), , drop = FALSE] |>
+  abs_change <- data[(p + 1):nrow(data), , drop = FALSE] |>
     diff() |>
     abs() |>
     rowMeans()
@@ -209,6 +227,147 @@ estimate_covid_theta <- function(factors, p, residual_dates, covid_start,
     message = fit$message,
     path = covid_volatility_path(residual_dates, covid_start, fit$par)
   )
+}
+
+
+#' Check that an estimate of the COVID volatility scale is the global maximum
+#'
+#' Three guards on the output of [estimate_covid_theta()], each a `stop()`:
+#'
+#' 1. First-order conditions. At an interior maximum the envelope condition
+#'    sets the squared Mahalanobis size per dimension of the standardized WLS
+#'    residuals, against (B4), to one in `covid_start` and the month after,
+#'    the two months that `s0` and `s1` govern alone.
+#' 2. Profile in `rho`. With `(s0, s1, s2)` re-maximized at each point of a
+#'    0.01 grid, no point may exceed the free maximum.
+#' 3. Multi-start over the box. From every combination of `start_s` (for each
+#'    of `s0`, `s1`, `s2`) and `start_rho`, no start may end above the free
+#'    maximum, and none may end level with it more than 5% away from
+#'    theta-hat, or theta-hat is not the unique global maximum.
+#'
+#' The optimizer settings are those of [estimate_covid_theta()], so that the
+#' guards run the same optimizer as the estimate.
+#'
+#' @param data,p,type,residual_dates,covid_start,lower,upper As passed to
+#'   [estimate_covid_theta()].
+#' @param fit Its return value.
+#' @param start_s,start_rho Starting values of each scale and of `rho`.
+#'
+#' @return Tibble with one row per start: the starting values, the end point,
+#'   its `loglik` and `convergence`, `loglik_gap` to the free maximum and
+#'   `distance_to_hat`, the largest relative gap across the four components.
+#'
+#' @examples
+#' multistart <- verify_covid_theta(factors, 4L, "const", residual_dates,
+#'                                  covid_start, lower, upper, fit,
+#'                                  exp(seq(0, log(40), length.out = 5)),
+#'                                  seq(0, 1, by = 0.2))
+verify_covid_theta <- function(data, p, type, residual_dates, covid_start,
+                               lower, upper, fit, start_s, start_rho) {
+  loglik_at <- function(theta) {
+    path <- covid_volatility_path(residual_dates, covid_start, theta)
+    estimate_var_wls(data, p, type = type, s = path)$loglik
+  }
+
+  wls <- estimate_var_wls(data, p, type = type, s = fit$path)
+  standardized <- wls$residuals_standardized
+  mahalanobis_per_dim <- rowSums(
+    (standardized %*% solve(wls$sigma_mle)) * standardized
+  ) / ncol(data)
+
+  t_star <- match(covid_start, residual_dates)
+  single_month <- c(s0 = t_star, s1 = t_star + 1L)
+  interior <- fit$theta[names(single_month)] > lower[names(single_month)]
+  foc_gap <- abs(mahalanobis_per_dim[single_month] - 1)
+  if (fit$convergence != 0 || any(interior & foc_gap > 1e-4)) {
+    stop(
+      "estimate_covid_theta did not reach the maximum: convergence ",
+      fit$convergence,
+      ", |m - 1| at t* and t* + 1 = ",
+      paste(signif(foc_gap, 3), collapse = ", ")
+    )
+  }
+
+  loglik_tol <- 1e-6 * abs(fit$loglik)
+
+  profile_loglik <- purrr::map_dbl(seq(0, 1, by = 0.01), function(rho) {
+    optim(
+      fit$theta[c("s0", "s1", "s2")],
+      function(s) loglik_at(c(s, rho = rho)),
+      method = "L-BFGS-B",
+      lower = lower[c("s0", "s1", "s2")],
+      upper = upper[c("s0", "s1", "s2")],
+      control = list(fnscale = -1, factr = 1e3, ndeps = rep(1e-6, 3))
+    )$value
+  })
+  if (max(profile_loglik) > fit$loglik + loglik_tol) {
+    stop(
+      "The rho profile reaches ", max(profile_loglik), ", above the free ",
+      "maximum ", fit$loglik, ": estimate_covid_theta stopped at a local peak"
+    )
+  }
+
+  multistart <- tidyr::expand_grid(
+    start_s0 = start_s,
+    start_s1 = start_s,
+    start_s2 = start_s,
+    start_rho = start_rho
+  ) |>
+    purrr::pmap(function(start_s0, start_s1, start_s2, start_rho) {
+      end <- optim(
+        c(s0 = start_s0, s1 = start_s1, s2 = start_s2, rho = start_rho),
+        loglik_at,
+        method = "L-BFGS-B",
+        lower = lower,
+        upper = upper,
+        control = list(fnscale = -1, factr = 1e3, ndeps = rep(1e-6, 4))
+      )
+      tibble::tibble(
+        start_s0,
+        start_s1,
+        start_s2,
+        start_rho,
+        s0 = end$par[["s0"]],
+        s1 = end$par[["s1"]],
+        s2 = end$par[["s2"]],
+        rho = end$par[["rho"]],
+        loglik = end$value,
+        convergence = end$convergence
+      )
+    }) |>
+    purrr::list_rbind() |>
+    dplyr::mutate(
+      loglik_gap = loglik - fit$loglik,
+      distance_to_hat = pmax(
+        abs(s0 / fit$theta[["s0"]] - 1),
+        abs(s1 / fit$theta[["s1"]] - 1),
+        abs(s2 / fit$theta[["s2"]] - 1),
+        abs(rho / fit$theta[["rho"]] - 1)
+      )
+    )
+
+  best_start <- dplyr::slice_max(multistart, loglik, n = 1, with_ties = FALSE)
+  if (best_start$loglik > fit$loglik + loglik_tol) {
+    stop(
+      "A multi-start ends at ", best_start$loglik, ", above the free maximum ",
+      fit$loglik, ", at (s0, s1, s2, rho) = (",
+      paste(
+        signif(unlist(best_start[c("s0", "s1", "s2", "rho")]), 7),
+        collapse = ", "
+      ),
+      "): theta-hat is not the global maximum"
+    )
+  }
+  level_elsewhere <- multistart$loglik >= fit$loglik - loglik_tol &
+    multistart$distance_to_hat > 0.05
+  if (any(level_elsewhere)) {
+    stop(
+      sum(level_elsewhere), " multi-starts end level with the free maximum ",
+      "more than 5% away from theta-hat: the maximum is not unique"
+    )
+  }
+
+  multistart
 }
 
 
@@ -366,7 +525,12 @@ estimate_dfm <- function(data, r, q, p, dates = NULL, instrument = NULL,
   }
 
   static <- estimate_static_factors(data, r)
-  var_fit <- estimate_var_wls(static$factors, p, s = volatility_path)
+  var_fit <- estimate_var_wls(
+    static$factors,
+    p,
+    type = "const",
+    s = volatility_path
+  )
 
   # K, M, eta and the proxy's H assume a constant variance and read these
   # innovations. Under the treatment nothing is centred: K reads the uncentred

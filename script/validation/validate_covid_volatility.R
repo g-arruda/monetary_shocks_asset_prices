@@ -1,5 +1,5 @@
 # Validate the Lenza-Primiceri (2022) COVID volatility scale of the factor VAR:
-# `estimate_var_wls(s =)`, `estimate_covid_theta()`,
+# `estimate_var_wls(type =, s =)`, `estimate_covid_theta()`,
 # `estimate_dfm(covid_volatility =)`, the uncentered identification it
 # triggers in `compute_irf_dfm()`, and the Anderson-Rubin sets and xi_mp on the
 # transformed regression (`ar_dfm_bands()`,
@@ -18,7 +18,8 @@
 #          (first-order conditions, bounds, profile, why the floor); the
 #          uncentered H; the starting values against the authors' rule; the
 #          influence function of the treated estimator; and the treated sets
-#          and xi_mp against MOSW fed by hand.
+#          and xi_mp against MOSW fed by hand. S11, the constant and trend of
+#          type = "both", sits after S1 because it reuses its design.
 # Silent on success; stops at the first failed check.
 
 rm(list = ls())
@@ -47,12 +48,12 @@ residual_dates <- dates[(P_LAGS + 1):length(dates)]
 
 # N1 — factor VAR: every residual month as covid_start, rho in {0, 0.5}
 factors <- estimate_static_factors(data_mat, R_FACTORS)$factors
-ols <- estimate_var_wls(factors, P_LAGS)
+ols <- estimate_var_wls(factors, P_LAGS, type = "const")
 n1 <- tidyr::expand_grid(covid_start = residual_dates, rho = c(0, 0.5)) |>
   purrr::pmap_lgl(function(covid_start, rho) {
     s <- covid_volatility_path(residual_dates, covid_start,
                                c(s0 = 1, s1 = 1, s2 = 1, rho = rho))
-    wls <- estimate_var_wls(factors, P_LAGS, s = s)
+    wls <- estimate_var_wls(factors, P_LAGS, type = "const", s = s)
     identical(s, rep(1, length(residual_dates))) &&
       identical(wls$coefficients, ols$coefficients) &&
       identical(wls$residuals, ols$residuals) &&
@@ -114,7 +115,8 @@ if (!identical(reference[["5"]][match(headline, colnames(data_mat)), 1], untreat
 }
 
 # N3 — (B5) at neutral theta against the Gaussian log-likelihood summed row by row
-wls <- estimate_var_wls(factors, P_LAGS, s = rep(1, length(residual_dates)))
+wls <- estimate_var_wls(factors, P_LAGS, type = "const",
+                        s = rep(1, length(residual_dates)))
 u <- wls$residuals
 sigma <- crossprod(u) / nrow(u)
 brute <- sum(-ncol(u) / 2 * log(2 * pi) - log(det(sigma)) / 2 -
@@ -227,7 +229,7 @@ for (t in (p_sim + 1):T_sim) {
   Y[t, ] <- intercept + A1 %*% Y[t - 1, ] + A2 %*% Y[t - 2, ] + s_all[t] * eps_sim[t, ]
 }
 s_sim <- s_all[(p_sim + 1):T_sim]
-fit <- estimate_var_wls(Y, p_sim, s = s_sim)
+fit <- estimate_var_wls(Y, p_sim, type = "const", s = s_sim)
 
 # S1 — (B2) against weighted least squares by lm.wfit, weights 1/s_t^2
 RHS <- cbind(Y[p_sim:(T_sim - 1), ], Y[(p_sim - 1):(T_sim - 2), ], 1)
@@ -236,6 +238,22 @@ wfit <- lm.wfit(RHS, LHS, w = 1 / s_sim^2)
 if (max(abs(unname(wfit$coefficients) - fit$coefficients)) > 1e-10) {
   stop("S1: (B2) departs from lm.wfit by ",
        max(abs(unname(wfit$coefficients) - fit$coefficients)))
+}
+
+# S11 — the trend of type = "both": (B2) against lm.wfit with the trend
+# p + 1, ..., T divided by s_t like every other row, and at s = 1 the
+# residuals of vars::VAR(type = "both"), the reference the het VAR had
+fit_trend <- estimate_var_wls(Y, p_sim, type = "both", s = s_sim)
+wfit_trend <- lm.wfit(cbind(RHS, (p_sim + 1):T_sim), LHS, w = 1 / s_sim^2)
+ols_trend <- estimate_var_wls(Y, p_sim, type = "both")
+s11 <- c(
+  weighted = max(abs(unname(wfit_trend$coefficients) -
+                       fit_trend$coefficients)) < 1e-10,
+  vars = max(abs(unname(resid(vars::VAR(Y, p = p_sim, type = "both"))) -
+                   ols_trend$residuals)) < 1e-10
+)
+if (!all(s11)) {
+  stop("S11: type = \"both\" fails at ", paste(names(s11)[!s11], collapse = ", "))
 }
 
 # S2 — (B5) against (B1) summed row by row at (B-hat, Sigma-hat): the Jacobian
@@ -272,7 +290,8 @@ treated_sim <- lapply(c(raw = "raw", standardized = "standardized"), function(in
                covid_volatility = list(covid_start = covid_sim, theta = theta_sim,
                                        innovations = innovations))
 })
-wls_sim <- estimate_var_wls(treated_sim$raw$static_factors, p_sim, s = s_sim)
+wls_sim <- estimate_var_wls(treated_sim$raw$static_factors, p_sim,
+                            type = "const", s = s_sim)
 s4 <- c(
   path_aligned = identical(treated_sim$raw$volatility_path, s_sim),
   coefficients = identical(treated_sim$raw$var_coefficients, wls_sim$coefficients),
@@ -296,8 +315,8 @@ if (!all(s4)) {
 # the optimum
 lower_sim <- c(s0 = 1, s1 = 1, s2 = 1, rho = 0)
 upper_sim <- c(s0 = Inf, s1 = Inf, s2 = Inf, rho = 1)
-fit_theta <- estimate_covid_theta(Y, p_sim, sim_residual_dates, covid_sim,
-                                  lower_sim, upper_sim)
+fit_theta <- estimate_covid_theta(Y, p_sim, type = "const", sim_residual_dates,
+                                  covid_sim, lower_sim, upper_sim)
 #' Log-likelihood (B5) of the simulated VAR at a given theta
 #'
 #' @param theta Named vector `c(s0, s1, s2, rho)`.
@@ -305,9 +324,9 @@ fit_theta <- estimate_covid_theta(Y, p_sim, sim_residual_dates, covid_sim,
 #' @return Scalar (B5) log-likelihood.
 loglik_sim <- function(theta) {
   path <- covid_volatility_path(sim_residual_dates, covid_sim, theta)
-  estimate_var_wls(Y, p_sim, s = path)$loglik
+  estimate_var_wls(Y, p_sim, type = "const", s = path)$loglik
 }
-at_hat <- estimate_var_wls(Y, p_sim, s = fit_theta$path)
+at_hat <- estimate_var_wls(Y, p_sim, type = "const", s = fit_theta$path)
 e_hat <- at_hat$residuals_standardized
 m_hat <- rowSums((e_hat %*% solve(at_hat$sigma_mle)) * e_hat) / n_sim
 t_sim <- match(covid_sim, sim_residual_dates)
@@ -317,8 +336,9 @@ profile_sim <- purrr::map_dbl(seq(0, 1, by = 0.05), function(rho) {
         method = "L-BFGS-B", lower = lower_sim[1:3], upper = upper_sim[1:3],
         control = list(fnscale = -1, factr = 1e3, ndeps = rep(1e-6, 3)))$value
 })
-bound_fit <- estimate_covid_theta(Y, p_sim, sim_residual_dates, covid_sim,
-                                  replace(lower_sim, "s0", 20), upper_sim)
+bound_fit <- estimate_covid_theta(Y, p_sim, type = "const", sim_residual_dates,
+                                  covid_sim, replace(lower_sim, "s0", 20),
+                                  upper_sim)
 s5 <- c(
   converged = fit_theta$convergence == 0,
   foc_s0 = abs(m_hat[t_sim] - 1) < 1e-4,

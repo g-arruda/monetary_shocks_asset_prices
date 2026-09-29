@@ -7,8 +7,10 @@
 # proportional. Its multivariate form is the distinctness of the eigenvalues
 # of `Lambda` in `Sigma_NC = B B'`, `Sigma_C = B Lambda B'`, which is what
 # the `svars` package estimates and tests. This script runs that test on the
-# three systems of tab:het_frequency and puts the rank condition of the daily
-# window and of the monthly panel side by side.
+# systems of tab:het_frequency -- the daily window, the monthly VAR without
+# and with the Lenza-Primiceri COVID scale, and the factor innovations -- and
+# puts the rank condition of the daily window and of the monthly panel side
+# by side.
 #
 # THE ONLY MONTHLY AGGREGATION IS THE PANEL'S OWN (author decision,
 # 2026-09-22): the reference month's last quotation for the DI vertices and
@@ -29,9 +31,11 @@
 # Outputs in output/het/:
 #   daily_changes.csv       the Wed->Thu panel the daily row is built on
 #   het_conditions.csv      one row per system: Lambda, its SE, Qr
-#   het_qr_tests.csv        every sequential Qr null, all three systems
+#   het_qr_tests.csv        every sequential Qr null, every system
 #   het_variance_ratios.csv Var_C / Var_NC of each residual series
 #   het_lambda.csv          every eigenvalue of Lambda with its SE
+#   het_var_theta.csv       theta-hat of each monthly VAR, one per vertex
+#   het_var_theta_multistart.csv  where every start of its multi-start ended
 #
 # Run: Rscript script/het_conditions.R
 # ===================================================================
@@ -79,6 +83,17 @@ MONTHLY_DEPENDENTS <- c("cds_5y", "cambio_usd")  # the same, in the panel
 P_LAGS    <- 4L
 R_FACTORS <- 5L
 Q_DYNAMIC <- 5L
+
+# The monthly VAR under the Lenza-Primiceri (2022) scale follows the author's
+# design of 2026-09-14 for the factor VAR (script/covid_volatility_theta.R),
+# with a theta of its own in each VAR, one per vertex, and not the factor
+# VAR's (author decision, 2026-09-24). The multi-start grid is the factor
+# VAR's.
+COVID_START    <- as.Date("2020-03-01")
+THETA_LOWER    <- c(s0 = 1, s1 = 1, s2 = 1, rho = 0)
+THETA_UPPER    <- c(s0 = Inf, s1 = Inf, s2 = Inf, rho = 1)
+MULTISTART_S   <- exp(seq(0, log(40), length.out = 5))
+MULTISTART_RHO <- seq(0, 1, by = 0.2)
 
 # Daily Wed->Thu panel: one observation per week, Wednesday to Thursday. The
 # Copom announces after Wednesday's close, so the window covers the
@@ -135,18 +150,72 @@ het_daily <- purrr::map(
 
 # System 2: a monthly VAR of the same three observables, with the window, lag
 # and deterministic terms of the ibc5_fx_cds_level_trend_p4 benchmark, so that
-# the contrast is one of identification and not of sample.
-het_monthly <- purrr::map(
+# the contrast is one of identification and not of sample. Two versions: OLS,
+# and WLS under the Lenza-Primiceri scale s_t, whose residuals u_t / s_t are
+# what the factor VAR hands the factor row. Both reach the test the way the
+# factor innovations do (p = 1, inert), so that they differ by the scale alone.
+residual_dates <- dates[(P_LAGS + 1):length(dates)]
+monthly_vars <- purrr::map(
   purrr::set_names(VERTICES$monthly, VERTICES$label),
   function(vertex) {
-    fit_het_cv(
-      as.matrix(raw_data[, c(vertex, MONTHLY_DEPENDENTS)]),
-      p = P_LAGS,
+    y <- as.matrix(raw_data[, c(vertex, MONTHLY_DEPENDENTS)])
+    ols <- estimate_var_wls(y, P_LAGS, type = "both")
+
+    # theta-hat is invariant to rescaling the columns. Dividing each by its
+    # residual sd only keeps the starting rule of Lenza and Primiceri, a
+    # cross-series mean of absolute changes, from reading the CDS in basis
+    # points alone.
+    y_scaled <- sweep(y, 2, apply(ols$residuals, 2, sd), "/")
+    theta_fit <- estimate_covid_theta(
+      y_scaled,
+      P_LAGS,
       type = "both",
-      regime_labels = monthly_regimes
+      residual_dates,
+      COVID_START,
+      THETA_LOWER,
+      THETA_UPPER
+    )
+    multistart <- verify_covid_theta(
+      y_scaled,
+      P_LAGS,
+      type = "both",
+      residual_dates,
+      COVID_START,
+      THETA_LOWER,
+      THETA_UPPER,
+      theta_fit,
+      MULTISTART_S,
+      MULTISTART_RHO
+    )
+
+    list(
+      ols = ols,
+      wls = estimate_var_wls(y, P_LAGS, type = "both", s = theta_fit$path),
+      theta_fit = theta_fit,
+      loglik_neutral = estimate_var_wls(y_scaled, P_LAGS, type = "both")$loglik,
+      multistart = multistart
     )
   }
 )
+
+het_monthly <- purrr::map(monthly_vars, function(monthly_var) {
+  fit_het_cv(
+    monthly_var$ols$residuals,
+    p = 1L,
+    type = "const",
+    regime_labels = monthly_regimes[-1],
+    inert_lag = TRUE
+  )
+})
+het_monthly_covid <- purrr::map(monthly_vars, function(monthly_var) {
+  fit_het_cv(
+    monthly_var$wls$residuals_standardized,
+    p = 1L,
+    type = "const",
+    regime_labels = monthly_regimes[-1],
+    inert_lag = TRUE
+  )
+})
 
 # System 3: the five factor innovations of the production cell.
 dfm <- estimate_dfm(
@@ -189,7 +258,18 @@ systems <- c(
       fit = het_monthly[[label]],
       mp_index = 1L,
       series = c(monthly, MONTHLY_DEPENDENTS),
-      inert = FALSE
+      inert = TRUE
+    )
+  }),
+  purrr::pmap(VERTICES, function(label, daily, monthly, business_days) {
+    list(
+      name = "Tres observaveis de GRG (VAR, escala COVID)",
+      frequency = "Mensal",
+      vertex = label,
+      fit = het_monthly_covid[[label]],
+      mp_index = 1L,
+      series = c(monthly, MONTHLY_DEPENDENTS),
+      inert = TRUE
     )
   }),
   list(list(
@@ -292,7 +372,41 @@ eigenvalues <- purrr::map(systems, function(system) {
 }) |>
   purrr::list_rbind()
 
+# theta-hat of each monthly VAR. The likelihood ratio against the neutral
+# scale is invariant to the rescaling theta was estimated on; the log-
+# likelihoods themselves are not, and stay out.
+var_theta <- purrr::imap(monthly_vars, function(monthly_var, label) {
+  theta_fit <- monthly_var$theta_fit
+  tibble::tibble(
+    vertice = label,
+    covid_start = COVID_START,
+    s0 = theta_fit$theta[["s0"]],
+    s1 = theta_fit$theta[["s1"]],
+    s2 = theta_fit$theta[["s2"]],
+    rho = theta_fit$theta[["rho"]],
+    lr_vs_neutral = 2 * (theta_fit$loglik - monthly_var$loglik_neutral),
+    downweighted_months = sum(1 - 1 / theta_fit$path^2),
+    convergence = theta_fit$convergence,
+    start_s0 = theta_fit$start[["s0"]],
+    start_s1 = theta_fit$start[["s1"]],
+    start_s2 = theta_fit$start[["s2"]],
+    start_rho = theta_fit$start[["rho"]]
+  )
+}) |>
+  purrr::list_rbind()
+
+var_multistart <- purrr::imap(monthly_vars, function(monthly_var, label) {
+  dplyr::mutate(monthly_var$multistart, vertice = label, .before = 1)
+}) |>
+  purrr::list_rbind() |>
+  dplyr::select(-loglik)
+
 readr::write_csv(conditions, file.path(OUT_DIR, "het_conditions.csv"))
 readr::write_csv(qr_tests, file.path(OUT_DIR, "het_qr_tests.csv"))
 readr::write_csv(variance_ratios, file.path(OUT_DIR, "het_variance_ratios.csv"))
 readr::write_csv(eigenvalues, file.path(OUT_DIR, "het_lambda.csv"))
+readr::write_csv(var_theta, file.path(OUT_DIR, "het_var_theta.csv"))
+readr::write_csv(
+  var_multistart,
+  file.path(OUT_DIR, "het_var_theta_multistart.csv")
+)

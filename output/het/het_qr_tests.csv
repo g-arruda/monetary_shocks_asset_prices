@@ -8,15 +8,24 @@ Tres observaveis de GRG,6 meses,lambda_ 2 =lambda_3,2.281187896062194,2,0.319629
 Tres observaveis de GRG,12 meses,lambda_ 1 =lambda_2,3.829000412611309,2,0.14741549151060152
 Tres observaveis de GRG,12 meses,lambda_ 1 =lambda_2=lambda_3,12.299311816784348,5,0.030908888201523377
 Tres observaveis de GRG,12 meses,lambda_ 2 =lambda_3,2.348555749634903,2,0.3090420661885971
-Tres observaveis de GRG (VAR),3 meses,lambda_ 1 =lambda_2,0.024592796802742067,2,0.9877788933835547
-Tres observaveis de GRG (VAR),3 meses,lambda_ 1 =lambda_2=lambda_3,3.409518958066283,5,0.6371205721926724
-Tres observaveis de GRG (VAR),3 meses,lambda_ 2 =lambda_3,2.467166990196076,2,0.29124702315018314
-Tres observaveis de GRG (VAR),6 meses,lambda_ 1 =lambda_2,0.1741792099128793,2,0.9165949605018413
-Tres observaveis de GRG (VAR),6 meses,lambda_ 1 =lambda_2=lambda_3,3.694446711888172,5,0.5941905907899999
-Tres observaveis de GRG (VAR),6 meses,lambda_ 2 =lambda_3,2.1686990189458317,2,0.3381216593105564
-Tres observaveis de GRG (VAR),12 meses,lambda_ 1 =lambda_2,0.14400928474149982,2,0.9305265759518203
-Tres observaveis de GRG (VAR),12 meses,lambda_ 1 =lambda_2=lambda_3,2.9506954002816803,5,0.7075871177748749
-Tres observaveis de GRG (VAR),12 meses,lambda_ 2 =lambda_3,1.7043756159862535,2,0.42648085231025834
+Tres observaveis de GRG (VAR),3 meses,lambda_ 1 =lambda_2,0.107655317560312,2,0.947595402177636
+Tres observaveis de GRG (VAR),3 meses,lambda_ 1 =lambda_2=lambda_3,2.6887469225533076,5,0.7478390004625581
+Tres observaveis de GRG (VAR),3 meses,lambda_ 2 =lambda_3,1.6057643224802036,2,0.44803579005604954
+Tres observaveis de GRG (VAR),6 meses,lambda_ 1 =lambda_2,0.2540523182834579,2,0.8807106336615307
+Tres observaveis de GRG (VAR),6 meses,lambda_ 1 =lambda_2=lambda_3,2.871781735255172,5,0.7197453484249507
+Tres observaveis de GRG (VAR),6 meses,lambda_ 2 =lambda_3,1.4050561839310283,2,0.49533147603843
+Tres observaveis de GRG (VAR),12 meses,lambda_ 1 =lambda_2,0.06060974467268562,2,0.970149716646888
+Tres observaveis de GRG (VAR),12 meses,lambda_ 1 =lambda_2=lambda_3,2.0763623839338505,5,0.838481166525565
+Tres observaveis de GRG (VAR),12 meses,lambda_ 2 =lambda_3,1.2986154553680265,2,0.522407299721676
+"Tres observaveis de GRG (VAR, escala COVID)",3 meses,lambda_ 1 =lambda_2,0.0702768328614231,2,0.965471769852015
+"Tres observaveis de GRG (VAR, escala COVID)",3 meses,lambda_ 1 =lambda_2=lambda_3,6.288805614352667,5,0.2791224523900191
+"Tres observaveis de GRG (VAR, escala COVID)",3 meses,lambda_ 2 =lambda_3,4.531161371676066,2,0.10376975941232702
+"Tres observaveis de GRG (VAR, escala COVID)",6 meses,lambda_ 1 =lambda_2,0.3871695195069706,2,0.8239999911990044
+"Tres observaveis de GRG (VAR, escala COVID)",6 meses,lambda_ 1 =lambda_2=lambda_3,5.627729836307282,5,0.34414300816638455
+"Tres observaveis de GRG (VAR, escala COVID)",6 meses,lambda_ 2 =lambda_3,3.054916350854757,2,0.21708676309372144
+"Tres observaveis de GRG (VAR, escala COVID)",12 meses,lambda_ 1 =lambda_2,0.0701337577195006,2,0.9655408398277815
+"Tres observaveis de GRG (VAR, escala COVID)",12 meses,lambda_ 1 =lambda_2=lambda_3,4.21361275316866,5,0.5190887600683481
+"Tres observaveis de GRG (VAR, escala COVID)",12 meses,lambda_ 2 =lambda_3,2.8831220363054375,2,0.23655819866992445
 Cinco inovacoes fatoriais,--,lambda_ 1 =lambda_2,5.152586154468845,2,0.07605541366305368
 Cinco inovacoes fatoriais,--,lambda_ 1 =lambda_2=lambda_3,10.831284544710028,5,0.054829651062947016
 Cinco inovacoes fatoriais,--,lambda_ 1 =lambda_2=lambda_3=lambda_4,19.570897879653014,9,0.02075329456002062

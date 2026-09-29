@@ -183,7 +183,7 @@ readr::write_csv(
 # invalidates the stored theta.
 covid_volatility <- read_covid_volatility(THETA_PATH)
 theta_refit <- estimate_covid_theta(
-  factors, P_LAGS, dates[(P_LAGS + 1):length(dates)],
+  factors, P_LAGS, type = "const", dates[(P_LAGS + 1):length(dates)],
   COVID_START, THETA_LOWER, THETA_UPPER
 )
 theta_stored <- covid_volatility$theta
