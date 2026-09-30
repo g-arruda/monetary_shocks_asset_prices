@@ -65,15 +65,15 @@ CELLS <- tidyr::expand_grid(
   )
 # Labels and scales of script/fig_section5.R
 PAPER_PANELS <- tibble::tribble(
-  ~variable,     ~label,                     ~scale,
-  "yield_2y",    "DI 2 anos (p.b.)",         1e4,
-  "yield_5y",    "DI 5 anos (p.b.)",         1e4,
-  "cambio_usd",  "Câmbio BRL/USD (R$/US$)",  1,
-  "cds_5y",      "CDS 5 anos (p.b.)",        1,
-  "ibc_br",      "IBC-Br (pontos)",          1,
-  "price_ipca",  "IPCA cheio (p.p. ao mês)", 1,
-  "asset_ibov",  "Ibovespa (%)",             1,
-  "fiscal_dlsp", "DLSP (p.p. do PIB)",       1
+  ~variable,               ~label,                       ~scale,
+  "yield_6m",              "DI 6 meses (p.b.)",          1e4,
+  "yield_2y",              "DI 2 anos (p.b.)",           1e4,
+  "cambio_usd",            "Câmbio BRL/USD (R$/US$)",    1,
+  "cds_5y",                "CDS 5 anos (p.b.)",          1,
+  "expect_focus_pib_ny",   "Focus PIB (p.p.)",           1,
+  "expect_focus_ipca12m",  "Focus IPCA 12 meses (p.p.)", 1,
+  "expect_focus_selic_ny", "Focus Selic (p.p.)",         1,
+  "fiscal_dbgg",           "DBGG (p.p. do PIB)",         1
 )
 # Colours and line types of script/q_sensitivity.R
 Q_PALETTE <- c(
@@ -175,12 +175,18 @@ readr::write_csv(q_paths, LP_CSV)
 readr::write_csv(window_paths, PRE_COVID_CSV)
 
 # One row per series, the scale on the left and ordinary least squares on the
-# right, on a common vertical axis within the row
+# right, on a common vertical axis within the row. The row strip stacks the
+# name of the series, wrapped, over its unit.
+row_labels <- paste(
+  stringr::str_wrap(stringr::str_remove(PAPER_PANELS$label, " \\(.*$"), 12),
+  stringr::str_extract(PAPER_PANELS$label, "\\(.*$"),
+  sep = "\n"
+)
 lp_data <- rescale_to_paper_units(q_paths, PAPER_PANELS, HORIZON) |>
   dplyr::mutate(
     variable = factor(
-      stringr::str_replace(variable, " \\(", "\n("),
-      levels = stringr::str_replace(PAPER_PANELS$label, " \\(", "\n(")
+      row_labels[match(variable, PAPER_PANELS$label)],
+      levels = row_labels
     ),
     estimator = factor(estimator, levels = c(WITH_SCALE, WITHOUT_SCALE))
   )

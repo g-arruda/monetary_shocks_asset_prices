@@ -43,15 +43,15 @@ LAYER_LABELS <- c(
 PRODUCTION_LABEL <- LAYER_LABELS[["z_bs_purif"]]
 # Labels and scales of script/fig_section5.R
 PAPER_PANELS <- tibble::tribble(
-  ~variable,     ~label,                     ~scale,
-  "yield_2y",    "DI 2 anos (p.b.)",         1e4,
-  "yield_5y",    "DI 5 anos (p.b.)",         1e4,
-  "cambio_usd",  "Câmbio BRL/USD (R$/US$)",  1,
-  "cds_5y",      "CDS 5 anos (p.b.)",        1,
-  "ibc_br",      "IBC-Br (pontos)",          1,
-  "price_ipca",  "IPCA cheio (p.p. ao mês)", 1,
-  "asset_ibov",  "Ibovespa (%)",             1,
-  "fiscal_dlsp", "DLSP (p.p. do PIB)",       1
+  ~variable,               ~label,                       ~scale,
+  "yield_6m",              "DI 6 meses (p.b.)",          1e4,
+  "yield_2y",              "DI 2 anos (p.b.)",           1e4,
+  "cambio_usd",            "Câmbio BRL/USD (R$/US$)",    1,
+  "cds_5y",                "CDS 5 anos (p.b.)",          1,
+  "expect_focus_pib_ny",   "Focus PIB (p.p.)",           1,
+  "expect_focus_ipca12m",  "Focus IPCA 12 meses (p.p.)", 1,
+  "expect_focus_selic_ny", "Focus Selic (p.p.)",         1,
+  "fiscal_dbgg",           "DBGG (p.p. do PIB)",         1
 )
 LAYER_PALETTE <- purrr::set_names(
   c("black", "steelblue"),
