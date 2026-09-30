@@ -231,8 +231,8 @@ lp_figure <- ggplot2::ggplot(lp_data, ggplot2::aes(x = h)) +
 ggplot2::ggsave(
   LP_FIG,
   lp_figure,
-  width = 10.4,
-  height = 11.6,
+  width = 8.6,
+  height = 12,
   device = cairo_pdf
 )
 
