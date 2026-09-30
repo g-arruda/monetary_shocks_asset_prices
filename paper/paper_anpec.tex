@@ -243,6 +243,8 @@ O instrumento tem duas camadas. A primeira é a surpresa, a variação do DI nes
 
 A segunda camada remove da surpresa o componente previsível pela informação pública anterior ao anúncio, que \cite{bauer2023} atribuem à subestimação, pelo mercado, da resposta do banco central às notícias, e que compromete a exogeneidade do instrumento. A surpresa de cada reunião é regredida sobre uma constante e as notícias observadas até o fechamento da quarta-feira. As notícias financeiras são as variações em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent e da inclinação da curva de DI, a diferença entre os vértices de 2 anos e 3 meses. As notícias macroeconômicas são as surpresas das divulgações do IPCA e do PIB, este na primeira divulgação, feitas desde a reunião anterior e medidas contra a mediana Focus da última pesquisa antes de cada divulgação, a aceleração do núcleo EX0, a variação anualizada nos seis meses encerrados dois meses antes da reunião menos a dos seis meses anteriores, e a mediana Focus do próximo IPCA a ser divulgado. O Ibovespa entra porque a regra de política estimada por \cite{castelnuovo} responde às condições do mercado acionário. O resíduo, somado dentro de cada mês, é o instrumento de produção. As estimativas estão na \autoref{tab:bs_ortogonalizacao}, no Anexo D.
 
+A \autoref{fig:placebos}, no Anexo D, mostra as respostas de três séries externas que o choque não deveria mover, o VIX, o MSCI de mercados emergentes e o EPU dos Estados Unidos. Nos dois primeiros anos, só o conjunto de 90\% do EPU exclui zero, do primeiro ao terceiro mês, e essa resposta, que permanece quando o EPU diário anterior à reunião entra na ortogonalização, é uma limitação da identificação.
+
 \subsection{Relevância do instrumento e inferência}
 
 A relevância do instrumento é medida por duas estatísticas de \cite{montielolea}. A Wald no espaço dos fatores, $\xi_{mp}$, vale $7{,}02$ na amostra completa e $6{,}84$ na janela pré-COVID, enquanto o primeiro estágio robusto, $F^{rob}_{mp}$, vale $8{,}62$ e $8{,}31$. Ambas projetam o instrumento na combinação das inovações fatoriais que determina a normalização no DI de seis meses, e ambas têm o mesmo parâmetro de não centralidade sob a aproximação de instrumento fraco, embora a Wald tenda a valores menores em amostras finitas. O valor $10$ é uma referência convencional, e não um limiar que classifica o instrumento. As duas estatísticas ficam abaixo dele nas duas janelas.
@@ -733,5 +735,13 @@ Observações                             & 102 \\
 \label{tab:bs_ortogonalizacao}
 \end{threeparttable}
 \end{table}
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{fig_placebos.pdf}
+\caption{\textbf{Placebos}\\{Resposta de séries externas a um choque contracionista normalizado em 50 pontos-base no DI de 6 meses, em pontos de cada índice. A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
+\label{fig:placebos}
+\end{center}
+\end{figure}
 
 \end{document}
