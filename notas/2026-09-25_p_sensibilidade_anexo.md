@@ -1,5 +1,10 @@
 # Sensibilidade a `p` no Anexo C e o θ̂ reestimado com gradiente mais fino
 
+> **Nota de leitura (2026-09-30):** a `fig:p_sensibilidade` passou a desenhar outras oito
+> séries (DI 6 meses e 2 anos, BRL/USD, CDS, Focus PIB, IPCA 12 meses e Selic, DBGG), por
+> decisão do autor, e `output/factors/p_sensitivity.csv` guarda as novas. Nelas também nenhum
+> ponto de `p ≠ 4` sai do conjunto de `p = 4`. Ver `2026-09-30_robustez_pandemia`, seção 6.
+
 > **CURRENT — 2026-09-25.** Rodada de apêndice que **reestimou θ̂ de produção**.
 > - Produção de 115 séries, 2012-03 a 2025-12, `(r,q,p) = (5,5,4)`, escala de
 >   volatilidade COVID de Lenza-Primiceri e conjuntos Anderson--Rubin de 68% e 90%

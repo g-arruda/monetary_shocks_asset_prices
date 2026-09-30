@@ -30,7 +30,10 @@ Anexo C (`anexo-C`, since 2026-09-24) carries `fig:q_sensibilidade`, the `q = 2.
 respostas", and since 2026-09-30 (branch `feature/robustez-pandemia`) `fig:lp_sensibilidade`, which
 a footnote on §3.1's OLS sentence points to, and `fig:precovid_sensibilidade`, which the last
 sentence of §3.4's `tab:first_stage` paragraph points to; the text cites no number from any of
-them, and the pre-COVID pointer claims nothing about the responses holding. Anexo D (`anexo-D`, since 2026-09-25)
+them, and the pre-COVID pointer claims nothing about the responses holding. Since 2026-09-30 every
+Anexo C figure draws the same eight series (DI 6 meses, DI 2 anos, BRL/USD, CDS 5 anos, Focus PIB,
+Focus IPCA 12 meses, Focus Selic, DBGG), the `PAPER_PANELS` block of each annex script, and the
+captions no longer mention the IBC-Br. Anexo D (`anexo-D`, since 2026-09-25)
 carries `tab:bs_ortogonalizacao`, in BS Table 3's layout since 2026-09-26, and since 2026-09-30
 `fig:placebos` after it; §3.3's orthogonalization paragraph ends pointing to the table, and its
 last paragraph, four lines stating the US EPU violation as a limitation, points to the figure. Captions and `\autoref` print "Figura/Tabela", and the body never puts a

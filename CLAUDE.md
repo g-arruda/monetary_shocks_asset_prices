@@ -167,7 +167,7 @@ before citing paper numbers as current.
 **`q = r` is defended in §3.1 since 2026-09-24**, in two sentences anchored in Stock-Watson (2016,
 §7.2) and AK (footnote 4), with Amengual-Watson now cited. **Anexo C** carries
 `fig:q_sensibilidade`, AK's Figure A3 exercise on the production cell: `q = 5` with its AR sets,
-`q = 4, 3, 2` as points, eight series to h36. `script/q_sensitivity.R --window=cheia` writes it
+`q = 4, 3, 2` as points, eight series to h36 (the Anexo C set since 2026-09-30, below). `script/q_sensitivity.R --window=cheia` writes it
 and checks the `q = 5` line against `irf_coherence_h.csv`. By author decision **the text cites
 no number** from the exercise, and the defense is SW and AK, **not insensitivity**: at `q ≤ 3`
 the FX, CDS and Ibovespa impacts grow (Ibovespa 8.6× at `q = 3` under `z_jk_bs_purif`, 5.2× under
@@ -214,17 +214,25 @@ series** on a common vertical axis; each column's `q = 5` carries the AR sets of
 the advisor asked for). `fig:precovid_sensibilidade` is the pre-COVID window at
 `(5,5,4)` against production, **point only, because `hac_dim < T` blocks its sets**. The body gained two pointers and
 no number (author decision): a footnote on §3.1's OLS sentence and a closing sentence in §3.4's
-`tab:first_stage` paragraph. In the eight series drawn, 4, 26 and 25 of 296 points of `q = 4, 3, 2`
-leave the `q = 5` 90% set under the scale, against 65, 141 and 155 without it (panel: 151/420/408
+`tab:first_stage` paragraph. **The same day every Anexo C figure (q, p, instrument layers and both
+new ones) switched to one set of eight series**, by author decision: `yield_6m`, `yield_2y`,
+`cambio_usd`, `cds_5y`, `expect_focus_pib_ny`, `expect_focus_ipca12m`, `expect_focus_selic_ny`,
+`fiscal_dbgg` (DI 5y, IBC-Br, IPCA, Ibovespa and DLSP left the figures; nothing re-estimated). In
+those eight, 4, 26 and 26 of 296 points of `q = 4, 3, 2`
+leave the `q = 5` 90% set under the scale, against 44, 132 and 154 without it (panel: 151/420/408
 against 589/1651/1805 of 4255), although the OLS set is the wider one (median width ratio 1.38).
-⚠ **The figure shows less sensitivity to `q` under the scale, not insensitivity**: at `q ≤ 3` the
-treated impacts are 1.5--5.2× the `q = 5` ones (Ibovespa 5.2×) and BRL/USD leaves the set at h0–h9,
+⚠ **The figure shows less sensitivity to `q` under the scale, not insensitivity**: at `q ≤ 3`
+BRL/USD leaves the treated set at h0–h9 and DBGG at h0–h7, the DBGG impact flips sign (−0.14 at
+`q = 5`, +0.42 at `q ≤ 3`) and the Ibovespa impact, off the figure, is 5.2× the `q = 5` one,
 so the defense of `q = r` stays SW and AK. At `q = 5` no OLS point leaves the production 90% set
-(0 of 4255, root 0.970090), with impacts 13--81% larger in the eight series. Pre-COVID (root 0.993359), the
+(0 of 4255, root 0.970090). In the new eight, `p` and the raw-surprise layer leave 0 of 296 points
+outside the production 80% set. Pre-COVID (root 0.993359), the
 curve and sovereign risk stay inside the set at every horizon. ⚠ **The inconvenient numbers**:
-the pre-COVID BRL/USD impact is R$ 0.056 against 0.141 and falls below the 90% set; 1407 of 4255
-pre-COVID points leave the set, in 103 of 115 series; IBC-Br, IPCA, Ibovespa and DLSP leave it in
-12--21 of 37 horizons, so §4's medium-run reading does not repeat in that window. **A pre-COVID
+the pre-COVID BRL/USD impact is R$ 0.056 against 0.141 and falls below the 90% set; pre-COVID DBGG
+has the opposite sign to production at both ends and leaves the set in 22 of 37 horizons; 1407 of 4255
+pre-COVID points leave the set, in 103 of 115 series; IBC-Br, IPCA, Ibovespa and DLSP, no longer
+drawn, leave it in 12--21 of 37 horizons, so §4's medium-run reading does not repeat in that
+window and the figure no longer shows it. **A pre-COVID
 point inside the full-window set is not a test of equality**, and nothing may be written as
 "the results hold pre-COVID" beyond the impact direction and magnitude of the curve and sovereign
 risk. Note: `2026-09-30_robustez_pandemia`.
@@ -315,7 +323,7 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Monthly het VAR of Anexo B under the Lenza-Primiceri scale (branch `feature/unidades-nativas`) | `het_conditions.R`, `R/modeling/factor_estimation.R` (`estimate_var_wls(type=)`, `verify_covid_theta()`), `covid_volatility_theta.R`, `paper_anpec.tex` | `2026-09-27_het_var_escala_covid` | own θ per vertex, a single maximum across 750 starts (s̄0 ≈ 4.5–4.9, ρ ≈ 0.94–0.95); the treated VAR rejects `λ₁ = λ₂` nowhere (p 0.965/0.824/0.966), all three variance ratios stay above 1 (FX 1.21–1.27), §3.3 unchanged; the treated VAR replaced the untreated one in the paper (side by side refused by the author), its treatment stated in the note, and Anexo B's two tables merged into `tab:het_frequency`; the untreated row moved with the switch to the factor row's path (p 0.988/0.917/0.931 → 0.948/0.881/0.970, 162 → 161 months); factor θ̂ CSVs byte-identical after the guards moved into `verify_covid_theta()`, smoke test bit-identical. ⚠ Treated, `λ₂ = λ₃` falls to p 0.104 at the 3-month vertex |
 | Level series in their own units; log panel refused (branch `feature/unidades-nativas`) | `fig_section5.R`, `fig_weak_iv.R`, `R/reporting/sensitivity.R`, the three annex scripts, `paper_anpec.tex` | `2026-09-27_unidades_nativas` | nothing re-estimated, annex CSVs byte-identical; FX in R$ per unit of currency (BRL/USD R$ 0,141/US$ at impact), activity indices in index points; BRL/CNY/INR/ARS out of §4.2; 31 prose numbers checked against the cache; the h36 cross-series ordering in §4.5 changed; a DFM IBC-Br mislabel in `fig:weak_iv_main` fixed. Both log panels (broad AK rule, restricted rule) were estimated and refused the same day, `historico_decisoes.md` §20. ⚠ BRL/ARS impact (R$ 0,0063/peso) exceeds its own end-of-sample level |
 | US EPU placebo: EPU as a control in the BS orthogonalization (branch `feature/placebo-epu`, kept open and **not merged**; the note exists only there) | `download_macro_news.R`, `build_variants.R`, `instrument.R` on the branch; `paper_anpec.tex` on `main` | `2026-09-29_placebo_epu` | the advisor's test does not absorb: the 13-week pre-event trend of the daily US EPU does not predict the Copom surprise (p 0.543; monthly t 0.0002), EPU still `placebo_viola` at h1–h3 (h1 +11.52, 90% [0.66; 31.31]); the violation is absent under `z_bruto` and under any single block, and zeroing 2020-03 returns zero to the set. The author kept the limitation: control not adopted, `main`'s production untouched, §3.3 states it in four lines and `fig:placebos` went to Anexo D (2026-09-30, `1a150d0`). ⚠ The branch carries the control in production code and cannot be merged as is |
-| Pandemic robustness in Anexo C: `q` sensitivity with and without the Lenza-Primiceri scale, and the pre-COVID window (branch `feature/robustez-pandemia`, **not merged**) | `pandemic_sensitivity.R`, `paper_anpec.tex` | `2026-09-30_robustez_pandemia` | nothing in `R/` touched, production line checked against the cache; `q = 4, 3, 2` against each estimator's own `q = 5` 90% set, eight series: 4/26/25 of 296 points outside under the scale, 65/141/155 by OLS (panel 151/420/408 against 589/1651/1805 of 4255); under the scale the departures stop by h24, by OLS they run to h36 and the curve crosses zero at h27–h29 instead of h15–h16. ⚠ Under the scale the `q ≤ 3` impacts are still 1.5--5.2× the `q = 5` ones. At `q = 5`, OLS has 0/4255 points outside the production 90% set, impacts 13--81% larger in the eight series drawn, IPCA positive at h4–h7; pre-COVID in point only (`hac_dim` 135 ≥ 90): curve and sovereign risk inside the set at every horizon. ⚠ Pre-COVID BRL/USD impact R$ 0.056 against 0.141, outside the set; 1407/4255 points outside in 103 of 115 series; IBC-Br, IPCA, Ibovespa and DLSP outside in 12--21 of 37 horizons; the zero crossing comes at h9 instead of h13–h14. Two body pointers, no number |
+| Pandemic robustness in Anexo C: `q` sensitivity with and without the Lenza-Primiceri scale, the pre-COVID window, and one set of eight series for every Anexo C figure (branch `feature/robustez-pandemia`, **not merged**) | `pandemic_sensitivity.R`, `q_sensitivity.R`, `p_sensitivity.R`, `instrument_layers_irf.R`, `paper_anpec.tex` | `2026-09-30_robustez_pandemia` | nothing in `R/` touched, nothing re-estimated, production line checked against the cache; the Anexo C figures now draw DI 6m, DI 2y, BRL/USD, CDS, Focus PIB, IPCA 12m and Selic, and DBGG (author decision); `q = 4, 3, 2` against each estimator's own `q = 5` 90% set, eight series: 4/26/26 of 296 points outside under the scale, 44/132/154 by OLS (panel 151/420/408 against 589/1651/1805 of 4255); under the scale the departures stop by h24, by OLS they run to h36 and the curve crosses zero at h27–h29 instead of h15–h16. ⚠ Under the scale, at `q ≤ 3`, BRL/USD leaves the set at h0–h9, DBGG at h0–h7 and the DBGG impact flips sign. At `q = 5`, OLS has 0/4255 points outside the production 90% set, IPCA positive at h4–h7; pre-COVID in point only (`hac_dim` 135 ≥ 90): curve and sovereign risk inside the set at every horizon. ⚠ Pre-COVID BRL/USD impact R$ 0.056 against 0.141, outside the set; pre-COVID DBGG of opposite sign, outside in 22 of 37 horizons; 1407/4255 points outside in 103 of 115 series; IBC-Br, IPCA, Ibovespa and DLSP, no longer drawn, outside in 12--21 of 37 horizons; the zero crossing comes at h9 instead of h13–h14. Two body pointers, no number |
 
 ## ⚠ Prohibitions
 

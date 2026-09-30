@@ -1,5 +1,9 @@
 # Anexo D: a regressão pré-anúncio de Bauer-Swanson e as respostas por camada do instrumento
 
+> **Nota de leitura (2026-09-30):** a `fig:instrumento_camadas`, hoje no Anexo C, passou a
+> desenhar outras oito séries (DI 6 meses e 2 anos, BRL/USD, CDS, Focus PIB, IPCA 12 meses e
+> Selic, DBGG), por decisão do autor. Ver `2026-09-30_robustez_pandemia`, seção 6.
+
 > **CURRENT — 2026-09-25.** Rodada de apêndice em `paper/paper_anpec.tex`, **sem
 > reestimação da produção** e sem nenhuma frase nova no corpo (decisão do autor:
 > "apenas coloque os anexos").

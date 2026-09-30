@@ -1,5 +1,10 @@
 # `q = r` justificado na §3.1 e a sensibilidade a `q` no Anexo C
 
+> **Nota de leitura (2026-09-30):** a `fig:q_sensibilidade` passou a desenhar outras oito
+> séries (DI 6 meses e 2 anos, BRL/USD, CDS, Focus PIB, IPCA 12 meses e Selic, DBGG), por
+> decisão do autor. O que esta nota diz das oito séries antigas vale para elas. Ver
+> `2026-09-30_robustez_pandemia`, seção 6.
+
 > **CURRENT — 2026-09-24.** Rodada editorial em `paper/paper_anpec.tex`, **sem
 > reestimação da produção**.
 > - Produção de 115 séries, 2012-03 a 2025-12, `(r,q,p) = (5,5,4)`, escala de

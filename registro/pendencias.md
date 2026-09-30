@@ -212,12 +212,17 @@ sobre o filtro Jarociński-Karadi segue aberto.*
 - [x] **Sensibilidade a `q` com e sem a reescala de Lenza-Primiceri no Anexo C — 2026-09-30.**
   `script/pandemic_sensitivity.R` e `fig:lp_sensibilidade`: `q` de 2 a 5 em duas colunas, com a
   reescala e por MQO, uma linha de painéis por série, cada `q = 5` com os próprios conjuntos AR.
-  Rodapé na frase de MQO da §3.1, nenhum número no corpo. Nas oito séries, 4, 26 e 25 de 296
-  pontos de `q = 4`, 3 e 2 saem do conjunto de 90% com a reescala, contra 65, 141 e 155 sem ela
-  (painel: 151/420/408 contra 589/1651/1805 de 4255). ⚠ Com a reescala as respostas não são
-  insensíveis a `q`: em `q ≤ 3` os impactos são 1,5 a 5,2 vezes os de `q = 5` e o câmbio sai do
-  conjunto de h0 a h9. Em `q = 5` nenhum ponto de MQO sai do conjunto da produção (0/4255), com
-  impactos 13% a 81% maiores. Branch `feature/robustez-pandemia`. Nota: `2026-09-30_robustez_pandemia`.
+  Rodapé na frase de MQO da §3.1, nenhum número no corpo. Nas oito séries do anexo, 4, 26 e 26 de
+  296 pontos de `q = 4`, 3 e 2 saem do conjunto de 90% com a reescala, contra 44, 132 e 154 sem
+  ela (painel: 151/420/408 contra 589/1651/1805 de 4255). ⚠ Com a reescala as respostas não são
+  insensíveis a `q`: em `q ≤ 3` o câmbio sai do conjunto de h0 a h9 e a DBGG de h0 a h7, e o
+  impacto da DBGG troca de sinal. Em `q = 5` nenhum ponto de MQO sai do conjunto da produção
+  (0/4255). Branch `feature/robustez-pandemia`. Nota: `2026-09-30_robustez_pandemia`.
+- [x] **As oito séries das figuras do Anexo C — 2026-09-30.** Por decisão do autor, as cinco
+  figuras desenham DI de 6 meses, DI de 2 anos, BRL/USD, CDS, Focus PIB, Focus IPCA 12 meses,
+  Focus Selic e DBGG, no lugar de DI de 5 anos, IBC-Br, IPCA, Ibovespa e DLSP. Nada reestimado.
+  ⚠ A figura pré-COVID deixa de mostrar atividade, preços e ações, que saem do conjunto em 12 a
+  21 dos 37 horizontes. Nota: `2026-09-30_robustez_pandemia`, seção 6.
 - [x] **Placebos na §3.3 e figura no Anexo D — 2026-09-30.** Desfecho "limitação reconhecida",
   em quatro linhas por decisão do autor: nos dois primeiros anos só o conjunto de 90% do EPU dos
   EUA exclui zero (h1–h3), e a resposta permanece com o EPU diário pré-reunião na ortogonalização
@@ -462,10 +467,11 @@ do autor, sem ser executado.*
 - [x] **Robustez à pandemia: respostas pré-COVID no Anexo C — 2026-09-30.** Sugestão do
   orientador de 28-09. `fig:precovid_sensibilidade`, em ponto (`hac_dim` 135 ≥ 90 barra a banda),
   com uma frase na §3.4 e nenhum número no corpo. Curva e risco ficam dentro do conjunto de 90%
-  da produção (DI de 1 a 10 anos, CDS e EMBI+, 0/37 cada). ⚠ O câmbio sai no impacto (R$ 0,056
-  contra 0,141, abaixo do limite de R$ 0,069), e no painel 1407 de 4255 pontos saem, em 103 das
-  115 séries: IBC-Br, IPCA, Ibovespa e DLSP em 12 a 21 dos 37 horizontes. ⚠ Ponto contra conjunto
-  da amostra completa não é teste de igualdade. Branch `feature/robustez-pandemia`. Nota:
+  da produção (DI de 6 meses a 10 anos, CDS e EMBI+, 0/37 cada). ⚠ O câmbio sai no impacto
+  (R$ 0,056 contra 0,141, abaixo do limite de R$ 0,069), a DBGG tem o sinal oposto ao da produção
+  e sai em 22 dos 37 horizontes, e no painel 1407 de 4255 pontos saem, em 103 das 115 séries:
+  IBC-Br, IPCA, Ibovespa e DLSP, fora da figura, em 12 a 21 dos 37 horizontes. ⚠ Ponto contra
+  conjunto da amostra completa não é teste de igualdade. Branch `feature/robustez-pandemia`. Nota:
   `2026-09-30_robustez_pandemia`.
 - [x] **IRFs por camada do instrumento e tabela de Bauer-Swanson no Anexo D — 2026-09-25.**
   `instrument_layers_irf.R` e `fig:instrumento_camadas`: nenhum ponto de `z_bruto` ou
