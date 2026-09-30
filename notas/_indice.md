@@ -151,11 +151,14 @@ produção; os cinco impactos do smoke test saíram bit-idênticos.
 **Robustez à pandemia no Anexo C (2026-09-30, branch `feature/robustez-pandemia`):**
 [`2026-09-30_robustez_pandemia`](2026-09-30_robustez_pandemia.md)
 **CURRENT.** Os dois itens do e-mail do orientador de 28-09. `script/pandemic_sensitivity.R`
-escreve `fig:lp_sensibilidade` (produção contra MQO na amostra completa) e
+escreve `fig:lp_sensibilidade` (`q` de 2 a 5 na amostra completa, com a reescala à esquerda e
+por MQO à direita, uma linha de painéis por série) e
 `fig:precovid_sensibilidade` (produção contra a janela pré-COVID, em ponto), com um rodapé na
-§3.1, uma frase na §3.4 e nenhum número no corpo. Nenhum ponto de MQO sai do conjunto de 90% da
-produção (0/4255), com impactos 13% a 81% maiores nas oito séries da figura. Na pré-COVID, curva
-e risco soberano ficam dentro do conjunto. ⚠ O câmbio sai no impacto (R$ 0,056 contra 0,141), e
+§3.1, uma frase na §3.4 e nenhum número no corpo. Nas oito séries, 4, 26 e 25 de 296 pontos de
+`q = 4`, 3 e 2 saem do conjunto de 90% de `q = 5` com a reescala, contra 65, 141 e 155 sem ela.
+⚠ Com a reescala as respostas ainda se movem com `q` (impactos 1,5 a 5,2 vezes em `q ≤ 3`). Em
+`q = 5` nenhum ponto de MQO sai do conjunto de 90% da produção (0/4255), com impactos 13% a 81%
+maiores nas oito séries da figura. Na pré-COVID, curva e risco soberano ficam dentro do conjunto. ⚠ O câmbio sai no impacto (R$ 0,056 contra 0,141), e
 1407 dos 4255 pontos do painel saem, em 103 das 115 séries: a leitura de médio prazo da §4 não
 se repete nessa janela. ⚠ Ponto contra conjunto da amostra completa não é teste de igualdade.
 
@@ -428,7 +431,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
-| [`2026-09-30_robustez_pandemia`](2026-09-30_robustez_pandemia.md) | 09-30 | **CURRENT — rodada de apêndice; produção intocada** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/robustez-pandemia` | Tudo: MQO na amostra completa com 0/4255 pontos fora do conjunto de 90% da produção (raiz 0,970090) e impactos 13% a 81% maiores nas oito séries da figura; pré-COVID em ponto (raiz 0,993359) com curva e risco soberano dentro do conjunto. ⚠ Câmbio pré-COVID fora no impacto (R$ 0,056 contra 0,141); 1407/4255 pontos fora, em 103 das 115 séries; IBC-Br, IPCA, Ibovespa e DLSP saem em 12 a 21 dos 37 horizontes. ⚠ Ponto pré-COVID sem inferência (`hac_dim` 135 ≥ 90); ficar dentro do conjunto não é teste de igualdade |
+| [`2026-09-30_robustez_pandemia`](2026-09-30_robustez_pandemia.md) | 09-30 | **CURRENT — rodada de apêndice; produção intocada** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/robustez-pandemia` | Tudo: `q` de 2 a 5 com e sem a reescala na amostra completa, com 4/26/25 de 296 pontos de `q` = 4/3/2 fora do conjunto de 90% de `q = 5` nas oito séries com a reescala e 65/141/155 sem ela (painel: 151/420/408 contra 589/1651/1805 de 4255); ⚠ com a reescala os impactos de `q ≤ 3` são 1,5 a 5,2 vezes os de `q = 5`; em `q = 5`, MQO com 0/4255 pontos fora do conjunto de 90% da produção (raiz 0,970090) e impactos 13% a 81% maiores nas oito séries da figura; pré-COVID em ponto (raiz 0,993359) com curva e risco soberano dentro do conjunto. ⚠ Câmbio pré-COVID fora no impacto (R$ 0,056 contra 0,141); 1407/4255 pontos fora, em 103 das 115 séries; IBC-Br, IPCA, Ibovespa e DLSP saem em 12 a 21 dos 37 horizontes. ⚠ Ponto pré-COVID sem inferência (`hac_dim` 135 ≥ 90); ficar dentro do conjunto não é teste de igualdade |
 | [`2026-09-27_het_var_escala_covid`](2026-09-27_het_var_escala_covid.md) | 09-27 | **CURRENT — diagnóstico; produção intocada** | produção de 2026-09-26 (`(5,5,4)`, escala LP), painel mensal 2012-03--2025-12, 107 C / 54 NC; branch `feature/unidades-nativas` | Tudo: θ̂ por vértice (s̄0 ≈ 4,5–4,9, ρ ≈ 0,94–0,95, máximo único em 750 inícios); o VAR tratado não rejeita `λ₁ = λ₂` (p 0,824–0,966); razões C/NC 1,99–2,32 no DI, 1,21–1,27 no câmbio e 1,89–1,92 no CDS; o deslocamento declarado da linha sem tratamento pela troca de caminho (GLS `p = 4`, 162 meses → MQO com resíduos como inovações, 161 meses). ⚠ Com o tratamento, `λ₂ = λ₃` cai a p 0,104 no vértice de 3 meses |
 | [`2026-09-27_unidades_nativas`](2026-09-27_unidades_nativas.md) | 09-27 | **CURRENT — rodada de apresentação; nada reestimado** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/unidades-nativas` | Tudo: o fim da divisão pela média amostral; a tabela antes/depois de cada número da prosa; a comparação entre séries que mudou no h36 da §4.5; o rótulo corrigido da `fig:weak_iv_main`. ⚠ BRL/ARS: impacto de R$ 0,0063/peso, acima do nível do fim da amostra (0,0038) |
 | [`2026-09-26_migracao_paper_bs_purif`](2026-09-26_migracao_paper_bs_purif.md) | 09-26 | **CURRENT — o paper segue a produção; feita na branch, promovida para `main` em 2026-09-26** | painel 115, 2012-03--2025-12, `(5,5,4)`, escala LP, `z_bs_purif`, conjuntos AR 80/90; branch `feature/bs-copom-surpresas-macro`; sem reestimação | O que mudou no `.tex`, seção por seção; o filtro JK fora do paper inteiro; as sete passagens da §4 reescritas; a auditoria de 143 + 20 números contra o cache. |

@@ -209,12 +209,15 @@ sobre o filtro Jarociński-Karadi segue aberto.*
   Nota: `2026-09-22_condicao_het_svars`.
 ### Fechados (contexto)
 
-- [x] **Figura com e sem a reescala de Lenza-Primiceri no Anexo C — 2026-09-30.**
-  `script/pandemic_sensitivity.R` e `fig:lp_sensibilidade`, com um rodapé na frase de MQO da
-  §3.1 e nenhum número no corpo. Nenhum ponto de MQO sai do conjunto de 90% da produção (0/4255
-  nas 115 séries, raiz 0,970090 contra 0,983676). ⚠ Os impactos sob MQO são 13% a 81% maiores
-  nas oito séries da figura (câmbio R$ 0,194 contra 0,141, CDS 45,8 contra 34,0 p.b.), e o IPCA
-  fica positivo de h4 a h7. Branch `feature/robustez-pandemia`. Nota: `2026-09-30_robustez_pandemia`.
+- [x] **Sensibilidade a `q` com e sem a reescala de Lenza-Primiceri no Anexo C — 2026-09-30.**
+  `script/pandemic_sensitivity.R` e `fig:lp_sensibilidade`: `q` de 2 a 5 em duas colunas, com a
+  reescala e por MQO, uma linha de painéis por série, cada `q = 5` com os próprios conjuntos AR.
+  Rodapé na frase de MQO da §3.1, nenhum número no corpo. Nas oito séries, 4, 26 e 25 de 296
+  pontos de `q = 4`, 3 e 2 saem do conjunto de 90% com a reescala, contra 65, 141 e 155 sem ela
+  (painel: 151/420/408 contra 589/1651/1805 de 4255). ⚠ Com a reescala as respostas não são
+  insensíveis a `q`: em `q ≤ 3` os impactos são 1,5 a 5,2 vezes os de `q = 5` e o câmbio sai do
+  conjunto de h0 a h9. Em `q = 5` nenhum ponto de MQO sai do conjunto da produção (0/4255), com
+  impactos 13% a 81% maiores. Branch `feature/robustez-pandemia`. Nota: `2026-09-30_robustez_pandemia`.
 - [x] **Placebos na §3.3 e figura no Anexo D — 2026-09-30.** Desfecho "limitação reconhecida",
   em quatro linhas por decisão do autor: nos dois primeiros anos só o conjunto de 90% do EPU dos
   EUA exclui zero (h1–h3), e a resposta permanece com o EPU diário pré-reunião na ortogonalização
