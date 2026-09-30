@@ -208,7 +208,7 @@ A estimação requer, portanto, determinar o número de fatores estáticos $r$ e
 
 Como o painel combina séries em nível, taxas e retornos com diferentes ordens de integração, cada série é padronizada antes da extração dos fatores. Seja $s_{iy}$ o desvio padrão da primeira diferença da série $i$. A série em nível, depois de removidas constante e tendência linear, entra como $Z_{it} = X_{it}/s_{iy}$, o que equaliza a escala das flutuações sem diferenciar as séries. As cargas são os $r$ primeiros autovetores da matriz de covariância das primeiras diferenças padronizadas, e os fatores estáticos são obtidos aplicando essas cargas às séries em nível padronizadas. Seguindo \cite{alessi} e \cite{barigozzi2016non}, o espaço das cargas vem das primeiras diferenças, enquanto os fatores em nível preservam a informação de baixa frequência.
 
-O VAR dos fatores segue \cite{lenzaprimiceri}, porque as inovações fatoriais de março e abril de 2020 têm magnitude incompatível com o resto da amostra, e mínimos quadrados ordinários as leem como variação regular do processo, o que desloca os coeficientes autorregressivos e a covariância das inovações que a identificação projeta sobre o instrumento. O escalar $s_t$ em \ref{eq:5} absorve essa magnitude em uma reescala comum às $r$ inovações, estimada junto do VAR, e mantém os meses da pandemia na amostra. A reescala vale $s_t = 1$ antes de $t^*$, o primeiro mês de variação anômala, e
+O VAR dos fatores segue \cite{lenzaprimiceri}, porque as inovações fatoriais de março e abril de 2020 têm magnitude incompatível com o resto da amostra, e mínimos quadrados ordinários as leem como variação regular do processo, o que desloca os coeficientes autorregressivos e a covariância das inovações que a identificação projeta sobre o instrumento\footnote{A \autoref{fig:lp_sensibilidade}, no Anexo C, mostra as respostas estimadas por mínimos quadrados ordinários ao lado das de produção}. O escalar $s_t$ em \ref{eq:5} absorve essa magnitude em uma reescala comum às $r$ inovações, estimada junto do VAR, e mantém os meses da pandemia na amostra. A reescala vale $s_t = 1$ antes de $t^*$, o primeiro mês de variação anômala, e
 \begin{equation}\label{eq:5b}
     s_{t^*} = \bar{s}_0, \qquad s_{t^*+1} = \bar{s}_1, \qquad s_{t^*+2} = \bar{s}_2, \qquad s_{t^*+j} = 1 + (\bar{s}_2 - 1)\rho^{\,j-2},
 \end{equation}
@@ -249,7 +249,7 @@ A \autoref{fig:placebos}, no Anexo D, mostra as respostas de três séries exter
 
 A relevância do instrumento é medida por duas estatísticas de \cite{montielolea}. A Wald no espaço dos fatores, $\xi_{mp}$, vale $7{,}02$ na amostra completa e $6{,}84$ na janela pré-COVID, enquanto o primeiro estágio robusto, $F^{rob}_{mp}$, vale $8{,}62$ e $8{,}31$. Ambas projetam o instrumento na combinação das inovações fatoriais que determina a normalização no DI de seis meses, e ambas têm o mesmo parâmetro de não centralidade sob a aproximação de instrumento fraco, embora a Wald tenda a valores menores em amostras finitas. O valor $10$ é uma referência convencional, e não um limiar que classifica o instrumento. As duas estatísticas ficam abaixo dele nas duas janelas.
 
-Na \autoref{tab:first_stage}, a ortogonalização eleva $\xi_{mp}$ de $6{,}68$ para $7{,}02$ na amostra completa e de $6{,}66$ para $6{,}84$ na janela pré-COVID. Sobre $F^{rob}_{mp}$ o efeito depende da janela, com queda de $9{,}37$ para $8{,}62$ na amostra completa e alta de $7{,}79$ para $8{,}31$ na pré-COVID.
+Na \autoref{tab:first_stage}, a ortogonalização eleva $\xi_{mp}$ de $6{,}68$ para $7{,}02$ na amostra completa e de $6{,}66$ para $6{,}84$ na janela pré-COVID. Sobre $F^{rob}_{mp}$ o efeito depende da janela, com queda de $9{,}37$ para $8{,}62$ na amostra completa e alta de $7{,}79$ para $8{,}31$ na pré-COVID. A \autoref{fig:precovid_sensibilidade}, no Anexo C, mostra as respostas pontuais estimadas na janela pré-COVID ao lado das de produção.
 
 A inferência sobre as respostas usa os conjuntos de confiança Anderson--Rubin de \cite{montielolea}, obtidos por inversão de teste em cada série e horizonte, em 80\% e 90\%, com Newey--West de ordem zero. O conjunto é limitado no nível de confiança $1-\alpha$ quando $\xi_{mp}$ excede o quantil $1-\alpha$ da distribuição $\chi^2_1$, condição satisfeita nos dois níveis reportados.
 
@@ -690,6 +690,22 @@ Resultado nominal, ano seguinte & BCB, Focus &  & 1 \\
     \includegraphics[scale=0.7]{fig_instrumento_camadas.pdf}
 \caption{\textbf{Respostas por camada de construção do instrumento}\\{Especificação de produção, com $(r, q, p) = (5, 5, 4)$, e o choque normalizado para elevar o DI de 6 meses em 50 pontos-base no impacto sob cada instrumento. A linha preta mostra a estimativa pontual com o instrumento de produção, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. A linha tracejada mostra a estimativa pontual com a surpresa bruta, a primeira linha da \autoref{tab:first_stage}. O câmbio é expresso em reais por dólar, e o IBC-Br em pontos do índice.}}
 \label{fig:instrumento_camadas}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{fig_lp_sensibilidade.pdf}
+\caption{\textbf{Sensibilidade à reescala de volatilidade}\\{Especificação de produção, com $(r, q, p) = (5, 5, 4)$, na amostra completa. A linha preta mostra a estimativa pontual com a reescala $s_t$ no VAR fatorial, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. A linha tracejada mostra a estimativa pontual com o VAR fatorial estimado por mínimos quadrados ordinários, sem a reescala e sem conjuntos. O câmbio é expresso em reais por dólar, e o IBC-Br em pontos do índice.}}
+\label{fig:lp_sensibilidade}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{fig_precovid_sensibilidade.pdf}
+\caption{\textbf{Respostas na janela pré-COVID}\\{Especificação de produção, com $(r, q, p) = (5, 5, 4)$, e o choque normalizado para elevar o DI de 6 meses em 50 pontos-base no impacto em cada janela. A linha preta mostra a estimativa pontual na amostra completa, 2012:03--2025:12, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. A linha tracejada mostra a estimativa pontual na janela pré-COVID, 2012:03--2019:12, sem conjuntos. O câmbio é expresso em reais por dólar, e o IBC-Br em pontos do índice.}}
+\label{fig:precovid_sensibilidade}
 \end{center}
 \end{figure}
 
