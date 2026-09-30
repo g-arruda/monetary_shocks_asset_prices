@@ -171,7 +171,8 @@ before citing paper numbers as current.
 and checks the `q = 5` line against `irf_coherence_h.csv`. By author decision **the text cites
 no number** from the exercise, and the defense is SW and AK, **not insensitivity**: at `q ≤ 3`
 the FX, CDS and Ibovespa impacts grow (Ibovespa 8.6× at `q = 3`). The untreated model stays out
-of the paper. Note: `2026-09-24_q_sensibilidade_anexo`.
+of the paper, except, since 2026-09-30, as the point-only line of `fig:lp_sensibilidade` (below).
+Note: `2026-09-24_q_sensibilidade_anexo`.
 
 **Since 2026-09-25 the appendix carries two more exhibits, and the body cites neither** (author
 decision: "apenas coloque os anexos"). Anexo C adds `fig:p_sensibilidade`, the same design over
@@ -201,6 +202,22 @@ placebo paragraph, by author decision kept that short: in the first two years on
 orthogonalization control, and it is stated as a limitation of the identification. `fig:placebos`
 sits in Anexo D after the table. The control test lives only on the unmerged branch
 `feature/placebo-epu` (note `2026-09-29_placebo_epu`, absent from `main`).
+
+**Since 2026-09-30, on the unmerged branch `feature/robustez-pandemia`, Anexo C carries two more
+figures**, both written by `script/pandemic_sensitivity.R` in the same Figure A3 design, production
+banded and the alternative in point: `fig:lp_sensibilidade`, the factor VAR by OLS on the full
+window (`covid_volatility = NULL`), and `fig:precovid_sensibilidade`, the pre-COVID window at
+`(5,5,4)`, **point only, because `hac_dim < T` blocks its sets**. The body gained two pointers and
+no number (author decision): a footnote on §3.1's OLS sentence and a closing sentence in §3.4's
+`tab:first_stage` paragraph. No OLS point leaves the production 90% set (0 of 4255, root
+0.970090), with impacts 13--81% larger in the eight series drawn. Pre-COVID (root 0.993359), the
+curve and sovereign risk stay inside the set at every horizon. ⚠ **The inconvenient numbers**:
+the pre-COVID BRL/USD impact is R$ 0.056 against 0.141 and falls below the 90% set; 1407 of 4255
+pre-COVID points leave the set, in 103 of 115 series; IBC-Br, IPCA, Ibovespa and DLSP leave it in
+12--21 of 37 horizons, so §4's medium-run reading does not repeat in that window. **A pre-COVID
+point inside the full-window set is not a test of equality**, and nothing may be written as
+"the results hold pre-COVID" beyond the impact direction and magnitude of the curve and sovereign
+risk. Note: `2026-09-30_robustez_pandemia`.
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
@@ -288,6 +305,7 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Monthly het VAR of Anexo B under the Lenza-Primiceri scale (branch `feature/unidades-nativas`) | `het_conditions.R`, `R/modeling/factor_estimation.R` (`estimate_var_wls(type=)`, `verify_covid_theta()`), `covid_volatility_theta.R`, `paper_anpec.tex` | `2026-09-27_het_var_escala_covid` | own θ per vertex, a single maximum across 750 starts (s̄0 ≈ 4.5–4.9, ρ ≈ 0.94–0.95); the treated VAR rejects `λ₁ = λ₂` nowhere (p 0.965/0.824/0.966), all three variance ratios stay above 1 (FX 1.21–1.27), §3.3 unchanged; the treated VAR replaced the untreated one in the paper (side by side refused by the author), its treatment stated in the note, and Anexo B's two tables merged into `tab:het_frequency`; the untreated row moved with the switch to the factor row's path (p 0.988/0.917/0.931 → 0.948/0.881/0.970, 162 → 161 months); factor θ̂ CSVs byte-identical after the guards moved into `verify_covid_theta()`, smoke test bit-identical. ⚠ Treated, `λ₂ = λ₃` falls to p 0.104 at the 3-month vertex |
 | Level series in their own units; log panel refused (branch `feature/unidades-nativas`) | `fig_section5.R`, `fig_weak_iv.R`, `R/reporting/sensitivity.R`, the three annex scripts, `paper_anpec.tex` | `2026-09-27_unidades_nativas` | nothing re-estimated, annex CSVs byte-identical; FX in R$ per unit of currency (BRL/USD R$ 0,141/US$ at impact), activity indices in index points; BRL/CNY/INR/ARS out of §4.2; 31 prose numbers checked against the cache; the h36 cross-series ordering in §4.5 changed; a DFM IBC-Br mislabel in `fig:weak_iv_main` fixed. Both log panels (broad AK rule, restricted rule) were estimated and refused the same day, `historico_decisoes.md` §20. ⚠ BRL/ARS impact (R$ 0,0063/peso) exceeds its own end-of-sample level |
 | US EPU placebo: EPU as a control in the BS orthogonalization (branch `feature/placebo-epu`, kept open and **not merged**; the note exists only there) | `download_macro_news.R`, `build_variants.R`, `instrument.R` on the branch; `paper_anpec.tex` on `main` | `2026-09-29_placebo_epu` | the advisor's test does not absorb: the 13-week pre-event trend of the daily US EPU does not predict the Copom surprise (p 0.543; monthly t 0.0002), EPU still `placebo_viola` at h1–h3 (h1 +11.52, 90% [0.66; 31.31]); the violation is absent under `z_bruto` and under any single block, and zeroing 2020-03 returns zero to the set. The author kept the limitation: control not adopted, `main`'s production untouched, §3.3 states it in four lines and `fig:placebos` went to Anexo D (2026-09-30, `1a150d0`). ⚠ The branch carries the control in production code and cannot be merged as is |
+| Pandemic robustness in Anexo C: with and without the Lenza-Primiceri scale, and the pre-COVID window (branch `feature/robustez-pandemia`, **not merged**) | `pandemic_sensitivity.R`, `paper_anpec.tex` | `2026-09-30_robustez_pandemia` | nothing in `R/` touched, production line checked against the cache; OLS on the full window: 0/4255 points outside the production 90% set, impacts 13--81% larger in the eight series drawn, IPCA positive at h4–h7; pre-COVID in point only (`hac_dim` 135 ≥ 90): curve and sovereign risk inside the set at every horizon. ⚠ Pre-COVID BRL/USD impact R$ 0.056 against 0.141, outside the set; 1407/4255 points outside in 103 of 115 series; IBC-Br, IPCA, Ibovespa and DLSP outside in 12--21 of 37 horizons; the zero crossing comes at h9 instead of h13–h14. Two body pointers, no number |
 
 ## ⚠ Prohibitions
 
@@ -469,6 +487,7 @@ Rscript script/mosw_strength_grid.R          # ξ_mp over (r,q) × sample × ins
 # IRF inference, coherence and q sensitivity
 Rscript script/irf_coherence_check.R         # 58 vars scored point-by-point (feeds §5)
 Rscript script/q_sensitivity.R --window=cheia   # q = 2..5 narrative + paper/fig_q_sensibilidade.pdf; --window=pre_covid for the other
+Rscript script/pandemic_sensitivity.R        # OLS and pre-COVID against production + the two Anexo C figures
 Rscript script/fig_section5.R                # paper/fig_*.pdf from the cached .rds
 
 Rscript script/model_alessi.R                # main DFM: Bai-Ng surface + IRF figure

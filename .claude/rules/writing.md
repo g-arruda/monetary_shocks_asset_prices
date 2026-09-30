@@ -27,15 +27,19 @@ five home-grown statistics may not come back; `sec:fomc` was deleted on 2026-09-
 Anexo C (`anexo-C`, since 2026-09-24) carries `fig:q_sensibilidade`, the `q = 2..5` figure that
 §3.1's two-sentence defense of `q = r` points to, and since 2026-09-25 `fig:p_sensibilidade`
 (`p = 2..6`), and since 2026-09-26 `fig:instrumento_camadas`, under the title "Sensibilidade das
-respostas"; the text cites no number from any of them. Anexo D (`anexo-D`, since 2026-09-25)
+respostas", and since 2026-09-30 (branch `feature/robustez-pandemia`) `fig:lp_sensibilidade`, which
+a footnote on §3.1's OLS sentence points to, and `fig:precovid_sensibilidade`, which the last
+sentence of §3.4's `tab:first_stage` paragraph points to; the text cites no number from any of
+them, and the pre-COVID pointer claims nothing about the responses holding. Anexo D (`anexo-D`, since 2026-09-25)
 carries `tab:bs_ortogonalizacao`, in BS Table 3's layout since 2026-09-26, and since 2026-09-30
 `fig:placebos` after it; §3.3's orthogonalization paragraph ends pointing to the table, and its
 last paragraph, four lines stating the US EPU violation as a limitation, points to the figure. Captions and `\autoref` print "Figura/Tabela", and the body never puts a
 reference in parentheses: it goes inside the sentence or not at all.
 `script/fig_section5.R` writes §4's eight figures and `fig_placebos.pdf`, `script/fig_weak_iv.R` writes
 the weak-IV figure, `script/q_sensitivity.R --window=cheia` writes `fig_q_sensibilidade.pdf`,
-`script/p_sensitivity.R` writes `fig_p_sensibilidade.pdf` and `script/instrument_layers_irf.R`
-writes `fig_instrumento_camadas.pdf`; the table's numbers are typed from
+`script/p_sensitivity.R` writes `fig_p_sensibilidade.pdf`, `script/instrument_layers_irf.R`
+writes `fig_instrumento_camadas.pdf` and `script/pandemic_sensitivity.R` writes
+`fig_lp_sensibilidade.pdf` and `fig_precovid_sensibilidade.pdf`; the table's numbers are typed from
 `output/instrument/bs_orthogonalization.csv`.
 
 **The paper is on the production vintage again since 2026-09-24.** It was fully

@@ -90,8 +90,6 @@ AR/MOSW próprios.
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | A | Nota sobre o filtro Jarociński-Karadi, com os números antes e depois | e-mail de 28-09; decisão documentada em vez de omissão; conflita com a saída do JK do paper em 2026-09-26 |
-| A | Figura de sensibilidade com e sem Lenza-Primiceri no Anexo C | e-mail de 28-09; evidência para a afirmação de que MQO deslocaria os coeficientes AR |
-| B | Robustez à pandemia: curva e câmbio/risco na subamostra pré-COVID | sugestão aberta do orientador em 28-09, não obrigatória; `hac_dim < T` bloqueia bandas AR pré-COVID |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -141,7 +139,8 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 *Três itens transcritos em 2026-09-29 do e-mail do orientador de 28-09
 (`email/email_professor_28-09_21h15.md`), resposta a `email_meu_28-09_9h38.md`.
-O dos placebos fechou em 2026-09-30; os outros dois seguem abertos.*
+O dos placebos e o da figura de Lenza-Primiceri fecharam em 2026-09-30; o da nota
+sobre o filtro Jarociński-Karadi segue aberto.*
 
 - [ ] **Nota sobre a remoção do filtro Jarociński-Karadi.** Rodapé ou frase no
   corpo: o filtro foi testado, piorou a força do instrumento (números antes e
@@ -151,13 +150,6 @@ O dos placebos fechou em 2026-09-30; os outros dois seguem abertos.*
   citados com destaque na revisão de literatura. ⚠ A migração de 2026-09-26 tirou
   o JK do paper por inteiro; a nota reintroduz uma menção mínima e o autor decide
   a forma. Fonte dos números: `notas/2026-09-26_producao_bs_purif_bandas_80_90.md`.
-- [ ] **Figura de sensibilidade com e sem o tratamento de Lenza-Primiceri, no
-  Anexo C.** Evidência concreta para a afirmação do texto de que MQO trataria os
-  meses da pandemia como variação regular e deslocaria os coeficientes
-  autorregressivos. Companheira de `fig:q_sensibilidade`, `fig:p_sensibilidade` e
-  `fig:instrumento_camadas`; o texto não cita número, como nas demais. O modelo sem
-  tratamento é `covid_volatility = NULL`; reusar `R/reporting/sensitivity.R` e o
-  desenho de `script/p_sensitivity.R`.
 - [ ] **Decidir se o resumo, a introdução e a conclusão absorvem a leitura da
   §4 migrada.** A rodada de 2026-09-24 reescreveu a §4 e, fora dela, só trocou
   números e datas, por decisão do autor. Três frases de argumento ficaram
@@ -217,6 +209,12 @@ O dos placebos fechou em 2026-09-30; os outros dois seguem abertos.*
   Nota: `2026-09-22_condicao_het_svars`.
 ### Fechados (contexto)
 
+- [x] **Figura com e sem a reescala de Lenza-Primiceri no Anexo C — 2026-09-30.**
+  `script/pandemic_sensitivity.R` e `fig:lp_sensibilidade`, com um rodapé na frase de MQO da
+  §3.1 e nenhum número no corpo. Nenhum ponto de MQO sai do conjunto de 90% da produção (0/4255
+  nas 115 séries, raiz 0,970090 contra 0,983676). ⚠ Os impactos sob MQO são 13% a 81% maiores
+  nas oito séries da figura (câmbio R$ 0,194 contra 0,141, CDS 45,8 contra 34,0 p.b.), e o IPCA
+  fica positivo de h4 a h7. Branch `feature/robustez-pandemia`. Nota: `2026-09-30_robustez_pandemia`.
 - [x] **Placebos na §3.3 e figura no Anexo D — 2026-09-30.** Desfecho "limitação reconhecida",
   em quatro linhas por decisão do autor: nos dois primeiros anos só o conjunto de 90% do EPU dos
   EUA exclui zero (h1–h3), e a resposta permanece com o EPU diário pré-reunião na ortogonalização
@@ -450,13 +448,6 @@ resposta às sugestões 1/5, 2/5 e 3/5 acima (fechadas em 2026-09-10). Os passos
 3/4 e 4/4 estão fechados abaixo; o 1/4 foi removido em 2026-09-24 por decisão
 do autor, sem ser executado.*
 
-- [ ] **Sugestão aberta do orientador (28-09), não obrigatória: robustez à
-  pandemia.** Mostrar que os resultados principais (curva e câmbio/risco) também
-  se sustentam na subamostra pré-COVID, complemento de custo marginal baixo à
-  figura de Lenza-Primiceri: a força do instrumento já está nas duas janelas na
-  Tabela 1. Ele mesmo não a empurra como item desta rodada; fica a critério do
-  autor. ⚠ `hac_dim < T` bloqueia conjuntos AR pré-COVID em `p=4` (135 ≥ 90), então
-  só haveria pontos, e nenhuma banda pré-COVID pode ser publicada.
 - [ ] **Reportar o exercício de poda no paper como robustez que não
   confirmou a hipótese de Boivin-Ng**, com a ressalva de que a queda do
   Bai-Ng para `r=3` pode refletir perda de potência por N menor, não
@@ -465,6 +456,14 @@ do autor, sem ser executado.*
 
 ### Fechados (contexto)
 
+- [x] **Robustez à pandemia: respostas pré-COVID no Anexo C — 2026-09-30.** Sugestão do
+  orientador de 28-09. `fig:precovid_sensibilidade`, em ponto (`hac_dim` 135 ≥ 90 barra a banda),
+  com uma frase na §3.4 e nenhum número no corpo. Curva e risco ficam dentro do conjunto de 90%
+  da produção (DI de 1 a 10 anos, CDS e EMBI+, 0/37 cada). ⚠ O câmbio sai no impacto (R$ 0,056
+  contra 0,141, abaixo do limite de R$ 0,069), e no painel 1407 de 4255 pontos saem, em 103 das
+  115 séries: IBC-Br, IPCA, Ibovespa e DLSP em 12 a 21 dos 37 horizontes. ⚠ Ponto contra conjunto
+  da amostra completa não é teste de igualdade. Branch `feature/robustez-pandemia`. Nota:
+  `2026-09-30_robustez_pandemia`.
 - [x] **IRFs por camada do instrumento e tabela de Bauer-Swanson no Anexo D — 2026-09-25.**
   `instrument_layers_irf.R` e `fig:instrumento_camadas`: nenhum ponto de `z_bruto` ou
   `z_bs_purif` sai do conjunto de 90% da produção (0/4255 cada), e o filtro JK amplia câmbio,
