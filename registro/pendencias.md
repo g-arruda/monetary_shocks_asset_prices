@@ -1,7 +1,9 @@
 # Pendências
 
 **Atualização de 2026-09-29:** quatro itens e um teste entraram do e-mail do
-orientador de 28-09 (Temas A, B e D); nenhum foi executado.
+orientador de 28-09 (Temas A, B e D). Em 2026-09-30 fecharam o teste do EPU
+como controle (Tema D) e o parágrafo de placebos (Tema A); os outros três seguem
+abertos.
 
 **Última revisão:** 2026-09-08 — **todos os itens abertos foram zerados por
 decisão do autor**, para conter o acúmulo que vinha tomando o foco do
@@ -87,11 +89,9 @@ AR/MOSW próprios.
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
-| A | Incluir a figura de placebos e o parágrafo na §3.3 | e-mail do orientador de 28-09; EPU significativo em h1–h3 e VIX em h28+ não é placebo limpo: explicar, não só reportar; depende do teste do EPU como controle (Tema D) |
 | A | Nota sobre o filtro Jarociński-Karadi, com os números antes e depois | e-mail de 28-09; decisão documentada em vez de omissão; conflita com a saída do JK do paper em 2026-09-26 |
 | A | Figura de sensibilidade com e sem Lenza-Primiceri no Anexo C | e-mail de 28-09; evidência para a afirmação de que MQO deslocaria os coeficientes AR |
 | B | Robustez à pandemia: curva e câmbio/risco na subamostra pré-COVID | sugestão aberta do orientador em 28-09, não obrigatória; `hac_dim < T` bloqueia bandas AR pré-COVID |
-| D | Investigar por que o placebo EPU dos EUA responde sob a produção corrente | aberto em 2026-09-26 sob `z_jk_bs_purif` (EPU h1–h6, MSCI h2–h8, VIX h0); sob `z_bs_purif` resta o EPU, significativo a 90% de h1 a h3 (`placebo_viola`), e MSCI e VIX só em horizontes longos; primeiro teste: cruzar valores de `main` e da branch; em 28-09 o orientador pediu testar o EPU como controle na ortogonalização |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -141,17 +141,8 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 *Três itens transcritos em 2026-09-29 do e-mail do orientador de 28-09
 (`email/email_professor_28-09_21h15.md`), resposta a `email_meu_28-09_9h38.md`.
-Nenhum foi executado.*
+O dos placebos fechou em 2026-09-30; os outros dois seguem abertos.*
 
-- [ ] **Incluir a figura de placebos (VIX, MSCI emergentes, EPU dos EUA) e o
-  parágrafo correspondente na §3.3 (`sec:identificacao`).** `paper/fig_placebos.pdf`
-  existe, mas o `.tex` não a referencia. O parágrafo deve explicar o resultado,
-  não só reportá-lo: o EPU dos EUA é significativo já no impacto (h1–h3) e o VIX
-  só no longo prazo (a partir de ~h28), logo o placebo não é inteiramente limpo.
-  O desfecho tem de estar no artigo antes da submissão, numa de três formas:
-  passou; passou com o controle adicional; ou limitação reconhecida no texto.
-  Depende do teste do EPU como controle (Tema D). Reportar o número inconveniente
-  em qualquer caso.
 - [ ] **Nota sobre a remoção do filtro Jarociński-Karadi.** Rodapé ou frase no
   corpo: o filtro foi testado, piorou a força do instrumento (números antes e
   depois; ξ_mp 7,02 → 5,01 na janela cheia e 6,84 → 4,73 pré-COVID, F_rob
@@ -225,6 +216,13 @@ Nenhum foi executado.*
   partir de NTN-B e LTN é uma rodada de dados, não editorial.
   Nota: `2026-09-22_condicao_het_svars`.
 ### Fechados (contexto)
+
+- [x] **Placebos na §3.3 e figura no Anexo D — 2026-09-30.** Desfecho "limitação reconhecida",
+  em quatro linhas por decisão do autor: nos dois primeiros anos só o conjunto de 90% do EPU dos
+  EUA exclui zero (h1–h3), e a resposta permanece com o EPU diário pré-reunião na ortogonalização
+  (Tema D). `fig:placebos` foi para o Anexo D, depois da `tab:bs_ortogonalizacao`. As demais
+  leituras (VIX e MSCI nulos no impacto, projeção local da série bruta) ficaram só na nota.
+  Commit `1a150d0`. Nota (só na branch `feature/placebo-epu`): `2026-09-29_placebo_epu`.
 
 - [x] **Paper migrado para a produção da branch — 2026-09-26, na branch, promovido
   para `main` no mesmo dia.**
@@ -698,43 +696,18 @@ ela abriu são **editoriais** e estão no Tema A.
 
 ## D. Diagnósticos e comparações pendentes
 
-- [ ] **Investigar por que o placebo EPU dos EUA responde sob a produção
-  corrente.** Aberto em 2026-09-26. Era recomendado antes da promoção para
-  `main`, que o autor fez no mesmo dia sem esperar por ele. Decide o que a §4 e
-  a §5 podem afirmar. São variáveis que um choque
-  monetário brasileiro não deveria mover. Sob `z_jk_bs_purif` da branch, três
-  ficavam significativas a 90%:
-  - a incerteza de política econômica dos EUA (`epu_us`) subia de h1 a h6, com
-    +18 pontos em h1 e conjunto [6,0; 56,5];
-  - o MSCI emergentes subia de h2 a h8;
-  - o VIX subia em h0.
-
-  **Sob `z_bs_purif`, a produção desde 2026-09-26, resta o EPU**: +11,8 pontos
-  em h1, conjunto de 90% [0,7; 31,9], significativo de h1 a h3, e o veredito
-  segue `placebo_viola` (88% da janela com zero no conjunto, contra os 90%
-  exigidos). O MSCI e o VIX passam a `placebo_ok`: o MSCI só exclui zero em
-  h36, e o VIX em h29–h36.
-  Em `main` nenhum placebo era significativo em horizonte curto; o VIX só
-  aparecia em h34–h41. A exposição às super quartas não explicava a versão com
-  JK: eram 23 dos dias retidos nas duas versões (32,5% de Σ|z| em `main`,
-  30,9% na branch), e só 4 das 21 reuniões que trocavam de classe eram super
-  quartas. Sem o filtro, a máscara deixa de existir, e o teste que sobra é
-  cruzar os valores ortogonalizados da construção anterior (`main` em `63eea36`) e
-  da corrente.
-  Notas: `2026-09-26_bs_lista_tabela3_externas` §4,
-  `2026-09-26_producao_bs_purif_bandas_80_90`.
-
-  **Teste pedido pelo orientador em 2026-09-28**
-  (`email/email_professor_28-09_21h15.md`), antes de escrever o parágrafo de
-  placebos na §3.3: incluir o EPU dos EUA como controle adicional na
-  ortogonalização, junto de Ibovespa, S&P 500, VIX, Brent e inclinação do DI, e ver
-  se absorve a resposta de impacto (h1–h3). Se absorver, fortalece a exogeneidade e
-  entra na narrativa do teste; se não, o texto reconhece a limitação. ⚠ Muda a
-  construção do instrumento em `script/instrument.R`: rodar como variante, sem
-  trocar a produção sem decisão do autor, e checar antes se há série de EPU em
-  `data/raw` na frequência da ortogonalização.
+*Nenhum item aberto desde 2026-09-30.*
 
 ### Fechados (contexto)
+
+- [x] **Placebo EPU dos EUA e o EPU como controle da ortogonalização — 2026-09-30, na branch
+  `feature/placebo-epu`.** O controle pedido pelo orientador não absorve: a tendência de 13
+  semanas do EPU diário antes da reunião não prevê a surpresa (p 0,543; a do mensal, t 0,0002), e
+  o EPU segue `placebo_viola` em h1–h3 (h1 +11,52, 90% [0,66; 31,31]); a violação não existe na
+  surpresa bruta nem com um bloco isolado da regressão BS, e zerar 2020-03 devolve zero ao
+  conjunto. O autor seguiu com a limitação reconhecida: produção de `main` intocada, branch aberta
+  e sem merge. ⚠ A branch leva o controle no código de produção e não pode entrar em `main` como
+  está. Nota (só na branch): `2026-09-29_placebo_epu`.
 
 - [x] **VAR mensal do Anexo B sob a escala COVID de Lenza-Primiceri — 2026-09-27.** Duas versões
   do VAR de DI, câmbio e CDS, MQO e MQP com θ próprio por vértice (máximo único em 750 inícios),

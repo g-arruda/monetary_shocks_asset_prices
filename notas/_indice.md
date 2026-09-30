@@ -148,6 +148,14 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**O placebo EPU dos EUA e o controle de incerteza (2026-09-29, só na branch `feature/placebo-epu`):**
+`notas/2026-09-29_placebo_epu.md` existe apenas na branch, que o autor manteve aberta e sem merge.
+É o teste pedido pelo orientador em 28-09. A tendência pré-evento do EPU diário dos EUA entra na
+regressão BS e não prevê a surpresa (p 0,543), e o EPU segue significativo a 90% em h1–h3 (h1
++11,52, [0,66; 31,31]). Desfecho "limitação reconhecida": o controle não foi adotado, a produção de
+`main` não mudou, e desde 2026-09-30 a §3.3 declara a violação em quatro linhas, com a
+`fig:placebos` no Anexo D.
+
 **VAR mensal do Anexo B sob a escala COVID (2026-09-27, branch `feature/unidades-nativas`):**
 [`2026-09-27_het_var_escala_covid`](2026-09-27_het_var_escala_covid.md)
 O VAR mensal de DI, câmbio e CDS das tabelas de heterocedasticidade passa a ter duas versões, MQO e

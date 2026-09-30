@@ -1085,3 +1085,20 @@ BRL/ARS saem da prosa da §4.2, porque em unidade nativa não são comparáveis 
 reestimado.
 
 Nota: `2026-09-27_unidades_nativas`.
+
+---
+
+## 21. O EPU dos EUA como controle da ortogonalização fica fora da produção (2026-09-30)
+
+**O teste.** O orientador pediu, em 28-09, que a incerteza americana entrasse na regressão
+pré-evento de Bauer-Swanson, para ver se absorvia a resposta do placebo EPU em h1–h3. Na branch
+`feature/placebo-epu`, a variação logarítmica da média do EPU diário nos 91 dias corridos até a
+quarta da reunião, contra os 91 dias anteriores, entrou no bloco financeiro. O controle é inerte:
+não prevê a surpresa (p 0,543; a versão mensal, t 0,0002), leva ξ_mp de 7,02 a 7,04, e o EPU segue
+significativo a 90% em h1–h3 (h1 +11,52, [0,66; 31,31]).
+
+**Decisão do autor.** A §3.3 declara a violação como limitação da identificação, em quatro linhas,
+e o controle não entra em `main`. A branch fica aberta, sem merge, guardando código, saídas e nota.
+Ela leva o controle no código de produção e não pode ser mergeada como está.
+
+Nota: `2026-09-29_placebo_epu` (só na branch).

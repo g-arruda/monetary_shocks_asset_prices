@@ -195,7 +195,12 @@ respostas", so Anexo D carries `tab:bs_ortogonalizacao` alone, now laid out like
 column, SE in parentheses under each coefficient, macro block before financial, each predictor
 beside its BS analogue, R², both Wald p and N at the foot, a four-sentence note). The
 definitions and timing of the news moved from the note into §3.3, which now ends pointing to the
-table — the first body pointer to Anexo D.
+table — the first body pointer to Anexo D. **Since 2026-09-30** §3.3 closes with a four-line
+placebo paragraph, by author decision kept that short: in the first two years only the US EPU's
+90% set excludes zero (h1–h3), the response survives the daily pre-event EPU as an extra
+orthogonalization control, and it is stated as a limitation of the identification. `fig:placebos`
+sits in Anexo D after the table. The control test lives only on the unmerged branch
+`feature/placebo-epu` (note `2026-09-29_placebo_epu`, absent from `main`).
 
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
@@ -282,6 +287,7 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | `p` sensitivity in Anexo C; θ̂ re-estimated at a finer gradient step | `covid_volatility_theta.R`, `p_sensitivity.R` | `2026-09-25_p_sensibilidade_anexo` | the FOC guard stopped θ̂ at `p = 5` (optim's default `ndeps` 1e-3 stops short); author chose `ndeps = 1e-6` everywhere: production θ̂ moved in the 4th--5th digit, ξ_mp 6.847997 → 6.848035, IRFs ≤ 8e-5 of scale, no paper number, significance flag or set type changed; `p = 2..6` all stable and inside the `p = 4` 90% set |
 | Monthly het VAR of Anexo B under the Lenza-Primiceri scale (branch `feature/unidades-nativas`) | `het_conditions.R`, `R/modeling/factor_estimation.R` (`estimate_var_wls(type=)`, `verify_covid_theta()`), `covid_volatility_theta.R`, `paper_anpec.tex` | `2026-09-27_het_var_escala_covid` | own θ per vertex, a single maximum across 750 starts (s̄0 ≈ 4.5–4.9, ρ ≈ 0.94–0.95); the treated VAR rejects `λ₁ = λ₂` nowhere (p 0.965/0.824/0.966), all three variance ratios stay above 1 (FX 1.21–1.27), §3.3 unchanged; the treated VAR replaced the untreated one in the paper (side by side refused by the author), its treatment stated in the note, and Anexo B's two tables merged into `tab:het_frequency`; the untreated row moved with the switch to the factor row's path (p 0.988/0.917/0.931 → 0.948/0.881/0.970, 162 → 161 months); factor θ̂ CSVs byte-identical after the guards moved into `verify_covid_theta()`, smoke test bit-identical. ⚠ Treated, `λ₂ = λ₃` falls to p 0.104 at the 3-month vertex |
 | Level series in their own units; log panel refused (branch `feature/unidades-nativas`) | `fig_section5.R`, `fig_weak_iv.R`, `R/reporting/sensitivity.R`, the three annex scripts, `paper_anpec.tex` | `2026-09-27_unidades_nativas` | nothing re-estimated, annex CSVs byte-identical; FX in R$ per unit of currency (BRL/USD R$ 0,141/US$ at impact), activity indices in index points; BRL/CNY/INR/ARS out of §4.2; 31 prose numbers checked against the cache; the h36 cross-series ordering in §4.5 changed; a DFM IBC-Br mislabel in `fig:weak_iv_main` fixed. Both log panels (broad AK rule, restricted rule) were estimated and refused the same day, `historico_decisoes.md` §20. ⚠ BRL/ARS impact (R$ 0,0063/peso) exceeds its own end-of-sample level |
+| US EPU placebo: EPU as a control in the BS orthogonalization (branch `feature/placebo-epu`, kept open and **not merged**; the note exists only there) | `download_macro_news.R`, `build_variants.R`, `instrument.R` on the branch; `paper_anpec.tex` on `main` | `2026-09-29_placebo_epu` | the advisor's test does not absorb: the 13-week pre-event trend of the daily US EPU does not predict the Copom surprise (p 0.543; monthly t 0.0002), EPU still `placebo_viola` at h1–h3 (h1 +11.52, 90% [0.66; 31.31]); the violation is absent under `z_bruto` and under any single block, and zeroing 2020-03 returns zero to the set. The author kept the limitation: control not adopted, `main`'s production untouched, §3.3 states it in four lines and `fig:placebos` went to Anexo D (2026-09-30, `1a150d0`). ⚠ The branch carries the control in production code and cannot be merged as is |
 
 ## ⚠ Prohibitions
 
