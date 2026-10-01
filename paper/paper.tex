@@ -22,7 +22,6 @@
 \usepackage{fullpage}
 \usepackage{multirow}
 \usepackage{longtable}
-\usepackage{geometry}
 \usepackage[all]{xy}
 \usepackage{lscape}
 \usepackage{pdflscape}
@@ -43,9 +42,8 @@
 \usepackage{enumitem}
 
 %
-\usepackage[table,xcdraw]{xcolor}
+\usepackage[table]{xcolor}
 \usepackage{lipsum}
-%\usepackage[margin=1in]{geometry} 
 \usepackage{mathtools}
 \usepackage{upgreek}
 \usepackage{booktabs,caption} %
@@ -78,9 +76,6 @@
   linkcolor=blue,   % color of internal links
   citecolor=blue,   % color of links to bibliography
   urlcolor=blue,    % color of external links
-  pagebackref=true,
-  implicit=false,
-  bookmarks=true,
   bookmarksopen=true,
   pdfdisplaydoctitle=true
 } 
@@ -112,10 +107,8 @@
 % \address[Label1]{Department of Economics\\Universidade de Brasília \& CNPq}
 
 \begin{abstract}
-Ao contrário do que prevê o mecanismo tradicional da paridade descoberta da taxa de juros, um choque contracionista de 50 pontos-base na política monetária brasileira deprecia a moeda doméstica e, simultaneamente, eleva o prêmio de risco soberano. Após o choque, a taxa de câmbio BRL/USD deprecia $3,\!64\%$ no impacto, enquanto o EMBI+ e o CDS soberano de cinco anos apresentam elevação significativa, uma resposta conjunta consistente com um canal de transmissão via prêmio de risco, no qual o aumento da percepção de risco soberano domina o efeito convencional do diferencial de juros. A curva de juros reforça essa evidência: a resposta das taxas cresce sistematicamente com a maturidade até cinco anos, exibindo amplificação superior à documentada em estudos comparáveis para economias desenvolvidas. No médio prazo, a taxa de câmbio, as medidas de risco soberano e a curva de juros apresentam dinâmica de reversão altamente sincronizada, oferecendo evidência adicional de um mecanismo comum de transmissão. Esses resultados contrastam com evidências recentes obtidas por meio de identificação por heterocedasticidade em frequência diária, que rejeitam a hipótese de dominância fiscal para o Brasil, sugerindo que a importância do canal de prêmio de risco pode depender da frequência dos dados e da estratégia de identificação adotada. Os resultados são obtidos a partir de um Modelo de Fatores Dinâmicos Estruturais (SDFM) identificado por instrumento externo, combinando surpresas monetárias em reuniões do Copom, ortogonalização em relação à informação pública predeterminada e um filtro de sinal que separa choques de política monetária de choques de informação do Banco Central, utilizando um painel com 106 séries macroeconômicas e financeiras brasileiras entre 2013 e 2025.\\
-
-\noindent Abstract: Contrary to the conventional prediction of Uncovered Interest Parity (UIP), a 50-basis-point contractionary monetary policy shock in Brazil depreciates the domestic currency while simultaneously increasing sovereign risk premia. Rather than attracting capital through a wider interest-rate differential, tighter monetary policy is followed by a $3.64\%$ on-impact depreciation of the BRL/USD exchange rate, accompanied by significant increases in both the EMBI+ and the five-year sovereign CDS spread. This joint response points to a risk-premium transmission channel in which the deterioration of sovereign risk dominates the standard interest-rate channel. The yield curve reinforces this interpretation: the response of interest rates increases systematically with maturity up to five years, exhibiting stronger amplification than that documented for comparable studies of advanced economies. Over the medium run, the exchange rate, sovereign risk measures, and the yield curve display highly synchronized reversal dynamics, providing additional evidence of a common transmission mechanism. These findings differ from recent evidence based on daily heteroskedasticity identification, which rejects the fiscal dominance hypothesis for Brazil, suggesting instead that the importance of the risk-premium channel may depend on both the data frequency and the identification strategy employed. Our results are obtained from a Structural Dynamic Factor Model (SDFM) identified through an external instrument, combining monetary policy surprises around Copom meetings, orthogonalization with respect to predetermined public information, and a sign-restriction filter that separates monetary policy shocks from central bank information shocks, using a panel of more than one hundred Brazilian macroeconomic and financial time series spanning 2013–2025.
-
+\singlespacing\emergencystretch=2em
+\noindent Contrary to the conventional prediction of Uncovered Interest Parity, a 50-basis-point contractionary monetary policy shock in Brazil depreciates the domestic currency while simultaneously widening sovereign risk premia. Rather than attracting capital through a wider interest-rate differential, tighter monetary policy is followed by an on-impact depreciation of the BRL/USD exchange rate of R\$0.141 per dollar \textbf{[conferir se ainda é esse valor]}, accompanied by a significant widening of both the EMBI+ and the five-year sovereign CDS spread. This joint response points to a risk-premium channel that dominates the standard interest-rate channel. The yield curve reinforces this interpretation, with the response increasing systematically with maturity up to five years, exceeding amplification documented for advanced economies, before reversing in close synchrony with the exchange rate and risk measures over the medium run. These findings differ from recent evidence based on daily heteroskedasticity identification, which rejects fiscal dominance for Brazil; we show the identifying rank condition holds daily but fails in our monthly panel, pointing to frequency and identification strategy, not conflicting mechanisms, as the source. Results come from a Structural Dynamic Factor Model identified through an external instrument built from Copom-meeting monetary surprises, purified of predictable public information, using 115 Brazilian series spanning March 2012 to December 2025, with weak-instrument-robust inference throughout.
 \end{abstract}
 
 
@@ -137,17 +130,12 @@ JEL C32 \sep E52 \sep E43 \\[0.1in]
 \section{Introduction}
 A compreensão dos canais de transmissão da política monetária constitui um dos temas centrais da macroeconomia, uma vez que as decisões do banco central afetam diretamente as condições de crédito, as expectativas dos agentes e a atividade econômica. Entre esses canais, o canal cambial ocupa posição de destaque. Segundo o mecanismo convencional da paridade descoberta da taxa de juros, um aperto monetário amplia o diferencial de juros doméstico, atrai capital estrangeiro e aprecia a moeda doméstica. Essa previsão, entretanto, pressupõe que o diferencial de juros seja a principal margem de ajuste dos fluxos internacionais de capitais, hipótese que pode deixar de ser válida quando preocupações com a sustentabilidade fiscal passam a desempenhar papel relevante na precificação dos ativos. Esse tipo de reversão da previsão convencional da paridade descoberta não é exclusivo de contextos de dominância fiscal: \cite{dalgicozhan2026} mostram, em um arcabouço teórico e empírico para economias emergentes, que a interação entre descasamento cambial de passivos bancários e faturamento de exportações em dólar (dominant currency pricing) também é capaz de gerar prêmios de risco cambial endógenos que dominam o canal convencional do diferencial de juros, fazendo com que depreciações ocorram justamente nos estados em que os ativos domésticos deveriam, pela UIP padrão, se valorizar.
 
-%A compreensão dos canais de transmissão da política monetária é um dos temas centrais da macroeconomia, pois as decisões do banco central afetam diretamente as condições de crédito, as expectativas dos agentes e a atividade econômica. Entre os canais de transmissão, a resposta da taxa de câmbio ocupa um lugar particular: segundo o mecanismo convencional da paridade descoberta da taxa de juros, um aperto monetário deveria atrair capital estrangeiro e apreciar a moeda doméstica. Esse mecanismo, no entanto, pressupõe que o diferencial de juros seja a única margem relevante de ajuste, uma suposição que pode falhar em economias cuja trajetória fiscal é vista pelos mercados como uma restrição ativa.
-
 Neste artigo, documentamos um fato estilizado que contraria essa previsão: em uma economia emergente sujeita a preocupações fiscais, um choque contracionista de política monetária pode elevar o prêmio de risco soberano a ponto de inverter a resposta convencional da taxa de câmbio. Utilizando dados brasileiros entre 2013 e 2025, encontramos que um aperto monetário de 50 pontos-base deprecia o real e, simultaneamente, eleva o EMBI+ e o CDS soberano de cinco anos. Essa resposta conjunta é difícil de reconciliar com o canal tradicional da paridade descoberta da taxa de juros, mas é consistente com um mecanismo de transmissão via prêmio de risco, no qual esse efeito domina o impacto convencional do diferencial de juros. A curva de juros reforça essa interpretação: o repasse do choque cresce sistematicamente com a maturidade até cinco anos, superando a amplificação documentada em estudos comparáveis para economias desenvolvidas, e reverte no médio prazo em estreita sincronia com a taxa de câmbio e as medidas de risco soberano. Em conjunto, essas evidências são compatíveis com um ambiente de dominância fiscal, no qual elevações da taxa básica de juros intensificam as preocupações quanto à sustentabilidade da dívida pública e elevam o prêmio de risco soberano, embora o objetivo deste artigo não seja testar diretamente essa hipótese.
-
-%Neste artigo, documentamos um fato estilizado que contraria essa previsão: em determinadas economias emergentes, um choque contracionista de política monetária pode elevar o prêmio de risco soberano a ponto de inverter a resposta esperada da taxa de câmbio. Usando dados brasileiros entre 2013 e 2025, mostramos que um aperto monetário de 50 pontos-base deprecia o real e, simultaneamente, eleva o EMBI+ e o CDS soberano de cinco anos, uma resposta conjunta incompatível com o canal tradicional da paridade de juros, mas consistente com um regime em que o aumento da taxa de juros piora a percepção sobre a sustentabilidade da dívida e esse efeito domina o diferencial de juros convencional. A curva de juros reforça essa leitura: o repasse do choque cresce com a maturidade até cinco anos, superando a amplificação documentada em desenhos comparáveis para economias desenvolvidas, e reverte no médio prazo em sincronia com o câmbio e o prêmio de risco soberano.
 
 Até onde sabemos, este é o primeiro trabalho a documentar esse mecanismo de transmissão para a economia brasileira utilizando um Modelo de Fatores Dinâmicos Estruturais identificado por instrumento externo. Ao relacionar conjuntamente a resposta da taxa de câmbio, do prêmio de risco soberano e da curva de juros, o artigo fornece evidência de que o canal de prêmio de risco pode desempenhar papel relevante na transmissão da política monetária em economias emergentes com fragilidades fiscais como a brasileira.
 
 Identificar empiricamente esse mecanismo de transmissão, entretanto, não é uma tarefa trivial. Choques de política monetária não são diretamente observáveis e sua identificação depende da informação disponível ao econometrista. Modelos tradicionais, como os Vetores Autorregressivos Estruturais (SVAR), frequentemente sofrem do problema da não-fundamentalidade, uma vez que operam com conjuntos de informação muito menores do que aqueles observados pelos agentes econômicos e pelo próprio banco central. Como consequência, podem subestimar a magnitude dos choques monetários ou produzir respostas aparentemente contraintuitivas para algumas variáveis macroeconômicas e financeiras \citep[]{villaverde, alessi}. Para contornar essa limitação, empregamos um Modelo de Fatores Dinâmicos Estruturais (SDFM), que extrai fatores comuns de um amplo conjunto de variáveis macroeconômicas e financeiras, aproximando o conjunto de informação relevante utilizado pelos agentes econômicos e permitindo uma identificação mais robusta dos choques monetários \citep[]{STOCK2016415, alessi}.
 
-%A identificação correta desse mecanismo depende crucialmente da informação disponível para o econometrista. Modelos tradicionais, como os Vetores Autorregressivos Estruturais (SVAR), frequentemente sofrem do problema da não-fundamentalidade, pois não conseguem incorporar o vasto conjunto de dados que os agentes econômicos e o próprio banco central utilizam em suas decisões, o que pode levar a uma má especificação do choque monetário \citep[]{villaverde}. Como consequência, os SVARs tendem a subestimar a magnitude do impacto da política monetária e a gerar respostas contraintuitivas em algumas variáveis \citep[]{alessi}. Para superar essa limitação, este estudo emprega um Modelo de Fatores Dinâmicos Estruturais (SDFM), que extrai fatores comuns de um amplo conjunto de variáveis macroeconômicas e financeiras, aproximando o espaço de informação relevante e permitindo uma identificação mais robusta dos choques \citep[]{STOCK2016415, alessi}.
 
 A identificação do choque monetário é realizada por meio de um instrumento externo construído a partir das surpresas de juros observadas em dias de reunião do Copom, combinando a ortogonalização por informação predeterminada de \cite{bauer2023} e a regra de sinal de \cite{jarocinski2020}, que separa choques de política de choques de informação do banco central. A relevância do instrumento é avaliada pela estatística de Wald de \cite{montielolea}, complementar ao F robusto de primeiro estágio.
 
@@ -157,13 +145,6 @@ Nossos resultados também diferem das evidências recentes para o Brasil obtidas
 
 O restante deste artigo está organizado da seguinte forma. A Seção 2 revisa a literatura sobre identificação de choques monetários e canais de transmissão para preços de ativos. A Seção 3 descreve o modelo de fatores dinâmicos estruturais, a base de dados e a estratégia de identificação por instrumento externo. A Seção 4 apresenta os resultados, com ênfase no canal de câmbio e risco soberano. A Seção 5 conclui.
 
-%A compreensão dos canais de transmissão da política monetária é um dos temas centrais da macroeconomia, pois as decisões do banco central afetam diretamente as condições de crédito, as expectativas dos agentes e a atividade econômica. Dentre os diversos canais, a resposta dos preços dos ativos financeiros — como ações, títulos e a taxa de câmbio — é particularmente relevante, pois reflete a reação imediata dos mercados e serve como um importante mecanismo de transmissão para a economia real. A literatura recente tem dedicado atenção considerável a quantificar essa relação, utilizando modelos cada vez mais sofisticados para isolar o impacto de choques monetários na precificação de risco (e.g., \cite{BEKAERT2013771}, \cite{alessi}). No contexto de economias emergentes como o Brasil, caracterizadas por maior volatilidade e particularidades institucionais, a análise desses efeitos torna-se ainda mais crucial para a condução da política monetária e a gestão de portfólios.
-
-%A correta identificação desses efeitos depende crucialmente da informação disponível para o econometrista. Modelos tradicionais, como os Vetores Autorregressivos Estruturais (SVAR), frequentemente sofrem do problema da não-fundamentalidade, pois não conseguem incorporar o vasto conjunto de dados que os agentes econômicos e o próprio banco central utilizam em suas decisões, o que pode levar a uma má especificação do choque monetário \cite{villaverde}. Estudos mostram que, por consequência, os SVARs tendem a subestimar a magnitude do impacto da política monetária e a gerar respostas contraintuitivas em algumas variáveis \cite{alessi}.
-
-%Para superar essa limitação, este estudo emprega um Modelo de Fatores Dinâmicos Estruturais (SDFM). Ao extrair fatores comuns de um grande conjunto de variáveis macroeconômicas e financeiras, o SDFM permite uma identificação mais robusta dos choques, capturando a informação relevante de maneira parcimoniosa \cite{STOCK2016415}. A principal contribuição deste trabalho é, portanto, fornecer uma quantificação mais precisa dos canais de transmissão da política monetária no Brasil, mostrando que os efeitos sobre os preços dos ativos são mais fortes e rápidos do que a literatura baseada em modelos de menor dimensão tipicamente encontra. O restante do artigo detalha a metodologia, os dados e aprofunda a análise dos resultados.
-
-%O desenho é o de \cite{alessi}, aplicado a uma economia emergente com regime de dívida distinto do europeu e do americano. O instrumento é construído sobre surpresas de DI em dias de reunião do Copom. Ele combina a ortogonalização por informação predeterminada de \cite{bauer2023} e a regra de sinal de \cite{jarocinski2020}. A relevância é avaliada pela estatística de \cite{montielolea} e não pela F de primeiro estágio.
 
 \section{Revisão de literatura}
 \label{sec:literatura}
@@ -177,8 +158,6 @@ Suas inovações recuperam os choques estruturais apenas quando o estado econôm
 A identificação por instrumentos externos desenvolve uma segunda resposta ao problema de medir o choque. A comparação entre choques de um VAR monetário e três medidas construídas em mercados financeiros antecipou essa agenda e produziu funções de resposta que não diferiam estatisticamente no sistema e na amostra estudados \citep{bagliano1998}. \cite{mertensravn2013} formulam medidas externas imperfeitas como proxies de choques latentes, em vez de tratá-las como observações exatas desses choques. Na política monetária, essa abordagem usa surpresas de futuros em torno dos anúncios do Federal Open Market Committee \citep{gertler2015}. Um aperto que eleva em cerca de 20 pontos-base o yield de um ano aumenta a taxa corporativa em aproximadamente 15 pontos-base, movimento que decorre quase todo de prêmio de prazo e spread de crédito.
 
 As surpresas de alta frequência podem combinar decisões monetárias com outras notícias observadas pelo mercado. Cerca de um terço dos anúncios do Federal Open Market Committee apresenta co-movimento de mesmo sinal entre juros e ações, contando altas e quedas conjuntas \citep{jarocinski2020}. Em um BVAR identificado por restrições de sinal, os autores separam choques monetários e informacionais. O choque monetário purificado produz uma resposta menos persistente dos juros e uma queda mais pronunciada do nível de preços do que a surpresa não decomposta. \cite{bauer2023} mostram outra fonte de contaminação, pois notícias públicas anteriores aos anúncios explicam entre 12\% e 20\% das surpresas monetárias. Seu modelo reproduz esse padrão quando o mercado subestima a resposta do Federal Reserve às notícias, sem exigir informação privada do banco central.
-
-% O uso de proxies também mantém ligados o conjunto informacional e a inferência. Um SVAR identificado por instrumento externo depende da recuperação dos choques a partir das observáveis, condição que a inclusão de mais variáveis ou fatores pode tornar mais plausível, mas não assegura \citep{stockwatson2018}. Um instrumento fraco, contudo, não perde automaticamente todo conteúdo empírico. \cite{montielolea} constroem conjuntos de confiança para funções de resposta que permanecem válidos sob instrumentos fracos. Na aplicação dos autores, o primeiro estágio robusto é 9,4 e indica fraqueza, mas os conjuntos Anderson--Rubin de 95\% são limitados e preservam a conclusão substantiva sobre a resposta do preço do petróleo. A fraqueza do instrumento exige, portanto, inferência adequada à sua força e não equivale à irrelevância do instrumento.
 
 
 A evidência brasileira mais próxima estima a resposta imediata de expectativas, câmbio e risco soberano. \cite{goncalves2025} usam identificação por heterocedasticidade \citep{rigobon2003} e comparam variações de quarta para quinta-feira em semanas com e sem reunião do Copom entre setembro de 2009 e dezembro de 2024. Um aperto de 100 pontos-base reduz a medida de expectativa de inflação de um ano entre $0{,}20$ e $0{,}27$ ponto percentual e a de cinco anos entre $0{,}53$ e $0{,}69$ ponto. O real aprecia entre $3{,}42\%$ e $5{,}64\%$, enquanto o CDS de cinco anos não apresenta resposta sistemática. Os autores interpretam o conjunto como ausência de evidência sistemática do \textit{tight money paradox} na amostra.
@@ -239,17 +218,17 @@ O choque é identificado por um instrumento externo, no arcabouço proxy-SVAR de
 
 Como em \cite{gertler2015}, que distinguem o instrumento de política, a taxa \textit{overnight}, do indicador de política, uma taxa de prazo mais longo que contém a revisão das expectativas de juros trazida pela decisão, o instrumento e a normalização usam o mesmo vértice da curva de DI, de 126 dias úteis, cerca de seis meses. O Copom anuncia a decisão depois do fechamento do mercado, de modo que a surpresa aparece na curva de DI entre a quarta e a quinta-feira, e a Selic mensal, média da taxa \textit{overnight} no mês, quase não a registra. O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal.
 
-O instrumento tem duas camadas. A primeira é a surpresa, a variação do DI nesse vértice entre o fechamento da quarta-feira da reunião e o da quinta-feira seguinte, a primeira sessão depois do anúncio. A amostra tem 102 reuniões entre 2012 e 2025. As surpresas são somadas dentro de cada mês, e o instrumento vale zero nos meses sem reunião.
+O instrumento tem duas camadas. A \autoref{fig:precovid_sensibilidade}. A primeira é a surpresa, a variação do DI nesse vértice entre o fechamento da quarta-feira da reunião e o da quinta-feira seguinte, a primeira sessão depois do anúncio. A amostra tem 102 reuniões entre 2012 e 2025. As surpresas são somadas dentro de cada mês, e o instrumento vale zero nos meses sem reunião.
 
-A segunda camada remove da surpresa o componente previsível pela informação pública anterior ao anúncio, que \cite{bauer2023} atribuem à subestimação, pelo mercado, da resposta do banco central às notícias, e que compromete a exogeneidade do instrumento. A surpresa de cada reunião é regredida sobre uma constante e as notícias observadas até o fechamento da quarta-feira. As notícias financeiras são as variações em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent e da inclinação da curva de DI, a diferença entre os vértices de 2 anos e 3 meses. As notícias macroeconômicas são as surpresas das divulgações do IPCA e do PIB, este na primeira divulgação, feitas desde a reunião anterior e medidas contra a mediana Focus da última pesquisa antes de cada divulgação, a aceleração do núcleo EX0, a variação anualizada nos seis meses encerrados dois meses antes da reunião menos a dos seis meses anteriores, e a mediana Focus do próximo IPCA a ser divulgado. O Ibovespa entra porque a regra de política estimada por \cite{castelnuovo} responde às condições do mercado acionário. O resíduo, somado dentro de cada mês, é o instrumento de produção. As estimativas estão na \autoref{tab:bs_ortogonalizacao}, no Anexo D.
+A segunda camada remove da surpresa o componente previsível pela informação pública anterior ao anúncio, que \cite{bauer2023} atribuem à subestimação, pelo mercado, da resposta do banco central às notícias, e que compromete a exogeneidade do instrumento\footnote{Houve uma tentativa de aplicar filtro de sinal proposto por \cite{jarocinski2020} após a segunda camada, o filtro retém as 62 das 102 reuniões em que a surpresa ortogonalizada do DI e o retorno ortogonalizado do Ibovespa têm sinais opostos, reduzindo $\xi_{mp}$ de $7{,}02$ para $5{,}01$ na amostra completa e de $6{,}84$ para $4{,}73$ na pré-COVID, e $F^{rob}_{mp}$ de $8{,}62$ para $7{,}59$ e de $8{,}31$ para $7{,}78$. Nenhuma resposta pontual estimada com o filtro sai do conjunto de 90\%, mas os conjuntos ficam, na mediana, $1{,}32$ vez mais largos, e os pares de série e horizonte significantes a 90\% caem pela metade}. A surpresa de cada reunião é regredida sobre uma constante e as notícias observadas até o fechamento da quarta-feira. As notícias financeiras são as variações em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent e da inclinação da curva de DI, a diferença entre os vértices de 2 anos e 3 meses. As notícias macroeconômicas são as surpresas das divulgações do IPCA e do PIB, este na primeira divulgação, feitas desde a reunião anterior e medidas contra a mediana Focus da última pesquisa antes de cada divulgação, a aceleração do núcleo EX0, a variação anualizada nos seis meses encerrados dois meses antes da reunião menos a dos seis meses anteriores, e a mediana Focus do próximo IPCA a ser divulgado. O Ibovespa entra porque a regra de política estimada por \cite{castelnuovo} responde às condições do mercado acionário. O resíduo, somado dentro de cada mês, é o instrumento de produção. As estimativas estão na \autoref{tab:bs_ortogonalizacao}, no Anexo D.
 
-A \autoref{fig:placebos}, no Anexo D, mostra as respostas de três séries externas que o choque não deveria mover, o VIX, o MSCI de mercados emergentes e o EPU dos Estados Unidos. Nos dois primeiros anos, só o conjunto de 90\% do EPU exclui zero, do primeiro ao terceiro mês, e essa resposta, que permanece quando o EPU diário anterior à reunião entra na ortogonalização, é uma limitação da identificação.
+A \autoref{fig:placebos}, no Anexo D, mostra as respostas de três séries externas que o choque não deveria mover, o VIX, o MSCI de mercados emergentes e o EPU dos Estados Unidos. Nos dois primeiros anos, só a resposta do EPU é significante a 90\%, do primeiro ao terceiro mês, e essa resposta, que permanece quando o EPU diário anterior à reunião entra na ortogonalização, é uma limitação da identificação.
 
 \subsection{Relevância do instrumento e inferência}
 
 A relevância do instrumento é medida por duas estatísticas de \cite{montielolea}. A Wald no espaço dos fatores, $\xi_{mp}$, vale $7{,}02$ na amostra completa e $6{,}84$ na janela pré-COVID, enquanto o primeiro estágio robusto, $F^{rob}_{mp}$, vale $8{,}62$ e $8{,}31$. Ambas projetam o instrumento na combinação das inovações fatoriais que determina a normalização no DI de seis meses, e ambas têm o mesmo parâmetro de não centralidade sob a aproximação de instrumento fraco, embora a Wald tenda a valores menores em amostras finitas. O valor $10$ é uma referência convencional, e não um limiar que classifica o instrumento. As duas estatísticas ficam abaixo dele nas duas janelas.
 
-Na \autoref{tab:first_stage}, a ortogonalização eleva $\xi_{mp}$ de $6{,}68$ para $7{,}02$ na amostra completa e de $6{,}66$ para $6{,}84$ na janela pré-COVID. Sobre $F^{rob}_{mp}$ o efeito depende da janela, com queda de $9{,}37$ para $8{,}62$ na amostra completa e alta de $7{,}79$ para $8{,}31$ na pré-COVID. A \autoref{fig:precovid_sensibilidade}, no Anexo C, mostra as respostas pontuais estimadas na janela pré-COVID ao lado das de produção.
+Na \autoref{tab:first_stage}, a ortogonalização eleva $\xi_{mp}$ de $6{,}68$ para $7{,}02$ na amostra completa e de $6{,}66$ para $6{,}84$ na janela pré-COVID. Sobre $F^{rob}_{mp}$ o efeito depende da janela, com queda de $9{,}37$ para $8{,}62$ na amostra completa e alta de $7{,}79$ para $8{,}31$ na pré-COVID, no Anexo C, mostra as respostas pontuais estimadas na janela pré-COVID ao lado das de produção.
 
 A inferência sobre as respostas usa os conjuntos de confiança Anderson--Rubin de \cite{montielolea}, obtidos por inversão de teste em cada série e horizonte, em 80\% e 90\%, com Newey--West de ordem zero. O conjunto é limitado no nível de confiança $1-\alpha$ quando $\xi_{mp}$ excede o quantil $1-\alpha$ da distribuição $\chi^2_1$, condição satisfeita nos dois níveis reportados.
 
@@ -290,7 +269,7 @@ Os vértices de 1, 2, 5 e 10 anos revertem para negativo no décimo terceiro mê
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_curva.pdf}
+    \includegraphics[scale=0.7]{img/fig_curva.pdf}
 \caption{\textbf{Estrutura a termo}\\{Resposta a um choque contracionista normalizado em 50 pontos-base no DI de 6 meses. A linha preta mostra a estimativa pontual em pontos-base, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
 %\footnotesize{Source: Own elaboration, based on data from Central Bank.}
 \label{fig:curva}
@@ -308,7 +287,7 @@ O EMBI+ e o CDS de cinco anos acompanham o câmbio, com alta de $28{,}3$ e $34{,
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_cambio_risco.pdf}
+    \includegraphics[scale=0.7]{img/fig_cambio_risco.pdf}
 \caption{\textbf{Câmbio e risco soberano}\\{A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
 %\footnotesize{Source: Own elaboration, based on data from Central Bank.}
 \label{fig:cambio}
@@ -317,13 +296,13 @@ O EMBI+ e o CDS de cinco anos acompanham o câmbio, com alta de $28{,}3$ e $34{,
 
 \subsection{Variáveis fiscais}
 
-Na \autoref{fig:fiscal}, a DLSP cai $0{,}74$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}82$ no terceiro mês, vira negativo no décimo quinto e chega a $0{,}73$ no trigésimo sexto. A DBGG cai $0{,}14$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}43$ no quinto mês, vira negativo no décimo sétimo e alcança $0{,}65$ no trigésimo sexto.
+Na \autoref{fig:fiscal}, a DLSP cai $0{,}74$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}82$ no terceiro mês, vira positivo no décimo quinto e chega a $0{,}73$ no trigésimo sexto. A DBGG cai $0{,}14$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}43$ no quinto mês, vira positivo no décimo sétimo e alcança $0{,}65$ no trigésimo sexto.
 
-A NFSP primária cai R\$ $1{,}77$ bilhão no impacto, atinge o vale de R\$ $-3{,}64$ bilhões no mês seguinte, vira negativo no sétimo mês e alcança o pico de R\$ $5{,}06$ bilhões no vigésimo sexto, com R\$ $4{,}50$ bilhões no trigésimo sexto.  
+A NFSP primária cai R\$ $1{,}77$ bilhão no impacto, atinge o vale de R\$ $-3{,}64$ bilhões no mês seguinte, vira positivo no sétimo mês e alcança o pico de R\$ $5{,}06$ bilhões no vigésimo sexto, com R\$ $4{,}50$ bilhões no trigésimo sexto.  
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_fiscal.pdf}
+    \includegraphics[scale=0.7]{img/fig_fiscal.pdf}
 \caption{\textbf{Variáveis fiscais}\\{A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
 \label{fig:fiscal}
 \end{center}
@@ -331,15 +310,15 @@ A NFSP primária cai R\$ $1{,}77$ bilhão no impacto, atinge o vale de R\$ $-3{,
 
 \subsection{Expectativas Focus}
 
-Na \autoref{fig:expectativas}, a expectativa de IPCA para 12 meses sobe $0{,}077$ ponto percentual no impacto, atinge $0{,}174$ no terceiro mês, vira negativo no décimo primeiro e chega a $-0{,}381$ no trigésimo sexto. A expectativa da Selic para o ano seguinte aumenta $0{,}471$ ponto percentual no impacto, chega a $0{,}652$ no terceiro mês, vira negativo no décimo quinto e atinge $-0{,}776$ no trigésimo sexto. A expectativa de PIB para o ano seguinte cai $0{,}189$ ponto percentual no impacto, atinge o vale de $-0{,}270$ no terceiro mês, vira negativo no décimo sexto e chega a $0{,}303$ no trigésimo sexto.
+Na \autoref{fig:expectativas}, a expectativa de IPCA para 12 meses sobe $0{,}077$ ponto percentual no impacto, atinge $0{,}174$ no terceiro mês, vira negativo no décimo primeiro e chega a $-0{,}381$ no trigésimo sexto. A expectativa da Selic para o ano seguinte aumenta $0{,}471$ ponto percentual no impacto, chega a $0{,}652$ no terceiro mês, vira negativo no décimo quinto e atinge $-0{,}776$ no trigésimo sexto. A expectativa de PIB para o ano seguinte cai $0{,}189$ ponto percentual no impacto, atinge o vale de $-0{,}270$ no terceiro mês, vira positivo no décimo sexto e chega a $0{,}303$ no trigésimo sexto.
 
 Para o câmbio do ano seguinte, a expectativa sobe R\$ $0{,}075$/US\$ no impacto, alcança R\$ $0{,}112$/US\$ no terceiro mês, vira negativo no décimo segundo e chega a R\$ $-0{,}125$/US\$ no trigésimo sexto.
 
-A expectativa de DLSP cai $0{,}241$ ponto percentual do PIB no impacto, seu maior recuo, e vira negativo no décimo quinto mês. O resultado primário esperado cai $0{,}014$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}060$ no segundo mês e vira negativo no décimo quarto. O resultado nominal esperado cai $0{,}122$ ponto percentual do PIB no impacto, alcança o vale de $-0{,}198$ no terceiro mês e vira negativo no décimo quarto.
+A expectativa de DLSP cai $0{,}241$ ponto percentual do PIB no impacto, seu maior recuo, e vira positivo no décimo quinto mês. O resultado primário esperado cai $0{,}014$ ponto percentual do PIB no impacto, atinge o vale de $-0{,}060$ no segundo mês e vira positivo no décimo quarto. O resultado nominal esperado cai $0{,}122$ ponto percentual do PIB no impacto, alcança o vale de $-0{,}198$ no terceiro mês e vira positivo no décimo quarto.
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_expectativas.pdf}
+    \includegraphics[scale=0.7]{img/fig_expectativas.pdf}
 \caption{\textbf{Expectativas Focus}\\{A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
 \label{fig:expectativas}
 \end{center}
@@ -357,7 +336,7 @@ As vendas de serviços têm o vale mais tardio do bloco, de $-1{,}06$ ponto no v
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_atividade.pdf}
+    \includegraphics[scale=0.7]{img/fig_atividade.pdf}
 \caption{\textbf{Atividade e horas trabalhadas}\\{A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
 %\footnotesize{Source: Own elaboration, based on data from Central Bank.}
 \label{fig:atividade}
@@ -374,7 +353,7 @@ O comércio vira negativo no décimo primeiro mês, seguido por agropecuária, t
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_credito.pdf}
+    \includegraphics[scale=0.7]{img/fig_credito.pdf}
 \caption{\textbf{Crédito}\\{A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
 %\footnotesize{Source: Own elaboration, based on data from Central Bank.}
 \label{fig:credito}
@@ -392,7 +371,7 @@ O IPCA permanece negativo em todos os horizontes, e a queda se aprofunda a parti
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_precos.pdf}
+    \includegraphics[scale=0.7]{img/fig_precos.pdf}
 \caption{\textbf{Preços}\\{A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%. As séries de inflação são taxas mensais e as respostas são expressas em pontos percentuais da taxa. O índice de difusão é expresso em pontos percentuais da proporção de itens com aumento de preço.}}
 %\footnotesize{Source: Own elaboration, based on data from Central Bank.}
 \label{fig:precos}
@@ -411,7 +390,7 @@ O IMAT segue trajetória própria, pois seu retorno cai $0{,}39\%$ no impacto, f
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_acoes.pdf}
+    \includegraphics[scale=0.7]{img/fig_acoes.pdf}
 \caption{\textbf{Índices de ações}\\{A linha preta mostra a resposta do retorno mensal em pontos percentuais, sem acumulação ao longo dos horizontes. As áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
 %\footnotesize{Source: Own elaboration, based on data from Central Bank.}
 \label{fig:acoes}
@@ -431,7 +410,7 @@ Ao longo do primeiro ano o IPCA separa os dois modelos, subindo a $0{,}100$ pont
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.62]{fig_weak_iv_main.pdf}
+    \includegraphics[scale=0.62]{img/fig_weak_iv_main.pdf}
 \caption{\textbf{DFM e benchmark VAR observável}\\{Respostas a um choque de 50 pontos-base no DI de seis meses. As faixas de 80\% e 90\% são conjuntos Anderson--Rubin com NW(0) nos dois modelos. Cada linha usa a mesma escala nos dois modelos, e a linha tracejada marca zero.}}
 \label{fig:weak_iv_main}
 \end{center}
@@ -442,7 +421,7 @@ Ao longo do primeiro ano o IPCA separa os dois modelos, subindo a $0{,}100$ pont
 %%---------------
 Este artigo documenta um fato estilizado que contraria o mecanismo convencional da paridade descoberta de juros: em uma economia emergente com histórico de fragilidade fiscal, um aperto monetário pode elevar o prêmio de risco soberano a ponto de depreciar, em vez de apreciar, a moeda doméstica. Usando um modelo de fatores dinâmicos estruturais identificado por instrumento externo sobre um painel de mais de 100 séries macroeconômicas e financeiras brasileiras, mostramos que um choque contracionista de 50 pontos-base deprecia o real em R\$ $0{,}141$ por dólar no impacto, ao mesmo tempo em que o EMBI+ e o CDS soberano de cinco anos se abrem, uma resposta conjunta incompatível com o canal tradicional do diferencial de juros, mas consistente com um regime em que o aumento da taxa de juros piora a percepção sobre a sustentabilidade da dívida.
 
-A curva de juros reforça essa interpretação. O repasse do choque cresce com a maturidade até cinco anos, superando a amplificação documentada para economias desenvolvidas. No médio prazo, as taxas de juros e as medidas de risco soberano exibem uma dinâmica de reversão altamente sincronizada, e o câmbio, cujo conjunto de 90\% exclui zero do impacto ao quarto mês, volta a excluí-lo a partir do trigésimo segundo, já no ramo da apreciação.
+A curva de juros reforça essa interpretação. O repasse do choque cresce com a maturidade até cinco anos, superando a amplificação documentada para economias desenvolvidas. No médio prazo, as taxas de juros e as medidas de risco soberano exibem uma dinâmica de reversão altamente sincronizada, e o câmbio, significante a 90\% do impacto ao quarto mês, volta a sê-lo a partir do trigésimo segundo, já no ramo da apreciação.
 
 %A curva de juros reforça essa leitura. O repasse do choque cresce com a maturidade até cinco anos, superando a amplificação que desenhos comparáveis encontram em economias desenvolvidas, e reverte no médio prazo em estreita sincronia com o câmbio e o prêmio de risco soberano, os cinco vértices, o EMBI+ e o CDS revertem de sinal em janelas próximas, entre o décimo e o vigésimo quarto mês. O câmbio, no entanto, não acompanha essa reversão: sua resposta perde significância estatística já a partir do quinto mês, sugerindo que o efeito sobre o risco soberano é mais persistente do que seu repasse ao câmbio.
 
@@ -671,40 +650,40 @@ Resultado nominal, ano seguinte & BCB, Focus &  & 1 \\
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_q_sensibilidade.pdf}
-\caption{\textbf{Sensibilidade ao número de choques dinâmicos}\\{Especificação de produção, com $r = 5$ e $p = 4$, e $q$ de 2 a 5. A linha preta mostra a estimativa pontual com $q = 5$, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com $q = 4$, 3 e 2, sem conjuntos. O câmbio é expresso em reais por dólar.}}
+    \includegraphics[scale=0.7]{img/fig_q_sensibilidade.pdf}
+\caption{\textbf{Sensibilidade ao número de choques dinâmicos}\\{Especificação de produção, com $r = 5$ e $p = 4$, e $q$ de 2 a 5. A linha preta mostra a estimativa pontual com $q = 5$, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com $q = 4$, 3 e 2, sem conjuntos.}}
 \label{fig:q_sensibilidade}
 \end{center}
 \end{figure}
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_p_sensibilidade.pdf}
-\caption{\textbf{Sensibilidade à ordem do VAR fatorial}\\{Especificação de produção, com $r = q = 5$, e $p$ de 2 a 6. A linha preta mostra a estimativa pontual com $p = 4$, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com $p = 2$, 3, 5 e 6, sem conjuntos. O parâmetro $\theta$ da escala de volatilidade é reestimado em cada $p$. O câmbio é expresso em reais por dólar.}}
+    \includegraphics[scale=0.7]{img/fig_p_sensibilidade.pdf}
+\caption{\textbf{Sensibilidade à ordem do VAR fatorial}\\{Especificação de produção, com $r = q = 5$, e $p$ de 2 a 6. A linha preta mostra a estimativa pontual com $p = 4$, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com $p = 2$, 3, 5 e 6, sem conjuntos. O parâmetro $\theta$ da escala de volatilidade é reestimado em cada $p$.}}
 \label{fig:p_sensibilidade}
 \end{center}
 \end{figure}
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_instrumento_camadas.pdf}
-\caption{\textbf{Respostas por camada de construção do instrumento}\\{Especificação de produção, com $(r, q, p) = (5, 5, 4)$, e o choque normalizado para elevar o DI de 6 meses em 50 pontos-base no impacto sob cada instrumento. A linha preta mostra a estimativa pontual com o instrumento de produção, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. A linha tracejada mostra a estimativa pontual com a surpresa bruta, a primeira linha da \autoref{tab:first_stage}. O câmbio é expresso em reais por dólar.}}
+    \includegraphics[scale=0.7]{img/fig_instrumento_camadas.pdf}
+\caption{\textbf{Respostas por camada de construção do instrumento}\\{Especificação de produção, com $(r, q, p) = (5, 5, 4)$, e o choque normalizado para elevar o DI de 6 meses em 50 pontos-base no impacto sob cada instrumento. A linha preta mostra a estimativa pontual com o instrumento de produção, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. A linha tracejada mostra a estimativa pontual com a surpresa bruta.}}
 \label{fig:instrumento_camadas}
 \end{center}
 \end{figure}
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_lp_sensibilidade.pdf}
-\caption{\textbf{Sensibilidade à reescala de volatilidade}\\{Amostra completa, com $r = 5$ e $p = 4$, e $q$ de 2 a 5. Na coluna da esquerda o VAR fatorial é estimado com a reescala $s_t$, e na da direita por mínimos quadrados ordinários, sem a reescala. Em cada coluna, a linha preta mostra a estimativa pontual com $q = 5$, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com $q = 4$, 3 e 2, sem conjuntos. Os dois painéis de cada série têm o mesmo eixo vertical. O câmbio é expresso em reais por dólar.}}
+    \includegraphics[scale=0.7]{img/fig_lp_sensibilidade.pdf}
+\caption{\textbf{Sensibilidade à reescala de volatilidade}\\{Amostra completa, com $r = 5$ e $p = 4$, e $q$ de 2 a 5. Na coluna da esquerda o VAR fatorial é estimado com a reescala $s_t$, e na da direita por mínimos quadrados ordinários, sem a reescala. Em cada coluna, a linha preta mostra a estimativa pontual com $q = 5$, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. As linhas tracejadas mostram as estimativas pontuais com $q = 4$, 3 e 2.}}
 \label{fig:lp_sensibilidade}
 \end{center}
 \end{figure}
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_precovid_sensibilidade.pdf}
-\caption{\textbf{Respostas na janela pré-COVID}\\{Especificação de produção, com $(r, q, p) = (5, 5, 4)$, e o choque normalizado para elevar o DI de 6 meses em 50 pontos-base no impacto em cada janela. A linha preta mostra a estimativa pontual na amostra completa, 2012:03--2025:12, e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. A linha tracejada mostra a estimativa pontual na janela pré-COVID, 2012:03--2019:12, sem conjuntos. O câmbio é expresso em reais por dólar.}}
+    \includegraphics[scale=0.7]{img/fig_precovid_sensibilidade.pdf}
+\caption{\textbf{Respostas na janela pré-COVID}\\{Especificação de produção, com $(r, q, p) = (5, 5, 4)$, e o choque normalizado para elevar o DI de 6 meses em 50 pontos-base no impacto em cada janela. A linha preta mostra a estimativa pontual na amostra e as áreas escura e clara mostram seus conjuntos Anderson--Rubin de 80\% e 90\%. A linha tracejada mostra a estimativa pontual na janela pré-COVID, 2012:03--2019:12, sem conjuntos.}}
 \label{fig:precovid_sensibilidade}
 \end{center}
 \end{figure}
@@ -754,7 +733,7 @@ Observações                             & 102 \\
 
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.7]{fig_placebos.pdf}
+    \includegraphics[scale=0.7]{img/fig_placebos.pdf}
 \caption{\textbf{Placebos}\\{Resposta de séries externas a um choque contracionista normalizado em 50 pontos-base no DI de 6 meses, em pontos de cada índice. A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
 \label{fig:placebos}
 \end{center}

@@ -2,11 +2,11 @@
 # DFM and observable-SVAR impulse responses under weak instruments.
 #
 # Pure post-processing: DFM bands and VAR AR/MOSW sets.
-# Output: paper/fig_weak_iv_main.pdf
+# Output: paper/img/fig_weak_iv_main.pdf
 #
 # FROZEN since 2026-09-08. The whole point of this figure was that the two
 # models carried different inference — wild bootstrap on the left, AR/MOSW on
-# the right — and the caption in paper_anpec.tex says so. Since the DFM moved
+# the right — and the caption in paper.tex says so. Since the DFM moved
 # to Anderson-Rubin, output/irf/irf_coherence_h.csv no longer holds bootstrap
 # bands and the contrast the caption announces no longer exists. Repainting is
 # an editorial decision, not a re-run.
@@ -23,7 +23,7 @@ if (!"--repaint-paper-figures" %in% commandArgs(trailingOnly = TRUE)) {
 
 DFM_PATH <- "output/irf/irf_coherence_h.csv"
 VAR_PATH <- "output/var/svar_iv_weak_robust.csv"
-OUT_PATH <- "paper/fig_weak_iv_main.pdf"
+OUT_PATH <- "paper/img/fig_weak_iv_main.pdf"
 # The only active small-VAR benchmark cell, on the DFM's window and lag order
 VAR_CELL <- "ibc5_fx_cds_level_trend_p4"
 H_MAX    <- 36L

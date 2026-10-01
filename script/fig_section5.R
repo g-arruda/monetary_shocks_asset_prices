@@ -7,14 +7,13 @@
 # sets. The eight figures in the results section omit significance markers;
 # the placebo figure retains them. The 80% set is the darker ribbon.
 #
-# Output: paper/fig_*.pdf, where paper_anpec.tex reads them (bare filenames,
-# no subdirectory).
+# Output: paper/img/fig_*.pdf, where paper.tex reads them as img/fig_*.pdf.
 # ===================================================================
 
 CELL_PATH <- "output/irf/irf_coherence_cell.rds"
 H_MAX <- 36L   # every IRF figure stops here
 
-# One figure per row, written to paper/fig_<figure>.pdf
+# One figure per row, written to paper/img/fig_<figure>.pdf
 FIGURES <- tibble::tribble(
   ~figure,         ~ncol, ~width, ~height, ~mark_sig90,
   "curva",         4,     10.4,   5.8,     FALSE,
@@ -207,7 +206,7 @@ purrr::pwalk(FIGURES, function(figure, ncol, width, height, mark_sig90) {
     irf_panel(variable, label, scale, mark_sig90)
   })
   ggplot2::ggsave(
-    paste0("paper/fig_", figure, ".pdf"),
+    paste0("paper/img/fig_", figure, ".pdf"),
     patchwork::wrap_plots(plots, ncol = ncol),
     width = width,
     height = height,

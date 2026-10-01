@@ -16,7 +16,7 @@
 # q = 5 carries its 80/90% Anderson-Rubin sets; q = 2, 3 and 4 are point
 # estimates only, following the Figure A3 design of Alessi and Kerssenfischer
 # (2019). The script only draws: output/factors/<stem>.pdf, the 20 variables
-# to h = 48, and, for --window=cheia, paper/fig_q_sensibilidade.pdf, the
+# to h = 48, and, for --window=cheia, paper/img/fig_q_sensibilidade.pdf, the
 # paper's Anexo C figure: eight of them to h = 36, in the units of section 4.
 # Notes: notas/2026-09-14_inferencia_volatilidade_covid_q.md,
 # notas/2026-09-24_q_sensibilidade_anexo.md
@@ -44,7 +44,7 @@ INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
 THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
 COHERENCE_PATH  <- "output/irf/irf_coherence_h.csv"
 OUT_DIR         <- "output/factors"
-PAPER_FIG       <- "paper/fig_q_sensibilidade.pdf"
+PAPER_FIG       <- "paper/img/fig_q_sensibilidade.pdf"
 R_FACTORS    <- 5L
 Q_PRODUCTION <- 5L
 Q_VALUES     <- c(5L, 4L, 3L, 2L)

@@ -9,9 +9,9 @@
 # line carries its 80/90% Anderson-Rubin sets, the alternatives are point
 # estimates only. With and without the scale the reference is q = 5, each
 # with the sets of its own estimator; in the window figure it is production.
-# Output: output/irf/lp_q_sensitivity.csv, paper/fig_lp_sensibilidade.pdf
+# Output: output/irf/lp_q_sensitivity.csv, paper/img/fig_lp_sensibilidade.pdf
 #         output/irf/precovid_sensitivity.csv,
-#         paper/fig_precovid_sensibilidade.pdf
+#         paper/img/fig_precovid_sensibilidade.pdf
 # Note: notas/2026-09-30_robustez_pandemia.md
 # ===================================================================
 
@@ -27,9 +27,9 @@ INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
 THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
 COHERENCE_PATH  <- "output/irf/irf_coherence_h.csv"
 LP_CSV          <- "output/irf/lp_q_sensitivity.csv"
-LP_FIG          <- "paper/fig_lp_sensibilidade.pdf"
+LP_FIG          <- "paper/img/fig_lp_sensibilidade.pdf"
 PRE_COVID_CSV   <- "output/irf/precovid_sensitivity.csv"
-PRE_COVID_FIG   <- "paper/fig_precovid_sensibilidade.pdf"
+PRE_COVID_FIG   <- "paper/img/fig_precovid_sensibilidade.pdf"
 SAMPLE_START  <- as.Date("2012-03-01")
 FULL_END      <- as.Date("2025-12-01")
 PRE_COVID_END <- as.Date("2019-12-01")

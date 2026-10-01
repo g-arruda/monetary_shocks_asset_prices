@@ -9,7 +9,7 @@
 # Figure A3 of Alessi and Kerssenfischer (2019), with the raw surprise in
 # point.
 # Output: output/irf/instrument_layers_irf.csv
-#         paper/fig_instrumento_camadas.pdf
+#         paper/img/fig_instrumento_camadas.pdf
 # Note: notas/2026-09-25_anexo_d_instrumento.md
 # ===================================================================
 
@@ -25,7 +25,7 @@ INSTRUMENT_PATH <- "data/processed/instrumentos_mensais.csv"
 THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
 COHERENCE_PATH  <- "output/irf/irf_coherence_h.csv"
 OUT_CSV         <- "output/irf/instrument_layers_irf.csv"
-PAPER_FIG       <- "paper/fig_instrumento_camadas.pdf"
+PAPER_FIG       <- "paper/img/fig_instrumento_camadas.pdf"
 SAMPLE_WINDOW <- as.Date(c("2012-03-01", "2025-12-01"))
 R_FACTORS     <- 5L
 Q_DYNAMIC     <- 5L

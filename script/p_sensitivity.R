@@ -7,7 +7,7 @@
 # the Figure A3 design of Alessi and Kerssenfischer (2019) that
 # script/q_sensitivity.R applies to q.
 # Output: output/factors/p_sensitivity.csv
-#         paper/fig_p_sensibilidade.pdf (Anexo C)
+#         paper/img/fig_p_sensibilidade.pdf (Anexo C)
 # Note: notas/2026-09-25_p_sensibilidade_anexo.md
 # ===================================================================
 
@@ -24,7 +24,7 @@ THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
 THETA_BY_P      <- "output/factors/theta_by_p/covid_volatility_theta_p%d.csv"
 COHERENCE_PATH  <- "output/irf/irf_coherence_h.csv"
 OUT_CSV         <- "output/factors/p_sensitivity.csv"
-PAPER_FIG       <- "paper/fig_p_sensibilidade.pdf"
+PAPER_FIG       <- "paper/img/fig_p_sensibilidade.pdf"
 SAMPLE_WINDOW <- as.Date(c("2012-03-01", "2025-12-01"))
 R_FACTORS     <- 5L
 Q_DYNAMIC     <- 5L

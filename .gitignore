@@ -49,7 +49,7 @@ paper/*.out
 paper/*.spl
 paper/*.dvi
 paper/*.ps
-paper/paper_anpec.pdf
+paper/paper.pdf
 slides/*.aux
 slides/*.log
 slides/*.out
