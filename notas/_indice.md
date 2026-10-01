@@ -148,6 +148,19 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**DBGG e Focus PIB na janela pré-COVID (2026-10-01, `main`):**
+[`2026-10-01_precovid_dbgg_focus_pib`](2026-10-01_precovid_dbgg_focus_pib.md)
+**CURRENT.** Diagnóstico do item 3 do e-mail do orientador de 30-09, sem frase no `.tex` por
+decisão do autor. `script/precovid_divergence.R` separa a carga de cada série do VAR e do choque.
+A **Focus PIB** pré-COVID é forte por causa da troca de ano-alvo em janeiro: jan/2016 é 63% da soma
+de quadrados das suas diferenças nessa janela, e a carga estimada sem os meses de janeiro põe a
+resposta inteira dentro do conjunto de produção (0 de 37 fora, contra 5). O vale inicial da
+**DBGG** de produção vem dos meses de 2020–22 (101% da covariância entre ΔDBGG e ΔDI 6m). Com a
+carga dos meses pré-COVID ele some (mínimo −0,056 contra −0,428), e a alta de longo prazo fica.
+Zerar as surpresas de janeiro leva o câmbio pré-COVID de 0,056 a 0,141 (razão sobre a produção de
+0,40 a 0,81). ⚠ Na produção, a carga da Focus PIB sem janeiros dá metade da resposta da §4
+(−0,091 contra −0,189). As cinco Focus "ano seguinte" têm de 36% a 79% da variação em janeiro.
+
 **Rodapé sobre a saída do filtro JK (2026-09-30, branch `feature/robustez-pandemia`):**
 [`2026-09-30_nota_filtro_jk`](2026-09-30_nota_filtro_jk.md)
 **CURRENT.** O último item do e-mail do orientador de 28-09. Um rodapé na §3.4 registra que o filtro
@@ -449,6 +462,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-01_precovid_dbgg_focus_pib`](2026-10-01_precovid_dbgg_focus_pib.md) | 10-01 | **CURRENT — diagnóstico; produção e `.tex` intocados** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90) e pré-COVID 2012-03--2019-12 por MQO | Tudo: Focus PIB pré-COVID forte pela troca de ano-alvo em janeiro (jan/2016 = 63% da soma de quadrados; carga sem janeiros 0/37 fora do conjunto); vale da DBGG de produção vindo de 2020–22 (101% da covariância com o DI 6m; carga pré-COVID tira o vale); câmbio pré-COVID 0,056 → 0,141 sem as surpresas de janeiro. Blocos de carga são diagnóstico, sem conjunto. ⚠ A Focus PIB da §4 cai à metade com a carga sem janeiros (−0,189 → −0,091); cinco Focus "ano seguinte" com 36–79% da variação em janeiro |
 | [`2026-09-30_nota_filtro_jk`](2026-09-30_nota_filtro_jk.md) | 09-30 | **CURRENT — rodada de texto; nada reestimado** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/robustez-pandemia` | Tudo: o rodapé da §3.4 sobre o filtro JK (ξ_mp 7,02 → 5,01 e 6,84 → 4,73; F_rob 8,62 → 7,59 e 8,31 → 7,78; 0/4255 pontos fora do conjunto de 90% de produção; conjuntos 1,32 vez mais largos; pares significativos a 90% 1587 → 856); a §1 e os resumos de volta à redação de 09-26. ⚠ Com o filtro o impacto no Ibovespa exclui zero (−8,17%, [−28,4; −3,0]), em parte por construção; o resumo em inglês ainda traz "3.64%" |
 | [`2026-09-30_robustez_pandemia`](2026-09-30_robustez_pandemia.md) | 09-30 | **CURRENT — rodada de apêndice; produção intocada** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/robustez-pandemia` | Tudo: as cinco figuras do Anexo C desenham desde esta data as mesmas oito séries (DI 6 meses e 2 anos, BRL/USD, CDS, Focus PIB, IPCA 12 meses e Selic, DBGG), por decisão do autor, o que torna as figuras das notas de 09-24, 09-25 e 09-26 diferentes das do paper; `q` de 2 a 5 com e sem a reescala na amostra completa, com 4/26/26 de 296 pontos de `q` = 4/3/2 fora do conjunto de 90% de `q = 5` nas oito séries com a reescala e 44/132/154 sem ela (painel: 151/420/408 contra 589/1651/1805 de 4255); ⚠ com a reescala o câmbio sai de h0 a h9 e a DBGG de h0 a h7 em `q ≤ 3`, e o impacto da DBGG troca de sinal; em `q = 5`, MQO com 0/4255 pontos fora do conjunto de 90% da produção (raiz 0,970090); `p` e camadas do instrumento com 0/296 fora nas oito séries novas; pré-COVID em ponto (raiz 0,993359) com curva e risco soberano dentro do conjunto. ⚠ Câmbio pré-COVID fora no impacto (R$ 0,056 contra 0,141); DBGG pré-COVID com o sinal oposto, fora em 22 dos 37 horizontes; 1407/4255 pontos fora, em 103 das 115 séries; IBC-Br, IPCA, Ibovespa e DLSP, fora da figura, saem em 12 a 21 dos 37 horizontes. ⚠ Ponto pré-COVID sem inferência (`hac_dim` 135 ≥ 90); ficar dentro do conjunto não é teste de igualdade |
 | [`2026-09-27_het_var_escala_covid`](2026-09-27_het_var_escala_covid.md) | 09-27 | **CURRENT — diagnóstico; produção intocada** | produção de 2026-09-26 (`(5,5,4)`, escala LP), painel mensal 2012-03--2025-12, 107 C / 54 NC; branch `feature/unidades-nativas` | Tudo: θ̂ por vértice (s̄0 ≈ 4,5–4,9, ρ ≈ 0,94–0,95, máximo único em 750 inícios); o VAR tratado não rejeita `λ₁ = λ₂` (p 0,824–0,966); razões C/NC 1,99–2,32 no DI, 1,21–1,27 no câmbio e 1,89–1,92 no CDS; o deslocamento declarado da linha sem tratamento pela troca de caminho (GLS `p = 4`, 162 meses → MQO com resíduos como inovações, 161 meses). ⚠ Com o tratamento, `λ₂ = λ₃` cai a p 0,104 no vértice de 3 meses |
