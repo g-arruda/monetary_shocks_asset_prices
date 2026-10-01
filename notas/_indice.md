@@ -148,6 +148,16 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Rodapé sobre a saída do filtro JK (2026-09-30, branch `feature/robustez-pandemia`):**
+[`2026-09-30_nota_filtro_jk`](2026-09-30_nota_filtro_jk.md)
+**CURRENT.** O último item do e-mail do orientador de 28-09. Um rodapé na §3.4 registra que o filtro
+de sinal reduz ξ_mp de 7,02 para 5,01 (pré-COVID, 6,84 para 4,73) e F_rob de 8,62 para 7,59 (8,31
+para 7,78), que nenhum ponto com o filtro sai do conjunto de 90% de produção (0/4255), e que os
+conjuntos ficam 1,32 vez mais largos na mediana, com os pares significativos a 90% caindo de 1587
+para 856. A §1 e os dois resumos, que o commit `6e0bc00` tinha devolvido à descrição com o filtro,
+voltaram à redação de 2026-09-26. ⚠ Com o filtro, o impacto no Ibovespa passa a excluir zero
+(−8,17%), em parte por construção; o rodapé não o carrega.
+
 **Robustez à pandemia no Anexo C (2026-09-30, branch `feature/robustez-pandemia`):**
 [`2026-09-30_robustez_pandemia`](2026-09-30_robustez_pandemia.md)
 **CURRENT.** Os dois itens do e-mail do orientador de 28-09. `script/pandemic_sensitivity.R`
@@ -352,6 +362,10 @@ separada do benchmark observável.
 - Nota fica aqui. Log de sessão fica em `progress_logs/`. Parecer recebido fica
   em `pareceres/`. Nunca o contrário.
 
+**2026-09-30:** `paper/paper_anpec.tex` passou a se chamar `paper/paper.tex`, e
+as figuras `paper/fig_*.pdf` foram para `paper/img/`. As notas abaixo seguem
+com os caminhos antigos; o mapa está em `registro/mapa_renomeacoes.md`.
+
 **2026-09-18:** o wild bootstrap e a correção de Kilian saíram do código.
 `script/ar_bands.R`, `script/fomc_coincidence.R` e `R/instrument/event_tests.R`
 foram para `arquivo/`. Toda nota que descreve bandas de bootstrap do DFM, ou
@@ -435,6 +449,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-09-30_nota_filtro_jk`](2026-09-30_nota_filtro_jk.md) | 09-30 | **CURRENT — rodada de texto; nada reestimado** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/robustez-pandemia` | Tudo: o rodapé da §3.4 sobre o filtro JK (ξ_mp 7,02 → 5,01 e 6,84 → 4,73; F_rob 8,62 → 7,59 e 8,31 → 7,78; 0/4255 pontos fora do conjunto de 90% de produção; conjuntos 1,32 vez mais largos; pares significativos a 90% 1587 → 856); a §1 e os resumos de volta à redação de 09-26. ⚠ Com o filtro o impacto no Ibovespa exclui zero (−8,17%, [−28,4; −3,0]), em parte por construção; o resumo em inglês ainda traz "3.64%" |
 | [`2026-09-30_robustez_pandemia`](2026-09-30_robustez_pandemia.md) | 09-30 | **CURRENT — rodada de apêndice; produção intocada** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/robustez-pandemia` | Tudo: as cinco figuras do Anexo C desenham desde esta data as mesmas oito séries (DI 6 meses e 2 anos, BRL/USD, CDS, Focus PIB, IPCA 12 meses e Selic, DBGG), por decisão do autor, o que torna as figuras das notas de 09-24, 09-25 e 09-26 diferentes das do paper; `q` de 2 a 5 com e sem a reescala na amostra completa, com 4/26/26 de 296 pontos de `q` = 4/3/2 fora do conjunto de 90% de `q = 5` nas oito séries com a reescala e 44/132/154 sem ela (painel: 151/420/408 contra 589/1651/1805 de 4255); ⚠ com a reescala o câmbio sai de h0 a h9 e a DBGG de h0 a h7 em `q ≤ 3`, e o impacto da DBGG troca de sinal; em `q = 5`, MQO com 0/4255 pontos fora do conjunto de 90% da produção (raiz 0,970090); `p` e camadas do instrumento com 0/296 fora nas oito séries novas; pré-COVID em ponto (raiz 0,993359) com curva e risco soberano dentro do conjunto. ⚠ Câmbio pré-COVID fora no impacto (R$ 0,056 contra 0,141); DBGG pré-COVID com o sinal oposto, fora em 22 dos 37 horizontes; 1407/4255 pontos fora, em 103 das 115 séries; IBC-Br, IPCA, Ibovespa e DLSP, fora da figura, saem em 12 a 21 dos 37 horizontes. ⚠ Ponto pré-COVID sem inferência (`hac_dim` 135 ≥ 90); ficar dentro do conjunto não é teste de igualdade |
 | [`2026-09-27_het_var_escala_covid`](2026-09-27_het_var_escala_covid.md) | 09-27 | **CURRENT — diagnóstico; produção intocada** | produção de 2026-09-26 (`(5,5,4)`, escala LP), painel mensal 2012-03--2025-12, 107 C / 54 NC; branch `feature/unidades-nativas` | Tudo: θ̂ por vértice (s̄0 ≈ 4,5–4,9, ρ ≈ 0,94–0,95, máximo único em 750 inícios); o VAR tratado não rejeita `λ₁ = λ₂` (p 0,824–0,966); razões C/NC 1,99–2,32 no DI, 1,21–1,27 no câmbio e 1,89–1,92 no CDS; o deslocamento declarado da linha sem tratamento pela troca de caminho (GLS `p = 4`, 162 meses → MQO com resíduos como inovações, 161 meses). ⚠ Com o tratamento, `λ₂ = λ₃` cai a p 0,104 no vértice de 3 meses |
 | [`2026-09-27_unidades_nativas`](2026-09-27_unidades_nativas.md) | 09-27 | **CURRENT — rodada de apresentação; nada reestimado** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/unidades-nativas` | Tudo: o fim da divisão pela média amostral; a tabela antes/depois de cada número da prosa; a comparação entre séries que mudou no h36 da §4.5; o rótulo corrigido da `fig:weak_iv_main`. ⚠ BRL/ARS: impacto de R$ 0,0063/peso, acima do nível do fim da amostra (0,0038) |

@@ -13,6 +13,21 @@ mantidos em lugar e já usam os caminhos correntes.
 
 ---
 
+## 2026-09-30 — organização de `paper/`
+
+As figuras foram para `paper/img/`, e o `.tex` as inclui como `img/fig_*.pdf`.
+Os seis scripts que as desenham gravam no caminho novo. Nada foi redesenhado, e
+o PDF compilado tem as mesmas 32 páginas e os mesmos avisos de antes.
+
+| antes | agora |
+|---|---|
+| `paper/paper_anpec.tex` | `paper/paper.tex` |
+| `paper/paper_anpec.pdf` | `paper/paper.pdf` |
+| `paper/fig_*.pdf` | `paper/img/fig_*.pdf` |
+
+Os números de linha `paper_anpec.tex:<linha>` citados nas notas valem para o
+conteúdo daquela data, agora sob `paper/paper.tex`.
+
 ## 2026-09-25 — `coding-style` em `R/instrument/`
 
 Quarta passada da skill `coding-style`, agora sobre os dois arquivos de

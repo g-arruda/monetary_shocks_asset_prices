@@ -1,7 +1,7 @@
 # Nova estrutura do artigo — Metodologia, Resultados e Apêndices
 
 > **ROTEIRO HISTÓRICO; NÚMEROS SUPERADOS.** O manuscrito corrente é
-> `paper/paper_anpec.tex`. As magnitudes e estatísticas abaixo antecedem a
+> `paper/paper.tex`. As magnitudes e estatísticas abaixo antecedem a
 > migração canônica de 2026-08-13 e não devem ser transportadas ao paper.
 > A produção corrente está em `notas/2026-08-24_migracao_dfm_p4.md`; a revisão
 > integral do manuscrito foi concluída em 2026-08-25. O restante deste arquivo

@@ -31,7 +31,8 @@ now): in this construction the filter *lowers* ξ_mp, 7.02 → 5.01 full and 6.8
 Production ξ_mp is therefore 7.02 full / 6.84 pre-COVID, every AR set `interval` at 80 and 90%.
 `notas/2026-09-26_bs_lista_tabela3_externas.md` and
 `notas/2026-09-26_producao_bs_purif_bandas_80_90.md` have the numbers. **The paper migrated the same day and reports no JK layer at
-all** (author decision): `tab:first_stage` has two rows, `tab:bs_ortogonalizacao` only the DI column,
+all** (author decision; since 2026-09-30 one §3.4 footnote gives the strength and significance loss,
+`notas/2026-09-30_nota_filtro_jk.md`): `tab:first_stage` has two rows, `tab:bs_ortogonalizacao` only the DI column,
 and `fig:instrumento_camadas` only production and `z_bruto`
 (`notas/2026-09-26_migracao_paper_bs_purif.md`). `z_jk_bs_purif` is still built, because the
 strength grid and the diagnostics use all three layers.

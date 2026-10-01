@@ -11,7 +11,8 @@ paths:
 
 # Writing prose and reading the record
 
-The canonical paper is `paper/paper_anpec.tex` (class `elsarticle`). §3 Metodologia has four
+The canonical paper is `paper/paper.tex` (class `elsarticle`; `paper_anpec.tex` until 2026-09-30),
+and every figure it includes lives in `paper/img/`. §3 Metodologia has four
 subsections since 2026-09-17 — `Modelo e estimação`, `Base de dados`, `Identificação e construção
 do instrumento`, `Relevância do instrumento e inferência`; §4 Resultados has eight subsections, one per figure;
 §3.3 (`sec:identificacao`) opens, since 2026-09-26, with one narrative paragraph and no footnote on why the
@@ -57,7 +58,9 @@ bootstrap* is now uncited in the body, captions included.
 **Since 2026-09-26 the whole `.tex` follows the current production**
 (`2026-09-26_migracao_paper_bs_purif`, migrated on `feature/bs-copom-surpresas-macro` and
 fast-forwarded into `main` the same day): `z_bs_purif`, AR sets at 80/90% in every
-caption and in §3.4, and **no JK sign filter anywhere in the paper**. §3.3 has two layers,
+caption and in §3.4, and **no JK sign filter in the instrument**: since 2026-09-30 (branch
+`feature/robustez-pandemia`) the filter appears only in one §3.4 footnote on why it is out, and §2
+cites JK as literature. The abstracts and §1 describe the instrument without it. §3.3 has two layers,
 `tab:first_stage` two rows, `tab:bs_ortogonalizacao` one DI column (coefficient and SE) over the
 102 meetings, and `fig:instrumento_camadas` only production and the raw surprise.
 `tab:rq_sweep` no longer exists.

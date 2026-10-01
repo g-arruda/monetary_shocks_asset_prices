@@ -1,0 +1,9 @@
+Gabriel, a seguir pontos a serem ajustados antes de partirmos pra escrever a introdução e traduzir pensando na submissão: 
+
+1. Incluir de fato a figura de placebos no .tex. O parágrafo da Seção 3.3 cita \autoref{fig:placebos}, mas não existe nenhum \includegraphics nem \label{fig:placebos} no documento, a referência vai sair quebrada ("??") na compilação. A figura em si está correta e bate com a descrição do texto; falta só inseri-la no Anexo D, como o próprio texto já diz que ela está lá.
+2. Acrescentar o número do teste do EPU como controle. O parágrafo já descreve bem, em palavras, que a resposta do EPU permanece mesmo com o EPU diário entrando na ortogonalização, mas o $p=0,54$ que você mencionou no e-mail não está escrito em lugar nenhum do texto ou das tabelas. Vale incluir esse número explicitamente (no corpo do parágrafo ou como nota), para a afirmação ter o respaldo quantitativo que você já tem em mãos.
+3. Comentar a divergência de DBGG e Focus PIB na janela pré-COVID. Na figura de sensibilidade pré-COVID, a maioria das variáveis acompanha bem o padrão da amostra completa (com mais ruído, esperado pelo tamanho menor), mas DBGG e Focus PIB destoam visivelmente, a DBGG, inclusive, caminha na direção oposta à da amostra completa entre os meses 6 e 18. Vale uma frase reconhecendo isso no texto, em vez de deixar para o leitor notar sozinho.
+4. Revisar a frase da nota de rodapé do Anexo C sobre a figura fig:lp_sensibilidade. Está descrita como sensibilidade das respostas a $q$ com e sem a reescala, o que pode ser lido como se fosse a mesma figura de sensibilidade a $q$ do Alessi (fig:q_sensibilidade). A figura em si está ótima (cruza $q=2$ a $5$ com e sem a reescala, em 8 variáveis), só a frase merece um ajuste para deixar claro que é um exercício cruzado, não uma repetição do outro.
+
+Abrs.,
+João

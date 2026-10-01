@@ -3,7 +3,7 @@
 > **CURRENT — 2026-09-26.** Lido de `output/irf/irf_coherence_cell.rds` e
 > `output/irf/irf_coherence_h.csv`, escritos por `script/irf_coherence_check.R` na produção corrente
 > (`z_bs_purif`, conjuntos de 80% e 90%), promovida para `main` nesta data. É a fonte dos números da
-> §4 e da §5 de `paper/paper_anpec.tex`, migrado nesta data
+> §4 e da §5 de `paper/paper.tex`, migrado nesta data
 > (`notas/2026-09-26_migracao_paper_bs_purif.md`). A leitura anterior, de `z_jk_bs_purif` a 68/90%,
 > está em `notas/2026-09-24_migracao_secao_4.md`.
 > As bandas abaixo são **conjuntos Anderson--Rubin**, e as colunas `set_type80`/`set_type90` do CSV

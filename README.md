@@ -245,9 +245,10 @@ orientador ao longo da pesquisa.
 
 ## `paper/`
 
-O paper canônico desde **2026-08-02** (`paper_anpec.tex`, classe
-`elsarticle`, submissão ANPEC, título "Uncovered Interest Parity,
-Inverted...").
+O paper canônico desde **2026-08-02** (`paper.tex`, que se chamava
+`paper_anpec.tex` até 2026-09-30, classe `elsarticle`, submissão ANPEC, título
+"Uncovered Interest Parity, Inverted..."). Todas as figuras que ele inclui
+ficam em `paper/img/` desde 2026-09-30.
 
 O arquivo foi integralmente sincronizado em 2026-08-25 com a produção de 111
 séries `(r,q,p)=(5,5,4)`: resumo, introdução, metodologia, resultados,
@@ -267,7 +268,7 @@ editorial, as duas últimas omitem a rederivação da máscara, preservada apena
 nos diagnósticos e registros. A conclusão
 passou a ser a §6. Desde 2026-08-05
 `script/fig_section5.R` gera as **9** figuras direto aqui
-(`paper/fig_*.pdf`, nomes nus, que é como o `.tex` as inclui): o §4 usa
+(`paper/img/fig_*.pdf`, que o `.tex` inclui como `img/fig_*.pdf`): o §4 usa
 8, `fig_placebos` estava na §5 até 2026-08-31 e está no Anexo D desde
 2026-09-30, e `fig_estado`, que seguia sem consumidor, saiu com
 o seu gerador em 2026-09-18.

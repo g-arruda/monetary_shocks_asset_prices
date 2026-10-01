@@ -177,7 +177,7 @@ veredito do FOMC também não mudou.
 - **Teste B (três vias) e Teste D (tabela datada) saíram de
   `arquivo/script/jk_sovereign_confound.R`.** B pela aritmética do parágrafo anterior, a
   metade "política" de todas as três regras ficando abaixo de 3,84. D porque seu
-  único consumidor era a ressalva de concentração de `paper_anpec.tex`, retirada
+  único consumidor era a ressalva de concentração de `paper.tex`, retirada
   do paper na mesma data por decisão do autor;
   `output/instrument/jk_sovereign_days.csv` foi apagado do repositório.
 - **Teste 4 (divisão FOMC / sem-FOMC) saiu de `fomc_coincidence.R`** (hoje em
@@ -898,7 +898,7 @@ resposta cruza zero — o horizonte de cruzamento andou. Os sinais de impacto n�
 `ibc_br` −0,725, `cambio_usd` +0,081, `cds_5y` +15,68 pb, `yield_6m` +0,005 por normalização.
 
 **A figura foi repintada em 2026-09-21**, na migração da §5
-(`notas/2026-09-21_migracao_secao_5.md`): `paper/fig_weak_iv_main.pdf` mostra agora a célula
+(`notas/2026-09-21_migracao_secao_5.md`): `paper/img/fig_weak_iv_main.pdf` mostra agora a célula
 `_p4` na janela de produção contra o DFM `(5,5,4)`, e a legenda anuncia conjuntos
 Anderson-Rubin nos dois modelos.
 
@@ -909,7 +909,7 @@ Anderson-Rubin nos dois modelos.
 ## 16. A §5.3 (FOMC) sai do paper (2026-09-21)
 
 **Decisão do autor.** A subseção `O filtro de sinal seleciona notícias do FOMC?` foi excluída
-inteira do `paper/paper_anpec.tex`, com `eq:fomc-contamination` e o `\label{sec:fomc}`. A
+inteira do `paper/paper.tex`, com `eq:fomc-contamination` e o `\label{sec:fomc}`. A
 única referência cruzada a ela estava num parágrafo já comentado, que saiu junto. Nenhuma
 `\cite` morreu: o orçamento segue em 21 chaves das 25.
 

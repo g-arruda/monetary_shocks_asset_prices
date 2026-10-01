@@ -72,7 +72,7 @@ autor em 2026-08-25.
 
 Desde 2026-09-24 o paper inteiro, as figuras da §4 e `output/irf/irf_section.md`
 estão na vintage de produção (`notas/2026-09-24_migracao_secao_4.md`). Desde
-2026-09-26 as figuras `paper/fig_*.pdf` e o `.tex` estão na produção nova
+2026-09-26 as figuras `paper/img/fig_*.pdf` e o `.tex` estão na produção nova
 (`z_bs_purif`, 80/90%), e o filtro JK saiu do paper inteiro
 (`notas/2026-09-26_migracao_paper_bs_purif.md`). Grades
 históricas de painel, `(r,q)` e instrumento condicionadas a `p=6` permanecem
@@ -88,8 +88,7 @@ AR/MOSW próprios.
 |---|---|---|
 | B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
-| A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper_anpec.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
-| A | Nota sobre o filtro Jarociński-Karadi, com os números antes e depois | e-mail de 28-09; decisão documentada em vez de omissão; conflita com a saída do JK do paper em 2026-09-26 |
+| A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
@@ -97,7 +96,7 @@ AR/MOSW próprios.
 ## A. Texto do paper
 
 
-*Inclui os achados do council review de `arquivo/tex/main.tex` (archived draft; `paper/paper_anpec.tex` is now canonical) em 2026-07-31 —
+*Inclui os achados do council review de `arquivo/tex/main.tex` (archived draft; `paper/paper.tex` is now canonical) em 2026-07-31 —
 revisão paralela de três críticos independentes (harsh-referee e
 macro-theorist em Claude Opus, methodologist via Gemini 3.1 Pro como par
 cross-vendor). Veredito da síntese: **Major Revision**, não Reject — os dois
@@ -107,7 +106,7 @@ trabalho não feito, não defeito estrutural. O benchmark VAR foi rodado (ver
 está adiada nas condições do Tema B. Relatório completo:
 `pareceres/council_2026-07-31.md`.*
 
-*Segundo council review, agora sobre `paper/paper_anpec.tex` diretamente
+*Segundo council review, agora sobre `paper/paper.tex` diretamente
 (não mais o draft arquivado), em 2026-08-10 — painel macro-paper de 4
 críticos (methodologist, macro-theorist, skeptic, harsh-referee, todos Claude
 Opus). Veredito: **Major Revision**, mesma classificação do round anterior,
@@ -126,7 +125,7 @@ o teste **não encontra contaminação**. Segue aberto o item factual de que
 Relatório completo, com as quatro críticas brutas e a síntese com Named
 Dissents: `pareceres/council_2026-08-10.md`.*
 
-*Auditoria blindspot de `paper/paper_anpec.tex` em 2026-08-12 — auditoria de
+*Auditoria blindspot de `paper/paper.tex` em 2026-08-12 — auditoria de
 percepção, não de código: o que a saída mostra e o texto não vê. Relatório
 completo em `relatorio/blindspot_2026-08-12.md`, com os quatro quadrantes e a
 distinção entre achado novo e item já registrado. Veredito: **HOLD**, por um
@@ -139,17 +138,8 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 *Três itens transcritos em 2026-09-29 do e-mail do orientador de 28-09
 (`email/email_professor_28-09_21h15.md`), resposta a `email_meu_28-09_9h38.md`.
-O dos placebos e o da figura de Lenza-Primiceri fecharam em 2026-09-30; o da nota
-sobre o filtro Jarociński-Karadi segue aberto.*
+Os três fecharam em 2026-09-30.*
 
-- [ ] **Nota sobre a remoção do filtro Jarociński-Karadi.** Rodapé ou frase no
-  corpo: o filtro foi testado, piorou a força do instrumento (números antes e
-  depois; ξ_mp 7,02 → 5,01 na janela cheia e 6,84 → 4,73 pré-COVID, F_rob
-  incluído), sem alterar os resultados, e por isso não entra na produção. O
-  orientador pede que a omissão vire decisão documentada, porque os autores são
-  citados com destaque na revisão de literatura. ⚠ A migração de 2026-09-26 tirou
-  o JK do paper por inteiro; a nota reintroduz uma menção mínima e o autor decide
-  a forma. Fonte dos números: `notas/2026-09-26_producao_bs_purif_bandas_80_90.md`.
 - [ ] **Decidir se o resumo, a introdução e a conclusão absorvem a leitura da
   §4 migrada.** A rodada de 2026-09-24 reescreveu a §4 e, fora dela, só trocou
   números e datas, por decisão do autor. Três frases de argumento ficaram
@@ -185,7 +175,7 @@ sobre o filtro Jarociński-Karadi segue aberto.*
   do painel, a última cotação do mês de referência.
   Nota: `2026-09-22_condicao_het_svars`.
 - [x] **O que a §2 diz sobre o CDS de Gonçalves, Rodrigues e Genta — RESOLVIDO em
-  2026-09-22.** `paper_anpec.tex` deixou de repetir "não apresenta resposta
+  2026-09-22.** `paper.tex` deixou de repetir "não apresenta resposta
   sistemática" e passa a reportar o fechamento de 3 a 11 p.b., com o vértice de doze
   meses distinto de zero, registrando que os autores o descrevem como ausente. A
   unidade inferida fica documentada em `het_rigobon/_common.R` e no relatório
@@ -209,6 +199,13 @@ sobre o filtro Jarociński-Karadi segue aberto.*
   Nota: `2026-09-22_condicao_het_svars`.
 ### Fechados (contexto)
 
+- [x] **Rodapé sobre a saída do filtro Jarociński-Karadi — 2026-09-30.** Na §3.4: o filtro reduz
+  ξ_mp de 7,02 para 5,01 (pré-COVID, 6,84 para 4,73) e F_rob de 8,62 para 7,59 (8,31 para 7,78),
+  nenhum ponto sai do conjunto de 90% de produção (0/4255), e os pares significativos a 90% caem de
+  1587 para 856. A §1 e os resumos, que `6e0bc00` tinha devolvido à descrição com o filtro, voltaram
+  à de 26-09. ⚠ Com o filtro o impacto no Ibovespa exclui zero (−8,17%), em parte por construção, e
+  o rodapé não o diz; o "3.64%" do resumo em inglês segue no item de resumo e conclusão acima.
+  Branch `feature/robustez-pandemia`. Nota: `2026-09-30_nota_filtro_jk`.
 - [x] **Sensibilidade a `q` com e sem a reescala de Lenza-Primiceri no Anexo C — 2026-09-30.**
   `script/pandemic_sensitivity.R` e `fig:lp_sensibilidade`: `q` de 2 a 5 em duas colunas, com a
   reescala e por MQO, uma linha de painéis por série, cada `q = 5` com os próprios conjuntos AR.
@@ -312,7 +309,7 @@ sobre o filtro Jarociński-Karadi segue aberto.*
   `notas/2026-09-01_teste_expectativas_fiscais.md`.
 - [x] **Revisão integral do paper — 2026-08-25.** Resumo a conclusão migrados
   para 111 séries `(5,5,4)`; manchetes 3,74%/24,5pb/30,7pb/74,8pb; prosa
-  defensiva sobre UIP/dominância fiscal removida. Fonte: `paper/paper_anpec.tex`.
+  defensiva sobre UIP/dominância fiscal removida. Fonte: `paper/paper.tex`.
 - [x] **Diagnósticos de máscara condensados na exposição — 2026-08-25.**
   Risco soberano e FOMC mostram só a máscara fixa; rederivação fica nos
   artefatos e no registro metodológico.
@@ -430,7 +427,7 @@ sobre o filtro Jarociński-Karadi segue aberto.*
   incluir o Ibovespa entre os preditores BS predeterminados.
 - [x] **`juros_selic`/`juros_cdi` não são evidências independentes —
   2026-08-01.** Divergem só no 3º dígito; citar as duas como confirmação
-  cruzada seria erro. `paper/paper_anpec.tex:335`.
+  cruzada seria erro. `paper/paper.tex:335`.
 
 ---
 
@@ -494,7 +491,7 @@ do autor, sem ser executado.*
 
 - [x] **Figura de sensibilidade `q = 2,…,5` (`r = 5`) no Anexo C — FEITA em
   2026-09-24.** Passo 4/4. `q_sensitivity.R --window=cheia` escreve
-  `paper/fig_q_sensibilidade.pdf`: oito séries até h36, com `q = 5` guardado contra
+  `paper/img/fig_q_sensibilidade.pdf`: oito séries até h36, com `q = 5` guardado contra
   `irf_coherence_h.csv` a 1e-10. Em h ≤ 36, 16, 5 e 4 das 20 séries ficam inteiras
   na banda de 90% (as mesmas contagens de 0–48). As pernas sem tratamento e
   pré-COVID ficam no registro. Nota: `2026-09-24_q_sensibilidade_anexo`.
