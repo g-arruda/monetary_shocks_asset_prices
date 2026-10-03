@@ -1,0 +1,1107 @@
+{
+  "table_of_contents": [
+    {
+      "title": "DISAGREEMENT AMONG FORECASTERS IN G7 COUNTRIES",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          108.28125,
+          55.5
+        ],
+        [
+          521.25,
+          55.5
+        ],
+        [
+          521.25,
+          67.5
+        ],
+        [
+          108.28125,
+          67.5
+        ]
+      ]
+    },
+    {
+      "title": "I. Introduction",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          144.75,
+          234.75
+        ],
+        [
+          219.75,
+          234.75
+        ],
+        [
+          219.75,
+          244.0283203125
+        ],
+        [
+          144.75,
+          244.0283203125
+        ]
+      ]
+    },
+    {
+      "title": "II. The Data",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          151.34765625,
+          431.5
+        ],
+        [
+          213.93560791015625,
+          431.5
+        ],
+        [
+          213.93560791015625,
+          441.5
+        ],
+        [
+          151.34765625,
+          441.5
+        ]
+      ]
+    },
+    {
+      "title": "A. The Data Set",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          55.986328125,
+          450.927001953125
+        ],
+        [
+          126.69359588623047,
+          450.927001953125
+        ],
+        [
+          126.69359588623047,
+          460.927001953125
+        ],
+        [
+          55.986328125,
+          460.927001953125
+        ]
+      ]
+    },
+    {
+      "title": "B. Fixed-Event and Fixed-Horizon Forecasts",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          318.69140625,
+          524.0478515625
+        ],
+        [
+          505.82080078125,
+          524.0478515625
+        ],
+        [
+          505.82080078125,
+          534.3641052246094
+        ],
+        [
+          318.69140625,
+          534.3641052246094
+        ]
+      ]
+    },
+    {
+      "title": "C. Descriptive Statistics",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          320.25,
+          618.75
+        ],
+        [
+          424.5,
+          618.75
+        ],
+        [
+          424.5,
+          627.75
+        ],
+        [
+          320.25,
+          627.75
+        ]
+      ]
+    },
+    {
+      "title": "III. Drivers of Disagreement",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          117.2021484375,
+          589.5899810791016
+        ],
+        [
+          248.0357208251953,
+          589.5899810791016
+        ],
+        [
+          248.0357208251953,
+          599.5899810791016
+        ],
+        [
+          117.2021484375,
+          599.5899810791016
+        ]
+      ]
+    },
+    {
+      "title": "A. A First Look at Disagreement",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          319.6142578125,
+          468.3948974609375
+        ],
+        [
+          458.0419921875,
+          468.3948974609375
+        ],
+        [
+          458.0419921875,
+          478.9599609375
+        ],
+        [
+          319.6142578125,
+          478.9599609375
+        ]
+      ]
+    },
+    {
+      "title": "B. Disagreement over Time",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          321.0237731933594,
+          649.4661865234375
+        ],
+        [
+          436.5087890625,
+          649.4661865234375
+        ],
+        [
+          436.5087890625,
+          659.4661865234375
+        ],
+        [
+          321.0237731933594,
+          659.4661865234375
+        ]
+      ]
+    },
+    {
+      "title": "C. An Intermezzo on Macroeconomic Volatility",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          319.306640625,
+          675.9228515625
+        ],
+        [
+          514.6507568359375,
+          675.9228515625
+        ],
+        [
+          514.6507568359375,
+          686.7670974731445
+        ],
+        [
+          319.306640625,
+          686.7670974731445
+        ]
+      ]
+    },
+    {
+      "title": "D. Disagreement and Macrovariables",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          319.5,
+          498.0
+        ],
+        [
+          479.25,
+          498.0
+        ],
+        [
+          479.25,
+          507.4365234375
+        ],
+        [
+          319.5,
+          507.4365234375
+        ]
+      ]
+    },
+    {
+      "title": "E. Disagreement and Central Bank Independence",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          316.845703125,
+          519.75
+        ],
+        [
+          526.5,
+          519.75
+        ],
+        [
+          526.5,
+          529.5849609375
+        ],
+        [
+          316.845703125,
+          529.5849609375
+        ]
+      ]
+    },
+    {
+      "title": "IV. Disagreement across Countries",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          102.12890625,
+          529.5
+        ],
+        [
+          262.5,
+          529.5
+        ],
+        [
+          262.5,
+          539.0771484375
+        ],
+        [
+          102.12890625,
+          539.0771484375
+        ]
+      ]
+    },
+    {
+      "title": "A. Country-by-Country Regression Analysis",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          318.75,
+          460.7666015625
+        ],
+        [
+          503.25,
+          460.7666015625
+        ],
+        [
+          503.25,
+          471.0
+        ],
+        [
+          318.75,
+          471.0
+        ]
+      ]
+    },
+    {
+      "title": "V. Conclusion",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          148.5791015625,
+          126.1669921875
+        ],
+        [
+          216.96559143066406,
+          126.1669921875
+        ],
+        [
+          216.96559143066406,
+          136.66998291015625
+        ],
+        [
+          148.5791015625,
+          136.66998291015625
+        ]
+      ]
+    },
+    {
+      "title": "REFERENCES",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          153.80859375,
+          571.5087890625
+        ],
+        [
+          209.7371826171875,
+          571.5087890625
+        ],
+        [
+          209.7371826171875,
+          580.7356872558594
+        ],
+        [
+          153.80859375,
+          580.7356872558594
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          138
+        ],
+        [
+          "Span",
+          36
+        ],
+        [
+          "Text",
+          16
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          224
+        ],
+        [
+          "Line",
+          113
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "Footnote",
+          6
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "TableCell",
+          176
+        ],
+        [
+          "Line",
+          85
+        ],
+        [
+          "Span",
+          41
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Equation",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          255
+        ],
+        [
+          "Line",
+          72
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          233
+        ],
+        [
+          "Line",
+          66
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Footnote",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          245
+        ],
+        [
+          "Line",
+          67
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          300
+        ],
+        [
+          "Line",
+          69
+        ],
+        [
+          "Text",
+          9
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Equation",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          84
+        ],
+        [
+          "Span",
+          43
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "Equation",
+          4
+        ],
+        [
+          "Footnote",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          73
+        ],
+        [
+          "Span",
+          53
+        ],
+        [
+          "Text",
+          9
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Equation",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 9,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "TableCell",
+          360
+        ],
+        [
+          "Line",
+          39
+        ],
+        [
+          "Span",
+          23
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Caption",
+          2
+        ],
+        [
+          "Table",
+          2
+        ],
+        [
+          "TableGroup",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 10,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "TableCell",
+          208
+        ],
+        [
+          "Line",
+          68
+        ],
+        [
+          "Span",
+          22
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Caption",
+          2
+        ],
+        [
+          "Table",
+          2
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "TableGroup",
+          2
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 11,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "TableCell",
+          274
+        ],
+        [
+          "Line",
+          61
+        ],
+        [
+          "Span",
+          23
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Table",
+          2
+        ],
+        [
+          "Equation",
+          1
+        ],
+        [
+          "Footnote",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 12,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "TableCell",
+          272
+        ],
+        [
+          "Line",
+          64
+        ],
+        [
+          "Span",
+          30
+        ],
+        [
+          "Text",
+          9
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 13,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "TableCell",
+          264
+        ],
+        [
+          "Line",
+          59
+        ],
+        [
+          "Span",
+          37
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 14,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          331
+        ],
+        [
+          "Line",
+          131
+        ],
+        [
+          "ListItem",
+          30
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 15,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          172
+        ],
+        [
+          "Line",
+          64
+        ],
+        [
+          "ListItem",
+          21
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/Dovern, Fritsche, slacalek - DISAGREEMENT AMONG FORECASTERS IN G7 COUNTRIES"
+}

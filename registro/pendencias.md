@@ -1,5 +1,8 @@
 # Pendências
 
+**Atualização de 2026-10-03:** o e-mail do orientador de 03-10 (`email/email_professor_03-10_11h31.md`)
+entrou no Tema B como um plano de seis passos (0 a 5) e a resposta que ele pede ao autor; nenhum foi
+executado. O item do p = 0,54 do Tema A ganhou a redação que o orientador pede.
 **Atualização de 2026-10-01:** quatro itens do e-mail do orientador de 30-09 entraram no
 Tema A, todos abertos. No mesmo dia o item de DBGG e Focus PIB na janela pré-COVID ganhou o
 diagnóstico (`notas/2026-10-01_precovid_dbgg_focus_pib.md`), sem frase no `.tex` por decisão do
@@ -97,6 +100,13 @@ AR/MOSW próprios.
 | A | Conferir a figura de placebos no `.tex` | aberto em 2026-10-01, e-mail de 30-09; a figura está no Anexo D de `main` desde `1a150d0`; compilar e avisar o orientador da versão vigente |
 | A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu` |
 | A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
+| B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, escopo das séries Focus, o que é "excluir" uma reunião, avaliação conjunta dos placebos |
+| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; reportar primeiro quanto mudam câmbio e CDS; muda o painel, branch própria; **bloqueia os passos 1 a 5** |
+| B | Passo 1/5: precisão (AR 95%, tabela em h = 0, 1, 3, 6, 12 e 24, pré-COVID, Newey-West 1 a 3) | aberto em 2026-10-03; depende do passo 0; ⚠ intervalos pré-COVID barrados por `hac_dim` 135 ≥ 90 em `p = 4` |
+| B | Passo 2/5: regressões diárias de câmbio e CDS na surpresa bruta e na ortogonalizada | aberto em 2026-10-03; depende do passo 0; diagnóstico de forma reduzida, sem atribuir a divergência de antemão |
+| B | Passo 3/5: influência das reuniões e exclusão por VIX, S&P 500 e Brent | aberto em 2026-10-03; depende do passo 0; regra definida antes de rodar, sem selecionar por câmbio ou CDS |
+| B | Passo 4/5: placebos nos horizontes definidos, com avaliação conjunta | aberto em 2026-10-03; depende do passo 0; liga-se ao item do p = 0,54 do Tema A |
+| B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26) |
 
 ---
 
@@ -158,7 +168,10 @@ antes de escrever a introdução e traduzir para a submissão. Nenhum foi execut
   tendência de 13 semanas do EPU diário não prevê a surpresa do Copom) não está no texto nem nas
   tabelas. Pôr no corpo ou em nota. ⚠ O teste só existe na branch `feature/placebo-epu`
   (nota `2026-09-29_placebo_epu`, ausente de `main`); o número vem de lá, e o parágrafo hoje diz
-  só o que a branch sustenta.
+  só o que a branch sustenta. O e-mail de 03-10 (passo 4) diz como escrever: explicitar a hipótese a
+  que o p = 0,54 corresponde e, por ele testar o coeficiente do EPU na previsão da surpresa,
+  descrevê-lo como ausência de evidência de poder preditivo naquela especificação, sem lê-lo como
+  validação da exogeneidade. Depende do passo 4/5 do Tema B, que traz a análise dos placebos.
 - [ ] **Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade`.** Descrita como sensibilidade das
   respostas a `q` com e sem a reescala, pode ser lida como a mesma figura de `fig:q_sensibilidade`.
   Deixar claro que é um exercício cruzado (`q` = 2 a 5 × com e sem a reescala, oito séries), não
@@ -481,6 +494,113 @@ e-mail do orientador de 2026-09-13 (`email/email_professor_13-09_10h45.md`),
 resposta às sugestões 1/5, 2/5 e 3/5 acima (fechadas em 2026-09-10). Os passos
 3/4 e 4/4 estão fechados abaixo; o 1/4 foi removido em 2026-09-24 por decisão
 do autor, sem ser executado.*
+
+*Plano do e-mail do orientador de 03-10 (`email/email_professor_03-10_11h31.md`), transcrito em
+2026-10-03. É uma única rodada de verificações para decidir a submissão. Ele não pretende demonstrar
+a exogeneidade do instrumento nem que o risco causa a depreciação: quer avaliar se a interpretação
+monetária da resposta conjunta continua convincente diante de contaminação, imprecisão e pandemia.
+**A ordem importa, porque o passo 0 pode mudar os fatores.** Nenhum passo foi executado.*
+
+*Critério de decisão, combinado antes de rodar:*
+- *Avaliam-se juntos a magnitude, a precisão, a relevância do instrumento e a estabilidade da resposta
+  inicial de câmbio e CDS. Os horizontes posteriores só caracterizam persistência e reversão, sem
+  exigir que o sinal se mantenha.*
+- *Resposta inicial com suporte estatístico e economicamente estável nas verificações: avança-se para
+  a submissão, com uma conclusão delimitada.*
+- *Padrão mantido, mas precisão limitada ou menor nas subamostras: ajusta-se a linguagem e avalia-se se
+  a evidência ainda sustenta uma contribuição publicável.*
+- *Poucos eventos determinam o resultado, ou surgem divergências precisas e substantivas entre
+  desenhos comparáveis: investiga-se antes de submeter. Inversões pontuais acompanhadas de grande
+  incerteza não são tratadas isoladamente como invalidação.*
+- *Reportar os conjuntos de 90% e 95%, sem transformar um nível específico em critério automático de
+  submissão. **Reportar tudo o que rodar, inclusive o que não ficar bom.***
+
+*O e-mail deixa para depois, fora desta rodada: o instrumento alternativo (extensão), os números da
+DBGG e a agregação temporal completa.*
+
+- [ ] **Responder ao orientador sobre o plano: opinião, prazo e discordâncias.** Ele pede que o autor
+  leia os itens, diga o que acha, estime quanto tempo leva tudo e aponte os pontos de dúvida ou
+  discordância, para alinhar antes de começar. A estimativa de prazo é do autor. Pontos que o registro
+  já levanta e que valem uma pergunta a ele:
+  - pré-COVID: o passo 1 pede intervalos, e `hac_dim` 135 ≥ T = 90 os bloqueia em `p = 4`;
+  - filtro JK: o passo 5 o põe num apêndice, e a decisão de 2026-09-26 o tirou do paper;
+  - escopo do passo 0: quais das séries Focus se reconstroem;
+  - o que "excluir uma reunião" quer dizer no passo 3;
+  - como se faz a avaliação conjunta dos placebos no passo 4.
+- [ ] **Passo 0/5: congelar a base.** Reconstruir as séries, comparar com as originais e reestimar o
+  caso base completo, com fatores, identificação e IRFs. Primeiro reportar quanto mudam câmbio e CDS,
+  e só depois congelar essa versão para os demais exercícios.
+  - Focus a horizonte fixo, pela fórmula do e-mail: `g_t^{12m} = (12 − m_t)/12 · F_t(g_y) +
+    m_t/12 · F_t(g_{y+1})`, com `m_t` o mês do calendário de `t`, `y` o ano de `t` e `F_t` a mediana da
+    última pesquisa Focus do mês `t` para o ano indicado. Chamar a série de "aproximação de horizonte
+    fixo", segundo Dovern, Fritsche e Slacalek (2012, *Review of Economics and Statistics*,
+    "Disagreement among Forecasters in G7 Countries").
+  - ⚠ O painel tem 6 séries Focus "ano seguinte": Selic, PIB, câmbio, DLSP, resultado primário e
+    resultado nominal. O e-mail diz "reconstruir as séries" sem delimitar quais; o câmbio, onde janeiro
+    leva 4% da soma de quadrados, é o caso duvidoso. Pergunta para o item acima.
+  - ⚠ Pendente de conferir: a fórmula segue o e-mail do orientador, e o artigo de Dovern, Fritsche e
+    Slacalek (2012) não está em `artigos/` nem no `.bib`; os pesos não foram checados contra ele.
+  - ⚠ Muda o painel de produção, então vai em branch própria, e promover muda o smoke test, as notas e
+    os números do paper. A promoção é decisão do autor.
+  - **Bloqueia os passos 1 a 5.**
+- [ ] **Passo 1/5: precisão.** Depende do passo 0. Quatro partes:
+  - conjuntos Anderson-Rubin de 95% para câmbio e CDS (a produção escreve 80/90);
+  - tabela curta com o impacto e horizontes **escolhidos antes de olhar os resultados**, h = 0, 1, 3, 6,
+    12 e 24, sem selecionar os meses mais favoráveis;
+  - intervalos de confiança para a janela pré-COVID. ⚠ `hac_dim` 135 ≥ T = 90 em `p = 4` bloqueia o
+    conjunto, e a regra do projeto é não publicar banda pré-COVID, sem pseudo-inversa nem bootstrap
+    substituto. A única célula pré-COVID que passa o gate no registro é a de `p = 2` (`hac_dim` 85 < 92,
+    AR 68/90 em `q = 5`, nota `2026-09-10_truncamento_q`), que **não é a de produção**. Decisão do
+    autor;
+  - autocorrelação nos termos que compõem os momentos do teste AR e sensibilidade a Newey-West com 1 a 3
+    defasagens, ampliando se o diagnóstico indicar dependência mais longa. `mosw_rform_cov()` já aceita
+    `nw_lags` (`R/identification/weak_iv_ar.R:303`) e a produção usa NW(0). A autocorrelação dos
+    momentos ainda não é calculada. `nw_lags` não altera `hac_dim`, então o gate não muda.
+- [ ] **Passo 2/5: evento diário.** Depende do passo 0. Estimar, na amostra comum, a associação das
+  variações diárias de câmbio e CDS com a surpresa bruta e com a ortogonalizada, tratando as regressões
+  como diagnóstico de forma reduzida. Se houver efeitos normalizados por uma variação do DI, explicitar
+  o primeiro estágio e usar inferência apropriada à força do instrumento. O objetivo é ver em que etapa
+  surge a divergência com a evidência diária, **sem atribuí-la de antemão à identificação nem à
+  agregação**, o que combina com a proibição de 2026-09-22 de decompor frequência e janela.
+  Antecedentes: `notas/2026-08-09_confound_soberano_cds.md` (regressões diárias de CDS) e
+  `het_rigobon/` (réplica diária de GRG, em quarentena, não citável como corroboração).
+- [ ] **Passo 3/5: influência das reuniões.** Depende do passo 0. Duas partes:
+  - medir a influência de cada reunião sobre a relação entre o instrumento e as inovações; reestimar
+    excluindo individualmente as mais influentes e, como exercício adicional, excluindo juntas as 5 e as
+    10 mais influentes; reportar a relevância (ξ_mp, F_rob) e a incerteza (conjuntos AR) depois das
+    exclusões;
+  - separadamente, excluir reuniões com movimentos contemporâneos extremos de VIX, S&P 500 ou Brent,
+    por regra **definida antes de rodar**. Isso testa contaminação internacional na janela do evento,
+    distinta dos controles pré-anúncio da ortogonalização.
+
+  ⚠ **Não selecionar reuniões pelo comportamento de câmbio ou CDS.** ⚠ Falta definir "excluir": zerar o
+  instrumento no mês, que mantém `T`, ou retirar a observação. Retirar 10 leva `T` de 162 a 152, ainda
+  acima de `hac_dim` 135 em `(5,5,4)`, mas o gate passa a ser conferido. Antecedente:
+  `arquivo/script/xi_mp_robustness.R` (saída em `output/instrument/xi_mp_robustness.md`, de
+  2026-09-17), que descarta um mês por vez e recalcula só o momento Γ, com o DFM fixo, antes da
+  produção `z_bs_purif`; o passo pede a reestimação completa, que isso não cobre. O leave-one-out
+  sobre a IRF saiu do Tema B na zeragem de 2026-09-08.
+- [ ] **Passo 4/5: placebos.** Depende do passo 0. Apresentar os placebos nos horizontes definidos,
+  reportando os resultados pontuais e uma avaliação conjunta ou uma correção por múltiplos testes.
+  Explicitar a hipótese que corresponde ao p = 0,54. Se ele testa o coeficiente do EPU na previsão da
+  surpresa, descrevê-lo como **ausência de evidência de poder preditivo naquela especificação**, nunca
+  como validação da exogeneidade. O p = 0,543 vem da branch `feature/placebo-epu` e testa isso: a
+  tendência de 13 semanas do EPU diário não prevê a surpresa (nota `2026-09-29_placebo_epu`, só na
+  branch). ⚠ Os conjuntos AR não imprimem p-valor, e Holm ou Bonferroni precisam dele; a estatística
+  AR avaliada em zero o fornece. Decisão de desenho. O texto fica no item do Tema A sobre o p = 0,54.
+- [ ] **Passo 5/5: apêndice.** Depende do passo 0. Respostas de câmbio e CDS com a surpresa bruta, o
+  instrumento ortogonalizado e o filtro de Jarociński-Karadi, com intervalos. O orientador diz que "já
+  está estimado e é barato", e avisa que o filtro não separa um choque de risco de um monetário (os dois
+  podem elevar o DI e derrubar a bolsa), então **não é argumento central de identificação**, o que o
+  rodapé da §3.4 já diz.
+  - ⚠ **Reverte a decisão de 2026-09-26** de tirar o filtro do paper inteiro, salvo esse rodapé.
+    Reabrir é do autor.
+  - ⚠ As linhas JK só existem na história do git (`3b9e402`, `output/irf/instrument_layers_irf.csv`).
+    O CSV atual só tem `z_bruto` e `z_bs_purif`, e `instrument_layers_irf.R` não cita mais
+    `z_jk_bs_purif` (`c3a6536`).
+  - ⚠ "Já estimado" só vale se o passo 0 não mexer nos fatores; se mexer, reestimar.
+  - Já no registro (nota `2026-09-30_nota_filtro_jk`): ξ_mp 5,01 / 4,73, F_rob 7,59 / 7,78, 0/4255
+    pontos fora do conjunto de 90% de produção, conjuntos 1,32× mais largos.
 
 
 ### Fechados (contexto)
