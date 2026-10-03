@@ -64,7 +64,8 @@ LAG_SELECTION <- list(
   common_sample = 154L,
   selected_aic = 4L,
   selected_bic = 2L,
-  aic_at_production = 8.231266782137459
+  # 8.231266782137459 with the "ano seguinte" Focus series, until 2026-10-03
+  aic_at_production = 8.1488747303972797
 )
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -113,9 +114,10 @@ bai_ng_surface <- tibble::tibble(
   IC2 = bai_ng$criteria$IC2,
   IC3 = bai_ng$criteria$IC3
 )
-if (!identical(unname(unlist(bai_ng$r_hat)), c(5L, 5L, 20L)) ||
+# IC3 selected 20 with the "ano seguinte" Focus series, until 2026-10-03
+if (!identical(unname(unlist(bai_ng$r_hat)), c(5L, 5L, 18L)) ||
     any(!is.finite(as.matrix(bai_ng_surface[, -1])))) {
-  stop("The BLL Bai-Ng surface must be finite and select IC1=5, IC2=5, IC3=20.")
+  stop("The BLL Bai-Ng surface must be finite and select IC1=5, IC2=5, IC3=18.")
 }
 saved_bai_ng <- readr::read_csv(BAI_NG_PATH, show_col_types = FALSE)
 if (!identical(names(saved_bai_ng), names(bai_ng_surface)) ||
@@ -203,13 +205,16 @@ samples <- list(full = SAMPLE, pre_covid = PRE_COVID_SAMPLE)
 # treated or not, and they did not move when the treatment was switched on.
 # xi_mp and F_rob are those of z_bs_purif since 2026-09-26, equal to its (5,5)
 # rows of output/instrument/mosw_strength_grid.csv; the companion roots do not
-# depend on the instrument.
+# depend on the instrument. Since 2026-10-03 the six Focus annual series are
+# at a fixed 12-month horizon; with the "ano seguinte" series xi_mp was
+# 7.0189895200649515 / 6.8366817810330156, F_rob 8.6163300983816562 /
+# 8.3066479428861566 and the roots 0.9836760960674927 / 0.9933587954932864.
 expected <- tibble::tibble(
   sample = c("full", "pre_covid"),
   n_innovations = c(162L, 90L),
-  xi_mp = c(7.0189895200649515, 6.8366817810330156),
-  f_robust_mp = c(8.6163300983816562, 8.3066479428861566),
-  max_companion_root = c(0.9836760960674927, 0.9933587954932864),
+  xi_mp = c(6.8019636546454532, 5.5043620711622054),
+  f_robust_mp = c(8.2830468753569697, 5.3359788636967229),
+  max_companion_root = c(0.9855005224958937, 0.9944736338672295),
   stable = c(TRUE, TRUE)
 )
 
@@ -277,16 +282,19 @@ point_irf <- compute_irf_dfm(
   inference = "none"
 )
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
-# Under the production Lenza-Primiceri scale since 2026-09-17, with theta-hat
-# re-estimated on 2026-09-25, and z_bs_purif since 2026-09-26. Under
-# z_jk_bs_purif the values were 0.0070090429740256857, 0.0072900596216797665,
-# -1.5019377453868872 and 0.12942378112688835.
+# Under the production Lenza-Primiceri scale since 2026-09-17, z_bs_purif since
+# 2026-09-26, and the Focus annual series at a fixed 12-month horizon, with
+# theta-hat re-estimated on them, since 2026-10-03. With the "ano seguinte"
+# series the values were 0.0072069426647632393, 0.00773053809800818,
+# -2.4654264316584382 and 0.14142146175048584; under z_jk_bs_purif,
+# 0.0070090429740256857, 0.0072900596216797665, -1.5019377453868872 and
+# 0.12942378112688835.
 expected_impacts <- c(
   0.005,
-  0.0072069426647632393,
-  0.00773053809800818,
-  -2.4654264316584382,
-  0.14142146175048584
+  0.0071747739108540751,
+  0.0077302048927632531,
+  -1.6546048858122004,
+  0.14584857519843694
 )
 impact_smoke <- tibble::tibble(
   variable = headline,

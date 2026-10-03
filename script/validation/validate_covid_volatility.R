@@ -100,16 +100,19 @@ if (!all(n2)) {
 }
 
 # The untreated reference, at full precision: the OLS point of the production
-# instrument in data/processed/instrument.csv, z_bs_purif since 2026-09-26
-# (under z_jk_bs_purif it was 0.0070263642339699903, 0.0072457194488358932,
+# instrument in data/processed/instrument.csv, z_bs_purif since 2026-09-26,
+# on the panel with the Focus annual series at a fixed 12-month horizon since
+# 2026-10-03 (with the "ano seguinte" series it was 0.0081785146707394098,
+# 0.0094570470135525789, -4.46629862738589 and 0.19440255381521024; under
+# z_jk_bs_purif, 0.0070263642339699903, 0.0072457194488358932,
 # -0.99650483088005848 and 0.13424190947918324). `reference` is built with
 # covid_volatility = NULL, so pinning it is what proves the treated branch
 # degenerates to the untreated one. The production constants are the treated
 # ones, in output/validation/production_spec_impact_smoke.csv.
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
-untreated_h0 <- c(0.0050000000000000001, 0.0081785146707394098,
-                  0.0094570470135525789, -4.46629862738589,
-                  0.19440255381521024)
+untreated_h0 <- c(0.0050000000000000001, 0.0081944178888302167,
+                  0.0095406346637042002, -4.1371539024522832,
+                  0.19853223669754458)
 if (!identical(reference[["5"]][match(headline, colnames(data_mat)), 1], untreated_h0)) {
   stop("N2: the untreated reference point moved from the OLS point of the production instrument")
 }

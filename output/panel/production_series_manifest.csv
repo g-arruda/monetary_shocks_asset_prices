@@ -88,9 +88,9 @@ fiscal_dbgg,fiscal,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025
 fiscal_dlsp,fiscal,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,TRUE,ajustada_completo
 fiscal_primary_balance,fiscal,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,TRUE,ajustada_completo
 expect_focus_ipca12m,expectativas,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
-expect_focus_selic_ny,expectativas,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
-expect_focus_pib_ny,expectativas,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,TRUE,ajustada_completo
-expect_focus_cambio_ny,expectativas,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
+expect_focus_selic_12m,expectativas,data/raw/raw_data.csv + data/raw/focus_current_year.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
+expect_focus_pib_12m,expectativas,data/raw/raw_data.csv + data/raw/focus_current_year.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
+expect_focus_cambio_12m,expectativas,data/raw/raw_data.csv + data/raw/focus_current_year.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
 epu_brazil,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
 epu_canada,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
 epu_chile,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
@@ -111,6 +111,6 @@ price_inpc,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-0
 price_core_ipca_ex0,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,TRUE,ajustada_completo
 price_core_ipca_ex1,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,TRUE,ajustada_completo
 dlsp_exchange_adjustment,fiscal,data/raw/DLSP/Evodlp.xlsx,Fluxos mensais,Ajuste cambial,Ajuste cambial,R$ milhões,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
-expect_focus_fiscal_dlsp_ny,expectativas,data/raw/focus_fiscal_expectations.csv,NA,Dívida líquida do setor público; ano seguinte,Dívida líquida do setor público; ano seguinte,% do PIB,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
-expect_focus_fiscal_primary_balance_ny,expectativas,data/raw/focus_fiscal_expectations.csv,NA,Resultado primário; ano seguinte,Resultado primário; ano seguinte,% do PIB,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
-expect_focus_fiscal_nominal_balance_ny,expectativas,data/raw/focus_fiscal_expectations.csv,NA,Resultado nominal; ano seguinte,Resultado nominal; ano seguinte,% do PIB,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
+expect_focus_fiscal_dlsp_12m,expectativas,data/raw/focus_fiscal_expectations.csv + data/raw/focus_current_year.csv,NA,"Dívida líquida do setor público; horizonte fixo de 12 meses (Dovern, Fritsche e Slacalek)","Dívida líquida do setor público; horizonte fixo de 12 meses (Dovern, Fritsche e Slacalek)",% do PIB,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
+expect_focus_fiscal_primary_balance_12m,expectativas,data/raw/focus_fiscal_expectations.csv + data/raw/focus_current_year.csv,NA,"Resultado primário; horizonte fixo de 12 meses (Dovern, Fritsche e Slacalek)","Resultado primário; horizonte fixo de 12 meses (Dovern, Fritsche e Slacalek)",% do PIB,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
+expect_focus_fiscal_nominal_balance_12m,expectativas,data/raw/focus_fiscal_expectations.csv + data/raw/focus_current_year.csv,NA,"Resultado nominal; horizonte fixo de 12 meses (Dovern, Fritsche e Slacalek)","Resultado nominal; horizonte fixo de 12 meses (Dovern, Fritsche e Slacalek)",% do PIB,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
