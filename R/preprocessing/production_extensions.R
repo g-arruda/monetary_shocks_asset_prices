@@ -1,33 +1,28 @@
 #' Build the four fiscal and expectations series promoted to production
 #'
-#' Reads the fixed DLSP workbook and the audited Focus fiscal expectations,
-#' verifies the published exchange-adjustment accounting identity, and applies
-#' the production seasonal-adjustment cascade to the exchange adjustment.
+#' Reads the fixed DLSP workbook, verifies the published exchange-adjustment
+#' accounting identity, applies the production seasonal-adjustment cascade to
+#' the exchange adjustment, and attaches the three fiscal Focus expectations.
 #'
 #' @param expected_dates Complete monthly production sample.
-#' @param focus_data Optional current-vintage fiscal Focus data with the three
-#'   required expectation columns. When `NULL`, reads the production raw input.
+#' @param focus_data The three fiscal Focus expectations at a fixed 12-month
+#'   horizon, built by `script/clean.R` from the next- and current-year
+#'   medians, with `ref.date`.
 #'
 #' @return List with the four-series data frame and its manifest.
 #'
 #' @examples
 #' extensions <- build_production_extensions(
-#'   seq(as.Date("2012-03-01"), as.Date("2025-12-01"), by = "month")
+#'   seq(as.Date("2012-03-01"), as.Date("2025-12-01"), by = "month"),
+#'   focus_fixed_horizon
 #' )
-build_production_extensions <- function(expected_dates, focus_data = NULL) {
+build_production_extensions <- function(expected_dates, focus_data) {
   focus_names <- c(
-    "expect_focus_fiscal_dlsp_ny",
-    "expect_focus_fiscal_primary_balance_ny",
-    "expect_focus_fiscal_nominal_balance_ny"
+    "expect_focus_fiscal_dlsp_12m",
+    "expect_focus_fiscal_primary_balance_12m",
+    "expect_focus_fiscal_nominal_balance_12m"
   )
-  focus <- if (is.null(focus_data)) {
-    readr::read_csv(
-      "data/raw/focus_fiscal_expectations.csv",
-      show_col_types = FALSE
-    )
-  } else {
-    focus_data
-  } |>
+  focus <- focus_data |>
     dplyr::mutate(ref.date = as.Date(ref.date)) |>
     dplyr::select(ref.date, dplyr::all_of(focus_names))
 
@@ -127,9 +122,9 @@ build_production_extensions <- function(expected_dates, focus_data = NULL) {
   manifest <- tibble::tribble(
     ~variable, ~block, ~source_file, ~source_sheet, ~published_label, ~unit, ~transformation, ~tcode, ~seasonal_status,
     "dlsp_exchange_adjustment", "fiscal", "data/raw/DLSP/Evodlp.xlsx", "Fluxos mensais", "Ajuste cambial", "R$ milhões", "level", 1L, adjustment_status,
-    "expect_focus_fiscal_dlsp_ny", "expectativas", "data/raw/focus_fiscal_expectations.csv", NA_character_, "Dívida líquida do setor público; ano seguinte", "% do PIB", "level", 1L, "nao_sazonal",
-    "expect_focus_fiscal_primary_balance_ny", "expectativas", "data/raw/focus_fiscal_expectations.csv", NA_character_, "Resultado primário; ano seguinte", "% do PIB", "level", 1L, "nao_sazonal",
-    "expect_focus_fiscal_nominal_balance_ny", "expectativas", "data/raw/focus_fiscal_expectations.csv", NA_character_, "Resultado nominal; ano seguinte", "% do PIB", "level", 1L, "nao_sazonal"
+    "expect_focus_fiscal_dlsp_12m", "expectativas", "data/raw/focus_fiscal_expectations.csv + data/raw/focus_current_year.csv", NA_character_, "Dívida líquida do setor público; horizonte fixo de 12 meses (Dovern, Fritsche e Slacalek)", "% do PIB", "level", 1L, "nao_sazonal",
+    "expect_focus_fiscal_primary_balance_12m", "expectativas", "data/raw/focus_fiscal_expectations.csv + data/raw/focus_current_year.csv", NA_character_, "Resultado primário; horizonte fixo de 12 meses (Dovern, Fritsche e Slacalek)", "% do PIB", "level", 1L, "nao_sazonal",
+    "expect_focus_fiscal_nominal_balance_12m", "expectativas", "data/raw/focus_fiscal_expectations.csv + data/raw/focus_current_year.csv", NA_character_, "Resultado nominal; horizonte fixo de 12 meses (Dovern, Fritsche e Slacalek)", "% do PIB", "level", 1L, "nao_sazonal"
   ) |>
     dplyr::mutate(
       n_months = length(expected_dates),

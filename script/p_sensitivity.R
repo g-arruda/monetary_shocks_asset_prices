@@ -45,9 +45,9 @@ PAPER_PANELS <- tibble::tribble(
   "yield_2y",              "DI 2 anos (p.b.)",           1e4,
   "cambio_usd",            "Câmbio BRL/USD (R$/US$)",    1,
   "cds_5y",                "CDS 5 anos (p.b.)",          1,
-  "expect_focus_pib_ny",   "Focus PIB (p.p.)",           1,
+  "expect_focus_pib_12m",   "Focus PIB (p.p.)",           1,
   "expect_focus_ipca12m",  "Focus IPCA 12 meses (p.p.)", 1,
-  "expect_focus_selic_ny", "Focus Selic (p.p.)",         1,
+  "expect_focus_selic_12m", "Focus Selic (p.p.)",         1,
   "fiscal_dbgg",           "DBGG (p.p. do PIB)",         1
 )
 P_PALETTE <- purrr::set_names(

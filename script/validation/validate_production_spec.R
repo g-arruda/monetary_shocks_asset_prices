@@ -43,13 +43,13 @@ PRODUCTION_SERIES_ADDED <- c(
   "fiscal_dlsp",
   "fiscal_primary_balance",
   "expect_focus_ipca12m",
-  "expect_focus_selic_ny",
-  "expect_focus_pib_ny",
-  "expect_focus_cambio_ny",
+  "expect_focus_selic_12m",
+  "expect_focus_pib_12m",
+  "expect_focus_cambio_12m",
   "dlsp_exchange_adjustment",
-  "expect_focus_fiscal_dlsp_ny",
-  "expect_focus_fiscal_primary_balance_ny",
-  "expect_focus_fiscal_nominal_balance_ny"
+  "expect_focus_fiscal_dlsp_12m",
+  "expect_focus_fiscal_primary_balance_12m",
+  "expect_focus_fiscal_nominal_balance_12m"
 )
 REQUIRED_SERIES <- c(MP_VAR, PRODUCTION_SERIES_ADDED)
 EXCLUDED_SERIES <- c(

@@ -6,7 +6,8 @@
 # counterpart, in four blocks:
 #   - anatomy: communality of every series; January's share of the sum of
 #     squares of each Focus series' monthly change (the "ano seguinte" series
-#     switch target year every January); the months that weigh most in the
+#     of the panel switched target year every January, until the
+#     fixed-horizon approximation of 2026-10-03); the months that weigh most in the
 #     changes of DBGG and of the Focus GDP expectation; each month's share
 #     of sum(z^2) over the residual months;
 #   - co-movement of the changes of DBGG and of the 6-month DI by subperiod;
@@ -52,10 +53,10 @@ BASE_LABEL       <- "base"
 ALL_MONTHS_LABEL <- "todos os meses"
 # The eight series of every Anexo C figure
 PAPER_SERIES <- c(
-  "yield_6m", "yield_2y", "cambio_usd", "cds_5y", "expect_focus_pib_ny",
-  "expect_focus_ipca12m", "expect_focus_selic_ny", "fiscal_dbgg"
+  "yield_6m", "yield_2y", "cambio_usd", "cds_5y", "expect_focus_pib_12m",
+  "expect_focus_ipca12m", "expect_focus_selic_12m", "fiscal_dbgg"
 )
-TOP_MONTH_SERIES <- c("fiscal_dbgg", "expect_focus_pib_ny")
+TOP_MONTH_SERIES <- c("fiscal_dbgg", "expect_focus_pib_12m")
 TOP_MONTHS <- 5L
 COMOVEMENT_PAIR <- c("fiscal_dbgg", "yield_6m")
 SUBPERIODS <- tibble::tibble(

@@ -57,12 +57,12 @@ PANELS <- list(
   expectativas = tibble::tribble(
     ~variable,                                ~label,                         ~scale,
     "expect_focus_ipca12m",                   "Focus IPCA 12 meses (p.p.)",   1,
-    "expect_focus_selic_ny",                  "Focus Selic (p.p.)",           1,
-    "expect_focus_pib_ny",                    "Focus PIB (p.p.)",             1,
-    "expect_focus_cambio_ny",                 "Focus câmbio (R$/US$)",        1,
-    "expect_focus_fiscal_dlsp_ny",            "Focus DLSP (p.p. do PIB)",     1,
-    "expect_focus_fiscal_primary_balance_ny", "Focus primário (p.p. do PIB)", 1,
-    "expect_focus_fiscal_nominal_balance_ny", "Focus nominal (p.p. do PIB)",  1
+    "expect_focus_selic_12m",                  "Focus Selic (p.p.)",           1,
+    "expect_focus_pib_12m",                    "Focus PIB (p.p.)",             1,
+    "expect_focus_cambio_12m",                 "Focus câmbio (R$/US$)",        1,
+    "expect_focus_fiscal_dlsp_12m",            "Focus DLSP (p.p. do PIB)",     1,
+    "expect_focus_fiscal_primary_balance_12m", "Focus primário (p.p. do PIB)", 1,
+    "expect_focus_fiscal_nominal_balance_12m", "Focus nominal (p.p. do PIB)",  1
   ),
   atividade = tibble::tribble(
     ~variable,                        ~label,                        ~scale,

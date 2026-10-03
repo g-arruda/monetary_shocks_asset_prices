@@ -62,9 +62,9 @@ VARS <- c(
   "cds_5y", "expect_focus_ipca12m", "ibc_br", "price_ipca", "asset_ibov",
   "fiscal_dbgg", "fiscal_dlsp", "fiscal_primary_balance",
   "dlsp_exchange_adjustment",
-  "expect_focus_selic_ny", "expect_focus_pib_ny", "expect_focus_cambio_ny",
-  "expect_focus_fiscal_dlsp_ny", "expect_focus_fiscal_primary_balance_ny",
-  "expect_focus_fiscal_nominal_balance_ny"
+  "expect_focus_selic_12m", "expect_focus_pib_12m", "expect_focus_cambio_12m",
+  "expect_focus_fiscal_dlsp_12m", "expect_focus_fiscal_primary_balance_12m",
+  "expect_focus_fiscal_nominal_balance_12m"
 )
 # Labels and scales of script/fig_section5.R
 PAPER_PANELS <- tibble::tribble(
@@ -73,9 +73,9 @@ PAPER_PANELS <- tibble::tribble(
   "yield_2y",              "DI 2 anos (p.b.)",           1e4,
   "cambio_usd",            "Câmbio BRL/USD (R$/US$)",    1,
   "cds_5y",                "CDS 5 anos (p.b.)",          1,
-  "expect_focus_pib_ny",   "Focus PIB (p.p.)",           1,
+  "expect_focus_pib_12m",   "Focus PIB (p.p.)",           1,
   "expect_focus_ipca12m",  "Focus IPCA 12 meses (p.p.)", 1,
-  "expect_focus_selic_ny", "Focus Selic (p.p.)",         1,
+  "expect_focus_selic_12m", "Focus Selic (p.p.)",         1,
   "fiscal_dbgg",           "DBGG (p.p. do PIB)",         1
 )
 Q_PALETTE <- c(

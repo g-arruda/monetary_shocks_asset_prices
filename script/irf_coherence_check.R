@@ -93,8 +93,8 @@ theory_table <- tibble::tribble(
   "commodity_metal", "commodity_domestica", NA, "ambiguous", 0, 24,
   c("fiscal_dbgg", "fiscal_dlsp", "fiscal_primary_balance"),
   "fiscal", NA, "ambiguous", 0, 48,
-  c("expect_focus_ipca12m", "expect_focus_selic_ny", "expect_focus_pib_ny",
-    "expect_focus_cambio_ny"),
+  c("expect_focus_ipca12m", "expect_focus_selic_12m", "expect_focus_pib_12m",
+    "expect_focus_cambio_12m"),
   "expectativas", NA, "ambiguous", 0, 48,
   c("sp500_vix", "msci", "epu_us"), "placebo_externas", 0, "placebo", 0, 24
 ) |>
