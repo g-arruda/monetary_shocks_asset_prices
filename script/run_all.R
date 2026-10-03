@@ -74,14 +74,24 @@ STAGES <- list(
       "data/raw/macro_released.csv"
     )
   ),
+  focus_current_year = list(
+    name = "focus_current_year",
+    desc = "Current-year Focus medians for the fixed-horizon approximation",
+    file = "script/download_focus_current_year.R",
+    network = TRUE,
+    requires = character(),
+    produces = "data/raw/focus_current_year.csv"
+  ),
   clean = list(
     name = "clean",
-    desc = "Log transforms + X-13 seasonal adjustment of the monthly panel",
+    desc = "Log transforms, Focus fixed horizon, X-13 of the monthly panel",
     file = "script/clean.R",
     network = FALSE,
     requires = c(
       "data/raw/raw_data.csv",
       "data/raw/focus_fiscal_expectations.csv",
+      "data/raw/focus_current_year.csv",
+      "data/raw/copom_historico.csv",
       "data/raw/DLSP/Evodlp.xlsx"
     ),
     produces = c(

@@ -48,6 +48,43 @@ fetch_olinda <- function(endpoint, filter, select, page_size = 10000) {
     tibble::as_tibble()
 }
 
+#' Fetch the daily Focus medians of one annual indicator, every target year
+#'
+#' The Focus asks for calendar-year values (fixed-event forecasts): on each
+#' survey date there is one median per target year, from the current year
+#' onwards.
+#'
+#' @param indicator Indicator name as the Olinda `ExpectativasMercadoAnuais`
+#'   entity spells it, e.g. `"Selic"` or `"PIB Total"`.
+#' @param from First survey date.
+#' @param to Last survey date.
+#'
+#' @return Tibble with `date` (survey date), `reference_year` and `value`.
+#'
+#' @examples
+#' selic <- fetch_focus_annual("Selic", "2025-01-01", "2025-12-31")
+fetch_focus_annual <- function(indicator, from, to) {
+  fetch_olinda(
+    endpoint = "ExpectativasMercadoAnuais",
+    filter = sprintf(
+      paste0(
+        "Indicador eq '%s' and baseCalculo eq 0 ",
+        "and Data ge '%s' and Data le '%s'"
+      ),
+      indicator,
+      from,
+      to
+    ),
+    select = "Indicador,Data,DataReferencia,Mediana"
+  ) |>
+    dplyr::filter(Indicador == indicator) |>
+    dplyr::transmute(
+      date = as.Date(Data),
+      reference_year = as.integer(DataReferencia),
+      value = as.numeric(Mediana)
+    )
+}
+
 #' Select the last published Focus value in each month
 #'
 #' @param data Daily data with `date` and `value` columns.
@@ -119,25 +156,7 @@ download_focus_data <- function(from, to, sample_start, sample_end) {
     focus_cambio_ny = "Câmbio"
   )
   annual <- purrr::map(annual_indicators, function(indicator) {
-    fetch_olinda(
-      endpoint = "ExpectativasMercadoAnuais",
-      filter = sprintf(
-        paste0(
-          "Indicador eq '%s' and baseCalculo eq 0 ",
-          "and Data ge '%s' and Data le '%s'"
-        ),
-        indicator,
-        from,
-        to
-      ),
-      select = "Indicador,Data,DataReferencia,Mediana"
-    ) |>
-      dplyr::filter(Indicador == indicator) |>
-      dplyr::transmute(
-        date = as.Date(Data),
-        reference_year = as.integer(DataReferencia),
-        value = as.numeric(Mediana)
-      ) |>
+    fetch_focus_annual(indicator, from, to) |>
       dplyr::filter(reference_year == lubridate::year(date) + 1L) |>
       dplyr::arrange(date) |>
       dplyr::distinct(date, .keep_all = TRUE)
@@ -149,25 +168,7 @@ download_focus_data <- function(from, to, sample_start, sample_end) {
     expect_focus_fiscal_nominal_balance_ny = "Resultado nominal"
   )
   fiscal_annual <- purrr::map(fiscal_indicators, function(indicator) {
-    fetch_olinda(
-      endpoint = "ExpectativasMercadoAnuais",
-      filter = sprintf(
-        paste0(
-          "Indicador eq '%s' and baseCalculo eq 0 ",
-          "and Data ge '%s' and Data le '%s'"
-        ),
-        indicator,
-        from,
-        to
-      ),
-      select = "Indicador,Data,DataReferencia,Mediana"
-    ) |>
-      dplyr::filter(Indicador == indicator) |>
-      dplyr::transmute(
-        date = as.Date(Data),
-        reference_year = as.integer(DataReferencia),
-        value = as.numeric(Mediana)
-      ) |>
+    fetch_focus_annual(indicator, from, to) |>
       dplyr::filter(reference_year == lubridate::year(date) + 1L) |>
       dplyr::arrange(date) |>
       dplyr::distinct(date, .keep_all = TRUE)
