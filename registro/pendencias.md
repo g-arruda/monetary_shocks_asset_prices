@@ -93,17 +93,10 @@ AR/MOSW próprios.
 
 | Tema | Item | Observação |
 |---|---|---|
-| B | Reportar a poda no paper como robustez que não confirmou Boivin-Ng, com a ressalva de perda de N | passo 2/4 do e-mail de 13-09; destravado em 2026-09-24, quando a rodada editorial do Tema A fechou a §4 |
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
-| A | Decidir o que a §2 diz sobre o CDS de `goncalves2025` | aberto em 2026-09-21; `paper.tex:184` diz que o CDS deles "não apresenta resposta sistemática", seguindo a prosa do artigo, mas a Tabela 5 traz um **fechamento** de −3/−5/−11 p.b. com o vértice de 12 meses distinto de zero, sobre o nosso −10,37; ⚠ a unidade do CDS não é declarada por eles e foi fixada por dois testes de escala; a correção **reforça** o contraste do artigo |
 | A | Conferir a figura de placebos no `.tex` | aberto em 2026-10-01, e-mail de 30-09; a figura está no Anexo D de `main` desde `1a150d0`; compilar e avisar o orientador da versão vigente |
 | A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu` |
-| A | Comentar a divergência de DBGG e Focus PIB na janela pré-COVID | aberto em 2026-10-01, e-mail de 30-09; diagnosticado no mesmo dia (`2026-10-01_precovid_dbgg_focus_pib`), a frase espera o autor; vai ao lado do ponteiro quebrado da §3.4 |
 | A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
-| A | Consertar o ponteiro quebrado da §3.4 para `fig:precovid_sensibilidade` | aberto em 2026-10-01; quebrado por `b0a3a10` em `paper.tex:221` e `:231`, redação certa em `7f41001` |
-| D | Teste 1: Focus a horizonte fixo t+12, tal como a Focus publica | aberto em 2026-10-01 a pedido do autor; PIB pela pesquisa trimestral já baixada (4 trimestres à frente), Selic por reunião (coleta nova); as três fiscais não têm horizonte fixo publicado e ficam para o teste 2; ⚠ a Focus PIB da §4 cai à metade com a carga sem janeiros; muda o painel, branch própria; desbloqueia a comparação do teste 2 |
-| D | Teste 2: Focus a horizonte fixo por Dovern-Fritsche-Slacalek | aberto em 2026-10-01 a pedido do autor; rodada separada, depois do teste 1, de que depende para a comparação; ano corrente e seguinte das cinco séries "ano seguinte"; único que corrige as fiscais; branch própria |
-| E | Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa | aberto em 2026-09-10; absoluta (1e-10), disparou em `(5,3)` com 1,16e-10; não afeta a produção |
 
 ---
 
@@ -166,29 +159,6 @@ antes de escrever a introdução e traduzir para a submissão. Nenhum foi execut
   tabelas. Pôr no corpo ou em nota. ⚠ O teste só existe na branch `feature/placebo-epu`
   (nota `2026-09-29_placebo_epu`, ausente de `main`); o número vem de lá, e o parágrafo hoje diz
   só o que a branch sustenta.
-- [ ] **Comentar a divergência de DBGG e Focus PIB na janela pré-COVID.** Em
-  `fig:precovid_sensibilidade` a maioria das séries acompanha a amostra completa, com mais ruído,
-  mas DBGG e Focus PIB destoam, e a DBGG caminha em sentido oposto ao da amostra completa entre os
-  meses 6 e 18. Uma frase reconhecendo isso, em vez de deixar o leitor notar. ⚠ A nota
-  `2026-09-30_robustez_pandemia` já traz os números: DBGG de sinal oposto e fora do conjunto em
-  22 de 37 horizontes. A regra de CLAUDE.md vale: nada além de direção e magnitude do impacto da
-  curva e do risco soberano pode ser escrito como "os resultados valem pré-COVID".
-  **Diagnosticado em 2026-10-01** (`notas/2026-10-01_precovid_dbgg_focus_pib.md`,
-  `script/precovid_divergence.R`); a frase espera a leitura da nota pelo autor. Focus PIB: a série
-  troca de ano-alvo em janeiro, jan/2016 é 63% da soma de quadrados das suas diferenças na
-  pré-COVID, e a carga estimada sem os janeiros põe a resposta inteira dentro do conjunto (0 de 37
-  fora, contra 5). DBGG: o vale de h2–h6 da produção vem dos meses de 2020–22, que levam 101% da
-  covariância entre ΔDBGG e ΔDI 6m; com a carga dos meses pré-COVID o vale some e a alta de longo
-  prazo fica. A seção 7 da nota diz o que pode ser escrito: a carga por subconjunto é diagnóstico,
-  não estimativa alternativa.
-- [ ] **Consertar o ponteiro quebrado da §3.4 para `fig:precovid_sensibilidade`.** O commit
-  `b0a3a10` (renomeação para `paper.tex`) partiu a frase. `paper/paper.tex:221` lê "O instrumento
-  tem duas camadas. A \autoref{fig:precovid_sensibilidade}. A primeira…", e `:231` termina em "…na
-  pré-COVID, no Anexo C, mostra as respostas pontuais estimadas na janela pré-COVID ao lado das de
-  produção." A redação certa está em `7f41001`: "A \autoref{fig:precovid_sensibilidade}, no Anexo
-  C, mostra…", no fim do parágrafo da `tab:first_stage`. Achado em 2026-10-01 e não corrigido, por
-  decisão do autor de não mexer no `.tex` naquela rodada. É a frase ao lado da qual a de DBGG e
-  Focus PIB vai entrar.
 - [ ] **Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade`.** Descrita como sensibilidade das
   respostas a `q` com e sem a reescala, pode ser lida como a mesma figura de `fig:q_sensibilidade`.
   Deixar claro que é um exercício cruzado (`q` = 2 a 5 × com e sem a reescala, oito séries), não
@@ -512,11 +482,6 @@ resposta às sugestões 1/5, 2/5 e 3/5 acima (fechadas em 2026-09-10). Os passos
 3/4 e 4/4 estão fechados abaixo; o 1/4 foi removido em 2026-09-24 por decisão
 do autor, sem ser executado.*
 
-- [ ] **Reportar o exercício de poda no paper como robustez que não
-  confirmou a hipótese de Boivin-Ng**, com a ressalva de que a queda do
-  Bai-Ng para `r=3` pode refletir perda de potência por N menor, não
-  confirmação do mecanismo. Passo 2/4. Destravado em 2026-09-24, quando a
-  rodada editorial do Tema A sincronizou a §4.
 
 ### Fechados (contexto)
 
@@ -778,34 +743,6 @@ conjunto de 90% atual, nas 115 séries e nas oito do Anexo C; (c) `script/precov
 de novo, para ver se a Focus PIB pré-COVID entra no conjunto sem tirar os janeiros da carga.
 ⚠ Os dois tiram só o salto mecânico: a notícia que chega em janeiro continua na série.
 
-- [ ] **Teste 1: Focus a horizonte fixo t+12, tal como a própria Focus publica.** Primeiro dos
-  dois. Usar só o que a Focus já divulga em horizonte fixo, sem aproximação:
-  - **PIB:** a pesquisa trimestral (`ExpectativasMercadoTrimestrais`, "PIB Total"), que o projeto
-    já baixa em `script/download_macro_news.R` para `data/raw/focus_macro_expectations.csv`
-    (`indicator == "gdp"`, pesquisas de 2010-01 a 2026-01). A série é a previsão para o trimestre 4
-    à frente do trimestre da pesquisa (t+12 meses), na última pesquisa de cada mês. É a variação
-    sobre o mesmo trimestre do ano anterior, a medida que o bloco macro da regressão BS compara com
-    a primeira divulgação. ⚠ O horizonte 4 falta em alguns dias (3993 de 4040 dias, contra 4040
-    nos horizontes 0 a 3). Conferir se algum mês fica sem valor antes de construir: a regra de
-    falhar alto vale, e mês sem valor não se preenche.
-  - **Selic:** as expectativas por reunião do Copom (endpoint `ExpectativasMercadoSelic`, a
-    confirmar na Olinda), na reunião mais próxima de t+12 meses. É coleta nova.
-  - **DLSP, resultado primário e resultado nominal:** a Focus só os publica por ano-calendário
-    (conferir na Olinda se há outro horizonte). Sem horizonte fixo publicado, ficam como "ano
-    seguinte" neste teste e entram só no teste 2. O que isso deixa de corrigir é declarado na nota.
-  - **Câmbio "ano seguinte":** 4% em janeiro, fica como está.
-  Avaliação (a)–(c) acima, e decisão do autor entre promover o painel e manter o atual com a
-  ressalva registrada. A promoção muda o smoke test, as notas e o paper. Desbloqueia a comparação
-  do teste 2. Aberto em 2026-10-01.
-- [ ] **Teste 2: Focus a horizonte fixo pela aproximação de Dovern, Fritsche e Slacalek (2012).**
-  Rodada separada, depois do teste 1, de que depende para a comparação. Baixar pela Olinda
-  (`ExpectativasMercadoAnuais`) a mediana do ano corrente (`reference_year == year(date)`) ao lado
-  da do ano seguinte, para PIB, Selic, DLSP, resultado primário e resultado nominal. Com a última
-  pesquisa de cada mês `m`: peso `(12 − m)/12` no ano corrente e `m/12` no seguinte. Em dezembro o
-  peso fica todo no ano seguinte, e em janeiro esse mesmo ano vira o corrente com peso 11/12, então
-  a troca de ano não produz salto. Avaliação (a)–(c) acima, mais a comparação com o teste 1 no PIB e
-  na Selic, as séries que os dois cobrem. É o único dos dois que corrige as três fiscais. Aberto em
-  2026-10-01.
 
 ### Fechados (contexto)
 
@@ -888,12 +825,6 @@ de novo, para ver se a Focus PIB pré-COVID entra no conjunto sem tirar os janei
 
 ## E. Código e higiene
 
-- [ ] **Decidir se a guarda do ponto AR em `compute_irf_dfm()` vira relativa.**
-  A checagem é absoluta (1e-10, `R/modeling/impulse_response.R`) e disparou em
-  `(5,3)` com desvio de 1,16e-10, numa célula cujas respostas são da ordem de
-  10 (relativo de cerca de 1e-11). Não afeta a produção, e mudar exige o smoke
-  test bit-idêntico. Achado em `script/q_truncation.R`, que por isso só
-  constrói conjuntos AR nas referências `q = 5`.
 
 *Zerado em 2026-09-08 (ver nota de revisão no topo do arquivo); o item acima
 abriu em 2026-09-10. Os itens que estavam aqui antes (seleção de `q`, reprodutibilidade do
