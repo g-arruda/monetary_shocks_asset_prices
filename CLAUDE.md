@@ -241,6 +241,23 @@ point inside the full-window set is not a test of equality**, and nothing may be
 "the results hold pre-COVID" beyond the impact direction and magnitude of the curve and sovereign
 risk. Note: `2026-09-30_robustez_pandemia`.
 
+**Since 2026-10-03, on the unmerged branch `feature/focus-horizonte-fixo` (step 0/5 of the advisor's
+plan of 03-10), the production panel differs from `main` in six series**: the Focus annual
+expectations (Selic, GDP, FX, DLSP, primary and nominal balance) are no longer "ano seguinte" but the
+Dovern-Fritsche-Slacalek (2012) fixed-horizon approximation, `(12 − m)/12` of the current-year median
+plus `m/12` of the next-year one at the month's last survey (DFS count the survey month, `13 − m`,
+because Consensus polls early in it), built in `clean.R` and renamed `_ny` → `_12m` in place. The
+current-year medians come from `script/download_focus_current_year.R`, a network stage of its own;
+the Selic of Nov 2012, 2013 and 2015, which the Focus no longer surveys after the year's last Copom,
+is that meeting's target from `copom_historico.csv`. Everything else is `main`'s spec, re-estimated:
+θ̂ = (7.463972, 15.012132, 1.436956, 0.965583), ξ_mp **6.801964 full / 5.504362 pre-COVID**, F_rob
+8.283047 / 5.335979, roots 0.985501 / 0.994474, Bai-Ng 5, 5, 18, AIC `p = 4`, BIC `p = 2`, every set
+`interval`. BRL/USD R$ 0.146 and CDS 33.9 bp at impact (0.141 and 34.0 on `main`), no point of either
+outside `main`'s 90% set; but 90%-significant pairs fall 1588 → 1051, 488 of the losses at h25–h36,
+where the reversal stays at 80%. ⚠ IPCA turns positive at h1, h3–h7; ⚠ the US EPU placebo stops
+violating and VIX (h2, h5, h6) and MSCI EM (h2–h10) start. The validators pin the branch's values; the
+annexes, `paper/img/` and the `.tex` are still on `main`'s base. Note: `2026-10-03_focus_horizonte_fixo`.
+
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
 with a constant and linear trend in every equation. **Since 2026-09-21 it runs
@@ -330,6 +347,7 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Pandemic robustness in Anexo C: `q` sensitivity with and without the Lenza-Primiceri scale, the pre-COVID window, and one set of eight series for every Anexo C figure (branch `feature/robustez-pandemia`, **not merged**) | `pandemic_sensitivity.R`, `q_sensitivity.R`, `p_sensitivity.R`, `instrument_layers_irf.R`, `paper.tex` | `2026-09-30_robustez_pandemia` | nothing in `R/` touched, nothing re-estimated, production line checked against the cache; the Anexo C figures now draw DI 6m, DI 2y, BRL/USD, CDS, Focus PIB, IPCA 12m and Selic, and DBGG (author decision); `q = 4, 3, 2` against each estimator's own `q = 5` 90% set, eight series: 4/26/26 of 296 points outside under the scale, 44/132/154 by OLS (panel 151/420/408 against 589/1651/1805 of 4255); under the scale the departures stop by h24, by OLS they run to h36 and the curve crosses zero at h27–h29 instead of h15–h16. ⚠ Under the scale, at `q ≤ 3`, BRL/USD leaves the set at h0–h9, DBGG at h0–h7 and the DBGG impact flips sign. At `q = 5`, OLS has 0/4255 points outside the production 90% set, IPCA positive at h4–h7; pre-COVID in point only (`hac_dim` 135 ≥ 90): curve and sovereign risk inside the set at every horizon. ⚠ Pre-COVID BRL/USD impact R$ 0.056 against 0.141, outside the set; pre-COVID DBGG of opposite sign, outside in 22 of 37 horizons; 1407/4255 points outside in 103 of 115 series; IBC-Br, IPCA, Ibovespa and DLSP, no longer drawn, outside in 12--21 of 37 horizons; the zero crossing comes at h9 instead of h13–h14. Two body pointers, no number |
 | Footnote on why the JK filter is out; §1 and abstracts back to the 2026-09-26 instrument wording (branch `feature/robustez-pandemia`, **not merged**) | `paper.tex` | `2026-09-30_nota_filtro_jk` | nothing re-estimated; advisor's 28-09 request; §3.4 footnote: ξ_mp 7.02 → 5.01 full, 6.84 → 4.73 pre-COVID, F_rob 8.62 → 7.59 and 8.31 → 7.78, 0/4255 JK points outside the production 90% set, 90% sets 1.32× wider (median), 90%-significant pairs 1587 → 856 (counts from `instrument_layers_irf.csv` at `3b9e402`, which still had the JK rows). Commit `6e0bc00` had put the filter back into §1 and both abstracts; reverted. ⚠ Under the filter the Ibovespa impact excludes zero (−8.17%, [−28.4; −3.0]), partly by construction; not in the footnote. ⚠ The English abstract still prints 3.64% |
 | Why DBGG and Focus PIB depart from production in the pre-COVID window (advisor's 30-09 item 3; diagnosis only, no `.tex` change by author decision) | `precovid_divergence.R` | `2026-10-01_precovid_dbgg_focus_pib` | nothing in `R/` or production touched; loadings re-estimated over month subsets with the cell's factors, VAR and shock fixed (a diagnostic, no sets). **Focus PIB**: the "ano seguinte" series switches target year every January (`focus.R:141`); Jan-2016 is 63% of its pre-COVID sum of squares, and its loading estimated without January months puts the whole pre-COVID response inside the production 90% set (0 of 37 outside, against 5). **DBGG**: 2020-03–2022-12 carries 101% of the full-sample covariance of ΔDBGG with ΔDI 6m (correlation +0.08 to +0.16 before 2020, −0.40 in 2020–22); with the pre-COVID-month loading, production's h2–h6 dip vanishes (min −0.056 vs −0.428) and the long-run rise stays; zeroing January or Oct-2014 surprises makes the pre-COVID DBGG *more* positive. Zeroing January surprises takes the pre-COVID BRL/USD impact from 0.056 to 0.141 (ratio to production under the same zeroing 0.40 → 0.81). ⚠ In production, the Focus PIB loading without January months halves the §4 response (−0.189 → −0.091 at impact); five production Focus "ano seguinte" series carry 36–75% of their variation in January, and two open tests in Theme D, each on its own branch, rebuild them at a fixed horizon: first the t+12 series the Focus itself publishes (quarterly GDP, Selic by meeting), then the Dovern-Fritsche-Slacalek approximation. ⚠ `paper.tex:221/231` pointer to `fig:precovid_sensibilidade` broken by `b0a3a10`, recorded in Theme A, not fixed |
+| Focus annual series at a fixed 12-month horizon, step 0/5 of the advisor's 03-10 plan (branch `feature/focus-horizonte-fixo`, **not merged**; the two Theme D fixed-horizon tests of 10-01 had been removed from `pendencias.md` by the author earlier on 03-10) | `download_focus_current_year.R`, `clean.R`, `focus_fixed_horizon.R` | `2026-10-03_focus_horizonte_fixo` | the six "ano seguinte" series become DFS (2012) eq. (1) with the Focus timing, `(12 − m)/12` on the current year; January's share of their squared changes falls from 0.39–0.73 to 0.01–0.09; the other 109 series bit-identical; (5,5,4) re-estimated with a new θ̂; BRL/USD 0.141 → 0.146 and CDS 34.0 → 33.9 bp at impact, 0 points of either outside `main`'s 90% set, 37/4255 in the panel (27 in the rebuilt primary-balance Focus); ξ_mp 7.02 → 6.80 full, 6.84 → 5.50 pre-COVID. ⚠ 90%-significant pairs 1588 → 1051, 488 lost at h25–h36 (the FX, CDS, curve and EMBI reversal stays at 80%); IPCA positive at h1, h3–h7; Focus PIB impact −0.189 → −0.306, not the halving the 10-01 loading diagnostic gave for the old series; US EPU placebo no longer violates, VIX and MSCI EM now do. Annexes, `paper/img/` and `.tex` not rerun |
 
 ## ⚠ Prohibitions
 
@@ -551,6 +569,10 @@ bit-identical check: `0.0050000000000000001`, `0.0072069426647632393`,
 (production until 2026-09-26) they were `0.0070090429740256857`, `0.0072900596216797665`,
 `-1.5019377453868872` and `0.12942378112688835`. The untreated point (`covid_volatility = NULL`)
 is still pinned, as the degeneracy reference, in `script/validation/validate_covid_volatility.R`.
+**On branch `feature/focus-horizonte-fixo`** (Focus at a fixed horizon, θ̂ re-estimated) the five are
+`0.0050000000000000001`, `0.0071747739108540751`, `0.0077302048927632531`, `-1.6546048858122004`
+and `0.14584857519843694`. `data/processed/` is not versioned, so after that branch run
+`Rscript script/run_all.R --only=clean` on `main` before the smoke test.
 
 ## Conventions
 

@@ -148,6 +148,19 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Focus a horizonte fixo, passo 0/5 do plano de 03-10 (2026-10-03, branch `feature/focus-horizonte-fixo`):**
+[`2026-10-03_focus_horizonte_fixo`](2026-10-03_focus_horizonte_fixo.md)
+**CURRENT na branch, não mergeada.** As seis Focus "ano seguinte" passam à aproximação de horizonte
+fixo de 12 meses de Dovern, Fritsche e Slacalek (2012), com o timing da Focus: `(12 − m)/12` no ano
+corrente (DFS contam o mês da pesquisa e dão `(13 − m)/12`). O caso base `(5,5,4)` foi reestimado,
+com θ̂ novo. Câmbio R$ 0,141 → 0,146 e CDS 34,0 → 33,9 p.b. no impacto, e nenhum ponto das duas sai
+do conjunto de 90% antigo. A reversão de h28–h36 deixa de excluir zero a 90% e continua a 80%. Os
+pares significativos a 90% caem de 1588 para 1051, 488 das perdas em h25–h36. ξ_mp 7,02 → 6,80
+completa e 6,84 → 5,50 pré-COVID. ⚠ O IPCA fica positivo em h1 e h3–h7. ⚠ O EPU dos EUA deixa de
+violar o placebo, e VIX e MSCI de emergentes passam a violar. ⚠ A Focus PIB a horizonte fixo tem
+impacto −0,306, maior que o da "ano seguinte" (−0,189), e não a metade que a carga sem janeiros da
+nota de 10-01 dava para a série antiga.
+
 **DBGG e Focus PIB na janela pré-COVID (2026-10-01, `main`):**
 [`2026-10-01_precovid_dbgg_focus_pib`](2026-10-01_precovid_dbgg_focus_pib.md)
 **CURRENT.** Diagnóstico do item 3 do e-mail do orientador de 30-09, sem frase no `.tex` por
@@ -462,6 +475,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-03_focus_horizonte_fixo`](2026-10-03_focus_horizonte_fixo.md) | 10-03 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; `.tex` e `paper/img/` intocados** | painel com as seis Focus anuais a horizonte fixo de 12 meses; `z_bs_purif`, `(5,5,4)`, escala LP com θ̂ reestimado (7,46; 15,01; 1,44; 0,966), conjuntos AR 80/90 | Tudo, na branch: câmbio 0,141 → 0,146 e CDS 34,0 → 33,9 no impacto, 0/37 pontos fora do conjunto antigo; ponta longa (h25–h36) perde os 90% no painel (1588 → 1051 pares), mantém os 80%; ξ_mp 6,80 / 5,50; Bai-Ng 5, 5, 18; AIC 4, BIC 2. ⚠ IPCA positivo em h1, h3–h7; ⚠ placebos VIX e MSCI EM violam, EPU EUA não; ⚠ anexos, figuras do paper, `het_conditions` e `precovid_divergence` seguem na base antiga |
 | [`2026-10-01_precovid_dbgg_focus_pib`](2026-10-01_precovid_dbgg_focus_pib.md) | 10-01 | **CURRENT — diagnóstico; produção e `.tex` intocados** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90) e pré-COVID 2012-03--2019-12 por MQO | Tudo: Focus PIB pré-COVID forte pela troca de ano-alvo em janeiro (jan/2016 = 63% da soma de quadrados; carga sem janeiros 0/37 fora do conjunto); vale da DBGG de produção vindo de 2020–22 (101% da covariância com o DI 6m; carga pré-COVID tira o vale); câmbio pré-COVID 0,056 → 0,141 sem as surpresas de janeiro. Blocos de carga são diagnóstico, sem conjunto. ⚠ A Focus PIB da §4 cai à metade com a carga sem janeiros (−0,189 → −0,091); cinco Focus "ano seguinte" com 36–79% da variação em janeiro |
 | [`2026-09-30_nota_filtro_jk`](2026-09-30_nota_filtro_jk.md) | 09-30 | **CURRENT — rodada de texto; nada reestimado** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/robustez-pandemia` | Tudo: o rodapé da §3.4 sobre o filtro JK (ξ_mp 7,02 → 5,01 e 6,84 → 4,73; F_rob 8,62 → 7,59 e 8,31 → 7,78; 0/4255 pontos fora do conjunto de 90% de produção; conjuntos 1,32 vez mais largos; pares significativos a 90% 1587 → 856); a §1 e os resumos de volta à redação de 09-26. ⚠ Com o filtro o impacto no Ibovespa exclui zero (−8,17%, [−28,4; −3,0]), em parte por construção; o resumo em inglês ainda traz "3.64%" |
 | [`2026-09-30_robustez_pandemia`](2026-09-30_robustez_pandemia.md) | 09-30 | **CURRENT — rodada de apêndice; produção intocada** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/robustez-pandemia` | Tudo: as cinco figuras do Anexo C desenham desde esta data as mesmas oito séries (DI 6 meses e 2 anos, BRL/USD, CDS, Focus PIB, IPCA 12 meses e Selic, DBGG), por decisão do autor, o que torna as figuras das notas de 09-24, 09-25 e 09-26 diferentes das do paper; `q` de 2 a 5 com e sem a reescala na amostra completa, com 4/26/26 de 296 pontos de `q` = 4/3/2 fora do conjunto de 90% de `q = 5` nas oito séries com a reescala e 44/132/154 sem ela (painel: 151/420/408 contra 589/1651/1805 de 4255); ⚠ com a reescala o câmbio sai de h0 a h9 e a DBGG de h0 a h7 em `q ≤ 3`, e o impacto da DBGG troca de sinal; em `q = 5`, MQO com 0/4255 pontos fora do conjunto de 90% da produção (raiz 0,970090); `p` e camadas do instrumento com 0/296 fora nas oito séries novas; pré-COVID em ponto (raiz 0,993359) com curva e risco soberano dentro do conjunto. ⚠ Câmbio pré-COVID fora no impacto (R$ 0,056 contra 0,141); DBGG pré-COVID com o sinal oposto, fora em 22 dos 37 horizontes; 1407/4255 pontos fora, em 103 das 115 séries; IBC-Br, IPCA, Ibovespa e DLSP, fora da figura, saem em 12 a 21 dos 37 horizontes. ⚠ Ponto pré-COVID sem inferência (`hac_dim` 135 ≥ 90); ficar dentro do conjunto não é teste de igualdade |

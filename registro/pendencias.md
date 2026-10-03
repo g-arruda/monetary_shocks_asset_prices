@@ -1,8 +1,10 @@
 # Pendências
 
 **Atualização de 2026-10-03:** o e-mail do orientador de 03-10 (`email/email_professor_03-10_11h31.md`)
-entrou no Tema B como um plano de seis passos (0 a 5) e a resposta que ele pede ao autor; nenhum foi
-executado. O item do p = 0,54 do Tema A ganhou a redação que o orientador pede.
+entrou no Tema B como um plano de seis passos (0 a 5) e a resposta que ele pede ao autor. O item do
+p = 0,54 do Tema A ganhou a redação que o orientador pede. No mesmo dia o passo 0 rodou na branch
+`feature/focus-horizonte-fixo` (`notas/2026-10-03_focus_horizonte_fixo.md`) e espera o orientador ver
+câmbio e CDS antes de congelar a base.
 **Atualização de 2026-10-01:** quatro itens do e-mail do orientador de 30-09 entraram no
 Tema A, todos abertos. No mesmo dia o item de DBGG e Focus PIB na janela pré-COVID ganhou o
 diagnóstico (`notas/2026-10-01_precovid_dbgg_focus_pib.md`), sem frase no `.tex` por decisão do
@@ -100,8 +102,8 @@ AR/MOSW próprios.
 | A | Conferir a figura de placebos no `.tex` | aberto em 2026-10-01, e-mail de 30-09; a figura está no Anexo D de `main` desde `1a150d0`; compilar e avisar o orientador da versão vigente |
 | A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu` |
 | A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
-| B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, escopo das séries Focus, o que é "excluir" uma reunião, avaliação conjunta dos placebos |
-| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; reportar primeiro quanto mudam câmbio e CDS; muda o painel, branch própria; **bloqueia os passos 1 a 5** |
+| B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, o que é "excluir" uma reunião, avaliação conjunta dos placebos; o escopo do passo 0 já foi decidido |
+| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 1 a 5** |
 | B | Passo 1/5: precisão (AR 95%, tabela em h = 0, 1, 3, 6, 12 e 24, pré-COVID, Newey-West 1 a 3) | aberto em 2026-10-03; depende do passo 0; ⚠ intervalos pré-COVID barrados por `hac_dim` 135 ≥ 90 em `p = 4` |
 | B | Passo 2/5: regressões diárias de câmbio e CDS na surpresa bruta e na ortogonalizada | aberto em 2026-10-03; depende do passo 0; diagnóstico de forma reduzida, sem atribuir a divergência de antemão |
 | B | Passo 3/5: influência das reuniões e exclusão por VIX, S&P 500 e Brent | aberto em 2026-10-03; depende do passo 0; regra definida antes de rodar, sem selecionar por câmbio ou CDS |
@@ -524,24 +526,29 @@ DBGG e a agregação temporal completa.*
   já levanta e que valem uma pergunta a ele:
   - pré-COVID: o passo 1 pede intervalos, e `hac_dim` 135 ≥ T = 90 os bloqueia em `p = 4`;
   - filtro JK: o passo 5 o põe num apêndice, e a decisão de 2026-09-26 o tirou do paper;
-  - escopo do passo 0: quais das séries Focus se reconstroem;
   - o que "excluir uma reunião" quer dizer no passo 3;
   - como se faz a avaliação conjunta dos placebos no passo 4.
+
+  O escopo do passo 0 foi decidido pelo autor em 03-10 (as seis séries "ano seguinte") e vai na
+  resposta como fato, junto com os números da nota `2026-10-03_focus_horizonte_fixo`.
 - [ ] **Passo 0/5: congelar a base.** Reconstruir as séries, comparar com as originais e reestimar o
   caso base completo, com fatores, identificação e IRFs. Primeiro reportar quanto mudam câmbio e CDS,
   e só depois congelar essa versão para os demais exercícios.
-  - Focus a horizonte fixo, pela fórmula do e-mail: `g_t^{12m} = (12 − m_t)/12 · F_t(g_y) +
-    m_t/12 · F_t(g_{y+1})`, com `m_t` o mês do calendário de `t`, `y` o ano de `t` e `F_t` a mediana da
-    última pesquisa Focus do mês `t` para o ano indicado. Chamar a série de "aproximação de horizonte
-    fixo", segundo Dovern, Fritsche e Slacalek (2012, *Review of Economics and Statistics*,
-    "Disagreement among Forecasters in G7 Countries").
-  - ⚠ O painel tem 6 séries Focus "ano seguinte": Selic, PIB, câmbio, DLSP, resultado primário e
-    resultado nominal. O e-mail diz "reconstruir as séries" sem delimitar quais; o câmbio, onde janeiro
-    leva 4% da soma de quadrados, é o caso duvidoso. Pergunta para o item acima.
-  - ⚠ Pendente de conferir: a fórmula segue o e-mail do orientador, e o artigo de Dovern, Fritsche e
-    Slacalek (2012) não está em `artigos/` nem no `.bib`; os pesos não foram checados contra ele.
-  - ⚠ Muda o painel de produção, então vai em branch própria, e promover muda o smoke test, as notas e
-    os números do paper. A promoção é decisão do autor.
+  **Rodado em 2026-10-03** na branch `feature/focus-horizonte-fixo`, não mergeada (nota
+  `2026-10-03_focus_horizonte_fixo`, saídas em `output/focus_fixed_horizon/`). Decisões do autor: a
+  fórmula do e-mail, que é a eq. (1) de Dovern, Fritsche e Slacalek (2012) com o timing da Focus (eles
+  dão 2/12 ao ano corrente em novembro, porque a Consensus responde na primeira quinzena, e a fórmula
+  dá 1/12); as seis séries; a meta Selic da última reunião do ano em nov/2012, 2013 e 2015; colunas
+  `_12m`. Câmbio R$ 0,141 → 0,146 e CDS 34,0 → 33,9 p.b. no impacto, conjunto de 90% excluindo zero
+  em h0–h5 e h0–h6; a reversão de h28–h36 deixa de excluir zero a 90% e continua a 80%. No painel,
+  37/4255 pontos saem do conjunto de 90% antigo, e os pares significativos a 90% caem de 1588 para
+  1051, 488 das perdas em h25–h36. ξ_mp 7,02 → 6,80 completa e 6,84 → 5,50 pré-COVID.
+  - Falta: o orientador ver a seção 1 da nota, e o autor congelar e promover. Promover muda o smoke
+    test, `CLAUDE.md`, as notas e os números do paper, e exige rodar de novo as figuras do paper e os
+    anexos, que na branch seguem na base antiga (nota, seção 9).
+  - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer: positivo em h1 e h3–h7, máximo +0,039 p.p.
+  - ⚠ `data/processed/` é o mesmo para todas as branches: ao voltar a `main`, rodar
+    `Rscript script/run_all.R --only=clean` antes de estimar.
   - **Bloqueia os passos 1 a 5.**
 - [ ] **Passo 1/5: precisão.** Depende do passo 0. Quatro partes:
   - conjuntos Anderson-Rubin de 95% para câmbio e CDS (a produção escreve 80/90);
@@ -551,7 +558,8 @@ DBGG e a agregação temporal completa.*
     conjunto, e a regra do projeto é não publicar banda pré-COVID, sem pseudo-inversa nem bootstrap
     substituto. A única célula pré-COVID que passa o gate no registro é a de `p = 2` (`hac_dim` 85 < 92,
     AR 68/90 em `q = 5`, nota `2026-09-10_truncamento_q`), que **não é a de produção**. Decisão do
-    autor;
+    autor. ⚠ Na base do passo 0 a célula pré-COVID de produção enfraquece: ξ_mp 6,84 → 5,50, F_rob
+    8,31 → 5,34;
   - autocorrelação nos termos que compõem os momentos do teste AR e sensibilidade a Newey-West com 1 a 3
     defasagens, ampliando se o diagnóstico indicar dependência mais longa. `mosw_rform_cov()` já aceita
     `nw_lags` (`R/identification/weak_iv_ar.R:303`) e a produção usa NW(0). A autocorrelação dos
@@ -588,6 +596,9 @@ DBGG e a agregação temporal completa.*
   tendência de 13 semanas do EPU diário não prevê a surpresa (nota `2026-09-29_placebo_epu`, só na
   branch). ⚠ Os conjuntos AR não imprimem p-valor, e Holm ou Bonferroni precisam dele; a estatística
   AR avaliada em zero o fornece. Decisão de desenho. O texto fica no item do Tema A sobre o p = 0,54.
+  ⚠ Na base do passo 0 os placebos mudam: o EPU dos EUA deixa de violar (h1–h3 na base antiga), e o
+  VIX (h2, h5, h6) e o MSCI de emergentes (h2–h10) passam a violar a 90% (nota
+  `2026-10-03_focus_horizonte_fixo`, seção 7).
 - [ ] **Passo 5/5: apêndice.** Depende do passo 0. Respostas de câmbio e CDS com a surpresa bruta, o
   instrumento ortogonalizado e o filtro de Jarociński-Karadi, com intervalos. O orientador diz que "já
   está estimado e é barato", e avisa que o filtro não separa um choque de risco de um monetário (os dois
@@ -598,7 +609,8 @@ DBGG e a agregação temporal completa.*
   - ⚠ As linhas JK só existem na história do git (`3b9e402`, `output/irf/instrument_layers_irf.csv`).
     O CSV atual só tem `z_bruto` e `z_bs_purif`, e `instrument_layers_irf.R` não cita mais
     `z_jk_bs_purif` (`c3a6536`).
-  - ⚠ "Já estimado" só vale se o passo 0 não mexer nos fatores; se mexer, reestimar.
+  - ⚠ "Já estimado" só vale se o passo 0 não mexer nos fatores; se mexer, reestimar. O passo 0 mexeu
+    (θ̂ e fatores novos; ξ_mp de `z_jk_bs_purif` 5,01 → 4,83 na completa), então reestimar.
   - Já no registro (nota `2026-09-30_nota_filtro_jk`): ξ_mp 5,01 / 4,73, F_rob 7,59 / 7,78, 0/4255
     pontos fora do conjunto de 90% de produção, conjuntos 1,32× mais largos.
 

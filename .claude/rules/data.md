@@ -39,6 +39,16 @@ from "the collection came back empty", and the error only surfaces months later,
 - `data/raw/focus_daily.csv` — Focus pre-event predictors from `R/data_download/focus.R`. Since 2026-09-26
   the instrument no longer reads it (the Focus revisions left the
   BS regression on 2026-09-26); `het_rigobon/_common.R` still does.
+- `data/raw/focus_current_year.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-03, not
+  merged): the Focus median for the **current** year of the six annual series the panel carries as
+  "ano seguinte", read on the same survey date, from `script/download_focus_current_year.R`, a
+  network stage of its own so it never refreshes the panel. NA where the Focus no longer asks (FX and
+  Selic in December, Selic in Nov 2012, 2013 and 2015). `clean.R` combines it with the next-year
+  medians of `raw_data.csv` and `focus_fiscal_expectations.csv` into the Dovern-Fritsche-Slacalek
+  fixed-horizon series (`expect_focus_*_12m`), and takes the Selic of those three Novembers from
+  `copom_historico.csv`. The raw layer keeps the `_ny` names, which stay true there.
+  **`data/processed/` is shared by every branch**: after this branch, run
+  `Rscript script/run_all.R --only=clean` on `main` before estimating.
 - `data/raw/focus_macro_expectations.csv` and `data/raw/macro_released.csv` — the macro news
   block of the BS regression, from `script/download_macro_news.R` (since 2026-09-25,
   in production since 2026-09-26). They hold:
