@@ -148,6 +148,21 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Precisão, passo 1/5 do plano de 03-10 (2026-10-05, branch `feature/focus-horizonte-fixo`):**
+[`2026-10-05_precisao_ar`](2026-10-05_precisao_ar.md)
+**CURRENT na branch, não mergeada, sobre a base do passo 0.** A produção não muda.
+- **95%.** Câmbio e CDS são significantes a 95% no impacto (p 0,013 e 0,015), até h3 e h4.
+- **Pré-COVID.** Em `p = 4` não há conjunto (`hac_dim` 135 e `par_dim` 120 contra T = 90). Na célula
+  `p = 2` (ξ_mp 5,64), os dois são significantes a 95% de h0 a h11. O ponto de `p = 4` sai do conjunto
+  de `p = 2` de h10 a h22.
+- **Autocorrelação.** O momento de ξ_mp e os dos testes de câmbio e CDS em zero não têm autocorrelação
+  até h12.
+- **Newey-West.** De 1 a 3 defasagens o impacto não muda. De 4 a 12 os conjuntos encolhem até 24,5% e
+  ξ_mp vai a 10,01, sem licença para dizer que o instrumento fica forte.
+- ⚠ O impacto pré-COVID do câmbio em `p = 4` é 0,121 na base nova, contra 0,056 na de `main`.
+
+Novas em `weak_iv_ar.R`: `ar_dfm_moments()` e `ar_statistic()`.
+
 **Focus a horizonte fixo, passo 0/5 do plano de 03-10 (2026-10-03, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-03_focus_horizonte_fixo`](2026-10-03_focus_horizonte_fixo.md)
 **CURRENT na branch, não mergeada.** As seis Focus "ano seguinte" passam à aproximação de horizonte
@@ -475,6 +490,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-05_precisao_ar`](2026-10-05_precisao_ar.md) | 10-05 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | base do passo 0 (Focus a horizonte fixo), `z_bs_purif`, `(5,5,4)`, escala LP; pré-COVID 2012-03--2019-12 por MQO em `p = 2` e `p = 4` | Tudo, na branch: câmbio e CDS significantes a 95% no impacto (p 0,013 / 0,015), até h3 / h4; 458 pares significantes a 95% no painel; pré-COVID `p = 2` com ξ_mp 5,64, significantes a 95% em h0–h11; `p = 4` barrado; momentos sem autocorrelação até h12; NW 1–3 não muda o impacto, NW 4–12 estreita até 24,5% e leva ξ_mp a 10,01. ⚠ ponto `p = 4` fora do conjunto `p = 2` em h10–h22; ⚠ impacto pré-COVID do câmbio 0,121 na base nova, contra 0,056 |
 | [`2026-10-03_focus_horizonte_fixo`](2026-10-03_focus_horizonte_fixo.md) | 10-03 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; `.tex` e `paper/img/` intocados** | painel com as seis Focus anuais a horizonte fixo de 12 meses; `z_bs_purif`, `(5,5,4)`, escala LP com θ̂ reestimado (7,46; 15,01; 1,44; 0,966), conjuntos AR 80/90 | Tudo, na branch: câmbio 0,141 → 0,146 e CDS 34,0 → 33,9 no impacto, 0/37 pontos fora do conjunto antigo; ponta longa (h25–h36) perde os 90% no painel (1588 → 1051 pares), mantém os 80%; ξ_mp 6,80 / 5,50; Bai-Ng 5, 5, 18; AIC 4, BIC 2. ⚠ IPCA positivo em h1, h3–h7; ⚠ placebos VIX e MSCI EM violam, EPU EUA não; ⚠ anexos, figuras do paper, `het_conditions` e `precovid_divergence` seguem na base antiga |
 | [`2026-10-01_precovid_dbgg_focus_pib`](2026-10-01_precovid_dbgg_focus_pib.md) | 10-01 | **CURRENT — diagnóstico; produção e `.tex` intocados** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90) e pré-COVID 2012-03--2019-12 por MQO | Tudo: Focus PIB pré-COVID forte pela troca de ano-alvo em janeiro (jan/2016 = 63% da soma de quadrados; carga sem janeiros 0/37 fora do conjunto); vale da DBGG de produção vindo de 2020–22 (101% da covariância com o DI 6m; carga pré-COVID tira o vale); câmbio pré-COVID 0,056 → 0,141 sem as surpresas de janeiro. Blocos de carga são diagnóstico, sem conjunto. ⚠ A Focus PIB da §4 cai à metade com a carga sem janeiros (−0,189 → −0,091); cinco Focus "ano seguinte" com 36–79% da variação em janeiro |
 | [`2026-09-30_nota_filtro_jk`](2026-09-30_nota_filtro_jk.md) | 09-30 | **CURRENT — rodada de texto; nada reestimado** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90); branch `feature/robustez-pandemia` | Tudo: o rodapé da §3.4 sobre o filtro JK (ξ_mp 7,02 → 5,01 e 6,84 → 4,73; F_rob 8,62 → 7,59 e 8,31 → 7,78; 0/4255 pontos fora do conjunto de 90% de produção; conjuntos 1,32 vez mais largos; pares significativos a 90% 1587 → 856); a §1 e os resumos de volta à redação de 09-26. ⚠ Com o filtro o impacto no Ibovespa exclui zero (−8,17%, [−28,4; −3,0]), em parte por construção; o resumo em inglês ainda traz "3.64%" |

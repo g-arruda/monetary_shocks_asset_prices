@@ -1,5 +1,7 @@
 # Pendências
 
+**Atualização de 2026-10-05:** o passo 1/5 do Tema B (precisão) rodou na branch
+`feature/focus-horizonte-fixo`, sobre a base do passo 0, e fechou (nota `2026-10-05_precisao_ar`).
 **Atualização de 2026-10-03:** o e-mail do orientador de 03-10 (`email/email_professor_03-10_11h31.md`)
 entrou no Tema B como um plano de seis passos (0 a 5) e a resposta que ele pede ao autor. O item do
 p = 0,54 do Tema A ganhou a redação que o orientador pede. No mesmo dia o passo 0 rodou na branch
@@ -103,8 +105,7 @@ AR/MOSW próprios.
 | A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu` |
 | A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
 | B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, o que é "excluir" uma reunião, avaliação conjunta dos placebos; o escopo do passo 0 já foi decidido |
-| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 1 a 5** |
-| B | Passo 1/5: precisão (AR 95%, tabela em h = 0, 1, 3, 6, 12 e 24, pré-COVID, Newey-West 1 a 3) | aberto em 2026-10-03; depende do passo 0; ⚠ intervalos pré-COVID barrados por `hac_dim` 135 ≥ 90 em `p = 4` |
+| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5**; o passo 1 rodou sobre esta base em 10-05 |
 | B | Passo 2/5: regressões diárias de câmbio e CDS na surpresa bruta e na ortogonalizada | aberto em 2026-10-03; depende do passo 0; diagnóstico de forma reduzida, sem atribuir a divergência de antemão |
 | B | Passo 3/5: influência das reuniões e exclusão por VIX, S&P 500 e Brent | aberto em 2026-10-03; depende do passo 0; regra definida antes de rodar, sem selecionar por câmbio ou CDS |
 | B | Passo 4/5: placebos nos horizontes definidos, com avaliação conjunta | aberto em 2026-10-03; depende do passo 0; liga-se ao item do p = 0,54 do Tema A |
@@ -524,7 +525,9 @@ DBGG e a agregação temporal completa.*
   leia os itens, diga o que acha, estime quanto tempo leva tudo e aponte os pontos de dúvida ou
   discordância, para alinhar antes de começar. A estimativa de prazo é do autor. Pontos que o registro
   já levanta e que valem uma pergunta a ele:
-  - pré-COVID: o passo 1 pede intervalos, e `hac_dim` 135 ≥ T = 90 os bloqueia em `p = 4`;
+  - pré-COVID: o passo 1 pede intervalos, e `hac_dim` 135 ≥ T = 90 os bloqueia em `p = 4`. O autor
+    escolheu em 10-05 a célula `p = 2`, que vai na resposta como fato, com a ressalva de que ela se
+    afasta de `p = 4` depois de h9 (nota `2026-10-05_precisao_ar`);
   - filtro JK: o passo 5 o põe num apêndice, e a decisão de 2026-09-26 o tirou do paper;
   - o que "excluir uma reunião" quer dizer no passo 3;
   - como se faz a avaliação conjunta dos placebos no passo 4.
@@ -549,21 +552,8 @@ DBGG e a agregação temporal completa.*
   - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer: positivo em h1 e h3–h7, máximo +0,039 p.p.
   - ⚠ `data/processed/` é o mesmo para todas as branches: ao voltar a `main`, rodar
     `Rscript script/run_all.R --only=clean` antes de estimar.
-  - **Bloqueia os passos 1 a 5.**
-- [ ] **Passo 1/5: precisão.** Depende do passo 0. Quatro partes:
-  - conjuntos Anderson-Rubin de 95% para câmbio e CDS (a produção escreve 80/90);
-  - tabela curta com o impacto e horizontes **escolhidos antes de olhar os resultados**, h = 0, 1, 3, 6,
-    12 e 24, sem selecionar os meses mais favoráveis;
-  - intervalos de confiança para a janela pré-COVID. ⚠ `hac_dim` 135 ≥ T = 90 em `p = 4` bloqueia o
-    conjunto, e a regra do projeto é não publicar banda pré-COVID, sem pseudo-inversa nem bootstrap
-    substituto. A única célula pré-COVID que passa o gate no registro é a de `p = 2` (`hac_dim` 85 < 92,
-    AR 68/90 em `q = 5`, nota `2026-09-10_truncamento_q`), que **não é a de produção**. Decisão do
-    autor. ⚠ Na base do passo 0 a célula pré-COVID de produção enfraquece: ξ_mp 6,84 → 5,50, F_rob
-    8,31 → 5,34;
-  - autocorrelação nos termos que compõem os momentos do teste AR e sensibilidade a Newey-West com 1 a 3
-    defasagens, ampliando se o diagnóstico indicar dependência mais longa. `mosw_rform_cov()` já aceita
-    `nw_lags` (`R/identification/weak_iv_ar.R:303`) e a produção usa NW(0). A autocorrelação dos
-    momentos ainda não é calculada. `nw_lags` não altera `hac_dim`, então o gate não muda.
+  - **Bloqueia os passos 2 a 5.** O passo 1 rodou em 10-05 sobre a base da branch, antes de ela ser
+    congelada (Fechados, abaixo).
 - [ ] **Passo 2/5: evento diário.** Depende do passo 0. Estimar, na amostra comum, a associação das
   variações diárias de câmbio e CDS com a surpresa bruta e com a ortogonalizada, tratando as regressões
   como diagnóstico de forma reduzida. Se houver efeitos normalizados por uma variação do DI, explicitar
@@ -594,8 +584,10 @@ DBGG e a agregação temporal completa.*
   surpresa, descrevê-lo como **ausência de evidência de poder preditivo naquela especificação**, nunca
   como validação da exogeneidade. O p = 0,543 vem da branch `feature/placebo-epu` e testa isso: a
   tendência de 13 semanas do EPU diário não prevê a surpresa (nota `2026-09-29_placebo_epu`, só na
-  branch). ⚠ Os conjuntos AR não imprimem p-valor, e Holm ou Bonferroni precisam dele; a estatística
-  AR avaliada em zero o fornece. Decisão de desenho. O texto fica no item do Tema A sobre o p = 0,54.
+  branch). Holm ou Bonferroni precisam de p-valor, e os conjuntos AR não o imprimem. Desde 10-05,
+  `ar_statistic()` (`R/identification/weak_iv_ar.R`) dá o p-valor AR da resposta zero em cada célula
+  (nota `2026-10-05_precisao_ar`). Falta a decisão de desenho sobre a correção. O texto fica no item
+  do Tema A sobre o p = 0,54.
   ⚠ Na base do passo 0 os placebos mudam: o EPU dos EUA deixa de violar (h1–h3 na base antiga), e o
   VIX (h2, h5, h6) e o MSCI de emergentes (h2–h10) passam a violar a 90% (nota
   `2026-10-03_focus_horizonte_fixo`, seção 7).
@@ -617,6 +609,16 @@ DBGG e a agregação temporal completa.*
 
 ### Fechados (contexto)
 
+- [x] **Passo 1/5: precisão — 2026-10-05.** Rodado na branch `feature/focus-horizonte-fixo` sobre a
+  base do passo 0, ainda não congelada. Se a base mudar, rerodar `script/ar_precision.R`.
+  - Câmbio e CDS são significantes a 95% no impacto (p 0,013 e 0,015), até h3 e h4.
+  - Pré-COVID só em `p = 2` (ξ_mp 5,64; significantes a 95% em h0–h11), porque `p = 4` é barrado.
+  - Os momentos de ξ_mp e dos testes de câmbio e CDS não têm autocorrelação até h12.
+  - NW 1–3 não muda o impacto. NW 4–12 estreita os conjuntos, e ξ_mp chega a 10,01.
+  - ⚠ O ponto pré-COVID de `p = 4` sai do conjunto de `p = 2` em h10–h22.
+  - ⚠ Com a base nova, o impacto pré-COVID do câmbio em `p = 4` vai de 0,056 a 0,121.
+
+  Nota: `2026-10-05_precisao_ar`.
 - [x] **Robustez à pandemia: respostas pré-COVID no Anexo C — 2026-09-30.** Sugestão do
   orientador de 28-09. `fig:precovid_sensibilidade`, em ponto (`hac_dim` 135 ≥ 90 barra a banda),
   com uma frase na §3.4 e nenhum número no corpo. Curva e risco ficam dentro do conjunto de 90%
