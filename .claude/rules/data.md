@@ -58,9 +58,21 @@ from "the collection came back empty", and the error only surfaces months later,
     vintage.
 
   Its own network stage, so it runs without refreshing the production panel.
-- `data/raw/di.csv`, `data/raw/copom_historico.csv`, `data/processed/ibov_daily.csv`,
-  `data/processed/brl_usd_daily.csv`, `data/raw/investing/external_factors_daily.csv` — daily inputs to
-  instrument construction.
+- `data/raw/di.csv`, `data/raw/copom_historico.csv`, `data/raw/ibov_daily.csv`,
+  `data/raw/investing/external_factors_daily.csv` — daily inputs to instrument construction, with
+  the two macro news files above. `script/instrument.R` reads no exchange rate.
+- `data/raw/brl_usd_daily.csv` — Yahoo `BRL=X`, daily, from `download.R`; read live only by
+  `script/het_conditions.R`. ⚠ **Its dates are off by one session in the European winter**: Yahoo
+  stamps the bars at London midnight, the rows run Sunday–Thursday from the last Sunday of March to
+  the last Sunday of October, and outside that stretch the row dated d moves with session d−1
+  (its change correlates −0.43 with the Ibovespa's of d−1 and 0.02 with that of d;
+  `output/daily_event/fx_alignment.csv`). In 45 of the 102 Copom events a Wed→Thu change read off
+  its dates therefore tracks Wednesday's session, which closes before the announcement, not
+  Thursday's. Do not use it for an event window.
+- `data/raw/ptax_daily.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-05, not merged):
+  the daily PTAX (SGS 1, selling quote, average of the 10h–13h windows), from
+  `script/download_ptax.R`, the `ptax` network stage of its own. The Copom-day exchange-rate change
+  of `script/daily_event.R` (Wed 13h → Thu 13h).
 
 ## Two external inputs with no producer in this repo
 
@@ -72,10 +84,12 @@ from "the collection came back empty", and the error only surfaces months later,
   with a pointer if the file goes missing.
 - **`data/raw/CDS 5y.xlsx`** — daily 5y sovereign CDS (Bloomberg, `BRAZIL CDS USD SR 5Y D14 Corp`).
   Metadata sits in rows 1-5 and the series in columns C:D, hence the `cell_limits(c(7, 3), ...)`
-  read. Its only consumer was `jk_sovereign_confound.R`, archived to `arquivo/script/` on
-  2026-09-17, so nothing live reads it now; the panel's monthly `cds_5y` comes from
-  `download.R` and the two agree at **cor 0.9994** — which is what makes the daily test and the
-  monthly IRF the same object rather than homonyms.
+  read (`readxl::read_excel(skip = 5)` does the same). Its first consumer,
+  `jk_sovereign_confound.R`, was archived to `arquivo/script/` on 2026-09-17; it is read live by
+  `script/het_conditions.R` and, on branch `feature/focus-horizonte-fixo`, by
+  `script/daily_event.R`. The panel's monthly `cds_5y` comes from `download.R`, and the two agree
+  at **cor 0.9994** — which is what makes the daily test and the monthly IRF the same object
+  rather than homonyms.
 - `data/raw/fomc_dates.csv` and `data/raw/fred_dgs2.csv` are **no longer produced or read** since
   2026-09-18: their only consumer was the FOMC/UST purification that left the instrument with the
   archived FOMC test. Copies on disk are inert.

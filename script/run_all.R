@@ -82,6 +82,14 @@ STAGES <- list(
     requires = character(),
     produces = "data/raw/focus_current_year.csv"
   ),
+  ptax = list(
+    name = "ptax",
+    desc = "Daily PTAX for the Copom-day exchange-rate change",
+    file = "script/download_ptax.R",
+    network = TRUE,
+    requires = character(),
+    produces = "data/raw/ptax_daily.csv"
+  ),
   clean = list(
     name = "clean",
     desc = "Log transforms, Focus fixed horizon, X-13 of the monthly panel",
