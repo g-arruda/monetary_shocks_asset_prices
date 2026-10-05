@@ -299,7 +299,9 @@ mosw_response_derivatives <- function(AL, p, h, Gamma, Load = NULL,
 #'   `NWlags = 0` of the oil application.
 #'
 #' @return List with `W1`, `W12`, `W2`, `WHataux`, `WHat`, `Gamma`, `T_eff`,
-#'   and `hac_dim`.
+#'   `hac_dim` and `influence`, the `T x (n^2 p + n k)` influence function of
+#'   `(vec(A), Gamma)`: the centred moments mapped by the `(vec(A), Gamma)` rows
+#'   of `Shat`, so that its Bartlett long-run covariance is `WHat`.
 mosw_rform_cov <- function(X, Z, eta, p, nw_lags = 0L) {
   X <- as.matrix(X)
   Z <- as.matrix(Z)
@@ -412,7 +414,8 @@ mosw_rform_cov <- function(X, Z, eta, p, nw_lags = 0L) {
     WHat = WHat,
     Gamma = drop(eta %*% Z / T_eff),
     T_eff = T_eff,
-    hac_dim = hac_dim
+    hac_dim = hac_dim,
+    influence = moments_centered %*% t(Shat[c(idx_a, idx_g), , drop = FALSE])
   )
 }
 
@@ -558,22 +561,74 @@ ar_excludes_zero <- function(set_type, lo, hi) {
 }
 
 
-#' Anderson-Rubin confidence sets for the DFM, in published units
+#' Anderson-Rubin statistic at a hypothesised response, with its moment series
+#'
+#' Evaluates, cell by cell, the statistic that `mosw_ar_bounds()` inverts:
+#' `AR(lambda0) = T (num - lambda0 den)^2 / (Dd WHat Dd')`, with
+#' `Dd = [Da, Dg - lambda0 d0]`. The set at level kappa is exactly
+#' `{lambda0 : AR(lambda0) <= critval}`, so `p_value < 1 - kappa` iff the set
+#' excludes `lambda0`. `psi` is the scalar moment of each cell's test,
+#' `influence %*% Dd'`, whose Bartlett long-run variance is `variance`.
+#'
+#' `lambda0` is in the units before the transformation codes, which are the
+#' published ones for code 1. Zero maps to zero under every code, so
+#' `lambda0 = 0` tests the published response for any of them, provided
+#' codes 2 and 5 are called with `cumulative = TRUE`.
+#'
+#' @param moments List returned by `ar_dfm_moments()`.
+#' @param nvar Row index of the normalisation variable.
+#' @param scale Impact response imposed on `nvar`, in its native units.
+#' @param rows,horizons Paired vectors: row index and horizon (0-based) of
+#'   each cell.
+#' @param lambda0 Hypothesised response, recycled over the cells.
+#' @param cumulative Test the horizon-cumulated response, as in
+#'   `mosw_ar_bounds()`.
+#'
+#' @return List with `statistic`, `p_value` (chi-squared, 1 df) and `variance`,
+#'   one entry per cell, and `psi`, `T x cells`.
+#'
+#' @examples
+#' at_zero <- ar_statistic(moments, mpind, 0.005, rows = c(5L, 5L),
+#'                         horizons = c(0L, 1L), lambda0 = 0)
+ar_statistic <- function(moments, nvar, scale, rows, horizons, lambda0,
+                         cumulative = FALSE) {
+  C <- if (cumulative) moments$deriv$Ccum else moments$deriv$C
+  D1 <- if (cumulative) moments$deriv$D1cum else moments$deriv$D1
+  cov <- moments$cov
+  n_out <- dim(C)[1]
+  n_h <- dim(C)[3]
+
+  d0 <- moments$deriv$C[nvar, , 1]
+  den <- sum(d0 * cov$Gamma)
+
+  # Cells stacked as in mosw_ar_bounds(): row j at horizon h is j + n_out h
+  cells <- rows + n_out * horizons
+  Dg <- scale * matrix(aperm(C, c(1, 3, 2)), nrow = n_out * n_h)[cells, ,
+                                                                   drop = FALSE]
+  Da <- scale * matrix(aperm(D1, c(1, 3, 2)), nrow = n_out * n_h)[cells, ,
+                                                                   drop = FALSE]
+  lambda0 <- rep_len(lambda0, length(cells))
+
+  Dd <- cbind(Da, Dg - outer(lambda0, d0))
+  variance <- rowSums((Dd %*% cov$WHat) * Dd)
+  statistic <- cov$T_eff * (drop(Dg %*% cov$Gamma) - lambda0 * den)^2 /
+    variance
+
+  list(
+    statistic = statistic,
+    p_value = pchisq(statistic, df = 1, lower.tail = FALSE),
+    variance = variance,
+    psi = cov$influence %*% t(Dd)
+  )
+}
+
+
+#' Moment covariance and response derivatives of the DFM's Anderson-Rubin sets
 #'
 #' The whole DFM wiring in one place: it rebuilds the factor-VAR regressor
 #' block, assembles `Load = diag(sy) Lambda` and `Inner = K K'`, and returns
-#' one `mosw_ar_bounds()` result per confidence level with the transformation
-#' codes already applied to the bounds. The proxy arrives already aligned to
-#' the factor innovations — `compute_irf_dfm()` owns that alignment, through
-#' `sel_ext_inst_sample()`, and is the only caller.
-#'
-#' **Transformation codes.** `cumimp_transform()` is monotone increasing in
-#' every code it implements, so set bounds map through it endpoint by
-#' endpoint: code 1 is the identity, code 6 is `x*100`, code 4 is
-#' `(exp(x)-1)*100`. Codes 2 and 5 accumulate, and those take the
-#' **cumulative** inversion (`cumulative = TRUE`); accumulating the bounds of a
-#' per-horizon set would be wrong. Code 3 accumulates twice and has no branch
-#' here — it aborts.
+#' the two inputs every inversion reads. The proxy arrives already aligned to
+#' the factor innovations, through `sel_ext_inst_sample()`.
 #'
 #' **COVID volatility** (Lenza-Primiceri 2022). With `innovations =
 #' "standardized"` the weighted least squares of (B2) is OLS on the rows
@@ -589,29 +644,22 @@ ar_excludes_zero <- function(set_type, lo, hi) {
 #' @param rsh_sel_ind Logical index into the factor innovations, from
 #'   `sel_ext_inst_sample()`.
 #' @param inst_sel Instrument values aligned with `rsh_sel_ind`.
-#' @param mpind Column index of the policy variable.
 #' @param h Maximum horizon.
-#' @param scale Impact response imposed on the policy variable, native units.
-#' @param tcode Integer vector of transformation codes, one per variable.
-#' @param levels Confidence levels.
 #' @param nw_lags Newey-West truncation for the moment covariance.
 #'
-#' @return List with `by_level` (named by `sprintf("%.2f", levels)`, each a
-#'   `mosw_ar_bounds()` result in published units), plus `Gamma`, `d0`,
-#'   `xi_den`, `T_eff`, `hac_dim` and `n_par`.
-ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
-                         scale, tcode, levels, nw_lags = 0L) {
-  unmapped_codes <- setdiff(tcode, c(1L, 2L, 4L, 5L, 6L))
-  if (length(unmapped_codes) > 0) {
-    stop("ar_dfm_bands: transformation codes ",
-         paste(sort(unmapped_codes), collapse = ", "),
-         " have no monotone bound map here (code 3 accumulates twice)")
-  }
+#' @return List with `cov`, from `mosw_rform_cov()`, and `deriv`, from
+#'   `mosw_response_derivatives()`.
+#'
+#' @examples
+#' align <- sel_ext_inst_sample(dfm$dates, dfm$p, dfm$instrument)
+#' moments <- ar_dfm_moments(dfm, align$rsh_sel_ind, align$inst_sel, 48L)
+ar_dfm_moments <- function(dfm_results, rsh_sel_ind, inst_sel, h,
+                           nw_lags = 0L) {
   covid <- dfm_results$covid_volatility
   if (!is.null(covid) && covid$innovations != "standardized") {
-    stop("ar_dfm_bands: under covid_volatility with innovations = \"raw\" the ",
-         "influence function mixes the transformed regressors (in A) with the ",
-         "raw ones (in Gamma) and is not derived; only \"standardized\" is ",
+    stop("ar_dfm_moments: under covid_volatility with innovations = \"raw\" ",
+         "the influence function mixes the transformed regressors (in A) with ",
+         "the raw ones (in Gamma) and is not derived; only \"standardized\" is ",
          "(notas/2026-09-14_inferencia_volatilidade_covid_q.md).")
   }
 
@@ -663,7 +711,7 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
   # and W. In production the two coincide because the instrument covers every
   # month.
   if (T_eff != nrow(u)) {
-    stop("ar_dfm_bands: the instrument covers ", T_eff, " of ", nrow(u),
+    stop("ar_dfm_moments: the instrument covers ", T_eff, " of ", nrow(u),
          " factor innovations. MOSW use the full sample with z zero-padded ",
          "(SVARIV.m:128) and this path subsamples, ",
          "which moves T, Gamma and W. ",
@@ -678,7 +726,7 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
   orth <- max(abs(crossprod(X_sel, u_sel)))
   orth_scale <- max(abs(X_sel)) * max(abs(u_sel)) * T_eff
   if (!is.finite(orth) || orth > 1e-8 * max(orth_scale, 1)) {
-    stop("ar_dfm_bands: the rebuilt regressors are not orthogonal to the ",
+    stop("ar_dfm_moments: the rebuilt regressors are not orthogonal to the ",
          "factor-VAR residuals (max |X'u| = ", format(orth, digits = 3),
          "). The X_reg rebuild diverged from estimate_var_wls().")
   }
@@ -692,6 +740,57 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
     Load = Load,
     Inner = Inner
   )
+
+  list(cov = cov, deriv = deriv)
+}
+
+
+#' Anderson-Rubin confidence sets for the DFM, in published units
+#'
+#' Returns one `mosw_ar_bounds()` result per confidence level, on the moments
+#' of `ar_dfm_moments()`, with the transformation codes already applied to
+#' the bounds. `compute_irf_dfm()` owns the alignment of the proxy, through
+#' `sel_ext_inst_sample()`, and is the only caller.
+#'
+#' **Transformation codes.** `cumimp_transform()` is monotone increasing in
+#' every code it implements, so set bounds map through it endpoint by
+#' endpoint: code 1 is the identity, code 6 is `x*100`, code 4 is
+#' `(exp(x)-1)*100`. Codes 2 and 5 accumulate, and those take the
+#' **cumulative** inversion (`cumulative = TRUE`); accumulating the bounds of a
+#' per-horizon set would be wrong. Code 3 accumulates twice and has no branch
+#' here — it aborts.
+#'
+#' @param dfm_results List returned by `estimate_dfm()`.
+#' @param rsh_sel_ind Logical index into the factor innovations, from
+#'   `sel_ext_inst_sample()`.
+#' @param inst_sel Instrument values aligned with `rsh_sel_ind`.
+#' @param mpind Column index of the policy variable.
+#' @param h Maximum horizon.
+#' @param scale Impact response imposed on the policy variable, native units.
+#' @param tcode Integer vector of transformation codes, one per variable.
+#' @param levels Confidence levels.
+#' @param nw_lags Newey-West truncation for the moment covariance.
+#'
+#' @return List with `by_level` (named by `sprintf("%.2f", levels)`, each a
+#'   `mosw_ar_bounds()` result in published units), plus `Gamma`, `d0`,
+#'   `xi_den`, `T_eff`, `hac_dim` and `n_par`.
+ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
+                         scale, tcode, levels, nw_lags = 0L) {
+  unmapped_codes <- setdiff(tcode, c(1L, 2L, 4L, 5L, 6L))
+  if (length(unmapped_codes) > 0) {
+    stop("ar_dfm_bands: transformation codes ",
+         paste(sort(unmapped_codes), collapse = ", "),
+         " have no monotone bound map here (code 3 accumulates twice)")
+  }
+  moments <- ar_dfm_moments(
+    dfm_results,
+    rsh_sel_ind,
+    inst_sel,
+    h,
+    nw_lags = nw_lags
+  )
+  cov <- moments$cov
+  deriv <- moments$deriv
 
   cumulative_rows <- tcode %in% c(2L, 5L)
   exp_rows <- tcode %in% c(4L, 5L)
@@ -739,7 +838,7 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
     d0 = d0,
     den = sum(d0 * cov$Gamma),
     xi_den = by_level[[1L]]$xi_den,
-    T_eff = T_eff,
+    T_eff = cov$T_eff,
     hac_dim = cov$hac_dim,
     n_par = ncol(cov$WHat)
   )

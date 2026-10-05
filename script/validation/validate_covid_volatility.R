@@ -162,7 +162,7 @@ n4 <- c(
                  covid_volatility = modifyList(neutral, list(covid_start = dates[1]))))),
   no_dates = grepl("nao e um mes", error_message(
     estimate_dfm(data_mat, R_FACTORS, Q_DYNAMIC, P_LAGS, covid_volatility = neutral))),
-  anderson_rubin = grepl("ar_dfm_bands.*raw", error_message(
+  anderson_rubin = grepl("ar_dfm_moments.*raw", error_message(
     main_sdfm(inference = "ar", covid_volatility = neutral))),
   xi_mp = grepl("diagnose_instrument_in_factor_space.*raw", error_message(
     diagnose_instrument_in_factor_space(treated_dfm, instrument, dates, P_LAGS,

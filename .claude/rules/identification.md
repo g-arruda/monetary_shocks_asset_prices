@@ -37,6 +37,12 @@ the point alone, for cells compared point by point (`q_sensitivity.R`). The AR
 branch hard-stops if its re-derived point deviates from `ident_ext_instr()` by more than 1e-10 — the
 two paths must agree about the identification, not merely about the bands. `irf_point_matrix` is
 untouched by the switch, so the `CLAUDE.md` smoke test stays the guard it was.
+Since 2026-10-05 the DFM wiring of the sets (regressor rebuild, `Load`/`Inner`, the covariance and
+the derivatives) is `ar_dfm_moments()`, which `ar_dfm_bands()` calls with unchanged signature and
+return. `ar_statistic()` evaluates the inverted statistic at a given λ0, with its p-value and the
+scalar moment series of each cell, from `mosw_rform_cov()$influence`, whose long-run covariance is
+`WHat`. The split was bit-identical: smoke test, cache and the seven validators
+(`notas/2026-10-05_precisao_ar.md`).
 
 **The wild bootstrap and the Kilian correction left the code on 2026-09-18** (author decision: the
 AR sets replaced them). With them went `nboot`, `bootstrap_seed`, `apply_kilian`,
@@ -104,7 +110,7 @@ uncentered Γ (`SVARIV.m:128`), and K reads the uncentered second moment, which 
 no-op.
 
 **Inference under the treatment, since 2026-09-14.** With `"standardized"` the WLS is OLS on the
-transformed regression. `ar_dfm_bands()` therefore feeds `mosw_rform_cov()` with:
+transformed regression. `ar_dfm_moments()` therefore feeds `mosw_rform_cov()` with:
 - the regressors `(1, lags)/s_t`, the transformed constant first;
 - the uncentered `u_t/s_t`;
 - MOSW's uncentered Γ.
