@@ -148,6 +148,19 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Evento diário, passo 2/5 do plano de 03-10 (2026-10-05, branch `feature/focus-horizonte-fixo`):**
+[`2026-10-05_evento_diario`](2026-10-05_evento_diario.md)
+**CURRENT na branch, não mergeada, sobre a base do passo 0.** A produção não muda.
+- **Dia do Copom.** As regressões cobrem 102 reuniões, com HC1. +50 p.b. de surpresa vem com o real
+  apreciando R$ 0,048 (1,04%), significante a 95% com a surpresa bruta e com a ortogonalizada (p 0,019
+  e 0,021). O CDS não é significante a 90% (+0,9 e −0,5 p.b.).
+- **Primeiro estágio.** É a identidade na bruta e tem F 656 na ortogonalizada. O efeito por +50 p.b. no
+  DI de 6 meses tem o ponto da forma reduzida, e o conjunto AR fica igual ou quase igual ao de Wald.
+- **Etapa.** O câmbio só troca de sinal no DFM mensal (+0,099 com a bruta, +0,146 na produção). A
+  passagem muda frequência, janela, normalização, medida e modelo juntos, e nada a decompõe.
+- ⚠ O câmbio diário é a PTAX (estágio `ptax`). O Yahoo `BRL=X` está deslocado um pregão no inverno
+  europeu (45 das 102 reuniões) e alimenta a linha diária do Anexo B (item novo no Tema D).
+
 **Precisão, passo 1/5 do plano de 03-10 (2026-10-05, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-05_precisao_ar`](2026-10-05_precisao_ar.md)
 **CURRENT na branch, não mergeada, sobre a base do passo 0.** A produção não muda.
@@ -490,6 +503,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-05_evento_diario`](2026-10-05_evento_diario.md) | 10-05 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | 102 reuniões do Copom 2012-03--2025-12, `delta_di` e `e_di_bs` de `main`; PTAX 13h → 13h, CDS Bloomberg; DFMs da base do passo 0 com `z_bruto` e `z_bs_purif` | Tudo, na branch: real aprecia R$ 0,048 (1,04%) por +50 p.b. no dia, significante a 95% com as duas surpresas (p 0,019 / 0,021); CDS não significante a 90%; primeiro estágio identidade / F 656; o câmbio só troca de sinal no DFM (+0,099 / +0,146), passagem não decomposta. ⚠ no CDS o ponto troca de sinal na ortogonalização (+0,9 → −0,5), sem significância; ⚠ Yahoo `BRL=X` deslocado um pregão no inverno europeu, atinge a linha diária do Anexo B |
 | [`2026-10-05_precisao_ar`](2026-10-05_precisao_ar.md) | 10-05 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | base do passo 0 (Focus a horizonte fixo), `z_bs_purif`, `(5,5,4)`, escala LP; pré-COVID 2012-03--2019-12 por MQO em `p = 2` e `p = 4` | Tudo, na branch: câmbio e CDS significantes a 95% no impacto (p 0,013 / 0,015), até h3 / h4; 458 pares significantes a 95% no painel; pré-COVID `p = 2` com ξ_mp 5,64, significantes a 95% em h0–h11; `p = 4` barrado; momentos sem autocorrelação até h12; NW 1–3 não muda o impacto, NW 4–12 estreita até 24,5% e leva ξ_mp a 10,01. ⚠ ponto `p = 4` fora do conjunto `p = 2` em h10–h22; ⚠ impacto pré-COVID do câmbio 0,121 na base nova, contra 0,056 |
 | [`2026-10-03_focus_horizonte_fixo`](2026-10-03_focus_horizonte_fixo.md) | 10-03 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; `.tex` e `paper/img/` intocados** | painel com as seis Focus anuais a horizonte fixo de 12 meses; `z_bs_purif`, `(5,5,4)`, escala LP com θ̂ reestimado (7,46; 15,01; 1,44; 0,966), conjuntos AR 80/90 | Tudo, na branch: câmbio 0,141 → 0,146 e CDS 34,0 → 33,9 no impacto, 0/37 pontos fora do conjunto antigo; ponta longa (h25–h36) perde os 90% no painel (1588 → 1051 pares), mantém os 80%; ξ_mp 6,80 / 5,50; Bai-Ng 5, 5, 18; AIC 4, BIC 2. ⚠ IPCA positivo em h1, h3–h7; ⚠ placebos VIX e MSCI EM violam, EPU EUA não; ⚠ anexos, figuras do paper, `het_conditions` e `precovid_divergence` seguem na base antiga |
 | [`2026-10-01_precovid_dbgg_focus_pib`](2026-10-01_precovid_dbgg_focus_pib.md) | 10-01 | **CURRENT — diagnóstico; produção e `.tex` intocados** | produção de 2026-09-26 (`z_bs_purif`, `(5,5,4)`, escala LP, conjuntos AR 80/90) e pré-COVID 2012-03--2019-12 por MQO | Tudo: Focus PIB pré-COVID forte pela troca de ano-alvo em janeiro (jan/2016 = 63% da soma de quadrados; carga sem janeiros 0/37 fora do conjunto); vale da DBGG de produção vindo de 2020–22 (101% da covariância com o DI 6m; carga pré-COVID tira o vale); câmbio pré-COVID 0,056 → 0,141 sem as surpresas de janeiro. Blocos de carga são diagnóstico, sem conjunto. ⚠ A Focus PIB da §4 cai à metade com a carga sem janeiros (−0,189 → −0,091); cinco Focus "ano seguinte" com 36–79% da variação em janeiro |

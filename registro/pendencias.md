@@ -2,6 +2,9 @@
 
 **Atualização de 2026-10-05:** o passo 1/5 do Tema B (precisão) rodou na branch
 `feature/focus-horizonte-fixo`, sobre a base do passo 0, e fechou (nota `2026-10-05_precisao_ar`).
+No mesmo dia rodou e fechou o passo 2/5 (evento diário), na mesma base, com a PTAX como câmbio diário
+(nota `2026-10-05_evento_diario`). Dele saiu um item no Tema D, com ponteiro no Tema A: o câmbio
+diário do Yahoo está deslocado um pregão no inverno europeu, e alimenta a linha diária do Anexo B.
 **Atualização de 2026-10-03:** o e-mail do orientador de 03-10 (`email/email_professor_03-10_11h31.md`)
 entrou no Tema B como um plano de seis passos (0 a 5) e a resposta que ele pede ao autor. O item do
 p = 0,54 do Tema A ganhou a redação que o orientador pede. No mesmo dia o passo 0 rodou na branch
@@ -104,12 +107,13 @@ AR/MOSW próprios.
 | A | Conferir a figura de placebos no `.tex` | aberto em 2026-10-01, e-mail de 30-09; a figura está no Anexo D de `main` desde `1a150d0`; compilar e avisar o orientador da versão vigente |
 | A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu` |
 | A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
+| A | Anexo B e §3.3: linha diária com o câmbio realinhado | aberto em 2026-10-05; depende do item do Tema D sobre o câmbio do Yahoo; só muda o paper se a razão de variância do câmbio ou o `Qr` diário mudarem |
 | B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, o que é "excluir" uma reunião, avaliação conjunta dos placebos; o escopo do passo 0 já foi decidido |
-| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5**; o passo 1 rodou sobre esta base em 10-05 |
-| B | Passo 2/5: regressões diárias de câmbio e CDS na surpresa bruta e na ortogonalizada | aberto em 2026-10-03; depende do passo 0; diagnóstico de forma reduzida, sem atribuir a divergência de antemão |
+| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5**; os passos 1 e 2 rodaram sobre esta base em 10-05 |
 | B | Passo 3/5: influência das reuniões e exclusão por VIX, S&P 500 e Brent | aberto em 2026-10-03; depende do passo 0; regra definida antes de rodar, sem selecionar por câmbio ou CDS |
 | B | Passo 4/5: placebos nos horizontes definidos, com avaliação conjunta | aberto em 2026-10-03; depende do passo 0; liga-se ao item do p = 0,54 do Tema A |
 | B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26) |
+| D | Câmbio diário do Yahoo deslocado um pregão no inverno europeu | aberto em 2026-10-05, achado no passo 2/5; atinge `het_conditions.R`, a razão de variância do câmbio em `tab:het_frequency` e o `Qr` diário; bloqueia o item do Tema A sobre o Anexo B |
 
 ---
 
@@ -180,6 +184,14 @@ antes de escrever a introdução e traduzir para a submissão. Nenhum foi execut
   Deixar claro que é um exercício cruzado (`q` = 2 a 5 × com e sem a reescala, oito séries), não
   uma repetição. A frase está na nota de rodapé citada pelo orientador e/ou na legenda de
   `fig:lp_sensibilidade`; achar a que ele leu antes de editar.
+
+*Item aberto em 2026-10-05, no passo 2/5 do Tema B.*
+
+- [ ] **Anexo B e §3.3: linha diária com o câmbio realinhado.** Depende do item do Tema D sobre o
+  câmbio diário do Yahoo, deslocado um pregão no inverno europeu. A linha diária de
+  `tab:het_frequency` (razão de variância do câmbio e `Qr` de DI, câmbio e CDS) foi calculada com
+  essa série. Se a razão ou o `Qr` mudarem com o câmbio realinhado, atualizar a tabela. Conferir
+  também a frase da §3.3 de que a condição vale no diário com o DI de 3 meses.
 
 *Três itens transcritos em 2026-09-29 do e-mail do orientador de 28-09
 (`email/email_professor_28-09_21h15.md`), resposta a `email_meu_28-09_9h38.md`.
@@ -552,16 +564,8 @@ DBGG e a agregação temporal completa.*
   - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer: positivo em h1 e h3–h7, máximo +0,039 p.p.
   - ⚠ `data/processed/` é o mesmo para todas as branches: ao voltar a `main`, rodar
     `Rscript script/run_all.R --only=clean` antes de estimar.
-  - **Bloqueia os passos 2 a 5.** O passo 1 rodou em 10-05 sobre a base da branch, antes de ela ser
-    congelada (Fechados, abaixo).
-- [ ] **Passo 2/5: evento diário.** Depende do passo 0. Estimar, na amostra comum, a associação das
-  variações diárias de câmbio e CDS com a surpresa bruta e com a ortogonalizada, tratando as regressões
-  como diagnóstico de forma reduzida. Se houver efeitos normalizados por uma variação do DI, explicitar
-  o primeiro estágio e usar inferência apropriada à força do instrumento. O objetivo é ver em que etapa
-  surge a divergência com a evidência diária, **sem atribuí-la de antemão à identificação nem à
-  agregação**, o que combina com a proibição de 2026-09-22 de decompor frequência e janela.
-  Antecedentes: `notas/2026-08-09_confound_soberano_cds.md` (regressões diárias de CDS) e
-  `het_rigobon/` (réplica diária de GRG, em quarentena, não citável como corroboração).
+  - **Bloqueia os passos 2 a 5.** Os passos 1 e 2 rodaram em 10-05 sobre a base da branch, antes de
+    ela ser congelada (Fechados, abaixo).
 - [ ] **Passo 3/5: influência das reuniões.** Depende do passo 0. Duas partes:
   - medir a influência de cada reunião sobre a relação entre o instrumento e as inovações; reestimar
     excluindo individualmente as mais influentes e, como exercício adicional, excluindo juntas as 5 e as
@@ -609,6 +613,19 @@ DBGG e a agregação temporal completa.*
 
 ### Fechados (contexto)
 
+- [x] **Passo 2/5: evento diário — 2026-10-05.** Rodado na branch `feature/focus-horizonte-fixo` sobre
+  a base do passo 0, com a PTAX como câmbio diário (estágio `ptax`) e as 102 reuniões como amostra
+  comum. Se a base mudar, rerodar `script/daily_event.R`; só o lado do DFM depende dela.
+  - No dia do Copom, +50 p.b. de surpresa vem com o real apreciando R$ 0,048 (1,04%), significante a
+    95% com a surpresa bruta e com a ortogonalizada (p 0,019 e 0,021). O CDS não é significante a 90%.
+  - O primeiro estágio é a identidade na bruta e tem F 656 na ortogonalizada.
+  - O câmbio só troca de sinal no DFM mensal (+0,099 com a bruta, +0,146 na produção). A divergência
+    surge na passagem do diário ao DFM, que muda frequência, janela, normalização, medida e modelo
+    juntos, sem decomposição.
+  - ⚠ No CDS o ponto troca de sinal já na ortogonalização (+0,9 → −0,5 p.b.), e nenhum dos dois é
+    significante a 90%.
+
+  Nota: `2026-10-05_evento_diario`.
 - [x] **Passo 1/5: precisão — 2026-10-05.** Rodado na branch `feature/focus-horizonte-fixo` sobre a
   base do passo 0, ainda não congelada. Se a base mudar, rerodar `script/ar_precision.R`.
   - Câmbio e CDS são significantes a 95% no impacto (p 0,013 e 0,015), até h3 e h4.
@@ -876,6 +893,20 @@ topologia dos conjuntos AR nas duas janelas, as respostas contra as atuais e os 
 conjunto de 90% atual, nas 115 séries e nas oito do Anexo C; (c) `script/precovid_divergence.R`
 de novo, para ver se a Focus PIB pré-COVID entra no conjunto sem tirar os janeiros da carga.
 ⚠ Os dois tiram só o salto mecânico: a notícia que chega em janeiro continua na série.
+
+- [ ] **Câmbio diário do Yahoo deslocado um pregão no inverno europeu.** Achado no passo 2/5 do Tema B
+  (nota `2026-10-05_evento_diario`, seção 1).
+  - `data/raw/brl_usd_daily.csv` (`BRL=X`) carimba as barras à meia-noite de Londres. No inverno
+    europeu, a linha datada d acompanha o pregão d−1: a variação dela tem correlação −0,43 com a do
+    Ibovespa de d−1 e 0,02 com a de d (`output/daily_event/fx_alignment.csv`). Em 45 das 102 reuniões,
+    a variação de quarta a quinta lida pelas datas acompanha o pregão de quarta.
+  - A coluna alimenta o câmbio de `output/het/daily_changes.csv`, de `script/het_conditions.R`. Por
+    ele, entra na razão de variância diária do câmbio de `tab:het_frequency` (Anexo B) e no `Qr`
+    diário de DI, câmbio e CDS, que a §3.3 resume.
+  - `het_rigobon/` usa a mesma série e segue em quarentena.
+  - Falta: refazer a linha diária com a PTAX (`data/raw/ptax_daily.csv`, estágio `ptax`) ou com o Yahoo
+    realinhado, comparar a razão e o `Qr`, e decidir.
+  - Bloqueia o item do Tema A sobre o Anexo B.
 
 
 ### Fechados (contexto)
