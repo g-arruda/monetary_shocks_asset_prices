@@ -148,6 +148,22 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Influência das reuniões, passo 3/5 do plano de 03-10 (2026-10-08, branch `feature/focus-horizonte-fixo`):**
+[`2026-10-08_influencia_reunioes`](2026-10-08_influencia_reunioes.md)
+**CURRENT na branch, não mergeada, sobre a base do passo 0.** A produção não muda. Desenho do e-mail
+de 08-10: fatores, VAR e inovações fixos, e cada reunião sai só do momento Γ entre instrumento e
+inovações, com T = 162 e o calendário intactos.
+- **Uma a uma.** Nenhuma exclusão muda sinal ou força: câmbio no impacto de 0,126 a 0,175 (0,146), CDS
+  de 28,9 a 42,0 p.b. (33,9), ξ_mp de 5,52 a 7,61 (6,80).
+- **Juntas.** Sem as 5 mais influentes, ξ_mp 3,59 e F_rob 3,78. Câmbio e CDS continuam significantes a
+  90% (h0–h5 e h0–h4), mas não a 95%. Sem as 10, ξ_mp 2,01, e todo conjunto de câmbio e CDS é a reta
+  inteira. As 10 carregam 81% do momento de normalização com 45% da soma de quadrados do instrumento.
+- ⚠ A significância depende de poucas reuniões; a direção e a magnitude, não. A ordem escolhe as
+  reuniões que carregam Γ, então parte da queda é por construção.
+- ⚠ Três reuniões de 2012 caem antes da primeira inovação e não entram em Γ: a ordem cobre 99.
+
+`tidy_ar_sets()` mudou de `script/ar_precision.R` para `weak_iv_ar.R`.
+
 **Evento diário, passo 2/5 do plano de 03-10 (2026-10-05, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-05_evento_diario`](2026-10-05_evento_diario.md)
 **CURRENT na branch, não mergeada, sobre a base do passo 0.** A produção não muda.
@@ -503,6 +519,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-08_influencia_reunioes`](2026-10-08_influencia_reunioes.md) | 10-08 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | base do passo 0, `z_bs_purif`, `(5,5,4)`, escala LP, NW(0); fatores, VAR e inovações da amostra completa fixos; cada reunião sai só de Γ, T = 162 | Tudo, na branch: ordem por max_k \|ΔΓ_k\|/EP_k nas 99 reuniões que entram em Γ; uma a uma, câmbio h0 0,126–0,175, CDS 28,9–42,0, ξ_mp 5,52–7,61; sem as 5 mais influentes ξ_mp 3,59 / F_rob 3,78, câmbio e CDS significantes a 90% e não a 95%; sem as 10 ξ_mp 2,01 / F_rob 1,86, nenhum conjunto de câmbio e CDS limitado; as 10 carregam 81% de d0'Γ. ⚠ a significância depende de poucas reuniões, em parte por construção da ordem; ⚠ três reuniões de 2012 antes da primeira inovação |
 | [`2026-10-05_evento_diario`](2026-10-05_evento_diario.md) | 10-05 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | 102 reuniões do Copom 2012-03--2025-12, `delta_di` e `e_di_bs` de `main`; PTAX 13h → 13h, CDS Bloomberg; DFMs da base do passo 0 com `z_bruto` e `z_bs_purif` | Tudo, na branch: real aprecia R$ 0,048 (1,04%) por +50 p.b. no dia, significante a 95% com as duas surpresas (p 0,019 / 0,021); CDS não significante a 90%; primeiro estágio identidade / F 656; o câmbio só troca de sinal no DFM (+0,099 / +0,146), passagem não decomposta. ⚠ no CDS o ponto troca de sinal na ortogonalização (+0,9 → −0,5), sem significância; ⚠ Yahoo `BRL=X` deslocado um pregão no inverno europeu, atinge a linha diária do Anexo B |
 | [`2026-10-05_precisao_ar`](2026-10-05_precisao_ar.md) | 10-05 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | base do passo 0 (Focus a horizonte fixo), `z_bs_purif`, `(5,5,4)`, escala LP; pré-COVID 2012-03--2019-12 por MQO em `p = 2` e `p = 4` | Tudo, na branch: câmbio e CDS significantes a 95% no impacto (p 0,013 / 0,015), até h3 / h4; 458 pares significantes a 95% no painel; pré-COVID `p = 2` com ξ_mp 5,64, significantes a 95% em h0–h11; `p = 4` barrado; momentos sem autocorrelação até h12; NW 1–3 não muda o impacto, NW 4–12 estreita até 24,5% e leva ξ_mp a 10,01. ⚠ ponto `p = 4` fora do conjunto `p = 2` em h10–h22; ⚠ impacto pré-COVID do câmbio 0,121 na base nova, contra 0,056 |
 | [`2026-10-03_focus_horizonte_fixo`](2026-10-03_focus_horizonte_fixo.md) | 10-03 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; `.tex` e `paper/img/` intocados** | painel com as seis Focus anuais a horizonte fixo de 12 meses; `z_bs_purif`, `(5,5,4)`, escala LP com θ̂ reestimado (7,46; 15,01; 1,44; 0,966), conjuntos AR 80/90 | Tudo, na branch: câmbio 0,141 → 0,146 e CDS 34,0 → 33,9 no impacto, 0/37 pontos fora do conjunto antigo; ponta longa (h25–h36) perde os 90% no painel (1588 → 1051 pares), mantém os 80%; ξ_mp 6,80 / 5,50; Bai-Ng 5, 5, 18; AIC 4, BIC 2. ⚠ IPCA positivo em h1, h3–h7; ⚠ placebos VIX e MSCI EM violam, EPU EUA não; ⚠ anexos, figuras do paper, `het_conditions` e `precovid_divergence` seguem na base antiga |

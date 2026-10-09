@@ -1,5 +1,9 @@
 # Pendências
 
+**Atualização de 2026-10-08:** o e-mail do orientador de 08-10 (`email/email_professor_08-10_15h15.md`)
+fixou o desenho dos passos 3 e 4 do Tema B. A parte de influência do passo 3 rodou na branch
+`feature/focus-horizonte-fixo` e fechou (nota `2026-10-08_influencia_reunioes`). A exclusão por
+movimentos extremos de VIX, S&P 500 e Brent virou item próprio, à espera da regra do autor.
 **Atualização de 2026-10-05:** o passo 1/5 do Tema B (precisão) rodou na branch
 `feature/focus-horizonte-fixo`, sobre a base do passo 0, e fechou (nota `2026-10-05_precisao_ar`).
 No mesmo dia rodou e fechou o passo 2/5 (evento diário), na mesma base, com a PTAX como câmbio diário
@@ -109,9 +113,9 @@ AR/MOSW próprios.
 | A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
 | A | Anexo B e §3.3: linha diária com o câmbio realinhado | aberto em 2026-10-05; depende do item do Tema D sobre o câmbio do Yahoo; só muda o paper se a razão de variância do câmbio ou o `Qr` diário mudarem |
 | B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, o que é "excluir" uma reunião, avaliação conjunta dos placebos; o escopo do passo 0 já foi decidido |
-| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5**; os passos 1 e 2 rodaram sobre esta base em 10-05 |
-| B | Passo 3/5: influência das reuniões e exclusão por VIX, S&P 500 e Brent | aberto em 2026-10-03; depende do passo 0; regra definida antes de rodar, sem selecionar por câmbio ou CDS |
-| B | Passo 4/5: placebos nos horizontes definidos, com avaliação conjunta | aberto em 2026-10-03; depende do passo 0; liga-se ao item do p = 0,54 do Tema A |
+| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5**; os passos 1 e 2 rodaram sobre esta base em 10-05, e a influência do passo 3 em 10-08 |
+| B | Passo 3/5, parte 2: exclusão de reuniões por movimentos extremos de VIX, S&P 500 ou Brent | aberto em 2026-10-08, quando a parte de influência fechou; espera a regra do autor, definida antes de rodar, sem selecionar por câmbio ou CDS; depende do passo 0 |
+| B | Passo 4/5: placebos nos horizontes definidos, com avaliação conjunta | aberto em 2026-10-03; depende do passo 0; desenho fixado no e-mail de 08-10 (Holm nos 18 testes AR); liga-se ao item do p = 0,54 do Tema A |
 | B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26) |
 | D | Câmbio diário do Yahoo deslocado um pregão no inverno europeu | aberto em 2026-10-05, achado no passo 2/5; atinge `het_conditions.R`, a razão de variância do câmbio em `tab:het_frequency` e o `Qr` diário; bloqueia o item do Tema A sobre o Anexo B |
 
@@ -541,8 +545,9 @@ DBGG e a agregação temporal completa.*
     escolheu em 10-05 a célula `p = 2`, que vai na resposta como fato, com a ressalva de que ela se
     afasta de `p = 4` depois de h9 (nota `2026-10-05_precisao_ar`);
   - filtro JK: o passo 5 o põe num apêndice, e a decisão de 2026-09-26 o tirou do paper;
-  - o que "excluir uma reunião" quer dizer no passo 3;
-  - como se faz a avaliação conjunta dos placebos no passo 4.
+  - o que "excluir uma reunião" quer dizer no passo 3: respondido pelo e-mail de 08-10 (tirar a
+    contribuição da reunião só do momento entre instrumento e inovações, com fatores e VAR fixos);
+  - como se faz a avaliação conjunta dos placebos no passo 4: respondido pelo mesmo e-mail (Holm).
 
   O escopo do passo 0 foi decidido pelo autor em 03-10 (as seis séries "ano seguinte") e vai na
   resposta como fato, junto com os números da nota `2026-10-03_focus_horizonte_fixo`.
@@ -565,24 +570,20 @@ DBGG e a agregação temporal completa.*
   - ⚠ `data/processed/` é o mesmo para todas as branches: ao voltar a `main`, rodar
     `Rscript script/run_all.R --only=clean` antes de estimar.
   - **Bloqueia os passos 2 a 5.** Os passos 1 e 2 rodaram em 10-05 sobre a base da branch, antes de
-    ela ser congelada (Fechados, abaixo).
-- [ ] **Passo 3/5: influência das reuniões.** Depende do passo 0. Duas partes:
-  - medir a influência de cada reunião sobre a relação entre o instrumento e as inovações; reestimar
-    excluindo individualmente as mais influentes e, como exercício adicional, excluindo juntas as 5 e as
-    10 mais influentes; reportar a relevância (ξ_mp, F_rob) e a incerteza (conjuntos AR) depois das
-    exclusões;
-  - separadamente, excluir reuniões com movimentos contemporâneos extremos de VIX, S&P 500 ou Brent,
-    por regra **definida antes de rodar**. Isso testa contaminação internacional na janela do evento,
-    distinta dos controles pré-anúncio da ortogonalização.
-
-  ⚠ **Não selecionar reuniões pelo comportamento de câmbio ou CDS.** ⚠ Falta definir "excluir": zerar o
-  instrumento no mês, que mantém `T`, ou retirar a observação. Retirar 10 leva `T` de 162 a 152, ainda
-  acima de `hac_dim` 135 em `(5,5,4)`, mas o gate passa a ser conferido. Antecedente:
-  `arquivo/script/xi_mp_robustness.R` (saída em `output/instrument/xi_mp_robustness.md`, de
-  2026-09-17), que descarta um mês por vez e recalcula só o momento Γ, com o DFM fixo, antes da
-  produção `z_bs_purif`; o passo pede a reestimação completa, que isso não cobre. O leave-one-out
-  sobre a IRF saiu do Tema B na zeragem de 2026-09-08.
-- [ ] **Passo 4/5: placebos.** Depende do passo 0. Apresentar os placebos nos horizontes definidos,
+    ela ser congelada, e a parte de influência do passo 3 em 10-08 (Fechados, abaixo).
+- [ ] **Passo 3/5, parte 2: exclusão por movimentos extremos de VIX, S&P 500 ou Brent.** Depende do
+  passo 0. Excluir as reuniões com movimento contemporâneo extremo de VIX, S&P 500 ou Brent, por regra
+  **definida antes de rodar**. Isso testa contaminação internacional na janela do evento, distinta dos
+  controles pré-anúncio da ortogonalização. O e-mail de 08-10 o mantém como exercício separado da
+  influência, que fechou em 10-08 (Fechados, abaixo). Em 10-08 o autor deixou a regra para depois.
+  - ⚠ **Não selecionar reuniões pelo comportamento de câmbio ou CDS.**
+  - A janela do evento é de quarta a quinta: o Copom anuncia depois do fechamento de B3 e de NY.
+  - A exclusão pronta é a de `script/meeting_influence.R`: tirar a contribuição da reunião do
+    instrumento mensal, com fatores e VAR fixos, T e calendário intactos.
+- [ ] **Passo 4/5: placebos.** Depende do passo 0. O desenho está no item 4 do e-mail de 08-10: p-valores
+  AR da resposta zero de VIX, MSCI de emergentes e EPU dos EUA em h = 0, 1, 3, 6, 12 e 24, Holm nos 18
+  testes, 10%; e conferir se alguma dessas séries entra na ortogonalização (o VIX entra, como tendência
+  de 65 dias pré-evento). Apresentar os placebos nos horizontes definidos,
   reportando os resultados pontuais e uma avaliação conjunta ou uma correção por múltiplos testes.
   Explicitar a hipótese que corresponde ao p = 0,54. Se ele testa o coeficiente do EPU na previsão da
   surpresa, descrevê-lo como **ausência de evidência de poder preditivo naquela especificação**, nunca
@@ -613,6 +614,18 @@ DBGG e a agregação temporal completa.*
 
 ### Fechados (contexto)
 
+- [x] **Passo 3/5, influência das reuniões — 2026-10-08.** Desenho do e-mail de 08-10, na branch
+  `feature/focus-horizonte-fixo` sobre a base do passo 0: fatores, VAR e inovações fixos, a reunião sai
+  só do momento Γ, e T = 162 e o calendário ficam intactos. Ordem por max_k |ΔΓ_k|/EP_k nas 99 reuniões
+  que entram em Γ. Se a base mudar, rerodar `script/meeting_influence.R`.
+  - Nenhuma exclusão individual muda sinal ou força: câmbio h0 0,126–0,175, CDS 28,9–42,0, ξ_mp
+    5,52–7,61.
+  - Juntas, as 5 mais influentes levam ξ_mp a 3,59 e as 10 a 2,01 (81% do momento de normalização).
+    Câmbio e CDS perdem os 95% sem as 5 e os 90% sem as 10, com ponto do mesmo sinal.
+  - ⚠ A significância depende de poucas reuniões, em parte por construção da ordem.
+  - ⚠ Três reuniões de 2012 caem antes da primeira inovação e não entram em Γ.
+
+  Nota: `2026-10-08_influencia_reunioes`.
 - [x] **Passo 2/5: evento diário — 2026-10-05.** Rodado na branch `feature/focus-horizonte-fixo` sobre
   a base do passo 0, com a PTAX como câmbio diário (estágio `ptax`) e as 102 reuniões como amostra
   comum. Se a base mudar, rerodar `script/daily_event.R`; só o lado do DFM depende dela.
