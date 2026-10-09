@@ -57,36 +57,6 @@ LJUNG_BOX_LAGS <- c(3L, 6L, 12L)
 TARGET_VARS <- c("cambio_usd", "cds_5y")
 TARGET_LABELS <- c(cambio_usd = "Câmbio", cds_5y = "CDS")
 
-#' Anderson-Rubin sets of a cell in long form, one row per series, horizon
-#' and level
-#'
-#' @param ar The `ar` field of `compute_irf_dfm()`, `ar_dfm_bands()`'s result.
-#' @param var_names Panel names, in the row order of the sets.
-#'
-#' @return Tibble with `variable`, `h`, `level`, `point`, `lo`, `hi`,
-#'   `set_type` and `significant`, read off the topology by
-#'   `ar_excludes_zero()`.
-#'
-#' @examples
-#' sets <- tidy_ar_sets(cell$irf$ar, cell$var_names)
-tidy_ar_sets <- function(ar, var_names) {
-  purrr::imap(ar$by_level, \(bounds, level) {
-    tibble::tibble(
-      variable = rep(var_names, times = ncol(bounds$lo)),
-      h = rep(seq_len(ncol(bounds$lo)) - 1L, each = length(var_names)),
-      level = as.numeric(level),
-      point = as.vector(bounds$point),
-      lo = as.vector(bounds$lo),
-      hi = as.vector(bounds$hi),
-      set_type = as.vector(bounds$set_type),
-      significant = as.vector(
-        ar_excludes_zero(bounds$set_type, bounds$lo, bounds$hi)
-      )
-    )
-  }) |>
-    purrr::list_rbind()
-}
-
 #' Ljung-Box tests of one series at every lag of LJUNG_BOX_LAGS
 #'
 #' @param x Numeric series.
