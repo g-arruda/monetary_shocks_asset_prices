@@ -1,7 +1,7 @@
 # ===================================================================
 # Single network entry point: downloads every reproducible raw input (BCB
 # SGS, Focus/Olinda, Yahoo, B3, IPEA, SIDRA), reads the fixed external inputs
-# and writes data/raw/raw_data.csv (113 monthly series) plus the four daily
+# and writes data/raw/raw_data.csv (112 monthly series) plus the four daily
 # files the instrument is built from. The fixed external inputs are checked by
 # the preflight of script/run_all.R.
 # ===================================================================
@@ -19,7 +19,7 @@ PRODUCTION_END   <- as.Date("2025-12-01")
 EXTENSION_START  <- as.Date("2010-01-01")
 DAILY_START      <- as.Date("2010-01-01")
 DAILY_END        <- as.Date("2025-12-31")
-N_RAW_SERIES     <- 113L
+N_RAW_SERIES     <- 112L
 CURRENCIES <- c("BRL", "EUR", "CNY", "ARS", "INR")
 B3_NAMES <- c(
   IBOV = "asset_ibov",
@@ -289,11 +289,13 @@ embi <- embi_daily |>
   dplyr::ungroup() |>
   dplyr::select(ref.date, embi_perc)
 
-# The three investing.com CSVs come in pt-BR format ("138,19"). Under readr's
+# The two investing.com CSVs come in pt-BR format ("138,19"). Under readr's
 # default locale the comma is read as a THOUSANDS separator and every value
 # comes in 100x inflated (13819). The error is pure scale, so BLL
 # standardization absorbs it and no factor or IRF changes -- but every number
-# reported from these three series would come out 100x wrong.
+# reported from these two series would come out 100x wrong. The panel's msci,
+# the MSCI Emerging Markets index, comes from script/download_msci.R and
+# enters in script/clean.R.
 locale_br <- readr::locale(decimal_mark = ",", grouping_mark = ".")
 
 cds <- readr::read_csv(
@@ -304,15 +306,6 @@ cds <- readr::read_csv(
   janitor::clean_names() |>
   dplyr::mutate(ref.date = lubridate::dmy(data)) |>
   dplyr::select(ref.date, cds_5y = ultimo)
-
-msci <- readr::read_csv(
-  "data/raw/investing/msci.csv",
-  locale = locale_br,
-  show_col_types = FALSE
-) |>
-  janitor::clean_names() |>
-  dplyr::mutate(ref.date = lubridate::dmy(data)) |>
-  dplyr::select(ref.date, msci = ultimo)
 
 sp500_vix <- readr::read_csv(
   "data/raw/investing/sp500_vix.csv",
@@ -325,7 +318,6 @@ sp500_vix <- readr::read_csv(
 
 risk <- embi |>
   dplyr::left_join(cds, by = "ref.date") |>
-  dplyr::left_join(msci, by = "ref.date") |>
   dplyr::left_join(sp500_vix, by = "ref.date") |>
   tidyr::drop_na()
 
@@ -455,7 +447,7 @@ expected_dates <- seq(PRODUCTION_START, PRODUCTION_END, by = "month")
 production_sample <- raw_panel |>
   dplyr::filter(ref.date >= PRODUCTION_START, ref.date <= PRODUCTION_END)
 if (ncol(raw_panel) - 1L != N_RAW_SERIES || anyDuplicated(names(raw_panel))) {
-  stop("The raw monthly panel must contain exactly 113 unique useful series.")
+  stop("The raw monthly panel must contain exactly 112 unique useful series.")
 }
 if (!identical(as.Date(production_sample$ref.date), expected_dates) ||
     anyNA(production_sample) ||

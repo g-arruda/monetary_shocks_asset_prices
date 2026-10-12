@@ -50,7 +50,6 @@ STAGES <- list(
       "data/raw/yields/yields_dia.csv",
       "data/raw/banco_central_rep_dominicana/embi_brasil.csv",
       "data/raw/investing/cds5y.csv",
-      "data/raw/investing/msci.csv",
       "data/raw/investing/sp500_vix.csv",
       "data/raw/epu/economic_policy_uncertainty.xlsx"
     ),
@@ -90,6 +89,14 @@ STAGES <- list(
     requires = character(),
     produces = "data/raw/ptax_daily.csv"
   ),
+  msci = list(
+    name = "msci",
+    desc = "MSCI Emerging Markets index, end of month, the panel's msci",
+    file = "script/download_msci.R",
+    network = TRUE,
+    requires = character(),
+    produces = "data/raw/msci_em.csv"
+  ),
   clean = list(
     name = "clean",
     desc = "Log transforms, Focus fixed horizon, X-13 of the monthly panel",
@@ -99,6 +106,7 @@ STAGES <- list(
       "data/raw/raw_data.csv",
       "data/raw/focus_fiscal_expectations.csv",
       "data/raw/focus_current_year.csv",
+      "data/raw/msci_em.csv",
       "data/raw/copom_historico.csv",
       "data/raw/DLSP/Evodlp.xlsx"
     ),

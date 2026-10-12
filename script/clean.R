@@ -60,9 +60,19 @@ X13_SPECS <- list(
 
 expected_dates <- seq(SAMPLE_START, SAMPLE_END, by = "month")
 
+# The panel's msci is the MSCI Emerging Markets index of
+# script/download_msci.R. A raw_data.csv written before 2026-10-12 still
+# carries under that name the MSCI Inc. share price download.R read from
+# investing.com: the index overwrites it, and the column keeps its place
 raw_data <- readr::read_csv("data/raw/raw_data.csv", show_col_types = FALSE) |>
   dplyr::mutate(ref.date = as.Date(ref.date)) |>
   dplyr::filter(ref.date >= SAMPLE_START, ref.date <= SAMPLE_END) |>
+  dplyr::left_join(
+    readr::read_csv("data/raw/msci_em.csv", show_col_types = FALSE),
+    by = "ref.date"
+  ) |>
+  dplyr::mutate(msci = msci_em, .keep = "unused") |>
+  dplyr::relocate(msci, .after = cds_5y) |>
   dplyr::relocate(
     dplyr::starts_with(c("fiscal_", "expect_")),
     .before = epu_brazil
@@ -254,16 +264,18 @@ raw_manifest <- tibble::tibble(
     variable %in% expectation_variables ~ "expectativas",
     .default = "painel_historico"
   ),
-  source_file = dplyr::if_else(
-    variable %in% paste0(FOCUS_PANEL_SERIES, "_12m"),
-    "data/raw/raw_data.csv + data/raw/focus_current_year.csv",
-    "data/raw/raw_data.csv"
+  source_file = dplyr::case_when(
+    variable %in% paste0(FOCUS_PANEL_SERIES, "_12m") ~
+      "data/raw/raw_data.csv + data/raw/focus_current_year.csv",
+    variable == "msci" ~ "data/raw/msci_em.csv",
+    .default = "data/raw/raw_data.csv"
   ),
   source_sheet = NA_character_,
   published_label = NA_character_,
   source_id = dplyr::case_when(
     variable == "spread_credito_pj_total" ~ "SGS 20784",
     variable == "spread_credito_pf_total" ~ "SGS 20785",
+    variable == "msci" ~ "MSCI 891800",
     .default = NA_character_
   ),
   unit = NA_character_,

@@ -4,11 +4,9 @@
 # looking at the results, with a joint assessment, on the fixed-horizon Focus
 # base of step 0.
 #   A. The AR p-value of a zero response of the three placebos of the paper,
-#      VIX, "MSCI" and US EPU, at h = 0, 1, 3, 6, 12, 24, read off step 1's
-#      table, where
-#      ar_statistic() computed it at lambda0 = 0 under NW(0). Holm's
-#      correction over the family of the 18 tests, at 10%, and over the 12
-#      without the "MSCI" series, which is the share of MSCI Inc.
+#      VIX, MSCI Emerging Markets and US EPU, at h = 0, 1, 3, 6, 12, 24, read
+#      off step 1's table, where ar_statistic() computed it at lambda0 = 0
+#      under NW(0). Holm's correction over the family of the 18 tests, at 10%.
 #   B. Which of the three series enter the Bauer-Swanson orthogonalization of
 #      the instrument, with their coefficient in the DI regression.
 # Nothing is estimated. script/irf_coherence_check.R and
@@ -16,22 +14,20 @@
 # step 1's table are checked against the cache.
 # Outputs: output/placebo_holm/
 #   table.csv              the 18 tests: point, pointwise 90 and 95% sets,
-#                          p-value and the two Holm-adjusted p-values
+#                          p-value and the Holm-adjusted p-value
 #   orthogonalization.csv  each placebo's predictor in the BS regression of
 #                          the DI surprise, if any
-# Note: notas/2026-10-09_placebos_holm.md
+# Notes: notas/2026-10-09_placebos_holm.md (design),
+# notas/2026-10-12_msci_emergentes.md (msci as the index)
 # ===================================================================
 
 PRECISION_PATH <- "output/ar_precision/table.csv"
 CELL_PATH      <- "output/irf/irf_coherence_cell.rds"
 BS_PATH        <- "output/instrument/bs_orthogonalization.csv"
 OUT_DIR        <- "output/placebo_holm"
-# data/raw/investing/msci.csv is the share price of MSCI Inc. (NYSE: MSCI),
-# not the MSCI Emerging Markets index the paper names: its monthly closes are
-# the company's (471.55 in 2023-10) and it carries traded volume
 PLACEBOS <- c(
   sp500_vix = "VIX",
-  msci = "MSCI Inc. (ação)",
+  msci = "MSCI emergentes",
   epu_us = "EPU dos EUA"
 )
 H_TABLE      <- c(0L, 1L, 3L, 6L, 12L, 24L)
@@ -66,28 +62,18 @@ stopifnot(
   all((tests$p_value_zero < 0.05) == tests$significant_95)
 )
 
-# The family the advisor defined has 18 tests. Without the MSCI Inc. share it
-# has 12: p.adjust() counts only the non-missing p-values.
 holm <- tests |>
   dplyr::mutate(
     p_holm = p.adjust(p_value_zero, method = "holm"),
-    p_holm_without_msci = p.adjust(
-      dplyr::if_else(variable == "msci", NA_real_, p_value_zero),
-      method = "holm"
-    ),
     reject_pointwise_10 = p_value_zero < FAMILY_LEVEL,
     reject_holm_10 = p_holm < FAMILY_LEVEL
   )
-stopifnot(
-  all(holm$p_holm >= holm$p_value_zero),
-  all(holm$p_holm_without_msci <= holm$p_holm, na.rm = TRUE)
-)
+stopifnot(all(holm$p_holm >= holm$p_value_zero))
 
 holm |>
   dplyr::select(
     variable, label, h, point, lo_90, hi_90, lo_95, hi_95,
-    p_value = p_value_zero, p_holm, p_holm_without_msci, reject_pointwise_10,
-    reject_holm_10
+    p_value = p_value_zero, p_holm, reject_pointwise_10, reject_holm_10
   ) |>
   readr::write_csv(file.path(OUT_DIR, "table.csv"))
 
@@ -95,7 +81,7 @@ holm |>
 
 # The VIX enters as its 65-trading-day change to the Wednesday close
 # (R/instrument/build_variants.R); the same-session change enters no
-# regression. The S&P 500 trend enters too. Neither "MSCI" nor EPU does.
+# regression. The S&P 500 trend enters too. Neither MSCI nor EPU does.
 bs_di <- readr::read_csv(BS_PATH, show_col_types = FALSE) |>
   dplyr::filter(dependent == "delta_di")
 predictors <- setdiff(bs_di$term, "(Intercept)")
