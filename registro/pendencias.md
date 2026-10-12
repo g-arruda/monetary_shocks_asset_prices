@@ -4,7 +4,9 @@
 passou da ação da MSCI Inc. ao índice MSCI de emergentes, e os passos 0 a 4 rodaram de novo sobre a
 base reestimada (nota `2026-10-12_msci_emergentes`). Fecha o item do Tema D. Câmbio e CDS não mudam.
 ⚠ Sem ajuste, o placebo do índice de emergentes cai no impacto e em h1. O passo 0 do Tema B segue à
-espera do orientador e da promoção, e `main` segue com a ação.
+espera do orientador e da promoção, e `main` segue com a ação. No mesmo dia o autor fixou, antes de
+rodar, a regra do passo 3, parte 2 (Tema B): exclusão por movimentos extremos de VIX, S&P 500 ou
+Brent, no Caminho A.
 **Atualização de 2026-10-09:** o passo 4/5 do Tema B (placebos com Holm) rodou na branch
 `feature/focus-horizonte-fixo` e fechou (nota `2026-10-09_placebos_holm`). Dele saíram dois itens. No
 Tema D, a série `msci` do painel é a ação da MSCI Inc., não o índice de emergentes. No Tema A, ficam o
@@ -124,7 +126,7 @@ AR/MOSW próprios.
 | A | Anexo B e §3.3: linha diária com o câmbio realinhado | aberto em 2026-10-05; depende do item do Tema D sobre o câmbio do Yahoo; só muda o paper se a razão de variância do câmbio ou o `Qr` diário mudarem |
 | B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, o que é "excluir" uma reunião, avaliação conjunta dos placebos; o escopo do passo 0 já foi decidido |
 | B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5** e o item do Tema A sobre §3.3 e `fig:placebos`; os passos 1 e 2 rodaram sobre esta base em 10-05, a influência do passo 3 em 10-08 e o passo 4 em 10-09; em 10-12 a `msci` virou o índice de emergentes, a base foi reestimada e os passos 0 a 4 rodaram de novo; ⚠ `main` segue com a ação da MSCI Inc. |
-| B | Passo 3/5, parte 2: exclusão de reuniões por movimentos extremos de VIX, S&P 500 ou Brent | aberto em 2026-10-08, quando a parte de influência fechou; espera a regra do autor, definida antes de rodar, sem selecionar por câmbio ou CDS; depende do passo 0 |
+| B | Passo 3/5, parte 2: exclusão de reuniões por movimentos extremos de VIX, S&P 500 ou Brent | aberto em 2026-10-08, quando a parte de influência fechou; regra fixada pelo autor em 10-12 (Caminho A): sai a reunião em que alguma das três séries passa do percentil 95 da variação absoluta na quinta, numa célula a mais de `meeting_influence.R`; a janela de terça a quarta só roda se câmbio ou CDS caírem; falta o commit da regra e rodar; depende do passo 0 |
 | B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26) |
 | D | Câmbio diário do Yahoo deslocado um pregão no inverno europeu | aberto em 2026-10-05, achado no passo 2/5; atinge `het_conditions.R`, a razão de variância do câmbio em `tab:het_frequency` e o `Qr` diário; bloqueia o item do Tema A sobre o Anexo B |
 
@@ -623,11 +625,46 @@ DBGG e a agregação temporal completa.*
   passo 0. Excluir as reuniões com movimento contemporâneo extremo de VIX, S&P 500 ou Brent, por regra
   **definida antes de rodar**. Isso testa contaminação internacional na janela do evento, distinta dos
   controles pré-anúncio da ortogonalização. O e-mail de 08-10 o mantém como exercício separado da
-  influência, que fechou em 10-08 (Fechados, abaixo). Em 10-08 o autor deixou a regra para depois.
-  - ⚠ **Não selecionar reuniões pelo comportamento de câmbio ou CDS.**
-  - A janela do evento é de quarta a quinta: o Copom anuncia depois do fechamento de B3 e de NY.
-  - A exclusão pronta é a de `script/meeting_influence.R`: tirar a contribuição da reunião do
-    instrumento mensal, com fatores e VAR fixos, T e calendário intactos.
+  influência, que fechou em 10-08 (Fechados, abaixo). **Regra fixada pelo autor em 10-12, antes de
+  rodar (Caminho A, na versão mais simples fiel aos e-mails):**
+  - **Janela do evento:** do fechamento de quarta ao de quinta, a mesma da surpresa. O Copom anuncia
+    depois do fechamento de B3 e de NY.
+  - **Variáveis:** retorno log do S&P 500, variação log do VIX e retorno log do Brent (`BZ=F`), sobre
+    `data/raw/investing/external_factors_daily.csv`, o arquivo que o instrumento já usa. A variação é a
+    de linhas consecutivas, como em `build_variants.R`; só o VIX troca a diferença em pontos pela
+    variação log. Nas 102 reuniões as três existem por construção, porque `build_variants.R` descarta
+    a quinta sem alguma delas.
+  - **Referência:** as variações de todos os pregões de 2012-03-01 a 2025-12-31 em que existem, não só
+    as quintas de Copom.
+  - **Extremo:** |variação| acima do percentil 95 da |variação| da própria série na referência
+    (`quantile()` padrão). A reunião sai se ao menos uma das três for extrema na quinta.
+  - **Mecânica:** uma célula a mais nas exclusões conjuntas de `script/meeting_influence.R`, que passam
+    a receber listas de datas. As células de produção, sem as 5 e sem as 10 saem iguais. O resíduo BS
+    da reunião sai da soma do seu mês. Fatores, cargas, VAR, θ̂, inovações e os resíduos BS das outras
+    reuniões ficam os da amostra completa. T = 162, o calendário e NW(0) ficam os da produção. Uma
+    reunião marcada antes de 2012-07 não entra em Γ e é reportada assim.
+  - **Saídas:** as das exclusões conjuntas do passo 3. As 115 séries em h = 0, 1, 3, 6, 12 e 24, com
+    conjuntos AR de 90 e 95%, tipo e p-valor AR da resposta zero; ξ_mp, F_rob, d0'Γ e Σz² relativos à
+    produção; câmbio e CDS de h0 a h36; a lista das reuniões marcadas, com a série e a variação que
+    marcaram cada uma.
+  - **Leitura, registrada antes de rodar.** Contra a produção: sinal e magnitude de câmbio e CDS em
+    h0, h1 e h3, significância a 90 e 95% e ξ_mp.
+    - Com risco global (S&P, VIX), o viés de contaminação empurra câmbio e CDS para cima nos dois
+      sentidos do choque: ele é quadrático no choque global, por isso a regra é bilateral. Se esse viés
+      explica o resultado, câmbio e CDS caem sem as reuniões marcadas.
+    - Com o Brent, o viés esperado tem o sinal oposto: petróleo em alta sobe o DI e aprecia o real.
+    - Força menor com ponto estável é concentração, como no passo 3, e não contaminação.
+    - Pelo critério de 03-10, uma inversão isolada com grande incerteza não invalida.
+  - **Condicional, fora do exercício:** só se câmbio ou CDS caírem, rodar a mesma regra na variação de
+    terça a quarta, inteira antes do anúncio. Ela separa notícia na janela de regime turbulento. É o
+    "problema concreto" que o e-mail de 08-10 exige para acrescentar uma verificação.
+  - ⚠ **Não selecionar reuniões pelo comportamento de câmbio ou CDS**, nem pelo índice de emergentes (o
+    Brasil pesa nele), pelo DXY ou pelo EMBI.
+  - ⚠ A regra e a leitura entram num commit antes de rodar. Até lá, a lista das reuniões marcadas não
+    é cruzada com o ranking de influência.
+  - ⚠ O `BZ=F` é o primeiro vencimento, sem ajuste da troca de vencimento. A lista dá a variação do
+    Brent de cada reunião marcada, de modo que um salto de troca fique visível. Ele é reportado, e a
+    regra não muda.
 - [ ] **Passo 5/5: apêndice.** Depende do passo 0. Respostas de câmbio e CDS com a surpresa bruta, o
   instrumento ortogonalizado e o filtro de Jarociński-Karadi, com intervalos. O orientador diz que "já
   está estimado e é barato", e avisa que o filtro não separa um choque de risco de um monetário (os dois
