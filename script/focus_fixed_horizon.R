@@ -8,7 +8,9 @@
 # script/covid_volatility_theta.R, script/model_alessi.R,
 # script/irf_coherence_check.R, script/instrument_diagnostics.R and
 # script/validation/validate_production_spec.R, which must run first.
-# Nothing is estimated here.
+# Nothing is estimated here. The new cell is read from the working tree:
+# since 2026-10-12 the branch's msci is the MSCI Emerging Markets index, so a
+# rerun no longer reproduces the step-0 outputs, which are those of 20d5441.
 # Output: output/focus_fixed_horizon/
 #   series.csv, january_share.csv   the six series, old and new
 #   model.csv                       theta, roots, strength, r and p selectors
@@ -61,27 +63,6 @@ PAPER_PANELS <- tibble::tribble(
   "expect_focus_selic_12m", "Focus Selic (p.p.)",         1,
   "fiscal_dbgg",            "DBGG (p.p. do PIB)",         1
 )
-
-#' Copy a file as it stands at BASELINE_COMMIT to a temporary path
-#'
-#' `output/` is tracked, so main's production outputs are read from git
-#' rather than kept as copies beside this branch's.
-#'
-#' @param path Path in the repository.
-#'
-#' @return Path of the temporary copy.
-#'
-#' @examples
-#' old_theta <- readr::read_csv(baseline_file("output/factors/covid_volatility_theta.csv"))
-baseline_file <- function(path) {
-  copy <- tempfile(fileext = paste0(".", tools::file_ext(path)))
-  system2(
-    "git",
-    c("show", paste0(BASELINE_COMMIT, ":", path)),
-    stdout = copy
-  )
-  copy
-}
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
@@ -181,159 +162,40 @@ ggplot2::ggsave(
 
 # Model ----
 
-model_files <- c(
-  theta = "output/factors/covid_volatility_theta.csv",
-  diagnostics = "output/validation/production_spec_diagnostics.csv",
-  bai_ng = "output/factors/production_bai_ng_bll_surface.csv",
-  lag_criteria = "output/validation/production_factor_lag_criteria.csv",
-  instrument = "output/instrument/instrument_diagnostics.csv"
+readr::write_csv(
+  compare_model(BASELINE_COMMIT),
+  file.path(OUT_DIR, "model.csv")
 )
-model_tables <- purrr::map(model_files, function(path) {
-  list(
-    old = readr::read_csv(baseline_file(path), show_col_types = FALSE),
-    new = readr::read_csv(path, show_col_types = FALSE)
-  )
-})
-
-model <- purrr::map(c("old", "new"), function(version) {
-  theta <- model_tables$theta[[version]]
-  diagnostics <- model_tables$diagnostics[[version]]
-  bai_ng <- model_tables$bai_ng[[version]]
-  lag_criteria <- model_tables$lag_criteria[[version]]
-  instrument <- model_tables$instrument[[version]]
-  dplyr::bind_rows(
-    tibble::tibble(
-      quantity = c("s0", "s1", "s2", "rho", "loglik"),
-      window = "full",
-      value = c(theta$s0, theta$s1, theta$s2, theta$rho, theta$loglik)
-    ),
-    tibble::tibble(
-      quantity = rep(c("xi_mp", "f_robust_mp", "max_companion_root"), each = 2),
-      window = rep(diagnostics$sample, 3),
-      value = c(
-        diagnostics$xi_mp,
-        diagnostics$f_robust_mp,
-        diagnostics$max_companion_root
-      )
-    ),
-    tibble::tibble(
-      quantity = paste0("bai_ng_", c("IC1", "IC2", "IC3")),
-      window = "full",
-      value = c(
-        bai_ng$r[which.min(bai_ng$IC1)],
-        bai_ng$r[which.min(bai_ng$IC2)],
-        bai_ng$r[which.min(bai_ng$IC3)]
-      )
-    ),
-    tibble::tibble(
-      quantity = c("p_aic", "p_bic"),
-      window = "full",
-      value = c(
-        lag_criteria$p[which.min(lag_criteria$aic)],
-        lag_criteria$p[which.min(lag_criteria$bic)]
-      )
-    ),
-    tibble::tibble(
-      quantity = c(
-        paste0("xi_mp_", instrument$variant),
-        paste0("f_robust_mp_", instrument$variant)
-      ),
-      window = "full",
-      value = c(instrument$xi_mp, instrument$f_robust_mp)
-    )
-  ) |>
-    dplyr::mutate(version = version)
-}) |>
-  purrr::list_rbind() |>
-  tidyr::pivot_wider(names_from = version, values_from = value)
-readr::write_csv(model, file.path(OUT_DIR, "model.csv"))
 
 # Impulse responses ----
 
-old_cell <- readRDS(baseline_file("output/irf/irf_coherence_cell.rds"))
+old_cell <- readRDS(
+  baseline_file(BASELINE_COMMIT, "output/irf/irf_coherence_cell.rds")
+)
 # The old Focus rows are the "ano seguinte" series: they take the new names
 # so that the rows line up, and the comparison of those rows is between two
 # different series
 old_cell$var_names <- stringr::str_replace(old_cell$var_names, "_ny$", "_12m")
-new_cell <- readRDS("output/irf/irf_coherence_cell.rds")
-stop_unless_interval_sets(old_cell, old_cell$var_names)
-stop_unless_interval_sets(new_cell, new_cell$var_names)
-
-paths <- dplyr::bind_rows(
-  stack_cell_paths(list(old_cell), OLD_LABEL, OLD_LABEL, old_cell$var_names),
-  stack_cell_paths(list(new_cell), NEW_LABEL, NEW_LABEL, new_cell$var_names)
-) |>
-  dplyr::filter(h <= H_MAX) |>
-  dplyr::mutate(cell = factor(cell, levels = c(OLD_LABEL, NEW_LABEL)))
-
-paper_paths <- rescale_to_paper_units(paths, PAPER_PANELS, H_MAX) |>
-  dplyr::mutate(variable = factor(variable, levels = PAPER_PANELS$label))
-paper_paths |>
-  dplyr::filter(h %in% H_TABLE) |>
-  dplyr::mutate(
-    cell = dplyr::if_else(cell == OLD_LABEL, "old", "new"),
-    sig90 = lo90 > 0 | hi90 < 0
-  ) |>
-  dplyr::select(variable, h, cell, point, lo80, hi80, lo90, hi90, sig90) |>
-  tidyr::pivot_wider(
-    names_from = cell,
-    values_from = c(point, lo80, hi80, lo90, hi90, sig90)
-  ) |>
-  dplyr::arrange(variable, h) |>
-  readr::write_csv(file.path(OUT_DIR, "irf_table.csv"))
-
-# Every series, h0-h36: is the new point outside the old 90% set, and does
-# each set exclude zero. The width ratio leaves out the singleton of the
-# normalization, which has zero width in both cells.
-paired_paths <- paths |>
-  dplyr::mutate(cell = dplyr::if_else(cell == OLD_LABEL, "old", "new")) |>
-  tidyr::pivot_wider(
-    names_from = cell,
-    values_from = c(point, lo80, hi80, lo90, hi90)
-  ) |>
-  dplyr::mutate(
-    outside_old90 = point_new < lo90_old | point_new > hi90_old,
-    sig80_old = lo80_old > 0 | hi80_old < 0,
-    sig80_new = lo80_new > 0 | hi80_new < 0,
-    sig90_old = lo90_old > 0 | hi90_old < 0,
-    sig90_new = lo90_new > 0 | hi90_new < 0,
-    width90_ratio = dplyr::if_else(
-      hi90_old > lo90_old,
-      (hi90_new - lo90_new) / (hi90_old - lo90_old),
-      NA_real_
-    )
-  )
-
-paired_paths |>
-  dplyr::group_by(variable) |>
-  dplyr::summarise(
-    horizons_outside = paste(h[outside_old90], collapse = " "),
-    outside_old90 = sum(outside_old90),
-    sig90_old = sum(sig90_old),
-    sig90_new = sum(sig90_new),
-    width90_ratio = median(width90_ratio, na.rm = TRUE)
-  ) |>
-  dplyr::arrange(dplyr::desc(outside_old90)) |>
-  readr::write_csv(file.path(OUT_DIR, "irf_outside.csv"))
-
-paired_paths |>
-  dplyr::group_by(h) |>
-  dplyr::summarise(
-    sig90_lost = sum(sig90_old & !sig90_new),
-    sig90_gained = sum(!sig90_old & sig90_new),
-    sig80_old = sum(sig80_old),
-    sig80_new = sum(sig80_new),
-    sig90_old = sum(sig90_old),
-    sig90_new = sum(sig90_new),
-    width90_ratio = median(width90_ratio, na.rm = TRUE)
-  ) |>
-  readr::write_csv(file.path(OUT_DIR, "irf_significance_by_h.csv"))
+comparison <- compare_cells(
+  old_cell,
+  readRDS("output/irf/irf_coherence_cell.rds"),
+  c(OLD_LABEL, NEW_LABEL),
+  PAPER_PANELS,
+  H_TABLE,
+  H_MAX
+)
+readr::write_csv(comparison$table, file.path(OUT_DIR, "irf_table.csv"))
+readr::write_csv(comparison$outside, file.path(OUT_DIR, "irf_outside.csv"))
+readr::write_csv(
+  comparison$by_h,
+  file.path(OUT_DIR, "irf_significance_by_h.csv")
+)
 
 ggplot2::ggsave(
   file.path(OUT_DIR, "irf.pdf"),
   plot_dimension_overlay(
-    paper_paths,
-    dplyr::filter(paper_paths, cell == OLD_LABEL),
+    comparison$paper_paths,
+    dplyr::filter(comparison$paper_paths, cell == OLD_LABEL),
     PAPER_PANELS$label,
     palette = setNames(c("black", "firebrick"), c(OLD_LABEL, NEW_LABEL)),
     linetypes = setNames(c("solid", "42"), c(OLD_LABEL, NEW_LABEL)),
