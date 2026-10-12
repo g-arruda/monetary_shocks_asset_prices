@@ -179,6 +179,14 @@ updated — `council_2026-07-31.md` shows both halves in one file.
 Machine logs with a timestamped directory name — `paper/bibcheck_<stamp>/` — follow the same rule:
 they record what a tool actually grepped that day and are not repointed.
 
+## Significance wording
+
+Never write "exclui zero a X%", "o conjunto exclui zero", "excludes zero" or any variant, in the paper,
+in notes, in reports or in chat summaries. Say **"significante a X%"** or **"não é significante a X%"**
+(e.g. "o efeito é significante a 90%", "não é significante a 80%"). The operational test is still that
+the Anderson–Rubin set excludes zero (`ar_excludes_zero()`, see `CLAUDE.md`); that rule stays in code
+and in the record's method sections, but prose that reports a result uses the wording above.
+
 ## Language
 
 Portuguese for prose in `registro/`, `notas/`, `pareceres/` and `output/*.md`. English for code,
