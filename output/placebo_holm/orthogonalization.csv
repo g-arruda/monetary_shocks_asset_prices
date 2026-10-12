@@ -1,4 +1,4 @@
 variable,label,predictor,estimate,se,t,p
 sp500_vix,VIX,pre_vix,-0.02455265725425549,0.23960143855907529,-0.1024729125246962,0.9186043381125776
-msci,MSCI Inc. (ação),NA,NA,NA,NA,NA
+msci,MSCI emergentes,NA,NA,NA,NA,NA
 epu_us,EPU dos EUA,NA,NA,NA,NA,NA
