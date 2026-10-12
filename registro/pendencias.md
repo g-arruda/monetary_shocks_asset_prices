@@ -1,5 +1,9 @@
 # Pendências
 
+**Atualização de 2026-10-09:** o passo 4/5 do Tema B (placebos com Holm) rodou na branch
+`feature/focus-horizonte-fixo` e fechou (nota `2026-10-09_placebos_holm`). Dele saíram dois itens. No
+Tema D, a série `msci` do painel é a ação da MSCI Inc., não o índice de emergentes. No Tema A, ficam o
+parágrafo de placebos da §3.3 e a legenda de `fig:placebos`, que esperam a promoção da base.
 **Atualização de 2026-10-08:** o e-mail do orientador de 08-10 (`email/email_professor_08-10_15h15.md`)
 fixou o desenho dos passos 3 e 4 do Tema B. A parte de influência do passo 3 rodou na branch
 `feature/focus-horizonte-fixo` e fechou (nota `2026-10-08_influencia_reunioes`). A exclusão por
@@ -109,15 +113,16 @@ AR/MOSW próprios.
 |---|---|---|
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Conferir a figura de placebos no `.tex` | aberto em 2026-10-01, e-mail de 30-09; a figura está no Anexo D de `main` desde `1a150d0`; compilar e avisar o orientador da versão vigente |
-| A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu` |
+| A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu`; a hipótese está explicitada desde 10-09 (nota `2026-10-09_placebos_holm`, seção 5) |
+| A | §3.3 e `fig:placebos` na base do passo 0: Holm, conjuntos pontuais e o nome da série `msci` | aberto em 2026-10-09, no passo 4/5; depende da promoção do passo 0 e do item do Tema D sobre a série `msci` |
 | A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
 | A | Anexo B e §3.3: linha diária com o câmbio realinhado | aberto em 2026-10-05; depende do item do Tema D sobre o câmbio do Yahoo; só muda o paper se a razão de variância do câmbio ou o `Qr` diário mudarem |
 | B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, o que é "excluir" uma reunião, avaliação conjunta dos placebos; o escopo do passo 0 já foi decidido |
-| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5**; os passos 1 e 2 rodaram sobre esta base em 10-05, e a influência do passo 3 em 10-08 |
+| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5** e o item do Tema A sobre §3.3 e `fig:placebos`; os passos 1 e 2 rodaram sobre esta base em 10-05, a influência do passo 3 em 10-08 e o passo 4 em 10-09; ⚠ o item do Tema D sobre a série `msci` pode mudar a base |
 | B | Passo 3/5, parte 2: exclusão de reuniões por movimentos extremos de VIX, S&P 500 ou Brent | aberto em 2026-10-08, quando a parte de influência fechou; espera a regra do autor, definida antes de rodar, sem selecionar por câmbio ou CDS; depende do passo 0 |
-| B | Passo 4/5: placebos nos horizontes definidos, com avaliação conjunta | aberto em 2026-10-03; depende do passo 0; desenho fixado no e-mail de 08-10 (Holm nos 18 testes AR); liga-se ao item do p = 0,54 do Tema A |
 | B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26) |
 | D | Câmbio diário do Yahoo deslocado um pregão no inverno europeu | aberto em 2026-10-05, achado no passo 2/5; atinge `het_conditions.R`, a razão de variância do câmbio em `tab:het_frequency` e o `Qr` diário; bloqueia o item do Tema A sobre o Anexo B |
+| D | A série `msci` do painel é a ação da MSCI Inc., não o índice MSCI de emergentes | aberto em 2026-10-09, achado no passo 4/5; está no painel de produção de `main` e da branch; trocá-la muda a base do passo 0 e obriga a refazer os passos 0 a 4; bloqueia o item do Tema A sobre §3.3 e `fig:placebos` |
 
 ---
 
@@ -182,7 +187,21 @@ antes de escrever a introdução e traduzir para a submissão. Nenhum foi execut
   só o que a branch sustenta. O e-mail de 03-10 (passo 4) diz como escrever: explicitar a hipótese a
   que o p = 0,54 corresponde e, por ele testar o coeficiente do EPU na previsão da surpresa,
   descrevê-lo como ausência de evidência de poder preditivo naquela especificação, sem lê-lo como
-  validação da exogeneidade. Depende do passo 4/5 do Tema B, que traz a análise dos placebos.
+  validação da exogeneidade. O passo 4/5 do Tema B fechou em 10-09, e a hipótese está escrita na nota
+  `2026-10-09_placebos_holm`, seção 5: H0 β_EPU = 0 na regressão do DI de quarta a quinta, nas 102
+  reuniões, em constante, nos nove preditores da produção e em `pre_epu`, t HC1 −0,61. Falta pôr no
+  texto, junto com o item abaixo.
+- [ ] **§3.3 e `fig:placebos` na base do passo 0.** Aberto em 10-09, no passo 4/5 do Tema B (nota
+  `2026-10-09_placebos_holm`). O e-mail de 08-10 pede três coisas: manter a figura como descrição das
+  respostas, com os conjuntos identificados como pontuais na legenda; não usar a contagem de pontos
+  significantes como evidência conjunta; e escrever "não rejeitamos a hipótese de resposta zero após o
+  ajuste por múltiplos testes", sem lê-lo como prova de exogeneidade. Na base do passo 0, Holm nos 18
+  testes não rejeita nada a 10% (menor p ajustado 0,983). O parágrafo de `main` diz que o EPU é
+  significante a 90% em h1–h3 e trata isso como limitação. Na base nova, o EPU não é significante a 90%
+  em horizonte algum, e o VIX e a série `msci` passam a ser.
+  - Depende da promoção do passo 0 (Tema B) e do item do Tema D sobre a série `msci`, que o paper chama
+    de "MSCI de mercados emergentes" na §3.2, no Anexo A, na §3.3 e em `fig:placebos`.
+  - Escrever junto com o p = 0,54 do item acima.
 - [ ] **Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade`.** Descrita como sensibilidade das
   respostas a `q` com e sem a reescala, pode ser lida como a mesma figura de `fig:q_sensibilidade`.
   Deixar claro que é um exercício cruzado (`q` = 2 a 5 × com e sem a reescala, oito séries), não
@@ -569,8 +588,11 @@ DBGG e a agregação temporal completa.*
   - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer: positivo em h1 e h3–h7, máximo +0,039 p.p.
   - ⚠ `data/processed/` é o mesmo para todas as branches: ao voltar a `main`, rodar
     `Rscript script/run_all.R --only=clean` antes de estimar.
-  - **Bloqueia os passos 2 a 5.** Os passos 1 e 2 rodaram em 10-05 sobre a base da branch, antes de
-    ela ser congelada, e a parte de influência do passo 3 em 10-08 (Fechados, abaixo).
+  - **Bloqueia os passos 2 a 5** e o item do Tema A sobre §3.3 e `fig:placebos`. Os passos 1 e 2
+    rodaram em 10-05 sobre a base da branch, antes de ela ser congelada, a parte de influência do
+    passo 3 em 10-08 e o passo 4 em 10-09 (Fechados, abaixo).
+  - ⚠ A série `msci` do painel é a ação da MSCI Inc. (Tema D). Se o autor trocá-la pelo índice antes de
+    congelar, a base muda e os passos 0 a 4 rodam de novo.
 - [ ] **Passo 3/5, parte 2: exclusão por movimentos extremos de VIX, S&P 500 ou Brent.** Depende do
   passo 0. Excluir as reuniões com movimento contemporâneo extremo de VIX, S&P 500 ou Brent, por regra
   **definida antes de rodar**. Isso testa contaminação internacional na janela do evento, distinta dos
@@ -580,22 +602,6 @@ DBGG e a agregação temporal completa.*
   - A janela do evento é de quarta a quinta: o Copom anuncia depois do fechamento de B3 e de NY.
   - A exclusão pronta é a de `script/meeting_influence.R`: tirar a contribuição da reunião do
     instrumento mensal, com fatores e VAR fixos, T e calendário intactos.
-- [ ] **Passo 4/5: placebos.** Depende do passo 0. O desenho está no item 4 do e-mail de 08-10: p-valores
-  AR da resposta zero de VIX, MSCI de emergentes e EPU dos EUA em h = 0, 1, 3, 6, 12 e 24, Holm nos 18
-  testes, 10%; e conferir se alguma dessas séries entra na ortogonalização (o VIX entra, como tendência
-  de 65 dias pré-evento). Apresentar os placebos nos horizontes definidos,
-  reportando os resultados pontuais e uma avaliação conjunta ou uma correção por múltiplos testes.
-  Explicitar a hipótese que corresponde ao p = 0,54. Se ele testa o coeficiente do EPU na previsão da
-  surpresa, descrevê-lo como **ausência de evidência de poder preditivo naquela especificação**, nunca
-  como validação da exogeneidade. O p = 0,543 vem da branch `feature/placebo-epu` e testa isso: a
-  tendência de 13 semanas do EPU diário não prevê a surpresa (nota `2026-09-29_placebo_epu`, só na
-  branch). Holm ou Bonferroni precisam de p-valor, e os conjuntos AR não o imprimem. Desde 10-05,
-  `ar_statistic()` (`R/identification/weak_iv_ar.R`) dá o p-valor AR da resposta zero em cada célula
-  (nota `2026-10-05_precisao_ar`). Falta a decisão de desenho sobre a correção. O texto fica no item
-  do Tema A sobre o p = 0,54.
-  ⚠ Na base do passo 0 os placebos mudam: o EPU dos EUA deixa de violar (h1–h3 na base antiga), e o
-  VIX (h2, h5, h6) e o MSCI de emergentes (h2–h10) passam a violar a 90% (nota
-  `2026-10-03_focus_horizonte_fixo`, seção 7).
 - [ ] **Passo 5/5: apêndice.** Depende do passo 0. Respostas de câmbio e CDS com a surpresa bruta, o
   instrumento ortogonalizado e o filtro de Jarociński-Karadi, com intervalos. O orientador diz que "já
   está estimado e é barato", e avisa que o filtro não separa um choque de risco de um monetário (os dois
@@ -614,6 +620,19 @@ DBGG e a agregação temporal completa.*
 
 ### Fechados (contexto)
 
+- [x] **Passo 4/5, placebos com Holm — 2026-10-09.** Desenho do e-mail de 08-10, na branch
+  `feature/focus-horizonte-fixo` sobre a base do passo 0. Nada reestimado: são os p-valores AR em zero da
+  tabela do passo 1, conferida contra o cache. Se a base mudar, rerodar `script/ar_precision.R` e
+  `script/placebo_holm.R`.
+  - Holm nos 18 testes (VIX, `msci` e EPU dos EUA em h = 0, 1, 3, 6, 12, 24) não rejeita nada a 10%,
+    com menor p ajustado 0,983. Sem ajuste, rejeitam a 10% a `msci` em h3 e h6 (p 0,055) e o VIX em
+    h6 (p 0,088).
+  - Só o VIX entra na ortogonalização, como tendência de 65 pregões até a quarta, com coeficiente
+    −0,025 (p 0,92). ⚠ Em h0 o mês do VIX se sobrepõe à janela, e o teste não é de todo independente.
+  - ⚠ A série `msci` é a ação da MSCI Inc., não o índice de emergentes (item aberto no Tema D). Sem ela,
+    Holm nos 12 testes também não rejeita.
+
+  Nota: `2026-10-09_placebos_holm`.
 - [x] **Passo 3/5, influência das reuniões — 2026-10-08.** Desenho do e-mail de 08-10, na branch
   `feature/focus-horizonte-fixo` sobre a base do passo 0: fatores, VAR e inovações fixos, a reunião sai
   só do momento Γ, e T = 162 e o calendário ficam intactos. Ordem por max_k |ΔΓ_k|/EP_k nas 99 reuniões
@@ -920,6 +939,20 @@ de novo, para ver se a Focus PIB pré-COVID entra no conjunto sem tirar os janei
   - Falta: refazer a linha diária com a PTAX (`data/raw/ptax_daily.csv`, estágio `ptax`) ou com o Yahoo
     realinhado, comparar a razão e o `Qr`, e decidir.
   - Bloqueia o item do Tema A sobre o Anexo B.
+- [ ] **A série `msci` do painel é a ação da MSCI Inc., não o índice MSCI de emergentes.** Achado no
+  passo 4/5 do Tema B (nota `2026-10-09_placebos_holm`, seção 4).
+  - `data/raw/investing/msci.csv`, que `script/download.R` lê como `msci`, traz a cotação mensal da ação
+    da MSCI Inc. (NYSE: MSCI). Os fechamentos de julho a novembro de 2023 (548,08, 543,62, 513,08,
+    471,55 e 520,85) são os da ação, a série vai de 29,56 em jan/2010 a 599 em jan/2024, e o arquivo
+    traz volume negociado.
+  - O paper a chama de "MSCI de mercados emergentes" na §3.2, no Anexo A (`tab:lista_variaveis`), na
+    §3.3 e em `fig:placebos` (rótulo em `script/fig_section5.R`). Ela é um dos três placebos.
+  - É uma das 115 séries do painel de produção, em `main` e na branch `feature/focus-horizonte-fixo`, e
+    entra nos fatores e em θ̂.
+  - Falta: o autor decidir entre baixar o índice de emergentes (o arquivo é da investing.com, sem estágio
+    de rede reproduzível) e trocar a série, ou só renomeá-la no paper. A troca muda a base do passo 0
+    (Tema B), e os passos 0 a 4 rodam de novo.
+  - Bloqueia o item do Tema A sobre §3.3 e `fig:placebos`.
 
 
 ### Fechados (contexto)

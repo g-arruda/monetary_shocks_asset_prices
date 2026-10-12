@@ -148,6 +148,20 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Placebos com Holm, passo 4/5 do plano de 03-10 (2026-10-09, branch `feature/focus-horizonte-fixo`):**
+[`2026-10-09_placebos_holm`](2026-10-09_placebos_holm.md)
+**CURRENT na branch, não mergeada, sobre a base do passo 0.** A produção não muda e nada é reestimado:
+os p-valores AR da resposta zero vêm da tabela do passo 1, conferida contra o cache.
+- **Holm.** Nos 18 testes (VIX, `msci` e EPU dos EUA em h = 0, 1, 3, 6, 12, 24), nenhum rejeita a 10%
+  depois do ajuste (menor p ajustado 0,983). Sem ajuste, rejeitam a 10% a `msci` em h3 e h6 e o VIX em h6.
+- **Ortogonalização.** Só o VIX entra, como tendência de 65 pregões até a quarta, com coeficiente
+  −0,025 (p 0,92). A restrição não é contemporânea. Em h0 o mês do VIX se sobrepõe à janela.
+- **p = 0,54.** H0 β_EPU = 0 na regressão BS do DI com `pre_epu`, t HC1 −0,61. Lê-se como ausência de
+  evidência de poder preditivo naquela especificação.
+- ⚠ A série `msci` é a ação da MSCI Inc. (NYSE: MSCI), não o índice MSCI de emergentes que o paper
+  nomeia. Ela está no painel de produção desde antes desta rodada. Sem ela, Holm nos 12 testes também
+  não rejeita.
+
 **Influência das reuniões, passo 3/5 do plano de 03-10 (2026-10-08, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-08_influencia_reunioes`](2026-10-08_influencia_reunioes.md)
 **CURRENT na branch, não mergeada, sobre a base do passo 0.** A produção não muda. Desenho do e-mail
@@ -519,6 +533,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-09_placebos_holm`](2026-10-09_placebos_holm.md) | 10-09 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | base do passo 0, `z_bs_purif`, `(5,5,4)`, escala LP, NW(0); p-valores AR em zero de `output/ar_precision/table.csv`; Holm a 10% | Tudo, na branch: Holm nos 18 testes de VIX, `msci` e EPU dos EUA em h = 0, 1, 3, 6, 12, 24 não rejeita nada (menor p ajustado 0,983); sem ajuste, `msci` h3 e h6 (p 0,055) e VIX h6 (p 0,088) a 10%; só o VIX entra na ortogonalização, pré-evento, coeficiente −0,025 (p 0,92); p = 0,54 é H0 β_EPU = 0 na regressão BS do DI. ⚠ em h0 o mês do VIX se sobrepõe à janela pré-evento; ⚠ `msci` é a ação da MSCI Inc., não o índice de emergentes, e está no painel de produção |
 | [`2026-10-08_influencia_reunioes`](2026-10-08_influencia_reunioes.md) | 10-08 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | base do passo 0, `z_bs_purif`, `(5,5,4)`, escala LP, NW(0); fatores, VAR e inovações da amostra completa fixos; cada reunião sai só de Γ, T = 162 | Tudo, na branch: ordem por max_k \|ΔΓ_k\|/EP_k nas 99 reuniões que entram em Γ; uma a uma, câmbio h0 0,126–0,175, CDS 28,9–42,0, ξ_mp 5,52–7,61; sem as 5 mais influentes ξ_mp 3,59 / F_rob 3,78, câmbio e CDS significantes a 90% e não a 95%; sem as 10 ξ_mp 2,01 / F_rob 1,86, nenhum conjunto de câmbio e CDS limitado; as 10 carregam 81% de d0'Γ. ⚠ a significância depende de poucas reuniões, em parte por construção da ordem; ⚠ três reuniões de 2012 antes da primeira inovação |
 | [`2026-10-05_evento_diario`](2026-10-05_evento_diario.md) | 10-05 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | 102 reuniões do Copom 2012-03--2025-12, `delta_di` e `e_di_bs` de `main`; PTAX 13h → 13h, CDS Bloomberg; DFMs da base do passo 0 com `z_bruto` e `z_bs_purif` | Tudo, na branch: real aprecia R$ 0,048 (1,04%) por +50 p.b. no dia, significante a 95% com as duas surpresas (p 0,019 / 0,021); CDS não significante a 90%; primeiro estágio identidade / F 656; o câmbio só troca de sinal no DFM (+0,099 / +0,146), passagem não decomposta. ⚠ no CDS o ponto troca de sinal na ortogonalização (+0,9 → −0,5), sem significância; ⚠ Yahoo `BRL=X` deslocado um pregão no inverno europeu, atinge a linha diária do Anexo B |
 | [`2026-10-05_precisao_ar`](2026-10-05_precisao_ar.md) | 10-05 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; produção, `.tex` e `paper/img/` intocados** | base do passo 0 (Focus a horizonte fixo), `z_bs_purif`, `(5,5,4)`, escala LP; pré-COVID 2012-03--2019-12 por MQO em `p = 2` e `p = 4` | Tudo, na branch: câmbio e CDS significantes a 95% no impacto (p 0,013 / 0,015), até h3 / h4; 458 pares significantes a 95% no painel; pré-COVID `p = 2` com ξ_mp 5,64, significantes a 95% em h0–h11; `p = 4` barrado; momentos sem autocorrelação até h12; NW 1–3 não muda o impacto, NW 4–12 estreita até 24,5% e leva ξ_mp a 10,01. ⚠ ponto `p = 4` fora do conjunto `p = 2` em h10–h22; ⚠ impacto pré-COVID do câmbio 0,121 na base nova, contra 0,056 |
