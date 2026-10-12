@@ -16,20 +16,29 @@
 #      For each exclusion, FX and CDS at h0, h1 and h3, xi_mp and F_rob. The
 #      three meetings before the first innovation (2012-07) do not enter
 #      Gamma and are not ranked.
-#   C. The 5 and the 10 most influential meetings excluded together: every
-#      series at the table horizons of step 1, AR sets at 90 and 95%, the AR
-#      p-value of a zero response, xi_mp and F_rob.
-# The exclusion of meetings with extreme VIX, S&P 500 or Brent moves is a
-# separate exercise and is not run here.
+#   C. Step 3, part 2, by the author's rule fixed before the run (commit
+#      2cad8bd): a meeting is flagged when the Wed->Thu log change of the
+#      S&P 500, the VIX or Brent is, in absolute value, above the 95th
+#      percentile of that series' absolute changes over every trading day of
+#      2012-03 to 2025-12. No meeting is selected by FX or CDS.
+#   D. Exclusions together: the 5 and the 10 most influential meetings, and
+#      the meetings flagged in C. Every series at the table horizons of step
+#      1, AR sets at 90 and 95%, the AR p-value of a zero response, xi_mp and
+#      F_rob.
 # script/instrument.R, script/irf_coherence_check.R and
 # script/ar_precision.R must run first.
 # Outputs: output/meeting_influence/
-#   ranking.csv         one row per meeting
-#   joint_table.csv     production, without 5, without 10: every series at
-#                       the table horizons
-#   joint_fx_cds.csv    the same cells, FX and CDS, h0-h36
-#   joint_strength.csv  xi_mp and F_rob of the three cells
-# Note: notas/2026-10-08_influencia_reunioes.md
+#   ranking.csv             one row per meeting
+#   extreme_thresholds.csv  the 95th percentile of each series and the
+#                           meetings it flags
+#   extreme_meetings.csv    one row per meeting: the three changes, the flags
+#                           and the influence rank
+#   joint_table.csv         production, without 5, without 10, without the
+#                           extreme moves: every series at the table horizons
+#   joint_fx_cds.csv        the same cells, FX and CDS, h0-h36
+#   joint_strength.csv      xi_mp and F_rob of the four cells
+# Notes: notas/2026-10-08_influencia_reunioes.md,
+#        notas/2026-10-12_exclusao_extremos.md
 # ===================================================================
 
 source("R/modeling/factor_estimation.R")
@@ -44,7 +53,11 @@ EVENTS_PATH     <- "data/processed/copom_event_diagnostics.csv"
 THETA_PATH      <- "output/factors/covid_volatility_theta.csv"
 CELL_PATH       <- "output/irf/irf_coherence_cell.rds"
 PRECISION_PATH  <- "output/ar_precision/table.csv"
+EXTERNAL_PATH   <- "data/raw/investing/external_factors_daily.csv"
 OUT_DIR         <- "output/meeting_influence"
+REFERENCE_START <- as.Date("2012-03-01")
+REFERENCE_END   <- as.Date("2025-12-31")
+EXTREME_PROBABILITY <- 0.95
 N_EVENTS    <- 102L
 R_FACTORS   <- 5L
 Q_DYNAMIC   <- 5L
@@ -56,7 +69,7 @@ H_MAX       <- 36L
 H_LOO       <- c(0L, 1L, 3L)
 H_TABLE     <- c(0L, 1L, 3L, 6L, 12L, 24L)
 CI_LEVELS   <- c(0.90, 0.95)
-EXCLUDED    <- c(producao = 0L, sem_5 = 5L, sem_10 = 10L)
+TOP_EXCLUDED <- c(sem_5 = 5L, sem_10 = 10L)
 TARGET_VARS <- c(fx = "cambio_usd", cds = "cds_5y")
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
@@ -258,18 +271,85 @@ ranking |>
   ) |>
   readr::write_csv(file.path(OUT_DIR, "ranking.csv"))
 
-# D. The most influential meetings excluded together ------------------------
+# D. Meetings with an extreme VIX, S&P 500 or Brent move --------------------
+
+# Changes between consecutive rows, as R/instrument/build_variants.R takes
+# them, with the VIX in logs instead of points. The rule is two-sided: a
+# global risk shock biases FX and CDS upward whatever the sign of the
+# monetary shock.
+external_changes <- readr::read_csv(EXTERNAL_PATH, show_col_types = FALSE) |>
+  dplyr::arrange(date) |>
+  dplyr::transmute(
+    date,
+    sp500 = 100 * (log(sp500) - log(dplyr::lag(sp500))),
+    vix = 100 * (log(vix) - log(dplyr::lag(vix))),
+    brent = 100 * (log(brent) - log(dplyr::lag(brent)))
+  ) |>
+  tidyr::pivot_longer(-date, names_to = "series", values_to = "change")
+
+# The reference is every trading day whose change exists: a level missing on
+# either row (Brent has gaps in 2012-2016, the S&P 500 and the VIX on three
+# days the NYSE was closed) leaves that change out, as the rule says
+thresholds <- external_changes |>
+  dplyr::filter(
+    dplyr::between(date, REFERENCE_START, REFERENCE_END),
+    !is.na(change)
+  ) |>
+  dplyr::summarise(
+    reference_days = dplyr::n(),
+    threshold = quantile(abs(change), EXTREME_PROBABILITY),
+    .by = series
+  )
+
+meeting_moves <- meetings |>
+  dplyr::select(date) |>
+  dplyr::left_join(external_changes, by = "date") |>
+  dplyr::left_join(thresholds, by = "series") |>
+  dplyr::mutate(extreme = abs(change) > threshold)
+
+# build_variants.R drops a Thursday without any of the three changes, so the
+# 102 meetings carry all of them
+stopifnot(
+  nrow(meeting_moves) == nrow(thresholds) * N_EVENTS,
+  !anyNA(meeting_moves$change)
+)
+
+extreme_meetings <- meeting_moves |>
+  dplyr::select(date, series, change, extreme) |>
+  tidyr::pivot_wider(names_from = series, values_from = c(change, extreme)) |>
+  dplyr::mutate(excluded = extreme_sp500 | extreme_vix | extreme_brent) |>
+  dplyr::left_join(
+    dplyr::select(ranking, date, month, in_window, rank),
+    by = "date"
+  ) |>
+  dplyr::relocate(rank, month, in_window, .after = date) |>
+  dplyr::arrange(date)
+extreme_dates <- extreme_meetings$date[extreme_meetings$excluded]
+
+thresholds |>
+  dplyr::left_join(
+    dplyr::summarise(meeting_moves, flagged = sum(extreme), .by = series),
+    by = "series"
+  ) |>
+  readr::write_csv(file.path(OUT_DIR, "extreme_thresholds.csv"))
+readr::write_csv(extreme_meetings, file.path(OUT_DIR, "extreme_meetings.csv"))
+
+# E. Meetings excluded together ----------------------------------------------
 
 top_meetings <- ranking |>
   dplyr::filter(in_window) |>
-  dplyr::slice_head(n = max(EXCLUDED)) |>
+  dplyr::slice_head(n = max(TOP_EXCLUDED)) |>
   dplyr::pull(date)
+exclusions <- c(
+  list(producao = as.Date(character())),
+  purrr::map(TOP_EXCLUDED, \(n_top) utils::head(top_meetings, n_top)),
+  list(sem_extremos = extreme_dates)
+)
 
 cell_rows <- rep(seq_along(var_names), times = HORIZON + 1L)
 cell_horizons <- rep(0:HORIZON, each = length(var_names))
 
-joint <- purrr::imap(EXCLUDED, function(n_excluded, cell) {
-  excluded <- utils::head(top_meetings, n_excluded)
+joint <- purrr::imap(exclusions, function(excluded, cell) {
   instrument <- instrument_without(excluded)
   irf <- compute_irf_dfm(
     model,
@@ -327,7 +407,7 @@ joint <- purrr::imap(EXCLUDED, function(n_excluded, cell) {
     sets = sets,
     strength = tibble::tibble(
       cell = cell,
-      n_excluded = n_excluded,
+      n_excluded = length(excluded),
       excluded = paste(format(excluded), collapse = " "),
       xi_mp = irf$ar$xi_den,
       f_robust_mp = strength$f_robust_mp,
@@ -367,7 +447,7 @@ stopifnot(
 
 joint_sets <- purrr::map(joint, "sets") |>
   purrr::list_rbind() |>
-  dplyr::mutate(cell_order = match(cell, names(EXCLUDED)))
+  dplyr::mutate(cell_order = match(cell, names(exclusions)))
 
 joint_sets |>
   dplyr::filter(h %in% H_TABLE) |>
