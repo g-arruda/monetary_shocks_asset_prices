@@ -148,6 +148,22 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Exclusão por movimentos extremos de VIX, S&P 500 ou Brent, passo 3/5, parte 2, do plano de 03-10 (2026-10-12, branch `feature/focus-horizonte-fixo`):**
+[`2026-10-12_exclusao_extremos`](2026-10-12_exclusao_extremos.md)
+**CURRENT na branch, não mergeada, sobre a base de 10-12.** Regra fixada e commitada antes de rodar
+(`2cad8bd`): sai a reunião em que a variação log de quarta a quinta do S&P 500, do VIX ou do Brent
+passa, em módulo, do percentil 95 dos pregões de 2012-03 a 2025-12. A exclusão é a da influência, só
+no momento Γ.
+- **Marcadas.** 11 reuniões, 5 por série; S&P 500 e VIX marcam juntos quatro, o Brent marca cinco
+  só dele. Três estão entre as dez mais influentes.
+- **Resultado.** ξ_mp 6,66 → 5,67, conjuntos limitados a 95%. CDS estável (32,0 contra 33,5 p.b. no
+  impacto), significante a 95% em h0, h1 e h3. ⚠ O câmbio cai 26% no impacto (0,145 → 0,107) e perde
+  os 95% em todo horizonte; segue significante a 90% em h0–h4. Nenhum ponto do painel sai do conjunto
+  de 90% de produção.
+- **Leitura.** A queda do câmbio vem mais das reuniões marcadas pelo Brent, no sentido oposto ao que a
+  leitura registrada atribui a esse canal, e das que mais pesam em Γ. ⚠ Pela letra da regra, a
+  condição da verificação de terça a quarta se cumpre no câmbio; rodá-la é decisão do autor.
+
 **A `msci` vira o índice MSCI de emergentes, e os passos 0 a 4 rodam de novo (2026-10-12, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-12_msci_emergentes`](2026-10-12_msci_emergentes.md)
 **CURRENT na branch, não mergeada.** A série `msci` do painel era a ação da MSCI Inc. e passa a ser o
@@ -557,6 +573,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-12_exclusao_extremos`](2026-10-12_exclusao_extremos.md) | 10-12 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; `.tex` e `paper/img/` intocados** | base de 10-12 (`msci` o índice de emergentes), `z_bs_purif`, `(5,5,4)`, escala LP, NW(0); regra commitada antes de rodar (`2cad8bd`); exclusão só em Γ, fatores, VAR e inovações fixos, T = 162 | Tudo, na branch: 11 reuniões marcadas pelo percentil 95 da \|variação\| de quarta a quinta (5 por série; S&P 500 e VIX juntos em 4; Brent em 5 só dele; 3 entre as dez mais influentes); ξ_mp 6,66 → 5,67, F_rob 8,07 → 7,66, conjuntos limitados a 95%; CDS estável e significante a 95% em h0, h1 e h3; ⚠ câmbio 0,145 → 0,107 no impacto, sem significância a 95% em horizonte algum, a 90% em h0–h4; 0/689 pontos fora do conjunto de 90% de produção; a queda do câmbio vem mais das reuniões do Brent, no sentido oposto ao da leitura registrada; ⚠ a condição da verificação de terça a quarta se cumpre no câmbio, decisão do autor |
 | [`2026-10-12_msci_emergentes`](2026-10-12_msci_emergentes.md) | 10-12 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; `.tex` e `paper/img/` intocados** | base do passo 0 com a `msci` sendo o índice MSCI Emerging Markets (MSCI 891800, preço em USD, fim de mês) no lugar da ação da MSCI Inc.; θ̂ reestimado (7,51; 14,88; 1,42; 0,967); `z_bs_purif`, `(5,5,4)`, escala LP, NW(0); linha de base `2348852` | Tudo, na branch: as outras 114 séries bit-idênticas; ξ_mp 6,66 / 5,60, F_rob 8,07 / 5,16; Bai-Ng 5, 5, 18, AIC 4, BIC 2; câmbio 0,145 e CDS 33,5 no impacto, significantes a 95% (p 0,015 / 0,017); fora da `msci` nenhum ponto fora do conjunto antigo; 1051 → 1132 pares significantes a 90%; mesmas 5 e 10 reuniões mais influentes, sem as 10 ξ_mp 1,82; Holm nos 18 placebos sem rejeição (menor p ajustado 0,575). ⚠ sem ajuste o índice de emergentes cai no impacto e em h1 (−27,5 / −27,3 pontos, h1 p 0,032); ⚠ CDS deixa de ser significante a 95% em h2 (p 0,051); ⚠ ξ_mp com NW(12) 9,79; ⚠ `main` segue com a ação |
 | [`2026-10-09_placebos_holm`](2026-10-09_placebos_holm.md) | 10-09 | **NÚMEROS SUPERADOS em 10-12 por `2026-10-12_msci_emergentes`; desenho, ortogonalização e p = 0,54 seguem valendo; branch não mergeada** | base do passo 0, `z_bs_purif`, `(5,5,4)`, escala LP, NW(0); p-valores AR em zero de `output/ar_precision/table.csv`; Holm a 10% | Tudo, na branch: Holm nos 18 testes de VIX, `msci` e EPU dos EUA em h = 0, 1, 3, 6, 12, 24 não rejeita nada (menor p ajustado 0,983); sem ajuste, `msci` h3 e h6 (p 0,055) e VIX h6 (p 0,088) a 10%; só o VIX entra na ortogonalização, pré-evento, coeficiente −0,025 (p 0,92); p = 0,54 é H0 β_EPU = 0 na regressão BS do DI. ⚠ em h0 o mês do VIX se sobrepõe à janela pré-evento; ⚠ `msci` é a ação da MSCI Inc., não o índice de emergentes, e está no painel de produção |
 | [`2026-10-08_influencia_reunioes`](2026-10-08_influencia_reunioes.md) | 10-08 | **NÚMEROS SUPERADOS em 10-12 por `2026-10-12_msci_emergentes`; desenho e leitura seguem valendo; branch não mergeada** | base do passo 0, `z_bs_purif`, `(5,5,4)`, escala LP, NW(0); fatores, VAR e inovações da amostra completa fixos; cada reunião sai só de Γ, T = 162 | Tudo, na branch: ordem por max_k \|ΔΓ_k\|/EP_k nas 99 reuniões que entram em Γ; uma a uma, câmbio h0 0,126–0,175, CDS 28,9–42,0, ξ_mp 5,52–7,61; sem as 5 mais influentes ξ_mp 3,59 / F_rob 3,78, câmbio e CDS significantes a 90% e não a 95%; sem as 10 ξ_mp 2,01 / F_rob 1,86, nenhum conjunto de câmbio e CDS limitado; as 10 carregam 81% de d0'Γ. ⚠ a significância depende de poucas reuniões, em parte por construção da ordem; ⚠ três reuniões de 2012 antes da primeira inovação |

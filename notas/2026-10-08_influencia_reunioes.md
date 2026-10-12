@@ -6,6 +6,8 @@
 > reestimada. As cinco e as dez reuniões mais influentes são as mesmas, e o desenho e a leitura desta
 > nota seguem valendo. Sem as 5, ξ_mp vai a 3,54. Sem as 10, vai a 1,82, e o câmbio sem as 5 perde a
 > significância a 90% em h5.
+> A exclusão por movimentos extremos de VIX, S&P 500 ou Brent (seção 5) rodou em 2026-10-12:
+> [`2026-10-12_exclusao_extremos`](2026-10-12_exclusao_extremos.md).
 
 > **CURRENT — 2026-10-08.** Passo 3/5 do plano do orientador de 03-10
 > (`email/email_professor_03-10_11h31.md`), no desenho do item 3 do e-mail de 08-10
