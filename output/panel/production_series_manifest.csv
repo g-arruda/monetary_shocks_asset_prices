@@ -82,7 +82,7 @@ asset_imob,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,6,166,2012-0
 asset_smll,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,6,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
 embi_perc,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
 cds_5y,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
-msci,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,TRUE,ajustada_completo
+msci,painel_historico,data/raw/msci_em.csv,NA,NA,MSCI 891800,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
 sp500_vix,painel_historico,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
 fiscal_dbgg,fiscal,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,FALSE,nao_sazonal
 fiscal_dlsp,fiscal,data/raw/raw_data.csv,NA,NA,NA,NA,level,1,166,2012-03-01,2025-12-01,TRUE,ajustada_completo

@@ -64,8 +64,9 @@ LAG_SELECTION <- list(
   common_sample = 154L,
   selected_aic = 4L,
   selected_bic = 2L,
-  # 8.231266782137459 with the "ano seguinte" Focus series, until 2026-10-03
-  aic_at_production = 8.1488747303972797
+  # 8.231266782137459 with the "ano seguinte" Focus series, until 2026-10-03;
+  # 8.1488747303972797 with msci the MSCI Inc. share price, until 2026-10-12
+  aic_at_production = 8.196535084589943
 )
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -209,12 +210,16 @@ samples <- list(full = SAMPLE, pre_covid = PRE_COVID_SAMPLE)
 # at a fixed 12-month horizon; with the "ano seguinte" series xi_mp was
 # 7.0189895200649515 / 6.8366817810330156, F_rob 8.6163300983816562 /
 # 8.3066479428861566 and the roots 0.9836760960674927 / 0.9933587954932864.
+# Since 2026-10-12 msci is the MSCI Emerging Markets index; with the MSCI Inc.
+# share price xi_mp was 6.8019636546454532 / 5.5043620711622054, F_rob
+# 8.2830468753569697 / 5.3359788636967229 and the roots 0.9855005224958937 /
+# 0.9944736338672295.
 expected <- tibble::tibble(
   sample = c("full", "pre_covid"),
   n_innovations = c(162L, 90L),
-  xi_mp = c(6.8019636546454532, 5.5043620711622054),
-  f_robust_mp = c(8.2830468753569697, 5.3359788636967229),
-  max_companion_root = c(0.9855005224958937, 0.9944736338672295),
+  xi_mp = c(6.6613895553441687, 5.5974534965709433),
+  f_robust_mp = c(8.0676674199604381, 5.1610891060133097),
+  max_companion_root = c(0.9887383856792471, 0.99101457123904813),
   stable = c(TRUE, TRUE)
 )
 
@@ -284,17 +289,20 @@ point_irf <- compute_irf_dfm(
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
 # Under the production Lenza-Primiceri scale since 2026-09-17, z_bs_purif since
 # 2026-09-26, and the Focus annual series at a fixed 12-month horizon, with
-# theta-hat re-estimated on them, since 2026-10-03. With the "ano seguinte"
-# series the values were 0.0072069426647632393, 0.00773053809800818,
+# theta-hat re-estimated on them, since 2026-10-03, and msci the MSCI
+# Emerging Markets index, theta-hat re-estimated again, since 2026-10-12.
+# With msci the MSCI Inc. share price the values were 0.0071747739108540751,
+# 0.0077302048927632531, -1.6546048858122004 and 0.14584857519843694; with
+# the "ano seguinte" series, 0.0072069426647632393, 0.00773053809800818,
 # -2.4654264316584382 and 0.14142146175048584; under z_jk_bs_purif,
 # 0.0070090429740256857, 0.0072900596216797665, -1.5019377453868872 and
 # 0.12942378112688835.
 expected_impacts <- c(
   0.005,
-  0.0071747739108540751,
-  0.0077302048927632531,
-  -1.6546048858122004,
-  0.14584857519843694
+  0.0071060083672732288,
+  0.0076213733592213331,
+  -1.4253687768521437,
+  0.1448646415797471
 )
 impact_smoke <- tibble::tibble(
   variable = headline,
