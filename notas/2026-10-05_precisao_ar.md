@@ -1,5 +1,11 @@
 # Precisão: conjuntos de 95%, janela pré-COVID e Newey-West
 
+> **NÚMEROS SUPERADOS em 2026-10-12** por
+> [`2026-10-12_msci_emergentes`](2026-10-12_msci_emergentes.md), seção 3. A série `msci` do painel
+> passou da ação da MSCI Inc. ao índice MSCI de emergentes, e o passo rodou de novo sobre a base
+> reestimada. O desenho, as decisões e a leitura desta nota seguem valendo. ⚠ Na base nova, o CDS
+> deixa de ser significante a 95% em h2 (p 0,051), e ξ_mp com 12 defasagens de Newey-West fica em 9,79.
+
 > **CURRENT — 2026-10-05.** Passo 1/5 do plano do orientador de 03-10
 > (`email/email_professor_03-10_11h31.md`). Branch `feature/focus-horizonte-fixo`, **não mergeada**,
 > sobre a base do passo 0 (nota `2026-10-03_focus_horizonte_fixo`).

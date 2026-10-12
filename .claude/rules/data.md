@@ -69,6 +69,18 @@ from "the collection came back empty", and the error only surfaces months later,
   `output/daily_event/fx_alignment.csv`). In 45 of the 102 Copom events a Wed→Thu change read off
   its dates therefore tracks Wednesday's session, which closes before the announcement, not
   Thursday's. Do not use it for an event window.
+- `data/raw/msci_em.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-12, not merged): the
+  MSCI Emerging Markets index (MSCI code 891800, price index in USD, standard variant), end-of-month
+  levels from MSCI's own index-level service, written by `script/download_msci.R`, the `msci`
+  network stage of its own. **It is the panel's `msci`**: `clean.R` puts it in that column, at the
+  column's place (85th of the production panel). `data/raw/investing/msci.csv`, which `download.R`
+  read as `msci` until then, is the share price of **MSCI Inc.** (NYSE: MSCI), not the index
+  (`notas/2026-10-09_placebos_holm.md`, section 4); on this branch `download.R` no longer reads it
+  and writes 112 series. ⚠ **`data/raw/` is shared by every branch**: `main` still reads
+  `investing/msci.csv` through `raw_data.csv`, so the file stays on disk, and running this branch's
+  `download.R` drops `msci` from the shared `raw_data.csv`, which leaves `main`'s `clean.R` with
+  114 series. The `raw_data.csv` on disk predates the change and still carries the share price,
+  which this branch's `clean.R` overwrites (`notas/2026-10-12_msci_emergentes.md`).
 - `data/raw/ptax_daily.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-05, not merged):
   the daily PTAX (SGS 1, selling quote, average of the 10h–13h windows), from
   `script/download_ptax.R`, the `ptax` network stage of its own. The Copom-day exchange-rate change

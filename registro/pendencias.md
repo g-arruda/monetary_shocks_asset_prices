@@ -1,5 +1,10 @@
 # Pendências
 
+**Atualização de 2026-10-12:** na branch `feature/focus-horizonte-fixo`, a série `msci` do painel
+passou da ação da MSCI Inc. ao índice MSCI de emergentes, e os passos 0 a 4 rodaram de novo sobre a
+base reestimada (nota `2026-10-12_msci_emergentes`). Fecha o item do Tema D. Câmbio e CDS não mudam.
+⚠ Sem ajuste, o placebo do índice de emergentes cai no impacto e em h1. O passo 0 do Tema B segue à
+espera do orientador e da promoção, e `main` segue com a ação.
 **Atualização de 2026-10-09:** o passo 4/5 do Tema B (placebos com Holm) rodou na branch
 `feature/focus-horizonte-fixo` e fechou (nota `2026-10-09_placebos_holm`). Dele saíram dois itens. No
 Tema D, a série `msci` do painel é a ação da MSCI Inc., não o índice de emergentes. No Tema A, ficam o
@@ -114,15 +119,14 @@ AR/MOSW próprios.
 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | A | Conferir a figura de placebos no `.tex` | aberto em 2026-10-01, e-mail de 30-09; a figura está no Anexo D de `main` desde `1a150d0`; compilar e avisar o orientador da versão vigente |
 | A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu`; a hipótese está explicitada desde 10-09 (nota `2026-10-09_placebos_holm`, seção 5) |
-| A | §3.3 e `fig:placebos` na base do passo 0: Holm, conjuntos pontuais e o nome da série `msci` | aberto em 2026-10-09, no passo 4/5; depende da promoção do passo 0 e do item do Tema D sobre a série `msci` |
+| A | §3.3 e `fig:placebos` na base do passo 0: Holm, conjuntos pontuais e o índice de emergentes | aberto em 2026-10-09, no passo 4/5; depende da promoção do passo 0; desde 10-12 a `msci` da branch é o índice, que cai no impacto e em h1 sem ajuste |
 | A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
 | A | Anexo B e §3.3: linha diária com o câmbio realinhado | aberto em 2026-10-05; depende do item do Tema D sobre o câmbio do Yahoo; só muda o paper se a razão de variância do câmbio ou o `Qr` diário mudarem |
 | B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, o que é "excluir" uma reunião, avaliação conjunta dos placebos; o escopo do passo 0 já foi decidido |
-| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5** e o item do Tema A sobre §3.3 e `fig:placebos`; os passos 1 e 2 rodaram sobre esta base em 10-05, a influência do passo 3 em 10-08 e o passo 4 em 10-09; ⚠ o item do Tema D sobre a série `msci` pode mudar a base |
+| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5** e o item do Tema A sobre §3.3 e `fig:placebos`; os passos 1 e 2 rodaram sobre esta base em 10-05, a influência do passo 3 em 10-08 e o passo 4 em 10-09; em 10-12 a `msci` virou o índice de emergentes, a base foi reestimada e os passos 0 a 4 rodaram de novo; ⚠ `main` segue com a ação da MSCI Inc. |
 | B | Passo 3/5, parte 2: exclusão de reuniões por movimentos extremos de VIX, S&P 500 ou Brent | aberto em 2026-10-08, quando a parte de influência fechou; espera a regra do autor, definida antes de rodar, sem selecionar por câmbio ou CDS; depende do passo 0 |
 | B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26) |
 | D | Câmbio diário do Yahoo deslocado um pregão no inverno europeu | aberto em 2026-10-05, achado no passo 2/5; atinge `het_conditions.R`, a razão de variância do câmbio em `tab:het_frequency` e o `Qr` diário; bloqueia o item do Tema A sobre o Anexo B |
-| D | A série `msci` do painel é a ação da MSCI Inc., não o índice MSCI de emergentes | aberto em 2026-10-09, achado no passo 4/5; está no painel de produção de `main` e da branch; trocá-la muda a base do passo 0 e obriga a refazer os passos 0 a 4; bloqueia o item do Tema A sobre §3.3 e `fig:placebos` |
 
 ---
 
@@ -195,13 +199,21 @@ antes de escrever a introdução e traduzir para a submissão. Nenhum foi execut
   `2026-10-09_placebos_holm`). O e-mail de 08-10 pede três coisas: manter a figura como descrição das
   respostas, com os conjuntos identificados como pontuais na legenda; não usar a contagem de pontos
   significantes como evidência conjunta; e escrever "não rejeitamos a hipótese de resposta zero após o
-  ajuste por múltiplos testes", sem lê-lo como prova de exogeneidade. Na base do passo 0, Holm nos 18
-  testes não rejeita nada a 10% (menor p ajustado 0,983). O parágrafo de `main` diz que o EPU é
-  significante a 90% em h1–h3 e trata isso como limitação. Na base nova, o EPU não é significante a 90%
-  em horizonte algum, e o VIX e a série `msci` passam a ser.
-  - Depende da promoção do passo 0 (Tema B) e do item do Tema D sobre a série `msci`, que o paper chama
-    de "MSCI de mercados emergentes" na §3.2, no Anexo A, na §3.3 e em `fig:placebos`.
-  - Escrever junto com o p = 0,54 do item acima.
+  ajuste por múltiplos testes", sem lê-lo como prova de exogeneidade. O parágrafo de `main` diz que o
+  EPU é significante a 90% em h1–h3 e trata isso como limitação.
+  - **Na base da branch desde 10-12** (`msci` = índice MSCI de emergentes, nota
+    `2026-10-12_msci_emergentes`, seção 6):
+    - Holm nos 18 testes não rejeita nada a 10% (menor p ajustado 0,575);
+    - o EPU não é significante a 90% em horizonte algum;
+    - o VIX é significante a 90% em h2, h5 e h6;
+    - o índice de emergentes é significante a 90% em h0, h1, h3 e h4, sempre negativo, e em h1 rejeita
+      a 5% sem ajuste (p 0,032).
+  - ⚠ A rejeição pontual do índice de emergentes no impacto e em h1 tem de ser reportada e discutida.
+    A rodada não separa o peso do Brasil no índice, uma piora comum aos emergentes e uma contaminação.
+  - O paper já chama a série de "MSCI de mercados emergentes" (§3.2, §3.3, Anexo A, `fig:placebos`),
+    o que passa a estar certo com a promoção. A fonte em `tab:lista_variaveis` muda de
+    "Investing.com" para a MSCI.
+  - Depende da promoção do passo 0 (Tema B). Escrever junto com o p = 0,54 do item acima.
 - [ ] **Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade`.** Descrita como sensibilidade das
   respostas a `q` com e sem a reescala, pode ser lida como a mesma figura de `fig:q_sensibilidade`.
   Deixar claro que é um exercício cruzado (`q` = 2 a 5 × com e sem a reescala, oito séries), não
@@ -582,17 +594,31 @@ DBGG e a agregação temporal completa.*
   em h0–h5 e h0–h6; a reversão de h28–h36 deixa de excluir zero a 90% e continua a 80%. No painel,
   37/4255 pontos saem do conjunto de 90% antigo, e os pares significativos a 90% caem de 1588 para
   1051, 488 das perdas em h25–h36. ξ_mp 7,02 → 6,80 completa e 6,84 → 5,50 pré-COVID.
-  - Falta: o orientador ver a seção 1 da nota, e o autor congelar e promover. Promover muda o smoke
-    test, `CLAUDE.md`, as notas e os números do paper, e exige rodar de novo as figuras do paper e os
-    anexos, que na branch seguem na base antiga (nota, seção 9).
-  - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer: positivo em h1 e h3–h7, máximo +0,039 p.p.
+  - **Base reestimada em 2026-10-12** (nota `2026-10-12_msci_emergentes`). A série `msci` passou da
+    ação da MSCI Inc. ao índice MSCI de emergentes, e as outras 114 séries ficaram bit-idênticas. Os
+    passos 0 a 4 rodaram de novo:
+    - θ̂ (7,51; 14,88; 1,42; 0,967); ξ_mp 6,66 completa e 5,60 pré-COVID;
+    - câmbio 0,145 e CDS 33,5 p.b. no impacto;
+    - nenhum ponto de outra série fora do conjunto de 90% do passo 0;
+    - pares significantes a 90% de 1051 para 1132.
+    
+    Os números correntes da base são esses, e a seção 1 da nota do passo 0 dá o efeito das Focus.
+  - Falta: o orientador ver câmbio e CDS (nota do passo 0, seção 1, e nota de 10-12, seção 2), e o
+    autor congelar e promover. Promover muda o smoke test, `CLAUDE.md`, as notas e os números do paper,
+    e exige rodar de novo as figuras do paper e os anexos, que na branch seguem na base de `main`
+    (nota do passo 0, seção 9).
+  - ⚠ `main` segue com a ação da MSCI Inc. no painel de produção, nos anexos, em `paper/img/` e nos
+    números do `.tex`. A troca entra com a promoção.
+  - ⚠ `download.R` desta branch não lê mais `data/raw/investing/msci.csv` e escreve 112 séries. Rodá-lo
+    aqui tira a `msci` do `raw_data.csv` compartilhado, e o `clean.R` de `main` fica com 114 séries.
+    A `msci` da branch vem do estágio `msci` (`data/raw/msci_em.csv`).
+  - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer: positivo em h1 e h3–h7, máximo +0,038 p.p.
   - ⚠ `data/processed/` é o mesmo para todas as branches: ao voltar a `main`, rodar
     `Rscript script/run_all.R --only=clean` antes de estimar.
   - **Bloqueia os passos 2 a 5** e o item do Tema A sobre §3.3 e `fig:placebos`. Os passos 1 e 2
     rodaram em 10-05 sobre a base da branch, antes de ela ser congelada, a parte de influência do
-    passo 3 em 10-08 e o passo 4 em 10-09 (Fechados, abaixo).
-  - ⚠ A série `msci` do painel é a ação da MSCI Inc. (Tema D). Se o autor trocá-la pelo índice antes de
-    congelar, a base muda e os passos 0 a 4 rodam de novo.
+    passo 3 em 10-08 e o passo 4 em 10-09 (Fechados, abaixo). Todos rodaram de novo em 10-12, com a
+    `msci` sendo o índice.
 - [ ] **Passo 3/5, parte 2: exclusão por movimentos extremos de VIX, S&P 500 ou Brent.** Depende do
   passo 0. Excluir as reuniões com movimento contemporâneo extremo de VIX, S&P 500 ou Brent, por regra
   **definida antes de rodar**. Isso testa contaminação internacional na janela do evento, distinta dos
@@ -629,10 +655,12 @@ DBGG e a agregação temporal completa.*
     h6 (p 0,088).
   - Só o VIX entra na ortogonalização, como tendência de 65 pregões até a quarta, com coeficiente
     −0,025 (p 0,92). ⚠ Em h0 o mês do VIX se sobrepõe à janela, e o teste não é de todo independente.
-  - ⚠ A série `msci` é a ação da MSCI Inc., não o índice de emergentes (item aberto no Tema D). Sem ela,
-    Holm nos 12 testes também não rejeita.
+  - **Rerodado em 10-12** com a `msci` sendo o índice de emergentes (até então era a ação da MSCI Inc.).
+    Holm nos 18 testes segue sem rejeitar a 10% (menor p ajustado 0,575). Sem ajuste, rejeitam a 10% o
+    índice em h0, h1 e h3 e o VIX em h6. ⚠ O índice cai 27,5 pontos no impacto e 27,3 em h1, e h1
+    rejeita a 5% (p 0,032). A família de 12 saiu do script.
 
-  Nota: `2026-10-09_placebos_holm`.
+  Notas: `2026-10-09_placebos_holm` (desenho), `2026-10-12_msci_emergentes` (números correntes).
 - [x] **Passo 3/5, influência das reuniões — 2026-10-08.** Desenho do e-mail de 08-10, na branch
   `feature/focus-horizonte-fixo` sobre a base do passo 0: fatores, VAR e inovações fixos, a reunião sai
   só do momento Γ, e T = 162 e o calendário ficam intactos. Ordem por max_k |ΔΓ_k|/EP_k nas 99 reuniões
@@ -643,8 +671,11 @@ DBGG e a agregação temporal completa.*
     Câmbio e CDS perdem os 95% sem as 5 e os 90% sem as 10, com ponto do mesmo sinal.
   - ⚠ A significância depende de poucas reuniões, em parte por construção da ordem.
   - ⚠ Três reuniões de 2012 caem antes da primeira inovação e não entram em Γ.
+  - **Rerodado em 10-12** sobre a base com o índice de emergentes. As 5 e as 10 mais influentes são as
+    mesmas. Sem as 5, ξ_mp vai a 3,54; sem as 10, a 1,82. ⚠ O câmbio sem as 5 é significante a 90% até
+    h4, antes h5.
 
-  Nota: `2026-10-08_influencia_reunioes`.
+  Notas: `2026-10-08_influencia_reunioes` (desenho), `2026-10-12_msci_emergentes` (números correntes).
 - [x] **Passo 2/5: evento diário — 2026-10-05.** Rodado na branch `feature/focus-horizonte-fixo` sobre
   a base do passo 0, com a PTAX como câmbio diário (estágio `ptax`) e as 102 reuniões como amostra
   comum. Se a base mudar, rerodar `script/daily_event.R`; só o lado do DFM depende dela.
@@ -656,8 +687,10 @@ DBGG e a agregação temporal completa.*
     juntos, sem decomposição.
   - ⚠ No CDS o ponto troca de sinal já na ortogonalização (+0,9 → −0,5 p.b.), e nenhum dos dois é
     significante a 90%.
+  - **Rerodado em 10-12.** As regressões diárias saíram byte-idênticas. No DFM, o câmbio vai a +0,096
+    com a bruta e a +0,145 na produção.
 
-  Nota: `2026-10-05_evento_diario`.
+  Notas: `2026-10-05_evento_diario` (desenho), `2026-10-12_msci_emergentes` (números correntes).
 - [x] **Passo 1/5: precisão — 2026-10-05.** Rodado na branch `feature/focus-horizonte-fixo` sobre a
   base do passo 0, ainda não congelada. Se a base mudar, rerodar `script/ar_precision.R`.
   - Câmbio e CDS são significantes a 95% no impacto (p 0,013 e 0,015), até h3 e h4.
@@ -666,8 +699,11 @@ DBGG e a agregação temporal completa.*
   - NW 1–3 não muda o impacto. NW 4–12 estreita os conjuntos, e ξ_mp chega a 10,01.
   - ⚠ O ponto pré-COVID de `p = 4` sai do conjunto de `p = 2` em h10–h22.
   - ⚠ Com a base nova, o impacto pré-COVID do câmbio em `p = 4` vai de 0,056 a 0,121.
+  - **Rerodado em 10-12** sobre a base com o índice de emergentes. No impacto, câmbio e CDS seguem
+    significantes a 95% (p 0,015 e 0,017). O pré-COVID `p = 2` tem ξ_mp 5,87. ⚠ O CDS deixa de ser
+    significante a 95% em h2 (p 0,051), e ξ_mp com NW(12) fica em 9,79, abaixo de 10.
 
-  Nota: `2026-10-05_precisao_ar`.
+  Notas: `2026-10-05_precisao_ar` (desenho), `2026-10-12_msci_emergentes` (números correntes).
 - [x] **Robustez à pandemia: respostas pré-COVID no Anexo C — 2026-09-30.** Sugestão do
   orientador de 28-09. `fig:precovid_sensibilidade`, em ponto (`hac_dim` 135 ≥ 90 barra a banda),
   com uma frase na §3.4 e nenhum número no corpo. Curva e risco ficam dentro do conjunto de 90%
@@ -939,23 +975,17 @@ de novo, para ver se a Focus PIB pré-COVID entra no conjunto sem tirar os janei
   - Falta: refazer a linha diária com a PTAX (`data/raw/ptax_daily.csv`, estágio `ptax`) ou com o Yahoo
     realinhado, comparar a razão e o `Qr`, e decidir.
   - Bloqueia o item do Tema A sobre o Anexo B.
-- [ ] **A série `msci` do painel é a ação da MSCI Inc., não o índice MSCI de emergentes.** Achado no
-  passo 4/5 do Tema B (nota `2026-10-09_placebos_holm`, seção 4).
-  - `data/raw/investing/msci.csv`, que `script/download.R` lê como `msci`, traz a cotação mensal da ação
-    da MSCI Inc. (NYSE: MSCI). Os fechamentos de julho a novembro de 2023 (548,08, 543,62, 513,08,
-    471,55 e 520,85) são os da ação, a série vai de 29,56 em jan/2010 a 599 em jan/2024, e o arquivo
-    traz volume negociado.
-  - O paper a chama de "MSCI de mercados emergentes" na §3.2, no Anexo A (`tab:lista_variaveis`), na
-    §3.3 e em `fig:placebos` (rótulo em `script/fig_section5.R`). Ela é um dos três placebos.
-  - É uma das 115 séries do painel de produção, em `main` e na branch `feature/focus-horizonte-fixo`, e
-    entra nos fatores e em θ̂.
-  - Falta: o autor decidir entre baixar o índice de emergentes (o arquivo é da investing.com, sem estágio
-    de rede reproduzível) e trocar a série, ou só renomeá-la no paper. A troca muda a base do passo 0
-    (Tema B), e os passos 0 a 4 rodam de novo.
-  - Bloqueia o item do Tema A sobre §3.3 e `fig:placebos`.
 
 
 ### Fechados (contexto)
+
+- [x] **A série `msci` era a ação da MSCI Inc.; vira o índice MSCI de emergentes — 2026-10-12, na
+  branch `feature/focus-horizonte-fixo`.** Achado no passo 4/5 (nota `2026-10-09_placebos_holm`,
+  seção 4). O índice (MSCI 891800, preço em USD, fim de mês) vem da própria MSCI pelo estágio `msci`
+  e entra em `clean.R` na coluna e na posição da `msci`. As outras 114 séries ficaram bit-idênticas,
+  e os passos 0 a 4 rodaram de novo. Câmbio e CDS não mudam (0,145 e 33,5 p.b. no impacto). ⚠ Sem
+  ajuste, o placebo do índice cai no impacto e em h1. ⚠ `main` segue com a ação até a promoção.
+  Nota: `2026-10-12_msci_emergentes`.
 
 - [x] **Placebo EPU dos EUA e o EPU como controle da ortogonalização — 2026-09-30, na branch
   `feature/placebo-epu`.** O controle pedido pelo orientador não absorve: a tendência de 13

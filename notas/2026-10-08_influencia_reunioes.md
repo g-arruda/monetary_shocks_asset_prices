@@ -1,5 +1,12 @@
 # Influência das reuniões do Copom sobre a identificação
 
+> **NÚMEROS SUPERADOS em 2026-10-12** por
+> [`2026-10-12_msci_emergentes`](2026-10-12_msci_emergentes.md), seção 5. A série `msci` do painel
+> passou da ação da MSCI Inc. ao índice MSCI de emergentes, e o passo rodou de novo sobre a base
+> reestimada. As cinco e as dez reuniões mais influentes são as mesmas, e o desenho e a leitura desta
+> nota seguem valendo. Sem as 5, ξ_mp vai a 3,54. Sem as 10, vai a 1,82, e o câmbio sem as 5 perde a
+> significância a 90% em h5.
+
 > **CURRENT — 2026-10-08.** Passo 3/5 do plano do orientador de 03-10
 > (`email/email_professor_03-10_11h31.md`), no desenho do item 3 do e-mail de 08-10
 > (`email/email_professor_08-10_15h15.md`). Branch `feature/focus-horizonte-fixo`, **não mergeada**,

@@ -1,5 +1,12 @@
 # Focus a horizonte fixo: câmbio e CDS no caso base reestimado
 
+> **NÚMEROS DA BASE SUPERADOS em 2026-10-12** por
+> [`2026-10-12_msci_emergentes`](2026-10-12_msci_emergentes.md). A série `msci` do painel era a ação
+> da MSCI Inc. e passou a ser o índice MSCI de emergentes, e a base foi reestimada. A construção das
+> Focus e as decisões desta nota seguem valendo. A comparação com `main` também continua como
+> registro do efeito das Focus, porque as duas bases tinham a ação. θ̂, ξ_mp, as raízes e as respostas
+> correntes estão na nota nova.
+
 > **CURRENT — 2026-10-03.** Passo 0/5 do plano do orientador de 03-10
 > (`email/email_professor_03-10_11h31.md`). Branch `feature/focus-horizonte-fixo`, **não mergeada**.
 > - A branch muda o painel de produção: as seis séries Focus anuais passam de "ano seguinte" à

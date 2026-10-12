@@ -1,5 +1,13 @@
 # Placebos com avaliação conjunta por Holm
 
+> **NÚMEROS SUPERADOS em 2026-10-12** por
+> [`2026-10-12_msci_emergentes`](2026-10-12_msci_emergentes.md), seção 6. A seção 4 desta nota achou
+> que a `msci` era a ação da MSCI Inc., e a série passou a ser o índice MSCI de emergentes. Os passos 0
+> a 4 rodaram de novo, e a família de 12 saiu do script. O desenho, a seção 3 (ortogonalização) e a
+> seção 5 (o p = 0,54) seguem valendo. ⚠ Com o índice, Holm nos 18 testes segue sem rejeitar a 10%
+> (menor p ajustado 0,575). Sem ajuste, porém, o índice de emergentes cai no impacto e em h1, e o teste
+> em h1 rejeita a 5% (p 0,032).
+
 > **CURRENT — 2026-10-09.** Passo 4/5 do plano do orientador de 03-10
 > (`email/email_professor_03-10_11h31.md`), no desenho do item 4 do e-mail de 08-10
 > (`email/email_professor_08-10_15h15.md`). Branch `feature/focus-horizonte-fixo`, **não mergeada**,

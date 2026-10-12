@@ -1,5 +1,11 @@
 # Evento diário: câmbio e CDS na surpresa bruta e na ortogonalizada
 
+> **NÚMEROS DO DFM SUPERADOS em 2026-10-12** por
+> [`2026-10-12_msci_emergentes`](2026-10-12_msci_emergentes.md), seção 4. A série `msci` do painel
+> passou da ação da MSCI Inc. ao índice MSCI de emergentes. As regressões diárias não usam o painel e
+> saíram byte-idênticas. Só as linhas do DFM mensal mudam: câmbio 0,146 → 0,145 e CDS 33,9 → 33,5 com
+> a surpresa ortogonalizada. A leitura desta nota segue valendo.
+
 > **CURRENT — 2026-10-05.** Passo 2/5 do plano do orientador de 03-10
 > (`email/email_professor_03-10_11h31.md`). Branch `feature/focus-horizonte-fixo`, **não mergeada**,
 > sobre a base do passo 0 (nota `2026-10-03_focus_horizonte_fixo`).
