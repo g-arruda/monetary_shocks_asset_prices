@@ -1,5 +1,19 @@
 # Pendências
 
+**Atualização de 2026-10-13:** revisão dos itens abertos contra o `.tex`, os scripts e os e-mails.
+Fecharam, por já estarem feitos, a conferência da figura de placebos (Tema A) e a resposta ao plano do
+orientador (Tema B). O passo 0/5 perdeu o "falta o orientador ver câmbio e CDS", feito em 12-10. Saíram
+o cabeçalho de 28-09, que cobria itens já fechados e ficara sobre dois abertos, o preâmbulo do Tema D
+sobre os testes das Focus, removidos ou rodados como passo 0, e a frase "nenhum passo foi executado" do
+Tema B. O item das ressalvas da linha diária entrou no índice e foi reapontado da §5.1, apagada em
+24-09, para a §3.3 e o Anexo B. No mesmo dia entrou o e-mail do orientador de 12-10
+(`email/email_professor_12-10_19h40.md`), resposta a `email_meu_12-10_17h22.md`: ele libera atualizar
+o artigo com a base reconstruída e pede a última rodada de verificações antes da decisão de submissão,
+com prazo em 19/20 de outubro. No Tema B entraram a ponte do evento diário ao resultado mensal (três
+itens) e a amostra completa com `p = 2`; no Tema A, a atualização do artigo, a tabela antigo × novo,
+influência e exclusão por extremos no texto e a frase da conclusão sobre câmbio. Os dois itens de
+placebos do Tema A ganharam a redação que ele pede. O índice passou a seguir a ordem de execução da
+entrega, com a coluna `Ordem`, em vez de agrupar por tema.
 **Atualização de 2026-10-12:** na branch `feature/focus-horizonte-fixo`, a série `msci` do painel
 passou da ação da MSCI Inc. ao índice MSCI de emergentes, e os passos 0 a 4 rodaram de novo sobre a
 base reestimada (nota `2026-10-12_msci_emergentes`). Fecha o item do Tema D. Câmbio e CDS não mudam.
@@ -118,19 +132,28 @@ AR/MOSW próprios.
 
 ## Índice de itens abertos
 
-| Tema | Item | Observação |
-|---|---|---|
-| A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
-| A | Conferir a figura de placebos no `.tex` | aberto em 2026-10-01, e-mail de 30-09; a figura está no Anexo D de `main` desde `1a150d0`; compilar e avisar o orientador da versão vigente |
-| A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu`; a hipótese está explicitada desde 10-09 (nota `2026-10-09_placebos_holm`, seção 5) |
-| A | §3.3 e `fig:placebos` na base do passo 0: Holm, conjuntos pontuais e o índice de emergentes | aberto em 2026-10-09, no passo 4/5; depende da promoção do passo 0; desde 10-12 a `msci` da branch é o índice, que cai no impacto e em h1 sem ajuste |
-| A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
-| A | Anexo B e §3.3: linha diária com o câmbio realinhado | aberto em 2026-10-05; depende do item do Tema D sobre o câmbio do Yahoo; só muda o paper se a razão de variância do câmbio ou o `Qr` diário mudarem |
-| B | Responder ao orientador sobre o plano de 03-10: opinião, prazo e discordâncias | aberto em 2026-10-03; ele pede antes de começar; ⚠ pré-COVID bloqueado por `hac_dim`, filtro JK de volta ao apêndice contra a decisão de 2026-09-26, o que é "excluir" uma reunião, avaliação conjunta dos placebos; o escopo do passo 0 já foi decidido |
-| B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`, falta o orientador ver câmbio e CDS e o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia os passos 2 a 5** e o item do Tema A sobre §3.3 e `fig:placebos`; os passos 1 e 2 rodaram sobre esta base em 10-05, a influência do passo 3 em 10-08 e o passo 4 em 10-09; em 10-12 a `msci` virou o índice de emergentes, a base foi reestimada e os passos 0 a 4 rodaram de novo, e a parte 2 do passo 3 rodou; ⚠ `main` segue com a ação da MSCI Inc. |
-| B | Passo 3/5, parte 2, condicional: a mesma regra na variação de terça a quarta | aberto em 2026-10-12, quando a exclusão por movimentos extremos fechou; pela letra da regra a condição se cumpre no câmbio (impacto 0,145 → 0,107, sem os 95%), não no CDS; rodar ou não é decisão do autor; depende do passo 0 |
-| B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26) |
-| D | Câmbio diário do Yahoo deslocado um pregão no inverno europeu | aberto em 2026-10-05, achado no passo 2/5; atinge `het_conditions.R`, a razão de variância do câmbio em `tab:het_frequency` e o `Qr` diário; bloqueia o item do Tema A sobre o Anexo B |
+Ordem de execução fixada em 2026-10-13 para a entrega de 19/20 de outubro (e-mail de 12-10). **0**: decisões do autor antes de rodar; a sugestão é deixar os dois itens fora desta entrega, porque o e-mail não os pede e chama a rodada de última. Dentro dos itens 1–3 há mais duas decisões: θ̂ em `p = 2` e os meses sem reunião na ponte (b). **1–3**: a ponte, em sequência. **∥ 1–3**: rodam em segundo plano junto com a ponte; a promoção do passo 0 desbloqueia 4–7. **4–8**: o artigo, do que não depende da ponte ao que depende; itens com o mesmo número se escrevem juntos. **depois**: fora da entrega de 19/20.
+
+| Ordem | Tema | Item | Observação |
+|---|---|---|---|
+| 0 · decisão | B | Passo 3/5, parte 2, condicional: a mesma regra na variação de terça a quarta | aberto em 2026-10-12, quando a exclusão por movimentos extremos fechou; pela letra da regra a condição se cumpre no câmbio (impacto 0,145 → 0,107, sem os 95%), não no CDS; rodar ou não é decisão do autor; depende do passo 0; ⚠ o e-mail de 12-10 não o pede e chama a rodada de última |
+| 0 · decisão | B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26); ⚠ o e-mail de 12-10 não o menciona nem o põe na entrega de 19/20 |
+| 1 | B | Ponte, conferência: horários do dia do Copom e janelas de câmbio, CDS e DI | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; vem antes das pontes (a) e (b); toca o item do Tema D sobre o câmbio do Yahoo |
+| 2 | B | Ponte (a): trajetória acumulada de câmbio e CDS em 1, 5, 10 e 20 pregões após o anúncio | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; mesmas reuniões e surpresa ortogonalizada do passo 2; horizontes fixados antes de rodar |
+| 3 | B | Ponte (b): regressão mensal de câmbio e CDS na surpresa agregada, sem fatores | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; documentar fim de mês contra média e como entram os meses sem reunião |
+| ∥ 1–3 | B | Amostra completa com `p = 2`, resto do desenho fixo | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; separa mudança de amostra de mudança de defasagem na comparação pré-COVID |
+| ∥ 1–3 | B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`; o orientador viu câmbio e CDS e liberou, em 12-10, atualizar o artigo com a base reconstruída, e falta o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia** o passo 5/5, a parte 2 condicional do passo 3, o item do Tema A sobre §3.3 e `fig:placebos` e os três itens do Tema A de 10-13 que dependem da base; os passos 1 a 4 rodaram sobre esta base em 10-05 a 10-09 e de novo em 10-12, quando a `msci` virou o índice de emergentes, a base foi reestimada e a parte 2 do passo 3 rodou; ⚠ `main` segue com a ação da MSCI Inc. |
+| 4 | A | Escrever o p = 0,54 do teste do EPU como controle | aberto em 2026-10-01, e-mail de 30-09; ⚠ o teste só existe na branch `feature/placebo-epu`; a hipótese está explicitada desde 10-09 (nota `2026-10-09_placebos_holm`, seção 5); o e-mail de 12-10 pede de novo que seja explicado corretamente |
+| 4 | A | §3.3 e `fig:placebos` na base do passo 0: Holm, conjuntos pontuais e o índice de emergentes | aberto em 2026-10-09, no passo 4/5; depende da promoção do passo 0; desde 10-12 a `msci` da branch é o índice, que cai no impacto e em h1 sem ajuste; o e-mail de 12-10 fixa a redação: Holm não é Wald conjunto, p sem ajuste ao lado do ajustado, MSCI em h0/h1/h3 visível e como limitação |
+| 5 | A | Influência das reuniões, exclusão por extremos e surpresa bruta no texto | aberto em 2026-10-13, e-mail de 12-10; sem as 10, conjunto = reta toda é inconclusivo, não zero nem robustez; explicitar a regra das 11 reuniões e que foi fixada antes (`2cad8bd`); depende do passo 0 |
+| 6 | A | Atualizar o artigo com a base reconstruída, os novos conjuntos e os exercícios de sensibilidade | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; depende da promoção do passo 0 (Tema B); a reconstrução preserva câmbio e CDS no impacto e enfraquece a reversão longa; reportar os horizontes definidos, inclusive os não significantes |
+| 6 | A | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | aberto em 2026-10-01, e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
+| 7 | A | Tabela com resultados antigos e novos lado a lado e lista de mudanças entre as versões | aberto em 2026-10-13, e-mail de 12-10; "para facilitar a revisão"; depende do item acima |
+| 8 | A | Conclusão: resposta conjunta do DFM mensal e apreciação no evento diário, sem atribuir a divergência | aberto em 2026-10-13, e-mail de 12-10; até a ponte do Tema B fechar; toca o item da leitura da §4 no resumo, introdução e conclusão |
+| 8 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
+| 8 | A | Decidir se o resumo carrega as duas ressalvas da linha diária | aberto em 2026-09-22, reapontado em 2026-10-13; vértice (§3.3) e curtose (nota de `tab:het_frequency`, Anexo B) estão no corpo, e o resumo diz que a condição vale no diário sem qualificá-las; ⚠ a mesma frase atribui a divergência a frequência e estratégia de identificação |
+| depois | D | Câmbio diário do Yahoo deslocado um pregão no inverno europeu | aberto em 2026-10-05, achado no passo 2/5; atinge `het_conditions.R`, a razão de variância do câmbio em `tab:het_frequency` e o `Qr` diário; bloqueia o item do Tema A sobre o Anexo B; toca a conferência da ponte (Tema B), que usa a PTAX |
+| depois | A | Anexo B e §3.3: linha diária com o câmbio realinhado | aberto em 2026-10-05; depende do item do Tema D sobre o câmbio do Yahoo; só muda o paper se a razão de variância do câmbio ou o `Qr` diário mudarem |
 
 ---
 
@@ -179,14 +202,9 @@ dos placebos empurram câmbio + risco soberano na direção do paper.*
 
 *Quatro itens transcritos em 2026-10-01 do e-mail do orientador de 30-09
 (`email/email_professor_30-09_23h55.md`), resposta a `email_meu_30-09_22h25.md`; são os ajustes
-antes de escrever a introdução e traduzir para a submissão. Nenhum foi executado.*
+antes de escrever a introdução e traduzir para a submissão. A conferência da figura de placebos foi
+feita em 2026-10-13 (Fechados); os demais seguem abertos.*
 
-- [ ] **Conferir a figura de placebos no `.tex`.** O orientador diz que \autoref{fig:placebos}, na
-  §3.3, não tem `\includegraphics` nem `\label` e sairia "??". No `paper/paper.tex` de `main` a
-  figura **está** no Anexo D (`\includegraphics{img/fig_placebos.pdf}`, `\label{fig:placebos}`,
-  logo depois de `tab:bs_ortogonalizacao`; commit `1a150d0`). Provável causa: ele leu uma versão
-  anterior ao commit. Compilar e confirmar que não há "??"; se não houver, avisá-lo de qual versão
-  é a vigente.
 - [ ] **Escrever o p = 0,54 do teste do EPU como controle.** O parágrafo de placebos da §3.3 diz, em
   palavras, que a resposta permanece com o EPU diário na ortogonalização, mas o p = 0,54 (a
   tendência de 13 semanas do EPU diário não prevê a surpresa do Copom) não está no texto nem nas
@@ -198,7 +216,8 @@ antes de escrever a introdução e traduzir para a submissão. Nenhum foi execut
   validação da exogeneidade. O passo 4/5 do Tema B fechou em 10-09, e a hipótese está escrita na nota
   `2026-10-09_placebos_holm`, seção 5: H0 β_EPU = 0 na regressão do DI de quarta a quinta, nas 102
   reuniões, em constante, nos nove preditores da produção e em `pre_epu`, t HC1 −0,61. Falta pôr no
-  texto, junto com o item abaixo.
+  texto, junto com o item abaixo. O e-mail de 12-10 (item 4) pede de novo que o p = 0,54 seja
+  explicado corretamente.
 - [ ] **§3.3 e `fig:placebos` na base do passo 0.** Aberto em 10-09, no passo 4/5 do Tema B (nota
   `2026-10-09_placebos_holm`). O e-mail de 08-10 pede três coisas: manter a figura como descrição das
   respostas, com os conjuntos identificados como pontuais na legenda; não usar a contagem de pontos
@@ -217,12 +236,55 @@ antes de escrever a introdução e traduzir para a submissão. Nenhum foi execut
   - O paper já chama a série de "MSCI de mercados emergentes" (§3.2, §3.3, Anexo A, `fig:placebos`),
     o que passa a estar certo com a promoção. A fonte em `tab:lista_variaveis` muda de
     "Investing.com" para a MSCI.
+  - O e-mail de 12-10 (item 4) aprova Holm e fixa a redação:
+    - descrever Holm como controle das comparações pontuais dessa família, **não** como teste conjunto
+      de Wald, e explicar por que o procedimento difere do teste conjunto por série discutido de início,
+      sem implementar outro teste;
+    - p-valores sem ajuste ao lado dos ajustados, com o índice de emergentes em h0, h1 e h3 visível;
+    - manter a leitura: não rejeitamos resposta zero após o ajuste, o que não comprova exogeneidade e
+      pode refletir pouca precisão;
+    - a ressalva do VIX em h0 (o mês se sobrepõe à janela da ortogonalização);
+    - a queda pontual do índice como limitação: o exercício não separa a participação do Brasil no
+      índice, repercussões do choque brasileiro e exposição do instrumento a notícias comuns aos
+      emergentes. Nenhum placebo novo agora.
   - Depende da promoção do passo 0 (Tema B). Escrever junto com o p = 0,54 do item acima.
 - [ ] **Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade`.** Descrita como sensibilidade das
   respostas a `q` com e sem a reescala, pode ser lida como a mesma figura de `fig:q_sensibilidade`.
   Deixar claro que é um exercício cruzado (`q` = 2 a 5 × com e sem a reescala, oito séries), não
   uma repetição. A frase está na nota de rodapé citada pelo orientador e/ou na legenda de
   `fig:lp_sensibilidade`; achar a que ele leu antes de editar.
+
+*Quatro itens transcritos em 2026-10-13 do e-mail do orientador de 12-10
+(`email/email_professor_12-10_19h40.md`, itens 1 e 5), resposta a `email_meu_12-10_17h22.md`. Ele
+libera atualizar o artigo com a base reconstruída, em paralelo às verificações do Tema B. A versão
+atualizada faz parte da entrega de 19/20 de outubro, com a ponte e a comparação com `p = 2`. Os dois
+itens de placebos acima ganharam a redação do item 4 do mesmo e-mail.*
+
+- [ ] **Atualizar o artigo com a base reconstruída, os novos conjuntos e os exercícios de
+  sensibilidade.** Depende da promoção do passo 0 (Tema B), que reestima figuras, anexos e números do
+  `.tex`. A interpretação muda: a reconstrução das Focus preserva as respostas iniciais de câmbio e CDS
+  e enfraquece a reversão de longo prazo, que deixa de ser significante a 90% e segue a 80%. Reportar os
+  resultados dos horizontes definidos, inclusive os que não são significantes. ⚠ "O IPCA nunca fica
+  positivo" (§4) deixa de valer na base nova (passo 0 do Tema B).
+- [ ] **Tabela com os resultados antigos e novos lado a lado e lista das mudanças entre as versões.**
+  O e-mail a pede "para facilitar a revisão"; não diz se vai no artigo ou na entrega a ele. A
+  comparação célula a célula já existe (`compare_model()` e `compare_cells()` em
+  `R/reporting/sensitivity.R`; nota `2026-10-12_msci_emergentes`). Depende do item acima.
+- [ ] **Influência das reuniões, exclusão por extremos e surpresa bruta no texto.** Depende do passo 0.
+  O que o e-mail pede que apareça:
+  - influência: nenhuma inversão de sinal nos primeiros horizontes, mas a precisão cai sem as reuniões
+    mais influentes. Sem as dez, os conjuntos são a reta toda e a inferência fica **inconclusiva**; não
+    ler como resposta zero nem como confirmação de robustez (nota `2026-10-08_influencia_reunioes`);
+  - a regra que definiu as 11 reuniões com movimento extremo de VIX, S&P 500 ou Brent, e que ela foi
+    fixada e commitada antes de rodar (`2cad8bd`);
+  - exclusão por extremos: o CDS fica relativamente estável e o câmbio perde magnitude e precisão,
+    sobretudo nas exclusões ligadas ao Brent (nota `2026-10-12_exclusao_extremos`);
+  - no DFM com a surpresa bruta, câmbio e CDS não são significantes a 90% (nota
+    `2026-10-05_evento_diario`).
+- [ ] **Conclusão: a resposta conjunta do DFM mensal e a apreciação no evento diário, lado a lado.** Por
+  ora a conclusão registra as duas e não atribui a divergência a explicação alguma. A redação final
+  depende da ponte do Tema B (o que ela permitir afirmar sobre onde a inversão aparece). Toca o item da
+  leitura da §4 no resumo, na introdução e na conclusão (abaixo).
 
 *Item aberto em 2026-10-05, no passo 2/5 do Tema B.*
 
@@ -231,10 +293,6 @@ antes de escrever a introdução e traduzir para a submissão. Nenhum foi execut
   `tab:het_frequency` (razão de variância do câmbio e `Qr` de DI, câmbio e CDS) foi calculada com
   essa série. Se a razão ou o `Qr` mudarem com o câmbio realinhado, atualizar a tabela. Conferir
   também a frase da §3.3 de que a condição vale no diário com o DI de 3 meses.
-
-*Três itens transcritos em 2026-09-29 do e-mail do orientador de 28-09
-(`email/email_professor_28-09_21h15.md`), resposta a `email_meu_28-09_9h38.md`.
-Os três fecharam em 2026-09-30.*
 
 - [ ] **Decidir se o resumo, a introdução e a conclusão absorvem a leitura da
   §4 migrada.** A rodada de 2026-09-24 reescreveu a §4 e, fora dela, só trocou
@@ -281,12 +339,18 @@ Os três fecharam em 2026-09-30.*
   Desde 2026-09-22 os dois sistemas usam **as séries de GRG** — DI, câmbio e CDS de 5
   anos. ⚠ Antes disso o projeto chamava de "linha diária publicada" um conjunto com
   DI de 2 anos e Ibovespa, que **não são de GRG**; o erro foi corrigido e a
-  `tab:het_frequency` refeita. Duas ressalvas ficaram na §5.1 e **não** no resumo: o
+  `tab:het_frequency` refeita. Duas ressalvas existem e **não** estão no resumo: o
   **vértice** decide no diário (p 0,0033 / 0,0844 / 0,1474 em 3, 6 e 12 meses,
   acompanhando a queda da razão de variância do DI com a maturidade nos próprios GRG),
   e a **correção de curtose** do teste também (÷4,9; sem ela as três células diárias
-  rejeitariam). O resumo fala da identificação diária sem qualificar nenhuma das duas.
-  Decisão editorial.
+  rejeitariam). Desde a exclusão da §5.1 (2026-09-24) e a reescrita da §3.3 (2026-09-26),
+  o vértice viaja no corpo, na cláusula "embora o resultado dependa do vértice", e a
+  curtose, nas colunas corrigida e não corrigida de `tab:het_frequency`, no Anexo B.
+  O resumo (`paper.tex:111`) diz que a condição "holds daily but fails in our monthly
+  panel" sem qualificar nenhuma das duas. Decisão editorial.
+  ⚠ A mesma frase do resumo atribui a divergência a "frequency and identification
+  strategy". A decisão de 2026-09-22 proíbe afirmação que decomponha frequência e objeto
+  medido, e o resumo de `CLAUDE.md` a situa na condição de identificação.
   ⚠ Fica registrada uma **lacuna de dados**: a quarta série de GRG é o *breakeven* de
   inflação entre títulos indexados e nominais, que este painel não tem. A medida
   disponível é a do Focus, que é survey — eles dizem "market-based (not survey data)" —
@@ -295,6 +359,11 @@ Os três fecharam em 2026-09-30.*
   Nota: `2026-09-22_condicao_het_svars`.
 ### Fechados (contexto)
 
+- [x] **Figura de placebos no `.tex` conferida — 2026-10-13.** O orientador (e-mail de 30-09) dizia
+  que `\autoref{fig:placebos}` não tinha figura nem rótulo. No `paper.tex`, `\includegraphics` e
+  `\label{fig:placebos}` estão no Anexo D desde `1a150d0`, o PDF existe em `paper/img/`, o `paper.aux`
+  resolve o rótulo (figura 15, p. 31) e o `paper.log` não tem referência indefinida. A versão que ele
+  leu era anterior ao commit. ⚠ Conferência estática, sobre o log de 30-09; não recompilado.
 - [x] **Rodapé sobre a saída do filtro Jarociński-Karadi — 2026-09-30.** Na §3.4: o filtro reduz
   ξ_mp de 7,02 para 5,01 (pré-COVID, 6,84 para 4,73) e F_rob de 8,62 para 7,59 (8,31 para 7,78),
   nenhum ponto sai do conjunto de 90% de produção (0/4255), e os pares significativos a 90% caem de
@@ -553,7 +622,7 @@ do autor, sem ser executado.*
 2026-10-03. É uma única rodada de verificações para decidir a submissão. Ele não pretende demonstrar
 a exogeneidade do instrumento nem que o risco causa a depreciação: quer avaliar se a interpretação
 monetária da resposta conjunta continua convincente diante de contaminação, imprecisão e pandemia.
-**A ordem importa, porque o passo 0 pode mudar os fatores.** Nenhum passo foi executado.*
+**A ordem importa, porque o passo 0 pode mudar os fatores.** Os passos 0 a 4 rodaram (Fechados, abaixo).*
 
 *Critério de decisão, combinado antes de rodar:*
 - *Avaliam-se juntos a magnitude, a precisão, a relevância do instrumento e a estabilidade da resposta
@@ -572,20 +641,6 @@ monetária da resposta conjunta continua convincente diante de contaminação, i
 *O e-mail deixa para depois, fora desta rodada: o instrumento alternativo (extensão), os números da
 DBGG e a agregação temporal completa.*
 
-- [ ] **Responder ao orientador sobre o plano: opinião, prazo e discordâncias.** Ele pede que o autor
-  leia os itens, diga o que acha, estime quanto tempo leva tudo e aponte os pontos de dúvida ou
-  discordância, para alinhar antes de começar. A estimativa de prazo é do autor. Pontos que o registro
-  já levanta e que valem uma pergunta a ele:
-  - pré-COVID: o passo 1 pede intervalos, e `hac_dim` 135 ≥ T = 90 os bloqueia em `p = 4`. O autor
-    escolheu em 10-05 a célula `p = 2`, que vai na resposta como fato, com a ressalva de que ela se
-    afasta de `p = 4` depois de h9 (nota `2026-10-05_precisao_ar`);
-  - filtro JK: o passo 5 o põe num apêndice, e a decisão de 2026-09-26 o tirou do paper;
-  - o que "excluir uma reunião" quer dizer no passo 3: respondido pelo e-mail de 08-10 (tirar a
-    contribuição da reunião só do momento entre instrumento e inovações, com fatores e VAR fixos);
-  - como se faz a avaliação conjunta dos placebos no passo 4: respondido pelo mesmo e-mail (Holm).
-
-  O escopo do passo 0 foi decidido pelo autor em 03-10 (as seis séries "ano seguinte") e vai na
-  resposta como fato, junto com os números da nota `2026-10-03_focus_horizonte_fixo`.
 - [ ] **Passo 0/5: congelar a base.** Reconstruir as séries, comparar com as originais e reestimar o
   caso base completo, com fatores, identificação e IRFs. Primeiro reportar quanto mudam câmbio e CDS,
   e só depois congelar essa versão para os demais exercícios.
@@ -607,10 +662,11 @@ DBGG e a agregação temporal completa.*
     - pares significantes a 90% de 1051 para 1132.
     
     Os números correntes da base são esses, e a seção 1 da nota do passo 0 dá o efeito das Focus.
-  - Falta: o orientador ver câmbio e CDS (nota do passo 0, seção 1, e nota de 10-12, seção 2), e o
-    autor congelar e promover. Promover muda o smoke test, `CLAUDE.md`, as notas e os números do paper,
-    e exige rodar de novo as figuras do paper e os anexos, que na branch seguem na base de `main`
-    (nota do passo 0, seção 9).
+  - O orientador viu câmbio e CDS (nota do passo 0, seção 1, e nota de 10-12, seção 2) e, em 12-10,
+    liberou atualizar o artigo com a base reconstruída (`email/email_professor_12-10_19h40.md`).
+  - Falta o autor congelar e promover. Promover muda o smoke test, `CLAUDE.md`, as notas e os números
+    do paper, e exige rodar de novo as figuras do paper e os anexos, que na branch seguem na base de
+    `main` (nota do passo 0, seção 9).
   - ⚠ `main` segue com a ação da MSCI Inc. no painel de produção, nos anexos, em `paper/img/` e nos
     números do `.tex`. A troca entra com a promoção.
   - ⚠ `download.R` desta branch não lê mais `data/raw/investing/msci.csv` e escreve 112 séries. Rodá-lo
@@ -619,10 +675,10 @@ DBGG e a agregação temporal completa.*
   - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer: positivo em h1 e h3–h7, máximo +0,038 p.p.
   - ⚠ `data/processed/` é o mesmo para todas as branches: ao voltar a `main`, rodar
     `Rscript script/run_all.R --only=clean` antes de estimar.
-  - **Bloqueia os passos 2 a 5** e o item do Tema A sobre §3.3 e `fig:placebos`. Os passos 1 e 2
-    rodaram em 10-05 sobre a base da branch, antes de ela ser congelada, a parte de influência do
-    passo 3 em 10-08 e o passo 4 em 10-09 (Fechados, abaixo). Todos rodaram de novo em 10-12, com a
-    `msci` sendo o índice, e a parte 2 do passo 3 rodou no mesmo dia, sobre essa base.
+  - **Bloqueia** o passo 5/5, a parte 2 condicional do passo 3, o item do Tema A sobre §3.3 e
+    `fig:placebos` e os itens do Tema A abertos em 10-13 (artigo atualizado, tabela antigo × novo,
+    influência e extremos no texto). Os passos 1 a 4 já rodaram sobre esta base, em 10-05 a 10-09, antes de ela ser
+    congelada, e de novo em 10-12, com a `msci` sendo o índice (Fechados, abaixo).
 - [ ] **Passo 3/5, parte 2, condicional: a mesma regra na variação de terça a quarta.** Depende do
   passo 0. A regra fixada em 10-12 (`2cad8bd`) manda rodá-la só se câmbio ou CDS caírem sem as
   reuniões marcadas. Pela letra, a condição se cumpre no câmbio: o impacto cai de 0,145 para 0,107 e
@@ -633,6 +689,9 @@ DBGG e a agregação temporal completa.*
     notícia na janela de um regime turbulento. É o "problema concreto" que o e-mail de 08-10 exige para
     acrescentar uma verificação.
   - ⚠ Não selecionar reuniões por câmbio, CDS, índice de emergentes, DXY ou EMBI.
+  - ⚠ O e-mail de 12-10 não pede esta verificação: pede só que o texto explicite a regra das 11
+    reuniões e que ela foi fixada antes, sugere "apenas duas verificações" (a ponte) e chama a rodada
+    de última.
 - [ ] **Passo 5/5: apêndice.** Depende do passo 0. Respostas de câmbio e CDS com a surpresa bruta, o
   instrumento ortogonalizado e o filtro de Jarociński-Karadi, com intervalos. O orientador diz que "já
   está estimado e é barato", e avisa que o filtro não separa um choque de risco de um monetário (os dois
@@ -647,10 +706,72 @@ DBGG e a agregação temporal completa.*
     (θ̂ e fatores novos; ξ_mp de `z_jk_bs_purif` 5,01 → 4,83 na completa), então reestimar.
   - Já no registro (nota `2026-09-30_nota_filtro_jk`): ξ_mp 5,01 / 4,73, F_rob 7,59 / 7,78, 0/4255
     pontos fora do conjunto de 90% de produção, conjuntos 1,32× mais largos.
+  - ⚠ O e-mail de 12-10 não menciona o passo 5 nem o põe na entrega de 19/20. Pede só que o texto
+    reporte que, com a surpresa bruta, câmbio e CDS não são significantes a 90% no DFM (Tema A).
+
+*Plano do e-mail do orientador de 12-10 (`email/email_professor_12-10_19h40.md`, itens 2, 3 e 5),
+transcrito em 2026-10-13. **É a última rodada de verificações antes da decisão de submissão.** Prazo
+da entrega: 19/20 de outubro, com a ponte do item 2, a comparação com `p = 2` e a versão atualizada do
+artigo (Tema A). O ponto principal a esclarecer é a passagem do evento diário, em que o real aprecia,
+ao DFM mensal, em que deprecia: pode ser uma trajetória com reversão posterior ou pode surgir da
+especificação mensal. A ponte deve dizer se a inversão já aparece na trajetória após o evento, se
+aparece ao passar à frequência mensal ou se surge só no DFM. Ele diz "sugiro apenas duas
+verificações".*
+
+*Critério de decisão, do mesmo e-mail:*
+- *Se a trajetória após o evento e a forma reduzida mensal sustentarem uma interpretação coerente,
+  fecha-se o posicionamento e segue-se para submissão.*
+- *Se a depreciação aparecer só no DFM, avalia-se se a contribuição basta com uma conclusão
+  explicitamente condicionada a esse método de identificação. Uma reescrita centrada no evento diário
+  não é assumida de saída.*
+- *Sem contribuição empiricamente defensável após as verificações, o projeto é encerrado. Falta de
+  significância, sozinha, não decide: contam também precisão, magnitudes e a contribuição sustentável.*
+
+- [ ] **Ponte, conferência: o que é exatamente o dia do Copom.** As cotações têm de estar antes e depois
+  da divulgação, pelo horário de funcionamento de cada mercado: se a decisão sai depois do fechamento
+  do câmbio, a primeira cotação posterior é a do pregão seguinte. Verificar que as janelas de câmbio,
+  CDS e DI seguem essa convenção e documentar os horários, a convenção cambial e a correspondência entre
+  as datas das reuniões e os meses do instrumento. Vem antes das pontes (a) e (b).
+  - Já no registro (nota `2026-10-05_evento_diario`, seção 1): surpresa DI de fechamento a fechamento,
+    câmbio PTAX de venda das 13h de quarta às 13h de quinta, CDS Bloomberg de fechamento a fechamento.
+  - ⚠ O horário do fechamento do CDS na Bloomberg não está no arquivo (mesma nota).
+  - ⚠ O câmbio diário do Yahoo está deslocado um pregão no inverno europeu (Tema D); a PTAX não.
+- [ ] **Ponte (a): trajetória acumulada após o evento.** Mesma amostra de reuniões e mesma surpresa
+  ortogonalizada do passo 2/5. Resposta acumulada de câmbio e CDS da cotação anterior ao anúncio até o
+  primeiro pregão posterior e até 5, 10 e 20 pregões depois, com intervalos. Os horizontes são os do
+  e-mail; fixá-los e commitá-los antes de rodar, como a regra do passo 3 (`2cad8bd`). Depende da
+  conferência acima.
+  - Reportar primeiro a forma reduzida por unidade da mesma surpresa. Se normalizar por uma variação do
+    DI, apresentar o primeiro estágio e manter explícita a referência. Não comparar magnitudes
+    normalizadas por objetos diferentes.
+  - ⚠ A PTAX de cada dia é das 13h; o 20º pregão posterior pode cair em outro mês, e reuniões a menos de
+    20 pregões umas das outras têm janelas sobrepostas.
+- [ ] **Ponte (b): forma reduzida mensal, sem os fatores.** Regressão mensal simples da variação do
+  câmbio e do CDS na surpresa agregada no mês, no mesmo período e com as mesmas séries do modelo
+  principal, na medida do possível. Mesma regra de reporte da ponte (a). Depende da conferência acima.
+  - Documentar se o câmbio e o CDS do DFM são de fim de mês ou médias. Pelo registro: o câmbio do painel
+    é a **média mensal** do Yahoo (`R/data_download/exchange.R:103`), o CDS é o fechamento do mês do
+    Investing e a `yield_6m` é de fim de mês (nota `2026-10-05_evento_diario`, seção "O que a passagem
+    muda"). A média mistura dias antes e depois da reunião e muda o alinhamento da resposta.
+  - Documentar como entram os meses sem reunião: no instrumento, a surpresa é zero
+    (`R/instrument/build_variants.R:23` e `:257`). A regressão tem de dizer se usa o zero ou exclui
+    esses meses.
+- [ ] **Amostra completa com `p = 2`, o resto do desenho fixo.** Os conjuntos pré-COVID só existem em
+  `p = 2`, porque em `p = 4` o teste tem mais momentos que observações (`hac_dim` 135 ≥ T = 90; nota
+  `2026-10-05_precisao_ar`). Rodar a janela completa em `p = 2` separa a mudança de amostra da mudança de
+  defasagem. Explicar a limitação de `p = 4` e não apresentar `p = 2` como a mesma especificação.
+  - ⚠ Decisão de desenho do autor: θ̂ da escala COVID reestimado em `p = 2`, como no Anexo C
+    (`p_sensitivity.R`), ou o θ̂ de `p = 4`. A célula pré-COVID roda sem escala porque nela s_t ≡ 1.
 
 
 ### Fechados (contexto)
 
+- [x] **Responder ao orientador sobre o plano de 03-10 — superado em 2026-10-13.** Os passos 0 a 4
+  rodaram e foram reportados em `email/email_meu_12-10_17h22.md`, e ele respondeu em
+  `email/email_professor_12-10_19h40.md`. Pré-COVID: aceitou os conjuntos em `p = 2`, sem apresentá-los
+  como a mesma especificação. "Excluir uma reunião" e a avaliação conjunta dos placebos: respondidos em
+  10-08, com Holm aprovado em 12-10. O filtro JK segue no passo 5/5. ⚠ `email/` não tem resposta do
+  autor ao plano entre 03-10 e 08-10.
 - [x] **Passo 3/5, parte 2: exclusão por movimentos extremos de VIX, S&P 500 ou Brent — 2026-10-12.**
   Regra fixada e commitada antes de rodar (`2cad8bd`): sai a reunião em que a variação log de quarta a
   quinta de alguma das três passa, em módulo, do percentil 95 da série nos pregões de 2012-03 a
@@ -962,24 +1083,6 @@ ela abriu são **editoriais** e estão no Tema A.
 ---
 
 ## D. Diagnósticos e comparações pendentes
-
-*Dois testes pedidos pelo autor em 2026-10-01 sobre a troca de ano-alvo das Focus "ano seguinte",
-em rodadas e branches separadas, porque cada um muda o painel de produção. O problema:
-`R/data_download/focus.R:141` guarda a mediana com `reference_year == year(date) + 1`, então todo
-janeiro cinco séries da produção trocam de ano-alvo: Focus PIB, Selic, DLSP, resultado primário e
-resultado nominal. Na amostra completa, janeiro leva 75%, 58%, 36%, 47% e 50% da soma de quadrados
-das suas diferenças, contra 13% da IPCA 12 meses, que é a horizonte fixo, e 4% do câmbio. O X-13
-trata a Focus PIB como sazonal e não remove o salto, cujo sinal muda de ano para ano. ⚠ Na célula de
-produção, a carga da Focus PIB estimada sem os meses de janeiro dá metade da resposta publicada na
-§4 (−0,091 contra −0,189 no impacto, e +0,160 contra +0,303 em h36), e a da Focus Selic vai de 0,471
-a 0,396. Nota `2026-10-01_precovid_dbgg_focus_pib`, seção 3.4. Nos dois testes vale a mesma
-avaliação:* (a) a participação de janeiro na soma de quadrados das diferenças cai para perto da IPCA
-12 meses (13% na amostra completa, 2% na pré-COVID), e o X-13 de `clean.R` registra se as séries
-novas ainda saem como sazonais; (b) produção `(5,5,4)` com o painel novo: ξ_mp, raiz máxima e
-topologia dos conjuntos AR nas duas janelas, as respostas contra as atuais e os pontos fora do
-conjunto de 90% atual, nas 115 séries e nas oito do Anexo C; (c) `script/precovid_divergence.R`
-de novo, para ver se a Focus PIB pré-COVID entra no conjunto sem tirar os janeiros da carga.
-⚠ Os dois tiram só o salto mecânico: a notícia que chega em janeiro continua na série.
 
 - [ ] **Câmbio diário do Yahoo deslocado um pregão no inverno europeu.** Achado no passo 2/5 do Tema B
   (nota `2026-10-05_evento_diario`, seção 1).
