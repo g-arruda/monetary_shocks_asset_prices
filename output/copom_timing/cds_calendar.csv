@@ -1,0 +1,5 @@
+group,n_days,n_with_cds,share_with_cds,n_zero_change,median_abs_change
+so_reino_unido,37,37,1,0,1.1879999999999882
+so_eua,72,72,1,0,0.9030000000000058
+fechados_eua_e_reino_unido,21,21,1,0,0.4060000000000059
+todos_os_dias_com_cds,3609,3609,1,7,2.3549999999999898

@@ -85,6 +85,17 @@ from "the collection came back empty", and the error only surfaces months later,
   the daily PTAX (SGS 1, selling quote, average of the 10h–13h windows), from
   `script/download_ptax.R`, the `ptax` network stage of its own. The Copom-day exchange-rate change
   of `script/daily_event.R` (Wed 13h → Thu 13h).
+- `data/raw/copom_atas.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-13, not merged): the
+  Copom minutes of meetings 165 to 275 from the BCB API (`atas_detalhes`), raw text, HTML for 79 and
+  `pdftotext` of the PDF for meetings 200 to 231, written by `script/download_copom_minutes.R`, the
+  `copom_atas` network stage. Each minute states when every session started and ended;
+  `script/copom_timing.R` reads the announcement time off it. **The Copom-day times**
+  (`notas/2026-10-13_ponte_horarios_copom.md`): the statement comes after the second day's last
+  session, at 19h19–20h55 until 2016-06, at 18h00–18h20 until 2020-10 and at 18h30–19h12 after,
+  always after the DI close; the PTAX is 10h–13h. ⚠ The CDS xlsx's `PX_LAST` closing time is unknown
+  (New York by Bloomberg's documentation, not fixed by the data), so its Wed→Thu change follows the
+  convention only under a London close. ⚠ The instrument drops the 7 meetings whose Thursday is a
+  Brazilian holiday and the 2 on Thanksgiving, and their months enter at z = 0.
 
 ## Two external inputs with no producer in this repo
 

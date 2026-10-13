@@ -16,10 +16,11 @@
 # DI: CloseRate, the last trade of the session.
 # PTAX: average of the four 10h-13h consultations (Circular 3.506).
 # CDS: Bloomberg PX_LAST of BRAZIL CDS USD SR 5Y D14 Corp. The pricing
-#   source and the closing time are not in the file. Bloomberg's CDS guide
-#   gives a New York close, a 17h snapshot (CBGN) or an intraday composite
-#   that closes around 18h (CBIN); both are carried as hypotheses, and
-#   three tests infer the close from the data.
+#   source and the closing time are not in the file. Bloomberg's CBGN is a
+#   New York close snapshot of its intraday composite (CBIN), and CMA's
+#   end-of-day quotes on Bloomberg are taken at 17h New York; 17h and 18h
+#   New York are carried as hypotheses, and three tests infer the close
+#   from the data.
 #
 # Reading rule of the CDS tests, fixed before running them:
 #   (A) Calendar. A New York close quotes on UK-only holidays and not on
@@ -293,11 +294,11 @@ stopifnot(
 # yield_6m is the month's last quote of the advisor's curve; for those
 # meetings it must be the Wednesday's, before the announcement
 yields_last_quote <- readr::read_csv(YIELDS_PATH, show_col_types = FALSE) |>
-  dplyr::transmute(date = lubridate::dmy(Data)) |>
-  dplyr::summarise(
-    yield_last_quote = max(date),
-    .by = c(month = lubridate::floor_date(date, "month"))
-  )
+  dplyr::transmute(
+    date = lubridate::dmy(Data),
+    month = lubridate::floor_date(date, "month")
+  ) |>
+  dplyr::summarise(yield_last_quote = max(date), .by = month)
 meetings <- meetings |>
   dplyr::mutate(wednesday_month = lubridate::floor_date(wednesday, "month")) |>
   dplyr::left_join(yields_last_quote, by = c("wednesday_month" = "month")) |>
@@ -317,9 +318,9 @@ months <- instruments |>
       n_events = sum(in_events),
       sum_delta_di = sum(delta_di, na.rm = TRUE),
       sum_e_di_bs = sum(e_di_bs, na.rm = TRUE),
-      .by = c(month = month_convention)
+      .by = month_convention
     ),
-    by = "month"
+    by = c("month" = "month_convention")
   ) |>
   dplyr::mutate(
     dplyr::across(c(n_meetings, n_events, sum_delta_di, sum_e_di_bs), \(x) tidyr::replace_na(x, 0)),
@@ -429,21 +430,32 @@ holidays <- tibble::tibble(date = sample_days) |>
   ) |>
   dplyr::filter(!is.na(group))
 
+# Changes in each series' own calendar, before any join
+cds_changes <- cds |>
+  dplyr::arrange(date) |>
+  dplyr::transmute(date, d_cds = cds - dplyr::lag(cds))
+
+# Descriptive, outside the rule: a quote carried over a closed market would
+# not move
 cds_calendar <- holidays |>
+  dplyr::left_join(cds_changes, by = "date") |>
+  dplyr::bind_rows(
+    cds_changes |>
+      dplyr::filter(date >= SAMPLE_START, date <= SAMPLE_END) |>
+      dplyr::mutate(group = "todos_os_dias_com_cds")
+  ) |>
   dplyr::summarise(
     n_days = dplyr::n(),
-    n_with_cds = sum(date %in% cds$date),
+    n_with_cds = sum(!is.na(d_cds)),
     share_with_cds = n_with_cds / n_days,
+    n_zero_change = sum(d_cds == 0, na.rm = TRUE),
+    median_abs_change = median(abs(d_cds), na.rm = TRUE),
     .by = group
   )
 readr::write_csv(cds_calendar, file.path(OUT_DIR, "cds_calendar.csv"))
 
 # CDS test (B): daily alignment ------------------------------------------------
 
-# Changes in each series' own calendar, before any join
-cds_changes <- cds |>
-  dplyr::arrange(date) |>
-  dplyr::transmute(date, d_cds = cds - dplyr::lag(cds))
 ibov_changes <- ibov |>
   dplyr::arrange(date) |>
   dplyr::transmute(date, d_ibov = 100 * log(ibov / dplyr::lag(ibov))) |>
@@ -535,9 +547,9 @@ cds_event <- tidyr::expand_grid(
       se <- sqrt(sandwich::vcovHC(fit, type = "HC1")[2, 2])
       tibble::tibble(
         n = nrow(sample),
+        p_value = 2 * pnorm(-abs(coef(fit)[[2]] / se)),
         coef = SHOCK_BPS * coef(fit)[[2]],
-        se = SHOCK_BPS * se,
-        p_value = 2 * pnorm(-abs(coef(fit)[[2]] / se))
+        se = SHOCK_BPS * se
       )
     })
   ) |>
