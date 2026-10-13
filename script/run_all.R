@@ -89,6 +89,14 @@ STAGES <- list(
     requires = character(),
     produces = "data/raw/ptax_daily.csv"
   ),
+  copom_atas = list(
+    name = "copom_atas",
+    desc = "Copom minutes, for the session times of each meeting",
+    file = "script/download_copom_minutes.R",
+    network = TRUE,
+    requires = character(),
+    produces = "data/raw/copom_atas.csv"
+  ),
   msci = list(
     name = "msci",
     desc = "MSCI Emerging Markets index, end of month, the panel's msci",
