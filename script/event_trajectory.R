@@ -58,7 +58,6 @@
 source("R/instrument/di_surprise.R")
 
 MEETINGS_PATH   <- "output/copom_timing/meetings.csv"
-EVENTS_PATH     <- "data/processed/copom_event_diagnostics.csv"
 YAHOO_BRL_PATH  <- "data/raw/brl_usd_daily.csv"
 CDS_PATH        <- "data/raw/CDS 5y.xlsx"
 STEP_TWO_PATH   <- "output/daily_event/regressions.csv"
@@ -98,13 +97,10 @@ quotes <- dplyr::bind_rows(
   dplyr::arrange(series, date) |>
   dplyr::mutate(row = dplyr::row_number(), .by = series)
 
+# The surprises are those of data/processed/copom_event_diagnostics.csv,
+# which script/copom_timing.R joins into the meetings table
 meetings <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE) |>
-  dplyr::filter(in_events) |>
-  dplyr::left_join(
-    readr::read_csv(EVENTS_PATH, show_col_types = FALSE) |>
-      dplyr::transmute(thursday = as.Date(date), e_di_bs),
-    by = "thursday"
-  )
+  dplyr::filter(in_events)
 stopifnot(nrow(meetings) == N_EVENTS, !anyNA(meetings$e_di_bs))
 
 # Paths -------------------------------------------------------------------
@@ -220,13 +216,13 @@ regressions <- tidyr::expand_grid(
         ]
         fit <- lm(cell[[change_name]] ~ cell$e_di_bs)
         slope <- coef(fit)[[2]]
-        se <- sqrt(sandwich::vcovHC(fit, type = "HC1")[2, 2])
+        slope_se <- sqrt(sandwich::vcovHC(fit, type = "HC1")[2, 2])
         tibble::tibble(
           n = nrow(cell),
           coef = SHOCK_BPS * slope,
-          se = SHOCK_BPS * se,
-          t = slope / se,
-          p_value = 2 * pnorm(-abs(slope / se)),
+          se = SHOCK_BPS * slope_se,
+          t = slope / slope_se,
+          p_value = 2 * pnorm(-abs(slope / slope_se)),
           r2 = summary(fit)$r.squared,
           median_days = median(cell$days)
         )
@@ -253,13 +249,20 @@ step_two <- readr::read_csv(STEP_TWO_PATH, show_col_types = FALSE) |>
 replicated <- regressions |>
   dplyr::filter(sample == "passo_2") |>
   dplyr::right_join(
-    dplyr::select(step_two, response, coef_step_two = coef, se_step_two = se),
+    dplyr::select(
+      step_two,
+      response,
+      coef_step_two = coef,
+      se_step_two = se,
+      p_step_two = p_value
+    ),
     by = "response"
   )
 stopifnot(
   all(replicated$n == N_EVENTS),
   max(abs(replicated$coef - replicated$coef_step_two)) < 1e-10,
-  max(abs(replicated$se - replicated$se_step_two)) < 1e-10
+  max(abs(replicated$se - replicated$se_step_two)) < 1e-10,
+  max(abs(replicated$p_value - replicated$p_step_two)) < 1e-10
 )
 
 readr::write_csv(regressions, file.path(OUT_DIR, "regressions.csv"))
