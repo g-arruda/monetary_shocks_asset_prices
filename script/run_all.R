@@ -83,7 +83,7 @@ STAGES <- list(
   ),
   ptax = list(
     name = "ptax",
-    desc = "Daily PTAX for the Copom-day exchange-rate change",
+    desc = "Daily PTAX, the 13h clock of the Yahoo and CDS timing diagnostics",
     file = "script/download_ptax.R",
     network = TRUE,
     requires = character(),

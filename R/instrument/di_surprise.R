@@ -1,7 +1,9 @@
 # ===================================================================
-# Copom calendar and the Wednesday-to-Thursday DI futures surprise.
-# Shared by the instrument (build_variants.R) and the heteroskedasticity
-# diagnostic (R/identification/het_tests.R).
+# Copom calendar, the Wednesday-to-Thursday DI futures surprise and the time
+# of each Yahoo BRL=X quote. Shared by the instrument (build_variants.R), the
+# heteroskedasticity diagnostic (R/identification/het_tests.R,
+# script/het_conditions.R) and the Copom-day scripts (script/copom_timing.R,
+# script/daily_event.R).
 # ===================================================================
 
 
@@ -97,4 +99,37 @@ build_thursday_surprises <- function(di_panel, thursdays, target_bd, min_bd) {
 
   tibble::tibble(date = thursdays) |>
     dplyr::left_join(surprises, by = "date")
+}
+
+
+#' Read the daily Yahoo BRL=X rate with the time of each quote
+#'
+#' Yahoo stamps each FX bar at the London midnight that opens the bar's
+#' day, and its close is the rate at that instant, so a row carries the
+#' rate of the Brazilian evening before (20h, 21h or 22h in Brasilia). The
+#' date written in the file is that instant's in UTC: under British summer
+#' time the midnight falls at 23h UTC of the day before, so the rows run
+#' Sunday to Thursday, and Monday to Friday outside it. The time is inferred
+#' from that stamping and from the daily alignment with the PTAX and the
+#' Ibovespa (script/daily_event.R, fx_alignment.csv); Yahoo does not declare
+#' it.
+#'
+#' @param path Path to `brl_usd_daily.csv` (columns date, brl).
+#'
+#' @return Tibble with date (the file's), brl (R$ per US$) and quote_time
+#'   (POSIXct, America/Sao_Paulo), sorted by date.
+load_yahoo_brl <- function(path) {
+  readr::read_csv(path, show_col_types = FALSE) |>
+    dplyr::transmute(date = as.Date(date), brl) |>
+    dplyr::arrange(date) |>
+    dplyr::mutate(
+      next_midnight = lubridate::ymd_hm(paste(date + 1L, "00:00"), tz = "Europe/London"),
+      quote_time = dplyr::if_else(
+        lubridate::dst(next_midnight),
+        next_midnight,
+        lubridate::ymd_hm(paste(date, "00:00"), tz = "Europe/London")
+      ) |>
+        lubridate::with_tz("America/Sao_Paulo")
+    ) |>
+    dplyr::select(-next_midnight)
 }

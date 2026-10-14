@@ -9,27 +9,36 @@
 # 95%; for the raw surprise the first stage is the identity. The production
 # DFM's impact responses under the two surprises, on the same base, close the
 # comparison. Nothing here decomposes the daily-to-monthly contrast.
-# Windows: DI, Wednesday close to Thursday close; PTAX, Wednesday 13h to
-# Thursday 13h; CDS, Bloomberg close to close. The Copom announces after
-# Wednesday's close.
-# script/instrument.R, script/download_ptax.R and script/ar_precision.R must
-# run first.
+# Windows: DI, Wednesday close to Thursday close; exchange rate, Yahoo
+# BRL=X from the last quote before the announcement to the first after it,
+# as script/copom_timing.R dates them; CDS, Bloomberg close to close. The
+# Copom announces after Wednesday's DI close, and Yahoo's Wednesday evening
+# quote (20h-22h in Brasilia) comes after the announcement in most meetings.
+# script/instrument.R, script/copom_timing.R, script/download_ptax.R and
+# script/ar_precision.R must run first.
 # Outputs: output/daily_event/
-#   events.csv        one row per meeting: surprises, quotes and changes
-#   regressions.csv   reduced form, first stage and AR sets, by surprise
-#                     and response
-#   comparison.csv    impact per +50bp: daily event and DFM, by surprise
-#   fx_alignment.csv  Yahoo BRL=X against the PTAX and the Ibovespa, by
-#                     European summer time: why the PTAX is used
-# Note: notas/2026-10-05_evento_diario.md
+#   events.csv            one row per meeting: surprises, quotes and changes
+#   regressions.csv       reduced form, first stage and AR sets, by surprise
+#                         and response
+#   comparison.csv        impact per +50bp: daily event and DFM, by surprise
+#   fx_alignment.csv      Yahoo BRL=X against the PTAX and the Ibovespa, by
+#                         European summer time: which session each row holds
+#   fx_event_windows.csv  reduced form of the Yahoo change on the surprise,
+#                         by the rows' dates and by the convention, by
+#                         European summer time: whether the Wednesday
+#                         evening quote follows the announcement
+# Notes: notas/2026-10-05_evento_diario.md,
+#   notas/2026-10-13_cambio_yahoo_convencao.md
 # ===================================================================
 
 source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/dfm_pipeline.R")
 source("R/identification/weak_iv_ar.R")
+source("R/instrument/di_surprise.R")
 
 EVENTS_PATH      <- "data/processed/copom_event_diagnostics.csv"
+MEETINGS_PATH    <- "output/copom_timing/meetings.csv"
 INSTRUMENTS_PATH <- "data/processed/instrumentos_mensais.csv"
 PANEL_PATH       <- "data/processed/data_log_deseasonalized.csv"
 PTAX_PATH        <- "data/raw/ptax_daily.csv"
@@ -170,13 +179,17 @@ calendar <- tibble::tibble(
 
 # Event panel --------------------------------------------------------------
 
-ptax <- readr::read_csv(PTAX_PATH, show_col_types = FALSE)
+yahoo <- load_yahoo_brl(YAHOO_BRL_PATH)
 cds <- readxl::read_excel(CDS_PATH, skip = 5) |>
   purrr::set_names(c("date", "cds")) |>
   dplyr::transmute(date = as.Date(date), cds = as.numeric(cds)) |>
   dplyr::filter(!is.na(date), !is.na(cds))
+fx_windows <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE) |>
+  dplyr::filter(in_events) |>
+  dplyr::select(thursday, yahoo_pre, yahoo_post)
 
-# Quotes on the exact dates, never carried forward
+# DI and CDS quotes on the exact dates, never carried forward; the Yahoo
+# quotes are the last before the announcement and the first after it
 events <- readr::read_csv(EVENTS_PATH, show_col_types = FALSE) |>
   dplyr::transmute(
     wednesday = as.Date(date) - 1L,
@@ -184,13 +197,14 @@ events <- readr::read_csv(EVENTS_PATH, show_col_types = FALSE) |>
     delta_di,
     e_di_bs
   ) |>
+  dplyr::left_join(fx_windows, by = "thursday") |>
   dplyr::left_join(
-    dplyr::rename(ptax, ptax_wed = ptax),
-    by = c("wednesday" = "date")
+    dplyr::select(yahoo, date, fx_pre = brl),
+    by = c("yahoo_pre" = "date")
   ) |>
   dplyr::left_join(
-    dplyr::rename(ptax, ptax_thu = ptax),
-    by = c("thursday" = "date")
+    dplyr::select(yahoo, date, fx_post = brl),
+    by = c("yahoo_post" = "date")
   ) |>
   dplyr::left_join(
     dplyr::rename(cds, cds_wed = cds),
@@ -202,8 +216,8 @@ events <- readr::read_csv(EVENTS_PATH, show_col_types = FALSE) |>
   ) |>
   dplyr::left_join(calendar, by = c("wednesday" = "date")) |>
   dplyr::mutate(
-    d_fx = ptax_thu - ptax_wed,
-    d_fx_pct = 100 * log(ptax_thu / ptax_wed),
+    d_fx = fx_post - fx_pre,
+    d_fx_pct = 100 * log(fx_post / fx_pre),
     d_cds = cds_thu - cds_wed
   )
 
@@ -358,13 +372,14 @@ comparison <- regressions |>
 
 readr::write_csv(comparison, file.path(OUT_DIR, "comparison.csv"))
 
-# Why the PTAX: alignment of Yahoo BRL=X -----------------------------------
+# Time of the Yahoo BRL=X quote ---------------------------------------------
 
-# Daily log changes in each series' own calendar, before any join
-yahoo <- readr::read_csv(YAHOO_BRL_PATH, show_col_types = FALSE) |>
-  dplyr::arrange(date) |>
+# Daily log changes in each series' own calendar, before any join. The PTAX
+# (13h) and the Ibovespa session are the clocks: which session's moves does
+# the row dated d carry?
+yahoo_changes <- yahoo |>
   dplyr::transmute(date, d_yahoo = 100 * log(brl / dplyr::lag(brl)))
-ptax_changes <- ptax |>
+ptax_changes <- readr::read_csv(PTAX_PATH, show_col_types = FALSE) |>
   dplyr::arrange(date) |>
   dplyr::transmute(date, d_ptax = 100 * log(ptax / dplyr::lag(ptax))) |>
   dplyr::mutate(
@@ -379,7 +394,7 @@ ibov_changes <- readr::read_csv(IBOV_PATH, show_col_types = FALSE) |>
     d_ibov_lead = dplyr::lead(d_ibov)
   )
 
-daily_alignment <- yahoo |>
+daily_alignment <- yahoo_changes |>
   dplyr::inner_join(ptax_changes, by = "date") |>
   dplyr::inner_join(ibov_changes, by = "date") |>
   dplyr::inner_join(calendar, by = "date") |>
@@ -394,29 +409,54 @@ daily_alignment <- yahoo |>
     cor_ibov = cor(d_yahoo, d_ibov),
     cor_ibov_lead = cor(d_yahoo, d_ibov_lead),
     .by = eu_summer
+  ) |>
+  dplyr::arrange(eu_summer)
+
+readr::write_csv(daily_alignment, file.path(OUT_DIR, "fx_alignment.csv"))
+
+# On the meetings: if Wednesday's evening quote follows the announcement,
+# the change between the rows dated Tuesday and Wednesday carries the news
+# in the European summer, and the one between Wednesday and Thursday does
+# not. Rows on the exact dates; the convention's window is the events'.
+window_changes <- events |>
+  dplyr::mutate(
+    linhas_terca_quarta = 100 * log(
+      yahoo$brl[match(wednesday, yahoo$date)] /
+        yahoo$brl[match(wednesday - 1L, yahoo$date)]
+    ),
+    linhas_quarta_quinta = 100 * log(
+      yahoo$brl[match(thursday, yahoo$date)] /
+        yahoo$brl[match(wednesday, yahoo$date)]
+    ),
+    convencao = d_fx_pct
   )
 
-# The same comparison on the meetings: the Wed->Thu change read off the
-# Yahoo dates against the PTAX one
-yahoo_levels <- readr::read_csv(YAHOO_BRL_PATH, show_col_types = FALSE)
-event_alignment <- events |>
-  dplyr::left_join(
-    dplyr::rename(yahoo_levels, yahoo_wed = brl),
-    by = c("wednesday" = "date")
+fx_event_windows <- tidyr::expand_grid(
+  window = c("linhas_terca_quarta", "linhas_quarta_quinta", "convencao"),
+  group = c("inverno_europeu", "verao_europeu", "todas"),
+  surprise = names(SURPRISES)
+) |>
+  dplyr::mutate(
+    fit = purrr::pmap(list(window, group, surprise), \(window_name, group_name, surprise_name) {
+      # Base subsetting: a dplyr::filter() here would not see the lambda's
+      # arguments from inside mutate()'s data mask
+      in_group <- group_name == "todas" |
+        window_changes$eu_summer == (group_name == "verao_europeu")
+      sample <- window_changes[in_group & !is.na(window_changes[[window_name]]), ]
+      fit_event_regression(
+        sample[[window_name]],
+        sample[[SURPRISES[[surprise_name]]]],
+        sample$delta_di,
+        CI_LEVELS
+      ) |>
+        dplyr::transmute(
+          n,
+          coef_pct = SHOCK_BPS * coef,
+          se_pct = SHOCK_BPS * se,
+          p_value
+        )
+    })
   ) |>
-  dplyr::left_join(
-    dplyr::rename(yahoo_levels, yahoo_thu = brl),
-    by = c("thursday" = "date")
-  ) |>
-  dplyr::mutate(d_yahoo = 100 * log(yahoo_thu / yahoo_wed)) |>
-  dplyr::summarise(
-    n_events = dplyr::n(),
-    n_events_yahoo = sum(!is.na(d_yahoo)),
-    cor_events_ptax = cor(d_yahoo, d_fx_pct, use = "complete.obs"),
-    .by = eu_summer
-  )
+  tidyr::unnest(fit)
 
-daily_alignment |>
-  dplyr::left_join(event_alignment, by = "eu_summer") |>
-  dplyr::arrange(eu_summer) |>
-  readr::write_csv(file.path(OUT_DIR, "fx_alignment.csv"))
+readr::write_csv(fx_event_windows, file.path(OUT_DIR, "fx_event_windows.csv"))

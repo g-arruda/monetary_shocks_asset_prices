@@ -1,13 +1,13 @@
 sistema,frequencia,vertice,ordem,lambda,lambda_se
-Tres observaveis de GRG,Diaria,3 meses,1,7.548765407762117,1.1506702454671476
-Tres observaveis de GRG,Diaria,3 meses,2,1.3611156957184374,0.20747481320406921
-Tres observaveis de GRG,Diaria,3 meses,3,0.676376182291206,0.10311309520492605
-Tres observaveis de GRG,Diaria,6 meses,1,4.063070070973952,0.6193395825132795
-Tres observaveis de GRG,Diaria,6 meses,2,1.3569563338305384,0.20684111817163794
-Tres observaveis de GRG,Diaria,6 meses,3,0.6503995133283135,0.09915443113534547
-Tres observaveis de GRG,Diaria,12 meses,1,3.630596352011041,0.5534208036021772
-Tres observaveis de GRG,Diaria,12 meses,2,1.4013133281612156,0.21360298148914292
-Tres observaveis de GRG,Diaria,12 meses,3,0.6683368335464914,0.1018880669443109
+Tres observaveis de GRG,Diaria,3 meses,1,7.032201219874331,1.0673790253116997
+Tres observaveis de GRG,Diaria,3 meses,2,1.1455288736837863,0.17387162706437687
+Tres observaveis de GRG,Diaria,3 meses,3,0.47103718973706576,0.07151411066594743
+Tres observaveis de GRG,Diaria,6 meses,1,3.658816379120248,0.5553512062255883
+Tres observaveis de GRG,Diaria,6 meses,2,1.1337574682123635,0.17208460385734994
+Tres observaveis de GRG,Diaria,6 meses,3,0.4500846456040182,0.06833448281589524
+Tres observaveis de GRG,Diaria,12 meses,1,3.44577066167691,0.5230139447203582
+Tres observaveis de GRG,Diaria,12 meses,2,1.1391929117397734,0.17290932603737888
+Tres observaveis de GRG,Diaria,12 meses,3,0.4658919168779385,0.07073324218905803
 Tres observaveis de GRG (VAR),Mensal,3 meses,1,2.3327188721894916,0.5510012618257145
 Tres observaveis de GRG (VAR),Mensal,3 meses,2,2.049011262175774,0.48415961640650645
 Tres observaveis de GRG (VAR),Mensal,3 meses,3,1.2387324928288423,0.29259776475361565
@@ -26,8 +26,8 @@ Tres observaveis de GRG (VAR),Mensal,12 meses,3,1.3448977511023177,0.31772385207
 "Tres observaveis de GRG (VAR, escala COVID)",Mensal,12 meses,1,2.133342084193981,0.5040530908094855
 "Tres observaveis de GRG (VAR, escala COVID)",Mensal,12 meses,2,1.9228886365903284,0.45439305398499447
 "Tres observaveis de GRG (VAR, escala COVID)",Mensal,12 meses,3,0.982057242739154,0.23200483415151743
-Cinco inovacoes fatoriais,Mensal,--,1,4.034338961788001,0.9530593120584429
-Cinco inovacoes fatoriais,Mensal,--,2,1.6789203495163734,0.3964849268018545
-Cinco inovacoes fatoriais,Mensal,--,3,1.2455848753320466,0.2941930330552854
-Cinco inovacoes fatoriais,Mensal,--,4,0.8472757868305264,0.20011281067220343
-Cinco inovacoes fatoriais,Mensal,--,5,0.7259076470292637,0.17148833818739706
+Cinco inovacoes fatoriais,Mensal,--,1,3.053575800896389,0.721359910350996
+Cinco inovacoes fatoriais,Mensal,--,2,1.7162111459239309,0.4052794089302137
+Cinco inovacoes fatoriais,Mensal,--,3,1.3026565231103213,0.30766333638822024
+Cinco inovacoes fatoriais,Mensal,--,4,0.9019622292818686,0.21304074533679818
+Cinco inovacoes fatoriais,Mensal,--,5,0.6915381551313783,0.1633698678711556

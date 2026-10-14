@@ -5,16 +5,20 @@
 # that ends before the statement is out, and the first quote after it is
 # that market's next session. For each of the 111 meetings of 2012-03 to
 # 2025-12 this script dates the announcement, finds the last quote before
-# it and the first after it in the DI, the PTAX and the CDS, compares them
-# with the dates the instrument (R/instrument/build_variants.R) and
-# script/daily_event.R use, and maps the meetings to the instrument's
-# months. Nothing is re-estimated and the instrument is not touched.
+# it and the first after it in the DI, the Yahoo BRL=X rate and the CDS,
+# compares them with the dates the instrument (R/instrument/build_variants.R)
+# uses, and maps the meetings to the instrument's months. The Yahoo window
+# written here is the one script/daily_event.R and script/het_conditions.R
+# read. Nothing is re-estimated and the instrument is not touched.
 #
 # Announcement: the end of the second day's last session, from each
 # minute (script/download_copom_minutes.R), or the earliest release time
 # the BCB announced for the period, whichever is later.
 # DI: CloseRate, the last trade of the session.
-# PTAX: average of the four 10h-13h consultations (Circular 3.506).
+# Exchange rate: Yahoo BRL=X, the rate at the London midnight that opens
+#   each bar, 20h to 22h in Brasilia (load_yahoo_brl()). The PTAX, the
+#   average of the four 10h-13h consultations (Circular 3.506), is only the
+#   13h clock of CDS test (B).
 # CDS: Bloomberg PX_LAST of BRAZIL CDS USD SR 5Y D14 Corp. The pricing
 #   source and the closing time are not in the file. Bloomberg's CBGN is a
 #   New York close snapshot of its intraday composite (CBIN), and CMA's
@@ -42,12 +46,15 @@
 #       Wednesday's 17h New York close comes before or after the
 #       announcement. It decides nothing.
 #
-# script/instrument.R, script/download_ptax.R,
-# script/download_copom_minutes.R and script/daily_event.R must run first.
+# script/download.R (brl_usd_daily.csv), script/instrument.R,
+# script/download_ptax.R and script/download_copom_minutes.R must run first;
+# script/daily_event.R and script/het_conditions.R run after it.
 # Outputs: output/copom_timing/
 #   meetings.csv             one row per meeting: announcement, quote dates
 #                            of each series by the convention and as used,
-#                            instrument month, changes in the windows
+#                            the Yahoo quote times and the month whose
+#                            average each enters, instrument month,
+#                            changes in the windows
 #   months.csv               instrument months: meetings, events and z
 #   cds_calendar.csv         test (A)
 #   cds_alignment.csv        test (B)
@@ -61,6 +68,7 @@ source("R/instrument/di_surprise.R")
 COPOM_PATH       <- "data/raw/copom_historico.csv"
 ATAS_PATH        <- "data/raw/copom_atas.csv"
 DI_PATH          <- "data/raw/di.csv"
+YAHOO_BRL_PATH   <- "data/raw/brl_usd_daily.csv"
 PTAX_PATH        <- "data/raw/ptax_daily.csv"
 CDS_PATH         <- "data/raw/CDS 5y.xlsx"
 IBOV_PATH        <- "data/raw/ibov_daily.csv"
@@ -68,7 +76,6 @@ EXTERNAL_PATH    <- "data/raw/investing/external_factors_daily.csv"
 YIELDS_PATH      <- "data/raw/yields/yields_dia.csv"
 EVENTS_PATH      <- "data/processed/copom_event_diagnostics.csv"
 INSTRUMENTS_PATH <- "data/processed/instrumentos_mensais.csv"
-DAILY_EVENT_PATH <- "output/daily_event/events.csv"
 OUT_DIR          <- "output/copom_timing"
 SAMPLE_START <- as.Date("2012-03-01")
 SAMPLE_END   <- as.Date("2025-12-31")
@@ -109,6 +116,7 @@ stopifnot(length(wednesdays) == N_MEETINGS)
 di <- load_di_panel(DI_PATH, SAMPLE_START - 31, SAMPLE_END + 31)
 di_sessions <- sort(unique(di$date))
 
+yahoo <- load_yahoo_brl(YAHOO_BRL_PATH)
 ptax <- readr::read_csv(PTAX_PATH, show_col_types = FALSE)
 cds <- readxl::read_excel(CDS_PATH, skip = 5) |>
   purrr::set_names(c("date", "cds")) |>
@@ -175,15 +183,32 @@ meetings <- announcements |>
 
 # Quote dates by the convention ---------------------------------------------
 
-# DI and PTAX: their sessions end before the release (the DI at 18h at the
-# latest, the PTAX at 13h), so the last quote before is the Wednesday's and
-# the first after is the next session of each market
+# DI: its session ends before the release (at 18h at the latest), so the
+# last quote before is the Wednesday's and the first after is the next
+# session. Yahoo: the last quote at or before the announcement and the first
+# after it, by quote time; a quote at the minute the meeting ends precedes
+# the statement. Wednesday's evening quote comes after the release in most
+# meetings, and then the window runs from Tuesday's evening to Wednesday's.
+yahoo_index <- findInterval(
+  as.numeric(meetings$announcement),
+  as.numeric(yahoo$quote_time)
+)
 meetings <- meetings |>
   dplyr::mutate(
     di_pre = di_sessions[findInterval(as.numeric(wednesday), as.numeric(di_sessions))],
     di_post = di_sessions[findInterval(as.numeric(wednesday), as.numeric(di_sessions)) + 1L],
-    ptax_pre = ptax$date[findInterval(as.numeric(wednesday), as.numeric(ptax$date))],
-    ptax_post = ptax$date[findInterval(as.numeric(wednesday), as.numeric(ptax$date)) + 1L],
+    yahoo_pre = yahoo$date[yahoo_index],
+    yahoo_post = yahoo$date[yahoo_index + 1L],
+    yahoo_pre_brasilia = format(yahoo$quote_time[yahoo_index], "%Y-%m-%d %H:%M"),
+    yahoo_post_brasilia = format(yahoo$quote_time[yahoo_index + 1L], "%Y-%m-%d %H:%M"),
+    yahoo_wednesday_after = yahoo$quote_time[yahoo_index + 1L] <
+      lubridate::ymd_hm(paste(thursday, "06:00"), tz = TZ_BRASILIA),
+    d_fx = yahoo$brl[yahoo_index + 1L] - yahoo$brl[yahoo_index],
+    d_fx_pct = 100 * log(yahoo$brl[yahoo_index + 1L] / yahoo$brl[yahoo_index]),
+    # The panel's cambio_usd is the calendar-month average of the Yahoo rows
+    # by their date (R/data_download/exchange.R)
+    yahoo_pre_month = lubridate::floor_date(yahoo_pre, "month"),
+    yahoo_post_month = lubridate::floor_date(yahoo_post, "month"),
     in_events = thursday %in% events$thursday,
     drop_reason = dplyr::case_when(
       in_events ~ NA_character_,
@@ -207,7 +232,6 @@ stopifnot(
   !anyNA(meetings$drop_reason[!meetings$in_events]),
   with(dplyr::filter(meetings, in_events), all(
     di_pre == wednesday & di_post == thursday &
-      ptax_pre == wednesday & ptax_post == thursday &
       month_instrument == month_convention
   ))
 )
@@ -266,26 +290,11 @@ surprises_convention <- build_thursday_surprises(
 
 meetings <- meetings |>
   dplyr::left_join(surprises_convention, by = "thursday") |>
-  dplyr::left_join(events, by = "thursday") |>
-  dplyr::left_join(dplyr::rename(ptax, ptax_pre_quote = ptax), by = c("ptax_pre" = "date")) |>
-  dplyr::left_join(dplyr::rename(ptax, ptax_post_quote = ptax), by = c("ptax_post" = "date")) |>
-  dplyr::mutate(
-    d_ptax = ptax_post_quote - ptax_pre_quote,
-    d_ptax_pct = 100 * log(ptax_post_quote / ptax_pre_quote)
-  ) |>
-  dplyr::select(-ptax_pre_quote, -ptax_post_quote)
+  dplyr::left_join(events, by = "thursday")
 
 stopifnot(
   !anyNA(meetings$delta_di_convention),
   with(dplyr::filter(meetings, in_events), max(abs(delta_di_convention - delta_di)) < 1e-12)
-)
-
-# The 102 of script/daily_event.R are these: same dates, same surprises, and
-# its CDS window is Wednesday to Thursday
-daily_event <- readr::read_csv(DAILY_EVENT_PATH, show_col_types = FALSE)
-stopifnot(
-  identical(sort(daily_event$thursday), sort(events$thursday)),
-  max(abs(daily_event$delta_di - meetings$delta_di[match(daily_event$thursday, meetings$thursday)])) < 1e-12
 )
 
 # Months ---------------------------------------------------------------------
@@ -567,9 +576,13 @@ meetings |>
     ),
     by = "meeting"
   ) |>
-  dplyr::left_join(
-    dplyr::select(daily_event, thursday, d_cds_used = d_cds),
-    by = "thursday"
+  # The CDS window script/daily_event.R uses on the 102: Wednesday to Thursday
+  dplyr::mutate(
+    d_cds_used = dplyr::if_else(
+      in_events,
+      cds$cds[match(thursday, cds$date)] - cds$cds[match(wednesday, cds$date)],
+      NA_real_
+    ),
+    announcement = format(announcement, "%H:%M")
   ) |>
-  dplyr::mutate(announcement = format(announcement, "%H:%M")) |>
   readr::write_csv(file.path(OUT_DIR, "meetings.csv"))

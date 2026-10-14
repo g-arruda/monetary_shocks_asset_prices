@@ -29,7 +29,8 @@
 # the paper (2026-08-17). The exploratory responses live in het_rigobon/.
 #
 # Outputs in output/het/:
-#   daily_changes.csv       the Wed->Thu panel the daily row is built on
+#   daily_changes.csv       the weekly panel the daily row is built on, with
+#                           the Yahoo rows of each week's FX window
 #   het_conditions.csv      one row per system: Lambda, its SE, Qr
 #   het_qr_tests.csv        every sequential Qr null, every system
 #   het_variance_ratios.csv Var_C / Var_NC of each residual series
@@ -37,7 +38,8 @@
 #   het_var_theta.csv       theta-hat of each monthly VAR, one per vertex
 #   het_var_theta_multistart.csv  where every start of its multi-start ended
 #
-# Run: Rscript script/het_conditions.R
+# Run: Rscript script/het_conditions.R, after script/copom_timing.R (the
+# Yahoo window of each meeting).
 # ===================================================================
 
 source("R/instrument/di_surprise.R")
@@ -49,6 +51,7 @@ PANEL_PATH  <- "data/processed/data_log_deseasonalized.csv"
 COPOM_PATH  <- "data/raw/copom_historico.csv"
 DI_PATH     <- "data/raw/di.csv"
 BRL_PATH    <- "data/raw/brl_usd_daily.csv"
+MEETINGS_PATH <- "output/copom_timing/meetings.csv"
 CDS_PATH    <- "data/raw/CDS 5y.xlsx"
 THETA_PATH  <- "output/factors/covid_volatility_theta.csv"
 
@@ -95,13 +98,19 @@ THETA_UPPER    <- c(s0 = Inf, s1 = Inf, s2 = Inf, rho = 1)
 MULTISTART_S   <- exp(seq(0, log(40), length.out = 5))
 MULTISTART_RHO <- seq(0, 1, by = 0.2)
 
-# Daily Wed->Thu panel: one observation per week, Wednesday to Thursday. The
-# Copom announces after Wednesday's close, so the window covers the
-# announcement. Regime C = the Wednesday is a meeting day. Weeks without
-# trading on Wednesday or Thursday become NA and drop out -- never zero, which
-# would pass "no quote" off as "no change".
-brl <- readr::read_csv(BRL_PATH, show_col_types = FALSE) |>
-  dplyr::transmute(date = as.Date(date), valor = 100 * log(brl))
+# Daily panel: one observation per week. DI and CDS run from Wednesday to
+# Thursday: the Copom announces after Wednesday's close, so the window
+# covers the announcement. The exchange rate is Yahoo BRL=X, whose quote is
+# the Brazilian evening's (20h-22h): in a meeting week it runs from the last
+# quote before the announcement to the first after it, as
+# script/copom_timing.R dates them; in the other weeks, from Tuesday's
+# evening quote to Wednesday's, the window an 18h Wednesday release would
+# have. Regime C = the Wednesday is a meeting day. Weeks without trading on
+# Wednesday or Thursday become NA and drop out -- never zero, which would
+# pass "no quote" off as "no change".
+yahoo <- load_yahoo_brl(BRL_PATH)
+fx_windows <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE) |>
+  dplyr::select(wednesday, yahoo_pre, yahoo_post)
 cds <- readxl::read_excel(CDS_PATH, skip = 5) |>
   purrr::set_names(c("date", "valor")) |>
   dplyr::transmute(date = as.Date(date), valor = as.numeric(valor)) |>
@@ -111,10 +120,24 @@ daily_panel <- build_weekly_changes(
   SAMPLE[1],
   SAMPLE[2],
   purrr::set_names(VERTICES$business_days, VERTICES$daily),
-  list(cds_5y = cds, brl = brl),
+  list(cds_5y = cds),
   COPOM_PATH,
   DI_PATH
 ) |>
+  dplyr::left_join(fx_windows, by = c("wed_date" = "wednesday")) |>
+  dplyr::mutate(
+    no_meeting_index = findInterval(
+      as.numeric(lubridate::ymd_hm(paste(wed_date, "18:00"), tz = "America/Sao_Paulo")),
+      as.numeric(yahoo$quote_time)
+    ),
+    yahoo_pre = dplyr::coalesce(yahoo_pre, yahoo$date[no_meeting_index]),
+    yahoo_post = dplyr::coalesce(yahoo_post, yahoo$date[no_meeting_index + 1L]),
+    brl = 100 * log(
+      yahoo$brl[match(yahoo_post, yahoo$date)] /
+        yahoo$brl[match(yahoo_pre, yahoo$date)]
+    )
+  ) |>
+  dplyr::select(-no_meeting_index) |>
   tidyr::drop_na(dplyr::all_of(c(VERTICES$daily, DAILY_DEPENDENTS)))
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
