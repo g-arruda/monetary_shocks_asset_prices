@@ -148,6 +148,21 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Ponte (b): forma reduzida mensal de câmbio e CDS na surpresa agregada, sem fatores, e-mail de 12-10 (2026-10-14, branch `feature/focus-horizonte-fixo`):**
+[`2026-10-14_ponte_mensal_forma_reduzida`](2026-10-14_ponte_mensal_forma_reduzida.md)
+**CURRENT na branch, não mergeada.** Regra commitada antes de rodar (`e19a754`).
+- **Desenho.** As 162 inovações do DFM, h = 0 e 1, surpresas ortogonalizada e bruta. Séries do painel
+  (câmbio média do Yahoo, CDS fim de mês do Investing) e a outra agregação dos diários (câmbio de fim de
+  mês alinhado à `yield_6m`, CDS média do Bloomberg). Três amostras para os meses com z = 0.
+- **Por +50 p.b. de surpresa ortogonalizada,** séries do painel: câmbio +R$ 0,145 no mês e +0,293 até o
+  seguinte, CDS +41,3 e +43,0 p.b., tudo significante a 95%. Pela regra, a depreciação aparece no mensal
+  sem fatores.
+- ⚠ O câmbio de fim de mês dá +0,115 e +0,158, não significante a 90%. As amostras não mudam nada.
+- ⚠ Por +50 p.b. de `yield_6m`, o primeiro estágio tem F 9,30. Câmbio 0,078/0,158 e CDS 22,3/23,2,
+  contra 0,145/0,179 e 33,5/36,9 do DFM.
+- Documenta fim de mês contra média e como entram os meses sem reunião. A regressão IV escalar do passo 2
+  passou a `fit_reduced_form_iv()` em `R/identification/weak_iv_ar.R`.
+
 **Ponte (a): trajetória acumulada de câmbio e CDS após o anúncio do Copom, e-mail de 12-10 (2026-10-14, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-14_ponte_trajetoria_evento`](2026-10-14_ponte_trajetoria_evento.md)
 **CURRENT na branch, não mergeada.** Regra commitada antes de rodar (`0b08071`).
