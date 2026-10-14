@@ -1,5 +1,16 @@
 # Evento diário: câmbio e CDS na surpresa bruta e na ortogonalizada
 
+> **CÂMBIO SUPERADO em 2026-10-13** por
+> [`2026-10-13_cambio_yahoo_convencao`](2026-10-13_cambio_yahoo_convencao.md). Por decisão do autor,
+> o câmbio diário passou da PTAX ao Yahoo `BRL=X`, da última cotação antes do anúncio à primeira
+> depois. Com a surpresa bruta, o efeito vai de −R$ 0,048 (p 0,019) a −R$ 0,037 (p 0,012). Com a
+> ortogonalizada, vai de −R$ 0,048 (p 0,021) a −R$ 0,029 (p 0,088), e deixa de ser significante a
+> 95%. CDS e DFM não mudam.
+> ⚠ **A seção 1 erra o horário do Yahoo.** A linha datada d traz a cotação da noite do pregão
+> (20h–22h em Brasília), posterior ao anúncio em 96 das 102 reuniões. A janela de quarta a quinta pelas
+> datas perde o anúncio nas 51 reuniões de verão europeu, e não "acompanha o pregão de quarta" nas 45
+> de inverno.
+
 > **NÚMEROS DO DFM SUPERADOS em 2026-10-12** por
 > [`2026-10-12_msci_emergentes`](2026-10-12_msci_emergentes.md), seção 4. A série `msci` do painel
 > passou da ação da MSCI Inc. ao índice MSCI de emergentes. As regressões diárias não usam o painel e

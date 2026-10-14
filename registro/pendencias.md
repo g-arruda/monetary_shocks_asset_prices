@@ -1,5 +1,16 @@
 # Pendências
 
+**Atualização de 2026-10-13 (câmbio):** por decisão do autor, todo o câmbio diário passa ao Yahoo
+`BRL=X`, lido pela convenção do anúncio (nota `2026-10-13_cambio_yahoo_convencao`). A cotação do Yahoo
+é a da noite (20h–22h em Brasília). Na quarta, ela vem depois do anúncio em 96 das 102 reuniões. ⚠ A
+leitura de 10-05 ("deslocado um pregão no inverno europeu, 45 das 102") estava errada: a janela pelas
+datas perde o anúncio nas 51 reuniões de verão.
+- O evento diário refeito dá −R$ 0,037 (p 0,012) na surpresa bruta e −R$ 0,029 (p 0,088) na
+  ortogonalizada, que perde os 95%. Esses números substituem o R$ 0,048 da PTAX enviado em 12-10.
+- O item do Tema D fechou. O do Anexo B (Tema A) ganhou os números: a razão diária do câmbio vai de
+  1,04 a 0,69, e o `Qr` com DI de 3 meses de 0,003 a 0,002.
+- Pontes (a) e (b) e as 9 reuniões: PTAX trocada por Yahoo, e o ⚠ de fim de mês corrigido.
+
 **Atualização de 2026-10-13:** revisão dos itens abertos contra o `.tex`, os scripts e os e-mails.
 Fecharam, por já estarem feitos, a conferência da figura de placebos (Tema A) e a resposta ao plano do
 orientador (Tema B). O passo 0/5 perdeu o "falta o orientador ver câmbio e CDS", feito em 12-10. Saíram
@@ -157,8 +168,7 @@ Ordem de execução fixada em 2026-10-13 para a entrega de 19/20 de outubro (e-m
 | 8 | A | Conclusão: resposta conjunta do DFM mensal e apreciação no evento diário, sem atribuir a divergência | aberto em 2026-10-13, e-mail de 12-10; até a ponte do Tema B fechar; toca o item da leitura da §4 no resumo, introdução e conclusão |
 | 8 | A | Decidir se o resumo, a introdução e a conclusão absorvem a leitura da §4 migrada | aberto em 2026-09-24; a rodada da §4 só trocou números e datas fora dela, por decisão do autor; três frases de argumento ficaram enfraquecidas (horas "com defasagem", reversão "sincronizada" com curva e risco ainda no vale em h36, silêncio sobre atividade persistente e NFSP primária positiva em h18–h32) |
 | 8 | A | Decidir se o resumo carrega as duas ressalvas da linha diária | aberto em 2026-09-22, reapontado em 2026-10-13; vértice (§3.3) e curtose (nota de `tab:het_frequency`, Anexo B) estão no corpo, e o resumo diz que a condição vale no diário sem qualificá-las; ⚠ a mesma frase atribui a divergência a frequência e estratégia de identificação |
-| depois | D | Câmbio diário do Yahoo deslocado um pregão no inverno europeu | aberto em 2026-10-05, achado no passo 2/5; atinge `het_conditions.R`, a razão de variância do câmbio em `tab:het_frequency` e o `Qr` diário; bloqueia o item do Tema A sobre o Anexo B; a ponte usa a PTAX (conferência fechada em 10-13), mas o câmbio mensal do painel é a média do Yahoo, o que toca a ponte (b) |
-| depois | A | Anexo B e §3.3: linha diária com o câmbio realinhado | aberto em 2026-10-05; depende do item do Tema D sobre o câmbio do Yahoo; só muda o paper se a razão de variância do câmbio ou o `Qr` diário mudarem |
+| 6 | A | Anexo B e §3.3: linha diária com o câmbio realinhado | aberto em 2026-10-05; o câmbio foi realinhado em 10-13 (nota `2026-10-13_cambio_yahoo_convencao`): razão diária do câmbio 1,04 → 0,69, `Qr` p 0,003/0,084/0,147 → 0,002/0,064/0,081; ⚠ na base da branch a linha fatorial não rejeita nada a 10%; vai com a migração do artigo |
 
 ---
 
@@ -293,11 +303,19 @@ itens de placebos acima ganharam a redação do item 4 do mesmo e-mail.*
 
 *Item aberto em 2026-10-05, no passo 2/5 do Tema B.*
 
-- [ ] **Anexo B e §3.3: linha diária com o câmbio realinhado.** Depende do item do Tema D sobre o
-  câmbio diário do Yahoo, deslocado um pregão no inverno europeu. A linha diária de
-  `tab:het_frequency` (razão de variância do câmbio e `Qr` de DI, câmbio e CDS) foi calculada com
-  essa série. Se a razão ou o `Qr` mudarem com o câmbio realinhado, atualizar a tabela. Conferir
-  também a frase da §3.3 de que a condição vale no diário com o DI de 3 meses.
+- [ ] **Anexo B e §3.3: linha diária com o câmbio realinhado.** O câmbio foi realinhado em 10-13 na
+  branch (Tema D, fechado; nota `2026-10-13_cambio_yahoo_convencao`, seção 7), e a razão e o `Qr`
+  mudaram. Falta levar ao `.tex`.
+  - Em `tab:het_frequency`, a razão de variância diária do câmbio vai de 1,04 a 0,69, 0,70 e 0,70. O
+    `Qr` p vai de 0,003, 0,084 e 0,147 a 0,002, 0,064 e 0,081 (Holm 0,006, 0,127 e 0,127).
+  - `n_C` e `n_NC` vão a 103 e 554.
+  - A frase da §3.3 de que a condição vale no diário com o DI de 3 meses continua verdadeira, e a de que
+    só a variância do DI sobe também. A sensibilidade ao vértice diminui.
+  - ⚠ Na base da branch, a linha fatorial não rejeita nada a 10% (`λ₁ = λ₂` p 0,312, 0,228 sem
+    correção; `λ₁=…=λ₄` p 0,240; `λ₁=…=λ₅` p 0,145). A nota da tabela, que imprime 0,035, 0,021 e
+    0,013, muda com a migração da base (item 6).
+  - O VAR mensal não muda.
+  - Vai junto com o item 6, porque `output/het/` da branch já está na base reconstruída.
 
 - [ ] **Decidir se o resumo, a introdução e a conclusão absorvem a leitura da
   §4 migrada.** A rodada de 2026-09-24 reescreveu a §4 e, fora dela, só trocou
@@ -745,11 +763,12 @@ verificações".*
     - definir a janela reunião a reunião sob uma das hipóteses de Nova York;
     - pedir ao orientador a fonte de preço (PCS) do `PX_LAST` no terminal.
   - Decisão do autor, antes de fixar os horizontes da ponte (a). Bloqueia a ponte (a) no CDS; o câmbio
-    (PTAX) não depende dela.
+    (Yahoo pela convenção, desde 10-13) não depende dela.
 - [ ] **Decidir se as 9 reuniões fora das 102 entram no instrumento.** Saiu da conferência da ponte
   (nota `2026-10-13_ponte_horarios_copom`, seção 6).
   - Em 7 delas a quinta é feriado no Brasil (5 Corpus Christi, 7 de setembro, Finados), e pela convenção
-    a primeira cotação de DI e PTAX é a de sexta. As outras 2 caem pelo filtro de S&P 500, VIX e Brent
+    a primeira cotação do DI é a de sexta; a do Yahoo é a da noite de quarta (ou de quinta, na 175ª e na
+    191ª, com anúncio depois das 20h), que não depende do feriado. As outras 2 caem pelo filtro de S&P 500, VIX e Brent
     na quinta de Thanksgiving, que não entra em regressão alguma.
   - Os meses delas entram em `z_bruto` e `z_bs_purif` com surpresa zero, embora tenha havido decisão:
     2013-05, 2013-11, 2015-06, 2015-11, 2017-09, 2019-06, 2022-06, 2023-11 e 2025-06.
@@ -761,13 +780,17 @@ verificações".*
   ortogonalizada do passo 2/5. Resposta acumulada de câmbio e CDS da cotação anterior ao anúncio até o
   primeiro pregão posterior e até 5, 10 e 20 pregões depois, com intervalos. Os horizontes são os do
   e-mail; fixá-los e commitá-los antes de rodar, como a regra do passo 3 (`2cad8bd`).
-  - A conferência fechou em 10-13 (nota `2026-10-13_ponte_horarios_copom`). Para câmbio e DI, a
-    cotação anterior ao anúncio é a de quarta e a primeira posterior é a de quinta. No CDS, depende da
-    decisão sobre a janela (item acima).
+  - A conferência fechou em 10-13 (nota `2026-10-13_ponte_horarios_copom`). No DI, a cotação anterior
+    ao anúncio é a de quarta e a primeira posterior é a de quinta. O câmbio é o Yahoo, por decisão do
+    autor de 10-13 (nota `2026-10-13_cambio_yahoo_convencao`): a cotação anterior e a primeira
+    posterior são as de `yahoo_pre` e `yahoo_post` em `output/copom_timing/meetings.csv`, em geral as
+    noites de terça e de quarta. No CDS, depende da decisão sobre a janela (item acima).
   - Reportar primeiro a forma reduzida por unidade da mesma surpresa. Se normalizar por uma variação do
     DI, apresentar o primeiro estágio e manter explícita a referência. Não comparar magnitudes
     normalizadas por objetos diferentes.
-  - ⚠ A PTAX de cada dia é das 13h; o 20º pregão posterior pode cair em outro mês, e reuniões a menos de
+  - ⚠ A cotação do Yahoo de cada dia é da noite (20h–22h em Brasília), e o Yahoo cota em feriados
+    brasileiros: contar os pregões posteriores pelas linhas do Yahoo ou pelos pregões da B3 é escolha a
+    fixar antes de rodar. O 20º pregão posterior pode cair em outro mês, e reuniões a menos de
     20 pregões umas das outras têm janelas sobrepostas.
 - [ ] **Ponte (b): forma reduzida mensal, sem os fatores.** Regressão mensal simples da variação do
   câmbio e do CDS na surpresa agregada no mês, no mesmo período e com as mesmas séries do modelo
@@ -784,9 +807,12 @@ verificações".*
     esses meses.
   - ⚠ Nove meses com decisão do Copom também entram com zero: os das 9 reuniões fora das 102 (item
     acima). Um zero do instrumento não separa "sem reunião" de "reunião fora da amostra".
-  - ⚠ O câmbio do painel é a média dos dias do Yahoo no mês de calendário. No inverno europeu, a linha
-    datada no dia 1º acompanha a sessão anterior. Em 3 das 7 reuniões de fim de mês (2016-11-30,
-    2018-10-31, 2024-01-31), essa sessão é a de quarta, anterior ao anúncio, e entra no mês da surpresa.
+  - ⚠ O câmbio do painel é a média das linhas do Yahoo pela data, no mês de calendário, e a linha traz
+    a cotação da noite (nota `2026-10-13_cambio_yahoo_convencao`). Nas 4 reuniões de fim de mês no verão
+    europeu (2016-08-31, 2017-05-31, 2019-07-31, 2024-07-31), a primeira cotação posterior ao anúncio é a
+    linha datada quarta, que entra na média do mês da reunião, e a surpresa vai ao mês seguinte. Nas 3
+    de inverno (2016-11-30, 2018-10-31, 2024-01-31), ela é a linha datada no dia 1º e entra no mês da
+    surpresa. (A versão de 10-13 da conferência dizia o contrário para as 3 de inverno.)
 - [ ] **Amostra completa com `p = 2`, o resto do desenho fixo.** Os conjuntos pré-COVID só existem em
   `p = 2`, porque em `p = 4` o teste tem mais momentos que observações (`hac_dim` 135 ≥ T = 90; nota
   `2026-10-05_precisao_ar`). Rodar a janela completa em `p = 2` separa a mudança de amostra da mudança de
@@ -806,6 +832,8 @@ verificações".*
     da janela do CDS na ponte (a).
   - ⚠ 9 das 111 reuniões ficam fora (7 quintas de feriado no Brasil, 2 de Thanksgiving), e seus meses
     entram com z = 0. Abriu o item de decisão (acima).
+  - **Câmbio refeito no mesmo dia** com o Yahoo pela convenção (decisão do autor): a janela vai da
+    noite de terça à de quarta em 96 das 102. Nota `2026-10-13_cambio_yahoo_convencao`.
 
   Nota: `2026-10-13_ponte_horarios_copom`.
 - [x] **Responder ao orientador sobre o plano de 03-10 — superado em 2026-10-13.** Os passos 0 a 4
@@ -871,6 +899,9 @@ verificações".*
     significante a 90%.
   - **Rerodado em 10-12.** As regressões diárias saíram byte-idênticas. No DFM, o câmbio vai a +0,096
     com a bruta e a +0,145 na produção.
+  - **Câmbio refeito em 10-13** com o Yahoo pela convenção, por decisão do autor: −R$ 0,037 (0,80%, p
+    0,012) na bruta e −R$ 0,029 (0,66%, p 0,088) na ortogonalizada. ⚠ A ortogonalizada perde os 95%. CDS
+    e DFM não mudam. Nota `2026-10-13_cambio_yahoo_convencao`.
 
   Notas: `2026-10-05_evento_diario` (desenho), `2026-10-12_msci_emergentes` (números correntes).
 - [x] **Passo 1/5: precisão — 2026-10-05.** Rodado na branch `feature/focus-horizonte-fixo` sobre a
@@ -1126,25 +1157,22 @@ ela abriu são **editoriais** e estão no Tema A.
 
 ## D. Diagnósticos e comparações pendentes
 
-- [ ] **Câmbio diário do Yahoo deslocado um pregão no inverno europeu.** Achado no passo 2/5 do Tema B
-  (nota `2026-10-05_evento_diario`, seção 1).
-  - `data/raw/brl_usd_daily.csv` (`BRL=X`) carimba as barras à meia-noite de Londres. No inverno
-    europeu, a linha datada d acompanha o pregão d−1: a variação dela tem correlação −0,43 com a do
-    Ibovespa de d−1 e 0,02 com a de d (`output/daily_event/fx_alignment.csv`). Em 45 das 102 reuniões,
-    a variação de quarta a quinta lida pelas datas acompanha o pregão de quarta.
-  - A coluna alimenta o câmbio de `output/het/daily_changes.csv`, de `script/het_conditions.R`. Por
-    ele, entra na razão de variância diária do câmbio de `tab:het_frequency` (Anexo B) e no `Qr`
-    diário de DI, câmbio e CDS, que a §3.3 resume.
-  - `het_rigobon/` usa a mesma série e segue em quarentena.
-  - Falta: refazer a linha diária com a PTAX (`data/raw/ptax_daily.csv`, estágio `ptax`) ou com o Yahoo
-    realinhado, comparar a razão e o `Qr`, e decidir.
-  - Bloqueia o item do Tema A sobre o Anexo B.
-  - A conferência da ponte (nota `2026-10-13_ponte_horarios_copom`, seções 4 e 7) confirmou que a
-    janela do evento usa a PTAX. O câmbio mensal do painel é a média dos dias do Yahoo no mês de
-    calendário, e o deslocamento chega à fronteira dos meses (item da ponte (b), Tema B).
-
-
 ### Fechados (contexto)
+
+- [x] **Câmbio diário do Yahoo: hora da cotação e janela pela convenção — 2026-10-13, na branch
+  `feature/focus-horizonte-fixo`.**
+  - Por decisão do autor, todo o câmbio diário passa ao Yahoo pela convenção: o passo 2, a conferência
+    e a linha diária do Anexo B.
+  - A linha datada d traz a cotação da noite (20h–22h em Brasília). Na quarta, ela vem depois do
+    anúncio em 96 das 102 reuniões.
+  - ⚠ A leitura de 10-05 ("45 de inverno deslocadas") estava errada: a janela pelas datas perde o
+    anúncio nas 51 de verão.
+  - Evento diário: −R$ 0,037 (p 0,012) na bruta e −R$ 0,029 (p 0,088) na ortogonalizada, que perde os
+    95%.
+  - Anexo B diário: `Qr` p 0,002, 0,064 e 0,081 nos três vértices. ⚠ A razão de variância do câmbio
+    vai de 1,04 a 0,69. `het_rigobon/` segue com as datas, em quarentena.
+
+  Nota: `2026-10-13_cambio_yahoo_convencao`.
 
 - [x] **A série `msci` era a ação da MSCI Inc.; vira o índice MSCI de emergentes — 2026-10-12, na
   branch `feature/focus-horizonte-fixo`.** Achado no passo 4/5 (nota `2026-10-09_placebos_holm`,

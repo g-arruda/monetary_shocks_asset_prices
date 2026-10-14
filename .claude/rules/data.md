@@ -61,14 +61,20 @@ from "the collection came back empty", and the error only surfaces months later,
 - `data/raw/di.csv`, `data/raw/copom_historico.csv`, `data/raw/ibov_daily.csv`,
   `data/raw/investing/external_factors_daily.csv` — daily inputs to instrument construction, with
   the two macro news files above. `script/instrument.R` reads no exchange rate.
-- `data/raw/brl_usd_daily.csv` — Yahoo `BRL=X`, daily, from `download.R`; read live only by
-  `script/het_conditions.R`. ⚠ **Its dates are off by one session in the European winter**: Yahoo
-  stamps the bars at London midnight, the rows run Sunday–Thursday from the last Sunday of March to
-  the last Sunday of October, and outside that stretch the row dated d moves with session d−1
-  (its change correlates −0.43 with the Ibovespa's of d−1 and 0.02 with that of d;
-  `output/daily_event/fx_alignment.csv`). In 45 of the 102 Copom events a Wed→Thu change read off
-  its dates therefore tracks Wednesday's session, which closes before the announcement, not
-  Thursday's. Do not use it for an event window.
+- `data/raw/brl_usd_daily.csv` — Yahoo `BRL=X`, daily, from `download.R`. **Since 2026-10-13 it is
+  the only daily exchange rate of every result** (author decision): the Copom-day window of
+  `script/daily_event.R`, the conference of `script/copom_timing.R` and the daily row of Anexo B in
+  `script/het_conditions.R`. Read it through `load_yahoo_brl()` (`R/instrument/di_surprise.R`),
+  which attaches each row's quote time. Yahoo stamps each bar at the London midnight that opens it, the
+  close is the rate at that instant, and the file's date is that instant's in UTC. Under British summer
+  time the rows run Sunday–Thursday and the row dated d is d's evening, 20h in Brasilia. Outside it the
+  rows run Monday–Friday and the row dated d is d−1's evening, 21h or 22h. The time is **inferred, not
+  declared**. Wednesday's evening quote follows the announcement in 96 of the 102 events, so the
+  convention's window usually runs from Tuesday's evening quote to Wednesday's, and a Wed→Thu change
+  read off the dates **misses the announcement in the 51 European-summer events**. The old "45 winter
+  events precede it" reading was wrong. Never difference it by date for an event window; use the
+  `yahoo_pre`/`yahoo_post` rows of `output/copom_timing/meetings.csv`
+  (`notas/2026-10-13_cambio_yahoo_convencao.md`).
 - `data/raw/msci_em.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-12, not merged): the
   MSCI Emerging Markets index (MSCI code 891800, price index in USD, standard variant), end-of-month
   levels from MSCI's own index-level service, written by `script/download_msci.R`, the `msci`
@@ -83,8 +89,10 @@ from "the collection came back empty", and the error only surfaces months later,
   which this branch's `clean.R` overwrites (`notas/2026-10-12_msci_emergentes.md`).
 - `data/raw/ptax_daily.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-05, not merged):
   the daily PTAX (SGS 1, selling quote, average of the 10h–13h windows), from
-  `script/download_ptax.R`, the `ptax` network stage of its own. The Copom-day exchange-rate change
-  of `script/daily_event.R` (Wed 13h → Thu 13h).
+  `script/download_ptax.R`, the `ptax` network stage of its own. It was the Copom-day exchange rate
+  of `script/daily_event.R` (Wed 13h → Thu 13h) until 2026-10-13. Since then it is only a 13h clock,
+  in two diagnostics: the alignment that dates the Yahoo quote (`fx_alignment.csv`) and CDS test (B)
+  of `copom_timing.R`, whose rule was fixed before it ran.
 - `data/raw/copom_atas.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-13, not merged): the
   Copom minutes of meetings 165 to 275 from the BCB API (`atas_detalhes`), raw text, HTML for 79 and
   `pdftotext` of the PDF for meetings 200 to 231, written by `script/download_copom_minutes.R`, the
@@ -92,7 +100,7 @@ from "the collection came back empty", and the error only surfaces months later,
   `script/copom_timing.R` reads the announcement time off it. **The Copom-day times**
   (`notas/2026-10-13_ponte_horarios_copom.md`): the statement comes after the second day's last
   session, at 19h19–20h55 until 2016-06, at 18h00–18h20 until 2020-10 and at 18h30–19h12 after,
-  always after the DI close; the PTAX is 10h–13h. ⚠ The CDS xlsx's `PX_LAST` closing time is unknown
+  always after the DI close; the Yahoo quote is 20h–22h. ⚠ The CDS xlsx's `PX_LAST` closing time is unknown
   (New York by Bloomberg's documentation, not fixed by the data), so its Wed→Thu change follows the
   convention only under a London close. ⚠ The instrument drops the 7 meetings whose Thursday is a
   Brazilian holiday and the 2 on Thanksgiving, and their months enter at z = 0.

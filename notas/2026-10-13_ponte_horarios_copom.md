@@ -1,5 +1,14 @@
 # Ponte, conferência: horários do dia do Copom e janelas de DI, câmbio e CDS
 
+> **CÂMBIO SUPERADO no mesmo dia** por
+> [`2026-10-13_cambio_yahoo_convencao`](2026-10-13_cambio_yahoo_convencao.md). Por decisão do autor,
+> a janela cambial passou da PTAX ao Yahoo `BRL=X` pela convenção. A cotação do Yahoo é a da noite do
+> pregão, das 20h às 22h em Brasília. Na quarta, ela vem depois do anúncio em 96 das 102 reuniões, e a
+> janela vai então da noite de terça à de quarta.
+> - Ficam superadas a seção 4, as colunas de PTAX da tabela da seção 6 e a frase da seção 7 sobre o
+>   câmbio do painel nas reuniões de fim de mês.
+> - O resto vale: o anúncio, o DI, o CDS, as 9 reuniões e a correspondência com os meses.
+
 > **CURRENT — 2026-10-13.** Primeiro item da ponte do e-mail do orientador de 12-10
 > (`email/email_professor_12-10_19h40.md`, item 2, último parágrafo). Branch
 > `feature/focus-horizonte-fixo`, **não mergeada**.
