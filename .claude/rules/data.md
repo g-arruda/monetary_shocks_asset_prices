@@ -102,7 +102,10 @@ from "the collection came back empty", and the error only surfaces months later,
   session, at 19h19–20h55 until 2016-06, at 18h00–18h20 until 2020-10 and at 18h30–19h12 after,
   always after the DI close; the Yahoo quote is 20h–22h. ⚠ The CDS xlsx's `PX_LAST` closing time is unknown
   (New York by Bloomberg's documentation, not fixed by the data), so its Wed→Thu change follows the
-  convention only under a London close. ⚠ The instrument drops the 7 meetings whose Thursday is a
+  convention only under a London close. **Since 2026-10-14 the author fixes the close at 17h New York**
+  (`cds_pre_ny17`/`cds_post_ny17` of `meetings.csv`; `notas/2026-10-14_ponte_trajetoria_evento.md`):
+  bridge (a) uses it, while `daily_event.R` and `het_conditions.R` still use Wed→Thu (open item). The
+  daily exchange rate is always Yahoo `BRL=X`, never the PTAX (author decision, same day). ⚠ The instrument drops the 7 meetings whose Thursday is a
   Brazilian holiday and the 2 on Thanksgiving, and their months enter at z = 0.
 
 ## Two external inputs with no producer in this repo

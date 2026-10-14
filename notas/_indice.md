@@ -148,6 +148,20 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Ponte (a): trajetória acumulada de câmbio e CDS após o anúncio do Copom, e-mail de 12-10 (2026-10-14, branch `feature/focus-horizonte-fixo`):**
+[`2026-10-14_ponte_trajetoria_evento`](2026-10-14_ponte_trajetoria_evento.md)
+**CURRENT na branch, não mergeada.** Regra commitada antes de rodar (`0b08071`).
+- **Desenho.** Da última cotação antes do anúncio à 1ª, 5ª, 10ª e 20ª depois, contadas no próprio
+  mercado. Câmbio do Yahoo (nunca a PTAX) e CDS às 17h de NY, por decisão do autor. 101 reuniões.
+  Forma reduzida na surpresa ortogonalizada, HC1.
+- **Câmbio, por +50 p.b.** −R$ 0,029 na 1ª cotação (significante a 90%); +R$ 0,122 até a 20ª,
+  significante a 95% (2,40%, significante a 90%). Pela regra, a troca de sinal já aparece na trajetória
+  diária. ⚠ Não é significante a 90% em k = 5 e 10, e a troca não fica datada.
+- **CDS.** +16,5 p.b. até a 10ª cotação, significante a 95%; nos outros horizontes, não significante a
+  90%.
+- ⚠ Uma conta exploratória fora da regra (sem 2020-03-18) não é resultado. O passo 2 e o Anexo B ainda
+  usam o CDS de quarta a quinta.
+
 **Câmbio diário do Yahoo pela convenção do anúncio: evento diário, conferência e Anexo B (2026-10-13, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-13_cambio_yahoo_convencao`](2026-10-13_cambio_yahoo_convencao.md)
 **CURRENT na branch, não mergeada.** Por decisão do autor, todo o câmbio diário passa ao Yahoo

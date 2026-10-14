@@ -1,5 +1,17 @@
 # Pendências
 
+**Atualização de 2026-10-14 (ponte a):** a ponte (a) rodou e fechou (Tema B, nota
+`2026-10-14_ponte_trajetoria_evento`), com a regra commitada antes (`0b08071`). Decisões do autor no
+mesmo dia: câmbio sempre do Yahoo, nunca a PTAX; CDS sempre com fechamento às 17h de Nova York, o que
+fecha o item da janela do CDS; amostra comum de 101 reuniões; só a forma reduzida. Por +50 p.b. de
+surpresa ortogonalizada:
+- o real aprecia R$ 0,029 na primeira cotação (significante a 90%) e deprecia R$ 0,122 até a 20ª
+  (significante a 95%);
+- o CDS alarga 16,5 p.b. até a 10ª (significante a 95%).
+
+Pela regra, a troca de sinal do câmbio já aparece na trajetória diária. Entrou um item no Tema B: o
+passo 2 e a linha diária do Anexo B passam o CDS às 17h de NY.
+
 **Atualização de 2026-10-14:** e-mail ao orientador às 10h55 (`email/email_meu_14-10_10h55.md`) com três
 perguntas da conferência da ponte, todas no Tema B e aguardando resposta. (1) Câmbio: manter o Yahoo,
 cuja primeira cotação posterior ao anúncio seria a da noite de quarta, ou usar outra fonte; item novo.
@@ -161,9 +173,8 @@ Ordem de execução fixada em 2026-10-13 para a entrega de 19/20 de outubro (e-m
 | 0 · decisão | B | Passo 3/5, parte 2, condicional: a mesma regra na variação de terça a quarta | aberto em 2026-10-12, quando a exclusão por movimentos extremos fechou; pela letra da regra a condição se cumpre no câmbio (impacto 0,145 → 0,107, sem os 95%), não no CDS; rodar ou não é decisão do autor; depende do passo 0; ⚠ o e-mail de 12-10 não o pede e chama a rodada de última |
 | 0 · decisão | B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26); ⚠ o e-mail de 12-10 não o menciona nem o põe na entrega de 19/20 |
 | 0 · decisão | B | Decidir se as 9 reuniões fora das 102 entram no instrumento | aberto em 2026-10-13, na conferência da ponte (nota `2026-10-13_ponte_horarios_copom`); 7 quintas de feriado no Brasil e 2 de Thanksgiving; seus meses entram com z = 0; ⚠ incluí-las muda o instrumento e toda a base, e o e-mail de 12-10 pede a mesma amostra na ponte; toca a ponte (b); perguntado ao orientador em 14-10, aguarda resposta |
-| 1 · decisão | B | Evento diário e ponte (a): a janela do câmbio, Yahoo da noite ou pregão doméstico seguinte | aberto em 2026-10-14; perguntado ao orientador no mesmo dia, aguarda resposta; a convenção do e-mail de 12-10 manda usar o pregão seguinte; se a resposta for o mercado doméstico, refaz o passo 2, a conferência e a linha diária do Anexo B; bloqueia a ponte (a) no câmbio |
-| 1 · decisão | B | Ponte (a), antes de rodar: a janela do CDS | aberto em 2026-10-13, na conferência da ponte; o horário do fechamento do CDS não está no arquivo nem os dados o fixam; quarta → quinta cumpre a convenção só com Londres, e com Nova York falha em 27 a 77 das 102; perguntado ao orientador em 14-10 (Londres ou Nova York às 17h), aguarda resposta; bloqueia a ponte (a) no CDS |
-| 2 | B | Ponte (a): trajetória acumulada de câmbio e CDS em 1, 5, 10 e 20 pregões após o anúncio | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; mesmas reuniões e surpresa ortogonalizada do passo 2; horizontes fixados antes de rodar; a conferência fechou em 10-13; depende da janela do CDS (item acima) |
+| 1 · decisão | B | Evento diário e ponte (a): a janela do câmbio do Yahoo | aberto em 2026-10-14; perguntado ao orientador no mesmo dia, aguarda resposta; por decisão do autor de 14-10 o câmbio é sempre o Yahoo, nunca a PTAX; se a janela mudar, rodar de novo `copom_timing.R`, `daily_event.R`, `event_trajectory.R` (ponte (a), que rodou em 14-10 com a janela atual) e `het_conditions.R` |
+| ∥ 1–3 | B | Passo 2 e linha diária do Anexo B: CDS às 17h de Nova York | aberto em 2026-10-14, quando o autor fixou o fechamento do CDS às 17h de NY; `daily_event.R` e `het_conditions.R` ainda usam quarta → quinta, e a ponte (a) já usa NY 17h; no k = 1 da ponte, −1,24 p.b. (NY 17h) contra −0,49 (quarta a quinta), nenhum significante; toca o item 6 do Tema A (Anexo B) |
 | 3 | B | Ponte (b): regressão mensal de câmbio e CDS na surpresa agregada, sem fatores | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; documentar fim de mês contra média e como entram os meses sem reunião; ⚠ nove meses com decisão também entram com z = 0 (item das 9 reuniões) |
 | ∥ 1–3 | B | Amostra completa com `p = 2`, resto do desenho fixo | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; separa mudança de amostra de mudança de defasagem na comparação pré-COVID |
 | ∥ 1–3 | B | Passo 0/5: congelar a base (Focus a horizonte fixo por Dovern-Fritsche-Slacalek) | aberto em 2026-10-03; **rodado no mesmo dia** na branch `feature/focus-horizonte-fixo`; o orientador viu câmbio e CDS e liberou, em 12-10, atualizar o artigo com a base reconstruída, e falta o autor congelar e promover; câmbio e CDS quase iguais no impacto, a 90% a ponta longa some; **bloqueia** o passo 5/5, a parte 2 condicional do passo 3, o item do Tema A sobre §3.3 e `fig:placebos` e os três itens do Tema A de 10-13 que dependem da base; os passos 1 a 4 rodaram sobre esta base em 10-05 a 10-09 e de novo em 10-12, quando a `msci` virou o índice de emergentes, a base foi reestimada e a parte 2 do passo 3 rodou; ⚠ `main` segue com a ação da MSCI Inc. |
@@ -308,6 +319,9 @@ itens de placebos acima ganharam a redação do item 4 do mesmo e-mail.*
   ora a conclusão registra as duas e não atribui a divergência a explicação alguma. A redação final
   depende da ponte do Tema B (o que ela permitir afirmar sobre onde a inversão aparece). Toca o item da
   leitura da §4 no resumo, na introdução e na conclusão (abaixo).
+  - A ponte (a) fechou em 14-10 (nota `2026-10-14_ponte_trajetoria_evento`). Até a 20ª cotação depois
+    do anúncio, o real deprecia R$ 0,122 por +50 p.b. de surpresa, significante a 95%, e a troca de sinal
+    já aparece na trajetória diária. Falta a ponte (b).
 
 *Item aberto em 2026-10-05, no passo 2/5 do Tema B.*
 
@@ -758,25 +772,21 @@ verificações".*
 - *Sem contribuição empiricamente defensável após as verificações, o projeto é encerrado. Falta de
   significância, sozinha, não decide: contam também precisão, magnitudes e a contribuição sustentável.*
 
-- [ ] **Ponte (a), antes de rodar: a janela do CDS.** Saiu da conferência da ponte (nota
-  `2026-10-13_ponte_horarios_copom`, seção 5).
-  - O horário do fechamento do `PX_LAST` do CDS não está no arquivo, e os dados não o fixam: o teste
-    fixado antes de rodar (`5048a09`) deu inconclusivo.
-  - A janela de quarta a quinta de `daily_event.R` cumpre a convenção só com fechamento em Londres. Com
-    fechamento em Nova York, o de quarta vem depois do anúncio em 27 (17h) a 77 (18h) das 102 reuniões.
-  - Opções:
-    - manter a janela de quarta a quinta, que só cumpre a convenção com fechamento em Londres;
-    - usar a janela da cotação anterior à quarta até a de quinta, que contém o anúncio sob qualquer
-      hipótese, ao custo de incluir a tarde da véspera;
-    - definir a janela reunião a reunião sob uma das hipóteses de Nova York;
-    - pedir ao orientador a fonte de preço (PCS) do `PX_LAST` no terminal.
-  - Perguntado ao orientador em 14-10 (`email/email_meu_14-10_10h55.md`, ponto 2), só com as hipóteses
-    de Londres e de Nova York às 17h, por decisão do autor. Aguarda resposta.
-  - Decisão do autor, antes de fixar os horizontes da ponte (a). Bloqueia a ponte (a) no CDS; o câmbio
-    não depende dela, mas tem decisão própria (item abaixo).
-- [ ] **Evento diário e ponte (a): a janela do câmbio, Yahoo da noite ou pregão doméstico seguinte.**
+- [ ] **Passo 2 e linha diária do Anexo B: CDS às 17h de Nova York.** Aberto em 14-10, quando o autor
+  fixou o fechamento do CDS às 17h de NY (Fechados, abaixo).
+  - `daily_event.R` (passo 2) e `het_conditions.R` (linha diária de `tab:het_frequency`) ainda usam a
+    janela de quarta a quinta. A ponte (a) já usa a de `cds_pre_ny17` → `cds_post_ny17` de
+    `output/copom_timing/meetings.csv`, que nas 27 reuniões com o fechamento de quarta depois do anúncio
+    vai da véspera à quarta.
+  - No k = 1 da ponte, nas 102 reuniões: −1,24 p.b. (p 0,757) às 17h de NY, contra −0,49 (p 0,903) de
+    quarta a quinta. Nenhum é significante.
+  - No Anexo B, as semanas sem reunião não têm anúncio, e falta definir a janela delas às 17h de NY.
+  - Toca o item 6 do Tema A, que leva o Anexo B ao `.tex`.
+- [ ] **Evento diário e ponte (a): a janela do câmbio do Yahoo.**
   Aberto em 14-10 e perguntado ao orientador no mesmo dia (`email/email_meu_14-10_10h55.md`, ponto 1).
   Aguarda resposta.
+  - **Decisão do autor de 14-10:** o câmbio é sempre o Yahoo `BRL=X`, nunca a PTAX. A pergunta fica
+    restrita à janela do Yahoo.
   - O e-mail de 12-10 fixa a convenção: se a decisão sai depois do fechamento do câmbio, a primeira
     cotação posterior é a do pregão seguinte. O `BRL=X` do Yahoo vem da ICE Data Services, mercado
     internacional de moedas, e não da B3. Pela hipótese de horário (nota
@@ -787,10 +797,9 @@ verificações".*
     câmbio anda em média |R$ 0,005| do anúncio à cotação diária da noite e |R$ 0,027| dela até quinta às
     12h. Nos dias úteis, a cotação horária muda em 95% das horas das 10h às 18h e em no máximo 22% das
     horas depois das 20h.
-  - Se a resposta for o mercado doméstico, refazer com uma cotação doméstica o passo 2
-    (`daily_event.R`), a conferência (`copom_timing.R`) e a linha diária do Anexo B (`het_conditions.R`),
-    que usam o Yahoo pela convenção desde 10-13 (`326ea37`).
-  - Bloqueia a ponte (a) no câmbio.
+  - Se a janela mudar, rodar de novo a conferência (`copom_timing.R`), o passo 2 (`daily_event.R`), a
+    ponte (a) (`event_trajectory.R`) e a linha diária do Anexo B (`het_conditions.R`). Todos leem a
+    janela de `meetings.csv`. A ponte (a) rodou em 14-10 com a janela atual (Fechados, abaixo).
 - [ ] **Decidir se as 9 reuniões fora das 102 entram no instrumento.** Saiu da conferência da ponte
   (nota `2026-10-13_ponte_horarios_copom`, seção 6).
   - Em 7 delas a quinta é feriado no Brasil (5 Corpus Christi, 7 de setembro, Finados), e pela convenção
@@ -805,23 +814,6 @@ verificações".*
   - Toca a ponte (b), que tem de dizer como entram os meses sem reunião.
   - Perguntado ao orientador em 14-10 (`email/email_meu_14-10_10h55.md`, ponto 3): mantê-las fora ou
     incluí-las com o pregão seguinte. Aguarda resposta.
-- [ ] **Ponte (a): trajetória acumulada após o evento.** Mesma amostra de reuniões e mesma surpresa
-  ortogonalizada do passo 2/5. Resposta acumulada de câmbio e CDS da cotação anterior ao anúncio até o
-  primeiro pregão posterior e até 5, 10 e 20 pregões depois, com intervalos. Os horizontes são os do
-  e-mail; fixá-los e commitá-los antes de rodar, como a regra do passo 3 (`2cad8bd`).
-  - A conferência fechou em 10-13 (nota `2026-10-13_ponte_horarios_copom`). No DI, a cotação anterior
-    ao anúncio é a de quarta e a primeira posterior é a de quinta. O câmbio é o Yahoo, por decisão do
-    autor de 10-13 (nota `2026-10-13_cambio_yahoo_convencao`): a cotação anterior e a primeira
-    posterior são as de `yahoo_pre` e `yahoo_post` em `output/copom_timing/meetings.csv`, em geral as
-    noites de terça e de quarta. A janela do câmbio pode mudar com a resposta do orientador
-    (item acima). No CDS, depende da decisão sobre a janela (item acima).
-  - Reportar primeiro a forma reduzida por unidade da mesma surpresa. Se normalizar por uma variação do
-    DI, apresentar o primeiro estágio e manter explícita a referência. Não comparar magnitudes
-    normalizadas por objetos diferentes.
-  - ⚠ A cotação do Yahoo de cada dia é da noite (20h–22h em Brasília), e o Yahoo cota em feriados
-    brasileiros: contar os pregões posteriores pelas linhas do Yahoo ou pelos pregões da B3 é escolha a
-    fixar antes de rodar. O 20º pregão posterior pode cair em outro mês, e reuniões a menos de
-    20 pregões umas das outras têm janelas sobrepostas.
 - [ ] **Ponte (b): forma reduzida mensal, sem os fatores.** Regressão mensal simples da variação do
   câmbio e do CDS na surpresa agregada no mês, no mesmo período e com as mesmas séries do modelo
   principal, na medida do possível. Mesma regra de reporte da ponte (a). A conferência fechou em 10-13
@@ -843,6 +835,8 @@ verificações".*
     linha datada quarta, que entra na média do mês da reunião, e a surpresa vai ao mês seguinte. Nas 3
     de inverno (2016-11-30, 2018-10-31, 2024-01-31), ela é a linha datada no dia 1º e entra no mês da
     surpresa. (A versão de 10-13 da conferência dizia o contrário para as 3 de inverno.)
+  - A ponte (a) fechou em 14-10 (nota `2026-10-14_ponte_trajetoria_evento`). A 20ª cotação cai 27 a 28
+    dias depois da quarta, e no mês seguinte ao da quarta em 89 (câmbio) e 92 (CDS) das 101 reuniões.
 - [ ] **Amostra completa com `p = 2`, o resto do desenho fixo.** Os conjuntos pré-COVID só existem em
   `p = 2`, porque em `p = 4` o teste tem mais momentos que observações (`hac_dim` 135 ≥ T = 90; nota
   `2026-10-05_precisao_ar`). Rodar a janela completa em `p = 2` separa a mudança de amostra da mudança de
@@ -853,6 +847,30 @@ verificações".*
 
 ### Fechados (contexto)
 
+- [x] **Ponte (a): trajetória acumulada após o evento — 2026-10-14.** Branch
+  `feature/focus-horizonte-fixo`. Regra commitada antes de rodar (`0b08071`), em
+  `script/event_trajectory.R`.
+  - Desenho: da última cotação antes do anúncio à 1ª, 5ª, 10ª e 20ª depois, contadas no próprio
+    mercado. Câmbio Yahoo e CDS às 17h de NY. 101 reuniões, porque falta a 20ª cotação de 2025-12-10.
+    Forma reduzida na surpresa ortogonalizada, HC1.
+  - Por +50 p.b., o real aprecia R$ 0,029 na 1ª cotação (significante a 90%) e deprecia R$ 0,122 até a
+    20ª (significante a 95%; 2,40%, significante a 90%). O CDS alarga 16,5 p.b. até a 10ª (significante
+    a 95%).
+  - Pela regra, a troca de sinal do câmbio já aparece na trajetória diária. ⚠ k = 5 e 10 do câmbio não
+    são significantes a 90%, e a troca não fica datada.
+  - ⚠ Conta exploratória fora da regra, não versionada: sem a reunião de 2020-03-18, o CDS é
+    significante a 95% em k = 5, 10 e 20, e o câmbio em k = 20 fica em 0,117.
+  - ⚠ k = 1 do CDS às 17h de NY difere do passo 2, que usa quarta a quinta (item acima).
+
+  Nota: `2026-10-14_ponte_trajetoria_evento`.
+- [x] **Ponte (a), antes de rodar: a janela do CDS — decidida pelo autor em 2026-10-14.** O CDS fecha
+  sempre às 17h de Nova York: em 27 das 102 reuniões, a janela vai da cotação anterior à quarta até a
+  de quarta.
+  - ⚠ Decisão sobre um horário que nem o arquivo nem os dados fixam: o teste da regra `5048a09` deu
+    inconclusivo (nota `2026-10-13_ponte_horarios_copom`, seção 5).
+  - A pergunta ao orientador de 14-10 (ponto 2) continua no e-mail. Se ele indicar outro horário, o
+    item reabre.
+  - Abriu o item do passo 2 e do Anexo B (acima).
 - [x] **Ponte, conferência: o que é exatamente o dia do Copom — 2026-10-13.** Branch
   `feature/focus-horizonte-fixo`; nada reestimado, instrumento intocado. Anúncio reunião a reunião pelas
   atas do BCB (estágio `copom_atas`): 19h19–20h55 até jun/2016, 18h00–18h20 até out/2020, 18h30–19h12
