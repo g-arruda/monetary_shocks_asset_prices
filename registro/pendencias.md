@@ -1,5 +1,12 @@
 # Pendências
 
+**Atualização de 2026-10-14:** e-mail ao orientador às 10h55 (`email/email_meu_14-10_10h55.md`) com três
+perguntas da conferência da ponte, todas no Tema B e aguardando resposta. (1) Câmbio: manter o Yahoo,
+cuja primeira cotação posterior ao anúncio seria a da noite de quarta, ou usar outra fonte; item novo.
+(2) CDS: a janela de quarta a quinta vale com fechamento em Londres, e com Nova York às 17h falha nas
+reuniões do inverno americano desde meados de 2016. (3) As 9 reuniões fora das 102: mantê-las fora ou
+incluí-las com o pregão seguinte.
+
 **Atualização de 2026-10-13 (câmbio):** por decisão do autor, todo o câmbio diário passa ao Yahoo
 `BRL=X`, lido pela convenção do anúncio (nota `2026-10-13_cambio_yahoo_convencao`). A cotação do Yahoo
 é a da noite (20h–22h em Brasília). Na quarta, ela vem depois do anúncio em 96 das 102 reuniões. ⚠ A
@@ -153,8 +160,9 @@ Ordem de execução fixada em 2026-10-13 para a entrega de 19/20 de outubro (e-m
 |---|---|---|---|
 | 0 · decisão | B | Passo 3/5, parte 2, condicional: a mesma regra na variação de terça a quarta | aberto em 2026-10-12, quando a exclusão por movimentos extremos fechou; pela letra da regra a condição se cumpre no câmbio (impacto 0,145 → 0,107, sem os 95%), não no CDS; rodar ou não é decisão do autor; depende do passo 0; ⚠ o e-mail de 12-10 não o pede e chama a rodada de última |
 | 0 · decisão | B | Passo 5/5: apêndice com surpresa bruta, ortogonalizada e filtro JK | aberto em 2026-10-03; depende do passo 0; ⚠ reverte a saída do JK do paper (2026-09-26); ⚠ o e-mail de 12-10 não o menciona nem o põe na entrega de 19/20 |
-| 0 · decisão | B | Decidir se as 9 reuniões fora das 102 entram no instrumento | aberto em 2026-10-13, na conferência da ponte (nota `2026-10-13_ponte_horarios_copom`); 7 quintas de feriado no Brasil e 2 de Thanksgiving; seus meses entram com z = 0; ⚠ incluí-las muda o instrumento e toda a base, e o e-mail de 12-10 pede a mesma amostra na ponte; toca a ponte (b) |
-| 1 · decisão | B | Ponte (a), antes de rodar: a janela do CDS | aberto em 2026-10-13, na conferência da ponte; o horário do fechamento do CDS não está no arquivo nem os dados o fixam; quarta → quinta cumpre a convenção só com Londres, e com Nova York falha em 27 a 77 das 102; bloqueia a ponte (a) no CDS |
+| 0 · decisão | B | Decidir se as 9 reuniões fora das 102 entram no instrumento | aberto em 2026-10-13, na conferência da ponte (nota `2026-10-13_ponte_horarios_copom`); 7 quintas de feriado no Brasil e 2 de Thanksgiving; seus meses entram com z = 0; ⚠ incluí-las muda o instrumento e toda a base, e o e-mail de 12-10 pede a mesma amostra na ponte; toca a ponte (b); perguntado ao orientador em 14-10, aguarda resposta |
+| 1 · decisão | B | Evento diário e ponte (a): a janela do câmbio, Yahoo da noite ou pregão doméstico seguinte | aberto em 2026-10-14; perguntado ao orientador no mesmo dia, aguarda resposta; a convenção do e-mail de 12-10 manda usar o pregão seguinte; se a resposta for o mercado doméstico, refaz o passo 2, a conferência e a linha diária do Anexo B; bloqueia a ponte (a) no câmbio |
+| 1 · decisão | B | Ponte (a), antes de rodar: a janela do CDS | aberto em 2026-10-13, na conferência da ponte; o horário do fechamento do CDS não está no arquivo nem os dados o fixam; quarta → quinta cumpre a convenção só com Londres, e com Nova York falha em 27 a 77 das 102; perguntado ao orientador em 14-10 (Londres ou Nova York às 17h), aguarda resposta; bloqueia a ponte (a) no CDS |
 | 2 | B | Ponte (a): trajetória acumulada de câmbio e CDS em 1, 5, 10 e 20 pregões após o anúncio | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; mesmas reuniões e surpresa ortogonalizada do passo 2; horizontes fixados antes de rodar; a conferência fechou em 10-13; depende da janela do CDS (item acima) |
 | 3 | B | Ponte (b): regressão mensal de câmbio e CDS na surpresa agregada, sem fatores | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; documentar fim de mês contra média e como entram os meses sem reunião; ⚠ nove meses com decisão também entram com z = 0 (item das 9 reuniões) |
 | ∥ 1–3 | B | Amostra completa com `p = 2`, resto do desenho fixo | aberto em 2026-10-13, e-mail de 12-10; entrega de 19/20-10; separa mudança de amostra de mudança de defasagem na comparação pré-COVID |
@@ -762,8 +770,27 @@ verificações".*
       hipótese, ao custo de incluir a tarde da véspera;
     - definir a janela reunião a reunião sob uma das hipóteses de Nova York;
     - pedir ao orientador a fonte de preço (PCS) do `PX_LAST` no terminal.
+  - Perguntado ao orientador em 14-10 (`email/email_meu_14-10_10h55.md`, ponto 2), só com as hipóteses
+    de Londres e de Nova York às 17h, por decisão do autor. Aguarda resposta.
   - Decisão do autor, antes de fixar os horizontes da ponte (a). Bloqueia a ponte (a) no CDS; o câmbio
-    (Yahoo pela convenção, desde 10-13) não depende dela.
+    não depende dela, mas tem decisão própria (item abaixo).
+- [ ] **Evento diário e ponte (a): a janela do câmbio, Yahoo da noite ou pregão doméstico seguinte.**
+  Aberto em 14-10 e perguntado ao orientador no mesmo dia (`email/email_meu_14-10_10h55.md`, ponto 1).
+  Aguarda resposta.
+  - O e-mail de 12-10 fixa a convenção: se a decisão sai depois do fechamento do câmbio, a primeira
+    cotação posterior é a do pregão seguinte. O `BRL=X` do Yahoo vem da ICE Data Services, mercado
+    internacional de moedas, e não da B3. Pela hipótese de horário (nota
+    `2026-10-13_cambio_yahoo_convencao`, seção 1), a primeira cotação posterior ao anúncio é a da noite de
+    quarta, com o mercado doméstico já fechado.
+  - ⚠ Conta exploratória de 14-10, não versionada. O Yahoo só guarda barras horárias dos últimos 730 dias
+    e de 5 minutos dos últimos 60, então só as 10 reuniões de 2024-11 a 2025-12 têm intradiário. Nelas, o
+    câmbio anda em média |R$ 0,005| do anúncio à cotação diária da noite e |R$ 0,027| dela até quinta às
+    12h. Nos dias úteis, a cotação horária muda em 95% das horas das 10h às 18h e em no máximo 22% das
+    horas depois das 20h.
+  - Se a resposta for o mercado doméstico, refazer com uma cotação doméstica o passo 2
+    (`daily_event.R`), a conferência (`copom_timing.R`) e a linha diária do Anexo B (`het_conditions.R`),
+    que usam o Yahoo pela convenção desde 10-13 (`326ea37`).
+  - Bloqueia a ponte (a) no câmbio.
 - [ ] **Decidir se as 9 reuniões fora das 102 entram no instrumento.** Saiu da conferência da ponte
   (nota `2026-10-13_ponte_horarios_copom`, seção 6).
   - Em 7 delas a quinta é feriado no Brasil (5 Corpus Christi, 7 de setembro, Finados), e pela convenção
@@ -776,6 +803,8 @@ verificações".*
   - ⚠ Incluí-las muda o instrumento, a regressão Bauer-Swanson e todos os números da base. O e-mail de
     12-10 pede a mesma amostra de reuniões na ponte e chama a rodada de última.
   - Toca a ponte (b), que tem de dizer como entram os meses sem reunião.
+  - Perguntado ao orientador em 14-10 (`email/email_meu_14-10_10h55.md`, ponto 3): mantê-las fora ou
+    incluí-las com o pregão seguinte. Aguarda resposta.
 - [ ] **Ponte (a): trajetória acumulada após o evento.** Mesma amostra de reuniões e mesma surpresa
   ortogonalizada do passo 2/5. Resposta acumulada de câmbio e CDS da cotação anterior ao anúncio até o
   primeiro pregão posterior e até 5, 10 e 20 pregões depois, com intervalos. Os horizontes são os do
@@ -784,7 +813,8 @@ verificações".*
     ao anúncio é a de quarta e a primeira posterior é a de quinta. O câmbio é o Yahoo, por decisão do
     autor de 10-13 (nota `2026-10-13_cambio_yahoo_convencao`): a cotação anterior e a primeira
     posterior são as de `yahoo_pre` e `yahoo_post` em `output/copom_timing/meetings.csv`, em geral as
-    noites de terça e de quarta. No CDS, depende da decisão sobre a janela (item acima).
+    noites de terça e de quarta. A janela do câmbio pode mudar com a resposta do orientador
+    (item acima). No CDS, depende da decisão sobre a janela (item acima).
   - Reportar primeiro a forma reduzida por unidade da mesma surpresa. Se normalizar por uma variação do
     DI, apresentar o primeiro estágio e manter explícita a referência. Não comparar magnitudes
     normalizadas por objetos diferentes.
