@@ -68,100 +68,6 @@ RESPONSES <- c(
 # The DFM's counterpart of each response, in the same units
 DFM_SERIES <- c(cambio_brl_usd = "cambio_usd", cds_5y = "cds_5y")
 
-#' Reduced form, first stage and Anderson-Rubin set of one daily regression
-#'
-#' The effect of the 6-month DI change on the response, instrumented by the
-#' surprise: a just-identified IV with one instrument, every event weighted
-#' alike. With b and pi the slopes of the response and of the DI change on
-#' the surprise, the Anderson-Rubin set at level kappa is
-#' `{beta0 : (b - beta0 pi)^2 <= chi2_1(kappa) Var(b - beta0 pi)}`. The
-#' variance comes from the joint HC1 covariance of the two slopes, so the set
-#' inverts the HC1 Wald test of the slope of `y - beta0 di_change` on the
-#' surprise; at `beta0 = 0` that is the reduced-form test.
-#'
-#' @param y Change of the response, one entry per event.
-#' @param surprise Surprise, in bp.
-#' @param di_change Change of the 6-month DI contract, in bp. The raw
-#'   surprise is that change, and its first stage is the identity.
-#' @param levels Confidence levels.
-#'
-#' @return One-row tibble, per bp: `n`, the reduced form (`coef`, `se`, `t`,
-#'   `p_value`, `r2`), the first stage (`pi`, `se_pi`, `f_first_stage`) and,
-#'   for each level, `lo`, `hi`, `set_type` and `significant`, read off the
-#'   topology by `ar_excludes_zero()`.
-#'
-#' @examples
-#' fit_event_regression(events$d_cds, events$e_di_bs, events$delta_di,
-#'                      c(0.90, 0.95))
-fit_event_regression <- function(y, surprise, di_change, levels) {
-  n <- length(y)
-  reduced_form <- lm(y ~ surprise)
-  b <- coef(reduced_form)[[2]]
-  if (identical(di_change, surprise)) {
-    pi_hat <- 1
-    first_stage_residuals <- rep(0, n)
-  } else {
-    first_stage <- lm(di_change ~ surprise)
-    pi_hat <- coef(first_stage)[[2]]
-    first_stage_residuals <- residuals(first_stage)
-  }
-
-  # Joint HC1 covariance of the two slopes, which share the regressor
-  centered <- surprise - mean(surprise)
-  scores <- centered * cbind(residuals(reduced_form), first_stage_residuals)
-  V <- n / (n - 2) * crossprod(scores) / sum(centered^2)^2
-
-  crit <- qchisq(levels, df = 1)
-  sets <- solve_quadratic_le_zero(
-    a = pi_hat^2 - crit * V[2, 2],
-    b = -2 * (b * pi_hat - crit * V[1, 2]),
-    c = b^2 - crit * V[1, 1]
-  )
-  significant <- as.vector(ar_excludes_zero(
-    matrix(sets$type, nrow = 1),
-    matrix(sets$lo, nrow = 1),
-    matrix(sets$hi, nrow = 1)
-  ))
-  t_stat <- b / sqrt(V[1, 1])
-  p_value <- 2 * pnorm(-abs(t_stat))
-
-  # At every finite bound, the HC1 Wald of y - beta0 x on the surprise is
-  # the critical value
-  bounds <- tibble::tibble(
-    crit = rep(crit, 2),
-    beta0 = c(sets$lo, sets$hi)
-  ) |>
-    dplyr::filter(is.finite(beta0))
-  wald_at_bounds <- purrr::map_dbl(bounds$beta0, \(beta0) {
-    fit <- lm(y - beta0 * di_change ~ surprise)
-    coef(fit)[[2]]^2 / sandwich::vcovHC(fit, type = "HC1")[2, 2]
-  })
-  stopifnot(max(abs(wald_at_bounds - bounds$crit)) < 1e-8)
-  # The set excludes zero iff the reduced-form test rejects at its level
-  stopifnot(identical(significant, p_value < 1 - levels))
-
-  tibble::tibble(
-    n = n,
-    coef = b,
-    se = sqrt(V[1, 1]),
-    t = t_stat,
-    p_value = p_value,
-    r2 = summary(reduced_form)$r.squared,
-    pi = pi_hat,
-    se_pi = sqrt(V[2, 2]),
-    f_first_stage = pi_hat^2 / V[2, 2],
-    level = sprintf("%.0f", 100 * levels),
-    lo = sets$lo,
-    hi = sets$hi,
-    set_type = sets$type,
-    significant = significant
-  ) |>
-    tidyr::pivot_wider(
-      names_from = level,
-      values_from = c(lo, hi, set_type, significant)
-    )
-}
-
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # European summer time runs from the last Sunday of March to the last Sunday
@@ -259,11 +165,13 @@ regressions <- tidyr::expand_grid(
 ) |>
   dplyr::mutate(
     fit = purrr::map2(surprise, response, \(surprise, response) {
-      fit_event_regression(
+      fit_reduced_form_iv(
         events[[RESPONSES[[response]]]],
         events[[SURPRISES[[surprise]]]],
         events$delta_di,
-        CI_LEVELS
+        CI_LEVELS,
+        nw_lags = 0L,
+        period = seq_len(nrow(events))
       )
     })
   ) |>
@@ -443,11 +351,13 @@ fx_event_windows <- tidyr::expand_grid(
       in_group <- group_name == "todas" |
         window_changes$eu_summer == (group_name == "verao_europeu")
       sample <- window_changes[in_group & !is.na(window_changes[[window_name]]), ]
-      fit_event_regression(
+      fit_reduced_form_iv(
         sample[[window_name]],
         sample[[SURPRISES[[surprise_name]]]],
         sample$delta_di,
-        CI_LEVELS
+        CI_LEVELS,
+        nw_lags = 0L,
+        period = seq_len(nrow(sample))
       ) |>
         dplyr::transmute(
           n,

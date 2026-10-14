@@ -874,3 +874,125 @@ ar_dfm_bands <- function(dfm_results, rsh_sel_ind, inst_sel, mpind, h,
     n_par = ncol(cov$WHat)
   )
 }
+
+
+#' Reduced form, first stage and Anderson-Rubin set of a scalar IV regression
+#'
+#' The effect of a policy-rate change on the response, instrumented by the
+#' surprise: a just-identified IV with one instrument, every observation
+#' weighted alike. With b and pi the slopes of the response and of the rate
+#' change on the surprise, the Anderson-Rubin set at level kappa is
+#' `{beta0 : (b - beta0 pi)^2 <= chi2_1(kappa) Var(b - beta0 pi)}`. The
+#' variance comes from the joint covariance of the two slopes, so the set
+#' inverts the Wald test of the slope of `y - beta0 policy_change` on the
+#' surprise; at `beta0 = 0` that is the reduced-form test.
+#'
+#' The covariance is HC1 at `nw_lags = 0` and adds Bartlett terms otherwise.
+#' A lag-l term pairs two observations only when their `period`s are l
+#' apart, so a sample with gaps never pairs observations that are not
+#' neighbours in the calendar.
+#'
+#' @param y Change of the response.
+#' @param surprise Surprise, in bp.
+#' @param policy_change Change of the policy rate the effect is normalized by,
+#'   in bp: the 6-month DI contract on the event, the end-of-month `yield_6m`
+#'   in a month. When it is the surprise itself the first stage is the
+#'   identity.
+#' @param levels Confidence levels.
+#' @param nw_lags Bartlett truncation; 0 is HC1.
+#' @param period Integer calendar index of each observation, consecutive
+#'   integers for neighbours.
+#'
+#' @return One-row tibble, per bp: `n`, the reduced form (`coef`, `se`, `t`,
+#'   `p_value`, `r2`), the first stage (`pi`, `se_pi`, `f_first_stage`) and,
+#'   for each level, `lo`, `hi`, `set_type` and `significant`, read off the
+#'   topology by `ar_excludes_zero()`.
+#'
+#' @examples
+#' fit_reduced_form_iv(events$d_cds, events$e_di_bs, events$delta_di,
+#'                     c(0.90, 0.95), nw_lags = 0L,
+#'                     period = seq_len(nrow(events)))
+fit_reduced_form_iv <- function(y, surprise, policy_change, levels, nw_lags,
+                                period) {
+  n <- length(y)
+  reduced_form <- lm(y ~ surprise)
+  b <- coef(reduced_form)[[2]]
+  if (identical(policy_change, surprise)) {
+    pi_hat <- 1
+    first_stage_residuals <- rep(0, n)
+  } else {
+    first_stage <- lm(policy_change ~ surprise)
+    pi_hat <- coef(first_stage)[[2]]
+    first_stage_residuals <- residuals(first_stage)
+  }
+
+  # Joint covariance of the slopes, which share the regressor:
+  # S = G_0 + sum_{l=1}^{L} (1 - l/(L+1)) (G_l + G_l'), over the pairs of
+  # observations l periods apart, with HC1's n/(n-2)
+  centered <- surprise - mean(surprise)
+  slope_covariance <- function(residual_columns) {
+    scores <- centered * residual_columns
+    S <- crossprod(scores)
+    for (l in seq_len(nw_lags)) {
+      later <- match(period + l, period)
+      paired <- !is.na(later)
+      autocovariance <- crossprod(
+        scores[paired, , drop = FALSE],
+        scores[later[paired], , drop = FALSE]
+      )
+      S <- S + (1 - l / (nw_lags + 1)) * (autocovariance + t(autocovariance))
+    }
+    n / (n - 2) * S / sum(centered^2)^2
+  }
+  V <- slope_covariance(cbind(residuals(reduced_form), first_stage_residuals))
+
+  crit <- qchisq(levels, df = 1)
+  sets <- solve_quadratic_le_zero(
+    a = pi_hat^2 - crit * V[2, 2],
+    b = -2 * (b * pi_hat - crit * V[1, 2]),
+    c = b^2 - crit * V[1, 1]
+  )
+  significant <- as.vector(ar_excludes_zero(
+    matrix(sets$type, nrow = 1),
+    matrix(sets$lo, nrow = 1),
+    matrix(sets$hi, nrow = 1)
+  ))
+  t_stat <- b / sqrt(V[1, 1])
+  p_value <- 2 * pnorm(-abs(t_stat))
+
+  # At every finite bound, the Wald of y - beta0 x on the surprise, in its
+  # own regression, is the critical value
+  bounds <- tibble::tibble(
+    crit = rep(crit, 2),
+    beta0 = c(sets$lo, sets$hi)
+  ) |>
+    dplyr::filter(is.finite(beta0))
+  wald_at_bounds <- purrr::map_dbl(bounds$beta0, \(beta0) {
+    fit <- lm(y - beta0 * policy_change ~ surprise)
+    coef(fit)[[2]]^2 / slope_covariance(cbind(residuals(fit)))[1, 1]
+  })
+  stopifnot(max(abs(wald_at_bounds - bounds$crit)) < 1e-8)
+  # The set excludes zero iff the reduced-form test rejects at its level
+  stopifnot(identical(significant, p_value < 1 - levels))
+
+  tibble::tibble(
+    n = n,
+    coef = b,
+    se = sqrt(V[1, 1]),
+    t = t_stat,
+    p_value = p_value,
+    r2 = summary(reduced_form)$r.squared,
+    pi = pi_hat,
+    se_pi = sqrt(V[2, 2]),
+    f_first_stage = pi_hat^2 / V[2, 2],
+    level = sprintf("%.0f", 100 * levels),
+    lo = sets$lo,
+    hi = sets$hi,
+    set_type = sets$type,
+    significant = significant
+  ) |>
+    tidyr::pivot_wider(
+      names_from = level,
+      values_from = c(lo, hi, set_type, significant)
+    )
+}
