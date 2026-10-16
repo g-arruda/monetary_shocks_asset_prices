@@ -1,5 +1,17 @@
 # Pendências
 
+**Atualização de 2026-10-15 (conferência 1/4):** a tabela das reuniões afetadas rodou e fechou (Tema B,
+nota `2026-10-15_conferencia_reunioes_fora`), em `output/copom_timing/excluded_meetings.csv`. Decisões do
+autor no mesmo dia, antes de rodar:
+- as "afetadas" são as 9 fora das 102;
+- o Yahoo largo vai da linha de terça à de quinta, pelo calendário do Yahoo;
+- a janela ampliada do CDS fica fora e vai como pergunta ao orientador;
+- a duração vai em dias e cotações, e em horas onde há horário.
+
+Das 9, 7 caem porque a quinta é feriado no Brasil (DI e PTAX de quarta a sexta, um pregão, mesmo
+contrato) e 2 de Thanksgiving só pelo filtro de S&P 500, VIX e Brent. Entrou no Tema B o item de mandar a
+tabela ao orientador com a pergunta do CDS (passo 2 do índice).
+
 **Atualização de 2026-10-15:** entrou o e-mail do orientador de 14-10
 (`email/email_professor_14-10_17h44.md`), resposta às três perguntas de `email_meu_14-10_10h55.md`. Ele
 pede uma conferência em quatro entregas, cada uma enviada quando ficar pronta, e deixa a apreciação do
@@ -201,7 +213,7 @@ AR/MOSW próprios.
 ## Índice de itens abertos
 
 Passo a passo fixado em 2026-10-15, em ordem de prioridade pelos e-mails do orientador de 14-10 e 12-10; substitui a ordem de 2026-10-13. Passos com o mesmo número se fazem juntos.
-- **1–6: a conferência do e-mail de 14-10**, na ordem dele. Cada entrega (1, 3, 4 e 6) vai ao orientador quando ficar pronta, sem esperar as outras, e até o fim da conferência a apreciação do evento diário é provisória. O 2 sai cedo porque depende de um terceiro. O 5 é da entrega de 19/20, não depende da conferência e pode rodar em segundo plano desde o 1.
+- **1–6: a conferência do e-mail de 14-10**, na ordem dele. Cada entrega (1, 3, 4 e 6) vai ao orientador quando ficar pronta, sem esperar as outras, e até o fim da conferência a apreciação do evento diário é provisória. O 2 sai cedo porque depende de um terceiro. O 5 é da entrega de 19/20, não depende da conferência e pode rodar em segundo plano desde o 1. O 1 fechou em 15-10 (Fechados do Tema B), e o envio dele foi para o 2.
 - **7: congelar e promover a base.** Decide-se com o resultado do 6, que pode mudar o instrumento, e desbloqueia 8–13.
 - **8–13: o artigo**, da migração para a base nova até a conclusão, que depende da conferência. Ao fim do 13 sai a entrega de 19/20: a ponte, já feita, o `p = 2` e o artigo.
 - **depois**: decisões do autor fora da entrega. O e-mail de 12-10 não as pede e chama a rodada de última.
@@ -210,10 +222,10 @@ Branch sugerida: `focus` é `feature/focus-horizonte-fixo`, onde rodam os diagn�
 
 | Passo | Tema | Branch | Item | Observação |
 |---|---|---|---|---|
-| 1 | B | `focus` | Conferência 1/4: tabela das reuniões afetadas | e-mail de 14-10; horários conhecidos ou não, datas pré e pós de cada mercado, feriados e duração das janelas; boa parte já está em `output/copom_timing/meetings.csv` e na nota `2026-10-13_ponte_horarios_copom`; ⚠ o e-mail não define "afetadas"; as conferências 2/4 a 4/4 dependem dela |
-| 2 | B | — | Mandar ao orientador 5 a 10 datas de reunião para a cotação intradiária da Bloomberg | e-mail de 14-10; só para identificar a convenção do Yahoo, sem trocar a fonte; escolher as datas é do autor, e a tabela do passo 1 mostra os regimes de horário; toca o passo 3 |
-| 3 | B | `focus` | Conferência 2/4: câmbio, PTAX e Yahoo nas janelas do e-mail | e-mail de 14-10; a apreciação depende da fonte ou da janela?; PTAX de quarta ao 1º dia útil seguinte (decisão do autor de 15-10, que reverte a de 14-10); Yahoo da véspera da reunião ao 1º dia útil seguinte, sem apresentá-lo como janela estreita; não trocar a série do DFM |
-| 4 | B | `focus` | Conferência 3/4: CDS na janela ampliada, com as duas mudanças adjacentes | e-mail de 14-10; fechamento às 17h de NY (decisão do autor de 14-10, mantida em 15-10); leva o CDS do passo 2 (`daily_event.R`) às 17h de NY; ⚠ o corpo do e-mail pula o item do CDS, e a leitura de terça a quinta é do registro |
+| 2 | B | — | Mandar ao orientador a conferência 1/4 e perguntar a janela ampliada do CDS | aberto em 2026-10-15; a tabela das 9 está em `output/copom_timing/excluded_meetings.csv` e na nota `2026-10-15_conferencia_reunioes_fora`; o e-mail de 14-10 não tem o item 2, e "a janela ampliada, com as duas mudanças adjacentes" admite terça a quinta ou a estreita mais uma variação de cada lado; **bloqueia** o passo 4 |
+| 2 | B | — | Mandar ao orientador 5 a 10 datas de reunião para a cotação intradiária da Bloomberg | e-mail de 14-10; só para identificar a convenção do Yahoo, sem trocar a fonte; escolher as datas é do autor, e os regimes de horário do anúncio estão na nota `2026-10-13_ponte_horarios_copom`, seção 2; toca o passo 3 |
+| 3 | B | `focus` | Conferência 2/4: câmbio, PTAX e Yahoo nas janelas do e-mail | e-mail de 14-10; a apreciação depende da fonte ou da janela?; PTAX de quarta ao 1º dia útil seguinte (decisão do autor de 15-10, que reverte a de 14-10); Yahoo da linha de terça à de quinta pelo calendário do Yahoo (decisão do autor de 15-10), sem apresentá-lo como janela estreita; as duas janelas já estão em `meetings.csv` desde a 1/4; não trocar a série do DFM |
+| 4 | B | `focus` | Conferência 3/4: CDS na janela ampliada, com as duas mudanças adjacentes | e-mail de 14-10; fechamento às 17h de NY (decisão do autor de 14-10, mantida em 15-10); leva o CDS do passo 2 (`daily_event.R`) às 17h de NY; ⚠ o corpo do e-mail pula o item do CDS; depende da resposta à pergunta do passo 2 (decisão do autor de 15-10) |
 | 5 | B | `focus` | Amostra completa com `p = 2`, resto do desenho fixo | e-mail de 12-10; entrega de 19/20-10; separa mudança de amostra de mudança de defasagem na comparação pré-COVID; ⚠ decisão do autor antes de rodar: θ̂ reestimado em `p = 2` ou o de `p = 4`; se o passo 7 mudar a base, rodar de novo |
 | 6 | B | `nova` | Conferência 4/4: reuniões recuperadas, resultados com e sem elas lado a lado | e-mail de 14-10; as 2 de Thanksgiving com a janela habitual, as 7 de feriado no Brasil como sensibilidade, surpresa indisponível fora dos momentos de Γ, regressão BS refeita; ⚠ muda o instrumento da base e mexe no núcleo de identificação; ⚠ `data/processed/` não é versionado: ao voltar à `focus`, rodar `Rscript script/run_all.R --only=instrument` |
 | 7 | B | `focus` → `main` | Passo 0/5: congelar a base (Focus a horizonte fixo, `msci` índice de emergentes) e promover | aberto em 2026-10-03; o orientador liberou em 12-10 atualizar o artigo com a base reconstruída; ⚠ congelar com ou sem as reuniões recuperadas depende do passo 6 e é decisão do autor, assim como congelar sem ele se o 6 não ficar pronto a tempo de 19/20; promover exige rodar de novo figuras, anexos e números do `.tex`, e muda o smoke test e `CLAUDE.md`; ⚠ `main` segue com a ação da MSCI Inc.; **bloqueia** 8–13 e os dois itens de "depois" |
@@ -855,18 +867,18 @@ ordem dele, e cada uma vai quando ficar pronta, sem esperar as outras. **A aprec
 até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail numera 1 (câmbio) e 3
 (reuniões) e não tem o item 2: a única instrução sobre o CDS é a entrega 3.*
 
-- [ ] **Conferência 1/4: tabela das reuniões afetadas.** Uma linha por reunião, com o horário do anúncio
-  (conhecido ou desconhecido), as datas pré e pós usadas em cada mercado, os feriados e a duração das
-  janelas. As conferências 2/4 a 4/4 dependem dela.
-  - Boa parte já existe: os horários pelas atas (nota `2026-10-13_ponte_horarios_copom`, seção 2), as
-    janelas de DI, Yahoo e CDS por reunião em `output/copom_timing/meetings.csv` e a tabela das 9 fora
-    das 102 (mesma nota, seção 6). Faltam a duração de cada janela, as janelas novas das entregas 2 a 4
-    e o motivo de cada exclusão.
-  - ⚠ O e-mail não define "afetadas". Candidatas no registro: as 9 fora das 102; as 27 em que o
-    fechamento do CDS às 17h de NY na quarta vem depois do anúncio; as 6 em que a cotação de quarta do
-    Yahoo vem antes dele; as 7 no último pregão do mês.
+- [ ] **Mandar ao orientador a conferência 1/4 e perguntar a janela ampliada do CDS.** Aberto em 15-10,
+  quando a 1/4 fechou (Fechados, abaixo).
+  - Vai a tabela das 9 (`output/copom_timing/excluded_meetings.csv`; nota
+    `2026-10-15_conferencia_reunioes_fora`, seções 3 a 5).
+  - **Decisão do autor de 15-10:** a janela ampliada do CDS ficou fora da 1/4 e vai como pergunta. O
+    e-mail de 14-10 não tem o item 2, e "a janela ampliada, com as duas mudanças adjacentes" admite duas
+    leituras: o fechamento de terça ao de quinta, com as duas variações diárias ao lado da soma (a leitura
+    do registro); ou a janela estreita das 17h de NY mais uma variação de cada lado.
+  - **Bloqueia** a conferência 3/4.
 - [ ] **Conferência 2/4: câmbio, a comparação corrigida.** A pergunta: a apreciação depende da fonte ou
-  da definição da janela? Depende da 1/4.
+  da definição da janela? A 1/4 fechou em 15-10, e as duas janelas novas já estão em
+  `output/copom_timing/meetings.csv`: `ptax_pre`/`ptax_post` e `yahoo_wide_pre`/`yahoo_wide_post`.
   - O orientador não aceita o fuso da API do Yahoo como confirmação do horário da cotação, que pode ser
     só a convenção de apresentação da série. Também não conclui, pelo horário presumido, que a cotação
     resulta de poucos negócios.
@@ -884,8 +896,10 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
     - Não apresentá-lo como janela estreita comprovadamente anterior e posterior ao anúncio enquanto o
       horário for desconhecido. A janela atual (noite de terça à de quarta em 96 das 102) vem da hora
       inferida.
-    - ⚠ "Dia anterior à reunião" lido como terça, a véspera da quarta do anúncio. A reunião do Copom
-      ocupa terça e quarta, e a outra leitura é segunda.
+    - **Decisão do autor de 15-10:** da linha datada terça à linha datada quinta, pelas datas das linhas
+      e pelo calendário do próprio Yahoo, que tem a linha de quinta também nos feriados do Brasil. A outra
+      leitura de "dia anterior à reunião", segunda, ficou de fora. Pela hora inferida, a janela contém o
+      anúncio nas 111 reuniões e, no inverno europeu, vai da noite de segunda à de quarta.
   - Lado a lado com o que já existe: a PTAX de 10-05 deu −R$ 0,048 (1,04%; p 0,019 na bruta e 0,021 na
     ortogonalizada), e o Yahoo pela convenção −R$ 0,037 (p 0,012) e −R$ 0,029 (p 0,088), nota
     `2026-10-13_cambio_yahoo_convencao`.
@@ -902,7 +916,8 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
       último pregão;
     - a linha diária do Anexo B (`het_conditions.R`).
   - Toca o item das datas para a Bloomberg (abaixo) e o item do Anexo B no Tema A.
-- [ ] **Conferência 3/4: CDS, a janela ampliada com as duas mudanças adjacentes.** Depende da 1/4.
+- [ ] **Conferência 3/4: CDS, a janela ampliada com as duas mudanças adjacentes.** Depende da resposta do
+  orientador à pergunta da janela ampliada (item acima, decisão do autor de 15-10).
   - **Decisão do autor de 15-10:** fechamento às 17h de Nova York, o mesmo de 14-10. A janela estreita é a
     da ponte (a), `cds_pre_ny17` → `cds_post_ny17`.
   - Leitura do registro para a ampliada: do fechamento de terça ao de quinta, às 17h de NY, com as
@@ -914,8 +929,9 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
     ponte, −1,24 p.b. (NY 17h) contra −0,49 (quarta a quinta), nenhum significante a 90%.
   - Toca o item da linha diária do Anexo B (CDS às 17h de NY, acima) e a decisão do autor sobre a janela
     do CDS (Fechados, abaixo).
-- [ ] **Conferência 4/4: reuniões recuperadas, resultados com e sem elas lado a lado.** Depende da 1/4.
-  As regras do e-mail:
+- [ ] **Conferência 4/4: reuniões recuperadas, resultados com e sem elas lado a lado.** A 1/4 fechou em
+  15-10 com o motivo, o feriado, as janelas e o contrato do DI de cada uma das 9 (nota
+  `2026-10-15_conferencia_reunioes_fora`; `di_contract` em `meetings.csv`). As regras do e-mail:
   - Zero só vale para mês sem reunião ou para surpresa efetivamente medida como zero. Ausência de
     observação é outro caso, e nenhuma das 9 fica com z = 0 automaticamente.
   - Identificar o motivo de cada exclusão. Cada série segue seu calendário: se o DI tem observação válida
@@ -926,7 +942,9 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
   - Nas 7 de feriado no Brasil, em que o DI só volta na sexta, a surpresa vai da última observação
     anterior válida à primeira posterior válida. Conferir o contrato e marcar a duração da janela. A
     inclusão delas é sensibilidade, ao lado da amostra com janela habitual. ⚠ A 175ª (2013-05-29) dá
-    +37 p.b., 2,8 desvios-padrão das 102.
+    +37 p.b., 2,8 desvios-padrão das 102. A 1/4 conferiu o contrato: é o mesmo nas duas pontas, e as
+    janelas de quarta a sexta têm dois dias e um pregão. ⚠ Na 175ª o contrato (DI1F14) está a 152 d.u.,
+    acima do percentil 95 das 102 (146).
   - Surpresa que continuar indisponível é ausente.
     - No DFM, o mês fica na amostra dinâmica e sai dos momentos de identificação que exigem o
       instrumento.
@@ -963,6 +981,11 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
 
 ### Fechados (contexto)
 
+- [x] **Conferência 1/4: tabela das reuniões afetadas — 2026-10-15.** Branch
+  `feature/focus-horizonte-fixo`, nada reestimado. As 9 fora das 102, com horários, feriado, motivo e
+  janelas de DI, PTAX, Yahoo (convenção e larga) e CDS às 17h de NY. 7 caem pela quinta feriado no
+  Brasil (DI e PTAX de quarta a sexta, um pregão, mesmo contrato); 2 só pelo filtro de S&P 500, VIX e
+  Brent no Thanksgiving. ⚠ CDS ampliado fora (item acima). Nota: `2026-10-15_conferencia_reunioes_fora`.
 - [x] **Evento diário e ponte (a): a janela do câmbio do Yahoo — respondido pelo orientador em
   2026-10-14.** Ponto 1 de `email_meu_14-10_10h55.md`. Resposta: o fuso da API não confirma a hora da
   cotação. Preferir câmbio à vista com horário documentado e, sem ele, a PTAX de venda como diagnóstico

@@ -148,6 +148,19 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Conferência 1/4: as 9 reuniões fora das 102, e-mail de 14-10 (2026-10-15, branch `feature/focus-horizonte-fixo`):**
+[`2026-10-15_conferencia_reunioes_fora`](2026-10-15_conferencia_reunioes_fora.md)
+**CURRENT na branch, não mergeada.** Nada reestimado, instrumento intocado.
+- **Desenho.** Por decisão do autor, as "afetadas" são as 9. Para cada uma: anúncio e status, feriado,
+  motivo, e as janelas de DI, PTAX, Yahoo (convenção e larga, da linha de terça à de quinta) e CDS às 17h
+  de NY, com duração em dias, cotações e horas onde há horário. A janela ampliada do CDS ficou fora e vai
+  como pergunta ao orientador.
+- **Motivos.** 7 pela quinta feriado no Brasil, sem DI nem PTAX: a janela vai de quarta a sexta, num
+  pregão, com o mesmo contrato. 2 de Thanksgiving só pelo filtro de S&P 500, VIX e Brent, com DI, PTAX,
+  Yahoo e CDS na quinta.
+- ⚠ A 175ª tem +37 p.b. e contrato a 152 d.u., acima do percentil 95 das 102.
+- `meetings.csv` ganhou a PTAX, o Yahoo largo, o contrato do DI e o status do anúncio para as 111.
+
 **Ponte (b): forma reduzida mensal de câmbio e CDS na surpresa agregada, sem fatores, e-mail de 12-10 (2026-10-14, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-14_ponte_mensal_forma_reduzida`](2026-10-14_ponte_mensal_forma_reduzida.md)
 **CURRENT na branch, não mergeada.** Regra commitada antes de rodar (`e19a754`).
@@ -639,6 +652,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-15_conferencia_reunioes_fora`](2026-10-15_conferencia_reunioes_fora.md) | 10-15 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; nada reestimado, instrumento intocado** | as 9 reuniões fora das 102; anúncio pelas atas; DI `CloseRate`, PTAX 10h–13h, Yahoo pela hora inferida (convenção) e pelas datas das linhas de terça a quinta (larga), CDS às 17h de NY; decisões do autor de 15-10 antes de rodar | Tudo, na branch: 7 caem pela quinta feriado no Brasil (DI e PTAX de quarta a sexta, um pregão, mesmo contrato), 2 de Thanksgiving só pelo filtro de S&P 500, VIX e Brent; anúncio documentado nas 5 desde 2016-07, limite inferior nas 4 anteriores; Yahoo e CDS cotam nos 9 feriados; ⚠ 175ª com +37 p.b. e contrato a 152 d.u.; ⚠ janela ampliada do CDS fora, à espera do orientador |
 | [`2026-10-13_cambio_yahoo_convencao`](2026-10-13_cambio_yahoo_convencao.md) | 10-13 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; instrumento e produção intocados; `.tex` não migrado** | 102 reuniões, Yahoo `BRL=X` pela hora da cotação (`load_yahoo_brl()`), janela da última cotação antes do anúncio à primeira depois, por decisão do autor tomada depois de ver as contas; Anexo B com o mesmo câmbio, semanas sem reunião da noite de terça à de quarta; base do passo 0 com o índice de emergentes | Tudo, na branch: −R$ 0,037 (p 0,012) na bruta e −R$ 0,029 (p 0,088) na ortogonalizada; `Qr` diário 0,002/0,064/0,081; razão do câmbio 0,69; a leitura do horário do Yahoo de 10-05 corrigida |
 | [`2026-10-13_ponte_horarios_copom`](2026-10-13_ponte_horarios_copom.md) | 10-13 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada, exceto o câmbio, superado no mesmo dia por `2026-10-13_cambio_yahoo_convencao`; nada reestimado, instrumento intocado** | 111 reuniões de 2012-03 a 2025-12, anúncio pelas atas do BCB (estágio `copom_atas`); DI `CloseRate`, PTAX 10h–13h, CDS Bloomberg `PX_LAST` sob as hipóteses NY 17h e 18h; regra do CDS commitada antes de rodar (`5048a09`) | Tudo, na branch: anúncio 19h19–20h55 até jun/2016, 18h00–18h20 até out/2020, 18h30–19h12 depois; DI e PTAX cumprem a convenção nas 102; diferença entre fechamento e ajuste da quarta não acompanha a notícia (p 0,55); ⚠ CDS de quarta a quinta só cumpre com Londres, com NY falha em 27 (17h) a 77 (18h) das 102; teste do horário inconclusivo; ⚠ 9 reuniões fora (7 feriados no Brasil, 2 Thanksgiving), meses com z = 0, a 175ª com +37 p.b.; 7 reuniões de fim de mês vão ao mês seguinte, coerente com a `yield_6m` |
 | [`2026-10-12_exclusao_extremos`](2026-10-12_exclusao_extremos.md) | 10-12 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; `.tex` e `paper/img/` intocados** | base de 10-12 (`msci` o índice de emergentes), `z_bs_purif`, `(5,5,4)`, escala LP, NW(0); regra commitada antes de rodar (`2cad8bd`); exclusão só em Γ, fatores, VAR e inovações fixos, T = 162 | Tudo, na branch: 11 reuniões marcadas pelo percentil 95 da \|variação\| de quarta a quinta (5 por série; S&P 500 e VIX juntos em 4; Brent em 5 só dele; 3 entre as dez mais influentes); ξ_mp 6,66 → 5,67, F_rob 8,07 → 7,66, conjuntos limitados a 95%; CDS estável e significante a 95% em h0, h1 e h3; ⚠ câmbio 0,145 → 0,107 no impacto, sem significância a 95% em horizonte algum, a 90% em h0–h4; 0/689 pontos fora do conjunto de 90% de produção; a queda do câmbio vem mais das reuniões do Brent, no sentido oposto ao da leitura registrada; ⚠ a condição da verificação de terça a quarta se cumpre no câmbio, decisão do autor |

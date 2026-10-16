@@ -74,7 +74,11 @@ from "the collection came back empty", and the error only surfaces months later,
   read off the dates **misses the announcement in the 51 European-summer events**. The old "45 winter
   events precede it" reading was wrong. Never difference it by date for an event window; use the
   `yahoo_pre`/`yahoo_post` rows of `output/copom_timing/meetings.csv`
-  (`notas/2026-10-13_cambio_yahoo_convencao.md`).
+  (`notas/2026-10-13_cambio_yahoo_convencao.md`). The advisor does not take the API's time zone as
+  the quote's time (e-mail of 2026-10-14), so that window may not be presented as a narrow one proven
+  to straddle the announcement. The wide window he asked for, the row dated Tuesday to the row dated
+  Thursday by the rows' dates, is `yahoo_wide_pre`/`yahoo_wide_post` of the same file
+  (`notas/2026-10-15_conferencia_reunioes_fora.md`).
 - `data/raw/msci_em.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-12, not merged): the
   MSCI Emerging Markets index (MSCI code 891800, price index in USD, standard variant), end-of-month
   levels from MSCI's own index-level service, written by `script/download_msci.R`, the `msci`
@@ -90,9 +94,13 @@ from "the collection came back empty", and the error only surfaces months later,
 - `data/raw/ptax_daily.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-05, not merged):
   the daily PTAX (SGS 1, selling quote, average of the 10h–13h windows), from
   `script/download_ptax.R`, the `ptax` network stage of its own. It was the Copom-day exchange rate
-  of `script/daily_event.R` (Wed 13h → Thu 13h) until 2026-10-13. Since then it is only a 13h clock,
-  in two diagnostics: the alignment that dates the Yahoo quote (`fx_alignment.csv`) and CDS test (B)
-  of `copom_timing.R`, whose rule was fixed before it ran.
+  of `script/daily_event.R` (Wed 13h → Thu 13h) until 2026-10-13. From then until 2026-10-15 it was
+  only a 13h clock, in two diagnostics: the alignment that dates the Yahoo quote (`fx_alignment.csv`)
+  and CDS test (B) of `copom_timing.R`, whose rule was fixed before it ran. Since 2026-10-15, by
+  author decision following the advisor's e-mail of 2026-10-14, it is also a diagnostic window beside
+  the Yahoo, Wednesday's PTAX to the first one after it, described as a wider daily window that takes
+  in other news: `ptax_pre`/`ptax_post` of `output/copom_timing/meetings.csv`
+  (`notas/2026-10-15_conferencia_reunioes_fora.md`).
 - `data/raw/copom_atas.csv` — on branch `feature/focus-horizonte-fixo` (2026-10-13, not merged): the
   Copom minutes of meetings 165 to 275 from the BCB API (`atas_detalhes`), raw text, HTML for 79 and
   `pdftotext` of the PDF for meetings 200 to 231, written by `script/download_copom_minutes.R`, the
