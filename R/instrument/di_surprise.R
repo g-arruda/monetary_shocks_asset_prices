@@ -76,7 +76,8 @@ load_copom_wednesdays <- function(path, from, to) {
 #' @param target_bd Target maturity in business days.
 #' @param min_bd Minimum maturity in business days.
 #'
-#' @return Tibble with date and delta_di (basis points).
+#' @return Tibble with date, delta_di (basis points), and the contract used:
+#'   ticker and bdays, its business days to expiry on Wednesday.
 build_thursday_surprises <- function(di_panel, thursdays, target_bd, min_bd) {
   wednesday_closes <- di_panel |>
     dplyr::filter(date %in% (thursdays - 1L), bdays >= min_bd) |>
@@ -95,7 +96,7 @@ build_thursday_surprises <- function(di_panel, thursdays, target_bd, min_bd) {
       by = date
     ) |>
     # decimal rate -> basis points
-    dplyr::transmute(date, delta_di = (rate_thu - rate_wed) * 10000)
+    dplyr::transmute(date, delta_di = (rate_thu - rate_wed) * 10000, ticker, bdays)
 
   tibble::tibble(date = thursdays) |>
     dplyr::left_join(surprises, by = "date")
