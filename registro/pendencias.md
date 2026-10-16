@@ -1,5 +1,15 @@
 # Pendências
 
+**Atualização de 2026-10-16 (passo 2):** o e-mail que manda a 1/4, pergunta a janela ampliada do CDS e dá
+as datas para a Bloomberg foi enviado (`email/email_meu_16-10_12h53.md`), e os dois itens do passo 2
+fecharam (Tema B). Decisões do autor no mesmo dia: um e-mail só; 8 datas (maior |ΔDI| por
+regime do anúncio e horário europeu, 6 no inverno europeu), mandadas só com os horários do anúncio, como o
+orientador pediu, e, nas 3 anteriores a 2016-07, a primeira matéria do G1 depois do fim da ata; o e-mail
+conferido contra o de 14-10, sem nada além do pedido; as 2 de Thanksgiving, fora por erro de um filtro
+residual, entram na amostra principal (conferência 4/4); e as duas leituras da janela ampliada do CDS
+prontas no código enquanto ele não responde (`cds_wide*` em `meetings.csv`; nota
+`2026-10-16_janela_ampliada_cds_bloomberg`). Nada reestimado.
+
 **Atualização de 2026-10-15 (conferência 1/4):** a tabela das reuniões afetadas rodou e fechou (Tema B,
 nota `2026-10-15_conferencia_reunioes_fora`), em `output/copom_timing/excluded_meetings.csv`. Decisões do
 autor no mesmo dia, antes de rodar:
@@ -222,12 +232,11 @@ Branch sugerida: `focus` é `feature/focus-horizonte-fixo`, onde rodam os diagn�
 
 | Passo | Tema | Branch | Item | Observação |
 |---|---|---|---|---|
-| 2 | B | — | Mandar ao orientador a conferência 1/4 e perguntar a janela ampliada do CDS | aberto em 2026-10-15; a tabela das 9 está em `output/copom_timing/excluded_meetings.csv` e na nota `2026-10-15_conferencia_reunioes_fora`; o e-mail de 14-10 não tem o item 2, e "a janela ampliada, com as duas mudanças adjacentes" admite terça a quinta ou a estreita mais uma variação de cada lado; **bloqueia** o passo 4 |
-| 2 | B | — | Mandar ao orientador 5 a 10 datas de reunião para a cotação intradiária da Bloomberg | e-mail de 14-10; só para identificar a convenção do Yahoo, sem trocar a fonte; escolher as datas é do autor, e os regimes de horário do anúncio estão na nota `2026-10-13_ponte_horarios_copom`, seção 2; toca o passo 3 |
+| 3 | B | — | Receber as cotações da Bloomberg e conferir a hora do Yahoo | aberto em 2026-10-16; as 8 datas foram enviadas em 16-10 (`email_meu_16-10_12h53.md`); depende do conhecido do orientador; se a hora não for a inferida, muda `load_yahoo_brl()` e roda de novo `copom_timing.R` e o que lê `meetings.csv`; toca a conferência 2/4 |
 | 3 | B | `focus` | Conferência 2/4: câmbio, PTAX e Yahoo nas janelas do e-mail | e-mail de 14-10; a apreciação depende da fonte ou da janela?; PTAX de quarta ao 1º dia útil seguinte (decisão do autor de 15-10, que reverte a de 14-10); Yahoo da linha de terça à de quinta pelo calendário do Yahoo (decisão do autor de 15-10), sem apresentá-lo como janela estreita; as duas janelas já estão em `meetings.csv` desde a 1/4; não trocar a série do DFM |
-| 4 | B | `focus` | Conferência 3/4: CDS na janela ampliada, com as duas mudanças adjacentes | e-mail de 14-10; fechamento às 17h de NY (decisão do autor de 14-10, mantida em 15-10); leva o CDS do passo 2 (`daily_event.R`) às 17h de NY; ⚠ o corpo do e-mail pula o item do CDS; depende da resposta à pergunta do passo 2 (decisão do autor de 15-10) |
+| 4 | B | `focus` | Conferência 3/4: CDS na janela ampliada, com as duas mudanças adjacentes | e-mail de 14-10; fechamento às 17h de NY (decisão do autor de 14-10, mantida em 15-10); leva o CDS do passo 2 (`daily_event.R`) às 17h de NY; ⚠ o corpo do e-mail pula o item do CDS; depende da resposta à pergunta enviada em 16-10 (`email_meu_16-10_12h53.md`; decisão do autor de 15-10); as duas leituras já estão em `meetings.csv` desde 16-10 (`cds_wide*`), falta escolher e rodar a regressão |
 | 5 | B | `focus` | Amostra completa com `p = 2`, resto do desenho fixo | e-mail de 12-10; entrega de 19/20-10; separa mudança de amostra de mudança de defasagem na comparação pré-COVID; ⚠ decisão do autor antes de rodar: θ̂ reestimado em `p = 2` ou o de `p = 4`; se o passo 7 mudar a base, rodar de novo |
-| 6 | B | `nova` | Conferência 4/4: reuniões recuperadas, resultados com e sem elas lado a lado | e-mail de 14-10; as 2 de Thanksgiving com a janela habitual, as 7 de feriado no Brasil como sensibilidade, surpresa indisponível fora dos momentos de Γ, regressão BS refeita; ⚠ muda o instrumento da base e mexe no núcleo de identificação; ⚠ `data/processed/` não é versionado: ao voltar à `focus`, rodar `Rscript script/run_all.R --only=instrument` |
+| 6 | B | `nova` | Conferência 4/4: reuniões recuperadas, resultados com e sem elas lado a lado | e-mail de 14-10; as 2 de Thanksgiving ficaram fora por erro (filtro residual em `build_variants.R:129-130`, também em `main`) e entram na amostra principal com a janela habitual (104; as 102 ao lado só por transparência), com o filtro corrigido e a emenda declarada à regra de 10-12 (S&P 500, VIX e Brent de quarta a sexta nelas, nunca 0); as 7 de feriado no Brasil como sensibilidade, surpresa indisponível fora dos momentos de Γ, regressão BS refeita; ⚠ muda o instrumento da base e mexe no núcleo de identificação; ⚠ `data/processed/` não é versionado: ao voltar à `focus`, rodar `Rscript script/run_all.R --only=instrument` |
 | 7 | B | `focus` → `main` | Passo 0/5: congelar a base (Focus a horizonte fixo, `msci` índice de emergentes) e promover | aberto em 2026-10-03; o orientador liberou em 12-10 atualizar o artigo com a base reconstruída; ⚠ congelar com ou sem as reuniões recuperadas depende do passo 6 e é decisão do autor, assim como congelar sem ele se o 6 não ficar pronto a tempo de 19/20; promover exige rodar de novo figuras, anexos e números do `.tex`, e muda o smoke test e `CLAUDE.md`; ⚠ `main` segue com a ação da MSCI Inc.; **bloqueia** 8–13 e os dois itens de "depois" |
 | 8 | A | `main` | Atualizar o artigo com a base reconstruída, os novos conjuntos e os exercícios de sensibilidade | e-mail de 12-10, item 1; entrega de 19/20-10; a reconstrução preserva câmbio e CDS no impacto e enfraquece a reversão longa; reportar os horizontes definidos, inclusive os não significantes; ⚠ "o IPCA nunca fica positivo" (§4) deixa de valer |
 | 8 | A | `main` | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
@@ -867,15 +876,6 @@ ordem dele, e cada uma vai quando ficar pronta, sem esperar as outras. **A aprec
 até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail numera 1 (câmbio) e 3
 (reuniões) e não tem o item 2: a única instrução sobre o CDS é a entrega 3.*
 
-- [ ] **Mandar ao orientador a conferência 1/4 e perguntar a janela ampliada do CDS.** Aberto em 15-10,
-  quando a 1/4 fechou (Fechados, abaixo).
-  - Vai a tabela das 9 (`output/copom_timing/excluded_meetings.csv`; nota
-    `2026-10-15_conferencia_reunioes_fora`, seções 3 a 5).
-  - **Decisão do autor de 15-10:** a janela ampliada do CDS ficou fora da 1/4 e vai como pergunta. O
-    e-mail de 14-10 não tem o item 2, e "a janela ampliada, com as duas mudanças adjacentes" admite duas
-    leituras: o fechamento de terça ao de quinta, com as duas variações diárias ao lado da soma (a leitura
-    do registro); ou a janela estreita das 17h de NY mais uma variação de cada lado.
-  - **Bloqueia** a conferência 3/4.
 - [ ] **Conferência 2/4: câmbio, a comparação corrigida.** A pergunta: a apreciação depende da fonte ou
   da definição da janela? A 1/4 fechou em 15-10, e as duas janelas novas já estão em
   `output/copom_timing/meetings.csv`: `ptax_pre`/`ptax_post` e `yahoo_wide_pre`/`yahoo_wide_post`.
@@ -917,9 +917,12 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
     - a linha diária do Anexo B (`het_conditions.R`).
   - Toca o item das datas para a Bloomberg (abaixo) e o item do Anexo B no Tema A.
 - [ ] **Conferência 3/4: CDS, a janela ampliada com as duas mudanças adjacentes.** Depende da resposta do
-  orientador à pergunta da janela ampliada (item acima, decisão do autor de 15-10).
+  orientador à pergunta da janela ampliada, enviada em 16-10 (Fechados, abaixo; decisão do autor de 15-10).
   - **Decisão do autor de 15-10:** fechamento às 17h de Nova York, o mesmo de 14-10. A janela estreita é a
     da ponte (a), `cds_pre_ny17` → `cds_post_ny17`.
+  - **16-10: as duas leituras já estão em `meetings.csv`** para as 111 (`cds_wide_*`, a larga pelas datas,
+    de terça a quinta; `cds_wide3_*`, a estreita mais uma variação de cada lado) e na tabela das 9; falta
+    só a resposta do orientador e a regressão. Nota `2026-10-16_janela_ampliada_cds_bloomberg`.
   - Leitura do registro para a ampliada: do fechamento de terça ao de quinta, às 17h de NY, com as
     variações de terça a quarta e de quarta a quinta reportadas ao lado da soma. Nas 27 reuniões em que o
     fechamento de quarta vem depois do anúncio, ela soma à janela estreita a variação seguinte; nas
@@ -939,6 +942,14 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
     Thanksgiving (179ª, 2013-11-27; 195ª, 2015-11-25). DI e PTAX existem na quinta, e as duas caem só
     pelo filtro de S&P 500, VIX e Brent na quinta, que não entra em regressão alguma (nota
     `2026-10-13_ponte_horarios_copom`, seção 6).
+  - **16-10: as 2 ficaram fora por erro.** O `drop_na` de `R/instrument/build_variants.R:129-130` exige
+    `r_sp500`, `d_vix` e `r_brent`, resíduo da purificação contemporânea removida em 18-09 (`06c162d`).
+    O mesmo filtro está em `main`. Decisões do autor de 16-10:
+    - as 2 entram na **amostra principal**, com a janela habitual (104 reuniões); as 102 ficam ao lado só
+      por transparência, e as 7 de feriado no Brasil seguem como sensibilidade (111);
+    - corrigir o filtro e refazer a ortogonalização (regressão BS sobre as 104);
+    - emenda declarada à regra de 10-12 (`2cad8bd`): nessas 2 reuniões a variação de S&P 500, VIX e Brent
+      vai de quarta a sexta, nunca 0.
   - Nas 7 de feriado no Brasil, em que o DI só volta na sexta, a surpresa vai da última observação
     anterior válida à primeira posterior válida. Conferir o contrato e marcar a duração da janela. A
     inclusão delas é sensibilidade, ao lado da amostra com janela habitual. ⚠ A 175ª (2013-05-29) dá
@@ -954,9 +965,9 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
       amostra "sem os 9 meses" da ponte (b).
   - Se a recuperação mudar a amostra da ortogonalização, refazer a regressão Bauer-Swanson, e não somar as
     novas ao instrumento ortogonalizado como se a projeção anterior continuasse válida.
-  - ⚠ Pelas regras, a amostra com janela habitual também muda. As 2 de Thanksgiving entram, e os 7 meses
-    de feriado deixam de entrar com z = 0 e passam a ausentes. Isso muda o instrumento da base e a
-    regressão BS (102 → 104 reuniões; 111 na sensibilidade).
+  - ⚠ Pelas regras, a amostra com janela habitual também muda. As 2 de Thanksgiving entram na amostra
+    principal, e os 7 meses de feriado deixam de entrar com z = 0 e passam a ausentes. Isso muda o
+    instrumento da base e a regressão BS (102 → 104 reuniões; 111 na sensibilidade).
   - ⚠ Tirar meses dos momentos de Γ mexe no núcleo de identificação (`ar_dfm_moments()` e
     `ar_dfm_bands()` em `R/identification/weak_iv_ar.R`, sob `.claude/rules/identification.md`). Hoje os
     meses com z = 0 entram nos momentos e na covariância deles, com T = 162.
@@ -967,20 +978,27 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
   - Branch sugerida: uma nova, criada a partir de `feature/focus-horizonte-fixo`, que fica como o lado
     "sem elas". ⚠ `data/processed/` não é versionado e é o mesmo nas duas: ao voltar a
     `feature/focus-horizonte-fixo`, rodar `Rscript script/run_all.R --only=instrument` antes de estimar.
-- [ ] **Mandar ao orientador as datas de 5 a 10 reuniões para a cotação intradiária da Bloomberg.** Ele
-  pode pedir a um conhecido com acesso à Bloomberg o dólar intradiário nos horários dos anúncios. Serve
-  só para identificar a convenção do Yahoo, sem trocar a fonte. Escolher as datas é do autor. Toca a
-  conferência 2/4.
-  - As duas hipóteses de hora do registro diferem entre verão e inverno europeus (20h contra 21h–22h em
-    Brasília; nota `2026-10-13_cambio_yahoo_convencao`, seção 1).
-  - ⚠ Conta exploratória de 14-10, não versionada. O Yahoo só guarda barras horárias dos últimos 730 dias
-    e de 5 minutos dos últimos 60, então só as 10 reuniões de 2024-11 a 2025-12 têm intradiário. Nelas, o
-    câmbio anda em média |R$ 0,005| do anúncio à cotação diária da noite e |R$ 0,027| dela até quinta às
-    12h. Nos dias úteis, a cotação horária muda em 95% das horas das 10h às 18h e em no máximo 22% das
-    horas depois das 20h.
+- [ ] **Receber as cotações intradiárias da Bloomberg e conferir a hora do Yahoo.** As 8 datas foram
+  enviadas em 16-10 (`email/email_meu_16-10_12h53.md`); depende do conhecido do orientador. Comparar a cotação no anúncio com as linhas do Yahoo das
+  8 datas. ⚠ Só a cotação no horário do anúncio não diz a que hora corresponde a linha do Yahoo; casá-la
+  com uma hora candidata (20h, 21h ou 22h) exige as cotações nessas horas. Se a hora não for a inferida, mudar `load_yahoo_brl()` (`R/instrument/di_surprise.R`) e rodar de
+  novo `copom_timing.R` e o que lê `meetings.csv` (`daily_event.R`, `event_trajectory.R`,
+  `monthly_reduced_form.R`, `het_conditions.R`). Toca a conferência 2/4. Não há leitor desses dados no
+  código (decisão do autor de 16-10).
 
 ### Fechados (contexto)
 
+- [x] **Mandar ao orientador a conferência 1/4 e perguntar a janela ampliada do CDS — 2026-10-16.**
+  `email/email_meu_16-10_12h53.md`, com a tabela das 9 em anexo (`output/copom_timing/excluded_meetings_advisor.csv`,
+  só o que o e-mail de 14-10 pede). Diz que as 2 de Thanksgiving ficaram fora por erro e entram na amostra
+  principal, e pergunta se a janela ampliada do CDS é de terça a quinta ou a estreita mais uma variação de
+  cada lado; as duas leituras já estão em `meetings.csv`. Nota: `2026-10-16_janela_ampliada_cds_bloomberg`.
+- [x] **Mandar ao orientador as datas para a cotação intradiária da Bloomberg — 2026-10-16.** No mesmo
+  e-mail: 8 datas (maior |ΔDI| por regime do anúncio e horário europeu, 6 no inverno europeu) com os
+  horários do anúncio; nas 3 anteriores a 2016-07, o fim da ata e a primeira matéria do G1 (7 a 10 minutos
+  depois). ⚠ Na 174ª a faixa (19h56–20h06) cai sobre as 20h inferidas do Yahoo. ⚠ Conta exploratória de
+  14-10, não versionada: só as 10 reuniões de 2024-11 a 2025-12 têm intradiário no Yahoo, e nelas o câmbio
+  anda |R$ 0,005| do anúncio à cotação da noite e |R$ 0,027| dela até quinta às 12h. Nota: idem, seção 2.
 - [x] **Conferência 1/4: tabela das reuniões afetadas — 2026-10-15.** Branch
   `feature/focus-horizonte-fixo`, nada reestimado. As 9 fora das 102, com horários, feriado, motivo e
   janelas de DI, PTAX, Yahoo (convenção e larga) e CDS às 17h de NY. 7 caem pela quinta feriado no
