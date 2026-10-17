@@ -1,6 +1,7 @@
 # Conferência 1/4: as 9 reuniões fora das 102, horários, janelas e feriados
 
-> **Atualizada em 2026-10-17.** As 2 de Ação de Graças voltaram à amostra principal. A tabela das 9 ganhou
+> **Atualizada em 2026-10-17.** As 9 voltaram à amostra principal: as 2 de Ação de Graças de quarta a
+> quinta, as 7 de feriado no Brasil de quarta a sexta, e a exclusão destas é a sensibilidade. A tabela das 9 ganhou
 > a classificação pré/pós/ambígua e o anúncio como intervalo, e os horários do Yahoo e do CDS vão
 > marcados como hipóteses (`2026-10-17_auditoria_janelas_copom`).
 >

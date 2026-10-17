@@ -50,9 +50,10 @@ S&P/VIX/Brent filter on the Thursday panel still fixes the sample of the BS regr
 the 111 Copom Wednesdays enter. **Since 2026-10-17, on `feature/auditoria-janelas-copom`, that filter
 is gone** (a residue of the contemporaneous purification that dropped the 2 Thanksgiving meetings).
 - The events are the Copom meetings with a measured surprise, from the Wednesday close to the first DI
-  session after it: 104 in production.
-- The 7 on the eve of a Brazilian holiday, whose window runs to Friday, enter only under the mandatory
-  argument `holiday_windows = TRUE` (111, the advisor's sensitivity).
+  session after it: all 111 in production.
+- The 7 on the eve of a Brazilian holiday, whose window runs to Friday, enter under the mandatory
+  argument `holiday_windows = TRUE`, which production passes; `FALSE` leaves them out (104, the
+  advisor's sensitivity, `data/processed/instrument_no_holiday_windows.csv`).
 - A missing surprise or predictor `stop()`s; nothing is filled with zero
   (`notas/2026-10-17_auditoria_janelas_copom.md`).
 

@@ -2,15 +2,16 @@
 
 **Atualização de 2026-10-17 (auditoria das janelas, e-mail de 17-10):** na branch nova
 `feature/auditoria-janelas-copom`, a partir da `focus`. A conferência 4/4 fechou (Tema B).
-- O filtro residual saiu, e as 2 de Ação de Graças entram na produção da branch (104 reuniões, BS refeita).
-- As 7 de feriado no Brasil, de quarta a sexta, ficam na sensibilidade (111).
+- O filtro residual saiu. A produção da branch tem as 111 reuniões, com as 2 de Ação de Graças e as 7 de
+  feriado no Brasil, estas de quarta a sexta (BS refeita).
+- A sensibilidade sem as 7 janelas longas é a base de 104.
 - A tabela das 9 traz a classificação pré, pós ou ambígua, o anúncio como intervalo, a grade do DI1 e os
   horários do Yahoo e do CDS como hipóteses.
 - Câmbio e CDS em h0 são significantes a 90% nas três bases.
-- Decisões do autor no mesmo dia: só Ação de Graças na produção; ambígua a ≤ 30 min; meses excluídos a
-  zero; o Ibovespa na janela do DI; o filtro removido.
-- Abertos: mandar a tabela e a comparação, e rodar de novo o que lê o instrumento. ⚠ O ξ_mp pré-COVID é
-  3,77.
+- Decisões do autor no mesmo dia: as 111 na produção e a de 104 como sensibilidade (linha 29 do e-mail);
+  ambígua a ≤ 30 min; meses excluídos a zero; o Ibovespa na janela do DI; o filtro removido.
+- Abertos: mandar a tabela e a comparação, e rodar de novo o que lê o instrumento. O ξ_mp pré-COVID da
+  produção é 4,87.
 - Nota `2026-10-17_auditoria_janelas_copom`.
 
 **Atualização de 2026-10-17 (artigo, sem números):** na branch `feature/focus-horizonte-fixo`, a §3.2
@@ -255,7 +256,7 @@ Branch sugerida: `focus` é `feature/focus-horizonte-fixo`, onde rodam os diagn�
 | 4 | B | `focus` | Conferência 3/4: CDS na janela ampliada, com as duas mudanças adjacentes | e-mail de 14-10; fechamento às 17h de NY (decisão do autor de 14-10, mantida em 15-10); leva o CDS do passo 2 (`daily_event.R`) às 17h de NY; a leitura saiu do e-mail de 17-10: a estreita mais uma variação de cada lado (`cds_widened_*` em `meetings.csv`, na branch `feature/auditoria-janelas-copom`); falta rodar a regressão |
 | 5 | B | `focus` | Amostra completa com `p = 2`, resto do desenho fixo | e-mail de 12-10; entrega de 19/20-10; separa mudança de amostra de mudança de defasagem na comparação pré-COVID; ⚠ decisão do autor antes de rodar: θ̂ reestimado em `p = 2` ou o de `p = 4`; se o passo 7 mudar a base, rodar de novo |
 | 6 | B | `feature/auditoria-janelas-copom` | Mandar ao orientador a tabela corrigida e a comparação das três bases | e-mail de 17-10, item 4; feito em 17-10, falta enviar; depois a convenção corrigida entra na ponte |
-| 7 | B | `feature/auditoria-janelas-copom` | Rodar de novo na produção de 104 as saídas que leem o instrumento | aberto em 2026-10-17; ar_precision, evento diário, pontes, influência, placebos, grade, VAR, anexos; ⚠ ξ_mp pré-COVID 3,77; depende da promoção |
+| 7 | B | `feature/auditoria-janelas-copom` | Rodar de novo na produção de 111 as saídas que leem o instrumento | aberto em 2026-10-17; ar_precision, evento diário, pontes, influência, placebos, grade, VAR, anexos; depende da promoção |
 | 7 | B | `focus` → `main` | Passo 0/5: congelar a base (Focus a horizonte fixo, `msci` índice de emergentes) e promover | aberto em 2026-10-03; o orientador liberou em 12-10 atualizar o artigo com a base reconstruída; ⚠ congelar com ou sem as reuniões recuperadas depende do passo 6 e é decisão do autor, assim como congelar sem ele se o 6 não ficar pronto a tempo de 19/20; promover exige rodar de novo figuras, anexos e números do `.tex`, e muda o smoke test e `CLAUDE.md`; ⚠ `main` segue com a ação da MSCI Inc.; **bloqueia** 8–13 e os dois itens de "depois" |
 | 8 | A | `main` | Atualizar o artigo com a base reconstruída, os novos conjuntos e os exercícios de sensibilidade | e-mail de 12-10, item 1; entrega de 19/20-10; §3.2 e Anexo A já descrevem a base nova desde 17-10 (branch `focus`), falta o que é número; a reconstrução preserva câmbio e CDS no impacto e enfraquece a reversão longa; reportar os horizontes definidos, inclusive os não significantes; ⚠ "o IPCA nunca fica positivo" (§4) deixa de valer |
 | 9 | A | `main` | §3.3 e `fig:placebos` na base do passo 0: Holm, conjuntos pontuais e o índice de emergentes | e-mail de 12-10, item 4: Holm não é Wald conjunto, p sem ajuste ao lado do ajustado, MSCI em h0/h1/h3 visível e como limitação, ressalva do VIX em h0 |
@@ -949,7 +950,7 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
     só a resposta do orientador e a regressão. Nota `2026-10-16_janela_ampliada_cds_bloomberg`.
   - **17-10: o orientador escolheu a estreita mais uma variação de cada lado** (e-mail de 17-10, item 1).
     É `cds_widened_*` em `meetings.csv`, e a larga saiu do código. É sensibilidade e não substitui a
-    estreita. Contém o anúncio nas 111, contra 61 da estreita, que é ambígua em 50. Falta a regressão.
+    estreita. Contém o anúncio nas 9 da tabela. Falta a regressão.
     Nota `2026-10-17_auditoria_janelas_copom`.
   - Leitura do registro para a ampliada: do fechamento de terça ao de quinta, às 17h de NY, com as
     variações de terça a quarta e de quarta a quinta reportadas ao lado da soma. Nas 27 reuniões em que o
@@ -965,7 +966,7 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
   reunião e mercado. A comparação está em `output/copom_windows/comparison.csv`. Depois, a convenção
   corrigida entra na ponte entre o evento diário e o resultado mensal (e-mail de 17-10). Nota:
   `2026-10-17_auditoria_janelas_copom`.
-- [ ] **Rodar de novo, na produção de 104 reuniões, as saídas que leem o instrumento.** Aberto em
+- [ ] **Rodar de novo, na produção de 111 reuniões, as saídas que leem o instrumento.** Aberto em
   2026-10-17, na branch `feature/auditoria-janelas-copom`. Ficaram na base de 102:
   - `ar_precision.R`, `daily_event.R`, `event_trajectory.R` e `monthly_reduced_form.R`, cujas guardas
     pinam 102 eventos;
@@ -973,8 +974,8 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
   - `mosw_strength_grid.R`, `model_var.R`, `instrument_diagnostics.R` e os anexos.
 
   A emenda de 16-10 à regra de 10-12 vai junto: S&P 500, VIX e Brent de quarta a sexta nas 2 de Ação de
-  Graças, nunca 0. ⚠ Na produção nova o ξ_mp pré-COVID é 3,77 (era 5,60), abaixo de 3,84. Depende de
-  decidir a promoção (passo 7).
+  Graças, nunca 0. Na produção nova o ξ_mp pré-COVID é 4,87 (era 5,60). Depende de decidir a promoção
+  (passo 7).
 - [ ] **Receber as cotações intradiárias da Bloomberg e conferir a hora do Yahoo.** As 8 datas foram
   enviadas em 16-10 (`email/email_meu_16-10_12h53.md`); depende do conhecido do orientador. Comparar a cotação no anúncio com as linhas do Yahoo das
   8 datas. ⚠ Só a cotação no horário do anúncio não diz a que hora corresponde a linha do Yahoo; casá-la
@@ -987,13 +988,13 @@ até aqui fica provisória até o fim da conferência.** ⚠ O corpo do e-mail n
 
 - [x] **Conferência 4/4: reuniões recuperadas, e auditoria das janelas — 2026-10-17.** Branch
   `feature/auditoria-janelas-copom`, pelo e-mail de 17-10.
-  - O filtro de S&P 500, VIX e Brent saiu. As 2 de Ação de Graças entram na produção (104), com a BS
-    refeita, e as 7 de feriado no Brasil, de quarta a sexta, ficam na sensibilidade (111).
+  - O filtro de S&P 500, VIX e Brent saiu. A produção tem as 111, com a BS refeita: as 2 de Ação de
+    Graças e as 7 de feriado no Brasil, de quarta a sexta. A sensibilidade sem as 7 é a de 104.
   - Câmbio e CDS em h0, significantes a 90% nas três bases: 0,145 / 0,136 / 0,125 e 33,5 / 32,4 / 30,6 p.b.
     ξ_mp 6,66 / 6,55 / 7,28.
   - Classificação pré, pós ou ambígua com margem de 30 min. Yahoo e CDS ficam como hipóteses. O DI1 fecha
     às 18h00 desde 2019, e antes vale o limite de 18h15.
-  - ⚠ O ξ_mp pré-COVID da produção nova é 3,77.
+  - O ξ_mp pré-COVID da produção é 4,87.
   - Nota: `2026-10-17_auditoria_janelas_copom`.
 - [x] **Mandar ao orientador a conferência 1/4 e perguntar a janela ampliada do CDS — 2026-10-16.**
   `email/email_meu_16-10_12h53.md`, com a tabela das 9 em anexo (`output/copom_timing/excluded_meetings_advisor.csv`,

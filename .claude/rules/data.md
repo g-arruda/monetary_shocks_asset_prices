@@ -115,10 +115,11 @@ from "the collection came back empty", and the error only surfaces months later,
   bridge (a) uses it, while `daily_event.R` and `het_conditions.R` still use Wed→Thu (open item). The
   daily exchange rate is always Yahoo `BRL=X`, never the PTAX (author decision, same day). ⚠ The instrument drops the 7 meetings whose Thursday is a
   Brazilian holiday and the 2 on Thanksgiving, and their months enter at z = 0. Since 2026-10-17, on
-  `feature/auditoria-janelas-copom`, the 2 on Thanksgiving are events, and the 7 enter only the
-  sensitivity instrument, Wednesday to Friday. On that branch `copom_timing.R` classifies each quote as
-  pre, post or ambiguous (`quote_classification.csv`), and the Yahoo and CDS times are labelled
-  hypotheses (`notas/2026-10-17_auditoria_janelas_copom.md`).
+  `feature/auditoria-janelas-copom`, all 111 are events, the 7 with the window Wednesday to Friday, and
+  only the sensitivity instrument leaves those 7 out. On that branch `copom_timing.R` classifies each
+  quote of the 9 as pre, post or ambiguous (`excluded_meetings_advisor.csv`, where the Yahoo and CDS
+  times read "not documented by the provider"); they stay hypotheses
+  (`notas/2026-10-17_auditoria_janelas_copom.md`).
 
 ## Two external inputs with no producer in this repo
 
