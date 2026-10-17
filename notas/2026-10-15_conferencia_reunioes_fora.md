@@ -1,5 +1,9 @@
 # Conferência 1/4: as 9 reuniões fora das 102, horários, janelas e feriados
 
+> **Atualizada em 2026-10-17.** As 2 de Ação de Graças voltaram à amostra principal. A tabela das 9 ganhou
+> a classificação pré/pós/ambígua e o anúncio como intervalo, e os horários do Yahoo e do CDS vão
+> marcados como hipóteses (`2026-10-17_auditoria_janelas_copom`).
+>
 > **CURRENT — 2026-10-15.** Primeira entrega da conferência do e-mail do orientador de 14-10
 > (`email/email_professor_14-10_17h44.md`, "Entrega desta conferência", item 1). Branch
 > `feature/focus-horizonte-fixo`, **não mergeada**.

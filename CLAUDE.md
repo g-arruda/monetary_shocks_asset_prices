@@ -268,6 +268,33 @@ impact; h1 rejects at 5% unadjusted, p 0.032), though Holm over the 18 placebo t
 the `.tex` are still on `main`'s base. Notes: `2026-10-03_focus_horizonte_fixo`,
 `2026-10-12_msci_emergentes`.
 
+**Since 2026-10-17, on branch `feature/auditoria-janelas-copom`** (cut from `feature/focus-horizonte-fixo`,
+**not merged**; advisor's e-mail of 17-10), **the instrument has 104 meetings**.
+- The S&P 500/VIX/Brent filter of `build_variants.R` is gone, so the 2 Thanksgiving meetings are events,
+  and the BS regression is refitted on the 104 (R² 0.119).
+- The 7 on the eve of a Brazilian holiday enter only `holiday_windows = TRUE`, with the window from
+  Wednesday to the first DI session (Friday): `data/processed/instrument_holiday_windows.csv`, the
+  advisor's sensitivity. In production their months stay at z = 0 (author decision).
+- On the full window, the 102 / 104 / 111 meetings give:
+
+  | meetings | ξ_mp | BRL/USD at impact | CDS at impact |
+  |---|---|---|---|
+  | 102 | 6.661 | 0.145 | 33.5 bp |
+  | 104 | 6.549 | 0.136 | 32.4 bp |
+  | 111 | 7.282 | 0.125 | 30.6 bp |
+
+  FX and CDS are significant at 90% in all three.
+- ⚠ The new production's pre-COVID ξ_mp is 3.770 (F_rob 3.300), below 3.84.
+- `copom_timing.R` classifies every quote as pre, post or ambiguous against the announcement interval,
+  with a 30-minute margin (`8edc3a2`).
+  - The DI quote is the last trade (`CloseRate`), at most at the session's end: 18h00 since 2019, by
+    B3's grid, and before that the BM&F segment's 18h15 bound.
+  - The Yahoo and CDS times are hypotheses.
+  - The widened CDS window is the narrow one plus one change on each side.
+- ⚠ The downstream outputs (`ar_precision`, `daily_event`, the bridges, influence, placebos, the strength
+  grid, the VAR, the annexes) are still on the 102.
+- Note: `2026-10-17_auditoria_janelas_copom`.
+
 The only active small-VAR benchmark is **`ibc5_fx_cds_level_trend_p4`**. It
 uses `ibc_br`, `price_ipca`, `yield_6m`, `cambio_usd`, and `cds_5y` in levels,
 with a constant and linear trend in every equation. **Since 2026-09-21 it runs
@@ -369,6 +396,7 @@ the script is not maintained and most no longer run (`arquivo/README.md`).
 | Bridge (a): cumulative FX and CDS response from the last quote before the announcement to the 1st, 5th, 10th and 20th after it, advisor's 12-10 e-mail (branch `feature/focus-horizonte-fixo`, **not merged**) | `event_trajectory.R` | `2026-10-14_ponte_trajetoria_evento` | rule committed before running (`0b08071`); nothing re-estimated, `R/` and `data/` untouched. Author decisions of 14-10: FX always Yahoo `BRL=X`, never the PTAX; CDS always closes at 17h New York (closes the CDS-window decision; in 27 of 102 meetings the window then runs from the quote before Wednesday to Wednesday's); horizons counted in each market's own quotes; common sample of 101 (the Yahoo file ends 2025-12-31, so 2025-12-10 has no 20th quote); reduced form only on `e_di_bs`, HC1. Per +50bp: FX −R$ 0.029 at the 1st quote (p 0.086), −0.025 at the 5th, +0.048 at the 10th, **+R$ 0.122 at the 20th (p 0.031, significant at 95%; +2.40%, at 90%)**; CDS −1.2/−0.5/**+16.5 (p 0.040)**/+19.9 bp. By the rule, the FX sign reversal already appears in the daily trajectory. ⚠ The 5th and 10th FX quotes are not significant at 90%, so the reversal is not dated. ⚠ An exploratory, unversioned check outside the rule: without 2020-03-18 the CDS is significant at 95% at k = 5, 10 and 20; it is not a result. ⚠ Step 2 and Anexo B's daily row still use the Wed→Thu CDS window (open item) |
 | Bridge (b): monthly reduced form of FX and CDS on the monthly surprise, without the factors, advisor's 12-10 e-mail (branch `feature/focus-horizonte-fixo`, **not merged**) | `monthly_reduced_form.R`; `fit_reduced_form_iv()` moved from `daily_event.R` to `R/identification/weak_iv_ar.R` | `2026-10-14_ponte_mensal_forma_reduzida` | rule committed before running (`e19a754`); nothing re-estimated; the move (`fbf9c35`) left `output/daily_event/` byte-identical, the smoke test bit-identical and the seven validators passing, and adds Bartlett terms that pair only calendar neighbours. Author decisions of 14-10: the DFM's 162 innovation months, h = 0 and 1 (HC1, NW(1)), raw and orthogonalized surprise, the panel series (FX monthly mean of the Yahoo rows by date, verified to 1e-12; CDS Investing end of month) beside the other aggregation from the dailies (FX end of month aligned to `yield_6m`, the 7 months whose last session hosts a meeting taking `yahoo_pre`; CDS Bloomberg monthly mean), three samples for the z = 0 months (all 162; without the 9 months of meetings outside the 102; the 99 meeting months only), reduced form per +50bp of surprise and IV per +50bp of `yield_6m` with AR sets. Reference row (panel, orthogonalized): FX **+R$ 0.145 (p 0.037) at h0, +0.293 (p 0.006) at h1**, CDS **+41.3 (p 0.003) and +43.0 bp (p 0.032)**, all significant at 95%; by the rule the depreciation appears in the monthly reduced form without factors. The samples change no sign or significance anywhere. ⚠ FX at end of month: +0.115 / +0.158, not significant at 90%, under both surprises. ⚠ Per +50bp of `yield_6m` the first stage has F 9.30 (orthogonalized): FX 0.078 / 0.158 and CDS 22.3 / 23.2 against the DFM's 0.145 / 0.179 and 33.5 / 36.9, each point inside the other's 90% set (not a test of equality). ⚠ The panel CDS may be misaligned in 2016-11 and 2024-01, since the Investing close time is unknown |
 | Conference 1/4 of the advisor's 14-10 e-mail: the meetings affected, with known and unknown times, pre and post dates per market, holidays and window lengths (branch `feature/focus-horizonte-fixo`, **not merged**) | `copom_timing.R`; `build_thursday_surprises()` in `R/instrument/di_surprise.R` now also returns the contract it picks | `2026-10-15_conferencia_reunioes_fora` | nothing re-estimated; `script/instrument.R` rerun byte-identical, smoke test bit-identical, the old columns of `meetings.csv` unchanged and `daily_event.R`, `event_trajectory.R` and `monthly_reduced_form.R` byte-identical. Author decisions of 15-10, before running: "affected" means the 9 out of the 102; the advisor's wide Yahoo window runs from the row dated Tuesday to the row dated Thursday on Yahoo's own calendar; the CDS wide window is left out and goes to the advisor as a question (his e-mail has no item 2); lengths in calendar days and own-market quotes, in hours only where the time is documented (PTAX) or a declared hypothesis (Yahoo London midnight, CDS 17h New York). `excluded_meetings.csv` has the 9 × 5 windows (DI, PTAX, Yahoo convention and wide, CDS 17h NY); `meetings.csv` gains for all 111 the PTAX and wide-Yahoo windows, the DI contract and the announcement status. 7 fall out because Thursday is a Brazilian holiday with no DI or PTAX: the convention's DI and PTAX windows run Wednesday to Friday, one session, two calendar days, same contract; the 2 Thanksgiving meetings have DI, PTAX, Yahoo and CDS on Thursday and fall out only through the S&P 500/VIX/Brent filter. The announcement is documented in the 5 since 2016-07 and a lower bound in the 4 before; Yahoo and CDS quote on all 9 holidays. ⚠ The 175th has +37 bp and its contract sits at 152 bd, above the 102's 95th percentile (146) |
+| Window audit of the advisor's 17-10 e-mail: corrected table with pre/post/ambiguous classes, and FX, CDS and strength on the 102, 104 and 111 meetings (branch `feature/auditoria-janelas-copom`, **not merged**) | `build_variants.R` (`holiday_windows`, filter removed), `di_surprise.R` (`build_event_surprises()`), `instrument.R`, `copom_timing.R`, `copom_window_comparison.R` | `2026-10-17_auditoria_janelas_copom` | rule committed before running (`8edc3a2`). Author decisions of 17-10: only the 2 Thanksgiving meetings enter production (104); ambiguous within 30 min; excluded months at zero; the Ibovespa on the DI's window; the S&P 500/VIX/Brent filter removed. The 102's raw surprises are bit-identical, BS refitted (R² 0.119, joint p 0.148). Full window, h0, 102 / 104 / 111: ξ_mp 6.661 / 6.549 / 7.282, BRL/USD 0.145 / 0.136 / 0.125, CDS 33.5 / 32.4 / 30.6 bp, significant at 90% in all three. DI1 last trade at most at 18h00 since 2019 (B3 grid), 18h15 bound before; Yahoo and CDS times hypotheses; widened CDS = narrow plus one change each side, containing the announcement in all 111 (narrow ambiguous in 50); DI ambiguous in 42, all in the 18h announcement period; the advisor's four 17h-NY conversions check; US-holiday CDS and Yahoo quotes are new observations (⚠ 205.0 on 2013-11-28). ⚠ Pre-COVID ξ_mp of the new production 3.770, below 3.84. ⚠ Downstream outputs still on the 102 |
 
 ## ⚠ Prohibitions
 
@@ -594,8 +622,11 @@ is still pinned, as the degeneracy reference, in `script/validation/validate_cov
 the MSCI Emerging Markets index, θ̂ re-estimated) the five are `0.0050000000000000001`,
 `0.0071060083672732288`, `0.0076213733592213331`, `-1.4253687768521437` and `0.1448646415797471`
 (with `msci` the MSCI Inc. share price, `0.0071747739108540751`, `0.0077302048927632531`,
-`-1.6546048858122004` and `0.14584857519843694`). `data/processed/` is not versioned, so after that
-branch run `Rscript script/run_all.R --only=clean` on `main` before the smoke test.
+`-1.6546048858122004` and `0.14584857519843694`). **On branch `feature/auditoria-janelas-copom`**
+(104 meetings) they are `0.0050000000000000001`, `0.0070302063989873959`, `0.0074823305079855466`,
+`-1.3189930569660355` and `0.13632013559132808`. `data/processed/` is not versioned, so after either
+branch run `Rscript script/run_all.R --only=clean` on `main` before the smoke test (and
+`--only=instrument` when moving between the two branches).
 
 ## Conventions
 

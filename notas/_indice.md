@@ -148,6 +148,26 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Auditoria das janelas do Copom, e-mail de 17-10 (2026-10-17, branch `feature/auditoria-janelas-copom`):**
+[`2026-10-17_auditoria_janelas_copom`](2026-10-17_auditoria_janelas_copom.md)
+**CURRENT na branch, não mergeada; a produção da branch passa a 104 reuniões.**
+- **Tabela.** O anúncio vira um intervalo onde só há o término da ata. Cada cotação é pré, pós ou ambígua,
+  com margem de 30 min (regra `8edc3a2`). O DI é o último negócio, até 18h00 desde 2019, e antes até
+  18h15, limite do segmento. Yahoo e CDS são hipóteses. O CDS ampliado é a estreita mais uma variação de
+  cada lado. Nas 111, ficam ambíguas 42 janelas do DI, 50 do CDS estreito e 0 do ampliado. As quatro contas
+  do orientador batem.
+- **Comparação**, janela cheia, câmbio e CDS em h0:
+
+  | base | câmbio | CDS | ξ_mp |
+  |---|---|---|---|
+  | 102 | 0,145 | 33,5 | 6,66 |
+  | 104, produção | 0,136 | 32,4 | 6,55 |
+  | 111 | 0,125 | 30,6 | 7,28 |
+
+  Câmbio e CDS são significantes a 90% nas três. ⚠ Pré-COVID, o ξ_mp da produção nova cai de 5,60 a
+  3,77.
+- ⚠ As saídas a jusante seguem na base de 102.
+
 **Janela ampliada do CDS nas duas leituras e datas para a Bloomberg, passo 2 (2026-10-16, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-16_janela_ampliada_cds_bloomberg`](2026-10-16_janela_ampliada_cds_bloomberg.md)
 **CURRENT na branch, não mergeada.** Nada reestimado, nenhuma regressão lê as janelas novas.
@@ -664,6 +684,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-17_auditoria_janelas_copom`](2026-10-17_auditoria_janelas_copom.md) | 10-17 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção da branch com 104 reuniões** | e-mail de 17-10; decisões do autor de 17-10 (só Ação de Graças na produção, ambígua a ≤ 30 min, meses excluídos a zero, Ibovespa na janela do DI, filtro removido); Yahoo e CDS como hipóteses | Tudo, na branch: classificação pré/pós/ambígua das 111 e das 9; grade do DI1; CDS ampliado; câmbio 0,145 / 0,136 / 0,125 e CDS 33,5 / 32,4 / 30,6 em h0 nas bases de 102 / 104 / 111, significantes a 90% nas três; ξ_mp 6,66 / 6,55 / 7,28; ⚠ ξ_mp pré-COVID 3,77 na produção nova; ⚠ saídas a jusante na base de 102 |
 | [`2026-10-16_janela_ampliada_cds_bloomberg`](2026-10-16_janela_ampliada_cds_bloomberg.md) | 10-16 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; nada reestimado, nenhuma regressão** | CDS às 17h de NY; Yahoo pela hora inferida; decisões do autor de 16-10 (datas, só os horários do anúncio, um e-mail, CDS ampliado pronto) | Tudo, na branch: as duas leituras da janela ampliada do CDS em `meetings.csv` e na tabela das 9, à espera do orientador; 8 datas e os horários do anúncio para a Bloomberg; ⚠ nada lê `d_cds_wide`/`d_cds_wide3` como resposta |
 | [`2026-10-15_conferencia_reunioes_fora`](2026-10-15_conferencia_reunioes_fora.md) | 10-15 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; nada reestimado, instrumento intocado** | as 9 reuniões fora das 102; anúncio pelas atas; DI `CloseRate`, PTAX 10h–13h, Yahoo pela hora inferida (convenção) e pelas datas das linhas de terça a quinta (larga), CDS às 17h de NY; decisões do autor de 15-10 antes de rodar | Tudo, na branch: 7 caem pela quinta feriado no Brasil (DI e PTAX de quarta a sexta, um pregão, mesmo contrato), 2 de Thanksgiving só pelo filtro de S&P 500, VIX e Brent; anúncio documentado nas 5 desde 2016-07, limite inferior nas 4 anteriores; Yahoo e CDS cotam nos 9 feriados; ⚠ 175ª com +37 p.b. e contrato a 152 d.u.; ⚠ janela ampliada do CDS fora, à espera do orientador |
 | [`2026-10-13_cambio_yahoo_convencao`](2026-10-13_cambio_yahoo_convencao.md) | 10-13 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; instrumento e produção intocados; `.tex` não migrado** | 102 reuniões, Yahoo `BRL=X` pela hora da cotação (`load_yahoo_brl()`), janela da última cotação antes do anúncio à primeira depois, por decisão do autor tomada depois de ver as contas; Anexo B com o mesmo câmbio, semanas sem reunião da noite de terça à de quarta; base do passo 0 com o índice de emergentes | Tudo, na branch: −R$ 0,037 (p 0,012) na bruta e −R$ 0,029 (p 0,088) na ortogonalizada; `Qr` diário 0,002/0,064/0,081; razão do câmbio 0,69; a leitura do horário do Yahoo de 10-05 corrigida |

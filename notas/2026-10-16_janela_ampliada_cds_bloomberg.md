@@ -1,5 +1,9 @@
 # Janela ampliada do CDS nas duas leituras e as datas para a Bloomberg
 
+> **Superada em 2026-10-17 quanto à janela ampliada do CDS.** O orientador escolheu a estreita mais uma
+> variação de cada lado. A leitura "larga" saiu do código, e as colunas viraram `cds_widened_*`
+> (`2026-10-17_auditoria_janelas_copom`). As datas para a Bloomberg seguem valendo.
+>
 > **CURRENT — 2026-10-16.** Passo 2 de `registro/pendencias.md`: o e-mail que manda ao orientador a
 > conferência 1/4, pergunta a janela ampliada do CDS e dá as datas para a cotação intradiária da
 > Bloomberg (`email/email_meu_16-10_12h53.md`, enviado). Branch `feature/focus-horizonte-fixo`,

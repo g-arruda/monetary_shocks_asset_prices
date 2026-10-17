@@ -45,9 +45,16 @@ flag left with the variants and tests they fed. Monthly aggregation is JK's with
 **not** GK's moving-average scheme — a justified choice since 2026-07-27, not a deviation: GK's
 fn. 11 conditions its weighting on a *monthly-average* policy indicator while `yield_6m` here is
 end-of-month, and the GK scheme on this panel collapsed ξ_mp from 10.43 to 0.30 (the GK aggregator
-left the code on 2026-09-18). **The same-session S&P/VIX/Brent filter on the Thursday panel stays**:
-those changes enter no regression any more, but dropping a Thursday without them is what defines
-the sample of the BS regressions (which 102 of the 111 Copom Wednesdays enter).
+left the code on 2026-09-18). On `main` and `feature/focus-horizonte-fixo`, the same-session
+S&P/VIX/Brent filter on the Thursday panel still fixes the sample of the BS regressions, which 102 of
+the 111 Copom Wednesdays enter. **Since 2026-10-17, on `feature/auditoria-janelas-copom`, that filter
+is gone** (a residue of the contemporaneous purification that dropped the 2 Thanksgiving meetings).
+- The events are the Copom meetings with a measured surprise, from the Wednesday close to the first DI
+  session after it: 104 in production.
+- The 7 on the eve of a Brazilian holiday, whose window runs to Friday, enter only under the mandatory
+  argument `holiday_windows = TRUE` (111, the advisor's sensitivity).
+- A missing surprise or predictor `stop()`s; nothing is filled with zero
+  (`notas/2026-10-17_auditoria_janelas_copom.md`).
 
 **The finding that governed variant choice until 2026-09-26: strength lives in the *mask*, not the
 purified values.** It does not survive the current BS construction, where the mask lowers ξ_mp
