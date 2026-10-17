@@ -3,10 +3,16 @@
 # keeps all I/O and calls build_instrument_variants() once.
 #
 # The three monthly variants are the construction layers of tab:first_stage:
-#   z_bruto        raw Wed->Thu DI surprise at the target vertex;
-#   z_bs_purif     + Bauer-Swanson (2023, eq. 7) pre-event orthogonalization;
+#   z_bruto        raw DI surprise at the target vertex, from the Wednesday
+#                  close to the first DI session after the announcement;
+#   z_bs_purif     + Bauer-Swanson (2023, eq. 7) pre-event orthogonalization
+#                  (production);
 #   z_jk_bs_purif  + Jarocinski-Karadi (2020) sign filter on the BS
-#                  residuals (production).
+#                  residuals.
+#
+# The events are the Copom meetings with a measured surprise. A meeting on
+# the eve of a Brazilian holiday has a window to Friday, which takes in more
+# news, and enters only under holiday_windows = TRUE.
 #
 # The BS regressions run on the Copom events alone, with a constant and no
 # trend, as their Table 3 does with the FOMC months (table_3.m). Their
@@ -37,40 +43,47 @@
 #'   predecessor).
 #' @param target_bd DI vertex in business days.
 #' @param sample_start,sample_end Sample bounds.
+#' @param holiday_windows TRUE to take in the meetings whose Thursday is a
+#'   Brazilian holiday, with the window to the next DI session (the
+#'   sensitivity of the advisor's e-mail of 2026-10-17); FALSE leaves them
+#'   out, and their months at zero. No default: production passes FALSE.
 #'
 #' @return List with `monthly` (tibble: `month`, `z_bruto`, `z_bs_purif`,
-#'   `z_jk_bs_purif`), `daily` (the valid post-Copom Thursdays, the sample of
-#'   the BS regressions, with residuals and the mask), `bs_fits` (the two BS
-#'   `lm` fits, `delta_di` and `r_ibov`) and `diag` (counts and R2 of the BS
-#'   regressions).
+#'   `z_jk_bs_purif`), `daily` (the Copom events, the sample of the BS
+#'   regressions: `wednesday`, `date` the first DI session after the
+#'   announcement, `long_window`, the surprises, residuals and the mask),
+#'   `bs_fits` (the two BS `lm` fits, `delta_di` and `r_ibov`) and `diag`
+#'   (counts and R2 of the BS regressions).
 #'
 #' @examples
 #' built <- build_instrument_variants(inputs, 126, as.Date("2012-03-01"),
-#'                                    as.Date("2025-12-31"))
+#'                                    as.Date("2025-12-31"),
+#'                                    holiday_windows = FALSE)
 build_instrument_variants <- function(inputs, target_bd, sample_start,
-                                      sample_end) {
-  sample_days <- seq(sample_start, sample_end, by = "day")
-  all_thursdays <- sample_days[lubridate::wday(sample_days) == 5]
+                                      sample_end, holiday_windows) {
+  # The event's window runs from the Wednesday close, the last before the
+  # announcement, to the first DI session after it: the Thursday, or the
+  # Friday when Thursday is a Brazilian holiday. Those longer windows take in
+  # more news and enter only when asked for.
+  di_sessions <- sort(unique(inputs$di_panel$date))
+  events <- tibble::tibble(wednesday = inputs$copom_wed) |>
+    dplyr::filter(wednesday >= sample_start, wednesday <= sample_end) |>
+    dplyr::mutate(
+      date = di_sessions[findInterval(as.numeric(wednesday), as.numeric(di_sessions)) + 1L],
+      long_window = date != wednesday + 1L
+    ) |>
+    dplyr::filter(holiday_windows | !long_window)
 
-  di_surprises <- build_thursday_surprises(
+  di_surprises <- build_event_surprises(
     inputs$di_panel,
-    all_thursdays,
+    events$wednesday,
+    events$date,
     target_bd = target_bd,
     min_bd = 10
   )
 
-  ibov_returns <- inputs$ibov_daily |>
-    dplyr::arrange(date) |>
-    dplyr::transmute(date, r_ibov = 100 * (log(ibov) - log(dplyr::lag(ibov))))
-
-  external_changes <- inputs$ext_daily |>
-    dplyr::arrange(date) |>
-    dplyr::transmute(
-      date,
-      r_sp500 = 100 * (log(sp500) - log(dplyr::lag(sp500))),
-      d_vix = vix - dplyr::lag(vix),
-      r_brent = 100 * (log(brent) - log(dplyr::lag(brent)))
-    )
+  # The Ibovespa leg of the JK mask over the same window as the DI
+  ibov_close <- \(day) inputs$ibov_daily$ibov[match(day, inputs$ibov_daily$date)]
 
   # Pre-event predictors: financial trends over the 13 weeks (65 trading days)
   # ending at the Wednesday close, BS's 3-month changes (sp5003mchg in
@@ -94,9 +107,6 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
     "pre_slope", di_slope_daily,    "slope", FALSE
   )
 
-  # Wednesday: the last close before the announcement
-  pre_cutoff <- all_thursdays - 1
-
   pre_event <- pre_event_inputs |>
     dplyr::select(-predictor) |>
     purrr::pmap(\(daily, column, log_scale) {
@@ -109,25 +119,19 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
       } else {
         x - dplyr::lag(x, 65)
       }
-      # Last observation on or before the cutoff; none yet -> NA
-      last_obs <- findInterval(as.numeric(pre_cutoff), as.numeric(series$date))
+      # Last observation on or before the Wednesday close; none yet -> NA
+      last_obs <- findInterval(as.numeric(events$wednesday), as.numeric(series$date))
       change[dplyr::na_if(last_obs, 0L)]
     }) |>
     purrr::set_names(pre_event_inputs$predictor) |>
-    tibble::as_tibble() |>
-    dplyr::mutate(date = all_thursdays, .before = 1)
+    tibble::as_tibble()
 
-  thursday_panel <- di_surprises |>
-    dplyr::left_join(ibov_returns, by = "date") |>
-    dplyr::left_join(external_changes, by = "date") |>
-    dplyr::left_join(pre_event, by = "date") |>
-    dplyr::mutate(copom_day = (date - 1) %in% inputs$copom_wed)
-
-  # The same-session S&P, VIX and Brent changes enter no regression; a Thursday
-  # without them is still dropped, because that is what fixes the 102 events
-  # of the BS regressions below.
-  valid <- thursday_panel |>
-    tidyr::drop_na(delta_di, r_ibov, r_sp500, d_vix, r_brent)
+  events <- events |>
+    dplyr::mutate(
+      delta_di = di_surprises$delta_di,
+      r_ibov = 100 * (log(ibov_close(date)) - log(ibov_close(wednesday)))
+    ) |>
+    dplyr::bind_cols(pre_event)
 
   # Macroeconomic news of BS Table 3, predetermined at the Wednesday close. The
   # Focus panel stops surveying a reference period the day before its release,
@@ -196,23 +200,22 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
       )
     )
 
-  events <- valid |>
-    dplyr::filter(copom_day) |>
-    dplyr::mutate(wednesday = date - 1) |>
+  events <- events |>
     dplyr::left_join(release_news, by = "wednesday") |>
     dplyr::left_join(ipca_expected, by = "wednesday") |>
     dplyr::mutate(meeting_month = lubridate::floor_date(wednesday, "month")) |>
     dplyr::left_join(core_acceleration, by = "meeting_month")
 
-  # lm() would drop an incomplete row silently and move the regression sample
+  # lm() would drop an incomplete row silently and move the regression sample;
+  # a meeting without a measured surprise is missing, never zero
   n_missing <- events |>
-    dplyr::select(dplyr::starts_with(c("pre_", "news_"))) |>
+    dplyr::select(delta_di, r_ibov, dplyr::starts_with(c("pre_", "news_"))) |>
     is.na() |>
     colSums()
   n_missing <- n_missing[n_missing > 0]
   if (length(n_missing) > 0) {
     stop(
-      "NA in pre-event predictors on the Copom events: ",
+      "NA in the surprises or pre-event predictors on the Copom events: ",
       paste(sprintf("%s=%d", names(n_missing), n_missing), collapse = ", "),
       ". Check input coverage or rerun script/download.R and ",
       "script/download_macro_news.R."
@@ -263,9 +266,8 @@ build_instrument_variants <- function(inputs, target_bd, sample_start,
     bs_fits = list(delta_di = lm_di_bs, r_ibov = lm_ibov_bs),
     diag = list(
       target_bd = target_bd,
-      n_thursdays = nrow(thursday_panel),
-      n_valid = nrow(valid),
       n_copom = nrow(events),
+      n_long_window = sum(events$long_window),
       n_jk_bs = sum(events$jk_monetary_bs),
       r2_di_bs = summary(lm_di_bs)$r.squared,
       r2_ibov_bs = summary(lm_ibov_bs)$r.squared

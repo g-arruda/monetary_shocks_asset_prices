@@ -102,8 +102,10 @@ if (!all(n2)) {
 # The untreated reference, at full precision: the OLS point of the production
 # instrument in data/processed/instrument.csv, z_bs_purif since 2026-09-26,
 # on the panel with the Focus annual series at a fixed 12-month horizon since
-# 2026-10-03 and msci the MSCI Emerging Markets index since 2026-10-12 (with
-# msci the MSCI Inc. share price it was 0.0081944178888302167,
+# 2026-10-03, msci the MSCI Emerging Markets index since 2026-10-12 and the
+# two Thanksgiving meetings among the events since 2026-10-17 (on the 102 it
+# was 0.0081198930869363448, 0.0094556769174699313, -4.0313079176919295 and
+# 0.19908370296823538; with msci the MSCI Inc. share price it was 0.0081944178888302167,
 # 0.0095406346637042002, -4.1371539024522832 and 0.19853223669754458; with
 # the "ano seguinte" series, 0.0081785146707394098,
 # 0.0094570470135525789, -4.46629862738589 and 0.19440255381521024; under
@@ -113,9 +115,9 @@ if (!all(n2)) {
 # degenerates to the untreated one. The production constants are the treated
 # ones, in output/validation/production_spec_impact_smoke.csv.
 headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
-untreated_h0 <- c(0.0050000000000000001, 0.0081198930869363448,
-                  0.0094556769174699313, -4.0313079176919295,
-                  0.19908370296823538)
+untreated_h0 <- c(0.0050000000000000001, 0.0080640719431575043,
+                  0.0093535527020382567, -4.0490377949157175,
+                  0.19071397547112309)
 if (!identical(reference[["5"]][match(headline, colnames(data_mat)), 1], untreated_h0)) {
   stop("N2: the untreated reference point moved from the OLS point of the production instrument")
 }

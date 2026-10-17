@@ -4,7 +4,10 @@
 # (R/instrument/build_variants.R): z_bruto, the production z_bs_purif
 # (Bauer-Swanson pre-event orthogonalization) and z_jk_bs_purif, whose
 # JK mask reads the Bauer-Swanson residuals
-# (notas/2026-07-14_auditoria_fidelidade_jk_bs.md).
+# (notas/2026-07-14_auditoria_fidelidade_jk_bs.md). The events are the
+# Copom meetings with a Thursday DI session; the seven on the eve of a
+# Brazilian holiday enter only data/processed/instrument_holiday_windows.csv,
+# the sensitivity of notas/2026-10-17_auditoria_janelas_copom.md.
 # Requires the daily raw inputs written by `script/download.R` and the
 # macroeconomic news inputs written by `script/download_macro_news.R`.
 # ============================================================
@@ -61,18 +64,33 @@ copom_wed <- load_copom_wednesdays(
   to = SAMPLE_END
 )
 
+inputs <- list(
+  di_panel = di_panel,
+  ibov_daily = ibov_daily,
+  ext_daily = ext_daily,
+  focus_macro = focus_macro,
+  macro_released = macro_released,
+  copom_wed = copom_wed
+)
+
+# The meetings on the eve of a Brazilian holiday stay out of production
 built <- build_instrument_variants(
-  inputs = list(
-    di_panel = di_panel,
-    ibov_daily = ibov_daily,
-    ext_daily = ext_daily,
-    focus_macro = focus_macro,
-    macro_released = macro_released,
-    copom_wed = copom_wed
-  ),
+  inputs = inputs,
   target_bd = TARGET_BD,
   sample_start = SAMPLE_START,
-  sample_end = SAMPLE_END
+  sample_end = SAMPLE_END,
+  holiday_windows = FALSE
+)
+
+# The advisor's sensitivity (e-mail of 2026-10-17, item 3): those meetings
+# taken in, with the window to Friday and the BS regression refitted on them;
+# read by script/copom_window_comparison.R
+built_holiday_windows <- build_instrument_variants(
+  inputs = inputs,
+  target_bd = TARGET_BD,
+  sample_start = SAMPLE_START,
+  sample_end = SAMPLE_END,
+  holiday_windows = TRUE
 )
 
 dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
@@ -84,9 +102,15 @@ built$monthly |>
   dplyr::transmute(month, shock = .data[[PRODUCTION_VARIANT]]) |>
   readr::write_csv("data/processed/instrument.csv")
 
+built_holiday_windows$monthly |>
+  dplyr::transmute(month, shock = .data[[PRODUCTION_VARIANT]]) |>
+  readr::write_csv("data/processed/instrument_holiday_windows.csv")
+
 built$daily |>
   dplyr::select(
+    wednesday,
     date,
+    long_window,
     delta_di,
     r_ibov,
     e_di_bs,

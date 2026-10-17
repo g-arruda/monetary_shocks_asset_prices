@@ -60,46 +60,59 @@ load_copom_wednesdays <- function(path, from, to) {
 }
 
 
-#' Wednesday-to-Thursday DI surprises for a vector of Thursdays
+#' DI surprises from one close to a later one, the contract held fixed
 #'
-#' For each Thursday, takes the Wednesday contract whose maturity is closest
-#' to `target_bd` (and at least `min_bd`) among those that also close on
-#' Thursday, and differences the two closes. Holding the contract fixed across
-#' the two days is what makes the difference a rate surprise rather than a
-#' maturity effect. Among equally distant contracts the first in panel order
-#' wins. Thursdays with no contract quoted on both days come back as
-#' `NA_real_` rather than 0, so a missing quote never masquerades as a zero
-#' surprise.
+#' For each pair of dates, takes the contract whose maturity on the first
+#' date is closest to `target_bd` (and at least `min_bd`) among those that
+#' also close on the second, and differences the two closes. Holding the
+#' contract fixed across the two days is what makes the difference a rate
+#' surprise rather than a maturity effect. Among equally distant contracts
+#' the first in panel order wins. The usual pair is a Wednesday and the
+#' Thursday after it; when Thursday is a Brazilian holiday, the second date
+#' is the next DI session. Pairs with no contract quoted on both dates come
+#' back as `NA_real_` rather than 0, so a missing quote never masquerades as
+#' a zero surprise.
 #'
 #' @param di_panel Tibble from `load_di_panel()`.
-#' @param thursdays Date vector of event Thursdays.
+#' @param pre_dates Date vector of the closes before the event.
+#' @param post_dates Date vector of the closes after it, one per `pre_dates`.
 #' @param target_bd Target maturity in business days.
 #' @param min_bd Minimum maturity in business days.
 #'
-#' @return Tibble with date, delta_di (basis points), and the contract used:
-#'   ticker and bdays, its business days to expiry on Wednesday.
-build_thursday_surprises <- function(di_panel, thursdays, target_bd, min_bd) {
-  wednesday_closes <- di_panel |>
-    dplyr::filter(date %in% (thursdays - 1L), bdays >= min_bd) |>
-    dplyr::transmute(date = date + 1L, ticker, bdays, rate_wed = close_rate)
+#' @return Tibble in the order of the pairs, with pre_date, post_date,
+#'   delta_di (basis points), and the contract used: ticker and bdays, its
+#'   business days to expiry on `pre_date`.
+build_event_surprises <- function(di_panel, pre_dates, post_dates, target_bd,
+                                  min_bd) {
+  pairs <- tibble::tibble(pre_date = pre_dates, post_date = post_dates)
 
-  thursday_closes <- di_panel |>
-    dplyr::filter(date %in% thursdays) |>
-    dplyr::select(date, ticker, rate_thu = close_rate)
+  pre_closes <- di_panel |>
+    dplyr::filter(bdays >= min_bd) |>
+    dplyr::inner_join(pairs, by = c("date" = "pre_date"), keep = TRUE) |>
+    dplyr::select(pre_date, post_date, ticker, bdays, rate_pre = close_rate)
 
-  surprises <- wednesday_closes |>
-    dplyr::inner_join(thursday_closes, by = c("date", "ticker")) |>
+  post_closes <- di_panel |>
+    dplyr::select(post_date = date, ticker, rate_post = close_rate)
+
+  surprises <- pre_closes |>
+    dplyr::inner_join(post_closes, by = c("post_date", "ticker")) |>
     dplyr::slice_min(
       abs(bdays - target_bd),
       n = 1,
       with_ties = FALSE,
-      by = date
+      by = c(pre_date, post_date)
     ) |>
     # decimal rate -> basis points
-    dplyr::transmute(date, delta_di = (rate_thu - rate_wed) * 10000, ticker, bdays)
+    dplyr::transmute(
+      pre_date,
+      post_date,
+      delta_di = (rate_post - rate_pre) * 10000,
+      ticker,
+      bdays
+    )
 
-  tibble::tibble(date = thursdays) |>
-    dplyr::left_join(surprises, by = "date")
+  pairs |>
+    dplyr::left_join(surprises, by = c("pre_date", "post_date"))
 }
 
 

@@ -135,9 +135,13 @@ if (!identical(instrument_wide$month, expected_dates) ||
     any(!is.finite(as.matrix(instrument_wide[, -1])))) {
   stop("The instrument variants must cover all 166 production months.")
 }
+# Since 2026-10-17 the two Thanksgiving meetings are events and the BS
+# regression runs on 104; on the 102 the values were -22.022780871483423,
+# -19.657534015830727, -5.2528948250458516, 0, 7.2624960719803342,
+# 6.4545813094945652, 0 and -4.4561851757103943
 first_instrument <- c(
-  -22.022780871483423, -19.657534015830727, -5.2528948250458516, 0,
-  7.2624960719803342, 6.4545813094945652, 0, -4.4561851757103943
+  -22.113104870662156, -19.349847205439183, -5.1534871071953008, 0,
+  7.1665997524917344, 6.4922865142399342, 0, -4.0761119808130255
 )
 if (max(abs(instrument_wide[[INSTRUMENT]][seq_along(first_instrument)] -
     first_instrument)) > 1e-12) {
@@ -153,7 +157,7 @@ event_diagnostics <- readr::read_csv(
 zero_contract <- tibble::tibble(month = expected_dates) |>
   dplyr::left_join(event_diagnostics, by = "month") |>
   dplyr::mutate(copom_events = tidyr::replace_na(copom_events, 0L))
-if (sum(instrument_wide[[INSTRUMENT]] == 0) != 64L ||
+if (sum(instrument_wide[[INSTRUMENT]] == 0) != 62L ||
     !identical(
       instrument_wide[[INSTRUMENT]] == 0,
       zero_contract$copom_events == 0
@@ -213,12 +217,14 @@ samples <- list(full = SAMPLE, pre_covid = PRE_COVID_SAMPLE)
 # Since 2026-10-12 msci is the MSCI Emerging Markets index; with the MSCI Inc.
 # share price xi_mp was 6.8019636546454532 / 5.5043620711622054, F_rob
 # 8.2830468753569697 / 5.3359788636967229 and the roots 0.9855005224958937 /
-# 0.9944736338672295.
+# 0.9944736338672295. Since 2026-10-17 the instrument has the two Thanksgiving
+# meetings (104 events); on the 102 xi_mp was 6.6613895553441687 /
+# 5.5974534965709433 and F_rob 8.0676674199604381 / 5.1610891060133097.
 expected <- tibble::tibble(
   sample = c("full", "pre_covid"),
   n_innovations = c(162L, 90L),
-  xi_mp = c(6.6613895553441687, 5.5974534965709433),
-  f_robust_mp = c(8.0676674199604381, 5.1610891060133097),
+  xi_mp = c(6.5493479909173757, 3.769602616660245),
+  f_robust_mp = c(7.9172644640375287, 3.2998280359497589),
   max_companion_root = c(0.9887383856792471, 0.99101457123904813),
   stable = c(TRUE, TRUE)
 )
@@ -290,8 +296,10 @@ headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
 # Under the production Lenza-Primiceri scale since 2026-09-17, z_bs_purif since
 # 2026-09-26, and the Focus annual series at a fixed 12-month horizon, with
 # theta-hat re-estimated on them, since 2026-10-03, and msci the MSCI
-# Emerging Markets index, theta-hat re-estimated again, since 2026-10-12.
-# With msci the MSCI Inc. share price the values were 0.0071747739108540751,
+# Emerging Markets index, theta-hat re-estimated again, since 2026-10-12, and
+# the two Thanksgiving meetings among the events since 2026-10-17 (on the
+# 102: 0.0071060083672732288, 0.0076213733592213331, -1.4253687768521437 and
+# 0.1448646415797471). With msci the MSCI Inc. share price the values were 0.0071747739108540751,
 # 0.0077302048927632531, -1.6546048858122004 and 0.14584857519843694; with
 # the "ano seguinte" series, 0.0072069426647632393, 0.00773053809800818,
 # -2.4654264316584382 and 0.14142146175048584; under z_jk_bs_purif,
@@ -299,10 +307,10 @@ headline <- c("yield_6m", "yield_2y", "yield_5y", "asset_ibov", "cambio_usd")
 # 0.12942378112688835.
 expected_impacts <- c(
   0.005,
-  0.0071060083672732288,
-  0.0076213733592213331,
-  -1.4253687768521437,
-  0.1448646415797471
+  0.0070302063989873959,
+  0.0074823305079855466,
+  -1.3189930569660355,
+  0.13632013559132808
 )
 impact_smoke <- tibble::tibble(
   variable = headline,

@@ -149,8 +149,9 @@ build_weekly_changes <- function(from, to, di_vertices, prices,
   )
   di_changes <- di_vertices |>
     purrr::map(\(business_days) {
-      build_thursday_surprises(
+      build_event_surprises(
         di_panel,
+        weeks$thu_date - 1L,
         weeks$thu_date,
         target_bd = business_days,
         min_bd = 10
