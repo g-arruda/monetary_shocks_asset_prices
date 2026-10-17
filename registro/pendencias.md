@@ -7,11 +7,11 @@
 - A sensibilidade sem as 7 janelas longas é a base de 104.
 - A tabela das 9 traz a classificação pré, pós ou ambígua, o anúncio como intervalo, a grade do DI1 e os
   horários do Yahoo e do CDS como hipóteses.
-- Câmbio e CDS em h0 são significantes a 90% nas três bases.
+- Câmbio e CDS em h0 são significantes a 95% nas três bases (não a 99%).
 - Decisões do autor no mesmo dia: as 111 na produção e a de 104 como sensibilidade (linha 29 do e-mail);
   ambígua a ≤ 30 min; meses excluídos a zero; o Ibovespa na janela do DI; o filtro removido.
-- Abertos: mandar a tabela e a comparação, e rodar de novo o que lê o instrumento. O ξ_mp pré-COVID da
-  produção é 4,87.
+- A tabela e a comparação foram enviadas às 18h36 (`email/email_meu_17-10_18h36.md`).
+- Aberto: rodar de novo o que lê o instrumento. O ξ_mp pré-COVID da produção é 4,87.
 - Nota `2026-10-17_auditoria_janelas_copom`.
 
 **Atualização de 2026-10-17 (artigo, sem números):** na branch `feature/focus-horizonte-fixo`, a §3.2
