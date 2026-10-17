@@ -228,9 +228,9 @@ AR/MOSW próprios.
 ## Índice de itens abertos
 
 Passo a passo fixado em 2026-10-15, em ordem de prioridade pelos e-mails do orientador de 14-10 e 12-10; substitui a ordem de 2026-10-13. Passos com o mesmo número se fazem juntos.
-- **1–6: a conferência do e-mail de 14-10**, na ordem dele. Cada entrega (1, 3, 4 e 6) vai ao orientador quando ficar pronta, sem esperar as outras, e até o fim da conferência a apreciação do evento diário é provisória. O 2 sai cedo porque depende de um terceiro. O 5 é da entrega de 19/20, não depende da conferência e pode rodar em segundo plano desde o 1. O 1 fechou em 15-10 (Fechados do Tema B), e o envio dele foi para o 2.
+- **1–6: a conferência do e-mail de 14-10**, na ordem dele. Cada entrega (1, 3, 4 e 6) vai ao orientador quando ficar pronta, sem esperar as outras, e até o fim da conferência a apreciação do evento diário é provisória. O 2 sai cedo porque depende de um terceiro. O 5 é da entrega de 19/20, não depende da conferência e pode rodar em segundo plano desde o 1. O 1 fechou em 15-10 e o 2 em 16-10, com o envio da 1/4, da pergunta do CDS e das datas da Bloomberg (Fechados do Tema B). Esperam o orientador só a Bloomberg, no 3, e o 4; o resto da conferência não depende dele.
 - **7: congelar e promover a base.** Decide-se com o resultado do 6, que pode mudar o instrumento, e desbloqueia 8–13.
-- **8–13: o artigo**, da migração para a base nova até a conclusão, que depende da conferência. Ao fim do 13 sai a entrega de 19/20: a ponte, já feita, o `p = 2` e o artigo.
+- **8–13: o artigo**, da migração para a base nova até a conclusão, que depende da conferência. O texto que não depende de número (§3.2, Anexo A e duas frases) entrou em 17-10 na `focus`; o orientador deixou em 12-10 a atualização avançar em paralelo à conferência. Ao fim do 13 sai a entrega de 19/20: a ponte, já feita, o `p = 2` e o artigo.
 - **depois**: decisões do autor fora da entrega. O e-mail de 12-10 não as pede e chama a rodada de última.
 
 Branch sugerida: `focus` é `feature/focus-horizonte-fixo`, onde rodam os diagnósticos sobre a base do passo 0, como os passos 1 a 4 e as pontes; `nova` é uma branch criada a partir dela, porque a conferência 4/4 muda o instrumento e pode ser recusada; `main` recebe a escrita depois da promoção, que é um avanço rápido, porque `main` é ancestral de `focus`.
