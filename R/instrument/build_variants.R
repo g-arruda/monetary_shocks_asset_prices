@@ -12,7 +12,7 @@
 #
 # The events are the Copom meetings with a measured surprise. A meeting on
 # the eve of a Brazilian holiday has a window to Friday, which takes in more
-# news, and enters only under holiday_windows = TRUE.
+# news; holiday_windows = FALSE leaves those out (the sensitivity).
 #
 # The BS regressions run on the Copom events alone, with a constant and no
 # trend, as their Table 3 does with the FOMC months (table_3.m). Their
@@ -44,9 +44,10 @@
 #' @param target_bd DI vertex in business days.
 #' @param sample_start,sample_end Sample bounds.
 #' @param holiday_windows TRUE to take in the meetings whose Thursday is a
-#'   Brazilian holiday, with the window to the next DI session (the
-#'   sensitivity of the advisor's e-mail of 2026-10-17); FALSE leaves them
-#'   out, and their months at zero. No default: production passes FALSE.
+#'   Brazilian holiday, with the window to the next DI session (production
+#'   since the advisor's e-mail of 2026-10-17); FALSE leaves them out, and
+#'   their months at zero (his sensitivity). No default: production passes
+#'   TRUE.
 #'
 #' @return List with `monthly` (tibble: `month`, `z_bruto`, `z_bs_purif`,
 #'   `z_jk_bs_purif`), `daily` (the Copom events, the sample of the BS
@@ -58,13 +59,13 @@
 #' @examples
 #' built <- build_instrument_variants(inputs, 126, as.Date("2012-03-01"),
 #'                                    as.Date("2025-12-31"),
-#'                                    holiday_windows = FALSE)
+#'                                    holiday_windows = TRUE)
 build_instrument_variants <- function(inputs, target_bd, sample_start,
                                       sample_end, holiday_windows) {
   # The event's window runs from the Wednesday close, the last before the
   # announcement, to the first DI session after it: the Thursday, or the
   # Friday when Thursday is a Brazilian holiday. Those longer windows take in
-  # more news and enter only when asked for.
+  # more news, and the sensitivity leaves them out.
   di_sessions <- sort(unique(inputs$di_panel$date))
   events <- tibble::tibble(wednesday = inputs$copom_wed) |>
     dplyr::filter(wednesday >= sample_start, wednesday <= sample_end) |>

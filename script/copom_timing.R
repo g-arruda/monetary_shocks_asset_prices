@@ -91,21 +91,21 @@
 #   cds_alignment.csv        test (B)
 #   cds_event.csv            test (C)
 #   di_close_settlement.csv  Wednesday's DI close against its settlement
-#   quote_classification.csv the 111 meetings, one row per meeting and
-#                            window (DI, PTAX, Yahoo by the convention and
-#                            wide, CDS at 17h New York and widened): the
-#                            announcement interval, both ends' dates and
-#                            times in Brasilia, the status of each time and
-#                            the class of each end and of the window
-#   excluded_meetings.csv    the nine meetings with a Thursday holiday, the
-#                            2 on Thanksgiving in the events and the 7 on
-#                            the eve of a Brazilian holiday out of them:
-#                            the same rows plus length in days, quotes and
-#                            hours, the holiday, whether each market quotes
-#                            on it and, on a US holiday, whether that quote
-#                            is a new one, the DI contract
+#   excluded_meetings.csv    the nine meetings with a Thursday holiday, all
+#                            in the events, the 7 on the eve of a Brazilian
+#                            holiday with the window to Friday, one row per
+#                            meeting and window (DI, PTAX, Yahoo by the
+#                            convention and wide, CDS at 17h New York and
+#                            widened): the announcement interval, both ends'
+#                            dates and times in Brasilia, the status of each
+#                            time, the class of each end and of the window,
+#                            length in days, quotes and hours, whether each
+#                            market quotes on the holiday and, on a US
+#                            holiday, whether that quote is a new one, the
+#                            DI contract
 #   excluded_meetings_advisor.csv  the same nine, the table for the
-#                            advisor (e-mail of 2026-10-17, item 4), in
+#                            advisor (e-mail of 2026-10-17, item 4), without
+#                            the Yahoo window by the convention, in
 #                            Portuguese, semicolon-separated
 # Notes: notas/2026-10-13_ponte_horarios_copom.md,
 #   notas/2026-10-15_conferencia_reunioes_fora.md,
@@ -130,7 +130,6 @@ OUT_DIR          <- "output/copom_timing"
 SAMPLE_START <- as.Date("2012-03-01")
 SAMPLE_END   <- as.Date("2025-12-31")
 N_MEETINGS   <- 111L
-N_EVENTS     <- 104L
 TARGET_BD    <- 126
 MIN_BD       <- 10
 SHOCK_BPS    <- 50
@@ -221,8 +220,8 @@ external <- readr::read_csv(EXTERNAL_PATH, show_col_types = FALSE)
 instruments <- readr::read_csv(INSTRUMENTS_PATH, show_col_types = FALSE) |>
   dplyr::mutate(month = as.Date(month))
 events <- readr::read_csv(EVENTS_PATH, show_col_types = FALSE) |>
-  dplyr::transmute(thursday = as.Date(date), delta_di, e_di_bs)
-stopifnot(nrow(events) == N_EVENTS)
+  dplyr::transmute(wednesday = as.Date(wednesday), event_date = as.Date(date), long_window, delta_di, e_di_bs)
+stopifnot(nrow(events) == N_MEETINGS)
 
 # Announcement time --------------------------------------------------------
 
@@ -326,18 +325,12 @@ meetings <- meetings |>
     # by their date (R/data_download/exchange.R)
     yahoo_pre_month = lubridate::floor_date(yahoo_pre, "month"),
     yahoo_post_month = lubridate::floor_date(yahoo_post, "month"),
-    in_events = thursday %in% events$thursday,
-    drop_reason = dplyr::if_else(
-      in_events,
-      NA_character_,
-      "quinta feriado no Brasil: janela ate sexta, so na sensibilidade"
-    ),
-    # The instrument's month is the Thursday's; the convention's, that of
-    # the first DI session after the announcement
-    month_instrument = dplyr::if_else(
-      in_events,
-      lubridate::floor_date(thursday, "month"),
-      as.Date(NA)
+    in_events = wednesday %in% events$wednesday,
+    # The instrument's month is that of the event's DI session; the
+    # convention's, that of the first DI session after the announcement
+    month_instrument = lubridate::floor_date(
+      events$event_date[match(wednesday, events$wednesday)],
+      "month"
     ),
     month_convention = lubridate::floor_date(di_post, "month"),
     wednesday_last_session_of_month =
@@ -345,12 +338,10 @@ meetings <- meetings |>
   )
 
 stopifnot(
-  sum(meetings$in_events) == N_EVENTS,
-  all(meetings$in_events == (meetings$di_post == meetings$thursday)),
-  with(dplyr::filter(meetings, in_events), all(
-    di_pre == wednesday & di_post == thursday &
-      month_instrument == month_convention
-  ))
+  all(meetings$in_events),
+  meetings$di_pre == meetings$wednesday,
+  meetings$di_post == events$event_date[match(meetings$wednesday, events$wednesday)],
+  meetings$month_instrument == meetings$month_convention
 )
 
 # The advisor's wider windows (e-mail of 2026-10-14). PTAX: Wednesday's, set
@@ -444,10 +435,11 @@ stopifnot(
   cds_narrow_in_widened$cds_post <= cds_narrow_in_widened$cds_widened_post
 )
 
-# Changes by the convention, the seven meetings out included ----------------
+# Changes by the convention ---------------------------------------------------
 
 # From the Wednesday close to the first DI session after the announcement, as
-# the instrument builds them; on the 104 events that session is the Thursday
+# the instrument builds them: the Thursday, or the Friday in the seven longer
+# windows
 surprises_convention <- build_event_surprises(
   di,
   meetings$wednesday,
@@ -456,19 +448,19 @@ surprises_convention <- build_event_surprises(
   min_bd = MIN_BD
 ) |>
   dplyr::transmute(
-    thursday = meetings$thursday,
+    wednesday = meetings$wednesday,
     delta_di_convention = delta_di,
     di_contract = ticker,
     di_contract_bdays = bdays
   )
 
 meetings <- meetings |>
-  dplyr::left_join(surprises_convention, by = "thursday") |>
-  dplyr::left_join(events, by = "thursday")
+  dplyr::left_join(surprises_convention, by = "wednesday") |>
+  dplyr::left_join(dplyr::select(events, -event_date), by = "wednesday")
 
 stopifnot(
   !anyNA(meetings$delta_di_convention),
-  with(dplyr::filter(meetings, in_events), max(abs(delta_di_convention - delta_di)) < 1e-12)
+  max(abs(meetings$delta_di_convention - meetings$delta_di)) < 1e-12
 )
 
 # Months ---------------------------------------------------------------------
@@ -525,8 +517,10 @@ readr::write_csv(
 # The instrument's contract, re-selected to read its settlement too: the
 # settlement comes from the regular session's closing window, before the
 # release, and the close is the session's last trade. Every Wednesday ->
-# Thursday pair of the sample enters, the Copom ones flagged.
-di_rates <- readr::read_csv(DI_PATH, show_col_types = FALSE) |>
+# Thursday pair of the sample enters, the Copom ones flagged; the seven
+# windows to Friday have no such pair.
+thursday_events <- dplyr::filter(events, !long_window)
+di_rates <-readr::read_csv(DI_PATH, show_col_types = FALSE) |>
   dplyr::transmute(
     date = as.Date(TradeDate),
     ticker = TickerSymbol,
@@ -547,15 +541,15 @@ di_pairs <- di_rates |>
   dplyr::slice_min(abs(bdays - TARGET_BD), n = 1, with_ties = FALSE, by = thursday) |>
   dplyr::transmute(
     thursday,
-    copom = thursday %in% events$thursday,
+    copom = thursday %in% thursday_events$event_date,
     delta_close = 10000 * (close_thu - close_wed),
     delta_settlement = 10000 * (settle_thu - settle_wed),
     gap_wednesday = 10000 * (close_wed - settle_wed)
   )
 copom_pairs <- dplyr::filter(di_pairs, copom)
 stopifnot(
-  nrow(copom_pairs) == N_EVENTS,
-  max(abs(copom_pairs$delta_close - events$delta_di[match(copom_pairs$thursday, events$thursday)])) < 1e-9
+  nrow(copom_pairs) == nrow(thursday_events),
+  max(abs(copom_pairs$delta_close - thursday_events$delta_di[match(copom_pairs$thursday, thursday_events$event_date)])) < 1e-9
 )
 
 # If trades after the release entered Wednesday's close, the gap would move
@@ -692,7 +686,6 @@ readr::write_csv(cds_alignment, file.path(OUT_DIR, "cds_alignment.csv"))
 # CDS test (C): event windows, descriptive -------------------------------------
 
 event_cds <- meetings |>
-  dplyr::filter(in_events) |>
   dplyr::select(meeting, wednesday, thursday, delta_di, e_di_bs) |>
   dplyr::left_join(
     dplyr::select(
@@ -711,7 +704,7 @@ event_cds <- meetings |>
     quarta_quinta = cds_thu - cds_wed,
     anterior_quinta = cds_thu - cds_before
   )
-stopifnot(nrow(event_cds) == N_EVENTS, !anyNA(event_cds$anterior_quinta))
+stopifnot(nrow(event_cds) == N_MEETINGS, !anyNA(event_cds$anterior_quinta))
 
 surprise_columns <- c(bruta = "delta_di", ortogonalizada = "e_di_bs")
 cds_event <- tidyr::expand_grid(
@@ -755,11 +748,7 @@ meetings |>
   # The CDS window script/daily_event.R uses on the events: Wednesday to
   # Thursday
   dplyr::mutate(
-    d_cds_used = dplyr::if_else(
-      in_events,
-      cds$cds[match(thursday, cds$date)] - cds$cds[match(wednesday, cds$date)],
-      NA_real_
-    ),
+    d_cds_used = cds$cds[match(thursday, cds$date)] - cds$cds[match(wednesday, cds$date)],
     announcement = format(announcement, "%H:%M"),
     announcement_end = format(announcement_end, "%Y-%m-%d %H:%M")
   ) |>
@@ -922,18 +911,6 @@ stopifnot(
   advisor_check$window_class == "ambigua"
 )
 
-quote_classification |>
-  dplyr::mutate(
-    dplyr::across(c(pre_time, post_time, announcement, announcement_end), \(x) format(x, "%Y-%m-%d %H:%M"))
-  ) |>
-  dplyr::select(
-    meeting, wednesday, in_events, announcement, announcement_end,
-    announcement_status, series, window, pre, post, pre_time, post_time,
-    time_status, pre_class, post_class, window_class, change, change_unit,
-    change_pct
-  ) |>
-  readr::write_csv(file.path(OUT_DIR, "quote_classification.csv"))
-
 # The nine meetings with a Thursday holiday -----------------------------------
 
 sp500_days <- external$date[!is.na(external$sp500)]
@@ -941,9 +918,9 @@ affected <- meetings |>
   dplyr::inner_join(HOLIDAYS, by = c("thursday" = "holiday"), keep = TRUE) |>
   dplyr::mutate(
     sample_status = dplyr::if_else(
-      in_events,
-      "amostra principal: quinta com DI, janela de quarta a quinta",
-      "sensibilidade: quinta feriado no Brasil, janela de quarta a sexta"
+      long_window,
+      "amostra principal, janela de quarta a sexta (sai na sensibilidade)",
+      "amostra principal, janela de quarta a quinta"
     )
   )
 
@@ -968,7 +945,7 @@ closures <- tidyr::expand_grid(
   )
 stopifnot(
   nrow(affected) == nrow(HOLIDAYS),
-  sum(!affected$in_events) == N_MEETINGS - N_EVENTS,
+  affected$long_window == stringr::str_detect(affected$holiday_country, "Brasil"),
   nrow(closures) == nrow(affected),
   closures$day == affected$holiday,
   closures$country == affected$holiday_country
@@ -1039,16 +1016,16 @@ stopifnot(
 readr::write_csv(affected_table, file.path(OUT_DIR, "excluded_meetings.csv"))
 
 # The table for the advisor (e-mail of 2026-10-17, item 4): the nine meetings,
-# their status, the announcement interval and, per market and window, the
-# dates and times of both ends, whether each time is documented or a
-# hypothesis, and the class of each end. In Portuguese, for a Brazilian
+# their window, the announcement interval and, per market and window, the
+# times of both ends, whether each time is documented, and the class of each
+# end. The author's wording of 2026-10-17: the e-mail, not the table, says
+# that the Yahoo and CDS times are hypotheses. In Portuguese, for a Brazilian
 # spreadsheet
 email_markets <- tibble::tribble(
   ~series, ~window,     ~mercado, ~janela,
   "di",    "convencao", "DI",     "fechamento de quarta ao primeiro pregao seguinte",
   "ptax",  "convencao", "PTAX",   "a de quarta a primeira seguinte",
-  "yahoo", "convencao", "Yahoo",  "ultima cotacao antes do anuncio a primeira depois",
-  "yahoo", "larga",     "Yahoo",  "linha de terca a linha de quinta",
+  "yahoo", "larga",    "Yahoo",  "linha de terca a linha de quinta",
   "cds",   "ny17",      "CDS",    "estreita, 17h de Nova York",
   "cds",   "ampliada",  "CDS",    "estreita com uma variacao a mais de cada lado"
 )
@@ -1057,18 +1034,23 @@ affected_table |>
   dplyr::transmute(
     reuniao = meeting,
     quarta = wednesday,
-    amostra = sample_status,
-    feriado = paste0(holiday_name, " (", holiday_country, ")"),
+    amostra = stringr::str_remove(sample_status, "^amostra principal, "),
+    feriado = holiday_name,
     anuncio_inicio = announcement,
     anuncio_fim = announcement_end,
     horario_anuncio = announcement_status,
     mercado,
     janela,
-    pre,
-    pos = post,
     horario_pre = pre_time,
     horario_pos = post_time,
-    status_horario = time_status,
+    status_horario = dplyr::case_when(
+      series == "di" & stringr::str_detect(time_status, "limite superior") ~
+        "limite superior: fim do segmento BM&F",
+      series == "di" ~ "documentado: grade da B3",
+      series == "ptax" ~ "documentado: Circular 3.506",
+      series == "yahoo" ~ "nao documentado pelo Yahoo",
+      series == "cds" ~ "nao documentado pela Bloomberg"
+    ),
     classificacao_pre = pre_class,
     classificacao_pos = post_class,
     classificacao = window_class,

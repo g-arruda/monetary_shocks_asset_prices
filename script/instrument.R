@@ -5,9 +5,11 @@
 # (Bauer-Swanson pre-event orthogonalization) and z_jk_bs_purif, whose
 # JK mask reads the Bauer-Swanson residuals
 # (notas/2026-07-14_auditoria_fidelidade_jk_bs.md). The events are the
-# Copom meetings with a Thursday DI session; the seven on the eve of a
-# Brazilian holiday enter only data/processed/instrument_holiday_windows.csv,
-# the sensitivity of notas/2026-10-17_auditoria_janelas_copom.md.
+# 111 Copom meetings, each from the Wednesday close to the first DI session
+# after it; the seven on the eve of a Brazilian holiday, whose window runs to
+# Friday, are left out only in
+# data/processed/instrument_no_holiday_windows.csv, the sensitivity of
+# notas/2026-10-17_auditoria_janelas_copom.md.
 # Requires the daily raw inputs written by `script/download.R` and the
 # macroeconomic news inputs written by `script/download_macro_news.R`.
 # ============================================================
@@ -73,24 +75,25 @@ inputs <- list(
   copom_wed = copom_wed
 )
 
-# The meetings on the eve of a Brazilian holiday stay out of production
+# The meetings on the eve of a Brazilian holiday enter production with the
+# window to Friday (advisor's e-mail of 2026-10-17, item 3)
 built <- build_instrument_variants(
   inputs = inputs,
   target_bd = TARGET_BD,
   sample_start = SAMPLE_START,
   sample_end = SAMPLE_END,
-  holiday_windows = FALSE
+  holiday_windows = TRUE
 )
 
-# The advisor's sensitivity (e-mail of 2026-10-17, item 3): those meetings
-# taken in, with the window to Friday and the BS regression refitted on them;
-# read by script/copom_window_comparison.R
-built_holiday_windows <- build_instrument_variants(
+# The advisor's sensitivity: those seven longer windows left out, their
+# months at zero, the BS regression refitted without them; read by
+# script/copom_window_comparison.R
+built_no_holiday_windows <- build_instrument_variants(
   inputs = inputs,
   target_bd = TARGET_BD,
   sample_start = SAMPLE_START,
   sample_end = SAMPLE_END,
-  holiday_windows = TRUE
+  holiday_windows = FALSE
 )
 
 dir.create("data/processed", showWarnings = FALSE, recursive = TRUE)
@@ -102,9 +105,9 @@ built$monthly |>
   dplyr::transmute(month, shock = .data[[PRODUCTION_VARIANT]]) |>
   readr::write_csv("data/processed/instrument.csv")
 
-built_holiday_windows$monthly |>
+built_no_holiday_windows$monthly |>
   dplyr::transmute(month, shock = .data[[PRODUCTION_VARIANT]]) |>
-  readr::write_csv("data/processed/instrument_holiday_windows.csv")
+  readr::write_csv("data/processed/instrument_no_holiday_windows.csv")
 
 built$daily |>
   dplyr::select(

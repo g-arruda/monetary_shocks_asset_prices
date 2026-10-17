@@ -8,12 +8,13 @@
 #                      earlier orthogonalization, the 7 on the eve of a
 #                      Brazilian holiday at zero (frozen copy of the
 #                      instrument before the correction);
-#   acao_de_gracas_104 the 2 on Thanksgiving back, the filter gone: production;
+#   acao_de_gracas_104 the 2 on Thanksgiving back, the filter gone: the
+#                      sensitivity that leaves out the seven longer windows;
 #   feriados_111       also the 7 on the eve of a Brazilian holiday, with the
-#                      window from the Wednesday close to Friday's.
+#                      window from the Wednesday close to Friday's: production.
 # A meeting left out has its month at zero, as in the previous base. Panel,
 # factors, VAR and theta are production's; only the instrument changes. For
-# each cell: xi_mp, F_rob, and the FX and CDS impacts with their 80 and 90%
+# each cell: xi_mp and the FX and CDS impacts with their 80 and 90%
 # Anderson-Rubin sets.
 # script/instrument.R and script/irf_coherence_check.R must run first.
 # Output: output/copom_windows/comparison.csv
@@ -24,12 +25,11 @@ source("R/modeling/factor_estimation.R")
 source("R/modeling/impulse_response.R")
 source("R/modeling/dfm_pipeline.R")
 source("R/identification/weak_iv_ar.R")
-source("R/identification/factor_space_diagnostics.R")
 
 INSTRUMENT_PATHS <- c(
   base_102 = "output/copom_windows/instrument_base_102.csv",
-  acao_de_gracas_104 = "data/processed/instrument.csv",
-  feriados_111 = "data/processed/instrument_holiday_windows.csv"
+  acao_de_gracas_104 = "data/processed/instrument_no_holiday_windows.csv",
+  feriados_111 = "data/processed/instrument.csv"
 )
 CELL_PATH  <- "output/irf/irf_coherence_cell.rds"
 THETA_PATH <- "output/factors/covid_volatility_theta.csv"
@@ -78,19 +78,12 @@ cells <- purrr::map(INSTRUMENT_PATHS, \(path) {
 cached <- readRDS(CELL_PATH)$irf
 fx_row <- match("cambio_usd", colnames(cells$base_102$data))
 stopifnot(
-  identical(cells$acao_de_gracas_104$irfs$irf_point_matrix, cached$irf_point_matrix),
+  identical(cells$feriados_111$irfs$irf_point_matrix, cached$irf_point_matrix),
   abs(cells$base_102$irfs$ar$xi_den - BASE_XI_MP) < 1e-8,
   abs(cells$base_102$irfs$irf_point_matrix[fx_row, 1] - BASE_FX_H0) < 1e-12
 )
 
 comparison <- purrr::imap(cells, \(fit, name) {
-  strength <- diagnose_instrument_in_factor_space(
-    fit$model,
-    fit$model$instrument,
-    fit$model$dates,
-    fit$model$p,
-    fit$mpind
-  )
   tidy_ar_sets(fit$irfs$ar, colnames(fit$data)) |>
     dplyr::filter(variable %in% TARGET_VARS, h == 0L) |>
     tidyr::pivot_wider(
@@ -101,7 +94,6 @@ comparison <- purrr::imap(cells, \(fit, name) {
     dplyr::mutate(
       cell = name,
       xi_mp = fit$irfs$ar$xi_den,
-      f_robust_mp = strength$f_robust_mp,
       .before = 1
     )
 }) |>
