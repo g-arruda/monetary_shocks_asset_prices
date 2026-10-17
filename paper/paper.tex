@@ -187,7 +187,7 @@ A estimação requer, portanto, determinar o número de fatores estáticos $r$ e
 
 Como o painel combina séries em nível, taxas e retornos com diferentes ordens de integração, cada série é padronizada antes da extração dos fatores. Seja $s_{iy}$ o desvio padrão da primeira diferença da série $i$. A série em nível, depois de removidas constante e tendência linear, entra como $Z_{it} = X_{it}/s_{iy}$, o que equaliza a escala das flutuações sem diferenciar as séries. As cargas são os $r$ primeiros autovetores da matriz de covariância das primeiras diferenças padronizadas, e os fatores estáticos são obtidos aplicando essas cargas às séries em nível padronizadas. Seguindo \cite{alessi} e \cite{barigozzi2016non}, o espaço das cargas vem das primeiras diferenças, enquanto os fatores em nível preservam a informação de baixa frequência.
 
-O VAR dos fatores segue \cite{lenzaprimiceri}, porque as inovações fatoriais de março e abril de 2020 têm magnitude incompatível com o resto da amostra, e mínimos quadrados ordinários as leem como variação regular do processo, o que desloca os coeficientes autorregressivos e a covariância das inovações que a identificação projeta sobre o instrumento\footnote{A \autoref{fig:lp_sensibilidade}, no Anexo C, mostra a sensibilidade das respostas a $q$ com e sem a reescala}. O escalar $s_t$ em \ref{eq:5} absorve essa magnitude em uma reescala comum às $r$ inovações, estimada junto do VAR, e mantém os meses da pandemia na amostra. A reescala vale $s_t = 1$ antes de $t^*$, o primeiro mês de variação anômala, e
+O VAR dos fatores segue \cite{lenzaprimiceri}, porque as inovações fatoriais de março e abril de 2020 têm magnitude incompatível com o resto da amostra, e mínimos quadrados ordinários as leem como variação regular do processo, o que desloca os coeficientes autorregressivos e a covariância das inovações que a identificação projeta sobre o instrumento\footnote{A \autoref{fig:lp_sensibilidade}, no Anexo C, põe lado a lado as respostas estimadas com a reescala e por mínimos quadrados ordinários, sem ela, e em cada estimador varia $q$ de 2 a 5, cruzando a escolha do estimador com a de $q$}. O escalar $s_t$ em \ref{eq:5} absorve essa magnitude em uma reescala comum às $r$ inovações, estimada junto do VAR, e mantém os meses da pandemia na amostra. A reescala vale $s_t = 1$ antes de $t^*$, o primeiro mês de variação anômala, e
 \begin{equation}\label{eq:5b}
     s_{t^*} = \bar{s}_0, \qquad s_{t^*+1} = \bar{s}_1, \qquad s_{t^*+2} = \bar{s}_2, \qquad s_{t^*+j} = 1 + (\bar{s}_2 - 1)\rho^{\,j-2},
 \end{equation}
@@ -204,10 +204,13 @@ O segundo termo é o jacobiano da reescala. A maximização é restrita a $\bar{
 A especificação de produção é $(r, q, p) = (5, 5, 4)$, com $r$ e $p$ selecionados, respectivamente, de acordo com \cite{bai-ng} e AIC. O critério de \cite{amengual2007consistent}, condicionado a $r = 5$ e $p = 4$, seleciona $q = 2$, mas a especificação fixa $q = r$, como \cite{STOCK2016415}, que diante do mesmo conflito preferem sobre-especificar o espaço das inovações para que ele contenha o dos choques de interesse, e como \cite{alessi}\footnote{A \autoref{fig:q_sensibilidade}, no Anexo C, repete o exercício de sensibilidade de \cite{alessi}, com $q$ de 2 a 5}. As funções de impulso-resposta pontuais cobrem horizontes de 0 a 36 meses.
 
 \subsection{Base de dados}
+\label{sec:dados}
 
-A base reúne 115 séries mensais da economia brasileira entre março de 2012 e dezembro de 2025, totalizando 166 observações alinhadas e 162 inovações fatoriais após as quatro defasagens do VAR. Além dos blocos fiscal e de expectativas, o painel incorpora o ajuste cambial da DLSP e as medianas Focus para dívida líquida, resultado primário e resultado nominal no ano seguinte. As séries vêm do Banco Central do Brasil, do IBGE, do IPEA e da B3, complementadas por quatro indicadores de risco soberano e de mercado externo, o EMBI+, o CDS soberano de cinco anos, o MSCI de mercados emergentes e o VIX, e pelo índice de incerteza de política econômica (EPU) de oito países.
+A base reúne 115 séries mensais da economia brasileira entre março de 2012 e dezembro de 2025, totalizando 166 observações alinhadas e 162 inovações fatoriais após as quatro defasagens do VAR. Além dos blocos fiscal e de expectativas, o painel incorpora o ajuste cambial da DLSP e as medianas Focus para dívida líquida, resultado primário e resultado nominal doze meses à frente. As séries vêm do Banco Central do Brasil, do IBGE, do IPEA e da B3, complementadas por quatro indicadores de risco soberano e de mercado externo, o EMBI+, o CDS soberano de cinco anos, o MSCI de mercados emergentes e o VIX, e pelo índice de incerteza de política econômica (EPU) de oito países.
 
-As taxas de juros de maturidade fixa, de 3 meses a 10 anos, são obtidas do ajuste de \cite{svensson1994estimating} aos contratos de DI futuro em cada data. As séries nominais entram em logaritmo e recebem ajuste X-13ARIMA-SEATS quando os testes indicam componente sazonal \cite{sax2018seasonal}. A \autoref{tab:lista_variaveis}, no Anexo A, lista as séries, suas fontes e transformações.
+As taxas de juros de maturidade fixa, de 3 meses a 10 anos, são obtidas do ajuste de \cite{svensson1994estimating} aos contratos de DI futuro em cada data. As séries nominais entram em logaritmo e recebem ajuste X-13ARIMA-SEATS quando os testes indicam componente sazonal \cite{sax2018seasonal}.
+
+A pesquisa Focus pergunta as expectativas de Selic, PIB, câmbio, dívida líquida e resultados primário e nominal por ano-calendário, e a mediana do ano seguinte troca de ano de referência a cada janeiro. Essas seis séries são levadas a um horizonte fixo de doze meses pela aproximação de \cite{dovern2012}, que pondera as medianas do ano corrente e do seguinte pelos meses restantes de cada um. Na última pesquisa do mês $m$, a série é $\frac{12-m}{12} F_{y} + \frac{m}{12} F_{y+1}$, em que $F_y$ é a mediana para o ano $y$, de modo que dezembro coincide com a mediana do ano seguinte e a virada do ano não produz salto. Em novembro de 2012, 2013 e 2015, a última reunião do ano antecedeu a última pesquisa do mês, e a Focus já não perguntava a Selic do ano corrente. Nesses três meses entra a meta decidida naquela reunião, que é o valor de fim de ano. A \autoref{tab:lista_variaveis}, no Anexo A, lista as séries, suas fontes e transformações.
 
 \subsection{Identificação e construção do instrumento}
 \label{sec:identificacao}
@@ -218,7 +221,7 @@ O choque é identificado por um instrumento externo, no arcabouço proxy-SVAR de
 
 Como em \cite{gertler2015}, que distinguem o instrumento de política, a taxa \textit{overnight}, do indicador de política, uma taxa de prazo mais longo que contém a revisão das expectativas de juros trazida pela decisão, o instrumento e a normalização usam o mesmo vértice da curva de DI, de 126 dias úteis, cerca de seis meses. O Copom anuncia a decisão depois do fechamento do mercado, de modo que a surpresa aparece na curva de DI entre a quarta e a quinta-feira, e a Selic mensal, média da taxa \textit{overnight} no mês, quase não a registra. O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal.
 
-O instrumento tem duas camadas. A \autoref{fig:precovid_sensibilidade}. A primeira é a surpresa, a variação do DI nesse vértice entre o fechamento da quarta-feira da reunião e o da quinta-feira seguinte, a primeira sessão depois do anúncio. A amostra tem 102 reuniões entre 2012 e 2025. As surpresas são somadas dentro de cada mês, e o instrumento vale zero nos meses sem reunião.
+O instrumento tem duas camadas. A primeira é a surpresa, a variação do DI nesse vértice entre o fechamento da quarta-feira da reunião e o da quinta-feira seguinte, a primeira sessão depois do anúncio. A amostra tem 102 reuniões entre 2012 e 2025. As surpresas são somadas dentro de cada mês, e o instrumento vale zero nos meses sem reunião.
 
 A segunda camada remove da surpresa o componente previsível pela informação pública anterior ao anúncio, que \cite{bauer2023} atribuem à subestimação, pelo mercado, da resposta do banco central às notícias, e que compromete a exogeneidade do instrumento\footnote{Houve uma tentativa de aplicar filtro de sinal proposto por \cite{jarocinski2020} após a segunda camada, o filtro retém as 62 das 102 reuniões em que a surpresa ortogonalizada do DI e o retorno ortogonalizado do Ibovespa têm sinais opostos, reduzindo $\xi_{mp}$ de $7{,}02$ para $5{,}01$ na amostra completa e de $6{,}84$ para $4{,}73$ na pré-COVID, e $F^{rob}_{mp}$ de $8{,}62$ para $7{,}59$ e de $8{,}31$ para $7{,}78$. Nenhuma resposta pontual estimada com o filtro sai do conjunto de 90\%, mas os conjuntos ficam, na mediana, $1{,}32$ vez mais largos, e os pares de série e horizonte significantes a 90\% caem pela metade}. A surpresa de cada reunião é regredida sobre uma constante e as notícias observadas até o fechamento da quarta-feira. As notícias financeiras são as variações em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent e da inclinação da curva de DI, a diferença entre os vértices de 2 anos e 3 meses. As notícias macroeconômicas são as surpresas das divulgações do IPCA e do PIB, este na primeira divulgação, feitas desde a reunião anterior e medidas contra a mediana Focus da última pesquisa antes de cada divulgação, a aceleração do núcleo EX0, a variação anualizada nos seis meses encerrados dois meses antes da reunião menos a dos seis meses anteriores, e a mediana Focus do próximo IPCA a ser divulgado. O Ibovespa entra porque a regra de política estimada por \cite{castelnuovo} responde às condições do mercado acionário. O resíduo, somado dentro de cada mês, é o instrumento de produção. As estimativas estão na \autoref{tab:bs_ortogonalizacao}, no Anexo D.
 
@@ -228,7 +231,7 @@ A \autoref{fig:placebos}, no Anexo D, mostra as respostas de três séries exter
 
 A relevância do instrumento é medida por duas estatísticas de \cite{montielolea}. A Wald no espaço dos fatores, $\xi_{mp}$, vale $7{,}02$ na amostra completa e $6{,}84$ na janela pré-COVID, enquanto o primeiro estágio robusto, $F^{rob}_{mp}$, vale $8{,}62$ e $8{,}31$. Ambas projetam o instrumento na combinação das inovações fatoriais que determina a normalização no DI de seis meses, e ambas têm o mesmo parâmetro de não centralidade sob a aproximação de instrumento fraco, embora a Wald tenda a valores menores em amostras finitas. O valor $10$ é uma referência convencional, e não um limiar que classifica o instrumento. As duas estatísticas ficam abaixo dele nas duas janelas.
 
-Na \autoref{tab:first_stage}, a ortogonalização eleva $\xi_{mp}$ de $6{,}68$ para $7{,}02$ na amostra completa e de $6{,}66$ para $6{,}84$ na janela pré-COVID. Sobre $F^{rob}_{mp}$ o efeito depende da janela, com queda de $9{,}37$ para $8{,}62$ na amostra completa e alta de $7{,}79$ para $8{,}31$ na pré-COVID, no Anexo C, mostra as respostas pontuais estimadas na janela pré-COVID ao lado das de produção.
+Na \autoref{tab:first_stage}, a ortogonalização eleva $\xi_{mp}$ de $6{,}68$ para $7{,}02$ na amostra completa e de $6{,}66$ para $6{,}84$ na janela pré-COVID. Sobre $F^{rob}_{mp}$ o efeito depende da janela, com queda de $9{,}37$ para $8{,}62$ na amostra completa e alta de $7{,}79$ para $8{,}31$ na pré-COVID. A \autoref{fig:precovid_sensibilidade}, no Anexo C, mostra as respostas pontuais estimadas na janela pré-COVID ao lado das de produção.
 
 A inferência sobre as respostas usa os conjuntos de confiança Anderson--Rubin de \cite{montielolea}, obtidos por inversão de teste em cada série e horizonte, em 80\% e 90\%, com Newey--West de ordem zero. O conjunto é limitado no nível de confiança $1-\alpha$ quando $\xi_{mp}$ excede o quantil $1-\alpha$ da distribuição $\chi^2_1$, condição satisfeita nos dois níveis reportados.
 
@@ -443,7 +446,7 @@ Do ponto de vista de política econômica, nossos resultados indicam que, em eco
 
 \section*{Anexo A. Lista de variáveis}\label{anexo-A}
 
-O painel tem 115 séries mensais, de março de 2012 a dezembro de 2025. Na \autoref{tab:lista_variaveis}, a coluna Código traz o identificador da série na fonte, e a coluna Transf. dá a forma com que a série entra no painel e a conversão da resposta ao impulso para unidades econômicas. Com código 1 a série entra na unidade original e a resposta sai nessa unidade, com código 4 a série entra em logaritmo e a resposta sai em variação percentual, e com código 6 a série é o retorno mensal composto dos retornos diários e a resposta sai em pontos percentuais do retorno do mês, sem acumular ao longo dos horizontes. As taxas de câmbio, em reais por unidade de moeda estrangeira, são médias mensais das cotações diárias, e as cotações cruzadas dividem BRL=X pela cotação da moeda em dólares. A curva de DI, o EMBI+, o CDS, o MSCI e o VIX entram pela última cotação do mês, e as expectativas Focus pela última mediana divulgada no mês. As quatro séries de tempo de procura, trimestrais, são interpoladas para a frequência mensal por spline cúbica.
+O painel tem 115 séries mensais, de março de 2012 a dezembro de 2025. Na \autoref{tab:lista_variaveis}, a coluna Código traz o identificador da série na fonte, e a coluna Transf. dá a forma com que a série entra no painel e a conversão da resposta ao impulso para unidades econômicas. Com código 1 a série entra na unidade original e a resposta sai nessa unidade, com código 4 a série entra em logaritmo e a resposta sai em variação percentual, e com código 6 a série é o retorno mensal composto dos retornos diários e a resposta sai em pontos percentuais do retorno do mês, sem acumular ao longo dos horizontes. As taxas de câmbio, em reais por unidade de moeda estrangeira, são médias mensais das cotações diárias, e as cotações cruzadas dividem BRL=X pela cotação da moeda em dólares. A curva de DI, o EMBI+, o CDS, o MSCI e o VIX entram pela última cotação do mês, e as expectativas Focus pela última mediana divulgada no mês, as seis anuais combinadas a doze meses à frente como na Seção~\ref{sec:dados}. As quatro séries de tempo de procura, trimestrais, são interpoladas para a frequência mensal por spline cúbica.
 
 \begingroup
 \footnotesize
@@ -580,7 +583,7 @@ Ibovespa & B3 & IBOV & 6 \\
 \multicolumn{4}{@{}l}{\textit{Risco e incerteza}} \\
 EMBI+ Brasil (JP Morgan) & BC da Rep. Dominicana &  & 1 \\
 CDS soberano, 5 anos & Investing.com &  & 1 \\
-MSCI mercados emergentes & Investing.com &  & 1 \\
+MSCI mercados emergentes, em dólares & MSCI & 891800 & 1 \\
 VIX (CBOE) & Investing.com &  & 1 \\
 EPU, Brasil & policyuncertainty.com &  & 1 \\
 EPU, Canadá & policyuncertainty.com &  & 1 \\
@@ -599,12 +602,12 @@ Ajuste cambial da DLSP, fluxo mensal & BCB, Evolução da DLSP &  & 1 \\
 \addlinespace
 \multicolumn{4}{@{}l}{\textit{Expectativas Focus}} \\
 IPCA, 12 meses à frente, suavizada & BCB, Focus &  & 1 \\
-Selic, ano seguinte & BCB, Focus &  & 1 \\
-PIB, ano seguinte & BCB, Focus &  & 1 \\
-Câmbio, ano seguinte & BCB, Focus &  & 1 \\
-DLSP, ano seguinte & BCB, Focus &  & 1 \\
-Resultado primário, ano seguinte & BCB, Focus &  & 1 \\
-Resultado nominal, ano seguinte & BCB, Focus &  & 1 \\
+Selic, 12 meses à frente & BCB, Focus &  & 1 \\
+PIB, 12 meses à frente & BCB, Focus &  & 1 \\
+Câmbio, 12 meses à frente & BCB, Focus &  & 1 \\
+DLSP, 12 meses à frente & BCB, Focus &  & 1 \\
+Resultado primário, 12 meses à frente & BCB, Focus &  & 1 \\
+Resultado nominal, 12 meses à frente & BCB, Focus &  & 1 \\
 \end{longtable}
 \endgroup
 

@@ -1,5 +1,10 @@
 # Pendências
 
+**Atualização de 2026-10-17 (artigo, sem números):** na branch `feature/focus-horizonte-fixo`, a §3.2
+e o Anexo A passaram à base nova (Focus a doze meses à frente por `dovern2012`, a 25ª chave; MSCI
+índice 891800), a frase do Anexo C sobre `fig:lp_sensibilidade` foi reescrita e o ponteiro de
+`fig:precovid_sensibilidade` foi consertado. Nenhum número mudou; o resto do passo 8 espera a base congelada.
+
 **Atualização de 2026-10-16 (passo 2):** o e-mail que manda a 1/4, pergunta a janela ampliada do CDS e dá
 as datas para a Bloomberg foi enviado (`email/email_meu_16-10_12h53.md`), e os dois itens do passo 2
 fecharam (Tema B). Decisões do autor no mesmo dia: um e-mail só; 8 datas (maior |ΔDI| por
@@ -238,8 +243,7 @@ Branch sugerida: `focus` é `feature/focus-horizonte-fixo`, onde rodam os diagn�
 | 5 | B | `focus` | Amostra completa com `p = 2`, resto do desenho fixo | e-mail de 12-10; entrega de 19/20-10; separa mudança de amostra de mudança de defasagem na comparação pré-COVID; ⚠ decisão do autor antes de rodar: θ̂ reestimado em `p = 2` ou o de `p = 4`; se o passo 7 mudar a base, rodar de novo |
 | 6 | B | `nova` | Conferência 4/4: reuniões recuperadas, resultados com e sem elas lado a lado | e-mail de 14-10; as 2 de Thanksgiving ficaram fora por erro (filtro residual em `build_variants.R:129-130`, também em `main`) e entram na amostra principal com a janela habitual (104; as 102 ao lado só por transparência), com o filtro corrigido e a emenda declarada à regra de 10-12 (S&P 500, VIX e Brent de quarta a sexta nelas, nunca 0); as 7 de feriado no Brasil como sensibilidade, surpresa indisponível fora dos momentos de Γ, regressão BS refeita; ⚠ muda o instrumento da base e mexe no núcleo de identificação; ⚠ `data/processed/` não é versionado: ao voltar à `focus`, rodar `Rscript script/run_all.R --only=instrument` |
 | 7 | B | `focus` → `main` | Passo 0/5: congelar a base (Focus a horizonte fixo, `msci` índice de emergentes) e promover | aberto em 2026-10-03; o orientador liberou em 12-10 atualizar o artigo com a base reconstruída; ⚠ congelar com ou sem as reuniões recuperadas depende do passo 6 e é decisão do autor, assim como congelar sem ele se o 6 não ficar pronto a tempo de 19/20; promover exige rodar de novo figuras, anexos e números do `.tex`, e muda o smoke test e `CLAUDE.md`; ⚠ `main` segue com a ação da MSCI Inc.; **bloqueia** 8–13 e os dois itens de "depois" |
-| 8 | A | `main` | Atualizar o artigo com a base reconstruída, os novos conjuntos e os exercícios de sensibilidade | e-mail de 12-10, item 1; entrega de 19/20-10; a reconstrução preserva câmbio e CDS no impacto e enfraquece a reversão longa; reportar os horizontes definidos, inclusive os não significantes; ⚠ "o IPCA nunca fica positivo" (§4) deixa de valer |
-| 8 | A | `main` | Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade` | e-mail de 30-09; exercício cruzado, não repetição de `fig:q_sensibilidade` |
+| 8 | A | `main` | Atualizar o artigo com a base reconstruída, os novos conjuntos e os exercícios de sensibilidade | e-mail de 12-10, item 1; entrega de 19/20-10; §3.2 e Anexo A já descrevem a base nova desde 17-10 (branch `focus`), falta o que é número; a reconstrução preserva câmbio e CDS no impacto e enfraquece a reversão longa; reportar os horizontes definidos, inclusive os não significantes; ⚠ "o IPCA nunca fica positivo" (§4) deixa de valer |
 | 9 | A | `main` | §3.3 e `fig:placebos` na base do passo 0: Holm, conjuntos pontuais e o índice de emergentes | e-mail de 12-10, item 4: Holm não é Wald conjunto, p sem ajuste ao lado do ajustado, MSCI em h0/h1/h3 visível e como limitação, ressalva do VIX em h0 |
 | 9 | A | `main` | Escrever o p = 0,54 do teste do EPU como controle | e-mails de 30-09 e 12-10, item 4; ⚠ o teste só existe na branch `feature/placebo-epu`; a hipótese está na nota `2026-10-09_placebos_holm`, seção 5 |
 | 10 | A | `main` | Influência das reuniões, exclusão por extremos e surpresa bruta no texto | e-mail de 12-10, item 1; sem as 10, conjunto = reta toda é inconclusivo, não zero nem robustez; explicitar a regra das 11 reuniões e que foi fixada antes (`2cad8bd`) |
@@ -345,11 +349,6 @@ feita em 2026-10-13 (Fechados); os demais seguem abertos.*
       índice, repercussões do choque brasileiro e exposição do instrumento a notícias comuns aos
       emergentes. Nenhum placebo novo agora.
   - Depende da promoção do passo 0 (Tema B). Escrever junto com o p = 0,54 do item acima.
-- [ ] **Reescrever a frase do Anexo C sobre `fig:lp_sensibilidade`.** Descrita como sensibilidade das
-  respostas a `q` com e sem a reescala, pode ser lida como a mesma figura de `fig:q_sensibilidade`.
-  Deixar claro que é um exercício cruzado (`q` = 2 a 5 × com e sem a reescala, oito séries), não
-  uma repetição. A frase está na nota de rodapé citada pelo orientador e/ou na legenda de
-  `fig:lp_sensibilidade`; achar a que ele leu antes de editar.
 
 *Quatro itens transcritos em 2026-10-13 do e-mail do orientador de 12-10
 (`email/email_professor_12-10_19h40.md`, itens 1 e 5), resposta a `email_meu_12-10_17h22.md`. Ele
@@ -363,6 +362,12 @@ itens de placebos acima ganharam a redação do item 4 do mesmo e-mail.*
   e enfraquece a reversão de longo prazo, que deixa de ser significante a 90% e segue a 80%. Reportar os
   resultados dos horizontes definidos, inclusive os que não são significantes. ⚠ "O IPCA nunca fica
   positivo" (§4) deixa de valer na base nova (passo 0 do Tema B).
+  - **17-10, na branch `feature/focus-horizonte-fixo`:** o que não depende de número já está escrito. A
+    §3.2 (`sec:dados`) descreve as seis Focus anuais a doze meses à frente pela aproximação de
+    `dovern2012`, com a meta Selic nos três novembros, e o Anexo A troca "ano seguinte" por "12 meses à
+    frente" e a fonte do MSCI para o índice 891800 da MSCI, em dólares. `dovern2012` é a 25ª chave citada,
+    o teto do orçamento. Falta tudo o que é número (§3.4, §4, §5, anexos C e D), que espera a base
+    congelada, e o que cita as 102 reuniões, que espera a conferência 4/4.
 - [ ] **Tabela com os resultados antigos e novos lado a lado e lista das mudanças entre as versões.**
   O e-mail a pede "para facilitar a revisão"; não diz se vai no artigo ou na entrega a ele. A
   comparação célula a célula já existe (`compare_model()` e `compare_cells()` em
@@ -477,6 +482,11 @@ itens de placebos acima ganharam a redação do item 4 do mesmo e-mail.*
   Nota: `2026-09-22_condicao_het_svars`.
 ### Fechados (contexto)
 
+- [x] **Frase do Anexo C sobre `fig:lp_sensibilidade` e ponteiro da §3.4 — 2026-10-17.** Branch
+  `feature/focus-horizonte-fixo`, só texto. A nota de rodapé da §3.1, a que o orientador leu (e-mail de
+  30-09, item 4), diz agora que a figura cruza o estimador (com a reescala e por mínimos quadrados
+  ordinários) com `q` de 2 a 5. A legenda já dizia isso e ficou. A frase de `fig:precovid_sensibilidade`,
+  partida em `b0a3a10` entre a §3.3 e a §3.4, voltou inteira ao fim do parágrafo de `tab:first_stage`.
 - [x] **Figura de placebos no `.tex` conferida — 2026-10-13.** O orientador (e-mail de 30-09) dizia
   que `\autoref{fig:placebos}` não tinha figura nem rótulo. No `paper.tex`, `\includegraphics` e
   `\label{fig:placebos}` estão no Anexo D desde `1a150d0`, o PDF existe em `paper/img/`, o `paper.aux`
