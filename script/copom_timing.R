@@ -54,6 +54,30 @@
 #       Wednesday's 17h New York close comes before or after the
 #       announcement. It decides nothing.
 #
+# Classification rule of each quote, fixed before running it (advisor's
+# e-mail of 2026-10-17, item 2; threshold chosen by the author the same day):
+#   The announcement is an interval [start, end]. Where the BCB documents a
+#   release time, start = end = that time. Where only the end of the
+#   session is recorded in the minutes (every meeting before 2016-07-20),
+#   start is that end; end is the first G1 story of the decision for the
+#   174th, 186th and 196th meetings (ANNOUNCEMENT_CEILINGS), and otherwise
+#   the end of the Wednesday, the date the BCB gives the statement
+#   (dataReferencia of comunicados_detalhes).
+#   A quote is "pre" if it comes before start minus CLASSIFY_MARGIN, "pos"
+#   if it comes after end plus CLASSIFY_MARGIN, and "ambigua" otherwise,
+#   and also when its time cannot be set against the announcement. The DI
+#   quote is the session's last trade, whose time is at most the session's
+#   end (DI_SESSION_END); where that end is not documented by B3 it is the
+#   upper bound of a secondary source. Each end of each window is
+#   classified (DI, PTAX, Yahoo by the convention and wide, CDS at 17h New
+#   York and widened), and a meeting's window in a series is "ambigua" if
+#   either end is. Every time is taken to Brasilia in its own date's zone.
+#   The widened CDS window is the 17h New York one with one more change on
+#   each side, on the CDS's own calendar (Tuesday to Friday, or Monday to
+#   Thursday when the narrow one runs Tuesday to Wednesday); in an
+#   ambiguous meeting it contains both possible narrow windows, and it is
+#   the check. It does not replace the narrow window.
+#
 # script/download.R (brl_usd_daily.csv), script/instrument.R,
 # script/download_ptax.R and script/download_copom_minutes.R must run first;
 # script/daily_event.R and script/het_conditions.R run after it.
@@ -115,6 +139,32 @@ TZ_BRASILIA  <- "America/Sao_Paulo"
 TZ_NEW_YORK  <- "America/New_York"
 CDS_CLOSE_NY <- c(ny17 = "17:00", ny18 = "18:00")
 PTAX_CLOCK   <- "13:00"
+CLASSIFY_MARGIN <- lubridate::minutes(30)
+
+# The last DI trade of the day comes at most at the session's end. B3's
+# grid, archived from 2019-01-07 to 2022-01-24, closes DI1 at 18h00 with the
+# extended session (16h50-18h00), and its US daylight-saving circulars leave
+# DI1 unchanged (OC 094/2020-PRE); since 2022-12-12 DI1 trades continuously
+# from 9h to 18h00 (B3 grid; InfoMoney, 23/11/2022). Before 2019 no B3 grid
+# for DI1 was found: the BM&F segment traded until 18h15 at the latest
+# (Exame, 19/10/2012; Jornal do Comercio, 14/10/2016), taken as the bound.
+DI_SESSION_END <- tibble::tribble(
+  ~from,        ~di_session_end, ~di_session_status,
+  "2012-01-01", "18:15",         "limite superior: fim do segmento BM&F por fonte secundaria; grade do DI1 nao encontrada",
+  "2019-01-01", "18:00",         "documentado: grade da B3 (sessao estendida 16h50-18h00)",
+  "2022-12-12", "18:00",         "documentado: grade da B3 (negociacao continua 9h-18h)"
+) |>
+  dplyr::mutate(from = as.Date(from))
+
+# The first G1 story of the decision, the end of the announcement interval
+# of the three old meetings sent for the Bloomberg quote (e-mail of
+# 2026-10-16)
+ANNOUNCEMENT_CEILINGS <- tibble::tribble(
+  ~meeting, ~announcement_ceiling,
+  174L,     "20:06",
+  186L,     "20:19",
+  196L,     "20:25"
+)
 
 # The Thursday holiday of each meeting out of the 102; the data must show
 # Brazil's as a day without DI and the US's as a day without the S&P 500
