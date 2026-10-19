@@ -44,6 +44,14 @@ scalar moment series of each cell, from `mosw_rform_cov()$influence`, whose long
 `WHat`. The split was bit-identical: smoke test, cache and the seven validators
 (`notas/2026-10-05_precisao_ar.md`).
 
+**The `hac_dim < T` gate is this project's safeguard, not the authors' condition.**
+`mosw_rform_cov()` stops when the moment dimension `hac_dim` reaches `T`; there is no pseudo-inverse
+and no fallback. `CovAhat_Sigmahat_Gamma.m:91-95` states the condition on the *parameter* dimension,
+`n²p + n(n+1)/2 + nk < T` (120 in the production shape, against `hac_dim`'s 135), which is the
+necessary one since `rank(WHat) ≤ min(par_dim, T−1)`. The moment gate is sufficient and strictly
+stronger; both are checked since the 2026-09-08 fidelity audit, and at `p = 4` both bar the same two
+cells, `(r,q) = (8,8)` and the whole pre-COVID window, so no published number depends on which binds.
+
 **The wild bootstrap and the Kilian correction left the code on 2026-09-18** (author decision: the
 AR sets replaced them). With them went `nboot`, `bootstrap_seed`, `apply_kilian`,
 `kilian_correction()`, `estimate_corrected_var()` and the `*_corrected` fields of `estimate_dfm()`;
@@ -166,6 +174,12 @@ diagnostics too and do not change the production panel (`notas/2026-09-10_poda_c
   have; the window was deliberately **not** retuned (author decision), and the cost is that four
   indices dropped from `coerente_forte` to `parcial`. **h = 0 is invariant to the whole change**: the
   `cumsum` is a no-op there and the ×100 is a positive scalar on point and both bounds.
+- **`svars::id.cv()` is never called directly.** Its indicator path for a recurring regime is broken
+  (`R/id.cv.R:177` subsets with `u[SB, ]`, reachable only with a numeric `SB`, so a 0/1 vector
+  indexes by position) and the estimate silently collapses to `Λ = I`. `fit_het_cv()`
+  (`R/identification/het_tests.R`) calls the package's estimator as `id.cv()` calls it internally
+  and guards the result against the closed-form generalized eigendecomposition. `svars` (with
+  `copula` and `gsl`) is installed for this test only (`notas/2026-09-22_condicao_het_svars.md`).
 
 ## Before touching the VAR benchmark
 
@@ -175,3 +189,12 @@ which settles `juros_selic` on fidelity grounds too; `tcode` goes to the identif
 the VAR** (`:28`); the `varlist` carries no curve vertices; the figure is VAR-left / DFM-right with
 **`linkaxes`** (`MAIN_plotfigs.m:1-46`), the shared y axis being the whole point.
 `R/modeling/var_proxy.R` is the engine, extracted from `script/model_var.R`.
+
+The production cell, `ibc5_fx_cds_level_trend_p4`, runs the DFM's window and lag order since
+2026-09-21 (author decision), so `T_eff = 162` equals the DFM's innovations. On the common `T = 154`
+sample the AIC picks `p = 2` and the BIC `p = 1`; both are reported, and `validate_mosw_ar.R` pins
+that `p = 4` is a deliberate departure (`historico_decisoes.md` §15). `hac_dim` 140 < 162, so the
+gate passes. `R/identification/weak_iv_ar.R` is the module the DFM and the VAR share: `Load` and
+`Inner` default to the identity, and `validate_mosw_ar.R` guards that the VAR path stays
+bit-identical. Numbers: `notas/2026-08-22_var_niveis_aic_tendencia.md` and
+`notas/2026-09-26_producao_bs_purif_bandas_80_90.md`.
