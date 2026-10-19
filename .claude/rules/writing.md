@@ -121,31 +121,36 @@ verdict (CURRENT / superseded / contradicted) and the vintage it was written und
 **2026-07-24 refresh** (106 series) moved magnitudes across the whole panel, and the same-date B3
 tcode correction moved the asset block; anything written before it is out of scale.
 
-`registro/pendencias.md` holds only what is open; `registro/historico_decisoes.md` holds
-negative results and reversed decisions. Keep that split — a closed item moves, it does not get
-duplicated.
+`registro/pendencias.md` holds only what is open; `registro/fechados.md` holds the closed items;
+`registro/historico_decisoes.md` holds negative results and reversed decisions. Keep that split — a
+closed item moves, it does not get duplicated.
 
 ## Maintaining `registro/pendencias.md`
 
-- **New item** enters as `- [ ]` inside the matching theme A-E — never loose at the end of the
-  file. If it fits none of the five, that's a new theme: create `F.`, `G.`, etc., don't force it
-  into "Código e higiene" as a generic drawer.
-- **Closed item** flips `[ ]` to `[x]` and **moves** — out of the section's top and into that
-  theme's `### Fechados (contexto)` block, compressed to **2-4 lines**: what was done, the
-  verdict, the 1-3 numbers that matter most, and the pointer (`Nota:`/`output/...`) for whoever
-  wants the full detail. Never leave the long narrative in the open item's place.
+It is read at the start of a session, so every line costs. It carries **no** production spec (that is
+`CLAUDE.md` and `validate_production_spec.R`), **no** changelog of its own reorganizations (that is the
+commit message), **no** preamble narrating an e-mail or a plan once its items are closed, and **no**
+number or advisor wording copied from a note or an e-mail — the item points to them.
+
+- **New item** enters as `- [ ]` inside the matching theme — never loose at the end of the file. If
+  it fits none, open a new theme rather than forcing it into a generic drawer. A theme with no open
+  item leaves the file.
+- **An open item says only**: what to do, the source (`e-mail de DD-MM, item N` or the note), what
+  it depends on and unblocks, the author decision it waits on, and any `⚠` recorded nowhere else.
+  Three to six lines; history of which e-mail reinforced it does not stay.
+- **Closed item** flips `[ ]` to `[x]` and **moves** out of `pendencias.md` to the top of its theme
+  in `registro/fechados.md`, compressed to **2-4 lines**: what was done, the verdict, the 1-3
+  numbers that matter most, and the pointer (`Nota:`/`output/...`) for whoever wants the full
+  detail. `fechados.md` is not read at session start.
 - **A `⚠` caveat with no other record in the repo** cannot be cut during compression — it becomes
   one of the summary's lines, not a lost note.
 - **Work that surfaces only while closing an item** ("this stays open: X") becomes its **own**
   `- [ ]` in the right theme — never a loose sentence inside the closed item. That pattern is what
   hid two items during the 2026-08 reorganization.
 - **Dependency between items** is declared both ways — the blocker says what it unblocks, the
-  dependent says what it depends on — and shows up in the `Índice de itens abertos` table.
-- **Índice de itens abertos** updates on every open/close; it's the only place meant to give, at a
-  glance, the full list of what's left.
-- `Especificação corrente` and `Rota metodológica decidida` are living reference: **edit in
-  place** when they change (instrument swap, r/q, etc.), never duplicate a new block next to the
-  old one.
+  dependent says what it depends on — and shows up in the `Índice` table.
+- **Índice** updates on every open/close; its table is the only place meant to give, at a glance,
+  the full list of what's left, in execution order, with the pending author decisions.
 
 ## Branch convention
 

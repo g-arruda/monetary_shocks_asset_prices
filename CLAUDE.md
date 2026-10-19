@@ -16,7 +16,7 @@ paper: `paper/paper.tex`, figures in `paper/img/` (on 2026-09-30 the `.tex` was 
 translates the old paths in notes).
 
 The record, in `registro/`: `metodo.md` (the live design — instrument construction and the
-identification chain), `pendencias.md` (what is open), `historico_decisoes.md` (what died and why —
+identification chain), `pendencias.md` (what is open), `fechados.md` (what closed, not read at session start), `historico_decisoes.md` (what died and why —
 **read before proposing a methodological direction**); plus `notas/`, dated and carrying vintage
 banners, `pareceres/`, what outside reviewers sent in, and `email/`, the running email exchange
 with the advisor.
