@@ -148,6 +148,18 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Conferências do e-mail de 18-10 e a ponte nas convenções corrigidas (2026-10-18, branch `feature/auditoria-janelas-copom`):**
+[`2026-10-18_conferencias_ponte`](2026-10-18_conferencias_ponte.md)
+**CURRENT na branch, não mergeada; nada em `R/` nem na produção mudou.**
+- **Yahoo.** A data da linha é a data UTC de um carimbo sempre às 00:00 de Londres (carimbos baixados da
+  API, iguais ao arquivo em 4163 linhas). A janela larga pelas datas vira segunda → quarta à noite nas 48
+  reuniões de inverno europeu; nenhuma estimativa a usa.
+- **CDS.** A ampliada da 179ª vai até 02/12/2013 porque falta a sexta 29/11. O 205,0 de 28/11 fica, com a
+  limitação. Na produção a ampliada dá +7,7 p.b., significante a 90%, e a estreita −0,8.
+- **Ponte na produção (111).** Câmbio −0,024 na 1ª cotação (⚠ não significante a 90%), +0,104 na 20ª
+  (95%), +0,118 e +0,244 na forma reduzida mensal, +0,125 no DFM; o CDS sobe a partir da 10ª cotação.
+- A sensibilidade de 104 segue com z = 0 nos 7 meses (decisão do autor de 18-10).
+
 **Auditoria das janelas do Copom, e-mail de 17-10 (2026-10-17, branch `feature/auditoria-janelas-copom`):**
 [`2026-10-17_auditoria_janelas_copom`](2026-10-17_auditoria_janelas_copom.md)
 **CURRENT na branch, não mergeada; a produção da branch passa às 111 reuniões.**
@@ -682,6 +694,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-18_conferencias_ponte`](2026-10-18_conferencias_ponte.md) | 10-18 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção intocada** | e-mail de 18-10; decisões do autor de 18-10 (z = 0 mantido na de 104, ponte em 111 e 104, janela larga do Yahoo só explicada, carimbos baixados); Yahoo e CDS como hipóteses | Tudo, na branch: carimbos do Yahoo e a data UTC da linha; CDS de 26/11 a 02/12/2013 e as cotações inteiras; estreita −0,8 contra ampliada +7,7 (90%); as 5 ambíguas; ξ_mp; fontes do DI1; ponte em 111 e 104 (câmbio −0,024 → +0,104 na 20ª cotação, +0,118/+0,244 mensal, +0,125 DFM); ⚠ a apreciação na 1ª cotação deixa de ser significante a 90% |
 | [`2026-10-17_auditoria_janelas_copom`](2026-10-17_auditoria_janelas_copom.md) | 10-17 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção da branch com as 111 reuniões** | e-mail de 17-10; decisões do autor de 17-10 (as 111 na produção e a de 104 como sensibilidade, ambígua a ≤ 30 min, meses excluídos a zero, Ibovespa na janela do DI, filtro removido); Yahoo e CDS como hipóteses | Tudo, na branch: classificação pré/pós/ambígua das 9; grade do DI1; CDS ampliado; câmbio 0,145 / 0,136 / 0,125 e CDS 33,5 / 32,4 / 30,6 em h0 nas bases de 102 / 104 / 111, significantes a 90% nas três; ξ_mp 6,66 / 6,55 / 7,28; ξ_mp pré-COVID 4,87 na produção; ⚠ saídas a jusante na base de 102 |
 | [`2026-10-16_janela_ampliada_cds_bloomberg`](2026-10-16_janela_ampliada_cds_bloomberg.md) | 10-16 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; nada reestimado, nenhuma regressão** | CDS às 17h de NY; Yahoo pela hora inferida; decisões do autor de 16-10 (datas, só os horários do anúncio, um e-mail, CDS ampliado pronto) | Tudo, na branch: as duas leituras da janela ampliada do CDS em `meetings.csv` e na tabela das 9, à espera do orientador; 8 datas e os horários do anúncio para a Bloomberg; ⚠ nada lê `d_cds_wide`/`d_cds_wide3` como resposta |
 | [`2026-10-15_conferencia_reunioes_fora`](2026-10-15_conferencia_reunioes_fora.md) | 10-15 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; nada reestimado, instrumento intocado** | as 9 reuniões fora das 102; anúncio pelas atas; DI `CloseRate`, PTAX 10h–13h, Yahoo pela hora inferida (convenção) e pelas datas das linhas de terça a quinta (larga), CDS às 17h de NY; decisões do autor de 15-10 antes de rodar | Tudo, na branch: 7 caem pela quinta feriado no Brasil (DI e PTAX de quarta a sexta, um pregão, mesmo contrato), 2 de Thanksgiving só pelo filtro de S&P 500, VIX e Brent; anúncio documentado nas 5 desde 2016-07, limite inferior nas 4 anteriores; Yahoo e CDS cotam nos 9 feriados; ⚠ 175ª com +37 p.b. e contrato a 152 d.u.; ⚠ janela ampliada do CDS fora, à espera do orientador |

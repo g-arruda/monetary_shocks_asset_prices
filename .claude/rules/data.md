@@ -69,7 +69,11 @@ from "the collection came back empty", and the error only surfaces months later,
   close is the rate at that instant, and the file's date is that instant's in UTC. Under British summer
   time the rows run Sunday–Thursday and the row dated d is d's evening, 20h in Brasilia. Outside it the
   rows run Monday–Friday and the row dated d is d−1's evening, 21h or 22h. The time is **inferred, not
-  declared**. Wednesday's evening quote follows the announcement in 96 of the 102 events, so the
+  declared**. Since 2026-10-18 the stamps themselves are on disk, `data/raw/brl_usd_daily_stamps.csv`
+  from `script/download_yahoo_stamps.R` (network stage `yahoo_stamps`): every one is 00:00 London, and
+  `copom_timing.R` checks that each file row is its stamp's UTC date with the same close (quantmod dates
+  bars with `as.Date()` in UTC), writing `output/copom_timing/yahoo_rows.csv`
+  (`notas/2026-10-18_conferencias_ponte.md`). Wednesday's evening quote follows the announcement in 96 of the 102 events, so the
   convention's window usually runs from Tuesday's evening quote to Wednesday's, and a Wed→Thu change
   read off the dates **misses the announcement in the 51 European-summer events**. The old "45 winter
   events precede it" reading was wrong. Never difference it by date for an event window; use the
