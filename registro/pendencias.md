@@ -30,16 +30,15 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 | Passo | Tema | Item | Depende de | Decisão do autor |
 |---|---|---|---|---|
-| 1 | B | Rodar de novo na base de 111 as saídas que ainda estão na de 102 | — | rodar de novo influência e placebos? |
 | 1 | A | Figura e tabela da ponte | — | — |
 | 1 | B | Listar as cotações de CDS em feriados dos EUA | — | — |
 | 1 | A | Apêndice com as convenções temporais e as fontes | — | Anexo E novo ou parte do D |
-| 2 | A | Amostra e construção do instrumento na §3.3 e na §3.4 | rodar de novo | 26ª chave para Staiger e Stock? |
-| 2 | A | Atualizar os números do artigo para a base de 111 reuniões | rodar de novo | — |
+| 2 | A | Amostra e construção do instrumento na §3.3 e na §3.4 | — | 26ª chave para Staiger e Stock? |
+| 2 | A | Atualizar os números do artigo para a base de 111 reuniões | — | — |
 | 3 | A | Leitura da trajetória diária na §4 | figura e tabela da ponte | — |
 | 3 | A | CDS estreito contra ampliado | lista de feriados | — |
-| 3 | A | Influência, extremos e surpresa bruta no texto | rodar de novo, se decidido | base de 102 ou de 111 (passo 1) |
-| 3 | A | Placebos na §3.3 e `fig:placebos` | rodar de novo, se decidido | base de 102 ou de 111 (passo 1) |
+| 3 | A | Influência, extremos e surpresa bruta no texto | — | — |
+| 3 | A | Placebos na §3.3 e `fig:placebos` | — | — |
 | 3 | A | Escrever o p = 0,54 do teste do EPU | junto com os placebos | — |
 | 3 | A | Linha diária do Anexo B | — | janela do CDS sem reunião |
 | 4 | A | Versão integrada | passos 2 e 3 | — |
@@ -83,16 +82,19 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
   - Separar relevância, limitação dos conjuntos AR e força do instrumento. O 10 de Staiger e Stock entra
     só como referência convencional. ⚠ O orçamento de 25 chaves está cheio (`dovern2012` é a 25ª), e
     citar Staiger e Stock exige uma 26ª.
-  - Depende de rodar de novo a grade de força e os diagnósticos do instrumento (Tema B).
+  - A grade de força e a `tab:first_stage` na base de 111 estão na nota `2026-10-20_saidas_base_111`,
+    seção 1. ⚠ Nela o F_rob da surpresa bruta passa de 10, e o ξ_mp não.
 - [ ] **Atualizar os números do artigo para a base de 111 reuniões.** E-mail de 12-10, item 1, com a base
   fixada pelo de 19-10.
   - Todo número da §3.4, da §4, da §5 e dos anexos C e D passa à base congelada. O que cita 102 reuniões
     passa a 111, com a BS refeita.
   - Reportar também os horizontes não significantes. Conferir se a reversão de longo prazo continua
-    significante só a 80%, como na base de 102.
+    significante só a 80%, como na base de 102. ⚠ A do CDS é significante a 90% em h35–h36.
   - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer.
+  - ⚠ No VAR da §5, o IBC-Br passa a ser significante só no impacto.
   - A §3.2 e o Anexo A já foram escritos na branch em 17-10.
-  - Depende de rodar de novo. Desbloqueia a versão integrada e a tabela antigo × novo.
+  - Os números das saídas a jusante estão na nota `2026-10-20_saidas_base_111`, e `paper/img/` já está na
+    base de 111. Desbloqueia a versão integrada e a tabela antigo × novo.
 - [ ] **Leitura da trajetória diária na §4.** E-mail de 19-10, item 1; os números estão na nota
   `2026-10-18_conferencias_ponte`.
   - A apreciação na 1ª cotação é uma estimativa pontual imprecisa.
@@ -112,31 +114,34 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
     nos EUA.
   - Depende da lista de feriados (Tema B).
 - [ ] **Influência, extremos e surpresa bruta no texto.** E-mails de 12-10, item 1, e de 19-10, item 5,
-  que pede para manter os resultados menos favoráveis. Entram:
-  - sem as dez reuniões mais influentes, os conjuntos viram a reta toda, e a inferência é inconclusiva,
-    não uma resposta zero (nota `2026-10-08_influencia_reunioes`);
-  - a regra das 11 reuniões com movimento extremo, fixada antes de rodar (`2cad8bd`); com ela, o CDS fica
-    estável e o câmbio perde magnitude e precisão, sobretudo pelo Brent (nota
-    `2026-10-12_exclusao_extremos`);
-  - com a surpresa bruta no DFM, câmbio e CDS não são significantes a 90% (nota
-    `2026-10-05_evento_diario`).
+  que pede para manter os resultados menos favoráveis. Os números na base de 111 estão na nota
+  `2026-10-20_saidas_base_111`, seção 5; o desenho, nas notas `2026-10-08_influencia_reunioes` e
+  `2026-10-12_exclusao_extremos`. Entram:
+  - sem as dez reuniões mais influentes, a inferência é inconclusiva, não uma resposta zero;
+  - a regra dos movimentos extremos, fixada antes de rodar (`2cad8bd`, emenda `cb24156`); com ela, o CDS
+    fica estável e o câmbio perde magnitude e precisão, sobretudo pelo Brent;
+  - a surpresa bruta no DFM (nota `2026-10-05_evento_diario`; na base de 111, nota
+    `2026-10-18_conferencias_ponte`, seção 7).
 
-  ⚠ Os números são da base de 102 (a decisão está no Tema B). Alimenta a versão integrada.
+  ⚠ Na base de 111, sem as 5 mais influentes e sem os extremos, o câmbio deixa de ser significante a 90%
+  no impacto. ⚠ A regra marca 3 das 7 reuniões de feriado no Brasil, cuja variação de quarta a sexta é
+  comparada com um limiar de um dia. Alimenta a versão integrada.
 - [ ] **Placebos na §3.3 e `fig:placebos`.** E-mails de 08-10, de 12-10 (item 4) e de 19-10 (item 5). Os
-  números estão na nota `2026-10-12_msci_emergentes`, seção 6.
+  números na base de 111 estão na nota `2026-10-20_saidas_base_111`, seção 4, e `fig:placebos` já foi
+  redesenhada.
   - A figura descreve as respostas, e a legenda diz que os conjuntos são pontuais. A contagem de pontos
     significantes não serve como evidência conjunta.
   - Holm controla as comparações pontuais da família e não é um Wald conjunto. Dizer por que difere do
     teste conjunto por série e pôr os p-valores sem ajuste ao lado dos ajustados.
   - A leitura: não rejeitamos resposta zero depois do ajuste, o que não comprova exogeneidade e pode
     refletir pouca precisão.
-  - ⚠ A queda do índice de emergentes em h0, h1 e h3 fica visível e entra como limitação. O exercício não
+  - ⚠ A queda do índice de emergentes em h0, h1, h3 e h6 fica visível e entra como limitação. O exercício não
     separa o peso do Brasil no índice, as repercussões do choque e as notícias comuns aos emergentes.
   - Vai também a ressalva do VIX em h0: o mês se sobrepõe à janela da ortogonalização. Nenhum placebo
     novo.
   - ⚠ O parágrafo atual diz que o EPU é significante a 90% em h1–h3. Na base nova, não é em nenhum
     horizonte.
-  - ⚠ Os números são da base de 102 (a decisão está no Tema B). Escrever junto com o p = 0,54.
+  - Escrever junto com o p = 0,54.
 - [ ] **Escrever o p = 0,54 do teste do EPU.** E-mails de 03-10 (passo 4) e de 12-10 (item 4).
   - Explicitar a hipótese testada: H0 β_EPU = 0 na regressão BS da surpresa com `pre_epu` (nota
     `2026-10-09_placebos_holm`, seção 5).
@@ -182,20 +187,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 ## B. Robustez estatística
 
-- [ ] **Rodar de novo na base de 111 as saídas que ainda estão na de 102.** Já estão na base de 111 o
-  evento diário, as duas pontes e o cache `irf_coherence_h.csv`. Faltam:
-  - `ar_precision.R`, `mosw_strength_grid.R`, `instrument_diagnostics.R` e `model_var.R`;
-  - os anexos: `q_sensitivity.R`, `p_sensitivity.R`, `pandemic_sensitivity.R` e
-    `instrument_layers_irf.R`;
-  - as figuras: `fig_section5.R` e `fig_weak_iv.R`.
-
-  ⚠ `meeting_influence.R` e `placebo_holm.R` dependem de decisão do autor. Os e-mails de 17-10 e de 18-10
-  dispensam repeti-los agora, mas o de 19-10 pede os resultados no texto. Ou rodam de novo, ou o texto diz
-  que estão na base de 102. Se rodarem, entra a emenda de 16-10 à regra de 10-12: nas duas reuniões de
-  Ação de Graças, S&P 500, VIX e Brent vão de quarta a sexta, nunca 0.
-
-  Roda na branch e não depende de outro item. Desbloqueia, no Tema A: os números do artigo, a amostra e o
-  instrumento, e a influência e os placebos.
 - [ ] **Listar as cotações de CDS em feriados dos EUA.** E-mail de 19-10, item 4, só como checagem de
   calendário. `output/copom_timing/cds_calendar.csv` já conta 72 dias de feriado só nos EUA, todos com CDS;
   falta a lista de datas. Não depende de nada. Desbloqueia a limitação de 2013-11-28 no item do CDS

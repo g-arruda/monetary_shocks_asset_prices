@@ -263,6 +263,14 @@ Os blocos vieram de `pendencias.md` em 2026-10-19, sem edição. Referências co
 
 ## B. Robustez estatística
 
+- [x] **Rodar de novo na base de 111 as saídas que estavam na de 102 — 2026-10-20.** Branch
+  `feature/auditoria-janelas-copom`. Rodaram a força, os diagnósticos, a precisão, o VAR, os anexos, as
+  figuras de `paper/img/`, os placebos e a influência. Os extremos vão de quarta a sexta nas 9
+  recuperadas (decisão do autor, `cb24156`), e o Juneteenth de 2024 vai de terça a quinta, como antes.
+  - `tab:first_stage`: 7,28 / 9,34. ⚠ O F_rob da bruta é 10,85.
+  - Holm não rejeita.
+  - ⚠ O câmbio deixa de ser significante a 90% no impacto sem as 5 e sem os 14 extremos.
+  - Nota: `2026-10-20_saidas_base_111`.
 - [x] **Enviar ao orientador a resposta ao e-mail de 18-10 — 2026-10-18.** Enviada às 20h26
   (`email/email_meu_18-10_20h26.md`): as cinco conferências e a ponte nas bases de 111 e 104. O orientador
   respondeu em 19-10 e encerrou a auditoria. Nota: `2026-10-18_conferencias_ponte`.

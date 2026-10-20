@@ -65,9 +65,9 @@ footnote on why it is out, and §2 cites JK as literature.
   `2026-10-03_focus_horizonte_fixo` through `2026-10-15_conferencia_reunioes_fora`.
 - `feature/auditoria-janelas-copom` (contains the previous one) — the instrument on all 111 Copom
   meetings (`holiday_windows = TRUE`, the S&P 500/VIX/Brent filter removed), the 104 without the seven
-  holiday windows as the sensitivity. ⚠ Part of the downstream outputs is still on the 102
-  (`registro/pendencias.md`, Theme B). Notes `2026-10-17_auditoria_janelas_copom`,
-  `2026-10-18_conferencias_ponte`.
+  holiday windows as the sensitivity. Every downstream output and `paper/img/` are on the 111 since
+  2026-10-20; the `.tex` numbers are not yet. Notes `2026-10-17_auditoria_janelas_copom`,
+  `2026-10-18_conferencias_ponte`, `2026-10-20_saidas_base_111`.
 - `feature/placebo-epu` — the US EPU as an orthogonalization control. It diverged from `main`, carries
   the control in production code and cannot be merged as is. Note `2026-09-29_placebo_epu`, only on
   that branch.
