@@ -23,8 +23,10 @@
 #      percentile of that series' absolute changes over every trading day of
 #      2012-03 to 2025-12. No meeting is selected by FX or CDS. Amended for
 #      the 111 meetings (2026-10-16 and author decision of 2026-10-20): the
-#      change runs from the Wednesday to the first day, on or after the end
-#      of the meeting's DI window, that quotes all three series. That is the
+#      change runs from the Wednesday (the Tuesday on Juneteenth 2024, when
+#      the NYSE was closed, as in the run of 2026-10-12) to the first day,
+#      on or after the end of the meeting's DI window, that quotes all three
+#      series. That is the
 #      Thursday, or the Friday for the 7 meetings whose Thursday is a
 #      Brazilian holiday (the DI window) and for the 2 at Thanksgiving, when
 #      the NYSE is closed. Those 9 changes span two days and are compared
@@ -39,7 +41,7 @@
 #   ranking.csv             one row per meeting
 #   extreme_thresholds.csv  the 95th percentile of each series and the
 #                           meetings it flags
-#   extreme_meetings.csv    one row per meeting: the window end, the three
+#   extreme_meetings.csv    one row per meeting: the window, the three
 #                           changes, the flags and the influence rank
 #   joint_table.csv         production, without 5, without 10, without the
 #                           extreme moves: every series at the table horizons
@@ -312,8 +314,11 @@ thresholds <- external_changes |>
     .by = series
   )
 
-# A meeting's window runs from its Wednesday to the first row, on or after
-# the last day of its DI window, that quotes the three series
+# A meeting's window runs from the last row on or before its Wednesday to
+# the first row on or after the last day of its DI window, both quoting the
+# three series. The start is the Tuesday only on Juneteenth 2024, when the
+# NYSE was closed on the Wednesday, as the consecutive rows of the run of
+# 2026-10-12 already had it.
 quoted <- tidyr::drop_na(external)
 quoted_levels <- quoted |>
   tidyr::pivot_longer(-date, names_to = "series", values_to = "level")
@@ -322,13 +327,16 @@ meeting_moves <- meetings |>
   dplyr::transmute(
     date,
     wednesday,
+    window_start = quoted$date[
+      findInterval(as.numeric(wednesday), as.numeric(quoted$date))
+    ],
     window_end = quoted$date[
       findInterval(as.numeric(date) - 1, as.numeric(quoted$date)) + 1L
     ]
   ) |>
   dplyr::left_join(
     dplyr::rename(quoted_levels, start_level = level),
-    by = dplyr::join_by(wednesday == date)
+    by = dplyr::join_by(window_start == date)
   ) |>
   dplyr::left_join(
     dplyr::rename(quoted_levels, end_level = level),
@@ -362,7 +370,7 @@ stopifnot(
 )
 
 extreme_meetings <- meeting_moves |>
-  dplyr::select(date, window_end, series, change, extreme) |>
+  dplyr::select(date, window_start, window_end, series, change, extreme) |>
   tidyr::pivot_wider(names_from = series, values_from = c(change, extreme)) |>
   dplyr::mutate(excluded = extreme_sp500 | extreme_vix | extreme_brent) |>
   dplyr::left_join(
