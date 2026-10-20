@@ -1,7 +1,8 @@
 # ===================================================================
 # Step 3/5 of the advisor's plan of 2026-10-03, in the design of his e-mail
 # of 2026-10-08 (item 3): how much each Copom meeting weighs on the
-# identification, on the fixed-horizon Focus base of step 0.
+# identification, on the fixed-horizon Focus base of step 0, re-run on the
+# 111-meeting base on 2026-10-20.
 # Factors, factor-VAR coefficients and innovations stay at their full-sample
 # estimates. A meeting is excluded by subtracting its orthogonalized surprise
 # (e_di_bs) from the monthly sum that forms the instrument, so only the moment
@@ -10,7 +11,7 @@
 # SVARIV.m:128). The other meetings keep their full-sample Bauer-Swanson
 # residuals, and centering and residualization are production's.
 #   A. Production, re-run and checked against the cache.
-#   B. Leave-one-out over the 102 meetings. The change of each component of
+#   B. Leave-one-out over the 111 meetings. The change of each component of
 #      Gamma over its full-sample standard error, maximized over the five
 #      components, ranks the meetings: a diagnostic of influence, not a test.
 #      For each exclusion, FX and CDS at h0, h1 and h3, xi_mp and F_rob. The
@@ -20,7 +21,14 @@
 #      2cad8bd): a meeting is flagged when the Wed->Thu log change of the
 #      S&P 500, the VIX or Brent is, in absolute value, above the 95th
 #      percentile of that series' absolute changes over every trading day of
-#      2012-03 to 2025-12. No meeting is selected by FX or CDS.
+#      2012-03 to 2025-12. No meeting is selected by FX or CDS. Amended for
+#      the 111 meetings (2026-10-16 and author decision of 2026-10-20): the
+#      change runs from the Wednesday to the first day, on or after the end
+#      of the meeting's DI window, that quotes all three series. That is the
+#      Thursday, or the Friday for the 7 meetings whose Thursday is a
+#      Brazilian holiday (the DI window) and for the 2 at Thanksgiving, when
+#      the NYSE is closed. Those 9 changes span two days and are compared
+#      with the same one-day threshold.
 #   D. Exclusions together: the 5 and the 10 most influential meetings, and
 #      the meetings flagged in C. Every series at the table horizons of step
 #      1, AR sets at 90 and 95%, the AR p-value of a zero response, xi_mp and
@@ -31,8 +39,8 @@
 #   ranking.csv             one row per meeting
 #   extreme_thresholds.csv  the 95th percentile of each series and the
 #                           meetings it flags
-#   extreme_meetings.csv    one row per meeting: the three changes, the flags
-#                           and the influence rank
+#   extreme_meetings.csv    one row per meeting: the window end, the three
+#                           changes, the flags and the influence rank
 #   joint_table.csv         production, without 5, without 10, without the
 #                           extreme moves: every series at the table horizons
 #   joint_fx_cds.csv        the same cells, FX and CDS, h0-h36
@@ -58,7 +66,8 @@ OUT_DIR         <- "output/meeting_influence"
 REFERENCE_START <- as.Date("2012-03-01")
 REFERENCE_END   <- as.Date("2025-12-31")
 EXTREME_PROBABILITY <- 0.95
-N_EVENTS    <- 102L
+N_EVENTS    <- 111L
+N_TWO_DAY   <- 9L
 R_FACTORS   <- 5L
 Q_DYNAMIC   <- 5L
 P_LAGS      <- 4L
@@ -113,6 +122,7 @@ innovation_months <- model$dates[(model$p + 1):length(model$dates)]
 meetings <- readr::read_csv(EVENTS_PATH, show_col_types = FALSE) |>
   dplyr::transmute(
     date,
+    wednesday,
     month = lubridate::floor_date(date, "month"),
     in_window = month %in% innovation_months,
     contribution = e_di_bs
@@ -277,8 +287,9 @@ ranking |>
 # them, with the VIX in logs instead of points. The rule is two-sided: a
 # global risk shock biases FX and CDS upward whatever the sign of the
 # monetary shock.
-external_changes <- readr::read_csv(EXTERNAL_PATH, show_col_types = FALSE) |>
-  dplyr::arrange(date) |>
+external <- readr::read_csv(EXTERNAL_PATH, show_col_types = FALSE) |>
+  dplyr::arrange(date)
+external_changes <- external |>
   dplyr::transmute(
     date,
     sp500 = 100 * (log(sp500) - log(dplyr::lag(sp500))),
@@ -301,21 +312,57 @@ thresholds <- external_changes |>
     .by = series
   )
 
-meeting_moves <- meetings |>
-  dplyr::select(date) |>
-  dplyr::left_join(external_changes, by = "date") |>
-  dplyr::left_join(thresholds, by = "series") |>
-  dplyr::mutate(extreme = abs(change) > threshold)
+# A meeting's window runs from its Wednesday to the first row, on or after
+# the last day of its DI window, that quotes the three series
+quoted <- tidyr::drop_na(external)
+quoted_levels <- quoted |>
+  tidyr::pivot_longer(-date, names_to = "series", values_to = "level")
 
-# build_variants.R drops a Thursday without any of the three changes, so the
-# 102 meetings carry all of them
+meeting_moves <- meetings |>
+  dplyr::transmute(
+    date,
+    wednesday,
+    window_end = quoted$date[
+      findInterval(as.numeric(date) - 1, as.numeric(quoted$date)) + 1L
+    ]
+  ) |>
+  dplyr::left_join(
+    dplyr::rename(quoted_levels, start_level = level),
+    by = dplyr::join_by(wednesday == date)
+  ) |>
+  dplyr::left_join(
+    dplyr::rename(quoted_levels, end_level = level),
+    by = dplyr::join_by(window_end == date, series)
+  ) |>
+  dplyr::left_join(thresholds, by = "series") |>
+  dplyr::mutate(
+    change = 100 * (log(end_level) - log(start_level)),
+    extreme = abs(change) > threshold
+  )
+
+# Away from the 7 Brazilian holidays and the 2 Thanksgivings the window is
+# Wednesday to Thursday, and the change is the consecutive-row one of the
+# run of 2026-10-12
+one_day <- meeting_moves |>
+  dplyr::filter(window_end == wednesday + 1L) |>
+  dplyr::inner_join(
+    dplyr::rename(external_changes, row_change = change),
+    by = c("date", "series")
+  )
+two_day_meetings <- unique(
+  meeting_moves$date[meeting_moves$window_end != meeting_moves$wednesday + 1L]
+)
 stopifnot(
   nrow(meeting_moves) == nrow(thresholds) * N_EVENTS,
-  !anyNA(meeting_moves$change)
+  !anyNA(meeting_moves$change),
+  length(two_day_meetings) == N_TWO_DAY,
+  all(meeting_moves$window_end - meeting_moves$wednesday <= 2L),
+  nrow(one_day) == nrow(thresholds) * (N_EVENTS - N_TWO_DAY),
+  max(abs(one_day$change - one_day$row_change)) < 1e-12
 )
 
 extreme_meetings <- meeting_moves |>
-  dplyr::select(date, series, change, extreme) |>
+  dplyr::select(date, window_end, series, change, extreme) |>
   tidyr::pivot_wider(names_from = series, values_from = c(change, extreme)) |>
   dplyr::mutate(excluded = extreme_sp500 | extreme_vix | extreme_brent) |>
   dplyr::left_join(
