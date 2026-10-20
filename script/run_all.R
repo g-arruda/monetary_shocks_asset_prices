@@ -89,6 +89,14 @@ STAGES <- list(
     requires = character(),
     produces = "data/raw/ptax_daily.csv"
   ),
+  yahoo_stamps = list(
+    name = "yahoo_stamps",
+    desc = "Yahoo BRL=X bars with the API's stamp, for the Copom-day timing",
+    file = "script/download_yahoo_stamps.R",
+    network = TRUE,
+    requires = character(),
+    produces = "data/raw/brl_usd_daily_stamps.csv"
+  ),
   copom_atas = list(
     name = "copom_atas",
     desc = "Copom minutes, for the session times of each meeting",

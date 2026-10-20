@@ -7,9 +7,10 @@
 # (notas/2026-07-14_auditoria_fidelidade_jk_bs.md). The events are the
 # 111 Copom meetings, each from the Wednesday close to the first DI session
 # after it; the seven on the eve of a Brazilian holiday, whose window runs to
-# Friday, are left out only in
-# data/processed/instrument_no_holiday_windows.csv, the sensitivity of
-# notas/2026-10-17_auditoria_janelas_copom.md.
+# Friday, are left out only in the sensitivity of
+# notas/2026-10-17_auditoria_janelas_copom.md:
+# data/processed/instrument_no_holiday_windows.csv, with its variants and
+# surprises by meeting beside it.
 # Requires the daily raw inputs written by `script/download.R` and the
 # macroeconomic news inputs written by `script/download_macro_news.R`.
 # ============================================================
@@ -108,6 +109,17 @@ built$monthly |>
 built_no_holiday_windows$monthly |>
   dplyr::transmute(month, shock = .data[[PRODUCTION_VARIANT]]) |>
   readr::write_csv("data/processed/instrument_no_holiday_windows.csv")
+
+# The sensitivity's variants and surprises by meeting, for the bridge from
+# the daily event to the monthly DFM (script/daily_event.R,
+# script/event_trajectory.R, script/monthly_reduced_form.R)
+readr::write_csv(
+  built_no_holiday_windows$monthly,
+  "data/processed/instrumentos_mensais_no_holiday_windows.csv"
+)
+built_no_holiday_windows$daily |>
+  dplyr::select(wednesday, date, long_window, delta_di, e_di_bs) |>
+  readr::write_csv("data/processed/copom_event_diagnostics_no_holiday_windows.csv")
 
 built$daily |>
   dplyr::select(

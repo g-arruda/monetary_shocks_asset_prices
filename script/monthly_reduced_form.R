@@ -3,10 +3,8 @@
 # advisor's e-mail of 2026-10-12, item 2: a simple monthly regression of
 # the change in the exchange rate and in the 5-year CDS on the monthly
 # surprise, without the DFM's factors, over the DFM's window and with the
-# DFM's own series. Branch feature/focus-horizonte-fixo, on the
-# fixed-horizon Focus base. Nothing in the instrument, in the panel or in
-# the DFM is re-estimated; the DFM cells beside the regressions are the
-# production ones.
+# DFM's own series. Nothing in the instrument, in the panel or in the DFM is
+# re-estimated; the DFM cells beside the regressions are the production ones.
 #
 # Rule, fixed and committed before running (author decisions of
 # 2026-10-14):
@@ -14,8 +12,7 @@
 #     surprise of month t is the instrument's, the sum of the surprises of
 #     the meetings whose first DI session after the announcement falls in
 #     t (R/instrument/build_variants.R).
-#   Surprises: z_bs_purif (orthogonalized, production) and z_bruto (raw),
-#     data/processed/instrumentos_mensais.csv.
+#   Surprises: z_bs_purif (orthogonalized, production) and z_bruto (raw).
 #   Responses: exchange rate in R$ per US$ and in % (100 log), CDS in bp.
 #   Aggregation, two per series:
 #     panel: the DFM's own series. cambio_usd is the monthly mean of the
@@ -30,9 +27,8 @@
 #       month of its surprise, as it does in the end-of-month yield_6m; and
 #       the CDS as the monthly mean of the Bloomberg daily close.
 #   Samples: (i) z = 0 in every month without a surprise, as in the DFM,
-#     162 months; (ii) without the 9 months whose meeting is outside the
-#     102 events (Brazilian-holiday and Thanksgiving Thursdays), 153 months;
-#     (iii) only the 99 months with a meeting among the 102.
+#     162 months; (ii) without the months whose meeting is left out of the
+#     base; (iii) only the months with a meeting of the base.
 #   Horizons: h = 0, x_t - x_{t-1}; h = 1, x_{t+1} - x_{t-1}. h = 1 loses
 #     2025-12, which has no t + 1.
 #   Normalization: first the reduced form, per +50bp of surprise, with
@@ -45,6 +41,13 @@
 #     Newey-West with one Bartlett lag, pairing only calendar neighbours.
 #   DFM beside: the production cell under z_bs_purif and under z_bruto,
 #     h = 0 and 1, point, AR sets at 90 and 95% and xi_mp.
+# Since 2026-10-18, the two bases of the window audit (e-mails of 2026-10-17
+# and 2026-10-18), each with the instrument of its own Bauer-Swanson
+# regression: producao_111, every meeting in its month, so sample (ii) is
+# sample (i) and is not run, and the only z = 0 months are those without a
+# meeting; sem_feriados_104, without the seven meetings on the eve of a
+# Brazilian holiday, whose months are z = 0 in sample (i), as in that base's
+# DFM, and are left out in sample (ii), 155 months.
 #
 # Reading, fixed before running. The reference row is the one that
 # replicates the DFM: panel series, sample (i), orthogonalized surprise.
@@ -64,18 +67,20 @@
 #   the effect per +50bp of yield_6m compares in magnitude with the DFM,
 #   with its first stage beside it.
 #
-# script/instrument.R, script/copom_timing.R, script/ar_precision.R and
-# script/daily_event.R must run first.
+# script/instrument.R, script/copom_timing.R, script/irf_coherence_check.R
+# and script/daily_event.R must run first.
 # Outputs: output/monthly_reduced_form/
-#   months.csv       one row per month: surprises, meeting flags and
-#                    samples, yield_6m, the four monthly series and the time
-#                    of each end-of-month exchange-rate quote
+#   months.csv       one row per base and month: surprises, meeting flags,
+#                    yield_6m, the four monthly series and the time of each
+#                    end-of-month exchange-rate quote
 #   changes.csv      one row per month, response, aggregation and h
-#   regressions.csv  one row per response, aggregation, sample, surprise
-#                    and h: reduced form, first stage and IV with AR sets
+#   regressions.csv  one row per base, response, aggregation, sample,
+#                    surprise and h: reduced form, first stage and IV with
+#                    AR sets
 #   comparison.csv   the effect per +50bp of yield_6m, monthly regression
-#                    (sample (i)) and DFM, by surprise, response and h
-# Note: notas/2026-10-14_ponte_mensal_forma_reduzida.md
+#                    (sample (i)) and DFM, by base, surprise, response and h
+# Notes: notas/2026-10-14_ponte_mensal_forma_reduzida.md,
+#   notas/2026-10-18_conferencias_ponte.md
 # ===================================================================
 
 source("R/modeling/factor_estimation.R")
@@ -85,14 +90,19 @@ source("R/identification/weak_iv_ar.R")
 source("R/instrument/di_surprise.R")
 
 PANEL_PATH       <- "data/processed/data_log_deseasonalized.csv"
-INSTRUMENTS_PATH <- "data/processed/instrumentos_mensais.csv"
 MEETINGS_PATH    <- "output/copom_timing/meetings.csv"
 YAHOO_BRL_PATH   <- "data/raw/brl_usd_daily.csv"
 CDS_PATH         <- "data/raw/CDS 5y.xlsx"
 THETA_PATH       <- "output/factors/covid_volatility_theta.csv"
-PRECISION_PATH   <- "output/ar_precision/table.csv"
+CELL_PATH        <- "output/irf/irf_coherence_cell.rds"
 DAILY_EVENT_PATH <- "output/daily_event/comparison.csv"
 OUT_DIR          <- "output/monthly_reduced_form"
+# Counts the rule is written for; a change in the data stops the script
+BASES <- tibble::tribble(
+  ~base,              ~events_path,                                                    ~instruments_path,                                           ~n_events, ~n_meeting_months, ~n_outside,
+  "producao_111",     "data/processed/copom_event_diagnostics.csv",                    "data/processed/instrumentos_mensais.csv",                   111L,      108L,              0L,
+  "sem_feriados_104", "data/processed/copom_event_diagnostics_no_holiday_windows.csv", "data/processed/instrumentos_mensais_no_holiday_windows.csv", 104L,      101L,              7L
+)
 SAMPLE_WINDOW <- as.Date(c("2012-03-01", "2025-12-01"))
 R_FACTORS   <- 5L
 Q_DYNAMIC   <- 5L
@@ -102,12 +112,8 @@ HORIZONS    <- c(0L, 1L)
 SHOCK_BPS   <- 50
 CI_LEVELS   <- c(0.90, 0.95)
 TZ_BRASILIA <- "America/Sao_Paulo"
-# Counts the rule is written for; a change in the data stops the script
-N_INNOVATIONS    <- 162L
-N_EVENTS         <- 102L
-N_MEETING_MONTHS <- 99L
-N_OUTSIDE        <- 9L
-N_END_OF_MONTH   <- 7L
+N_INNOVATIONS  <- 162L
+N_END_OF_MONTH <- 7L
 SURPRISES <- c(ortogonalizada = "z_bs_purif", bruta = "z_bruto")
 SAMPLES <- c("zero", "sem_reunioes_fora", "so_reunioes")
 SERIES <- tibble::tribble(
@@ -126,8 +132,6 @@ dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 panel <- readr::read_csv(PANEL_PATH, show_col_types = FALSE) |>
   dplyr::mutate(ref.date = as.Date(ref.date))
-instruments <- readr::read_csv(INSTRUMENTS_PATH, show_col_types = FALSE) |>
-  dplyr::mutate(month = as.Date(month))
 meetings <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE)
 yahoo <- load_yahoo_brl(YAHOO_BRL_PATH)
 cds <- readxl::read_excel(CDS_PATH, skip = 5) |>
@@ -191,22 +195,6 @@ cds_mean <- cds |>
     .by = month
   )
 
-# Meetings by instrument month: the 102 events, and the 9 left out by the
-# month the convention would give them
-event_months <- meetings |>
-  dplyr::filter(in_events) |>
-  dplyr::summarise(
-    n_events = dplyr::n(),
-    z_bs_purif_events = sum(e_di_bs),
-    z_bruto_events = sum(delta_di),
-    .by = month_instrument
-  ) |>
-  dplyr::rename(month = month_instrument)
-outside_months <- meetings |>
-  dplyr::filter(!in_events) |>
-  dplyr::distinct(month = month_convention) |>
-  dplyr::mutate(reuniao_fora = TRUE)
-
 first_innovation <- sort(panel$ref.date)[P_LAGS + 1L]
 months <- panel |>
   dplyr::transmute(
@@ -215,9 +203,6 @@ months <- panel |>
     cambio_media = cambio_usd,
     cds_fim_de_mes = cds_5y
   ) |>
-  dplyr::left_join(instruments, by = "month") |>
-  dplyr::left_join(event_months, by = "month") |>
-  dplyr::left_join(outside_months, by = "month") |>
   dplyr::left_join(yahoo_mean, by = "month") |>
   dplyr::left_join(fx_end_of_month, by = "month") |>
   dplyr::left_join(cds_mean, by = "month") |>
@@ -225,29 +210,69 @@ months <- panel |>
   dplyr::mutate(
     period = 12L * lubridate::year(month) + lubridate::month(month),
     janela_dfm = month >= first_innovation,
-    reuniao = !is.na(n_events),
-    reuniao_fora = !is.na(reuniao_fora),
     d_yield_bp = 1e4 * (yield_6m - dplyr::lag(yield_6m))
   )
 
+# Each base's instrument, the meetings in each month and the months whose
+# meeting the base leaves out
+base_months <- purrr::pmap(
+  BASES,
+  \(base, events_path, instruments_path, n_events, n_meeting_months, n_outside) {
+    events <- readr::read_csv(events_path, show_col_types = FALSE)
+    event_months <- events |>
+      dplyr::mutate(month = lubridate::floor_date(as.Date(date), "month")) |>
+      dplyr::summarise(
+        n_events = dplyr::n(),
+        z_bs_purif_events = sum(e_di_bs),
+        z_bruto_events = sum(delta_di),
+        .by = month
+      )
+    outside_months <- meetings |>
+      dplyr::filter(!wednesday %in% as.Date(events$wednesday)) |>
+      dplyr::distinct(month = month_instrument) |>
+      dplyr::mutate(reuniao_fora = TRUE)
+    readr::read_csv(instruments_path, show_col_types = FALSE) |>
+      dplyr::transmute(base = base, month = as.Date(month), z_bs_purif, z_bruto) |>
+      dplyr::left_join(event_months, by = "month") |>
+      dplyr::left_join(outside_months, by = "month") |>
+      dplyr::mutate(
+        reuniao = !is.na(n_events),
+        reuniao_fora = !is.na(reuniao_fora)
+      )
+  }
+) |>
+  purrr::list_rbind() |>
+  dplyr::inner_join(dplyr::select(months, month, period, janela_dfm, d_yield_bp), by = "month")
+
 window <- dplyr::filter(months, janela_dfm)
 end_of_month_rows <- dplyr::filter(months, cambio_fim_de_mes_regra == "antes_do_anuncio")
+base_counts <- base_months |>
+  dplyr::summarise(
+    n_months = dplyr::n(),
+    n_events = sum(n_events, na.rm = TRUE),
+    n_meeting_months = sum(reuniao & janela_dfm),
+    n_outside = sum(reuniao_fora & janela_dfm),
+    overlap = sum(reuniao & reuniao_fora),
+    .by = base
+  ) |>
+  dplyr::inner_join(BASES, by = "base", suffix = c("", "_rule"))
 stopifnot(
   # One month per panel row, no gap, and the instrument on every month
   all(diff(months$period) == 1L),
-  !anyNA(months$z_bs_purif),
+  !anyNA(base_months$z_bs_purif),
+  base_counts$n_months == nrow(months),
   # The panel's exchange rate is the Yahoo mean by date
   max(abs(months$cambio_media - months$cambio_media_yahoo)) < 1e-12,
-  # The meetings' surprises add up to the instrument
-  max(abs(dplyr::coalesce(months$z_bs_purif_events, 0) - months$z_bs_purif)) < 1e-10,
-  max(abs(dplyr::coalesce(months$z_bruto_events, 0) - months$z_bruto)) < 1e-10,
-  all(months$n_events %in% c(NA, 1L)),
-  sum(months$reuniao) == N_EVENTS,
+  # The meetings' surprises add up to each base's instrument
+  max(abs(dplyr::coalesce(base_months$z_bs_purif_events, 0) - base_months$z_bs_purif)) < 1e-10,
+  max(abs(dplyr::coalesce(base_months$z_bruto_events, 0) - base_months$z_bruto)) < 1e-10,
+  all(base_months$n_events %in% c(NA, 1L)),
   # The counts the rule is written for
   nrow(window) == N_INNOVATIONS,
-  sum(window$reuniao) == N_MEETING_MONTHS,
-  sum(window$reuniao_fora) == N_OUTSIDE,
-  !any(window$reuniao & window$reuniao_fora),
+  base_counts$n_events == base_counts$n_events_rule,
+  base_counts$n_meeting_months == base_counts$n_meeting_months_rule,
+  base_counts$n_outside == base_counts$n_outside_rule,
+  base_counts$overlap == 0L,
   # The aligned end of the month departs from the calendar's only in the
   # months whose last session hosts a meeting: there the calendar quote
   # follows the announcement and the one taken precedes it
@@ -258,19 +283,28 @@ stopifnot(
 )
 
 readr::write_csv(
-  dplyr::select(
-    months,
-    month, janela_dfm, reuniao, reuniao_fora, z_bs_purif, z_bruto,
-    yield_6m, d_yield_bp, cambio_media, cambio_fim_de_mes,
-    cambio_fim_de_mes_data, cambio_fim_de_mes_hora, cambio_fim_de_mes_regra,
-    cds_fim_de_mes, cds_media, cds_media_cotacoes
-  ),
+  base_months |>
+    dplyr::inner_join(
+      dplyr::select(
+        months,
+        month, yield_6m, cambio_media, cambio_fim_de_mes,
+        cambio_fim_de_mes_data, cambio_fim_de_mes_hora, cambio_fim_de_mes_regra,
+        cds_fim_de_mes, cds_media, cds_media_cotacoes
+      ),
+      by = "month"
+    ) |>
+    dplyr::select(
+      base, month, janela_dfm, reuniao, reuniao_fora, z_bs_purif, z_bruto,
+      yield_6m, d_yield_bp, cambio_media, cambio_fim_de_mes,
+      cambio_fim_de_mes_data, cambio_fim_de_mes_hora, cambio_fim_de_mes_regra,
+      cds_fim_de_mes, cds_media, cds_media_cotacoes
+    ),
   file.path(OUT_DIR, "months.csv")
 )
 
 # Changes -------------------------------------------------------------------
 
-changes <- SERIES |>
+series_changes <- SERIES |>
   tidyr::expand_grid(h = HORIZONS) |>
   dplyr::mutate(
     data = purrr::pmap(list(column, log_change, h), \(column_name, in_log, horizon) {
@@ -284,33 +318,34 @@ changes <- SERIES |>
     })
   ) |>
   tidyr::unnest(data) |>
-  dplyr::left_join(
-    dplyr::select(
-      months,
-      month, period, janela_dfm, reuniao, reuniao_fora,
-      z_bs_purif, z_bruto, d_yield_bp
-    ),
-    by = "month"
-  ) |>
+  dplyr::inner_join(dplyr::select(months, month, janela_dfm), by = "month") |>
   dplyr::filter(janela_dfm, !is.na(change))
 
 readr::write_csv(
-  dplyr::select(changes, month, response, aggregation, measure, h, change),
+  dplyr::select(series_changes, month, response, aggregation, measure, h, change),
   file.path(OUT_DIR, "changes.csv")
 )
+
+changes <- series_changes |>
+  dplyr::select(-janela_dfm) |>
+  dplyr::inner_join(base_months, by = "month", relationship = "many-to-many")
 
 # Regressions ---------------------------------------------------------------
 
 regressions <- tidyr::expand_grid(
+  BASES |>
+    dplyr::select(base, n_meeting_months, n_outside),
   dplyr::distinct(SERIES, response, aggregation, measure),
   sample = SAMPLES,
   surprise = names(SURPRISES),
   h = HORIZONS
 ) |>
+  # Without a meeting left out, sample (ii) is sample (i)
+  dplyr::filter(sample != "sem_reunioes_fora" | n_outside > 0L) |>
   dplyr::mutate(
     fit = purrr::pmap(
-      list(response, aggregation, sample, surprise, h),
-      \(response_name, aggregation_name, sample_name, surprise_name, horizon) {
+      list(base, response, aggregation, sample, surprise, h),
+      \(base_name, response_name, aggregation_name, sample_name, surprise_name, horizon) {
         # Base subsetting: a dplyr::filter() here would not see the lambda's
         # arguments from inside mutate()'s data mask
         in_sample <- switch(
@@ -320,7 +355,8 @@ regressions <- tidyr::expand_grid(
           so_reunioes = changes$reuniao
         )
         cell <- changes[
-          changes$response == response_name &
+          changes$base == base_name &
+            changes$response == response_name &
             changes$aggregation == aggregation_name &
             changes$h == horizon &
             in_sample,
@@ -338,6 +374,11 @@ regressions <- tidyr::expand_grid(
   ) |>
   tidyr::unnest(fit) |>
   dplyr::mutate(
+    expected_n = dplyr::case_when(
+      sample == "zero" ~ N_INNOVATIONS,
+      sample == "sem_reunioes_fora" ~ N_INNOVATIONS - n_outside,
+      sample == "so_reunioes" ~ n_meeting_months
+    ),
     nw_lags = h,
     coef = SHOCK_BPS * coef,
     se = SHOCK_BPS * se,
@@ -354,25 +395,20 @@ regressions <- tidyr::expand_grid(
   dplyr::rename_with(
     \(name) paste0("iv_", name),
     c(dplyr::matches("^(lo|hi|set_type)_"))
-  ) |>
-  dplyr::select(
-    response, aggregation, measure, sample, surprise, h, n, nw_lags,
-    coef, se, t, p_value, r2,
-    rf_lo_90, rf_hi_90, rf_lo_95, rf_hi_95,
-    significant_90, significant_95,
-    pi, se_pi, f_first_stage,
-    iv_point, iv_lo_90, iv_hi_90, iv_lo_95, iv_hi_95,
-    iv_set_type_90, iv_set_type_95
   )
 
-expected_n <- c(
-  zero = N_INNOVATIONS,
-  sem_reunioes_fora = N_INNOVATIONS - N_OUTSIDE,
-  so_reunioes = N_MEETING_MONTHS
-)
 # h = 1 loses 2025-12, which hosts a meeting
-stopifnot(
-  all(regressions$n == expected_n[regressions$sample] - regressions$h)
+stopifnot(all(regressions$n == regressions$expected_n - regressions$h))
+
+regressions <- dplyr::select(
+  regressions,
+  base, response, aggregation, measure, sample, surprise, h, n, nw_lags,
+  coef, se, t, p_value, r2,
+  rf_lo_90, rf_hi_90, rf_lo_95, rf_hi_95,
+  significant_90, significant_95,
+  pi, se_pi, f_first_stage,
+  iv_point, iv_lo_90, iv_hi_90, iv_lo_95, iv_hi_95,
+  iv_set_type_90, iv_set_type_95
 )
 
 readr::write_csv(regressions, file.path(OUT_DIR, "regressions.csv"))
@@ -387,74 +423,79 @@ data_mat <- raw_data |>
   as.matrix()
 var_names <- colnames(data_mat)
 
-dfm <- purrr::imap(SURPRISES, \(instrument, surprise_name) {
-  cell <- run_stage2_cell(
-    data_mat,
-    dates,
-    instruments,
-    sample_window = SAMPLE_WINDOW,
-    r = R_FACTORS,
-    q = Q_DYNAMIC,
-    p = P_LAGS,
-    instrument = instrument,
-    mp_var = MP_VAR,
-    h = max(HORIZONS),
-    shock_bps = SHOCK_BPS,
-    tcode = infer_tcode_from_varnames(var_names),
-    ci_levels = CI_LEVELS,
-    inference = "ar",
-    ar_nw_lags = 0L,
-    covid_volatility = read_covid_volatility(THETA_PATH)
-  )
-  tidy_ar_sets(cell$irf$ar, var_names) |>
-    dplyr::filter(variable %in% DFM_SERIES) |>
-    dplyr::mutate(
-      surprise = surprise_name,
-      response = names(DFM_SERIES)[match(variable, DFM_SERIES)],
-      xi_mp = cell$irf$ar$xi_den
-    )
-}) |>
-  purrr::list_rbind() |>
+dfm <- tidyr::expand_grid(
+  BASES |>
+    dplyr::select(base, instruments_path),
+  surprise = names(SURPRISES)
+) |>
+  dplyr::mutate(
+    sets = purrr::pmap(list(instruments_path, surprise), \(path, surprise_name) {
+      instruments <- readr::read_csv(path, show_col_types = FALSE) |>
+        dplyr::mutate(month = as.Date(month))
+      cell <- run_stage2_cell(
+        data_mat,
+        dates,
+        instruments,
+        sample_window = SAMPLE_WINDOW,
+        r = R_FACTORS,
+        q = Q_DYNAMIC,
+        p = P_LAGS,
+        instrument = SURPRISES[[surprise_name]],
+        mp_var = MP_VAR,
+        h = max(HORIZONS),
+        shock_bps = SHOCK_BPS,
+        tcode = infer_tcode_from_varnames(var_names),
+        ci_levels = CI_LEVELS,
+        inference = "ar",
+        ar_nw_lags = 0L,
+        covid_volatility = read_covid_volatility(THETA_PATH)
+      )
+      tidy_ar_sets(cell$irf$ar, var_names) |>
+        dplyr::filter(variable %in% DFM_SERIES) |>
+        dplyr::mutate(
+          response = names(DFM_SERIES)[match(variable, DFM_SERIES)],
+          xi_mp = cell$irf$ar$xi_den
+        )
+    })
+  ) |>
+  dplyr::select(base, surprise, sets) |>
+  tidyr::unnest(sets) |>
   dplyr::mutate(level = sprintf("%.0f", 100 * level)) |>
   tidyr::pivot_wider(
     names_from = level,
     values_from = c(lo, hi, set_type, significant)
   )
 
-# Production is step 1's at h = 0 and 1, and the raw cell is step 2's at
-# impact
-step_one <- readr::read_csv(PRECISION_PATH, show_col_types = FALSE) |>
-  dplyr::filter(cell == "producao", h %in% HORIZONS, variable %in% DFM_SERIES) |>
-  dplyr::inner_join(
-    dplyr::filter(dfm, surprise == "ortogonalizada"),
-    by = c("variable", "h"),
-    suffix = c("_step_one", "")
-  )
+# At impact every cell is step 2's, and production at h = 1 is the cell
+# script/irf_coherence_check.R cached
 step_two <- readr::read_csv(DAILY_EVENT_PATH, show_col_types = FALSE) |>
   dplyr::filter(stage == "dfm_mensal") |>
   dplyr::inner_join(
     dplyr::filter(dfm, h == 0L),
-    by = c("surprise", "response"),
+    by = c("base", "surprise", "response"),
     suffix = c("_step_two", "")
   )
+rows <- match(DFM_SERIES, var_names)
+cached <- readRDS(CELL_PATH)$irf
+production_h1 <- dplyr::filter(dfm, base == "producao_111", surprise == "ortogonalizada", h == 1L)
 bound_columns <- c("point", "lo_90", "hi_90", "lo_95", "hi_95")
 stopifnot(
-  nrow(step_one) == length(DFM_SERIES) * length(HORIZONS),
-  max(abs(
-    as.matrix(step_one[bound_columns]) -
-      as.matrix(step_one[paste0(bound_columns, "_step_one")])
-  )) < 1e-10,
-  nrow(step_two) == length(DFM_SERIES) * length(SURPRISES),
+  nrow(step_two) == nrow(BASES) * length(DFM_SERIES) * length(SURPRISES),
   max(abs(
     as.matrix(step_two[c(bound_columns, "xi_mp")]) -
       as.matrix(step_two[paste0(c(bound_columns, "xi_mp"), "_step_two")])
-  )) < 1e-10
+  )) < 1e-10,
+  production_h1$variable == DFM_SERIES,
+  max(abs(production_h1$point - cached$irf_point_matrix[rows, 2])) < 1e-10,
+  max(abs(production_h1$lo_90 - cached$ar$by_level[["0.90"]]$lo[rows, 2])) < 1e-10,
+  max(abs(production_h1$hi_90 - cached$ar$by_level[["0.90"]]$hi[rows, 2])) < 1e-10
 )
 
 comparison <- regressions |>
   dplyr::filter(sample == "zero", response %in% names(DFM_SERIES)) |>
   dplyr::transmute(
     stage = paste0("mensal_", aggregation),
+    base,
     measure,
     surprise,
     response,
@@ -474,6 +515,7 @@ comparison <- regressions |>
     dplyr::transmute(
       dfm,
       stage = "dfm",
+      base,
       surprise,
       response,
       h,
@@ -484,6 +526,6 @@ comparison <- regressions |>
       xi_mp
     )
   ) |>
-  dplyr::arrange(response, surprise, h, stage)
+  dplyr::arrange(base, response, surprise, h, stage)
 
 readr::write_csv(comparison, file.path(OUT_DIR, "comparison.csv"))

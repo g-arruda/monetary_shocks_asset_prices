@@ -1,34 +1,47 @@
 # ===================================================================
-# Step 2/5 of the advisor's plan of 2026-10-03: the daily event, on the
-# fixed-horizon Focus base of step 0. Reduced-form regressions of the
-# Copom-day changes in the exchange rate and in the 5-year CDS on the raw
-# surprise (delta_di) and on the orthogonalized one (e_di_bs), over the same
-# 102 meetings, with HC1 standard errors. The effect per +50bp in the 6-month
-# DI contract is the just-identified IV of the response on the contract's
+# Step 2/5 of the advisor's plan of 2026-10-03: the daily event. Reduced-form
+# regressions of the Copom-day changes in the exchange rate and in the 5-year
+# CDS on the raw surprise (delta_di) and on the orthogonalized one
+# (e_di_bs), with HC1 standard errors. The effect per +50bp in the 6-month DI
+# contract is the just-identified IV of the response on the contract's
 # change, instrumented by the surprise, with its Anderson-Rubin set at 90 and
-# 95%; for the raw surprise the first stage is the identity. The production
-# DFM's impact responses under the two surprises, on the same base, close the
+# 95%; for the raw surprise the first stage is the identity. The DFM's
+# impact responses under the two surprises, on the same base, close the
 # comparison. Nothing here decomposes the daily-to-monthly contrast.
-# Windows: DI, Wednesday close to Thursday close; exchange rate, Yahoo
-# BRL=X from the last quote before the announcement to the first after it,
-# as script/copom_timing.R dates them; CDS, Bloomberg close to close. The
-# Copom announces after Wednesday's DI close, and Yahoo's Wednesday evening
-# quote (20h-22h in Brasilia) comes after the announcement in most meetings.
+# Two bases, the conventions of the window audit (e-mails of 2026-10-17 and
+# 2026-10-18):
+#   producao_111      the 111 meetings, the seven on the eve of a Brazilian
+#                     holiday with the DI window from Wednesday to Friday;
+#   sem_feriados_104  those seven left out, the advisor's sensitivity, with
+#                     the Bauer-Swanson regression refitted on the 104 and
+#                     their months at z = 0 in the DFM.
+# Windows, each series on its own calendar: DI, Wednesday close to the first
+# DI session after the announcement; exchange rate, Yahoo BRL=X from the last
+# quote before the announcement to the first after it, as
+# script/copom_timing.R dates them; CDS, the Bloomberg close taken at 17h New
+# York (a hypothesis), from the last before the announcement to the first
+# after it, and that window widened by one change on each side (e-mail of
+# 2026-10-17, item 1), the comparison the e-mail of 2026-10-18 asks for in
+# item 2.
 # script/instrument.R, script/copom_timing.R, script/download_ptax.R and
-# script/ar_precision.R must run first.
+# script/irf_coherence_check.R must run first, and
+# script/copom_window_comparison.R for the base of 104.
 # Outputs: output/daily_event/
-#   events.csv            one row per meeting: surprises, quotes and changes
-#   regressions.csv       reduced form, first stage and AR sets, by surprise
-#                         and response
-#   comparison.csv        impact per +50bp: daily event and DFM, by surprise
+#   events.csv            one row per base and meeting: surprises, quotes and
+#                         changes
+#   regressions.csv       reduced form, first stage and AR sets, by base,
+#                         surprise and response
+#   comparison.csv        impact per +50bp: daily event and DFM, by base and
+#                         surprise
 #   fx_alignment.csv      Yahoo BRL=X against the PTAX and the Ibovespa, by
 #                         European summer time: which session each row holds
 #   fx_event_windows.csv  reduced form of the Yahoo change on the surprise,
 #                         by the rows' dates and by the convention, by
-#                         European summer time: whether the Wednesday
-#                         evening quote follows the announcement
+#                         European summer time, on the 111: whether the
+#                         Wednesday evening quote follows the announcement
 # Notes: notas/2026-10-05_evento_diario.md,
-#   notas/2026-10-13_cambio_yahoo_convencao.md
+#   notas/2026-10-13_cambio_yahoo_convencao.md,
+#   notas/2026-10-18_conferencias_ponte.md
 # ===================================================================
 
 source("R/modeling/factor_estimation.R")
@@ -37,19 +50,21 @@ source("R/modeling/dfm_pipeline.R")
 source("R/identification/weak_iv_ar.R")
 source("R/instrument/di_surprise.R")
 
-EVENTS_PATH      <- "data/processed/copom_event_diagnostics.csv"
+BASES <- tibble::tribble(
+  ~base,              ~events_path,                                                   ~instruments_path,                                         ~n_events,
+  "producao_111",     "data/processed/copom_event_diagnostics.csv",                   "data/processed/instrumentos_mensais.csv",                 111L,
+  "sem_feriados_104", "data/processed/copom_event_diagnostics_no_holiday_windows.csv", "data/processed/instrumentos_mensais_no_holiday_windows.csv", 104L
+)
 MEETINGS_PATH    <- "output/copom_timing/meetings.csv"
-INSTRUMENTS_PATH <- "data/processed/instrumentos_mensais.csv"
 PANEL_PATH       <- "data/processed/data_log_deseasonalized.csv"
 PTAX_PATH        <- "data/raw/ptax_daily.csv"
-CDS_PATH         <- "data/raw/CDS 5y.xlsx"
 YAHOO_BRL_PATH   <- "data/raw/brl_usd_daily.csv"
 IBOV_PATH        <- "data/raw/ibov_daily.csv"
 THETA_PATH       <- "output/factors/covid_volatility_theta.csv"
-PRECISION_PATH   <- "output/ar_precision/table.csv"
+CELL_PATH        <- "output/irf/irf_coherence_cell.rds"
+WINDOWS_PATH     <- "output/copom_windows/comparison.csv"
 OUT_DIR          <- "output/daily_event"
 SAMPLE_WINDOW <- as.Date(c("2012-03-01", "2025-12-01"))
-N_EVENTS    <- 102L
 R_FACTORS   <- 5L
 Q_DYNAMIC   <- 5L
 P_LAGS      <- 4L
@@ -59,11 +74,12 @@ SHOCK_BPS   <- 50
 CI_LEVELS   <- c(0.90, 0.95)
 SURPRISES   <- c(bruta = "delta_di", ortogonalizada = "e_di_bs")
 INSTRUMENTS <- c(bruta = "z_bruto", ortogonalizada = "z_bs_purif")
-# Changes of the response, Wednesday to Thursday
+# Changes of the response over its window
 RESPONSES <- c(
   cambio_brl_usd = "d_fx",
   cambio_pct = "d_fx_pct",
-  cds_5y = "d_cds"
+  cds_5y = "d_cds_ny17",
+  cds_5y_ampliada = "d_cds_widened"
 )
 # The DFM's counterpart of each response, in the same units
 DFM_SERIES <- c(cambio_brl_usd = "cambio_usd", cds_5y = "cds_5y")
@@ -86,71 +102,58 @@ calendar <- tibble::tibble(
 # Event panel --------------------------------------------------------------
 
 yahoo <- load_yahoo_brl(YAHOO_BRL_PATH)
-cds <- readxl::read_excel(CDS_PATH, skip = 5) |>
-  purrr::set_names(c("date", "cds")) |>
-  dplyr::transmute(date = as.Date(date), cds = as.numeric(cds)) |>
-  dplyr::filter(!is.na(date), !is.na(cds))
-fx_windows <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE) |>
-  dplyr::filter(in_events) |>
-  dplyr::select(thursday, yahoo_pre, yahoo_post)
-
-# DI and CDS quotes on the exact dates, never carried forward; the Yahoo
-# quotes are the last before the announcement and the first after it
-events <- readr::read_csv(EVENTS_PATH, show_col_types = FALSE) |>
-  dplyr::transmute(
-    wednesday = as.Date(date) - 1L,
-    thursday = as.Date(date),
-    delta_di,
-    e_di_bs
-  ) |>
-  dplyr::left_join(fx_windows, by = "thursday") |>
-  dplyr::left_join(
-    dplyr::select(yahoo, date, fx_pre = brl),
-    by = c("yahoo_pre" = "date")
-  ) |>
-  dplyr::left_join(
-    dplyr::select(yahoo, date, fx_post = brl),
-    by = c("yahoo_post" = "date")
-  ) |>
-  dplyr::left_join(
-    dplyr::rename(cds, cds_wed = cds),
-    by = c("wednesday" = "date")
-  ) |>
-  dplyr::left_join(
-    dplyr::rename(cds, cds_thu = cds),
-    by = c("thursday" = "date")
-  ) |>
-  dplyr::left_join(calendar, by = c("wednesday" = "date")) |>
-  dplyr::mutate(
-    d_fx = fx_post - fx_pre,
-    d_fx_pct = 100 * log(fx_post / fx_pre),
-    d_cds = cds_thu - cds_wed
+windows <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE) |>
+  dplyr::select(
+    meeting, wednesday, long_window,
+    yahoo_pre, yahoo_post, yahoo_wednesday_after, d_fx, d_fx_pct,
+    cds_pre_ny17, cds_post_ny17, d_cds_ny17,
+    cds_widened_pre, cds_widened_post, d_cds_widened
   )
 
-# The common sample is the 102 meetings of the Bauer-Swanson regression:
-# every one has both quotes of both series
-stopifnot(nrow(events) == N_EVENTS, !anyNA(events))
+# The quotes of every window come from script/copom_timing.R, never carried
+# forward; each base keeps its own surprises
+events <- purrr::pmap(BASES, \(base, events_path, instruments_path, n_events) {
+  readr::read_csv(events_path, show_col_types = FALSE) |>
+    dplyr::transmute(
+      base = base,
+      wednesday = as.Date(wednesday),
+      event_date = as.Date(date),
+      delta_di,
+      e_di_bs
+    ) |>
+    dplyr::left_join(windows, by = "wednesday") |>
+    dplyr::left_join(calendar, by = c("wednesday" = "date"))
+}) |>
+  purrr::list_rbind()
 
-# The surprises are the instrument's own: their within-month sums are the
-# monthly z_bruto and z_bs_purif
-instruments <- readr::read_csv(INSTRUMENTS_PATH, show_col_types = FALSE) |>
-  dplyr::mutate(month = as.Date(month))
+instruments <- purrr::map(
+  purrr::set_names(BASES$instruments_path, BASES$base),
+  \(path) dplyr::mutate(readr::read_csv(path, show_col_types = FALSE), month = as.Date(month))
+)
+
+# Every meeting of each base has every window; the seven longer DI windows
+# are production's only. The surprises are the instrument's own: their
+# within-month sums are each base's monthly z_bruto and z_bs_purif
 monthly_sums <- events |>
-  dplyr::mutate(month = lubridate::floor_date(thursday, "month")) |>
+  dplyr::mutate(month = lubridate::floor_date(event_date, "month")) |>
   dplyr::summarise(
-    z_bruto = sum(delta_di),
-    z_bs_purif = sum(e_di_bs),
-    .by = month
+    z_bruto_events = sum(delta_di),
+    z_bs_purif_events = sum(e_di_bs),
+    .by = c(base, month)
   ) |>
   dplyr::right_join(
-    dplyr::select(instruments, month, z_bruto, z_bs_purif),
-    by = "month",
-    suffix = c("_events", "")
+    purrr::list_rbind(instruments, names_to = "base") |>
+      dplyr::select(base, month, z_bruto, z_bs_purif),
+    by = c("base", "month")
   ) |>
   dplyr::mutate(
     dplyr::across(dplyr::ends_with("_events"), \(z) tidyr::replace_na(z, 0))
   )
 stopifnot(
+  !anyNA(events),
+  all(table(events$base)[BASES$base] == BASES$n_events),
+  sum(events$long_window[events$base == "producao_111"]) == 7L,
+  !any(events$long_window[events$base == "sem_feriados_104"]),
   max(abs(monthly_sums$z_bruto_events - monthly_sums$z_bruto)) < 1e-10,
   max(abs(monthly_sums$z_bs_purif_events - monthly_sums$z_bs_purif)) < 1e-10
 )
@@ -160,18 +163,22 @@ readr::write_csv(events, file.path(OUT_DIR, "events.csv"))
 # Daily regressions --------------------------------------------------------
 
 regressions <- tidyr::expand_grid(
+  base = BASES$base,
   surprise = names(SURPRISES),
   response = names(RESPONSES)
 ) |>
   dplyr::mutate(
-    fit = purrr::map2(surprise, response, \(surprise, response) {
+    fit = purrr::pmap(list(base, surprise, response), \(base_name, surprise, response) {
+      # Base subsetting: a dplyr::filter() here would not see the lambda's
+      # arguments from inside mutate()'s data mask
+      sample <- events[events$base == base_name, ]
       fit_reduced_form_iv(
-        events[[RESPONSES[[response]]]],
-        events[[SURPRISES[[surprise]]]],
-        events$delta_di,
+        sample[[RESPONSES[[response]]]],
+        sample[[SURPRISES[[surprise]]]],
+        sample$delta_di,
         CI_LEVELS,
         nw_lags = 0L,
-        period = seq_len(nrow(events))
+        period = seq_len(nrow(sample))
       )
     })
   ) |>
@@ -195,70 +202,95 @@ data_mat <- raw_data |>
   as.matrix()
 var_names <- colnames(data_mat)
 
-dfm_cells <- purrr::map(INSTRUMENTS, \(instrument) {
-  run_stage2_cell(
-    data_mat,
-    dates,
-    instruments,
-    sample_window = SAMPLE_WINDOW,
-    r = R_FACTORS,
-    q = Q_DYNAMIC,
-    p = P_LAGS,
-    instrument = instrument,
-    mp_var = MP_VAR,
-    h = HORIZON,
-    shock_bps = SHOCK_BPS,
-    tcode = infer_tcode_from_varnames(var_names),
-    ci_levels = CI_LEVELS,
-    inference = "ar",
-    ar_nw_lags = 0L,
-    covid_volatility = read_covid_volatility(THETA_PATH)
+dfm_cells <- tidyr::expand_grid(base = BASES$base, surprise = names(INSTRUMENTS)) |>
+  dplyr::mutate(
+    cell = purrr::map2(base, surprise, \(base_name, surprise_name) {
+      run_stage2_cell(
+        data_mat,
+        dates,
+        instruments[[base_name]],
+        sample_window = SAMPLE_WINDOW,
+        r = R_FACTORS,
+        q = Q_DYNAMIC,
+        p = P_LAGS,
+        instrument = INSTRUMENTS[[surprise_name]],
+        mp_var = MP_VAR,
+        h = HORIZON,
+        shock_bps = SHOCK_BPS,
+        tcode = infer_tcode_from_varnames(var_names),
+        ci_levels = CI_LEVELS,
+        inference = "ar",
+        ar_nw_lags = 0L,
+        covid_volatility = read_covid_volatility(THETA_PATH)
+      )
+    })
   )
-})
 
-dfm_impact <- purrr::imap(dfm_cells, \(cell, surprise) {
-  rows <- match(DFM_SERIES, var_names)
-  purrr::imap(cell$irf$ar$by_level, \(bounds, key) {
-    tibble::tibble(
-      surprise = surprise,
-      response = names(DFM_SERIES),
-      level = sprintf("%.0f", 100 * as.numeric(key)),
-      point = bounds$point[rows, 1],
-      lo = bounds$lo[rows, 1],
-      hi = bounds$hi[rows, 1],
-      set_type = bounds$set_type[rows, 1],
-      significant = as.vector(ar_excludes_zero(
-        bounds$set_type[rows, 1, drop = FALSE],
-        bounds$lo[rows, 1, drop = FALSE],
-        bounds$hi[rows, 1, drop = FALSE]
-      )),
-      xi_mp = cell$irf$ar$xi_den
-    )
-  }) |>
-    purrr::list_rbind()
-}) |>
-  purrr::list_rbind() |>
+rows <- match(DFM_SERIES, var_names)
+dfm_impact <- dfm_cells |>
+  dplyr::mutate(
+    impact = purrr::map(cell, \(cell) {
+      purrr::imap(cell$irf$ar$by_level, \(bounds, key) {
+        tibble::tibble(
+          response = names(DFM_SERIES),
+          level = sprintf("%.0f", 100 * as.numeric(key)),
+          point = bounds$point[rows, 1],
+          lo = bounds$lo[rows, 1],
+          hi = bounds$hi[rows, 1],
+          set_type = bounds$set_type[rows, 1],
+          significant = as.vector(ar_excludes_zero(
+            bounds$set_type[rows, 1, drop = FALSE],
+            bounds$lo[rows, 1, drop = FALSE],
+            bounds$hi[rows, 1, drop = FALSE]
+          )),
+          xi_mp = cell$irf$ar$xi_den
+        )
+      }) |>
+        purrr::list_rbind()
+    })
+  ) |>
+  dplyr::select(base, surprise, impact) |>
+  tidyr::unnest(impact) |>
   tidyr::pivot_wider(
     names_from = level,
     values_from = c(lo, hi, set_type, significant)
   )
 
-# Production at impact is step 1's: same point and 90/95% sets
-step_one <- readr::read_csv(PRECISION_PATH, show_col_types = FALSE) |>
-  dplyr::filter(cell == "producao", h == 0L, variable %in% DFM_SERIES) |>
-  dplyr::arrange(match(variable, DFM_SERIES))
-production <- dplyr::filter(dfm_impact, surprise == "ortogonalizada")
+# Production is the cell script/irf_coherence_check.R cached, and the base of
+# 104 the one script/copom_window_comparison.R estimated: same point and 90%
+# sets at impact
+cached <- readRDS(CELL_PATH)$irf
+cached_impact <- tibble::tibble(
+  base = "producao_111",
+  response = names(DFM_SERIES),
+  point_ref = cached$irf_point_matrix[rows, 1],
+  lo_ref = cached$ar$by_level[["0.90"]]$lo[rows, 1],
+  hi_ref = cached$ar$by_level[["0.90"]]$hi[rows, 1]
+)
+windows_impact <- readr::read_csv(WINDOWS_PATH, show_col_types = FALSE) |>
+  dplyr::filter(cell == "acao_de_gracas_104") |>
+  dplyr::transmute(
+    base = "sem_feriados_104",
+    response = names(DFM_SERIES)[match(variable, DFM_SERIES)],
+    point_ref = point,
+    lo_ref = lo_0.9,
+    hi_ref = hi_0.9
+  )
+checked <- dfm_impact |>
+  dplyr::filter(surprise == "ortogonalizada") |>
+  dplyr::inner_join(dplyr::bind_rows(cached_impact, windows_impact), by = c("base", "response"))
 stopifnot(
-  max(abs(
-    as.matrix(production[c("point", "lo_90", "hi_90", "lo_95", "hi_95")]) -
-      as.matrix(step_one[c("point", "lo_90", "hi_90", "lo_95", "hi_95")])
-  )) < 1e-10
+  nrow(checked) == nrow(BASES) * length(DFM_SERIES),
+  max(abs(checked$point - checked$point_ref)) < 1e-10,
+  max(abs(checked$lo_90 - checked$lo_ref)) < 1e-10,
+  max(abs(checked$hi_90 - checked$hi_ref)) < 1e-10
 )
 
 comparison <- regressions |>
-  dplyr::filter(response %in% names(DFM_SERIES)) |>
+  dplyr::filter(response %in% c(names(DFM_SERIES), "cds_5y_ampliada")) |>
   dplyr::transmute(
     stage = "evento_diario",
+    base,
     surprise,
     response,
     point = coef / pi,
@@ -271,7 +303,7 @@ comparison <- regressions |>
     dplyr::mutate(dfm_impact, stage = "dfm_mensal")
   ) |>
   dplyr::select(
-    stage, surprise, response, point,
+    stage, base, surprise, response, point,
     lo_90, hi_90, lo_95, hi_95,
     set_type_90, set_type_95,
     significant_90, significant_95,
@@ -325,9 +357,14 @@ readr::write_csv(daily_alignment, file.path(OUT_DIR, "fx_alignment.csv"))
 # On the meetings: if Wednesday's evening quote follows the announcement,
 # the change between the rows dated Tuesday and Wednesday carries the news
 # in the European summer, and the one between Wednesday and Thursday does
-# not. Rows on the exact dates; the convention's window is the events'.
+# not. Rows on the exact dates; the convention's window is the events'. The
+# summer meetings whose Wednesday quote, at 20h, comes after the
+# announcement are a group of their own: in the other eight, announced after
+# 20h, the rows dated Tuesday and Wednesday both precede the news.
 window_changes <- events |>
+  dplyr::filter(base == "producao_111") |>
   dplyr::mutate(
+    thursday = wednesday + 1L,
     linhas_terca_quarta = 100 * log(
       yahoo$brl[match(wednesday, yahoo$date)] /
         yahoo$brl[match(wednesday - 1L, yahoo$date)]
@@ -341,15 +378,20 @@ window_changes <- events |>
 
 fx_event_windows <- tidyr::expand_grid(
   window = c("linhas_terca_quarta", "linhas_quarta_quinta", "convencao"),
-  group = c("inverno_europeu", "verao_europeu", "todas"),
+  group = c("inverno_europeu", "verao_europeu", "verao_quarta_apos_anuncio", "todas"),
   surprise = names(SURPRISES)
 ) |>
   dplyr::mutate(
     fit = purrr::pmap(list(window, group, surprise), \(window_name, group_name, surprise_name) {
       # Base subsetting: a dplyr::filter() here would not see the lambda's
       # arguments from inside mutate()'s data mask
-      in_group <- group_name == "todas" |
-        window_changes$eu_summer == (group_name == "verao_europeu")
+      in_group <- switch(
+        group_name,
+        inverno_europeu = !window_changes$eu_summer,
+        verao_europeu = window_changes$eu_summer,
+        verao_quarta_apos_anuncio = window_changes$eu_summer & window_changes$yahoo_wednesday_after,
+        todas = rep(TRUE, nrow(window_changes))
+      )
       sample <- window_changes[in_group & !is.na(window_changes[[window_name]]), ]
       fit_reduced_form_iv(
         sample[[window_name]],

@@ -77,8 +77,9 @@
 #   ambiguous meeting it contains both possible narrow windows, and it is
 #   the check. It does not replace the narrow window.
 #
-# script/download.R (brl_usd_daily.csv), script/instrument.R,
-# script/download_ptax.R and script/download_copom_minutes.R must run first;
+# script/download.R (brl_usd_daily.csv), script/download_yahoo_stamps.R,
+# script/instrument.R, script/download_ptax.R and
+# script/download_copom_minutes.R must run first;
 # script/daily_event.R and script/het_conditions.R run after it.
 # Outputs: output/copom_timing/
 #   meetings.csv             one row per meeting: announcement, quote dates
@@ -107,10 +108,19 @@
 #                            advisor (e-mail of 2026-10-17, item 4), without
 #                            the Yahoo window by the convention, in
 #                            Portuguese, semicolon-separated
+#   yahoo_rows.csv           the Yahoo rows each of the 111 meetings uses, by
+#                            the convention and in the wide window: the row's
+#                            date, the API's stamp in UTC and in London, and
+#                            the quote's inferred time in Brasilia, kept apart
+#                            (e-mail of 2026-10-18, item 1)
+#   cds_round_quotes.csv     the CDS quotes of 2012-2025 that are whole
+#                            numbers, as 205.0 on Thanksgiving 2013 (e-mail of
+#                            2026-10-18, item 2)
 # Notes: notas/2026-10-13_ponte_horarios_copom.md,
 #   notas/2026-10-15_conferencia_reunioes_fora.md,
 #   notas/2026-10-16_janela_ampliada_cds_bloomberg.md,
-#   notas/2026-10-17_auditoria_janelas_copom.md
+#   notas/2026-10-17_auditoria_janelas_copom.md,
+#   notas/2026-10-18_conferencias_ponte.md
 # ===================================================================
 
 source("R/instrument/di_surprise.R")
@@ -119,6 +129,7 @@ COPOM_PATH       <- "data/raw/copom_historico.csv"
 ATAS_PATH        <- "data/raw/copom_atas.csv"
 DI_PATH          <- "data/raw/di.csv"
 YAHOO_BRL_PATH   <- "data/raw/brl_usd_daily.csv"
+YAHOO_STAMPS_PATH <- "data/raw/brl_usd_daily_stamps.csv"
 PTAX_PATH        <- "data/raw/ptax_daily.csv"
 CDS_PATH         <- "data/raw/CDS 5y.xlsx"
 IBOV_PATH        <- "data/raw/ibov_daily.csv"
@@ -209,6 +220,26 @@ di <- load_di_panel(DI_PATH, SAMPLE_START - 31, SAMPLE_END + 31)
 di_sessions <- sort(unique(di$date))
 
 yahoo <- load_yahoo_brl(YAHOO_BRL_PATH)
+# The API's stamp of every bar. quantmod reads it in the exchange's zone and
+# dates the row with as.Date() in UTC, so a London midnight under British
+# summer time (23h UTC) takes the day before: every row of the file is the
+# UTC date of a stamp at 00:00 in London, with the same close, and
+# load_yahoo_brl() puts the quote at that instant. The API leaves the close
+# of 11 bars empty, which quantmod drops.
+yahoo_stamps <- readr::read_csv(YAHOO_STAMPS_PATH, show_col_types = FALSE) |>
+  dplyr::filter(!is.na(close)) |>
+  dplyr::mutate(
+    stamp_utc = lubridate::as_datetime(timestamp, tz = "UTC"),
+    date = lubridate::as_date(stamp_utc)
+  )
+yahoo_checked <- dplyr::inner_join(yahoo, yahoo_stamps, by = "date")
+stopifnot(
+  nrow(yahoo_checked) == nrow(yahoo),
+  nrow(yahoo_stamps) == nrow(yahoo),
+  yahoo_checked$close == yahoo_checked$brl,
+  format(lubridate::with_tz(yahoo_checked$stamp_utc, "Europe/London"), "%H:%M") == "00:00",
+  yahoo_checked$quote_time == yahoo_checked$stamp_utc
+)
 ptax <- readr::read_csv(PTAX_PATH, show_col_types = FALSE) |>
   dplyr::arrange(date)
 cds <- readxl::read_excel(CDS_PATH, skip = 5) |>
@@ -753,6 +784,45 @@ meetings |>
     announcement_end = format(announcement_end, "%Y-%m-%d %H:%M")
   ) |>
   readr::write_csv(file.path(OUT_DIR, "meetings.csv"))
+
+# The row's date, the stamp and the quote's time, kept apart (e-mail of
+# 2026-10-18, item 1). The time in Brasilia is the stamp's instant, which is
+# the hypothesis of load_yahoo_brl(): Yahoo documents no quote time
+tidyr::expand_grid(
+  dplyr::select(meetings, meeting, wednesday, yahoo_pre, yahoo_post, yahoo_wide_pre, yahoo_wide_post),
+  window = c("convencao", "larga"),
+  end = c("pre", "pos")
+) |>
+  dplyr::mutate(
+    row_date = dplyr::case_when(
+      window == "convencao" & end == "pre" ~ yahoo_pre,
+      window == "convencao" & end == "pos" ~ yahoo_post,
+      window == "larga" & end == "pre" ~ yahoo_wide_pre,
+      window == "larga" & end == "pos" ~ yahoo_wide_post
+    )
+  ) |>
+  dplyr::left_join(dplyr::select(yahoo_checked, date, timestamp, stamp_utc), by = c("row_date" = "date")) |>
+  dplyr::transmute(
+    meeting,
+    wednesday,
+    window,
+    end,
+    row_date,
+    timestamp,
+    stamp_london = format(lubridate::with_tz(stamp_utc, "Europe/London"), "%Y-%m-%d %H:%M %Z"),
+    british_summer_time = lubridate::dst(lubridate::with_tz(stamp_utc, "Europe/London")),
+    quote_time_brasilia = format(lubridate::with_tz(stamp_utc, TZ_BRASILIA), "%Y-%m-%d %H:%M"),
+    quote_time_status = "hipotese: o instante do carimbo; o Yahoo nao documenta o horario da cotacao",
+    stamp_utc = format(stamp_utc, "%Y-%m-%d %H:%M")
+  ) |>
+  dplyr::relocate(stamp_utc, .after = timestamp) |>
+  readr::write_csv(file.path(OUT_DIR, "yahoo_rows.csv"))
+
+# The CDS quotes of the sample that are whole numbers (e-mail of 2026-10-18,
+# item 2), Thanksgiving 2013 (205.0) and the Monday after it (214.0) among them
+cds |>
+  dplyr::filter(date >= SAMPLE_START, date <= SAMPLE_END, cds == round(cds)) |>
+  readr::write_csv(file.path(OUT_DIR, "cds_round_quotes.csv"))
 
 # Each quote against the announcement, the 111 meetings --------------------
 

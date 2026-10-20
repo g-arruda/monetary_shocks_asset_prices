@@ -22,10 +22,15 @@
 #     meetings where Wednesday's 17h New York close follows the
 #     announcement, the window starts at the quote before Wednesday. Change
 #     in bp.
-#   Sample: the 102 meetings of step 2 with every horizon in both series,
-#     a common sample of 101 at every k. The Yahoo file ends on 2025-12-31,
-#     so the meeting of 2025-12-10 has no 20th quote. k = 1 also runs on
-#     the 102, to check against step 2.
+#   Sample: the meetings of step 2 with every horizon in both series. The
+#     Yahoo file ends on 2025-12-31, so the meeting of 2025-12-10 has no 20th
+#     quote. k = 1 also runs on all the meetings, to check against step 2.
+#     Since 2026-10-18, the two bases of the window audit (e-mails of
+#     2026-10-17 and 2026-10-18), each with the surprise of its own
+#     Bauer-Swanson regression: producao_111, the 111 meetings, a common
+#     sample of 110; sem_feriados_104, without the seven on the eve of a
+#     Brazilian holiday, a common sample of 103. The FX and CDS windows of
+#     those seven follow each series' calendar, not the DI's.
 #   Estimation: reduced form only, the change on e_di_bs with a constant,
 #     HC1 standard errors, per +50bp of orthogonalized surprise; Wald
 #     intervals at 90 and 95%, which with a known normalization are the
@@ -46,13 +51,15 @@
 #   compared with the DFM, which is normalized by +50bp of the end-of-month
 #   yield_6m: only sign and horizon.
 #
-# script/copom_timing.R and script/daily_event.R must run first.
+# script/instrument.R, script/copom_timing.R and script/daily_event.R must
+# run first.
 # Outputs: output/event_trajectory/
-#   paths.csv        one row per meeting, series and k: quote dates and
+#   paths.csv        one row per base, meeting, series and k: quote dates and
 #                    values, change, calendar days from the Wednesday
-#   regressions.csv  one row per response, k and sample: reduced form per
-#                    +50bp, intervals and significance
-# Note: notas/2026-10-14_ponte_trajetoria_evento.md
+#   regressions.csv  one row per base, response, k and sample: reduced form
+#                    per +50bp, intervals and significance
+# Notes: notas/2026-10-14_ponte_trajetoria_evento.md,
+#   notas/2026-10-18_conferencias_ponte.md
 # ===================================================================
 
 source("R/instrument/di_surprise.R")
@@ -62,10 +69,13 @@ YAHOO_BRL_PATH  <- "data/raw/brl_usd_daily.csv"
 CDS_PATH        <- "data/raw/CDS 5y.xlsx"
 STEP_TWO_PATH   <- "output/daily_event/regressions.csv"
 OUT_DIR         <- "output/event_trajectory"
+BASES <- tibble::tribble(
+  ~base,              ~events_path,                                                    ~n_events,
+  "producao_111",     "data/processed/copom_event_diagnostics.csv",                    111L,
+  "sem_feriados_104", "data/processed/copom_event_diagnostics_no_holiday_windows.csv", 104L
+)
 HORIZONS        <- c(1L, 5L, 10L, 20L)
 SHOCK_BPS       <- 50
-N_EVENTS        <- 102L
-N_COMMON        <- 101L
 DROPPED_MEETING <- as.Date("2025-12-10")
 RESPONSES <- tibble::tribble(
   ~response,        ~series,  ~change_column,
@@ -97,17 +107,27 @@ quotes <- dplyr::bind_rows(
   dplyr::arrange(series, date) |>
   dplyr::mutate(row = dplyr::row_number(), .by = series)
 
-# The surprises are those of data/processed/copom_event_diagnostics.csv,
-# which script/copom_timing.R joins into the meetings table
-meetings <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE) |>
-  dplyr::filter(in_events)
-stopifnot(nrow(meetings) == N_EVENTS, !anyNA(meetings$e_di_bs))
+# Each base's surprises, from its own Bauer-Swanson regression, on the
+# windows script/copom_timing.R dates
+meeting_windows <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE) |>
+  dplyr::select(meeting, wednesday, yahoo_pre, yahoo_post, cds_pre_ny17, cds_post_ny17, d_fx, d_cds_ny17)
+meetings <- purrr::pmap(BASES, \(base, events_path, n_events) {
+  readr::read_csv(events_path, show_col_types = FALSE) |>
+    dplyr::transmute(base = base, wednesday = as.Date(wednesday), e_di_bs)
+}) |>
+  purrr::list_rbind() |>
+  dplyr::left_join(meeting_windows, by = "wednesday")
+stopifnot(
+  all(table(meetings$base)[BASES$base] == BASES$n_events),
+  !anyNA(meetings)
+)
 
 # Paths -------------------------------------------------------------------
 
 windows <- dplyr::bind_rows(
   dplyr::transmute(
     meetings,
+    base,
     meeting,
     wednesday,
     e_di_bs,
@@ -117,6 +137,7 @@ windows <- dplyr::bind_rows(
   ),
   dplyr::transmute(
     meetings,
+    base,
     meeting,
     wednesday,
     e_di_bs,
@@ -157,22 +178,22 @@ paths <- windows |>
     ),
     days = as.integer(post_day_brasilia - wednesday),
     common_sample = !anyNA(post_quote),
-    .by = meeting
+    .by = c(base, meeting)
   )
 
 # The only meeting short of a horizon is the last one, in the exchange rate
-dropped <- unique(paths$wednesday[!paths$common_sample])
+dropped <- dplyr::distinct(dplyr::filter(paths, !common_sample), base, wednesday)
 stopifnot(
   !anyNA(paths$pre_quote),
   !anyNA(paths$first_post_row),
-  length(dropped) == N_EVENTS - N_COMMON,
-  dropped == DROPPED_MEETING
+  nrow(dropped) == nrow(BASES),
+  dropped$wednesday == DROPPED_MEETING
 )
 
 # At k = 1 the windows are the convention's of script/copom_timing.R
 first_quote <- paths |>
   dplyr::filter(k == 1L) |>
-  dplyr::left_join(dplyr::select(meetings, meeting, d_fx, d_cds_ny17), by = "meeting") |>
+  dplyr::left_join(dplyr::select(meetings, base, meeting, d_fx, d_cds_ny17), by = c("base", "meeting")) |>
   dplyr::mutate(expected = dplyr::if_else(series == "cambio", d_fx, d_cds_ny17))
 stopifnot(max(abs(first_quote$change - first_quote$expected)) < 1e-12)
 
@@ -180,15 +201,15 @@ stopifnot(max(abs(first_quote$change - first_quote$expected)) < 1e-12)
 # announcement
 next_meeting <- paths |>
   dplyr::filter(k == max(HORIZONS)) |>
-  dplyr::arrange(series, wednesday) |>
-  dplyr::mutate(next_pre_row = dplyr::lead(pre_row), .by = series) |>
+  dplyr::arrange(base, series, wednesday) |>
+  dplyr::mutate(next_pre_row = dplyr::lead(pre_row), .by = c(base, series)) |>
   dplyr::filter(!is.na(next_pre_row))
 stopifnot(all(next_meeting$post_row <= next_meeting$next_pre_row))
 
 readr::write_csv(
   dplyr::select(
     paths,
-    meeting, wednesday, e_di_bs, series, k,
+    base, meeting, wednesday, e_di_bs, series, k,
     pre_date, post_date, pre_quote, post_quote,
     change, change_pct, days, common_sample
   ),
@@ -198,6 +219,7 @@ readr::write_csv(
 # Reduced form ------------------------------------------------------------
 
 regressions <- tidyr::expand_grid(
+  base = BASES$base,
   RESPONSES,
   k = HORIZONS,
   sample = c("comum", "passo_2")
@@ -205,12 +227,13 @@ regressions <- tidyr::expand_grid(
   dplyr::filter(sample == "comum" | k == 1L) |>
   dplyr::mutate(
     fit = purrr::pmap(
-      list(series, change_column, k, sample),
-      \(series_name, change_name, horizon, sample_name) {
+      list(base, series, change_column, k, sample),
+      \(base_name, series_name, change_name, horizon, sample_name) {
         # Base subsetting: a dplyr::filter() here would not see the lambda's
         # arguments from inside mutate()'s data mask
         cell <- paths[
-          paths$series == series_name &
+          paths$base == base_name &
+            paths$series == series_name &
             paths$k == horizon &
             (sample_name == "passo_2" | paths$common_sample),
         ]
@@ -240,26 +263,29 @@ regressions <- tidyr::expand_grid(
   ) |>
   dplyr::select(-series, -change_column)
 
-# On the 102, k = 1 of the exchange rate is step 2's orthogonalized row
+# On all the meetings of a base, k = 1 is step 2's orthogonalized row, in the
+# exchange rate and in the CDS's 17h New York window
 step_two <- readr::read_csv(STEP_TWO_PATH, show_col_types = FALSE) |>
   dplyr::filter(
     surprise == "ortogonalizada",
-    response %in% c("cambio_brl_usd", "cambio_pct")
+    response %in% RESPONSES$response
   )
 replicated <- regressions |>
   dplyr::filter(sample == "passo_2") |>
   dplyr::right_join(
     dplyr::select(
       step_two,
+      base,
       response,
       coef_step_two = coef,
       se_step_two = se,
       p_step_two = p_value
     ),
-    by = "response"
+    by = c("base", "response")
   )
 stopifnot(
-  all(replicated$n == N_EVENTS),
+  nrow(replicated) == nrow(BASES) * nrow(RESPONSES),
+  replicated$n == BASES$n_events[match(replicated$base, BASES$base)],
   max(abs(replicated$coef - replicated$coef_step_two)) < 1e-10,
   max(abs(replicated$se - replicated$se_step_two)) < 1e-10,
   max(abs(replicated$p_value - replicated$p_step_two)) < 1e-10
