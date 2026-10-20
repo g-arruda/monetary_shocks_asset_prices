@@ -13,37 +13,40 @@ sensibilidade. Pede que não se abra outra rodada ampla e põe como prioridade a
 **Prazo combinado com o orientador para a versão integrada: 28/10.**
 
 Os passos são estes, e itens do mesmo passo correm juntos:
-1. congelar a base;
-2. produzir o que falta;
-3. método e números;
-4. resultados e robustez;
-5. fechamento.
+1. produzir o que falta;
+2. método e números;
+3. resultados e robustez;
+4. fechamento;
+5. promover para `main`.
 
 A amostra com `p = 2` fica para depois.
 
-**Branch.** A `feature/auditoria-janelas-copom` contém a `feature/focus-horizonte-fixo`, e `main` é
-ancestral das duas, de modo que promover é um avanço rápido. Depois da promoção, a escrita e as rodadas
-vão para `main`, sem branch nova.
+**Branch.** Tudo roda e se escreve na `feature/auditoria-janelas-copom`, que contém a
+`feature/focus-horizonte-fixo`. A promoção para `main` é o último passo, com a versão integrada pronta.
+Até lá, `main` guarda a versão anterior, que o orientador leu e que é coerente: artigo, figuras e saídas
+estão todos na base de 102. `main` é ancestral da branch e não tem commit fora dela, então a promoção
+continua sendo um avanço rápido, desde que nenhum commit vá para `main` até lá. É uma exceção à
+convenção de branches, anotada em `.claude/rules/writing.md`.
 
 | Passo | Tema | Item | Depende de | Decisão do autor |
 |---|---|---|---|---|
-| 1 | B | Congelar e promover a base de 111 reuniões | — | promover agora ou ao fim da escrita |
-| 2 | B | Rodar de novo na base de 111 as saídas que ainda estão na de 102 | passo 1, ou roda na `auditoria` antes | rodar de novo influência e placebos? |
-| 2 | A | Figura e tabela da ponte | — | — |
-| 2 | B | Listar as cotações de CDS em feriados dos EUA | — | — |
-| 2 | A | Apêndice com as convenções temporais e as fontes | — | Anexo E novo ou parte do D |
-| 3 | A | Amostra e construção do instrumento na §3.3 e na §3.4 | rodar de novo | 26ª chave para Staiger e Stock? |
-| 3 | A | Atualizar os números do artigo para a base de 111 reuniões | passo 1, rodar de novo | — |
-| 4 | A | Leitura da trajetória diária na §4 | figura e tabela da ponte | — |
-| 4 | A | CDS estreito contra ampliado | lista de feriados | — |
-| 4 | A | Influência, extremos e surpresa bruta no texto | rodar de novo, se decidido | base de 102 ou de 111 (passo 2) |
-| 4 | A | Placebos na §3.3 e `fig:placebos` | rodar de novo, se decidido | base de 102 ou de 111 (passo 2) |
-| 4 | A | Escrever o p = 0,54 do teste do EPU | junto com os placebos | — |
-| 4 | A | Linha diária do Anexo B | passo 1 | janela do CDS sem reunião |
-| 5 | A | Versão integrada | passos 3 e 4 | — |
-| 5 | A | Ressalvas da linha diária no resumo | linha diária do Anexo B | é a própria decisão |
-| 5 | A | Tabela antigo × novo | versão integrada | — |
-| depois | B | Amostra completa com `p = 2` | passo 1 | quando rodar; qual θ̂ |
+| 1 | B | Rodar de novo na base de 111 as saídas que ainda estão na de 102 | — | rodar de novo influência e placebos? |
+| 1 | A | Figura e tabela da ponte | — | — |
+| 1 | B | Listar as cotações de CDS em feriados dos EUA | — | — |
+| 1 | A | Apêndice com as convenções temporais e as fontes | — | Anexo E novo ou parte do D |
+| 2 | A | Amostra e construção do instrumento na §3.3 e na §3.4 | rodar de novo | 26ª chave para Staiger e Stock? |
+| 2 | A | Atualizar os números do artigo para a base de 111 reuniões | rodar de novo | — |
+| 3 | A | Leitura da trajetória diária na §4 | figura e tabela da ponte | — |
+| 3 | A | CDS estreito contra ampliado | lista de feriados | — |
+| 3 | A | Influência, extremos e surpresa bruta no texto | rodar de novo, se decidido | base de 102 ou de 111 (passo 1) |
+| 3 | A | Placebos na §3.3 e `fig:placebos` | rodar de novo, se decidido | base de 102 ou de 111 (passo 1) |
+| 3 | A | Escrever o p = 0,54 do teste do EPU | junto com os placebos | — |
+| 3 | A | Linha diária do Anexo B | — | janela do CDS sem reunião |
+| 4 | A | Versão integrada | passos 2 e 3 | — |
+| 4 | A | Ressalvas da linha diária no resumo | linha diária do Anexo B | é a própria decisão |
+| 4 | A | Tabela antigo × novo | versão integrada | — |
+| 5 | B | Promover a branch para `main` | versão integrada, tabela antigo × novo | — |
+| depois | B | Amostra completa com `p = 2` | — | quando rodar; qual θ̂ |
 
 ---
 
@@ -89,7 +92,7 @@ vão para `main`, sem branch nova.
     significante só a 80%, como na base de 102.
   - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer.
   - A §3.2 e o Anexo A já foram escritos na branch em 17-10.
-  - Depende da promoção e de rodar de novo. Desbloqueia a versão integrada e a tabela antigo × novo.
+  - Depende de rodar de novo. Desbloqueia a versão integrada e a tabela antigo × novo.
 - [ ] **Leitura da trajetória diária na §4.** E-mail de 19-10, item 1; os números estão na nota
   `2026-10-18_conferencias_ponte`.
   - A apreciação na 1ª cotação é uma estimativa pontual imprecisa.
@@ -148,7 +151,7 @@ vão para `main`, sem branch nova.
     reunião, que não têm anúncio, e rodar de novo.
   - ⚠ Na base nova, a linha fatorial não rejeita nada a 10%, e a nota da tabela, que imprime 0,035, 0,021
     e 0,013, muda.
-  - Depende da promoção. Desbloqueia a decisão sobre as ressalvas no resumo.
+  - Não depende de outro item. Desbloqueia a decisão sobre as ressalvas no resumo.
 - [ ] **Versão integrada.** Introdução, resultados e conclusão coerentes com a ponte: e-mail de 19-10, item
   5 e último parágrafo. Absorve a conclusão com o DFM e o evento lado a lado (e-mail de 12-10, item 5) e a
   leitura da §4 migrada (nota `2026-09-24_migracao_secao_4`, §5).
@@ -162,7 +165,7 @@ vão para `main`, sem branch nova.
       cruzamentos de zero se espalham;
     - o silêncio do resumo e da conclusão sobre a atividade negativa e sobre a NFSP primária positiva.
   - ⚠ Os números dessas passagens são de `main` e mudam com a base de 111.
-  - Depende dos passos 3 e 4.
+  - Depende dos passos 2 e 3. Desbloqueia a promoção.
 - [ ] **Ressalvas da linha diária no resumo.** Decidir se o resumo as carrega.
   - O resumo (`paper.tex:111`) diz que a condição "holds daily but fails in our monthly panel", sem duas
     ressalvas. O vértice decide no diário, e a correção de curtose também (÷4,9). No corpo, o vértice está
@@ -173,26 +176,12 @@ vão para `main`, sem branch nova.
   - Depende da linha diária do Anexo B. Decide-se junto com a versão integrada.
 - [ ] **Tabela antigo × novo.** O e-mail de 12-10 (item 1) a pede "para facilitar a revisão", sem dizer se
   vai no artigo ou na entrega; o de 19-10 não a menciona. Usa `compare_model()` e `compare_cells()` de
-  `R/reporting/sensitivity.R`. Depende dos números finais e da versão integrada.
+  `R/reporting/sensitivity.R`. Depende dos números finais e da versão integrada. Desbloqueia a promoção.
 
 ---
 
 ## B. Robustez estatística
 
-- [ ] **Congelar e promover a base de 111 reuniões.** Passo 0/5 do plano de 03-10, com a amostra fixada em
-  19-10.
-  - A base é a da `feature/auditoria-janelas-copom`: as Focus a horizonte fixo, a `msci` como índice MSCI
-    de emergentes e o instrumento nas 111 reuniões (notas `2026-10-03_focus_horizonte_fixo`,
-    `2026-10-12_msci_emergentes` e `2026-10-17_auditoria_janelas_copom`).
-  - Promover é um avanço rápido de `main` e muda o teste rápido e a especificação do `CLAUDE.md`. Promover
-    agora ou ao fim da escrita é decisão do autor; até lá, os itens seguintes rodam na `auditoria`.
-  - ⚠ Até a promoção, `main` segue com a ação da MSCI Inc. no painel, nos anexos, em `paper/img/` e no
-    `.tex`.
-  - ⚠ O `download.R` da branch não escreve mais a `msci`, que vem do estágio `msci`. Rodá-lo tira a coluna
-    do `raw_data.csv` que `main` lê.
-  - ⚠ O `data/processed/` é o mesmo para todas as branches. Ao voltar a `main`, rodar
-    `Rscript script/run_all.R --only=clean` antes de estimar.
-  - Bloqueia o item seguinte e todo item do Tema A que leva número.
 - [ ] **Rodar de novo na base de 111 as saídas que ainda estão na de 102.** Já estão na base de 111 o
   evento diário, as duas pontes e o cache `irf_coherence_h.csv`. Faltam:
   - `ar_precision.R`, `mosw_strength_grid.R`, `instrument_diagnostics.R` e `model_var.R`;
@@ -205,12 +194,28 @@ vão para `main`, sem branch nova.
   que estão na base de 102. Se rodarem, entra a emenda de 16-10 à regra de 10-12: nas duas reuniões de
   Ação de Graças, S&P 500, VIX e Brent vão de quarta a sexta, nunca 0.
 
-  Depende da promoção, ou roda antes na `auditoria`. Desbloqueia, no Tema A: os números do artigo, a
-  amostra e o instrumento, e a influência e os placebos.
+  Roda na branch e não depende de outro item. Desbloqueia, no Tema A: os números do artigo, a amostra e o
+  instrumento, e a influência e os placebos.
 - [ ] **Listar as cotações de CDS em feriados dos EUA.** E-mail de 19-10, item 4, só como checagem de
   calendário. `output/copom_timing/cds_calendar.csv` já conta 72 dias de feriado só nos EUA, todos com CDS;
   falta a lista de datas. Não depende de nada. Desbloqueia a limitação de 2013-11-28 no item do CDS
   estreito contra ampliado.
+- [ ] **Promover a branch para `main`.** É o último passo e leva junto a base de 111 e a versão integrada.
+  - A base: as Focus a horizonte fixo, a `msci` como índice MSCI de emergentes e o instrumento nas 111
+    reuniões (notas `2026-10-03_focus_horizonte_fixo`, `2026-10-12_msci_emergentes` e
+    `2026-10-17_auditoria_janelas_copom`).
+  - É um avanço rápido de `main` até a `feature/auditoria-janelas-copom`. Só continua possível se nenhum
+    commit for para `main` antes disso.
+  - Ao promover, a lista de branches abertas do `CLAUDE.md` perde a `focus-horizonte-fixo` e a
+    `auditoria-janelas-copom`, e o teste rápido de `main` passa aos valores da branch.
+  - ⚠ Até a promoção, `main` segue com a ação da MSCI Inc. no painel, nos anexos, em `paper/img/` e no
+    `.tex`. É de propósito: é a versão anterior, coerente.
+  - ⚠ O `download.R` da branch não escreve mais a `msci`, que vem do estágio `msci`. Rodá-lo tira a coluna
+    do `raw_data.csv` que `main` lê.
+  - ⚠ O `data/processed/` é o mesmo para todas as branches. Se trocar para `main` antes da promoção, rodar
+    `Rscript script/run_all.R --only=clean` antes de estimar, e rodar `--only=clean` e `--only=instrument`
+    de novo ao voltar.
+  - Depende da versão integrada e da tabela antigo × novo.
 - [ ] **Amostra completa com `p = 2`.** E-mail de 12-10.
   - Os conjuntos pré-COVID só existem em `p = 2`: em `p = 4`, `hac_dim` 135 ≥ T = 90 (nota
     `2026-10-05_precisao_ar`). A janela completa em `p = 2` separa a mudança de amostra da mudança de
@@ -218,4 +223,4 @@ vão para `main`, sem branch nova.
   - ⚠ O e-mail de 19-10 não menciona esse item. Rodar antes ou depois da versão integrada é decisão do
     autor.
   - O θ̂ também é decisão do autor: reestimado em `p = 2`, como no Anexo C, ou o de `p = 4`.
-  - Depende da promoção.
+  - Roda na base de 111: na branch, se for antes da promoção, ou em `main`, se for depois.

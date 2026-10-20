@@ -165,6 +165,13 @@ of it.
   `paper/` (the old `tex/` has been archived under `arquivo/tex/` since 2026-08-02 and takes no
   more writes).
 - **Hygiene and diagnostic re-runs go straight to `main`** too.
+- **Exception: a whole-version rewrite stays on its branch until it is done.** When the paper's
+  numbers, figures and text all change together for a new version, the writing and the re-runs stay
+  on the branch that carries the new base, and that branch is fast-forwarded into `main` once, as the
+  last step. Until then `main` keeps the previous version, coherent (paper, figures and outputs on
+  one base), and takes no commits, so the promotion stays a fast-forward. Case in point
+  (2026-10-20): the 111-meeting base and the integrated version due 2026-10-28, on
+  `feature/auditoria-janelas-copom` (`registro/pendencias.md`, last step).
 
 ## Where a document belongs
 
