@@ -184,7 +184,6 @@ vão para `main`, sem branch nova.
   - A base é a da `feature/auditoria-janelas-copom`: as Focus a horizonte fixo, a `msci` como índice MSCI
     de emergentes e o instrumento nas 111 reuniões (notas `2026-10-03_focus_horizonte_fixo`,
     `2026-10-12_msci_emergentes` e `2026-10-17_auditoria_janelas_copom`).
-  - Antes, commitar a rodada de 18-10, que está fora de commit.
   - Promover é um avanço rápido de `main` e muda o teste rápido e a especificação do `CLAUDE.md`. Promover
     agora ou ao fim da escrita é decisão do autor; até lá, os itens seguintes rodam na `auditoria`.
   - ⚠ Até a promoção, `main` segue com a ação da MSCI Inc. no painel, nos anexos, em `paper/img/` e no
