@@ -37,14 +37,24 @@ Focus IPCA 12 meses, Focus Selic, DBGG), the `PAPER_PANELS` block of each annex 
 captions no longer mention the IBC-Br. Anexo D (`anexo-D`, since 2026-09-25)
 carries `tab:bs_ortogonalizacao`, in BS Table 3's layout since 2026-09-26, and since 2026-09-30
 `fig:placebos` after it; §3.3's orthogonalization paragraph ends pointing to the table, and its
-last paragraph, four lines stating the US EPU violation as a limitation, points to the figure. Captions and `\autoref` print "Figura/Tabela", and the body never puts a
+last paragraph, four lines stating the US EPU violation as a limitation, points to the figure.
+Anexo E (`anexo-E`, since 2026-10-20, branch `feature/auditoria-janelas-copom`), "Trajetória diária e
+forma reduzida mensal", is the bridge of the e-mail of 2026-10-19 (item 2): one opening paragraph
+(transformation, window, normalization, sample, levels, why 110 and not 111 meetings, and one sentence
+on the 104-meeting sensitivity), then `fig:ponte` and `tab:ponte`. By author decision of 2026-10-20 both
+floats carry **90% and 95%**, not 80/90%: the figure's intervals are Wald per +50bp of surprise, and the
+table puts the monthly reduced form, as an IV per +50bp of the end-of-month 6-month DI, beside the DFM,
+both as Anderson--Rubin sets, in three blocks (panel series, the alternative aggregation, DFM). The 95%
+level appears nowhere else in the paper. Captions and `\autoref` print "Figura/Tabela", and the body never puts a
 reference in parentheses: it goes inside the sentence or not at all.
 `script/fig_section5.R` writes §4's eight figures and `fig_placebos.pdf`, `script/fig_weak_iv.R` writes
 the weak-IV figure, `script/q_sensitivity.R --window=cheia` writes `fig_q_sensibilidade.pdf`,
 `script/p_sensitivity.R` writes `fig_p_sensibilidade.pdf`, `script/instrument_layers_irf.R`
 writes `fig_instrumento_camadas.pdf` and `script/pandemic_sensitivity.R` writes
-`fig_lp_sensibilidade.pdf` and `fig_precovid_sensibilidade.pdf`; the table's numbers are typed from
-`output/instrument/bs_orthogonalization.csv`.
+`fig_lp_sensibilidade.pdf` and `fig_precovid_sensibilidade.pdf`, and `script/fig_bridge.R` writes
+`fig_ponte.pdf`; the Anexo D table's numbers are typed from `output/instrument/bs_orthogonalization.csv`,
+and `tab:ponte`'s from `output/monthly_reduced_form/comparison.csv` (production base, orthogonalized
+surprise).
 
 **The paper is on the production vintage again since 2026-09-24.** It was fully
 synchronized on 2026-08-25 and then fell behind twice, in (i) the window, which

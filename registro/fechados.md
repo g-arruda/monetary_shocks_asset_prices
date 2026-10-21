@@ -10,6 +10,12 @@ Os blocos vieram de `pendencias.md` em 2026-10-19, sem edição. Referências co
 
 ## A. Texto do paper
 
+- [x] **Figura e tabela da ponte — 2026-10-20.** E-mail de 19-10, item 2. Anexo E novo, com parágrafo de
+  abertura, `fig:ponte` (`script/fig_bridge.R`) e `tab:ponte`, só na base de 111 (110 reuniões na
+  trajetória). Decisões do autor: 90% e 95% nos dois floats, inclusive no DFM; a forma reduzida como IV
+  por +50 p.b. no DI de 6 meses; a agregação alternativa em linhas, com o câmbio de fim de mês não
+  significante a 90%. A base de 104 entra numa frase (escolha delegada): só a 1ª cotação do câmbio muda,
+  e passa a significante a 90%. Nota: `2026-10-18_conferencias_ponte`.
 - [x] **Responder ao orientador com o prazo da versão integrada — 2026-10-19.** Prazo informado: 28/10.
   A resposta não está em `email/`.
 - [x] **O que o resumo diz sobre frequência — 2026-09-22.** O resumo situa a divergência com

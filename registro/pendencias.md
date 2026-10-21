@@ -30,12 +30,11 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 | Passo | Tema | Item | Depende de | Decisão do autor |
 |---|---|---|---|---|
-| 1 | A | Figura e tabela da ponte | — | — |
 | 1 | B | Listar as cotações de CDS em feriados dos EUA | — | — |
-| 1 | A | Apêndice com as convenções temporais e as fontes | — | Anexo E novo ou parte do D |
+| 1 | A | Apêndice com as convenções temporais e as fontes | — | Anexo F novo ou parte do D |
 | 2 | A | Amostra e construção do instrumento na §3.3 e na §3.4 | — | 26ª chave para Staiger e Stock? |
 | 2 | A | Atualizar os números do artigo para a base de 111 reuniões | — | — |
-| 3 | A | Leitura da trajetória diária na §4 | figura e tabela da ponte | — |
+| 3 | A | Leitura da trajetória diária na §4 | — | — |
 | 3 | A | CDS estreito contra ampliado | lista de feriados | — |
 | 3 | A | Influência, extremos e surpresa bruta no texto | — | — |
 | 3 | A | Placebos na §3.3 e `fig:placebos` | — | — |
@@ -51,19 +50,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 ## A. Texto do paper
 
-- [ ] **Figura e tabela da ponte.** E-mail de 19-10, item 2. As saídas estão em `output/event_trajectory/`
-  e `output/monthly_reduced_form/` e já usam a base de 111 (nota `2026-10-18_conferencias_ponte`).
-  - Figura de dois painéis, câmbio e CDS, com a resposta acumulada na 1ª, 5ª, 10ª e 20ª cotações. Vai com
-    um nível de confiança só ou com as faixas de 90% e 95% juntas. ⚠ Nenhum script desenha essa figura
-    ainda. Falta um que leia os CSVs da ponte, sem reestimar nada.
-  - A amostra comum é de 110 reuniões: o arquivo do Yahoo termina em 2025-12-31, e a reunião de
-    2025-12-10 não tem 20ª cotação.
-  - Tabela curta com a forma reduzida mensal e o DFM. Cada intervalo traz a transformação, a janela, a
-    normalização, a amostra e o nível. ⚠ A trajetória e a forma reduzida são por +50 p.b. de surpresa; o
-    DFM é por +50 p.b. no DI de 6 meses. A comparação mostra coerência de sinais e dinâmica, mas as
-    magnitudes não medem o mesmo objeto.
-  - ⚠ Na forma reduzida, o câmbio de fim de mês não é significante a 90%. Reportar.
-  - Desbloqueia a leitura da trajetória.
 - [ ] **Apêndice com as convenções temporais e as fontes.** E-mail de 19-10, item 4. Reúne:
   - a grade de horários do DI na B3 e o Ofício Circular 094/2020-PRE;
   - as fontes secundárias de 2012–2018, que dão o limite de 18h15;
@@ -71,8 +57,8 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
   - o horário do CDS e a margem de 30 minutos.
 
   As URLs estão no item 5 de `email/email_meu_18-10_20h26.md`. ⚠ O orçamento de chaves está cheio, então
-  as fontes vão em rodapé, com URL. Anexo E novo ou parte do Anexo D: decisão do autor. Não depende de
-  nada.
+  as fontes vão em rodapé, com URL. Anexo F novo ou parte do Anexo D, porque o E é a ponte desde 20-10:
+  decisão do autor. Não depende de nada.
 - [ ] **Amostra e construção do instrumento na §3.3 e na §3.4.** E-mail de 19-10, item 3.
   - A base são as 111 reuniões, e a sensibilidade são as 104. Na trajetória diária, a sensibilidade
     exclui as sete reuniões. No DFM e na forma reduzida mensal, elas entram com z = 0. Descrever o z = 0
@@ -105,7 +91,10 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
   - A alta do CDS vai com o nível de cada horizonte. Uma frase, sem leitura causal, diz que o CDS é
     significante já na 10ª cotação e o câmbio só na 20ª.
   - O horizonte é dado em cotações, não em dias corridos.
-  - Depende da figura e tabela da ponte.
+  - A figura e a tabela estão no Anexo E (`fig:ponte`, `tab:ponte`), e a §4 ainda não aponta para ele.
+    ⚠ A figura é por +50 p.b. de surpresa, e a tabela por +50 p.b. no DI de 6 meses, com a forma reduzida
+    como IV. A comparação mostra coerência de sinais e dinâmica, sem tratar as magnitudes como medidas do
+    mesmo objeto.
 - [ ] **CDS estreito contra ampliado.** E-mail de 19-10, item 4.
   - Entra como sensibilidade ao alinhamento temporal, não como evidência de um mecanismo, porque a janela
     ampliada também pega outras notícias.

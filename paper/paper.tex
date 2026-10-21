@@ -742,4 +742,43 @@ Observações                             & 102 \\
 \end{center}
 \end{figure}
 
+\section*{Anexo E. Trajetória diária e forma reduzida mensal}\label{anexo-E}
+
+A \autoref{fig:ponte} mostra a variação acumulada do câmbio BRL/USD, em reais por dólar, e do CDS soberano de cinco anos, em pontos-base, da última cotação anterior ao anúncio do Copom até a primeira, a quinta, a décima e a vigésima cotação posteriores, contadas no calendário de cada série. Em cada horizonte, a variação é regredida na surpresa ortogonalizada do DI de 6 meses, com erros-padrão HC1, e o efeito é dado por 50 pontos-base de surpresa. A amostra tem 110 das 111 reuniões, porque a série diária do câmbio termina em 31 de dezembro de 2025, antes da vigésima cotação posterior à reunião de 10 de dezembro. A \autoref{tab:ponte} compara, no mês do anúncio e no seguinte, a forma reduzida mensal com o DFM da Seção~\ref{sec:resultados}. A forma reduzida regride a variação de cada série de $t-1$ a $t+h$ na surpresa mensal ortogonalizada, sem fatores, nos 162 meses de julho de 2012 a dezembro de 2025, 161 em $h=1$, com surpresa zero nos meses sem reunião. Nas duas estimativas o efeito é normalizado em 50 pontos-base no DI de 6 meses, na forma reduzida por variável instrumental com a variação do DI de fim de mês, e os intervalos são conjuntos Anderson--Rubin, com erros-padrão HC1 em $h=0$ e Newey--West de uma defasagem em $h=1$ na forma reduzida e Newey--West de ordem zero no DFM. As séries do painel são as do DFM, com o câmbio pela média mensal e o CDS pela última cotação do mês, e a agregação alternativa troca as duas regras. Na figura e na tabela, os intervalos de 90\% e 95\% valem para cada horizonte, sem correção para múltiplos horizontes. Sem as sete reuniões cujas janelas do DI vão de quarta a sexta-feira, a trajetória diária usa 103 reuniões, e na forma reduzida e no DFM os meses delas entram com surpresa zero, com a ortogonalização refeita nessa amostra. Nessa sensibilidade nenhum sinal da figura e da tabela muda, e a única mudança de significância é a da primeira cotação do câmbio, que passa a significante a 90\%.
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.7]{img/fig_ponte.pdf}
+\caption{\textbf{Trajetória diária do câmbio e do CDS}\\{Variação acumulada por 50 pontos-base de surpresa ortogonalizada no DI de 6 meses, nas 110 reuniões com vigésima cotação. A linha preta liga as estimativas pontuais nas quatro cotações, e as áreas escura e clara mostram os intervalos de 90\% e 95\%.}}
+\label{fig:ponte}
+\end{center}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}c c c c c c c@{}}
+\toprule
+ & \multicolumn{3}{c}{Câmbio BRL/USD (R\$/US\$)} & \multicolumn{3}{c}{CDS 5 anos (p.b.)} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+$h$ & Ponto & 90\% & 95\% & Ponto & 90\% & 95\% \\
+\midrule
+\multicolumn{7}{@{}l}{\textit{Forma reduzida mensal, séries do painel}, $F = 9{,}33$ e $9{,}56$} \\
+0 & $0{,}070$ & $[0{,}009;\ 0{,}177]$ & $[-0{,}003;\ 0{,}223]$ & $20{,}7$ & $[8{,}2;\ 48{,}4]$ & $[6{,}1;\ 61{,}4]$ \\
+1 & $0{,}145$ & $[0{,}046;\ 0{,}376]$ & $[0{,}030;\ 0{,}485]$ & $25{,}3$ & $[8{,}0;\ 62{,}0]$ & $[5{,}1;\ 78{,}6]$ \\
+\addlinespace
+\multicolumn{7}{@{}l}{\textit{Forma reduzida mensal, agregação alternativa}, $F = 9{,}33$ e $9{,}56$} \\
+0 & $0{,}043$ & $[-0{,}028;\ 0{,}150]$ & $[-0{,}045;\ 0{,}192]$ & $12{,}0$ & $[0{,}7;\ 33{,}6]$ & $[-1{,}5;\ 43{,}0]$ \\
+1 & $0{,}075$ & $[-0{,}022;\ 0{,}275]$ & $[-0{,}039;\ 0{,}364]$ & $29{,}1$ & $[11{,}2;\ 70{,}1]$ & $[8{,}3;\ 89{,}1]$ \\
+\addlinespace
+\multicolumn{7}{@{}l}{\textit{DFM}, $(r,q,p)=(5,5,4)$, $\xi_{mp} = 7{,}28$} \\
+0 & $0{,}125$ & $[0{,}048;\ 0{,}228]$ & $[0{,}025;\ 0{,}275]$ & $30{,}6$ & $[12{,}9;\ 56{,}8]$ & $[8{,}0;\ 69{,}3]$ \\
+1 & $0{,}161$ & $[0{,}046;\ 0{,}309]$ & $[0{,}010;\ 0{,}374]$ & $34{,}6$ & $[14{,}8;\ 61{,}6]$ & $[8{,}9;\ 73{,}9]$ \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Forma reduzida mensal e DFM}\\{Resposta a um choque normalizado em 50 pontos-base no DI de 6 meses, no mês do anúncio, $h=0$, e no seguinte, $h=1$, com os conjuntos Anderson--Rubin de 90\% e 95\%. $F$ é o primeiro estágio robusto da forma reduzida em $h=0$ e em $h=1$.}}
+\label{tab:ponte}
+\end{table}
+
 \end{document}
