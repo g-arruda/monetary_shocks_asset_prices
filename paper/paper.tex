@@ -11,7 +11,8 @@
 \usepackage[utf8]{inputenc}	
 %\usepackage[ansinew]{inputenc}
 \usepackage{pdflscape}
-\usepackage{url}
+\usepackage[hyphens]{url}
+\Urlmuskip=0mu plus 2mu % URLs longas nos rodapés do Anexo F
 \usepackage{setspace}
 \usepackage{tabularx}
 \usepackage{dcolumn}
@@ -219,7 +220,7 @@ A evidência mais próxima para o Brasil, \cite{goncalves2025}, identifica o cho
 
 O choque é identificado por um instrumento externo, no arcabouço proxy-SVAR de \cite{stockwatson2018} e \cite{gertler2015}, que \cite{alessi} transpõem para o DFM. O instrumento $z_t$ é uma variável observada fora do modelo, correlacionada com o choque de política monetária $\varepsilon_t^{p}$ e não correlacionada com os demais choques estruturais, o que exige relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, e exogeneidade contemporânea, $E[z_t \varepsilon_t^{j}] = 0$ para todo $j \neq p$. Sob essas condições e sob invertibilidade, a projeção das inovações fatoriais $\eta_t$ sobre o instrumento identifica, a menos de escala, a coluna de $H$ associada ao choque monetário, estimada na amostra alinhada por $\hat{H}_{\cdot p} = (Z'\eta)/(Z'Z)$.
 
-Como em \cite{gertler2015}, que distinguem o instrumento de política, a taxa \textit{overnight}, do indicador de política, uma taxa de prazo mais longo que contém a revisão das expectativas de juros trazida pela decisão, o instrumento e a normalização usam o mesmo vértice da curva de DI, de 126 dias úteis, cerca de seis meses. O Copom anuncia a decisão depois do fechamento do mercado, de modo que a surpresa aparece na curva de DI entre a quarta e a quinta-feira, e a Selic mensal, média da taxa \textit{overnight} no mês, quase não a registra. O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal.
+Como em \cite{gertler2015}, que distinguem o instrumento de política, a taxa \textit{overnight}, do indicador de política, uma taxa de prazo mais longo que contém a revisão das expectativas de juros trazida pela decisão, o instrumento e a normalização usam o mesmo vértice da curva de DI, de 126 dias úteis, cerca de seis meses. O Copom anuncia a decisão depois do fechamento do mercado\footnote{A \autoref{tab:horarios}, no Anexo F, dá o horário das cotações do DI, do câmbio e do CDS, e o anexo reúne as fontes}, de modo que a surpresa aparece na curva de DI entre a quarta e a quinta-feira, e a Selic mensal, média da taxa \textit{overnight} no mês, quase não a registra. O choque é normalizado para elevar o yield de 6 meses em 50 pontos-base no impacto, ou $0{,}005$ em proporção decimal.
 
 O instrumento tem duas camadas. A primeira é a surpresa, a variação do DI nesse vértice entre o fechamento da quarta-feira da reunião e o da quinta-feira seguinte, a primeira sessão depois do anúncio. A amostra tem 102 reuniões entre 2012 e 2025. As surpresas são somadas dentro de cada mês, e o instrumento vale zero nos meses sem reunião.
 
@@ -779,6 +780,33 @@ $h$ & Ponto & 90\% & 95\% & Ponto & 90\% & 95\% \\
 \end{tabular}
 \caption{\textbf{Forma reduzida mensal e DFM}\\{Resposta a um choque normalizado em 50 pontos-base no DI de 6 meses, no mês do anúncio, $h=0$, e no seguinte, $h=1$, com os conjuntos Anderson--Rubin de 90\% e 95\%. $F$ é o primeiro estágio robusto da forma reduzida em $h=0$ e em $h=1$.}}
 \label{tab:ponte}
+\end{table}
+
+\section*{Anexo F. Convenções temporais e fontes}\label{anexo-F}
+
+Os horários deste anexo são de Brasília, no fuso de cada data. O anúncio do Copom é o término da última sessão da reunião registrado na ata, ou o horário mínimo de divulgação fixado pelo Banco Central, o que vier depois. Uma cotação é anterior ao anúncio quando vem mais de 30 minutos antes dele, posterior quando vem mais de 30 minutos depois, e ambígua nos demais casos. A \autoref{tab:horarios} resume o horário de cada cotação diária.
+
+A cotação diária do DI é o último negócio do pregão, de modo que seu horário é no máximo o fim da negociação do contrato DI1. De janeiro de 2019 a 9 de dezembro de 2022, a negociação termina às 18h00, com sessão estendida das 16h50 às 18h00, e o fim do horário de verão dos Estados Unidos não a altera\footnote{Grade de horários de negociação de derivativos de juros da B3, nas capturas do Wayback Machine de 7 de janeiro de 2019, \url{https://web.archive.org/web/20190107143157/https://www.b3.com.br/pt_br/solucoes/plataformas/puma-trading-system/para-participantes-e-traders/horario-de-negociacao/derivativos/taxas-de-juros/}, e de 24 de janeiro de 2022, \url{https://web.archive.org/web/20220124102052/https://www.b3.com.br/pt_br/solucoes/plataformas/puma-trading-system/para-participantes-e-traders/horario-de-negociacao/derivativos/taxas-de-juros/}. O Ofício Circular 094/2020-PRE da B3, de 30 de julho de 2020, altera a grade a partir do fim do horário de verão dos Estados Unidos e mantém os horários dos contratos que não especifica, entre eles o DI1, \url{https://www.b3.com.br/data/files/71/43/8B/34/340A37109CFAD937AC094EA8/OC\%20094-2020\%20PRE\%20Novos\%20Hor\%C3\%A1rios\%20de\%20Negocia\%C3\%A7\%C3\%A3o\%202020_01112020_R.pdf}}. Desde 12 de dezembro de 2022, a negociação é contínua das 9h00 às 18h00\footnote{Grade atual da B3, \url{https://www.b3.com.br/pt_br/solucoes/plataformas/puma-trading-system/para-participantes-e-traders/horario-de-negociacao/derivativos/taxas-de-juros/}, e InfoMoney, 23 de novembro de 2022, \url{https://www.infomoney.com.br/mercados/b3-altera-modelo-de-definicao-de-ajuste-do-di-que-tera-sessao-continua-ate-18h/}}. A grade do DI1 de 2012 a 2018 não foi encontrada, e o limite usado é o fim da negociação do segmento BM\&F, às 18h15, dado por fontes secundárias\footnote{Exame, 19 de outubro de 2012, \url{https://exame.com/invest/mercados/horario-verao-muda-pregao-bm-fbovespa-506260/}, e Jornal do Comércio, 14 de outubro de 2016, \url{https://www.jornaldocomercio.com/_conteudo/2016/10/economia/526266-com-horario-de-verao-bm-fbovespa-altera-funcionamento-a-partir-do-dia-17.html}}.
+
+A taxa BRL/USD diária é a BRL=X do Yahoo Finance, cotada à meia-noite de Londres que abre cada barra diária, entre 20h00 e 22h00 em Brasília, conforme os horários de verão do Reino Unido e do Brasil. A data de cada linha da série é a data UTC desse instante, de modo que, no horário de verão britânico, a linha traz a cotação da noite da própria data e, fora dele, a da noite anterior. A trajetória diária do Anexo E usa a última cotação anterior ao anúncio e a primeira posterior, escolhidas pelo horário. A série do painel, média mensal das linhas pela data de cada uma, fica deslocada uma noite para trás no inverno europeu.
+
+O CDS soberano de cinco anos diário, usado no Anexo E, é a cotação de fechamento da Bloomberg (PX\_LAST), tomada às 17h00 de Nova York, entre 18h00 e 20h00 em Brasília, conforme os horários de verão dos Estados Unidos e do Brasil. A série mensal do CDS no painel é a do Investing.com, listada na \autoref{tab:lista_variaveis}.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{@{}l l l@{}}
+\toprule
+Série & Cotação & Horário em Brasília \\
+\midrule
+DI, 2012:03--2018:12                & Último negócio do pregão          & Até 18h15 \\
+DI, 2019:01--2025:12                & Último negócio do pregão          & Até 18h00 \\
+BRL/USD, Yahoo Finance (BRL=X)      & Meia-noite de Londres             & 20h00 a 22h00 \\
+CDS 5 anos, Bloomberg (PX\_LAST)    & Fechamento às 17h00 de Nova York  & 18h00 a 20h00 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Horário das cotações diárias}\\{Horário de Brasília, no fuso de cada data. No DI, o horário é o limite superior dado pelo fim da negociação do contrato DI1. As faixas do câmbio e do CDS variam com os horários de verão do Reino Unido, dos Estados Unidos e do Brasil.}}
+\label{tab:horarios}
 \end{table}
 
 \end{document}

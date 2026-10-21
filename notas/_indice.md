@@ -148,6 +148,15 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Convenções temporais no Anexo F e o CDS em feriados dos EUA (2026-10-21, branch `feature/auditoria-janelas-copom`):**
+[`2026-10-21_convencoes_temporais_feriados_cds`](2026-10-21_convencoes_temporais_feriados_cds.md)
+**CURRENT na branch, não mergeada; nada reestimado.** Os dois itens do passo 1 do e-mail de 19-10.
+- **Feriados.** O CDS cota em todos os 156 dias úteis de feriado da NYSE ou do Fed de 2012-03 a 2025-12
+  (`output/copom_timing/cds_us_holidays.csv`). A única cotação inteira entre eles é a de 28/11/2013.
+- **Anexo F.** Os horários do anúncio, do DI, do Yahoo e do CDS, com `tab:horarios` e as fontes em três
+  rodapés com URL. A §3.3 aponta para ele num rodapé. ⚠ Por decisão do autor, o Yahoo e o CDS vão como
+  fato, sem a palavra "hipótese", embora nenhum dos dois horários seja documentado pelo provedor.
+
 **As saídas que estavam na base de 102 rodam na de 111 (2026-10-20, branch `feature/auditoria-janelas-copom`):**
 [`2026-10-20_saidas_base_111`](2026-10-20_saidas_base_111.md)
 **CURRENT na branch, não mergeada; a produção não muda.** Rodam de novo a força, os diagnósticos, a

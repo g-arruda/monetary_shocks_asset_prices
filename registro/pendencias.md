@@ -30,12 +30,10 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 | Passo | Tema | Item | Depende de | Decisão do autor |
 |---|---|---|---|---|
-| 1 | B | Listar as cotações de CDS em feriados dos EUA | — | — |
-| 1 | A | Apêndice com as convenções temporais e as fontes | — | Anexo F novo ou parte do D |
 | 2 | A | Amostra e construção do instrumento na §3.3 e na §3.4 | — | 26ª chave para Staiger e Stock? |
 | 2 | A | Atualizar os números do artigo para a base de 111 reuniões | — | — |
 | 3 | A | Leitura da trajetória diária na §4 | — | — |
-| 3 | A | CDS estreito contra ampliado | lista de feriados | — |
+| 3 | A | CDS estreito contra ampliado | — | — |
 | 3 | A | Influência, extremos e surpresa bruta no texto | — | — |
 | 3 | A | Placebos na §3.3 e `fig:placebos` | — | — |
 | 3 | A | Escrever o p = 0,54 do teste do EPU | junto com os placebos | — |
@@ -50,15 +48,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 ## A. Texto do paper
 
-- [ ] **Apêndice com as convenções temporais e as fontes.** E-mail de 19-10, item 4. Reúne:
-  - a grade de horários do DI na B3 e o Ofício Circular 094/2020-PRE;
-  - as fontes secundárias de 2012–2018, que dão o limite de 18h15;
-  - a hipótese do carimbo do Yahoo;
-  - o horário do CDS e a margem de 30 minutos.
-
-  As URLs estão no item 5 de `email/email_meu_18-10_20h26.md`. ⚠ O orçamento de chaves está cheio, então
-  as fontes vão em rodapé, com URL. Anexo F novo ou parte do Anexo D, porque o E é a ponte desde 20-10:
-  decisão do autor. Não depende de nada.
 - [ ] **Amostra e construção do instrumento na §3.3 e na §3.4.** E-mail de 19-10, item 3.
   - A base são as 111 reuniões, e a sensibilidade são as 104. Na trajetória diária, a sensibilidade
     exclui as sete reuniões. No DFM e na forma reduzida mensal, elas entram com z = 0. Descrever o z = 0
@@ -100,8 +89,7 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
     ampliada também pega outras notícias.
   - Sem as sete janelas longas (104 reuniões), a ampliada deixa de ser significante a 90%.
   - A cotação de 2013-11-28 fica, com a limitação: é um valor inteiro e caiu no feriado de Ação de Graças
-    nos EUA.
-  - Depende da lista de feriados (Tema B).
+    nos EUA. A lista de feriados está na nota `2026-10-21_convencoes_temporais_feriados_cds`, seção 1.
 - [ ] **Influência, extremos e surpresa bruta no texto.** E-mails de 12-10, item 1, e de 19-10, item 5,
   que pede para manter os resultados menos favoráveis. Os números na base de 111 estão na nota
   `2026-10-20_saidas_base_111`, seção 5; o desenho, nas notas `2026-10-08_influencia_reunioes` e
@@ -140,7 +128,8 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 - [ ] **Linha diária do Anexo B.** O câmbio realinhado e o CDS às 17h de Nova York em `tab:het_frequency`.
   - Câmbio: já realinhado em 10-13, falta levar ao `.tex` (nota `2026-10-13_cambio_yahoo_convencao`,
     seção 7). As frases da §3.3 continuam verdadeiras. ⚠ A janela vem da hora inferida do Yahoo, que é
-    uma hipótese documentada.
+    uma hipótese documentada. ⚠ O Anexo F descreve a janela do Yahoo só para o Anexo E; ao levar o câmbio
+    ao `.tex`, decidir se ele passa a citar o B.
   - CDS: `het_conditions.R` ainda usa a janela de quarta a quinta. Falta definir a janela das semanas sem
     reunião, que não têm anúncio, e rodar de novo.
   - ⚠ Na base nova, a linha fatorial não rejeita nada a 10%, e a nota da tabela, que imprime 0,035, 0,021
@@ -176,10 +165,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 ## B. Robustez estatística
 
-- [ ] **Listar as cotações de CDS em feriados dos EUA.** E-mail de 19-10, item 4, só como checagem de
-  calendário. `output/copom_timing/cds_calendar.csv` já conta 72 dias de feriado só nos EUA, todos com CDS;
-  falta a lista de datas. Não depende de nada. Desbloqueia a limitação de 2013-11-28 no item do CDS
-  estreito contra ampliado.
 - [ ] **Promover a branch para `main`.** É o último passo e leva junto a base de 111 e a versão integrada.
   - A base: as Focus a horizonte fixo, a `msci` como índice MSCI de emergentes e o instrumento nas 111
     reuniões (notas `2026-10-03_focus_horizonte_fixo`, `2026-10-12_msci_emergentes` e

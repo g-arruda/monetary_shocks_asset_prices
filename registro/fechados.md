@@ -10,6 +10,11 @@ Os blocos vieram de `pendencias.md` em 2026-10-19, sem edição. Referências co
 
 ## A. Texto do paper
 
+- [x] **Apêndice com as convenções temporais e as fontes — 2026-10-21.** E-mail de 19-10, item 4. Anexo F
+  novo, depois do E: anúncio e margem de 30 minutos, DI, Yahoo e CDS, a `tab:horarios` e as fontes em três
+  rodapés com URL. A §3.3 aponta para ele num rodapé. Decisões do autor: Anexo F, e não um rodapé único;
+  Yahoo e CDS escritos como fato, sem "hipótese"; a margem só como regra. Nota:
+  `2026-10-21_convencoes_temporais_feriados_cds`.
 - [x] **Figura e tabela da ponte — 2026-10-20.** E-mail de 19-10, item 2. Anexo E novo, com parágrafo de
   abertura, `fig:ponte` (`script/fig_bridge.R`) e `tab:ponte`, só na base de 111 (110 reuniões na
   trajetória). Decisões do autor: 90% e 95% nos dois floats, inclusive no DFM; a forma reduzida como IV
@@ -269,6 +274,10 @@ Os blocos vieram de `pendencias.md` em 2026-10-19, sem edição. Referências co
 
 ## B. Robustez estatística
 
+- [x] **Listar as cotações de CDS em feriados dos EUA — 2026-10-21.** E-mail de 19-10, item 4. A lista
+  une os calendários da NYSE e do Fed: são 156 dias úteis de 2012-03 a 2025-12, e o CDS cota em todos. A
+  única cotação inteira entre eles é a de 28/11/2013. Saída: `output/copom_timing/cds_us_holidays.csv`.
+  Nota: `2026-10-21_convencoes_temporais_feriados_cds`.
 - [x] **Rodar de novo na base de 111 as saídas que estavam na de 102 — 2026-10-20.** Branch
   `feature/auditoria-janelas-copom`. Rodaram a força, os diagnósticos, a precisão, o VAR, os anexos, as
   figuras de `paper/img/`, os placebos e a influência. Os extremos vão de quarta a sexta nas 9

@@ -45,7 +45,13 @@ on the 104-meeting sensitivity), then `fig:ponte` and `tab:ponte`. By author dec
 floats carry **90% and 95%**, not 80/90%: the figure's intervals are Wald per +50bp of surprise, and the
 table puts the monthly reduced form, as an IV per +50bp of the end-of-month 6-month DI, beside the DFM,
 both as Anderson--Rubin sets, in three blocks (panel series, the alternative aggregation, DFM). The 95%
-level appears nowhere else in the paper. Captions and `\autoref` print "Figura/Tabela", and the body never puts a
+level appears nowhere else in the paper. Anexo F (`anexo-F`, since 2026-10-21, same branch), "Convenções
+temporais e fontes", is item 4 of the same e-mail: four paragraphs (the announcement and the 30-minute
+rule, the DI, the Yahoo rate, the CDS) and `tab:horarios`, with the sources as URLs in three footnotes,
+since the 25-key budget is full; one footnote in §3.3, on "O Copom anuncia a decisão depois do fechamento
+do mercado", points to it. By author decision of 2026-10-21 the Yahoo and CDS times are written as fact,
+without "hipótese", though neither provider documents them (`2026-10-21_convencoes_temporais_feriados_cds`).
+The preamble's `\usepackage[hyphens]{url}` and `\Urlmuskip` exist for those footnotes. Captions and `\autoref` print "Figura/Tabela", and the body never puts a
 reference in parentheses: it goes inside the sentence or not at all.
 `script/fig_section5.R` writes §4's eight figures and `fig_placebos.pdf`, `script/fig_weak_iv.R` writes
 the weak-IV figure, `script/q_sensitivity.R --window=cheia` writes `fig_q_sensibilidade.pdf`,
