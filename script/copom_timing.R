@@ -89,6 +89,10 @@
 #                            changes in the windows
 #   months.csv               instrument months: meetings, events and z
 #   cds_calendar.csv         test (A)
+#   cds_us_holidays.csv      every weekday the NYSE or the Federal Reserve
+#                            closes, with the CDS quote, the one before it and
+#                            whether it is a whole number (e-mail of
+#                            2026-10-19, item 4)
 #   cds_alignment.csv        test (B)
 #   cds_event.csv            test (C)
 #   di_close_settlement.csv  Wednesday's DI close against its settlement
@@ -120,7 +124,8 @@
 #   notas/2026-10-15_conferencia_reunioes_fora.md,
 #   notas/2026-10-16_janela_ampliada_cds_bloomberg.md,
 #   notas/2026-10-17_auditoria_janelas_copom.md,
-#   notas/2026-10-18_conferencias_ponte.md
+#   notas/2026-10-18_conferencias_ponte.md,
+#   notas/2026-10-21_convencoes_temporais_feriados_cds.md
 # ===================================================================
 
 source("R/instrument/di_surprise.R")
@@ -190,6 +195,17 @@ HOLIDAYS <- tibble::tribble(
   "2025-06-19", "Corpus Christi e Juneteenth", "Brasil e EUA"
 ) |>
   dplyr::mutate(holiday = as.Date(holiday))
+
+# The days the NYSE closed outside its holiday schedule in the sample
+NYSE_SPECIAL_CLOSURES <- tibble::tribble(
+  ~date,        ~holiday,
+  "2012-10-29", "Hurricane Sandy",
+  "2012-10-30", "Hurricane Sandy",
+  "2018-12-05", "National Day of Mourning, George H. W. Bush",
+  "2025-01-09", "National Day of Mourning, Jimmy Carter"
+) |>
+  dplyr::mutate(date = as.Date(date))
+GOOD_FRIDAYS <- as.Date(timeDate::Easter(2012:2025)) - 2L
 
 # Earliest release time the BCB announced, from the first meeting it
 # applied to. Before 2016-07-20 there was none ("00:00"): the statement
@@ -611,17 +627,21 @@ meetings <- meetings |>
 
 # CDS test (A): calendar -------------------------------------------------------
 
-# US-only: NYSE closed, London open (Memorial Day is left out, since it
-# usually falls on the UK spring bank holiday). UK-only: London closed, NYSE
-# open (Easter Monday left out). Both: 1 January and 25 December on a weekday.
-holidays <- tibble::tibble(date = sample_days) |>
+sample_calendar <- tibble::tibble(date = sample_days) |>
   dplyr::mutate(
     year = lubridate::year(date),
     month = lubridate::month(date),
     day = lubridate::mday(date),
     weekday = lubridate::wday(date, week_start = 1),
     nth = ceiling(day / 7),
-    last_of_month = day + 7 > lubridate::days_in_month(date),
+    last_of_month = day + 7 > lubridate::days_in_month(date)
+  )
+
+# US-only: NYSE closed, London open (Memorial Day is left out, since it
+# usually falls on the UK spring bank holiday). UK-only: London closed, NYSE
+# open (Easter Monday left out). Both: 1 January and 25 December on a weekday.
+holidays <- sample_calendar |>
+  dplyr::mutate(
     group = dplyr::case_when(
       weekday > 5 ~ NA_character_,
       (month == 1 & day == 1) | (month == 12 & day == 25) ~ "fechados_eua_e_reino_unido",
@@ -661,6 +681,73 @@ cds_calendar <- holidays |>
     .by = group
   )
 readr::write_csv(cds_calendar, file.path(OUT_DIR, "cds_calendar.csv"))
+
+# The CDS on US holidays (e-mail of 2026-10-19, item 4) ------------------------
+
+# Every weekday the NYSE or the Federal Reserve closes. Both close the Monday
+# after a Sunday holiday; the NYSE also the Friday before a Saturday one,
+# except 1 January, and the Fed does not. The bond market (SIFMA) gets no
+# column of its own: its Good Friday recommendation changes from year to year,
+# and Good Friday is in the list through the NYSE.
+us_holidays <- sample_calendar |>
+  dplyr::mutate(
+    holiday = dplyr::case_when(
+      month == 1 & day == 1 ~ "New Year's Day",
+      month == 1 & weekday == 1 & nth == 3 ~ "Martin Luther King Jr. Day",
+      month == 2 & weekday == 1 & nth == 3 ~ "Washington's Birthday",
+      date %in% GOOD_FRIDAYS ~ "Good Friday",
+      month == 5 & weekday == 1 & last_of_month ~ "Memorial Day",
+      month == 6 & day == 19 & year >= 2022 ~ "Juneteenth",
+      month == 7 & day == 4 ~ "Independence Day",
+      month == 9 & weekday == 1 & nth == 1 ~ "Labor Day",
+      month == 10 & weekday == 1 & nth == 2 ~ "Columbus Day",
+      month == 11 & day == 11 ~ "Veterans Day",
+      month == 11 & weekday == 4 & nth == 4 ~ "Thanksgiving",
+      month == 12 & day == 25 ~ "Christmas"
+    )
+  ) |>
+  dplyr::filter(!is.na(holiday)) |>
+  dplyr::mutate(
+    nyse_date = dplyr::case_when(
+      holiday %in% c("Columbus Day", "Veterans Day") ~ NA,
+      weekday == 6 & holiday != "New Year's Day" ~ date - 1L,
+      weekday == 6 ~ NA,
+      weekday == 7 ~ date + 1L,
+      .default = date
+    ),
+    fed_date = dplyr::case_when(
+      holiday == "Good Friday" | weekday == 6 ~ NA,
+      weekday == 7 ~ date + 1L,
+      .default = date
+    )
+  )
+
+cds_quotes <- cds |>
+  dplyr::arrange(date) |>
+  dplyr::transmute(date, cds, cds_previous = dplyr::lag(cds))
+
+cds_us_holidays <- dplyr::bind_rows(
+  dplyr::transmute(us_holidays, date = nyse_date, holiday, calendar = "nyse"),
+  dplyr::transmute(us_holidays, date = fed_date, holiday, calendar = "fed"),
+  dplyr::mutate(NYSE_SPECIAL_CLOSURES, calendar = "nyse")
+) |>
+  dplyr::filter(!is.na(date), date >= SAMPLE_START, date <= SAMPLE_END) |>
+  dplyr::summarise(
+    nyse_closed = "nyse" %in% calendar,
+    fed_closed = "fed" %in% calendar,
+    .by = c(date, holiday)
+  ) |>
+  dplyr::left_join(cds_quotes, by = "date") |>
+  dplyr::mutate(d_cds = cds - cds_previous, whole_number = cds == round(cds)) |>
+  dplyr::arrange(date)
+
+# The US-only days of test (A) are in the list, and the CDS quotes on every
+# day of it
+stopifnot(
+  all(holidays$date[holidays$group == "so_eua"] %in% cds_us_holidays$date),
+  !anyNA(cds_us_holidays$cds)
+)
+readr::write_csv(cds_us_holidays, file.path(OUT_DIR, "cds_us_holidays.csv"))
 
 # CDS test (B): daily alignment ------------------------------------------------
 
