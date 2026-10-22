@@ -121,6 +121,8 @@ built_no_holiday_windows$daily |>
   dplyr::select(wednesday, date, long_window, delta_di, e_di_bs) |>
   readr::write_csv("data/processed/copom_event_diagnostics_no_holiday_windows.csv")
 
+# The BS predictors go along, for the regression with the US EPU trend of
+# script/placebo_holm.R
 built$daily |>
   dplyr::select(
     wednesday,
@@ -130,7 +132,8 @@ built$daily |>
     r_ibov,
     e_di_bs,
     e_ibov_bs,
-    jk_monetary_bs
+    jk_monetary_bs,
+    dplyr::starts_with(c("pre_", "news_"))
   ) |>
   readr::write_csv("data/processed/copom_event_diagnostics.csv")
 

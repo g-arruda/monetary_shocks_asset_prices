@@ -21,8 +21,12 @@ paper does not use heteroskedasticity identification, and Anexo B carries its on
 `tab:het_variance` was merged into it; `tab:het_sequencia` was cut on 2026-09-24; its monthly VAR
 is the one under the Lenza-Primiceri rescale, stated in the note, typed from
 `output/het/het_conditions.csv` and `het_variance_ratios.csv`); §5 Robustez (`sec:robustez`) has,
-since 2026-10-22 (branch `feature/auditoria-janelas-copom`), two subsections: 5.1 `Benchmark VAR`
-(`sec:weak_iv`, the VAR benchmark unchanged) and 5.2 `Reuniões influentes e movimentos externos extremos`
+since 2026-10-22 (branch `feature/auditoria-janelas-copom`), three subsections: 5.1 `Benchmark VAR`
+(`sec:weak_iv`, the VAR benchmark unchanged), 5.2 `Placebos` (`sec:placebos`, one paragraph: the AR test of
+a zero response at h = 0, 1, 3, 6, 12, 24 with Holm over the 18 tests, read by significance level only, the
+MSCI fall as a limitation, the VIX at h0 with its 46% overlap, the US EPU trend's p = 0,275 on the 111
+meetings, and a footnote on Holm against a per-series joint Wald; Holm is named without `\cite`, author
+decision, `2026-10-22_placebos_secao_5`) and 5.3 `Reuniões influentes e movimentos externos extremos`
 (`sec:influencia`), whose `tab:influencia` gives ξ_mp, the FX and CDS impact and the horizons significant
 at 90% for production, without the 5 and the 10 most influential meetings and without the 14 extreme
 ones, typed from `output/meeting_influence/joint_strength.csv` and `joint_fx_cds.csv`; its prose reads the
@@ -42,8 +46,10 @@ Anexo C figure draws the same eight series (DI 6 meses, DI 2 anos, BRL/USD, CDS 
 Focus IPCA 12 meses, Focus Selic, DBGG), the `PAPER_PANELS` block of each annex script, and the
 captions no longer mention the IBC-Br. Anexo D (`anexo-D`, since 2026-09-25)
 carries `tab:bs_ortogonalizacao`, in BS Table 3's layout since 2026-09-26, and since 2026-09-30
-`fig:placebos` after it; §3.3's orthogonalization paragraph ends pointing to the table, and its
-last paragraph, four lines stating the US EPU violation as a limitation, points to the figure.
+`fig:placebos` after it, whose caption calls the sets pointwise by horizon, and since 2026-10-22
+`tab:placebos_holm` (series, h, p and Holm's p, typed from `output/placebo_holm/table.csv`); §3.3 ends
+with the orthogonalization paragraph pointing to `tab:bs_ortogonalizacao`, and since 2026-10-22 the
+placebos are read in §5.2, not in §3.3.
 Anexo E (`anexo-E`, since 2026-10-20, branch `feature/auditoria-janelas-copom`), "Trajetória diária e
 forma reduzida mensal", is the bridge of the e-mail of 2026-10-19 (item 2): one opening paragraph
 (transformation, window, normalization, sample, levels, why 110 and not 111 meetings, and one sentence
@@ -69,7 +75,8 @@ of 2013-11-28 (`2026-10-22_cds_janelas_influencia_extremos`).
 The preamble's `\usepackage[hyphens]{url}` and `\Urlmuskip` exist for those footnotes. Captions and `\autoref` should print "Figura/Tabela", but ⚠ `paper.tex` prints "Figure/Table": the
 `\renewcommand`s of `bd3a52c` stayed in `paper_anpec.tex` (`2026-10-22_conferir_e_trajetoria_diaria`). The body never puts a
 reference in parentheses: it goes inside the sentence or not at all.
-`script/fig_section5.R` writes §4's eight figures and `fig_placebos.pdf`, `script/fig_weak_iv.R` writes
+`script/fig_section5.R` writes §4's eight figures and `fig_placebos.pdf`, none with significance markers
+since 2026-10-22, `script/fig_weak_iv.R` writes
 the weak-IV figure, `script/q_sensitivity.R --window=cheia` writes `fig_q_sensibilidade.pdf`,
 `script/p_sensitivity.R` writes `fig_p_sensibilidade.pdf`, `script/instrument_layers_irf.R`
 writes `fig_instrumento_camadas.pdf` and `script/pandemic_sensitivity.R` writes

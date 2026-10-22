@@ -226,8 +226,6 @@ O instrumento tem duas camadas. A primeira é a surpresa, a variação do DI nes
 
 A segunda camada remove da surpresa o componente previsível pela informação pública anterior ao anúncio, que \cite{bauer2023} atribuem à subestimação, pelo mercado, da resposta do banco central às notícias, e que compromete a exogeneidade do instrumento\footnote{Houve uma tentativa de aplicar filtro de sinal proposto por \cite{jarocinski2020} após a segunda camada, o filtro retém as 67 das 111 reuniões em que a surpresa ortogonalizada do DI e o retorno ortogonalizado do Ibovespa têm sinais opostos, reduzindo $\xi_{mp}$ de $7{,}28$ para $4{,}94$ na amostra completa e de $4{,}87$ para $4{,}06$ na pré-COVID, e $F^{rob}_{mp}$ de $9{,}34$ para $7{,}26$ e de $4{,}46$ para $3{,}92$. Nenhuma resposta pontual estimada com o filtro sai do conjunto de 90\%, mas os conjuntos ficam, na mediana, $1{,}25$ vez mais largos, e os pares de série e horizonte significantes a 90\% caem cerca de um quinto}. A surpresa de cada reunião é regredida sobre uma constante e as notícias observadas até o fechamento da quarta-feira. As notícias financeiras são as variações em 65 pregões do Ibovespa, do S\&P 500, do VIX, do petróleo Brent e da inclinação da curva de DI, a diferença entre os vértices de 2 anos e 3 meses. As notícias macroeconômicas são as surpresas das divulgações do IPCA e do PIB, este na primeira divulgação, feitas desde a reunião anterior e medidas contra a mediana Focus da última pesquisa antes de cada divulgação, a aceleração do núcleo EX0, a variação anualizada nos seis meses encerrados dois meses antes da reunião menos a dos seis meses anteriores, e a mediana Focus do próximo IPCA a ser divulgado. O Ibovespa entra porque a regra de política estimada por \cite{castelnuovo} responde às condições do mercado acionário. O resíduo, somado dentro de cada mês, é o instrumento de produção. As estimativas estão na \autoref{tab:bs_ortogonalizacao}, no Anexo D.
 
-A \autoref{fig:placebos}, no Anexo D, mostra as respostas de três séries externas que o choque não deveria mover, o VIX, o MSCI de mercados emergentes e o EPU dos Estados Unidos. Nos dois primeiros anos, só a resposta do EPU é significante a 90\%, do primeiro ao terceiro mês, e essa resposta, que permanece quando o EPU diário anterior à reunião entra na ortogonalização, é uma limitação da identificação.
-
 \subsection{Relevância do instrumento e inferência}
 
 A relevância, $E[z_t \varepsilon_t^{p}] \neq 0$, é testada no primeiro estágio, a regressão da inovação do DI de 6 meses implicada pelos fatores sobre o instrumento e os regressores do VAR dos fatores. Na \autoref{tab:first_stage}, o coeficiente do instrumento de produção é $0{,}657 \times 10^{-4}$, com erro-padrão de $0{,}215 \times 10^{-4}$ e $p$ de $0{,}003$.
@@ -423,6 +421,11 @@ Ao longo do primeiro ano o IPCA sobe nos dois modelos, a $0{,}045$ ponto percent
 \label{fig:weak_iv_main}
 \end{center}
 \end{figure}
+
+\subsection{Placebos}
+\label{sec:placebos}
+
+A \autoref{fig:placebos}, no Anexo D, mostra as respostas de três séries externas que o choque monetário brasileiro não deveria mover, o VIX, o MSCI de mercados emergentes e o EPU dos Estados Unidos, e a \autoref{tab:placebos_holm}, no mesmo anexo, dá o $p$ do teste Anderson--Rubin de resposta nula de cada série nos horizontes de 0, 1, 3, 6, 12 e 24 meses, fixados antes de ver os resultados, sem e com a correção de Holm para os 18 testes\footnote{A correção de Holm controla a probabilidade de ao menos uma rejeição falsa entre as 18 comparações pontuais e usa os próprios $p$ do teste Anderson--Rubin. Ela não é um teste conjunto de Wald, que testaria de uma vez a resposta nula de uma série em todos os horizontes levando em conta a correlação entre eles}. Depois da correção, nenhum teste rejeita a resposta nula a 10\%, o que não comprova a exogeneidade do instrumento, porque o resultado também pode refletir pouca precisão. Sem a correção, o MSCI de mercados emergentes cai e é significante a 95\% no primeiro e no terceiro mês e a 90\% no impacto e no sexto mês, o VIX cai e é significante a 90\% no sexto mês, e o EPU não é significante em nenhum dos seis horizontes. A queda do MSCI é uma limitação do exercício, que não distingue a participação do Brasil no índice, a repercussão do choque brasileiro sobre os demais emergentes e a exposição do instrumento a notícias comuns a esses mercados. O VIX do painel é o fechamento do mês, e em média 46\% dos dias do mês do impacto caem antes do fechamento da quarta-feira da reunião, dentro da janela de 65 pregões cuja variação do VIX entra na ortogonalização, de modo que o teste no impacto não é uma checagem de todo independente dela. Do primeiro mês em diante, a ortogonalização não restringe a resposta do VIX. Quando a variação logarítmica da média do EPU diário dos Estados Unidos nos 91 dias corridos até a quarta-feira, contra a dos 91 dias anteriores, entra como décima notícia na regressão da \autoref{tab:bs_ortogonalizacao}, o teste de que seu coeficiente é nulo tem $p$ de $0{,}275$, o que indica ausência de evidência de que essa tendência preveja a surpresa nessa especificação, sem validar a exogeneidade do instrumento.
 
 \subsection{Reuniões influentes e movimentos externos extremos}
 \label{sec:influencia}
@@ -771,10 +774,43 @@ Observações                             & 111 \\
 \begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.7]{img/fig_placebos.pdf}
-\caption{\textbf{Placebos}\\{Resposta de séries externas a um choque contracionista normalizado em 50 pontos-base no DI de 6 meses, em pontos de cada índice. A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%.}}
+\caption{\textbf{Placebos}\\{Resposta de séries externas a um choque contracionista normalizado em 50 pontos-base no DI de 6 meses, em pontos de cada índice. A linha preta mostra a estimativa pontual, e as áreas escura e clara mostram os conjuntos Anderson--Rubin de 80\% e 90\%, pontuais por horizonte e sem correção para múltiplos horizontes. Os testes com correção estão na \autoref{tab:placebos_holm}.}}
 \label{fig:placebos}
 \end{center}
 \end{figure}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+Série & $h$ & $p$ & $p$ de Holm \\
+\midrule
+VIX             & 0  & $0{,}935$ & $1{,}000$ \\
+                & 1  & $0{,}956$ & $1{,}000$ \\
+                & 3  & $0{,}112$ & $1{,}000$ \\
+                & 6  & $0{,}084$ & $1{,}000$ \\
+                & 12 & $0{,}317$ & $1{,}000$ \\
+                & 24 & $0{,}364$ & $1{,}000$ \\
+\addlinespace
+MSCI emergentes & 0  & $0{,}068$ & $1{,}000$ \\
+                & 1  & $0{,}035$ & $0{,}632$ \\
+                & 3  & $0{,}044$ & $0{,}743$ \\
+                & 6  & $0{,}091$ & $1{,}000$ \\
+                & 12 & $0{,}378$ & $1{,}000$ \\
+                & 24 & $0{,}296$ & $1{,}000$ \\
+\addlinespace
+EPU dos EUA     & 0  & $0{,}384$ & $1{,}000$ \\
+                & 1  & $0{,}348$ & $1{,}000$ \\
+                & 3  & $0{,}171$ & $1{,}000$ \\
+                & 6  & $0{,}283$ & $1{,}000$ \\
+                & 12 & $0{,}604$ & $1{,}000$ \\
+                & 24 & $0{,}179$ & $1{,}000$ \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Placebos com correção de Holm}\\{$p$ do teste Anderson--Rubin de \cite{montielolea} de que a resposta da série no horizonte $h$, em meses, a um choque contracionista de 50 pontos-base no DI de 6 meses é nula, com Newey--West de ordem zero, e o mesmo $p$ ajustado pela correção de Holm na família dos 18 testes, avaliada a 10\%. Os horizontes foram fixados antes de ver os resultados. Especificação de produção, com $(r,q,p)=(5,5,4)$, de março de 2012 a dezembro de 2025.}}
+\label{tab:placebos_holm}
+\end{table}
 
 \section*{Anexo E. Trajetória diária e forma reduzida mensal}\label{anexo-E}
 

@@ -57,7 +57,11 @@ from "the collection came back empty", and the error only surfaces months later,
   - GDP as first released, read from each IBGE release PDF, because SIDRA keeps only the revised
     vintage.
 
-  Its own network stage, so it runs without refreshing the production panel.
+  Its own network stage, so it runs without refreshing the production panel. Since 2026-10-22 on
+  `feature/auditoria-janelas-copom` it also writes `data/raw/epu/us_daily_policy_uncertainty.csv`, the
+  Baker-Bloom-Davis daily US EPU (code brought from `feature/placebo-epu`; the file on disk is that
+  branch's download of 2026-09-29). It never enters the instrument: only `script/placebo_holm.R` reads
+  it, for the EPU-trend test of §5.2.
 - `data/raw/di.csv`, `data/raw/copom_historico.csv`, `data/raw/ibov_daily.csv`,
   `data/raw/investing/external_factors_daily.csv` — daily inputs to instrument construction, with
   the two macro news files above. `script/instrument.R` reads no exchange rate.

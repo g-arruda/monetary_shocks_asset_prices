@@ -4,8 +4,7 @@
 # Reads the cached production estimation object. NOTHING is re-estimated here.
 #
 # Every IRF figure runs to h = 36 and carries the 80% and 90% Anderson-Rubin
-# sets. The eight figures in the results section omit significance markers;
-# the placebo figure retains them. The 80% set is the darker ribbon.
+# sets, with no significance markers. The 80% set is the darker ribbon.
 #
 # Output: paper/img/fig_*.pdf, where paper.tex reads them as img/fig_*.pdf.
 # ===================================================================
@@ -15,16 +14,16 @@ H_MAX <- 36L   # every IRF figure stops here
 
 # One figure per row, written to paper/img/fig_<figure>.pdf
 FIGURES <- tibble::tribble(
-  ~figure,         ~ncol, ~width, ~height, ~mark_sig90,
-  "curva",         4,     10.4,   5.8,     FALSE,
-  "cambio_risco",  2,     9.6,    5.8,     FALSE,
-  "fiscal",        2,     9.6,    5.8,     FALSE,
-  "expectativas",  4,     10.4,   5.8,     FALSE,
-  "atividade",     4,     10.4,   5.8,     FALSE,
-  "credito",       4,     10.4,   5.8,     FALSE,
-  "precos",        4,     10.4,   5.8,     FALSE,
-  "acoes",         4,     10.4,   5.8,     FALSE,
-  "placebos",      3,     9.6,    3.1,     TRUE
+  ~figure,         ~ncol, ~width, ~height,
+  "curva",         4,     10.4,   5.8,
+  "cambio_risco",  2,     9.6,    5.8,
+  "fiscal",        2,     9.6,    5.8,
+  "expectativas",  4,     10.4,   5.8,
+  "atividade",     4,     10.4,   5.8,
+  "credito",       4,     10.4,   5.8,
+  "precos",        4,     10.4,   5.8,
+  "acoes",         4,     10.4,   5.8,
+  "placebos",      3,     9.6,    3.1
 )
 
 # The panels of each figure, in plotting order. The response is multiplied by
@@ -127,10 +126,9 @@ var_names <- cell$var_names
 #' @param label Label for the vertical axis.
 #' @param scale Multiplicative constant that puts the response in the units of
 #'   the label.
-#' @param mark_sig90 Whether to mark horizons whose 90% set excludes zero.
 #'
 #' @return A ggplot object with the point response and the 80%/90% sets.
-irf_panel <- function(variable, label, scale, mark_sig90) {
+irf_panel <- function(variable, label, scale) {
   row <- match(variable, var_names)
   if (is.na(row)) {
     stop(sprintf(
@@ -140,29 +138,14 @@ irf_panel <- function(variable, label, scale, mark_sig90) {
   }
   columns <- 0:H_MAX + 1
 
-  # Significance comes from the 90% set itself: irf_coherence_h.csv covers
-  # only the scored series, and the figures also plot series outside it.
   responses <- tibble::tibble(
     h = 0:H_MAX,
     irf = scale * point[row, columns],
     lo80 = scale * ci80$lower[row, columns],
     hi80 = scale * ci80$upper[row, columns],
     lo90 = scale * ci90$lower[row, columns],
-    hi90 = scale * ci90$upper[row, columns],
-    sig = ci90$lower[row, columns] > 0 | ci90$upper[row, columns] < 0
+    hi90 = scale * ci90$upper[row, columns]
   )
-
-  sig_markers <- if (mark_sig90) {
-    ggplot2::geom_point(
-      data = dplyr::filter(responses, sig),
-      ggplot2::aes(y = irf),
-      shape = 21,
-      fill = "#d95f02",
-      colour = "black",
-      size = 1.9,
-      stroke = 0.45
-    )
-  }
 
   ggplot2::ggplot(responses, ggplot2::aes(x = h)) +
     ggplot2::geom_ribbon(
@@ -186,7 +169,6 @@ irf_panel <- function(variable, label, scale, mark_sig90) {
       colour = "black",
       linewidth = 0.8
     ) +
-    sig_markers +
     ggplot2::scale_x_continuous(
       breaks = seq(0, H_MAX, 6),
       limits = c(0, H_MAX),
@@ -201,9 +183,9 @@ irf_panel <- function(variable, label, scale, mark_sig90) {
     )
 }
 
-purrr::pwalk(FIGURES, function(figure, ncol, width, height, mark_sig90) {
+purrr::pwalk(FIGURES, function(figure, ncol, width, height) {
   plots <- purrr::pmap(PANELS[[figure]], function(variable, label, scale) {
-    irf_panel(variable, label, scale, mark_sig90)
+    irf_panel(variable, label, scale)
   })
   ggplot2::ggsave(
     paste0("paper/img/fig_", figure, ".pdf"),

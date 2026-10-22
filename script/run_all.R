@@ -70,7 +70,8 @@ STAGES <- list(
     requires = character(),
     produces = c(
       "data/raw/focus_macro_expectations.csv",
-      "data/raw/macro_released.csv"
+      "data/raw/macro_released.csv",
+      "data/raw/epu/us_daily_policy_uncertainty.csv"
     )
   ),
   focus_current_year = list(

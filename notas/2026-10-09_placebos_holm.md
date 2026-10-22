@@ -1,5 +1,9 @@
 # Placebos com avaliação conjunta por Holm
 
+> **O p = 0,54 (seção 5) é das 102 reuniões e foi superado em 2026-10-22** por
+> [`2026-10-22_placebos_secao_5`](2026-10-22_placebos_secao_5.md), seção 1: 0,275 nas 111. A hipótese e a
+> leitura seguem valendo.
+
 > **NÚMEROS SUPERADOS em 2026-10-12** por
 > [`2026-10-12_msci_emergentes`](2026-10-12_msci_emergentes.md), seção 6. A seção 4 desta nota achou
 > que a `msci` era a ação da MSCI Inc., e a série passou a ser o índice MSCI de emergentes. Os passos 0

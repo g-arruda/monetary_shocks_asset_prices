@@ -10,6 +10,16 @@ Os blocos vieram de `pendencias.md` em 2026-10-19, sem edição. Referências co
 
 ## A. Texto do paper
 
+- [x] **Placebos na §5.2 e `fig:placebos` — 2026-10-22.** E-mails de 08-10, de 12-10 (item 4) e de 19-10
+  (item 5). Os placebos vão numa subseção própria, a §5.2, e o parágrafo da §3.3 saiu. Holm vai nos 18
+  testes, com rodapé sobre o Wald por série, e não rejeita nada. Sem ajuste, o MSCI de emergentes cai e é
+  significante em h0, h1, h3 e h6, como limitação, e o VIX em h6. O VIX em h0 vem com 46% de
+  sobreposição. A `tab:placebos_holm` vai no Anexo D, e a figura fica sem marcadores. ⚠ Fora da família,
+  o MSCI é significante a 90% em h35–h42, e isso não está no texto. Nota: `2026-10-22_placebos_secao_5`.
+- [x] **Escrever o p do teste do EPU — 2026-10-22.** E-mails de 03-10 (passo 4) e de 12-10 (item 4). O
+  0,54 era das 102 reuniões. Reestimado nas 111 pela parte C de `placebo_holm.R`, o p é 0,275 (coeficiente
+  −0,051, EP HC1 0,047), e o 0,543 das 102 foi reproduzido. Uma frase na §5.2 lê o resultado como
+  ausência de evidência de poder preditivo, sem validar a exogeneidade. Nota: `2026-10-22_placebos_secao_5`.
 - [x] **Influência, extremos e surpresa bruta no texto — 2026-10-22.** E-mails de 12-10, item 1, e de
   19-10, item 5. A §5 passa a ter duas subseções, 5.1 Benchmark VAR e 5.2 com a `tab:influencia`, cuja prosa
   fala só de sinal e significância. Sem as 10 mais influentes, o resultado é inconclusivo (ξ_mp 2,36). Sem

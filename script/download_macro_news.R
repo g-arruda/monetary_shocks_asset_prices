@@ -2,7 +2,9 @@
 # Raw inputs of the macroeconomic news block of the Bauer-Swanson (2023,
 # Table 3) pre-event regression: the Focus panels of monthly IPCA and
 # quarterly GDP expectations, the released IPCA and EX0 core (SGS), and GDP
-# as first released by IBGE. A stage of its own so that it runs without
+# as first released by IBGE; and the Baker-Bloom-Davis daily US economic
+# policy uncertainty index, whose pre-event trend script/placebo_holm.R adds
+# to that regression. A stage of its own so that it runs without
 # re-downloading the production panel of script/download.R.
 #
 # GDP comes from the release PDFs because SIDRA keeps only the revised
@@ -25,6 +27,10 @@ GDP_QUARTERS <- seq(as.Date("2011-10-01"), as.Date("2025-07-01"), by = "quarter"
 IBGE_CNT_URL <- paste0(
   "https://ftp.ibge.gov.br/Contas_Nacionais/Contas_Nacionais_Trimestrais/",
   "Fasciculo_Indicadores_IBGE"
+)
+EPU_DAILY_URL <- paste0(
+  "https://www.policyuncertainty.com/media/",
+  "All_Daily_Policy_Data.csv"
 )
 
 focus_ipca <- fetch_olinda(
@@ -136,3 +142,11 @@ dplyr::bind_rows(focus_ipca, focus_gdp) |>
 dplyr::bind_rows(ipca_released, gdp_first_release) |>
   dplyr::arrange(indicator, reference) |>
   readr::write_csv("data/raw/macro_released.csv")
+
+# The newspaper-based daily index, every calendar day since 1985
+readr::read_csv(EPU_DAILY_URL, show_col_types = FALSE) |>
+  dplyr::transmute(
+    date = lubridate::make_date(year, month, day),
+    epu = daily_policy_index
+  ) |>
+  readr::write_csv("data/raw/epu/us_daily_policy_uncertainty.csv")

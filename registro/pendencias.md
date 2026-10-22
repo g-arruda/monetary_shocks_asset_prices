@@ -30,8 +30,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 | Passo | Tema | Item | Depende de | Decisão do autor |
 |---|---|---|---|---|
-| 3 | A | Placebos na §3.3 e `fig:placebos` | — | — |
-| 3 | A | Escrever o p = 0,54 do teste do EPU | junto com os placebos | — |
 | 3 | A | Linha diária do Anexo B | — | janela do CDS sem reunião |
 | 4 | A | Versão integrada | passo 3 | — |
 | 4 | A | Ressalvas da linha diária no resumo | linha diária do Anexo B | é a própria decisão |
@@ -43,28 +41,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 ## A. Texto do paper
 
-- [ ] **Placebos na §3.3 e `fig:placebos`.** E-mails de 08-10, de 12-10 (item 4) e de 19-10 (item 5). Os
-  números na base de 111 estão na nota `2026-10-20_saidas_base_111`, seção 4, e `fig:placebos` já foi
-  redesenhada.
-  - A figura descreve as respostas, e a legenda diz que os conjuntos são pontuais. A contagem de pontos
-    significantes não serve como evidência conjunta.
-  - Holm controla as comparações pontuais da família e não é um Wald conjunto. Dizer por que difere do
-    teste conjunto por série e pôr os p-valores sem ajuste ao lado dos ajustados.
-  - A leitura: não rejeitamos resposta zero depois do ajuste, o que não comprova exogeneidade e pode
-    refletir pouca precisão.
-  - ⚠ A queda do índice de emergentes em h0, h1, h3 e h6 fica visível e entra como limitação. O exercício não
-    separa o peso do Brasil no índice, as repercussões do choque e as notícias comuns aos emergentes.
-  - Vai também a ressalva do VIX em h0: o mês se sobrepõe à janela da ortogonalização. Nenhum placebo
-    novo.
-  - ⚠ O parágrafo atual diz que o EPU é significante a 90% em h1–h3. Na base nova, não é em nenhum
-    horizonte.
-  - Escrever junto com o p = 0,54.
-- [ ] **Escrever o p = 0,54 do teste do EPU.** E-mails de 03-10 (passo 4) e de 12-10 (item 4).
-  - Explicitar a hipótese testada: H0 β_EPU = 0 na regressão BS da surpresa com `pre_epu` (nota
-    `2026-10-09_placebos_holm`, seção 5).
-  - Descrever o resultado como ausência de evidência de poder preditivo nessa especificação, sem lê-lo
-    como validação da exogeneidade. Vai no corpo ou em nota.
-  - ⚠ O teste só existe na branch `feature/placebo-epu`.
 - [ ] **Linha diária do Anexo B.** O câmbio realinhado e o CDS às 17h de Nova York em `tab:het_frequency`.
   - Câmbio: já realinhado em 10-13, falta levar ao `.tex` (nota `2026-10-13_cambio_yahoo_convencao`,
     seção 7). As frases da §3.3 continuam verdadeiras. ⚠ A janela vem da hora inferida do Yahoo, que é
