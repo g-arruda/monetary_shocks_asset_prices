@@ -35,7 +35,9 @@ all** (author decision; since 2026-09-30 one §3.4 footnote gives the strength a
 `notas/2026-09-30_nota_filtro_jk.md`): `tab:first_stage` has two rows, `tab:bs_ortogonalizacao` only the DI column,
 and `fig:instrumento_camadas` only production and `z_bruto`
 (`notas/2026-09-26_migracao_paper_bs_purif.md`). `z_jk_bs_purif` is still built, because the
-strength grid and the diagnostics use all three layers.
+strength grid and the diagnostics use all three layers. Since 2026-10-21 `script/instrument_layers_irf.R`
+estimates it again and writes its responses to `output/irf/instrument_layers_irf.csv`, for the §3.3
+footnote, while `FIGURE_LAYERS` keeps it out of the figure (`notas/2026-10-21_artigo_base_111.md`).
 
 **Only the three variants of `tab:first_stage` exist in live code since 2026-09-18**, one per
 construction layer: `z_bruto` (raw Wed→Thu surprise), `z_bs_purif` (+ Bauer-Swanson pre-event

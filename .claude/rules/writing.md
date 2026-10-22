@@ -41,7 +41,11 @@ last paragraph, four lines stating the US EPU violation as a limitation, points 
 Anexo E (`anexo-E`, since 2026-10-20, branch `feature/auditoria-janelas-copom`), "Trajetória diária e
 forma reduzida mensal", is the bridge of the e-mail of 2026-10-19 (item 2): one opening paragraph
 (transformation, window, normalization, sample, levels, why 110 and not 111 meetings, and one sentence
-on the 104-meeting sensitivity), then `fig:ponte` and `tab:ponte`. By author decision of 2026-10-20 both
+on the 104-meeting sensitivity), then `fig:ponte` and `tab:ponte`, and since 2026-10-22 a closing paragraph
+that reads both floats (item 1 of the e-mail) by sign and significance level, with no number, author
+decision. §4.2's significance paragraph ends with the one sentence that points to them and carries item 5
+(consistent with a risk-related transmission, without identifying that risk causes the depreciation).
+By author decision of 2026-10-20 both
 floats carry **90% and 95%**, not 80/90%: the figure's intervals are Wald per +50bp of surprise, and the
 table puts the monthly reduced form, as an IV per +50bp of the end-of-month 6-month DI, beside the DFM,
 both as Anderson--Rubin sets, in three blocks (panel series, the alternative aggregation, DFM). The 95%
@@ -51,7 +55,8 @@ rule, the DI, the Yahoo rate, the CDS) and `tab:horarios`, with the sources as U
 since the 25-key budget is full; one footnote in §3.3, on "O Copom anuncia a decisão depois do fechamento
 do mercado", points to it. By author decision of 2026-10-21 the Yahoo and CDS times are written as fact,
 without "hipótese", though neither provider documents them (`2026-10-21_convencoes_temporais_feriados_cds`).
-The preamble's `\usepackage[hyphens]{url}` and `\Urlmuskip` exist for those footnotes. Captions and `\autoref` print "Figura/Tabela", and the body never puts a
+The preamble's `\usepackage[hyphens]{url}` and `\Urlmuskip` exist for those footnotes. Captions and `\autoref` should print "Figura/Tabela", but ⚠ `paper.tex` prints "Figure/Table": the
+`\renewcommand`s of `bd3a52c` stayed in `paper_anpec.tex` (`2026-10-22_conferir_e_trajetoria_diaria`). The body never puts a
 reference in parentheses: it goes inside the sentence or not at all.
 `script/fig_section5.R` writes §4's eight figures and `fig_placebos.pdf`, `script/fig_weak_iv.R` writes
 the weak-IV figure, `script/q_sensitivity.R --window=cheia` writes `fig_q_sensibilidade.pdf`,
@@ -78,7 +83,13 @@ caption and in §3.4, and **no JK sign filter in the instrument**: since 2026-09
 `feature/robustez-pandemia`) the filter appears only in one §3.4 footnote on why it is out, and §2
 cites JK as literature. The abstracts and §1 describe the instrument without it. §3.3 has two layers,
 `tab:first_stage` two rows, `tab:bs_ortogonalizacao` one DI column (coefficient and SE) over the
-102 meetings, and `fig:instrumento_camadas` only production and the raw surprise.
+111 meetings since 2026-10-21 (102 before), and `fig:instrumento_camadas` only production and the raw
+surprise. Since 2026-10-21 (branch `feature/auditoria-janelas-copom`) §3.3 carries two footnotes on the
+sample, the 7 Wednesday-to-Friday windows and the 104-meeting sensitivity with z = 0 in the moments, and
+§3.4 has three paragraphs, relevance, strength (with ξ_mp's equation in a footnote) and the boundedness of
+the sets; the 10 stays uncited (`2026-10-21_artigo_base_111`). The 22 sentences whose claim flipped on the
+111 base were rewritten in place on 2026-10-22, by author decision, and no `[conferir]` marker is left
+(`2026-10-22_conferir_e_trajetoria_diaria`).
 `tab:rq_sweep` no longer exists.
 
 §4's prose reports **points**, by author decision of 2026-09-24. It cites the

@@ -30,15 +30,12 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 | Passo | Tema | Item | Depende de | Decisão do autor |
 |---|---|---|---|---|
-| 2 | A | Amostra e construção do instrumento na §3.3 e na §3.4 | — | 26ª chave para Staiger e Stock? |
-| 2 | A | Atualizar os números do artigo para a base de 111 reuniões | — | — |
-| 3 | A | Leitura da trajetória diária na §4 | — | — |
 | 3 | A | CDS estreito contra ampliado | — | — |
 | 3 | A | Influência, extremos e surpresa bruta no texto | — | — |
 | 3 | A | Placebos na §3.3 e `fig:placebos` | — | — |
 | 3 | A | Escrever o p = 0,54 do teste do EPU | junto com os placebos | — |
 | 3 | A | Linha diária do Anexo B | — | janela do CDS sem reunião |
-| 4 | A | Versão integrada | passos 2 e 3 | — |
+| 4 | A | Versão integrada | passo 3 | — |
 | 4 | A | Ressalvas da linha diária no resumo | linha diária do Anexo B | é a própria decisão |
 | 4 | A | Tabela antigo × novo | versão integrada | — |
 | 5 | B | Promover a branch para `main` | versão integrada, tabela antigo × novo | — |
@@ -48,42 +45,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 ## A. Texto do paper
 
-- [ ] **Amostra e construção do instrumento na §3.3 e na §3.4.** E-mail de 19-10, item 3.
-  - A base são as 111 reuniões, e a sensibilidade são as 104. Na trajetória diária, a sensibilidade
-    exclui as sete reuniões. No DFM e na forma reduzida mensal, elas entram com z = 0. Descrever o z = 0
-    como regra de construção do instrumento, sem afirmar que o choque foi nulo.
-  - Documentar como o z = 0 entra nos momentos e na variância deles. É o preenchimento por zero de MOSW
-    (`SVARIV.m:128`), e o VAR usa os 162 meses.
-  - Separar relevância, limitação dos conjuntos AR e força do instrumento. O 10 de Staiger e Stock entra
-    só como referência convencional. ⚠ O orçamento de 25 chaves está cheio (`dovern2012` é a 25ª), e
-    citar Staiger e Stock exige uma 26ª.
-  - A grade de força e a `tab:first_stage` na base de 111 estão na nota `2026-10-20_saidas_base_111`,
-    seção 1. ⚠ Nela o F_rob da surpresa bruta passa de 10, e o ξ_mp não.
-- [ ] **Atualizar os números do artigo para a base de 111 reuniões.** E-mail de 12-10, item 1, com a base
-  fixada pelo de 19-10.
-  - Todo número da §3.4, da §4, da §5 e dos anexos C e D passa à base congelada. O que cita 102 reuniões
-    passa a 111, com a BS refeita.
-  - Reportar também os horizontes não significantes. Conferir se a reversão de longo prazo continua
-    significante só a 80%, como na base de 102. ⚠ A do CDS é significante a 90% em h35–h36.
-  - ⚠ "O IPCA nunca fica positivo" (§4) deixa de valer.
-  - ⚠ No VAR da §5, o IBC-Br passa a ser significante só no impacto.
-  - A §3.2 e o Anexo A já foram escritos na branch em 17-10.
-  - Os números das saídas a jusante estão na nota `2026-10-20_saidas_base_111`, e `paper/img/` já está na
-    base de 111. Desbloqueia a versão integrada e a tabela antigo × novo.
-- [ ] **Leitura da trajetória diária na §4.** E-mail de 19-10, item 1; os números estão na nota
-  `2026-10-18_conferencias_ponte`.
-  - A apreciação na 1ª cotação é uma estimativa pontual imprecisa.
-  - A depreciação na 20ª cotação pede linguagem de consistência, porque o limite inferior está perto de
-    zero.
-  - A troca de sinal não é datada.
-  - Os intervalos são por horizonte, sem correção para múltiplos horizontes.
-  - A alta do CDS vai com o nível de cada horizonte. Uma frase, sem leitura causal, diz que o CDS é
-    significante já na 10ª cotação e o câmbio só na 20ª.
-  - O horizonte é dado em cotações, não em dias corridos.
-  - A figura e a tabela estão no Anexo E (`fig:ponte`, `tab:ponte`), e a §4 ainda não aponta para ele.
-    ⚠ A figura é por +50 p.b. de surpresa, e a tabela por +50 p.b. no DI de 6 meses, com a forma reduzida
-    como IV. A comparação mostra coerência de sinais e dinâmica, sem tratar as magnitudes como medidas do
-    mesmo objeto.
 - [ ] **CDS estreito contra ampliado.** E-mail de 19-10, item 4.
   - Entra como sensibilidade ao alinhamento temporal, não como evidência de um mecanismo, porque a janela
     ampliada também pega outras notícias.
@@ -140,21 +101,24 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
   leitura da §4 migrada (nota `2026-09-24_migracao_secao_4`, §5).
   - A depreciação e a alta do CDS em horizontes posteriores aparecem também fora do DFM. A evidência é
     consistente com uma transmissão associada ao risco, mas não identifica que o risco causa a
-    depreciação.
+    depreciação. A frase já está na §4.2 desde 22-10, e faltam a introdução e a conclusão.
   - Manter os resultados menos favoráveis (os itens de influência e de placebos).
   - Três passagens ficaram fracas desde 2026-09-24:
-    - "o mercado de trabalho responde com defasagem" (`paper.tex:431`), quando as horas caem no impacto;
-    - a reversão "altamente sincronizada" (`paper.tex:427`) e "in close synchrony" no resumo, quando os
+    - "o mercado de trabalho responde com defasagem" (`paper.tex:434`), quando as horas caem no impacto;
+    - a reversão "altamente sincronizada" (`paper.tex:430`) e "in close synchrony" no resumo, quando os
       cruzamentos de zero se espalham;
     - o silêncio do resumo e da conclusão sobre a atividade negativa e sobre a NFSP primária positiva.
-  - ⚠ Os números dessas passagens são de `main` e mudam com a base de 111.
-  - Depende dos passos 2 e 3. Desbloqueia a promoção.
+  - A introdução ainda põe a regra de sinal de JK no instrumento (decisão do autor de 21-10: fica para
+    este item).
+  - ⚠ `\autoref` e as legendas imprimem "Figure/Table": os `\renewcommand` de `bd3a52c` ficaram em
+    `paper_anpec.tex` (nota `2026-10-22_conferir_e_trajetoria_diaria`, seção 3).
+  - Depende do passo 3. Desbloqueia a promoção.
 - [ ] **Ressalvas da linha diária no resumo.** Decidir se o resumo as carrega.
-  - O resumo (`paper.tex:111`) diz que a condição "holds daily but fails in our monthly panel", sem duas
+  - O resumo (`paper.tex:112`) diz que a condição "holds daily but fails in our monthly panel", sem duas
     ressalvas. O vértice decide no diário, e a correção de curtose também (÷4,9). No corpo, o vértice está
     na §3.3, e a curtose, em `tab:het_frequency`.
   - ⚠ A mesma frase põe "frequency and identification strategy" como origem da divergência, e a
-    introdução (`paper.tex:144`) diz o mesmo. A proibição de 2026-09-22 veda decompor frequência e objeto
+    introdução (`paper.tex:145`) diz o mesmo. A proibição de 2026-09-22 veda decompor frequência e objeto
     medido (nota `2026-09-22_condicao_het_svars`).
   - Depende da linha diária do Anexo B. Decide-se junto com a versão integrada.
 - [ ] **Tabela antigo × novo.** O e-mail de 12-10 (item 1) a pede "para facilitar a revisão", sem dizer se

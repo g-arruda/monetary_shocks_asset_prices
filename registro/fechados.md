@@ -10,6 +10,27 @@ Os blocos vieram de `pendencias.md` em 2026-10-19, sem edição. Referências co
 
 ## A. Texto do paper
 
+- [x] **Leitura da trajetória diária — 2026-10-22.** E-mail de 19-10, item 1. Parágrafo sem números no fim
+  do Anexo E, depois da `tab:ponte`: câmbio não significante a 90% até a 10ª cotação e significante a 95% na
+  20ª, com limite inferior perto de zero; CDS a 95% na 10ª e só a 90% na 20ª; na agregação alternativa o
+  câmbio não é significante a 90%. A §4.2 ganhou uma frase com a leitura do item 5 e o ponteiro (decisões
+  do autor). Nota: `2026-10-22_conferir_e_trajetoria_diaria`.
+- [x] **Reescrever as 22 frases marcadas `[conferir]` — 2026-10-22.** Reescritas no lugar, sem marcador. O
+  IPCA do DFM sobe no impacto e fica positivo até h7, o VAR coincide em 4 de 5 sinais, a ortogonalização
+  reduz ξ_mp e F_rob (F_rob sem número no texto), e a conclusão perdeu a cláusula da apreciação. Nota:
+  `2026-10-22_conferir_e_trajetoria_diaria`.
+- [x] **Atualizar os números do artigo para a base de 111 reuniões — 2026-10-21.** E-mail de 12-10, item 1.
+  §3.4, §4, §5 e Anexo D na base de 111; resumo, introdução e conclusão só em números e datas. A §4.2
+  ganhou os horizontes significantes a 90%, só a 80% e não significantes de BRL/USD, EMBI+ e CDS: a
+  apreciação cambial é significante só a 80% (h26–h36), o CDS e o EMBI+ a 90% em h35–h36. Onde a
+  afirmação virou (o IPCA do DFM sobe no impacto, +0,020), ficou um marcador, item aberto no Tema A.
+  Nota: `2026-10-21_artigo_base_111`.
+- [x] **Amostra e construção do instrumento na §3.3 e na §3.4 — 2026-10-21.** E-mail de 19-10, item 3.
+  Dois rodapés na §3.3: as 7 janelas de quarta a sexta, e a sensibilidade de 104 com z = 0 nos momentos
+  (ξ_mp 6,55, câmbio 0,136, CDS 32,4). A §3.4 em relevância, força (equação de ξ_mp em rodapé) e
+  limitação dos conjuntos. Decisão do autor: o 10 sem citar Staiger e Stock, e o F_rob da bruta (10,85)
+  só na tabela. O rodapé do JK refeito com a célula reestimada: 67 de 111, pares significantes
+  1390 → 1122. Nota: `2026-10-21_artigo_base_111`.
 - [x] **Apêndice com as convenções temporais e as fontes — 2026-10-21.** E-mail de 19-10, item 4. Anexo F
   novo, depois do E: anúncio e margem de 30 minutos, DI, Yahoo e CDS, a `tab:horarios` e as fontes em três
   rodapés com URL. A §3.3 aponta para ele num rodapé. Decisões do autor: Anexo F, e não um rodapé único;

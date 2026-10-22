@@ -148,6 +148,28 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Os 22 marcadores `[conferir]` e a leitura da trajetória diária (2026-10-22, branch `feature/auditoria-janelas-copom`):**
+[`2026-10-22_conferir_e_trajetoria_diaria`](2026-10-22_conferir_e_trajetoria_diaria.md)
+**CURRENT na branch, não mergeada; nada reestimado.** O passo 2 e o item da trajetória diária do passo 3.
+- **Marcadores.** As 22 frases reescritas no lugar, sem marcador: o IPCA do DFM sobe no impacto e fica
+  positivo até h7, os sinais do VAR coincidem em 4 de 5, a ortogonalização reduz ξ_mp e F_rob, e a
+  conclusão fica só com o câmbio significante a 90% de h0 a h6.
+- **Trajetória diária.** Leitura sem números num parágrafo novo no fim do Anexo E, e uma frase na §4.2 com
+  a leitura do item 5 do e-mail de 19-10 e o ponteiro para a `fig:ponte` e a `tab:ponte`.
+- ⚠ `\autoref` e as legendas imprimem "Figure/Table": os `\renewcommand` de `bd3a52c` ficaram em
+  `paper_anpec.tex`.
+
+**Os números do artigo na base de 111 e a amostra do instrumento na §3.3 e na §3.4 (2026-10-21, branch `feature/auditoria-janelas-copom`):**
+[`2026-10-21_artigo_base_111`](2026-10-21_artigo_base_111.md)
+**CURRENT na branch, não mergeada; a produção não muda.** Os dois itens do passo 2.
+- **§3.3 e §3.4.** As 7 janelas de quarta a sexta e a sensibilidade de 104 com z = 0 em dois rodapés; a
+  §3.4 em relevância, força e limitação dos conjuntos, com a equação de ξ_mp em rodapé. O rodapé do JK foi
+  refeito com a célula estimada em `instrument_layers_irf.R`: 67 de 111 reuniões, ξ_mp 7,28 → 4,94.
+- **Números.** §3.4, §4, §5, Anexo D, e só números e datas no resumo, na introdução e na conclusão.
+- ⚠ 22 marcadores `[conferir]` em vermelho onde a afirmação virou: o IPCA do DFM sobe no impacto (+0,020),
+  a ortogonalização reduz ξ_mp, os sinais do VAR coincidem em 4 de 5, e a apreciação cambial é
+  significante só a 80%. Reescritos em 10-22 (`2026-10-22_conferir_e_trajetoria_diaria`).
+
 **Convenções temporais no Anexo F e o CDS em feriados dos EUA (2026-10-21, branch `feature/auditoria-janelas-copom`):**
 [`2026-10-21_convencoes_temporais_feriados_cds`](2026-10-21_convencoes_temporais_feriados_cds.md)
 **CURRENT na branch, não mergeada; nada reestimado.** Os dois itens do passo 1 do e-mail de 19-10.
@@ -723,7 +745,9 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
-| [`2026-10-20_saidas_base_111`](2026-10-20_saidas_base_111.md) | 10-20 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção intocada; `paper/img/` na base de 111, `.tex` não** | e-mail de 19-10; decisões do autor de 20-10 (influência e placebos rodam de novo; extremos de quarta a sexta nas 9 recuperadas, `cb24156`); "antes" é a vintage de 10-12 ou a de `main` | Tudo, na branch: `tab:first_stage` 7,69 / 10,85 (bruta) e 7,28 / 9,34; ξ_mp pré-COVID 4,87, NW(12) 10,54; VAR câmbio 0,096 e CDS 21,1 em h0; Holm sem rejeição (menor p ajustado 0,632), EPU não significante; 14 extremos; sem as 5 ξ_mp 4,82, sem as 10 2,36, sem os extremos 6,00. ⚠ câmbio sem significância a 90% no impacto sem as 5 e sem os extremos; ⚠ IBC-Br do VAR só no impacto; ⚠ F_rob da bruta acima de 10; ⚠ Juneteenth de 2024 de terça a quinta |
+| [`2026-10-22_conferir_e_trajetoria_diaria`](2026-10-22_conferir_e_trajetoria_diaria.md) | 10-22 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; nada reestimado; `.tex` sem marcadores** | e-mail de 19-10 (item 1, e item 5 na §4.2); decisões do autor de 22-10 (leitura no fim do Anexo E sem números, frase na §4.2, F_rob sem número na §3.4, conclusão sem a apreciação, picos empatados com os dois horizontes) | Tudo, na branch: as 22 reescritas; câmbio na trajetória diária não significante a 90% na 1ª, na 5ª e na 10ª cotação e significante a 95% na 20ª; CDS a 95% na 10ª e só a 90% na 20ª; agregação alternativa com o câmbio não significante a 90%; ⚠ `\autoref` em inglês |
+| [`2026-10-21_artigo_base_111`](2026-10-21_artigo_base_111.md) | 10-21 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção intocada; `.tex` na base de 111, com 22 marcadores `[conferir]` reescritos em 10-22** | e-mails de 19-10 (item 3) e 12-10 (item 1); decisões do autor de 21-10 (rodapés na §3.3, §3.4 em três parágrafos, JK reestimado, resumo/introdução/conclusão só números, marcadores onde a afirmação vira) | Tudo, na branch: `tab:first_stage` na de 111; JK 67 de 111, pares significantes 1390 → 1122; IPCA do DFM +0,020 no impacto; BRL/USD significante a 90% em h0–h6 e só a 80% em h26–h36; CDS e EMBI+ a 90% em h35–h36 |
+| [`2026-10-20_saidas_base_111`](2026-10-20_saidas_base_111.md) | 10-20 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção intocada; `paper/img/` na base de 111, `.tex` desde 10-21 (`2026-10-21_artigo_base_111`)** | e-mail de 19-10; decisões do autor de 20-10 (influência e placebos rodam de novo; extremos de quarta a sexta nas 9 recuperadas, `cb24156`); "antes" é a vintage de 10-12 ou a de `main` | Tudo, na branch: `tab:first_stage` 7,69 / 10,85 (bruta) e 7,28 / 9,34; ξ_mp pré-COVID 4,87, NW(12) 10,54; VAR câmbio 0,096 e CDS 21,1 em h0; Holm sem rejeição (menor p ajustado 0,632), EPU não significante; 14 extremos; sem as 5 ξ_mp 4,82, sem as 10 2,36, sem os extremos 6,00. ⚠ câmbio sem significância a 90% no impacto sem as 5 e sem os extremos; ⚠ IBC-Br do VAR só no impacto; ⚠ F_rob da bruta acima de 10; ⚠ Juneteenth de 2024 de terça a quinta |
 | [`2026-10-18_conferencias_ponte`](2026-10-18_conferencias_ponte.md) | 10-18 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção intocada** | e-mail de 18-10; decisões do autor de 18-10 (z = 0 mantido na de 104, ponte em 111 e 104, janela larga do Yahoo só explicada, carimbos baixados); Yahoo e CDS como hipóteses | Tudo, na branch: carimbos do Yahoo e a data UTC da linha; CDS de 26/11 a 02/12/2013 e as cotações inteiras; estreita −0,8 contra ampliada +7,7 (90%); as 5 ambíguas; ξ_mp; fontes do DI1; ponte em 111 e 104 (câmbio −0,024 → +0,104 na 20ª cotação, +0,118/+0,244 mensal, +0,125 DFM); ⚠ a apreciação na 1ª cotação deixa de ser significante a 90% |
 | [`2026-10-17_auditoria_janelas_copom`](2026-10-17_auditoria_janelas_copom.md) | 10-17 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção da branch com as 111 reuniões** | e-mail de 17-10; decisões do autor de 17-10 (as 111 na produção e a de 104 como sensibilidade, ambígua a ≤ 30 min, meses excluídos a zero, Ibovespa na janela do DI, filtro removido); Yahoo e CDS como hipóteses | Tudo, na branch: classificação pré/pós/ambígua das 9; grade do DI1; CDS ampliado; câmbio 0,145 / 0,136 / 0,125 e CDS 33,5 / 32,4 / 30,6 em h0 nas bases de 102 / 104 / 111, significantes a 90% nas três; ξ_mp 6,66 / 6,55 / 7,28; ξ_mp pré-COVID 4,87 na produção; as saídas a jusante foram para a base de 111 em 10-20 (`2026-10-20_saidas_base_111`) |
 | [`2026-10-16_janela_ampliada_cds_bloomberg`](2026-10-16_janela_ampliada_cds_bloomberg.md) | 10-16 | **CURRENT na branch `feature/focus-horizonte-fixo`, não mergeada; nada reestimado, nenhuma regressão** | CDS às 17h de NY; Yahoo pela hora inferida; decisões do autor de 16-10 (datas, só os horários do anúncio, um e-mail, CDS ampliado pronto) | Tudo, na branch: as duas leituras da janela ampliada do CDS em `meetings.csv` e na tabela das 9, à espera do orientador; 8 datas e os horários do anúncio para a Bloomberg; ⚠ nada lê `d_cds_wide`/`d_cds_wide3` como resposta |
