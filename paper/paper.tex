@@ -405,6 +405,8 @@ O IMAT segue trajetória própria, pois seu retorno sobe $0{,}20\%$ no impacto, 
 
 \section{Robustez}
 \label{sec:robustez}
+
+\subsection{Benchmark VAR}
 \label{sec:weak_iv}
 
 Na \autoref{fig:weak_iv_main}, os sinais de impacto do DFM e de um VAR de cinco observáveis estimado com o mesmo instrumento coincidem em quatro das cinco séries, todas menos o IPCA, e as magnitudes diferem. O VAR contém IBC-Br, IPCA, yield de 6 meses, câmbio BRL/USD e CDS soberano de cinco anos em nível, com constante e tendência linear em cada equação, e recebe a mesma normalização de 50 pontos-base. Os conjuntos Anderson--Rubin de \cite{montielolea} são a inferência dos dois lados.
@@ -421,6 +423,35 @@ Ao longo do primeiro ano o IPCA sobe nos dois modelos, a $0{,}045$ ponto percent
 \label{fig:weak_iv_main}
 \end{center}
 \end{figure}
+
+\subsection{Reuniões influentes e movimentos externos extremos}
+\label{sec:influencia}
+
+A \autoref{tab:influencia} reestima as respostas do câmbio BRL/USD e do CDS sem as reuniões do Copom que mais pesam na identificação e sem as que coincidem com movimentos extremos de mercados externos. Em cada exclusão, os fatores, o VAR fatorial e suas inovações são os da amostra completa, e a surpresa da reunião sai só do instrumento do seu mês, de modo que muda apenas o momento de identificação $\hat{\Gamma}$. As reuniões são ordenadas pela maior variação padronizada de $\hat{\Gamma}$ que a exclusão de cada uma provoca\footnote{A influência da reunião $i$ é $\max_k |\hat{\Gamma}^{(-i)}_k - \hat{\Gamma}_k| / \mathrm{EP}_k$, sobre os cinco componentes de $\hat{\Gamma}$, em que $\hat{\Gamma}^{(-i)}$ é o momento sem a reunião $i$ e $\mathrm{EP}_k = (\hat{W}_{2,kk}/T)^{1/2}$ é o erro-padrão do componente $k$ na amostra completa. As dez reuniões mais influentes respondem por 81\% de $d_0'\hat{\Gamma}$ e por 48\% da soma dos quadrados do instrumento}. Uma reunião tem movimento externo extremo quando o valor absoluto da variação logarítmica do S\&P 500, do VIX ou do petróleo Brent, do fechamento da quarta-feira da reunião ao primeiro fechamento a partir do último dia da janela do DI, supera o percentil 95 do valor absoluto das variações diárias da própria série de março de 2012 a dezembro de 2025. A regra foi fixada antes de ver os resultados e marca 14 reuniões.
+
+Nenhuma exclusão inverte o sinal do câmbio ou do CDS do impacto ao sexto mês, mas a precisão diminui. Sem as cinco reuniões mais influentes, o câmbio deixa de ser significante a 90\% do impacto ao segundo mês e continua significante do terceiro ao sexto, e o CDS continua significante a 90\% do impacto ao sétimo mês. Sem as dez mais influentes, os conjuntos de 90\% deixam de ser limitados e nenhum horizonte do câmbio ou do CDS é significante a 90\%, de modo que a inferência fica inconclusiva, o que não indica resposta nula. Poucas reuniões concentram a identificação, em parte porque a ordem as seleciona pelo peso em $\hat{\Gamma}$.
+
+Sem as 14 reuniões com movimento externo extremo, o CDS continua significante a 90\% do impacto ao sexto mês, e o câmbio perde magnitude e precisão e deixa de ser significante a 90\% no impacto, embora continue significante do primeiro ao quarto mês. Retiradas uma a uma, as três reuniões que mais reduzem o câmbio no impacto são marcadas pelo Brent. No fim do horizonte, a reversão fica significante a 90\% em mais meses, do trigésimo segundo ao trigésimo sexto no câmbio e do trigésimo ao trigésimo sexto no CDS.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}l c c c c c@{}}
+\toprule
+ & & \multicolumn{2}{c}{Câmbio BRL/USD (R\$/US\$)} & \multicolumn{2}{c}{CDS 5 anos (p.b.)} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+Reuniões retiradas & $\xi_{mp}$ & Impacto & Meses a 90\% & Impacto & Meses a 90\% \\
+\midrule
+Nenhuma (produção)                   & $7{,}28$ & $0{,}125$ & 0--6         & $30{,}6$ & 0--7, 35--36 \\
+As 5 mais influentes                 & $4{,}82$ & $0{,}150$ & 3--6         & $36{,}2$ & 0--7 \\
+As 10 mais influentes                & $2{,}36$ & $0{,}005$ & nenhum       & $22{,}5$ & nenhum \\
+As 14 com movimento externo extremo  & $6{,}00$ & $0{,}090$ & 1--4, 32--36 & $29{,}4$ & 0--6, 30--36 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Exclusão de reuniões do Copom}\\{Especificação de produção, com $(r,q,p)=(5,5,4)$, e choque normalizado em 50 pontos-base no DI de 6 meses. Em cada linha, as reuniões indicadas saem do instrumento, e os fatores, o VAR fatorial e as inovações são os da amostra completa. As colunas ``Meses a 90\%'' dão os horizontes, de 0 a 36 meses, em que a resposta é significante a 90\% pelo conjunto Anderson--Rubin.}}
+\label{tab:influencia}
+\end{table}
 
 %---------------
 \section{Concluding remarks}
@@ -784,7 +815,7 @@ $h$ & Ponto & 90\% & 95\% & Ponto & 90\% & 95\% \\
 \label{tab:ponte}
 \end{table}
 
-Na \autoref{fig:ponte}, a apreciação do câmbio na primeira cotação depois do anúncio é uma estimativa pontual imprecisa, que não é significante a 90\%. Na quinta e na décima cotação o câmbio não é significante a 90\%, de modo que a mudança de sinal não pode ser datada. Na vigésima, a depreciação é significante a 95\%, com o limite inferior próximo de zero, e a trajetória é consistente com a depreciação mensal, sem confirmá-la. O CDS não é significante a 90\% na primeira nem na quinta cotação, e sua alta é significante a 95\% na décima e só a 90\% na vigésima. O CDS fica significante já na décima cotação, e o câmbio só na vigésima. Na \autoref{tab:ponte}, os pontos da forma reduzida mensal são positivos nas duas séries, no mês do anúncio e no seguinte, como os do DFM. Com as séries do painel, o câmbio é significante a 90\% no mês do anúncio e a 95\% no seguinte, e o CDS a 95\% nos dois. Na agregação alternativa, o câmbio não é significante a 90\% em nenhum dos dois meses, e o CDS é significante a 90\% no mês do anúncio e a 95\% no seguinte. A figura é por 50 pontos-base de surpresa e a tabela por 50 pontos-base no DI de 6 meses, de modo que a comparação vale para sinais e dinâmica, e não para magnitudes.
+Na \autoref{fig:ponte}, a apreciação do câmbio na primeira cotação depois do anúncio é uma estimativa pontual imprecisa, que não é significante a 90\%. Na quinta e na décima cotação o câmbio não é significante a 90\%, de modo que a mudança de sinal não pode ser datada. Na vigésima, a depreciação é significante a 95\%, com o limite inferior próximo de zero, e a trajetória é consistente com a depreciação mensal, sem confirmá-la. O CDS não é significante a 90\% na primeira nem na quinta cotação, e sua alta é significante a 95\% na décima e só a 90\% na vigésima. O CDS fica significante já na décima cotação, e o câmbio só na vigésima. Na \autoref{tab:ponte}, os pontos da forma reduzida mensal são positivos nas duas séries, no mês do anúncio e no seguinte, como os do DFM. Com as séries do painel, o câmbio é significante a 90\% no mês do anúncio e a 95\% no seguinte, e o CDS a 95\% nos dois. Na agregação alternativa, o câmbio não é significante a 90\% em nenhum dos dois meses, e o CDS é significante a 90\% no mês do anúncio e a 95\% no seguinte. No DFM estimado com a surpresa bruta, o câmbio e o CDS são significantes a 90\% e não a 95\% no mês do anúncio. A figura é por 50 pontos-base de surpresa e a tabela por 50 pontos-base no DI de 6 meses, de modo que a comparação vale para sinais e dinâmica, e não para magnitudes.
 
 \section*{Anexo F. Convenções temporais e fontes}\label{anexo-F}
 
@@ -794,7 +825,7 @@ A cotação diária do DI é o último negócio do pregão, de modo que seu hor�
 
 A taxa BRL/USD diária é a BRL=X do Yahoo Finance, cotada à meia-noite de Londres que abre cada barra diária, entre 20h00 e 22h00 em Brasília, conforme os horários de verão do Reino Unido e do Brasil. A data de cada linha da série é a data UTC desse instante, de modo que, no horário de verão britânico, a linha traz a cotação da noite da própria data e, fora dele, a da noite anterior. A trajetória diária do Anexo E usa a última cotação anterior ao anúncio e a primeira posterior, escolhidas pelo horário. A série do painel, média mensal das linhas pela data de cada uma, fica deslocada uma noite para trás no inverno europeu.
 
-O CDS soberano de cinco anos diário, usado no Anexo E, é a cotação de fechamento da Bloomberg (PX\_LAST), tomada às 17h00 de Nova York, entre 18h00 e 20h00 em Brasília, conforme os horários de verão dos Estados Unidos e do Brasil. A série mensal do CDS no painel é a do Investing.com, listada na \autoref{tab:lista_variaveis}.
+O CDS soberano de cinco anos diário, usado no Anexo E, é a cotação de fechamento da Bloomberg (PX\_LAST), tomada às 17h00 de Nova York, entre 18h00 e 20h00 em Brasília, conforme os horários de verão dos Estados Unidos e do Brasil. Como sensibilidade ao alinhamento temporal, a janela da primeira cotação do Anexo E, da última cotação anterior ao anúncio à primeira posterior, é comparada com uma janela ampliada em uma cotação de cada lado. Nas 111 reuniões, por 50 pontos-base de surpresa ortogonalizada e com intervalos Wald de 90\% e erros-padrão HC1, o CDS varia $-0{,}8$ $[-6{,}6;\ 5{,}0]$ pontos-base na janela de uma cotação e $7{,}7$ $[0{,}7;\ 14{,}7]$ na ampliada, significante a 90\%. A alta na ampliada é compatível com um ajuste posterior ao anúncio, mas essa janela incorpora também outras notícias. Sem as sete reuniões cujas janelas do DI vão de quarta a sexta-feira, a ampliada varia $6{,}9$ $[-1{,}0;\ 14{,}7]$ e deixa de ser significante a 90\%. O CDS tem cotação em todos os 156 dias úteis de feriado nos Estados Unidos de março de 2012 a dezembro de 2025, nos calendários da NYSE e do Federal Reserve, e a de 28 de novembro de 2013, Dia de Ação de Graças, que fecha a janela da reunião de 27 de novembro, é um valor inteiro e permanece na amostra. A série mensal do CDS no painel é a do Investing.com, listada na \autoref{tab:lista_variaveis}.
 
 \begin{table}[H]
 \centering

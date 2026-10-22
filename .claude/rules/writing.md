@@ -20,8 +20,14 @@ paper does not use heteroskedasticity identification, and Anexo B carries its on
 (`tab:het_frequency`, the three variance ratios beside the `Qr` summary since 2026-09-27, when
 `tab:het_variance` was merged into it; `tab:het_sequencia` was cut on 2026-09-24; its monthly VAR
 is the one under the Lenza-Primiceri rescale, stated in the note, typed from
-`output/het/het_conditions.csv` and `het_variance_ratios.csv`); §5 Robustez has **no**
-subsection, only the VAR benchmark, labelled both `sec:robustez` and `sec:weak_iv`;
+`output/het/het_conditions.csv` and `het_variance_ratios.csv`); §5 Robustez (`sec:robustez`) has,
+since 2026-10-22 (branch `feature/auditoria-janelas-copom`), two subsections: 5.1 `Benchmark VAR`
+(`sec:weak_iv`, the VAR benchmark unchanged) and 5.2 `Reuniões influentes e movimentos externos extremos`
+(`sec:influencia`), whose `tab:influencia` gives ξ_mp, the FX and CDS impact and the horizons significant
+at 90% for production, without the 5 and the 10 most influential meetings and without the 14 extreme
+ones, typed from `output/meeting_influence/joint_strength.csv` and `joint_fx_cds.csv`; its prose reads the
+table by sign and significance only, and the influence formula and the 81%/48% concentration sit in a
+footnote, author decision (`2026-10-22_cds_janelas_influencia_extremos`);
 `sec:het_frequency` (rebuilt on 2026-09-22 around the `svars` test) was deleted that day; the
 five home-grown statistics may not come back; `sec:fomc` was deleted on 2026-09-21, and `sec:exogeneidade`,
 `sec:invertibilidade` and `sec:confound` had already gone. Concluding remarks is §6.
@@ -43,7 +49,8 @@ forma reduzida mensal", is the bridge of the e-mail of 2026-10-19 (item 2): one 
 (transformation, window, normalization, sample, levels, why 110 and not 111 meetings, and one sentence
 on the 104-meeting sensitivity), then `fig:ponte` and `tab:ponte`, and since 2026-10-22 a closing paragraph
 that reads both floats (item 1 of the e-mail) by sign and significance level, with no number, author
-decision. §4.2's significance paragraph ends with the one sentence that points to them and carries item 5
+decision; since the same day it also says, with no number, that the DFM under the raw surprise is
+significant at 90% and not at 95% in the announcement month. §4.2's significance paragraph ends with the one sentence that points to them and carries item 5
 (consistent with a risk-related transmission, without identifying that risk causes the depreciation).
 By author decision of 2026-10-20 both
 floats carry **90% and 95%**, not 80/90%: the figure's intervals are Wald per +50bp of surprise, and the
@@ -55,6 +62,10 @@ rule, the DI, the Yahoo rate, the CDS) and `tab:horarios`, with the sources as U
 since the 25-key budget is full; one footnote in §3.3, on "O Copom anuncia a decisão depois do fechamento
 do mercado", points to it. By author decision of 2026-10-21 the Yahoo and CDS times are written as fact,
 without "hipótese", though neither provider documents them (`2026-10-21_convencoes_temporais_feriados_cds`).
+Since 2026-10-22 the CDS paragraph also carries the narrow-against-widened window comparison, as a
+sensitivity to time alignment, with Wald 90% intervals per +50bp of orthogonalized surprise on the 111 and
+the 104 meetings (no 95%), and one sentence on the 156 US holidays with a quote and the whole-number quote
+of 2013-11-28 (`2026-10-22_cds_janelas_influencia_extremos`).
 The preamble's `\usepackage[hyphens]{url}` and `\Urlmuskip` exist for those footnotes. Captions and `\autoref` should print "Figura/Tabela", but ⚠ `paper.tex` prints "Figure/Table": the
 `\renewcommand`s of `bd3a52c` stayed in `paper_anpec.tex` (`2026-10-22_conferir_e_trajetoria_diaria`). The body never puts a
 reference in parentheses: it goes inside the sentence or not at all.

@@ -30,8 +30,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 | Passo | Tema | Item | Depende de | Decisão do autor |
 |---|---|---|---|---|
-| 3 | A | CDS estreito contra ampliado | — | — |
-| 3 | A | Influência, extremos e surpresa bruta no texto | — | — |
 | 3 | A | Placebos na §3.3 e `fig:placebos` | — | — |
 | 3 | A | Escrever o p = 0,54 do teste do EPU | junto com os placebos | — |
 | 3 | A | Linha diária do Anexo B | — | janela do CDS sem reunião |
@@ -45,25 +43,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 ## A. Texto do paper
 
-- [ ] **CDS estreito contra ampliado.** E-mail de 19-10, item 4.
-  - Entra como sensibilidade ao alinhamento temporal, não como evidência de um mecanismo, porque a janela
-    ampliada também pega outras notícias.
-  - Sem as sete janelas longas (104 reuniões), a ampliada deixa de ser significante a 90%.
-  - A cotação de 2013-11-28 fica, com a limitação: é um valor inteiro e caiu no feriado de Ação de Graças
-    nos EUA. A lista de feriados está na nota `2026-10-21_convencoes_temporais_feriados_cds`, seção 1.
-- [ ] **Influência, extremos e surpresa bruta no texto.** E-mails de 12-10, item 1, e de 19-10, item 5,
-  que pede para manter os resultados menos favoráveis. Os números na base de 111 estão na nota
-  `2026-10-20_saidas_base_111`, seção 5; o desenho, nas notas `2026-10-08_influencia_reunioes` e
-  `2026-10-12_exclusao_extremos`. Entram:
-  - sem as dez reuniões mais influentes, a inferência é inconclusiva, não uma resposta zero;
-  - a regra dos movimentos extremos, fixada antes de rodar (`2cad8bd`, emenda `cb24156`); com ela, o CDS
-    fica estável e o câmbio perde magnitude e precisão, sobretudo pelo Brent;
-  - a surpresa bruta no DFM (nota `2026-10-05_evento_diario`; na base de 111, nota
-    `2026-10-18_conferencias_ponte`, seção 7).
-
-  ⚠ Na base de 111, sem as 5 mais influentes e sem os extremos, o câmbio deixa de ser significante a 90%
-  no impacto. ⚠ A regra marca 3 das 7 reuniões de feriado no Brasil, cuja variação de quarta a sexta é
-  comparada com um limiar de um dia. Alimenta a versão integrada.
 - [ ] **Placebos na §3.3 e `fig:placebos`.** E-mails de 08-10, de 12-10 (item 4) e de 19-10 (item 5). Os
   números na base de 111 estão na nota `2026-10-20_saidas_base_111`, seção 4, e `fig:placebos` já foi
   redesenhada.

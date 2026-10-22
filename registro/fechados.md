@@ -10,6 +10,18 @@ Os blocos vieram de `pendencias.md` em 2026-10-19, sem edição. Referências co
 
 ## A. Texto do paper
 
+- [x] **Influência, extremos e surpresa bruta no texto — 2026-10-22.** E-mails de 12-10, item 1, e de
+  19-10, item 5. A §5 passa a ter duas subseções, 5.1 Benchmark VAR e 5.2 com a `tab:influencia`, cuja prosa
+  fala só de sinal e significância. Sem as 10 mais influentes, o resultado é inconclusivo (ξ_mp 2,36). Sem
+  as 5 e sem os 14 extremos, o câmbio perde os 90% no impacto, e o CDS fica estável. As três maiores quedas
+  individuais do câmbio são de reuniões do Brent. No Anexo E, uma frase diz que a surpresa bruta é
+  significante a 90% e não a 95%. ⚠ O e-mail de 12-10 dizia "não significante a 90%". ⚠ As janelas de
+  feriado na regra dos extremos ficam fora do texto. Nota: `2026-10-22_cds_janelas_influencia_extremos`.
+- [x] **CDS estreito contra ampliado — 2026-10-22.** E-mail de 19-10, item 4. Entra no parágrafo do CDS do
+  Anexo F como sensibilidade ao alinhamento temporal, com Wald de 90% por +50 p.b. de surpresa: −0,8 contra
+  +7,7 [0,7; 14,7] nas 111, e a ampliada não é significante a 90% na de 104. Uma frase dá os 156 feriados
+  dos EUA com cotação e diz que a de 28/11/2013 é inteira e fica. Nota:
+  `2026-10-22_cds_janelas_influencia_extremos`.
 - [x] **Leitura da trajetória diária — 2026-10-22.** E-mail de 19-10, item 1. Parágrafo sem números no fim
   do Anexo E, depois da `tab:ponte`: câmbio não significante a 90% até a 10ª cotação e significante a 95% na
   20ª, com limite inferior perto de zero; CDS a 95% na 10ª e só a 90% na 20ª; na agregação alternativa o

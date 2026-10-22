@@ -148,6 +148,18 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**CDS estreito contra ampliado, influência, extremos e surpresa bruta no texto (2026-10-22, branch `feature/auditoria-janelas-copom`):**
+[`2026-10-22_cds_janelas_influencia_extremos`](2026-10-22_cds_janelas_influencia_extremos.md)
+**CURRENT na branch, não mergeada; nada reestimado.** Dois itens do passo 3.
+- **Anexo F.** O parágrafo do CDS ganha a comparação estreita × ampliada, Wald de 90% por +50 p.b. de
+  surpresa: −0,8 contra +7,7, significante a 90% nas 111 e não na de 104. Ganha também os 156 feriados dos
+  EUA com cotação e a limitação de 28/11/2013.
+- **§5.** Duas subseções. A 5.2 tem a `tab:influencia` e a prosa por sinal e significância: sem as 10,
+  inconclusivo; sem as 5 e sem os 14 extremos, o câmbio perde os 90% no impacto; o CDS fica estável. As três
+  exclusões que mais baixam o câmbio são do Brent.
+- **Anexo E.** Uma frase diz que a surpresa bruta no DFM é significante a 90% e não a 95%.
+- ⚠ O e-mail de 12-10 diz "não significantes a 90%" para a bruta, e os dados dizem 95%.
+
 **Os 22 marcadores `[conferir]` e a leitura da trajetória diária (2026-10-22, branch `feature/auditoria-janelas-copom`):**
 [`2026-10-22_conferir_e_trajetoria_diaria`](2026-10-22_conferir_e_trajetoria_diaria.md)
 **CURRENT na branch, não mergeada; nada reestimado.** O passo 2 e o item da trajetória diária do passo 3.
@@ -745,6 +757,7 @@ transfere cobertura de um para o outro.
 
 | nota | data | validade da conclusão | escrita sob | o que sobrevive |
 |---|---|---|---|---|
+| [`2026-10-22_cds_janelas_influencia_extremos`](2026-10-22_cds_janelas_influencia_extremos.md) | 10-22 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; nada reestimado** | e-mails de 19-10 (itens 4 e 5) e 12-10 (item 1); decisões do autor de 22-10 (CDS no Anexo F com Wald de 90%, §5 em duas subseções, 5.2 com tabela e prosa sem números, bruta numa frase do Anexo E) | Tudo, na branch: CDS estreito −0,8 [−6,6; 5,0] e ampliado +7,7 [0,7; 14,7] nas 111, ampliado não significante a 90% na de 104; `tab:influencia` (ξ_mp 7,28 / 4,82 / 2,36 / 6,00); 3 maiores quedas individuais do câmbio do Brent; bruta significante a 90% e não a 95%. ⚠ e-mail de 12-10 diz 90% para a bruta |
 | [`2026-10-22_conferir_e_trajetoria_diaria`](2026-10-22_conferir_e_trajetoria_diaria.md) | 10-22 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; nada reestimado; `.tex` sem marcadores** | e-mail de 19-10 (item 1, e item 5 na §4.2); decisões do autor de 22-10 (leitura no fim do Anexo E sem números, frase na §4.2, F_rob sem número na §3.4, conclusão sem a apreciação, picos empatados com os dois horizontes) | Tudo, na branch: as 22 reescritas; câmbio na trajetória diária não significante a 90% na 1ª, na 5ª e na 10ª cotação e significante a 95% na 20ª; CDS a 95% na 10ª e só a 90% na 20ª; agregação alternativa com o câmbio não significante a 90%; ⚠ `\autoref` em inglês |
 | [`2026-10-21_artigo_base_111`](2026-10-21_artigo_base_111.md) | 10-21 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção intocada; `.tex` na base de 111, com 22 marcadores `[conferir]` reescritos em 10-22** | e-mails de 19-10 (item 3) e 12-10 (item 1); decisões do autor de 21-10 (rodapés na §3.3, §3.4 em três parágrafos, JK reestimado, resumo/introdução/conclusão só números, marcadores onde a afirmação vira) | Tudo, na branch: `tab:first_stage` na de 111; JK 67 de 111, pares significantes 1390 → 1122; IPCA do DFM +0,020 no impacto; BRL/USD significante a 90% em h0–h6 e só a 80% em h26–h36; CDS e EMBI+ a 90% em h35–h36 |
 | [`2026-10-20_saidas_base_111`](2026-10-20_saidas_base_111.md) | 10-20 | **CURRENT na branch `feature/auditoria-janelas-copom`, não mergeada; produção intocada; `paper/img/` na base de 111, `.tex` desde 10-21 (`2026-10-21_artigo_base_111`)** | e-mail de 19-10; decisões do autor de 20-10 (influência e placebos rodam de novo; extremos de quarta a sexta nas 9 recuperadas, `cb24156`); "antes" é a vintage de 10-12 ou a de `main` | Tudo, na branch: `tab:first_stage` 7,69 / 10,85 (bruta) e 7,28 / 9,34; ξ_mp pré-COVID 4,87, NW(12) 10,54; VAR câmbio 0,096 e CDS 21,1 em h0; Holm sem rejeição (menor p ajustado 0,632), EPU não significante; 14 extremos; sem as 5 ξ_mp 4,82, sem as 10 2,36, sem os extremos 6,00. ⚠ câmbio sem significância a 90% no impacto sem as 5 e sem os extremos; ⚠ IBC-Br do VAR só no impacto; ⚠ F_rob da bruta acima de 10; ⚠ Juneteenth de 2024 de terça a quinta |
