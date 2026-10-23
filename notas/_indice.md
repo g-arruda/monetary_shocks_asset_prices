@@ -148,6 +148,22 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Versão integrada: resumo, introdução e conclusão coerentes com a ponte (2026-10-23, branch `feature/auditoria-janelas-copom`):**
+[`2026-10-23_versao_integrada`](2026-10-23_versao_integrada.md)
+**CURRENT na branch, não mergeada.** Passo 4, itens "Versão integrada" e "Ressalvas da linha diária". Nada
+foi reestimado.
+- **Ponte.** No resumo, no fim do 2º parágrafo da introdução e no do 1º da conclusão, sem números: a
+  depreciação e a alta do CDS em horizontes posteriores aparecem também fora do DFM, o que é consistente com
+  uma transmissão associada ao risco, sem identificar que o risco cause a depreciação.
+- **Passagens fracas.** A "sincronia" vira os cruzamentos de zero (h15–h16 na conclusão). As horas caem no
+  impacto. Entram a atividade negativa e a NFSP primária positiva. A fase positiva das ações é significante a
+  90%. O JK sai da introdução, e as frases causais da conclusão passam à linguagem de consistência.
+- **Novo.** O desemprego (−0,12 p.p. em h0, significante a 90% de h0 a h6) e a ocupação (+246 mil em h0) num
+  parágrafo da §4.5. Um parágrafo da conclusão traz os resultados menos favoráveis.
+- **goncalves2025.** No resumo, na introdução e na conclusão vão só os fatos da linha diária, com o vértice e
+  a curtose, sem atribuir a divergência.
+- ⚠ O Figura/Tabela continua aberto.
+
 **Linha diária do Anexo B com o câmbio realinhado e o CDS às 17h de Nova York (2026-10-23, branch `feature/auditoria-janelas-copom`):**
 [`2026-10-23_linha_diaria_anexo_b`](2026-10-23_linha_diaria_anexo_b.md)
 **CURRENT na branch, não mergeada.** O último item do passo 3. Supera a seção 7 de `2026-10-13_cambio_yahoo_convencao`.

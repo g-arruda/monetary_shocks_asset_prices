@@ -10,6 +10,15 @@ Os blocos vieram de `pendencias.md` em 2026-10-19, sem edição. Referências co
 
 ## A. Texto do paper
 
+- [x] **Versão integrada — 2026-10-23.** E-mails de 19-10 (item 5) e de 12-10 (item 5). A ponte vai sem números
+  no resumo, no fim do 2º parágrafo da introdução e no do 1º da conclusão, com a leitura do item 5. Saem a
+  "sincronia", a defasagem do trabalho e o JK da introdução. Entram a atividade negativa, a NFSP positiva, a
+  fase positiva das ações e um parágrafo com os resultados menos favoráveis. ⚠ O desemprego cai no impacto
+  (−0,12 p.p., 90% em h0–h6) e entrou na §4.5. Nota: `2026-10-23_versao_integrada`.
+- [x] **Ressalvas da linha diária no resumo — 2026-10-23.** Resolvido junto com a versão integrada. O resumo,
+  a introdução e a conclusão dão só os fatos: no diário, a condição vale com p que sobe com o vértice (Holm:
+  só o de 3 meses) e depende da correção de curtose; no mensal, falha. Sai "frequency and identification
+  strategy". Nota: `2026-10-23_versao_integrada`.
 - [x] **Linha diária do Anexo B — 2026-10-23.** O câmbio realinhado e o CDS às 17h de Nova York, com a
   regra das 18h00 de quarta nas semanas sem reunião, fixada antes de rodar (`2f388c3`). As 7 reuniões de
   feriado ficam fora (103 e 554 semanas). `Qr` p 0,0004, 0,034 e 0,047, e com Holm 0,001 e 0,068. A

@@ -30,46 +30,23 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 | Passo | Tema | Item | Depende de | Decisão do autor |
 |---|---|---|---|---|
-| 4 | A | Versão integrada | — | — |
-| 4 | A | Ressalvas da linha diária no resumo | — | é a própria decisão |
-| 4 | A | Tabela antigo × novo | versão integrada | — |
-| 5 | B | Promover a branch para `main` | versão integrada, tabela antigo × novo | — |
+| 4 | A | Tabela antigo × novo | — | — |
+| 4 | A | Figura/Tabela no `\autoref` e nas legendas | — | — |
+| 5 | B | Promover a branch para `main` | tabela antigo × novo | — |
 | depois | B | Amostra completa com `p = 2` | — | quando rodar; qual θ̂ |
 
 ---
 
 ## A. Texto do paper
 
-- [ ] **Versão integrada.** Introdução, resultados e conclusão coerentes com a ponte: e-mail de 19-10, item
-  5 e último parágrafo. Absorve a conclusão com o DFM e o evento lado a lado (e-mail de 12-10, item 5) e a
-  leitura da §4 migrada (nota `2026-09-24_migracao_secao_4`, §5).
-  - A depreciação e a alta do CDS em horizontes posteriores aparecem também fora do DFM. A evidência é
-    consistente com uma transmissão associada ao risco, mas não identifica que o risco causa a
-    depreciação. A frase já está na §4.2 desde 22-10, e faltam a introdução e a conclusão.
-  - Manter os resultados menos favoráveis (os itens de influência e de placebos).
-  - Três passagens ficaram fracas desde 2026-09-24:
-    - "o mercado de trabalho responde com defasagem" (`paper.tex:434`), quando as horas caem no impacto;
-    - a reversão "altamente sincronizada" (`paper.tex:430`) e "in close synchrony" no resumo, quando os
-      cruzamentos de zero se espalham;
-    - o silêncio do resumo e da conclusão sobre a atividade negativa e sobre a NFSP primária positiva.
-  - A introdução ainda põe a regra de sinal de JK no instrumento (decisão do autor de 21-10: fica para
-    este item).
-  - ⚠ `\autoref` e as legendas imprimem "Figure/Table": os `\renewcommand` de `bd3a52c` ficaram em
-    `paper_anpec.tex` (nota `2026-10-22_conferir_e_trajetoria_diaria`, seção 3).
-  - O passo 3 está fechado, e o item não depende de outro. Desbloqueia a promoção.
-- [ ] **Ressalvas da linha diária no resumo.** Decidir se o resumo as carrega.
-  - O resumo (`paper.tex:112`) diz que a condição "holds daily but fails in our monthly panel", sem duas
-    ressalvas: o vértice e a correção de curtose (nota `2026-10-23_linha_diaria_anexo_b`, seção 2). No
-    corpo, o vértice está na §3.3, e a curtose, em `tab:het_frequency`.
-  - ⚠ Com o CDS às 17h de Nova York, os três vértices rejeitam a 5% sem ajuste, e o vértice só decide
-    com Holm. A frase da §3.3 ficou, por decisão do autor de 23-10.
-  - ⚠ A mesma frase põe "frequency and identification strategy" como origem da divergência, e a
-    introdução (`paper.tex:145`) diz o mesmo. A proibição de 2026-09-22 veda decompor frequência e objeto
-    medido (nota `2026-09-22_condicao_het_svars`).
-  - Não depende de outro item. Decide-se junto com a versão integrada.
 - [ ] **Tabela antigo × novo.** O e-mail de 12-10 (item 1) a pede "para facilitar a revisão", sem dizer se
   vai no artigo ou na entrega; o de 19-10 não a menciona. Usa `compare_model()` e `compare_cells()` de
-  `R/reporting/sensitivity.R`. Depende dos números finais e da versão integrada. Desbloqueia a promoção.
+  `R/reporting/sensitivity.R`. A versão integrada fechou em 23-10 (nota `2026-10-23_versao_integrada`).
+  Desbloqueia a promoção.
+- [ ] **Figura/Tabela no `\autoref` e nas legendas.** O `paper.tex` imprime "Figure/Table", porque os
+  `\renewcommand` de `\figurename`, `\tablename`, `\figureautorefname` e `\tableautorefname` de `bd3a52c`
+  ficaram em `paper_anpec.tex` (nota `2026-10-22_conferir_e_trajetoria_diaria`, seção 3). Ficou fora da versão
+  integrada por decisão do autor de 23-10. Não depende de outro item.
 
 ---
 
@@ -90,12 +67,12 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
   - ⚠ O `data/processed/` é o mesmo para todas as branches. Se trocar para `main` antes da promoção, rodar
     `Rscript script/run_all.R --only=clean` antes de estimar, e rodar `--only=clean` e `--only=instrument`
     de novo ao voltar.
-  - Depende da versão integrada e da tabela antigo × novo.
+  - Depende da tabela antigo × novo. A versão integrada fechou em 23-10.
 - [ ] **Amostra completa com `p = 2`.** E-mail de 12-10.
   - Os conjuntos pré-COVID só existem em `p = 2`: em `p = 4`, `hac_dim` 135 ≥ T = 90 (nota
     `2026-10-05_precisao_ar`). A janela completa em `p = 2` separa a mudança de amostra da mudança de
     defasagem. O texto não apresenta `p = 2` como a mesma especificação.
-  - ⚠ O e-mail de 19-10 não menciona esse item. Rodar antes ou depois da versão integrada é decisão do
-    autor.
+  - ⚠ O e-mail de 19-10 não menciona esse item. A versão integrada fechou sem ele, e rodar antes ou depois
+    da promoção é decisão do autor.
   - O θ̂ também é decisão do autor: reestimado em `p = 2`, como no Anexo C, ou o de `p = 4`.
   - Roda na base de 111: na branch, se for antes da promoção, ou em `main`, se for depois.

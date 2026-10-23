@@ -39,6 +39,16 @@ footnote, author decision (`2026-10-22_cds_janelas_influencia_extremos`);
 `sec:het_frequency` (rebuilt on 2026-09-22 around the `svars` test) was deleted that day; the
 five home-grown statistics may not come back; `sec:fomc` was deleted on 2026-09-21, and `sec:exogeneidade`,
 `sec:invertibilidade` and `sec:confound` had already gone. Concluding remarks is §6.
+Since 2026-10-23 (branch `feature/auditoria-janelas-copom`, the integrated version, `2026-10-23_versao_integrada`):
+- the abstract, the end of §1's second paragraph and the end of §6's first paragraph carry the bridge without
+  numbers, read as consistent with a risk-related transmission that does not identify risk as the cause;
+- the same three places give the daily het facts (the vertex with Holm, the kurtosis correction, the monthly
+  failure) without attributing the divergence to frequency or identification;
+- §1 describes the instrument in its two layers, without JK, and its roadmap names §5 Robustez and §6;
+- §4.5 ends with one paragraph on the PNAD unemployment rate and employed population, which `fig:atividade`
+  does not draw;
+- §6 has, after the paragraph on the other results, one paragraph with the less favourable results (raw
+  surprise, influence, Brent, placebos), by sign and significance only. "Sincronia" is gone from the paper.
 Anexo C (`anexo-C`, since 2026-09-24) carries `fig:q_sensibilidade`, the `q = 2..5` figure that
 §3.1's two-sentence defense of `q = r` points to, and since 2026-09-25 `fig:p_sensibilidade`
 (`p = 2..6`), and since 2026-09-26 `fig:instrumento_camadas`, under the title "Sensibilidade das
