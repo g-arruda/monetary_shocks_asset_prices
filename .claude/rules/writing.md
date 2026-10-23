@@ -16,7 +16,9 @@ and every figure it includes lives in `paper/img/`. §3 Metodologia has four
 subsections since 2026-09-17 — `Modelo e estimação`, `Base de dados`, `Identificação e construção
 do instrumento`, `Relevância do instrumento e inferência`; §4 Resultados has eight subsections, one per figure;
 §3.3 (`sec:identificacao`) opens, since 2026-09-26, with one narrative paragraph and no footnote on why the
-paper does not use heteroskedasticity identification, and Anexo B carries one paragraph and one table (Anexo A is the variable list)
+paper does not use heteroskedasticity identification (since 2026-10-23 it carries the daily facts in full, 5% in the
+three vertices, Holm only at 3 months and the kurtosis correction, and no longer closes on "adotar essa identificação
+exigiria abandonar a representação fatorial", `2026-10-23_revisao_texto_enxuto`), and Anexo B carries one paragraph and one table (Anexo A is the variable list)
 (`tab:het_frequency`, the three variance ratios beside the `Qr` summary since 2026-09-27, when
 `tab:het_variance` was merged into it; `tab:het_sequencia` was cut on 2026-09-24; its monthly VAR
 is the one under the Lenza-Primiceri rescale, typed from
@@ -24,12 +26,15 @@ is the one under the Lenza-Primiceri rescale, typed from
 `feature/auditoria-janelas-copom`) the paragraph before the table describes the three panels, the daily
 windows (DI Wednesday to Thursday, FX and CDS around the announcement or an 18h Wednesday release, the 7
 holiday-Thursday meetings out), the Holm p and the factor row, and the caption only defines the columns
-and the test, author decision (`2026-10-23_linha_diaria_anexo_b`); §5 Robustez (`sec:robustez`) has,
+and the test, author decision (`2026-10-23_linha_diaria_anexo_b`), and its closing sentence on frequency and measured
+object changing together was cut the same day (`2026-10-23_revisao_texto_enxuto`); §5 Robustez (`sec:robustez`) has,
 since 2026-10-22 (branch `feature/auditoria-janelas-copom`), three subsections: 5.1 `Benchmark VAR`
-(`sec:weak_iv`, the VAR benchmark unchanged), 5.2 `Placebos` (`sec:placebos`, one paragraph: the AR test of
+(`sec:weak_iv`, the VAR benchmark unchanged), 5.2 `Placebos` (`sec:placebos`, two paragraphs since 2026-10-23: the AR test of
 a zero response at h = 0, 1, 3, 6, 12, 24 with Holm over the 18 tests, read by significance level only, the
 MSCI fall as a limitation, the VIX at h0 with its 46% overlap, the US EPU trend's p = 0,275 on the 111
-meetings, and a footnote on Holm against a per-series joint Wald; Holm is named without `\cite`, author
+meetings, and a one-sentence footnote saying Holm controls the 18 pointwise comparisons and does not test all horizons
+of a series at once; since 2026-10-23 neither the text nor the `tab:placebos_holm` caption says the horizons were
+fixed before seeing the results; Holm is named without `\cite`, author
 decision, `2026-10-22_placebos_secao_5`) and 5.3 `Reuniões influentes e movimentos externos extremos`
 (`sec:influencia`), whose `tab:influencia` gives ξ_mp, the FX and CDS impact and the horizons significant
 at 90% for production, without the 5 and the 10 most influential meetings and without the 14 extreme
@@ -40,15 +45,20 @@ footnote, author decision (`2026-10-22_cds_janelas_influencia_extremos`);
 five home-grown statistics may not come back; `sec:fomc` was deleted on 2026-09-21, and `sec:exogeneidade`,
 `sec:invertibilidade` and `sec:confound` had already gone. Concluding remarks is §6.
 Since 2026-10-23 (branch `feature/auditoria-janelas-copom`, the integrated version, `2026-10-23_versao_integrada`):
-- the abstract, the end of §1's second paragraph and the end of §6's first paragraph carry the bridge without
-  numbers, read as consistent with a risk-related transmission that does not identify risk as the cause;
-- the same three places give the daily het facts (the vertex with Holm, the kurtosis correction, the monthly
-  failure) without attributing the divergence to frequency or identification;
-- §1 describes the instrument in its two layers, without JK, and its roadmap names §5 Robustez and §6;
+- the abstract (200 words), §1's third paragraph and §6's first paragraph carry the bridge without numbers;
+  since the prose revision of the same day (`2026-10-23_revisao_texto_enxuto`) the item-5 reading, consistent
+  with a risk-related transmission without identifying risk as the cause, is written once, at the end of
+  §4.2's significance paragraph, author decision;
+- the daily het facts are in full in §3.3's first paragraph and Anexo B; the abstract, §1 and §6 give the short
+  version, with the vertex and the kurtosis correction, without attributing the divergence to frequency or
+  identification;
+- §1 describes the instrument in its two layers, without JK, and its two-sentence roadmap names §5 Robustez
+  and §6;
 - §4.5 ends with one paragraph on the PNAD unemployment rate and employed population, which `fig:atividade`
   does not draw;
-- §6 has, after the paragraph on the other results, one paragraph with the less favourable results (raw
-  surprise, influence, Brent, placebos), by sign and significance only. "Sincronia" is gone from the paper.
+- §6 has, after the paragraph on the other results, a five-sentence paragraph with the less favourable results
+  (raw surprise, influence, Brent, placebos) that points to §5 and Anexo E; the caveats that qualify them live
+  once in §5.2–5.3. "Sincronia" is gone from the paper.
 Anexo C (`anexo-C`, since 2026-09-24) carries `fig:q_sensibilidade`, the `q = 2..5` figure that
 §3.1's two-sentence defense of `q = r` points to, and since 2026-09-25 `fig:p_sensibilidade`
 (`p = 2..6`), and since 2026-09-26 `fig:instrumento_camadas`, under the title "Sensibilidade das
@@ -65,24 +75,27 @@ carries `tab:bs_ortogonalizacao`, in BS Table 3's layout since 2026-09-26, and s
 with the orthogonalization paragraph pointing to `tab:bs_ortogonalizacao`, and since 2026-10-22 the
 placebos are read in §5.2, not in §3.3.
 Anexo E (`anexo-E`, since 2026-10-20, branch `feature/auditoria-janelas-copom`), "Trajetória diária e
-forma reduzida mensal", is the bridge of the e-mail of 2026-10-19 (item 2): one opening paragraph
-(transformation, window, normalization, sample, levels, why 110 and not 111 meetings, and one sentence
-on the 104-meeting sensitivity), then `fig:ponte` and `tab:ponte`, and since 2026-10-22 a closing paragraph
-that reads both floats (item 1 of the e-mail) by sign and significance level, with no number, author
-decision; since the same day it also says, with no number, that the DFM under the raw surprise is
-significant at 90% and not at 95% in the announcement month. §4.2's significance paragraph ends with the one sentence that points to them and carries item 5
-(consistent with a risk-related transmission, without identifying that risk causes the depreciation).
+forma reduzida mensal", is the bridge of the e-mail of 2026-10-19 (item 2): since 2026-10-23 two opening paragraphs, one per
+float (transformation, window, normalization, sample, levels, why 110 and not 111 meetings), then `fig:ponte`
+and `tab:ponte`, and since 2026-10-22 a closing paragraph that reads both floats (item 1 of the e-mail) by
+sign and significance level, with no number, author decision; since the same day it also says, with no
+number, that the DFM under the raw surprise is significant at 90% and not at 95% in the announcement month,
+and since 2026-10-23 it ends with the one sentence on the 104-meeting sensitivity. §4.2's significance
+paragraph ends with the sentence that points to them and the one carrying item 5 (consistent with a
+risk-related transmission, without identifying that risk causes the depreciation), its only place in the paper.
 By author decision of 2026-10-20 both
 floats carry **90% and 95%**, not 80/90%: the figure's intervals are Wald per +50bp of surprise, and the
 table puts the monthly reduced form, as an IV per +50bp of the end-of-month 6-month DI, beside the DFM,
-both as Anderson--Rubin sets, in three blocks (panel series, the alternative aggregation, DFM). The 95%
-level appears nowhere else in the paper. Anexo F (`anexo-F`, since 2026-10-21, same branch), "Convenções
-temporais e fontes", is item 4 of the same e-mail: four paragraphs (the announcement and the 30-minute
-rule, the DI, the Yahoo rate, the CDS) and `tab:horarios`, with the sources as URLs in three footnotes,
+both as Anderson--Rubin sets, in three blocks (panel series, the alternative aggregation, DFM). Outside
+Anexo E, 95% appears only as a significance level read in §5.2 (the MSCI) and in §6's paragraph of less
+favourable results. Anexo F (`anexo-F`, since 2026-10-21, same branch), "Convenções
+temporais e fontes", is item 4 of the same e-mail: since 2026-10-23 five paragraphs (the announcement and the
+30-minute rule, the DI, the Yahoo rate, the CDS series with its US holidays, the narrow-against-widened window)
+and `tab:horarios`, with the sources as URLs in three footnotes,
 since the 25-key budget is full; one footnote in §3.3, on "O Copom anuncia a decisão depois do fechamento
 do mercado", points to it. By author decision of 2026-10-21 the Yahoo and CDS times are written as fact,
 without "hipótese", though neither provider documents them (`2026-10-21_convencoes_temporais_feriados_cds`).
-Since 2026-10-22 the CDS paragraph also carries the narrow-against-widened window comparison, as a
+Since 2026-10-22 the CDS text also carries the narrow-against-widened window comparison, as a
 sensitivity to time alignment, with Wald 90% intervals per +50bp of orthogonalized surprise on the 111 and
 the 104 meetings (no 95%), and one sentence on the 156 US holidays with a quote and the whole-number quote
 of 2013-11-28 (`2026-10-22_cds_janelas_influencia_extremos`).
@@ -151,6 +164,12 @@ is to justify a design choice against an objection nobody raised comes out, even
 when the justification is correct. Caveats are not written around a result to
 pre-empt a referee. The replication test governs what stays: keep what a reader
 needs to re-run the estimator, cut what only argues it was the right one.
+
+**Each fact and each caveat is written in full once** (author decision of 2026-10-23,
+`2026-10-23_revisao_texto_enxuto`), in its own section of the body or annexes. The
+abstract, the introduction and the conclusion may repeat it in short form to hold
+the reader, and the abstract and conclusion are written to sell the result. A
+caveat the advisor asked for stays, once, compressed.
 
 `arquivo/tex/main.tex` is the **previous** draft. It is a historical prose
 source, **not a target to edit** and not evidence for current magnitudes.

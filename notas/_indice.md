@@ -148,10 +148,25 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Revisão de texto: prosa enxuta e sem defensiva (2026-10-23, branch `feature/auditoria-janelas-copom`):**
+[`2026-10-23_revisao_texto_enxuto`](2026-10-23_revisao_texto_enxuto.md)
+**CURRENT na branch, não mergeada.** Só a prosa do `.tex` muda, e nenhum número entra ou sai.
+- **Regra.** No corpo e nos anexos, cada fato e cada ressalva ficam completos uma vez, na seção própria.
+  Resumo, introdução e conclusão repetem em versão curta, e resumo e conclusão são catchy.
+- **Casas.** A ponte fica no Anexo E. A leitura do item 5 fica só na §4.2. A condição de posto fica na §3.3
+  ¶1 e no Anexo B. Os resultados menos favoráveis ficam na §5.2, na §5.3 e no Anexo E, e a §6 os resume em
+  cinco frases.
+- **Saiu** a defesa sem pedido, como "fixados antes de ver os resultados" nos placebos, "sem validar a
+  exogeneidade" e "não um limiar". As ressalvas pedidas pelo orientador ficam uma vez.
+- O resumo vai de 293 para 200 palavras, e o corpo de 9211 para 8355. O ¶1 da introdução foi revisto
+  depois, a pedido do autor, e mantém uma frase curta de abertura antes da paridade descoberta.
+
 **Versão integrada: resumo, introdução e conclusão coerentes com a ponte (2026-10-23, branch `feature/auditoria-janelas-copom`):**
 [`2026-10-23_versao_integrada`](2026-10-23_versao_integrada.md)
 **CURRENT na branch, não mergeada.** Passo 4, itens "Versão integrada" e "Ressalvas da linha diária". Nada
-foi reestimado.
+foi reestimado. **A prosa foi revista no mesmo dia** por `2026-10-23_revisao_texto_enxuto`: a leitura do
+item 5 saiu do resumo, da introdução e da conclusão e ficou só na §4.2, e o parágrafo dos resultados menos
+favoráveis encolheu.
 - **Ponte.** No resumo, no fim do 2º parágrafo da introdução e no do 1º da conclusão, sem números: a
   depreciação e a alta do CDS em horizontes posteriores aparecem também fora do DFM, o que é consistente com
   uma transmissão associada ao risco, sem identificar que o risco cause a depreciação.
