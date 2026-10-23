@@ -1,5 +1,9 @@
 # Câmbio diário do Yahoo pela convenção do anúncio: evento diário, conferência e Anexo B
 
+> **SEÇÃO 7 SUPERADA em 2026-10-23** por
+> [`2026-10-23_linha_diaria_anexo_b`](2026-10-23_linha_diaria_anexo_b.md). O CDS da linha diária
+> passou às 17h de Nova York, e os p, as razões de variância e a linha do `.tex` são os daquela nota.
+>
 > **CURRENT — 2026-10-13.** Branch `feature/focus-horizonte-fixo`, **não mergeada**.
 > - **Decisão do autor em 10-13:** todo o câmbio diário dos resultados passa ao Yahoo `BRL=X`. Motivos
 >   dados pelo autor: coerência com os resultados que o orientador já conhece, que são o câmbio mensal

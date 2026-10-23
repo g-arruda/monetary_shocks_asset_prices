@@ -1,13 +1,13 @@
 sistema,vertice,hipotese,estatistica,gl,p
-Tres observaveis de GRG,3 meses,lambda_ 1 =lambda_2,12.554503448665836,2,0.001878556296891265
-Tres observaveis de GRG,3 meses,lambda_ 1 =lambda_2=lambda_3,31.686188375969543,5,6.854749474483057e-6
-Tres observaveis de GRG,3 meses,lambda_ 2 =lambda_3,3.288619974323247,2,0.1931457898989779
-Tres observaveis de GRG,6 meses,lambda_ 1 =lambda_2,5.512297626999647,2,0.06353598672691274
-Tres observaveis de GRG,6 meses,lambda_ 1 =lambda_2=lambda_3,17.804936423803532,5,0.0032010751977921137
-Tres observaveis de GRG,6 meses,lambda_ 2 =lambda_3,3.4954967361752214,2,0.17416565924145277
-Tres observaveis de GRG,12 meses,lambda_ 1 =lambda_2,5.033536169296872,2,0.08072006605226245
-Tres observaveis de GRG,12 meses,lambda_ 1 =lambda_2=lambda_3,16.54550483570187,5,0.005447511679080752
-Tres observaveis de GRG,12 meses,lambda_ 2 =lambda_3,3.3385364145551812,2,0.18838487388878344
+Tres observaveis de GRG,3 meses,lambda_ 1 =lambda_2,15.777873288796957,2,3.7486798109243047e-4
+Tres observaveis de GRG,3 meses,lambda_ 1 =lambda_2=lambda_3,35.93073821223763,5,9.80596438160397e-7
+Tres observaveis de GRG,3 meses,lambda_ 2 =lambda_3,2.357435425670354,2,0.30767301091480226
+Tres observaveis de GRG,6 meses,lambda_ 1 =lambda_2,6.749290153138411,2,0.034230265279106664
+Tres observaveis de GRG,6 meses,lambda_ 1 =lambda_2=lambda_3,18.189603958060193,5,0.0027179284619246458
+Tres observaveis de GRG,6 meses,lambda_ 2 =lambda_3,2.3495774955693736,2,0.3088842252730042
+Tres observaveis de GRG,12 meses,lambda_ 1 =lambda_2,6.1055634097870355,2,0.047227368898519195
+Tres observaveis de GRG,12 meses,lambda_ 1 =lambda_2=lambda_3,16.6255786923261,5,0.005267463702103181
+Tres observaveis de GRG,12 meses,lambda_ 2 =lambda_3,2.211759324821161,2,0.3309196565878074
 Tres observaveis de GRG (VAR),3 meses,lambda_ 1 =lambda_2,0.107655317560312,2,0.947595402177636
 Tres observaveis de GRG (VAR),3 meses,lambda_ 1 =lambda_2=lambda_3,2.6887469225533076,5,0.7478390004625581
 Tres observaveis de GRG (VAR),3 meses,lambda_ 2 =lambda_3,1.6057643224802036,2,0.44803579005604954

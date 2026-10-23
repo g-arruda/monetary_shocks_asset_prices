@@ -1,13 +1,13 @@
 sistema,frequencia,vertice,ordem,lambda,lambda_se
-Tres observaveis de GRG,Diaria,3 meses,1,7.032201219874331,1.0673790253116997
-Tres observaveis de GRG,Diaria,3 meses,2,1.1455288736837863,0.17387162706437687
-Tres observaveis de GRG,Diaria,3 meses,3,0.47103718973706576,0.07151411066594743
-Tres observaveis de GRG,Diaria,6 meses,1,3.658816379120248,0.5553512062255883
-Tres observaveis de GRG,Diaria,6 meses,2,1.1337574682123635,0.17208460385734994
-Tres observaveis de GRG,Diaria,6 meses,3,0.4500846456040182,0.06833448281589524
-Tres observaveis de GRG,Diaria,12 meses,1,3.44577066167691,0.5230139447203582
-Tres observaveis de GRG,Diaria,12 meses,2,1.1391929117397734,0.17290932603737888
-Tres observaveis de GRG,Diaria,12 meses,3,0.4658919168779385,0.07073324218905803
+Tres observaveis de GRG,Diaria,3 meses,1,6.686333081516067,1.0148838842346992
+Tres observaveis de GRG,Diaria,3 meses,2,1.0391716167417293,0.15772877937655275
+Tres observaveis de GRG,Diaria,3 meses,3,0.5252537534702554,0.0797416458551907
+Tres observaveis de GRG,Diaria,6 meses,1,3.355559447168141,0.5093218927821994
+Tres observaveis de GRG,Diaria,6 meses,2,1.020656898158007,0.15491778375713083
+Tres observaveis de GRG,Diaria,6 meses,3,0.5121096868441922,0.07774701942584294
+Tres observaveis de GRG,Diaria,12 meses,1,3.140355463452631,0.4766566603225314
+Tres observaveis de GRG,Diaria,12 meses,2,1.0291161276126204,0.15620251162630824
+Tres observaveis de GRG,Diaria,12 meses,3,0.5313368145006379,0.08066468444591066
 Tres observaveis de GRG (VAR),Mensal,3 meses,1,2.3327188721894916,0.5510012618257145
 Tres observaveis de GRG (VAR),Mensal,3 meses,2,2.049011262175774,0.48415961640650645
 Tres observaveis de GRG (VAR),Mensal,3 meses,3,1.2387324928288423,0.29259776475361565

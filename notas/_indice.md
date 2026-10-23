@@ -148,6 +148,19 @@ distinção de estimadores: a réplica da Tabela 5 de GRG é o `01_daily_grg.R`
 (diferença de covariâncias = IV), não o `fit_het_cv()`. Nada reestimado na
 produção; os cinco impactos do smoke test saíram bit-idênticos.
 
+**Linha diária do Anexo B com o câmbio realinhado e o CDS às 17h de Nova York (2026-10-23, branch `feature/auditoria-janelas-copom`):**
+[`2026-10-23_linha_diaria_anexo_b`](2026-10-23_linha_diaria_anexo_b.md)
+**CURRENT na branch, não mergeada.** O último item do passo 3. Supera a seção 7 de `2026-10-13_cambio_yahoo_convencao`.
+- **Janela.** O CDS vai na janela estreita do Anexo E nas reuniões. Nas semanas sem reunião vai na janela
+  de um anúncio às 18h de quarta, a mesma regra do câmbio, por decisão do autor tomada antes de rodar
+  (`2f388c3`). As 7 reuniões de feriado ficam fora: 103 semanas com reunião e 554 sem.
+- **Diário.** `Qr` p 0,0004, 0,034 e 0,047, e Holm 0,001, 0,068 e 0,068. ⚠ Os três vértices rejeitam a 5%
+  sem ajuste, e só o de 3 meses rejeita com Holm. Câmbio e CDS ficam abaixo de 1 na razão de variância, e
+  sem a correção de curtose tudo rejeita.
+- **Mensal.** O VAR e a linha fatorial não mudam, e na fatorial nenhum teste rejeita a 10%.
+- **`.tex`.** O Anexo B ganha um parágrafo com a descrição dos painéis, e a legenda fica só com as
+  colunas. A §3.3 fica, por decisão do autor.
+
 **Placebos na §5.2 e o teste do EPU na base de 111 (2026-10-22, branch `feature/auditoria-janelas-copom`):**
 [`2026-10-22_placebos_secao_5`](2026-10-22_placebos_secao_5.md)
 **CURRENT na branch, não mergeada.** Dois itens do passo 3. O instrumento e as IRFs não mudam.
@@ -302,6 +315,8 @@ precisão, o VAR, os anexos, as figuras de `paper/img/`, os placebos e a influê
 
 **Câmbio diário do Yahoo pela convenção do anúncio: evento diário, conferência e Anexo B (2026-10-13, branch `feature/focus-horizonte-fixo`):**
 [`2026-10-13_cambio_yahoo_convencao`](2026-10-13_cambio_yahoo_convencao.md)
+**Seção 7 (Anexo B) superada em 2026-10-23** por `2026-10-23_linha_diaria_anexo_b`: o CDS passou às 17h
+de Nova York, e os p diários, as razões e a linha do `.tex` são os daquela nota.
 **CURRENT na branch, não mergeada.** Por decisão do autor, todo o câmbio diário passa ao Yahoo
 `BRL=X`, da última cotação antes do anúncio à primeira depois. O instrumento e a produção não mudam.
 - **Hora.** A linha datada d traz a cotação da noite (20h no verão europeu, 21h–22h no inverno), o
