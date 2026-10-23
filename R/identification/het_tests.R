@@ -104,7 +104,8 @@ align_regimes_to_eta <- function(dates, p, regimes) {
 #' @param from,to Bounds of the weekly grid.
 #' @param di_vertices Named integer vector of DI maturities in business days.
 #' @param prices Named list of two-column data frames (`date`, `valor`),
-#'   already in the units the panel should carry.
+#'   already in the units the panel should carry; empty when every price
+#'   series is differenced on its own window by the caller.
 #' @param copom_csv Copom meetings file.
 #' @param di_csv Daily DI futures file read by `load_di_panel()`.
 #'
@@ -164,7 +165,7 @@ build_weekly_changes <- function(from, to, di_vertices, prices,
       series$valor[match(weeks$thu_date, series$date)] -
         series$valor[match(weeks$wed_date, series$date)]
     }) |>
-    tibble::as_tibble()
+    tibble::as_tibble(.rows = nrow(weeks))
 
   dplyr::bind_cols(weeks, di_changes, price_changes)
 }

@@ -30,7 +30,8 @@
 #
 # Outputs in output/het/:
 #   daily_changes.csv       the weekly panel the daily row is built on, with
-#                           the Yahoo rows of each week's FX window
+#                           the Yahoo rows and the CDS dates of each week's
+#                           window
 #   het_conditions.csv      one row per system: Lambda, its SE, Qr
 #   het_qr_tests.csv        every sequential Qr null, every system
 #   het_variance_ratios.csv Var_C / Var_NC of each residual series
@@ -39,7 +40,7 @@
 #   het_var_theta_multistart.csv  where every start of its multi-start ended
 #
 # Run: Rscript script/het_conditions.R, after script/copom_timing.R (the
-# Yahoo window of each meeting).
+# Yahoo and CDS windows of each meeting).
 # ===================================================================
 
 source("R/instrument/di_surprise.R")
@@ -59,8 +60,19 @@ THETA_PATH  <- "output/factors/covid_volatility_theta.csv"
 # between systems and not between samples.
 SAMPLE <- as.Date(c("2012-03-01", "2025-12-31"))
 
-# THE SERIES ARE GRG's (2025), on both sides: the Wednesday-to-Thursday change
-# in the DI, the BRL/USD rate and the 5-year sovereign CDS (their Table 1).
+TZ_BRASILIA <- "America/Sao_Paulo"
+TZ_NEW_YORK <- "America/New_York"
+
+# The CDS close is taken at 17h New York (author decision of 2026-10-14), as
+# in the meeting windows of script/copom_timing.R. A week without a meeting
+# takes the windows a Wednesday release at 18h Brasilia would have (author
+# decision of 2026-10-23 for the CDS, the FX rule of 2026-10-13).
+CDS_CLOSE_NY       <- "17:00"
+NO_MEETING_RELEASE <- "18:00"
+
+# THE SERIES ARE GRG's (2025), on both sides: the DI, the BRL/USD rate and
+# the 5-year sovereign CDS (their Table 1, Wednesday to Thursday; here each
+# series' own window around the announcement, below).
 # They use neither the Ibovespa nor the 2-year vertex; the daily row this
 # project published until 2026-09-21 used both, and that set was the
 # project's, not theirs.
@@ -98,47 +110,108 @@ THETA_UPPER    <- c(s0 = Inf, s1 = Inf, s2 = Inf, rho = 1)
 MULTISTART_S   <- exp(seq(0, log(40), length.out = 5))
 MULTISTART_RHO <- seq(0, 1, by = 0.2)
 
-# Daily panel: one observation per week. DI and CDS run from Wednesday to
-# Thursday: the Copom announces after Wednesday's close, so the window
-# covers the announcement. The exchange rate is Yahoo BRL=X, whose quote is
-# the Brazilian evening's (20h-22h): in a meeting week it runs from the last
-# quote before the announcement to the first after it, as
-# script/copom_timing.R dates them; in the other weeks, from Tuesday's
-# evening quote to Wednesday's, the window an 18h Wednesday release would
-# have. Regime C = the Wednesday is a meeting day. Weeks without trading on
-# Wednesday or Thursday become NA and drop out -- never zero, which would
-# pass "no quote" off as "no change".
+# Daily panel: one observation per week. The DI runs from Wednesday's close
+# to Thursday's: the Copom announces after Wednesday's close, so the window
+# covers the announcement. The exchange rate (Yahoo BRL=X, the Brazilian
+# evening's quote, 20h-22h) and the CDS (17h New York, 18h-20h) run from the
+# last quote before the announcement to the first after it, as
+# script/copom_timing.R dates them in a meeting week. In the other weeks
+# they run across an 18h Wednesday release: Tuesday's evening Yahoo quote to
+# Wednesday's, and for the CDS Wednesday's close to the next when it falls
+# at 18h (US summer time) -- it counts as before, as in the 72 meetings
+# where it does -- and the quote before Wednesday to Wednesday's otherwise.
+# Regime C = the Wednesday is a meeting day. Weeks without a quote in any
+# window become NA and drop out -- never zero, which would pass "no quote"
+# off as "no change"; this drops the seven meetings whose Thursday is a
+# Brazilian holiday, which have no Thursday DI.
 yahoo <- load_yahoo_brl(BRL_PATH)
-fx_windows <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE) |>
-  dplyr::select(wednesday, yahoo_pre, yahoo_post)
+meeting_windows <- readr::read_csv(MEETINGS_PATH, show_col_types = FALSE) |>
+  dplyr::select(
+    wednesday,
+    yahoo_pre,
+    yahoo_post,
+    cds_pre = cds_pre_ny17,
+    cds_post = cds_post_ny17,
+    d_cds_ny17
+  )
 cds <- readxl::read_excel(CDS_PATH, skip = 5) |>
   purrr::set_names(c("date", "valor")) |>
   dplyr::transmute(date = as.Date(date), valor = as.numeric(valor)) |>
   dplyr::filter(!is.na(date), !is.na(valor))
 
-daily_panel <- build_weekly_changes(
+weekly_changes <- build_weekly_changes(
   SAMPLE[1],
   SAMPLE[2],
   purrr::set_names(VERTICES$business_days, VERTICES$daily),
-  list(cds_5y = cds),
+  list(),
   COPOM_PATH,
   DI_PATH
 ) |>
-  dplyr::left_join(fx_windows, by = c("wed_date" = "wednesday")) |>
+  dplyr::left_join(meeting_windows, by = c("wed_date" = "wednesday"))
+
+# The coalesce below would hand a meeting missing from meetings.csv the
+# no-meeting windows without a word
+stopifnot(
+  !anyNA(
+    weekly_changes |>
+      dplyr::filter(regime == "C") |>
+      dplyr::select(yahoo_pre, yahoo_post, cds_pre, cds_post)
+  )
+)
+
+daily_panel <- weekly_changes |>
   dplyr::mutate(
+    no_meeting_release = lubridate::ymd_hm(
+      paste(wed_date, NO_MEETING_RELEASE),
+      tz = TZ_BRASILIA
+    ),
     no_meeting_index = findInterval(
-      as.numeric(lubridate::ymd_hm(paste(wed_date, "18:00"), tz = "America/Sao_Paulo")),
+      as.numeric(no_meeting_release),
       as.numeric(yahoo$quote_time)
     ),
+    cds_close_after_release = lubridate::ymd_hm(
+      paste(wed_date, CDS_CLOSE_NY),
+      tz = TZ_NEW_YORK
+    ) > no_meeting_release,
+    cds_before_wednesday = cds$date[
+      findInterval(as.numeric(wed_date) - 1, as.numeric(cds$date))
+    ],
+    cds_after_wednesday = cds$date[
+      findInterval(as.numeric(wed_date), as.numeric(cds$date)) + 1L
+    ],
     yahoo_pre = dplyr::coalesce(yahoo_pre, yahoo$date[no_meeting_index]),
     yahoo_post = dplyr::coalesce(yahoo_post, yahoo$date[no_meeting_index + 1L]),
+    cds_pre = dplyr::coalesce(
+      cds_pre,
+      dplyr::if_else(cds_close_after_release, cds_before_wednesday, wed_date)
+    ),
+    cds_post = dplyr::coalesce(
+      cds_post,
+      dplyr::if_else(cds_close_after_release, wed_date, cds_after_wednesday)
+    ),
     brl = 100 * log(
       yahoo$brl[match(yahoo_post, yahoo$date)] /
         yahoo$brl[match(yahoo_pre, yahoo$date)]
-    )
+    ),
+    cds_5y = cds$valor[match(cds_post, cds$date)] -
+      cds$valor[match(cds_pre, cds$date)]
   ) |>
-  dplyr::select(-no_meeting_index) |>
   tidyr::drop_na(dplyr::all_of(c(VERTICES$daily, DAILY_DEPENDENTS)))
+
+# In a meeting week the CDS change is the narrow window of Anexo E
+stopifnot(
+  with(dplyr::filter(daily_panel, regime == "C"), cds_5y == d_cds_ny17)
+)
+
+daily_panel <- daily_panel |>
+  dplyr::select(
+    -no_meeting_release,
+    -no_meeting_index,
+    -cds_close_after_release,
+    -cds_before_wednesday,
+    -cds_after_wednesday,
+    -d_cds_ny17
+  )
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 readr::write_csv(daily_panel, file.path(OUT_DIR, "daily_changes.csv"))
