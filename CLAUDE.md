@@ -209,8 +209,10 @@ These govern what may be **said**, so they apply even when no file is open.
     Mauchly's proportionality LR, the λ₁–λ₂ gap, `ratio_dir`, `rank1_share` and the permutation
     placebo — are retired, and every number they produced is **discontinued** and may not be
     reported or cited. `svars::id.cv()` is never called directly (`.claude/rules/identification.md`).
-  - **The series are `goncalves2025`'s own, on both sides** — the Wed→Thu change in the DI, BRL/USD
-    and the 5-year sovereign CDS; no Ibovespa and no 2-year DI. Their fourth series, a breakeven
+  - **The series are `goncalves2025`'s own, on both sides** — the DI, BRL/USD and the 5-year
+    sovereign CDS; no Ibovespa and no 2-year DI. Daily, the DI runs Wed→Thu and BRL/USD and the CDS
+    run around the announcement, or an 18h Wednesday release in weeks without a meeting (since
+    2026-10-23). Their fourth series, a breakeven
     inflation expectation, is not in this panel, and the gap is declared. The DI vertex is reported
     as a row.
   - **The two frequencies are not decomposed, and no claim may decompose them.** Between the daily

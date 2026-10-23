@@ -16,11 +16,15 @@ and every figure it includes lives in `paper/img/`. §3 Metodologia has four
 subsections since 2026-09-17 — `Modelo e estimação`, `Base de dados`, `Identificação e construção
 do instrumento`, `Relevância do instrumento e inferência`; §4 Resultados has eight subsections, one per figure;
 §3.3 (`sec:identificacao`) opens, since 2026-09-26, with one narrative paragraph and no footnote on why the
-paper does not use heteroskedasticity identification, and Anexo B carries its one table (Anexo A is the variable list)
+paper does not use heteroskedasticity identification, and Anexo B carries one paragraph and one table (Anexo A is the variable list)
 (`tab:het_frequency`, the three variance ratios beside the `Qr` summary since 2026-09-27, when
 `tab:het_variance` was merged into it; `tab:het_sequencia` was cut on 2026-09-24; its monthly VAR
-is the one under the Lenza-Primiceri rescale, stated in the note, typed from
-`output/het/het_conditions.csv` and `het_variance_ratios.csv`); §5 Robustez (`sec:robustez`) has,
+is the one under the Lenza-Primiceri rescale, typed from
+`output/het/het_conditions.csv` and `het_variance_ratios.csv`). Since 2026-10-23 (branch
+`feature/auditoria-janelas-copom`) the paragraph before the table describes the three panels, the daily
+windows (DI Wednesday to Thursday, FX and CDS around the announcement or an 18h Wednesday release, the 7
+holiday-Thursday meetings out), the Holm p and the factor row, and the caption only defines the columns
+and the test, author decision (`2026-10-23_linha_diaria_anexo_b`); §5 Robustez (`sec:robustez`) has,
 since 2026-10-22 (branch `feature/auditoria-janelas-copom`), three subsections: 5.1 `Benchmark VAR`
 (`sec:weak_iv`, the VAR benchmark unchanged), 5.2 `Placebos` (`sec:placebos`, one paragraph: the AR test of
 a zero response at h = 0, 1, 3, 6, 12, 24 with Holm over the 18 tests, read by significance level only, the

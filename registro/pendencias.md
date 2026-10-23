@@ -30,9 +30,8 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 | Passo | Tema | Item | Depende de | Decisão do autor |
 |---|---|---|---|---|
-| 3 | A | Linha diária do Anexo B | — | janela do CDS sem reunião |
-| 4 | A | Versão integrada | passo 3 | — |
-| 4 | A | Ressalvas da linha diária no resumo | linha diária do Anexo B | é a própria decisão |
+| 4 | A | Versão integrada | — | — |
+| 4 | A | Ressalvas da linha diária no resumo | — | é a própria decisão |
 | 4 | A | Tabela antigo × novo | versão integrada | — |
 | 5 | B | Promover a branch para `main` | versão integrada, tabela antigo × novo | — |
 | depois | B | Amostra completa com `p = 2` | — | quando rodar; qual θ̂ |
@@ -41,16 +40,6 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
 
 ## A. Texto do paper
 
-- [ ] **Linha diária do Anexo B.** O câmbio realinhado e o CDS às 17h de Nova York em `tab:het_frequency`.
-  - Câmbio: já realinhado em 10-13, falta levar ao `.tex` (nota `2026-10-13_cambio_yahoo_convencao`,
-    seção 7). As frases da §3.3 continuam verdadeiras. ⚠ A janela vem da hora inferida do Yahoo, que é
-    uma hipótese documentada. ⚠ O Anexo F descreve a janela do Yahoo só para o Anexo E; ao levar o câmbio
-    ao `.tex`, decidir se ele passa a citar o B.
-  - CDS: `het_conditions.R` ainda usa a janela de quarta a quinta. Falta definir a janela das semanas sem
-    reunião, que não têm anúncio, e rodar de novo.
-  - ⚠ Na base nova, a linha fatorial não rejeita nada a 10%, e a nota da tabela, que imprime 0,035, 0,021
-    e 0,013, muda.
-  - Não depende de outro item. Desbloqueia a decisão sobre as ressalvas no resumo.
 - [ ] **Versão integrada.** Introdução, resultados e conclusão coerentes com a ponte: e-mail de 19-10, item
   5 e último parágrafo. Absorve a conclusão com o DFM e o evento lado a lado (e-mail de 12-10, item 5) e a
   leitura da §4 migrada (nota `2026-09-24_migracao_secao_4`, §5).
@@ -67,15 +56,17 @@ convenção de branches, anotada em `.claude/rules/writing.md`.
     este item).
   - ⚠ `\autoref` e as legendas imprimem "Figure/Table": os `\renewcommand` de `bd3a52c` ficaram em
     `paper_anpec.tex` (nota `2026-10-22_conferir_e_trajetoria_diaria`, seção 3).
-  - Depende do passo 3. Desbloqueia a promoção.
+  - O passo 3 está fechado, e o item não depende de outro. Desbloqueia a promoção.
 - [ ] **Ressalvas da linha diária no resumo.** Decidir se o resumo as carrega.
   - O resumo (`paper.tex:112`) diz que a condição "holds daily but fails in our monthly panel", sem duas
-    ressalvas. O vértice decide no diário, e a correção de curtose também (÷4,9). No corpo, o vértice está
-    na §3.3, e a curtose, em `tab:het_frequency`.
+    ressalvas: o vértice e a correção de curtose (nota `2026-10-23_linha_diaria_anexo_b`, seção 2). No
+    corpo, o vértice está na §3.3, e a curtose, em `tab:het_frequency`.
+  - ⚠ Com o CDS às 17h de Nova York, os três vértices rejeitam a 5% sem ajuste, e o vértice só decide
+    com Holm. A frase da §3.3 ficou, por decisão do autor de 23-10.
   - ⚠ A mesma frase põe "frequency and identification strategy" como origem da divergência, e a
     introdução (`paper.tex:145`) diz o mesmo. A proibição de 2026-09-22 veda decompor frequência e objeto
     medido (nota `2026-09-22_condicao_het_svars`).
-  - Depende da linha diária do Anexo B. Decide-se junto com a versão integrada.
+  - Não depende de outro item. Decide-se junto com a versão integrada.
 - [ ] **Tabela antigo × novo.** O e-mail de 12-10 (item 1) a pede "para facilitar a revisão", sem dizer se
   vai no artigo ou na entrega; o de 19-10 não a menciona. Usa `compare_model()` e `compare_cells()` de
   `R/reporting/sensitivity.R`. Depende dos números finais e da versão integrada. Desbloqueia a promoção.

@@ -120,7 +120,9 @@ from "the collection came back empty", and the error only surfaces months later,
   (New York by Bloomberg's documentation, not fixed by the data), so its Wed→Thu change follows the
   convention only under a London close. **Since 2026-10-14 the author fixes the close at 17h New York**
   (`cds_pre_ny17`/`cds_post_ny17` of `meetings.csv`; `notas/2026-10-14_ponte_trajetoria_evento.md`):
-  bridge (a) uses it, while `daily_event.R` and `het_conditions.R` still use Wed→Thu (open item). The
+  bridge (a) uses it, `daily_event.R` since 2026-10-18 and the daily row of Anexo B in `het_conditions.R`
+  since 2026-10-23, where the weeks without a meeting take the window of an 18h Wednesday release
+  (`notas/2026-10-23_linha_diaria_anexo_b.md`). The
   daily exchange rate is always Yahoo `BRL=X`, never the PTAX (author decision, same day). ⚠ The instrument drops the 7 meetings whose Thursday is a
   Brazilian holiday and the 2 on Thanksgiving, and their months enter at z = 0. Since 2026-10-17, on
   `feature/auditoria-janelas-copom`, all 111 are events, the 7 with the window Wednesday to Friday, and

@@ -10,6 +10,11 @@ Os blocos vieram de `pendencias.md` em 2026-10-19, sem edição. Referências co
 
 ## A. Texto do paper
 
+- [x] **Linha diária do Anexo B — 2026-10-23.** O câmbio realinhado e o CDS às 17h de Nova York, com a
+  regra das 18h00 de quarta nas semanas sem reunião, fixada antes de rodar (`2f388c3`). As 7 reuniões de
+  feriado ficam fora (103 e 554 semanas). `Qr` p 0,0004, 0,034 e 0,047, e com Holm 0,001 e 0,068. A
+  fatorial não rejeita nada a 10%. O Anexo B ganha um parágrafo com os painéis. A §3.3 e o Anexo F ficam,
+  e o Anexo F não cita o B, por decisão do autor. Nota: `2026-10-23_linha_diaria_anexo_b`.
 - [x] **Placebos na §5.2 e `fig:placebos` — 2026-10-22.** E-mails de 08-10, de 12-10 (item 4) e de 19-10
   (item 5). Os placebos vão numa subseção própria, a §5.2, e o parágrafo da §3.3 saiu. Holm vai nos 18
   testes, com rodapé sobre o Wald por série, e não rejeita nada. Sem ajuste, o MSCI de emergentes cai e é

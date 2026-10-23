@@ -650,6 +650,8 @@ Resultado nominal, 12 meses à frente & BCB, Focus &  & 1 \\
 
 \section*{Anexo B. Identificação por heterocedasticidade}\label{anexo-B}
 
+A \autoref{tab:het_frequency} testa a condição de posto em três sistemas, todos de março de 2012 a dezembro de 2025. No painel diário, cada semana dá uma observação. O DI varia do fechamento da quarta-feira ao da quinta. O câmbio e o CDS variam da última cotação anterior ao anúncio do Copom à primeira posterior, pelos horários da \autoref{tab:horarios}, no Anexo F, e, nas semanas sem reunião, da última cotação até as 18h00 de quarta-feira à primeira depois desse horário. Uma semana sem cotação de alguma das séries na janela sai da amostra, e por isso ficam fora as sete reuniões cuja quinta-feira foi feriado no Brasil, sem pregão do DI. O teste usa 103 semanas com reunião e 554 sem, 657 das 658, porque exige ao menos uma defasagem. Com a correção de Holm para os três vértices, o $p$ diário é $0{,}001$ no vértice de três meses e $0{,}068$ nos de seis e doze. No painel mensal, a série é o resíduo de um VAR das três séries em nível, com constante, tendência e quatro defasagens, e há 107 meses com reunião e 54 sem, 161 dos 162 resíduos. O VAR recebe o tratamento da COVID do VAR dos fatores, a reescala $s_t$ da equação \ref{eq:5b} com $\theta$ estimado pela equação \ref{eq:5c} em cada vértice, e a série é o resíduo dividido por $s_t$. A linha fatorial usa as cinco inovações padronizadas de $(r,q,p)=(5,5,4)$, nos mesmos 161 meses do VAR, e nela nenhum dos testes sequenciais rejeita a 10\%. Entre os painéis diário e mensal mudam juntos a frequência e o objeto medido, e a comparação não separa um do outro.
+
 \begin{table}[H]
 \centering
 \footnotesize
@@ -660,13 +662,13 @@ Resultado nominal, 12 meses à frente & BCB, Focus &  & 1 \\
 \cmidrule(lr){2-4} \cmidrule(lr){7-8} \cmidrule(l){9-10}
  & \multicolumn{1}{c}{DI} & \multicolumn{1}{c}{BRL/USD} & \multicolumn{1}{c}{CDS} & \multicolumn{1}{c}{$\hat{\lambda}_1$} & \multicolumn{1}{c}{$\hat{\lambda}_2$} & \multicolumn{1}{c}{$Q_r$} & \multicolumn{1}{c}{$p$} & \multicolumn{1}{c}{$Q_r$} & \multicolumn{1}{c}{$p$} \\
 \midrule
-\multicolumn{10}{@{}l}{\textit{Diário, variação de quarta para quinta-feira}} \\
-\quad DI de 3 meses  & 5,54 & 1,04 & 0,80 & 7,55   & 1,36   & 11,43 & 0,003 & 55,77 & {<}0,001 \\
-                     &      &      &      & (1,15) & (0,21) &       &       &       &          \\
-\quad DI de 6 meses  & 2,84 & 1,04 & 0,77 & 4,06   & 1,36   & 4,95  & 0,084 & 24,29 & {<}0,001 \\
-                     &      &      &      & (0,62) & (0,21) &       &       &       &          \\
-\quad DI de 12 meses & 2,66 & 1,04 & 0,78 & 3,63   & 1,40   & 3,83  & 0,147 & 18,51 & {<}0,001 \\
-                     &      &      &      & (0,55) & (0,21) &       &       &       &          \\
+\multicolumn{10}{@{}l}{\textit{Diário, janela do anúncio}} \\
+\quad DI de 3 meses  & 5,46 & 0,68 & 0,78 & 6,69   & 1,04   & 15,78 & {<}0,001 & 65,31 & {<}0,001 \\
+                     &      &      &      & (1,01) & (0,16) &       &       &       &          \\
+\quad DI de 6 meses  & 2,78 & 0,68 & 0,76 & 3,36   & 1,02   & 6,75  & 0,034 & 28,63 & {<}0,001 \\
+                     &      &      &      & (0,51) & (0,15) &       &       &       &          \\
+\quad DI de 12 meses & 2,62 & 0,69 & 0,77 & 3,14   & 1,03   & 6,11  & 0,047 & 25,31 & {<}0,001 \\
+                     &      &      &      & (0,48) & (0,16) &       &       &       &          \\
 \addlinespace
 \multicolumn{10}{@{}l}{\textit{Mensal, VAR em nível}} \\
 \quad DI de 3 meses  & 1,99 & 1,27 & 1,92 & 2,13   & 1,92   & 0,07  & 0,965 & 0,10  & 0,953 \\
@@ -677,11 +679,11 @@ Resultado nominal, 12 meses à frente & BCB, Focus &  & 1 \\
                      &      &      &      & (0,50) & (0,45) &       &       &       &       \\
 \addlinespace
 \multicolumn{10}{@{}l}{\textit{Mensal, inovações fatoriais do DFM}} \\
-\quad $\eta_1,\dots,\eta_5$ & & & & 4,03 & 1,68 & 5,15 & 0,076 & 6,72 & 0,035 \\
-                     &      &      &      & (0,95) & (0,40) &       &       &       &       \\
+\quad $\eta_1,\dots,\eta_5$ & & & & 3,05 & 1,72 & 2,33 & 0,312 & 2,96 & 0,228 \\
+                     &      &      &      & (0,72) & (0,41) &       &       &       &       \\
 \bottomrule
 \end{tabular*}
-\caption{\textbf{Razão de variância e teste da condição de posto, $H_0\colon\lambda_1=\lambda_2$}\\{Cada linha é um sistema com o vértice do DI indicado, o câmbio BRL/USD e o CDS soberano de cinco anos, as séries de \cite{goncalves2025} exceto a expectativa de inflação de mercado, que o painel não contém. A razão de variância é a variância da série nos períodos com reunião do Copom ($C$) dividida pela variância nos períodos sem reunião ($NC$) \citep{rigobonsack2004}. Os valores $\hat{\lambda}_1$ e $\hat{\lambda}_2$ são os dois maiores autovalores de $\Lambda$ em $\Sigma_{NC}=BB'$ e $\Sigma_C=B\Lambda B'$, com erro padrão entre parênteses. A estatística $Q_r$ testa $H_0$ com dois graus de liberdade \citep{lutkepohl2021,lange2021}, e sob $H_0$ a coluna do choque monetário não é identificada. A versão com correção divide a estatística por um fator que depende da curtose dos resíduos e é a válida quando os resíduos não são normais. No painel diário, a série é a variação de quarta para quinta-feira, e há 102 semanas com reunião e 553 sem. Com a correção de Holm para os três vértices, o $p$ diário do vértice de três meses é $0{,}010$. No painel mensal, a série é o resíduo de um VAR das três séries em nível, com constante, tendência e quatro defasagens, e há 107 meses com reunião e 54 sem, 161 dos 162 resíduos, porque o teste exige ao menos uma defasagem. O VAR recebe o tratamento da COVID do VAR dos fatores, a reescala $s_t$ da equação \ref{eq:5b} com $\theta$ estimado pela equação \ref{eq:5c} em cada vértice, e a série é o resíduo dividido por $s_t$. A linha fatorial usa as cinco inovações padronizadas de $(r,q,p)=(5,5,4)$, nos mesmos 161 meses do VAR. Nessa linha o teste rejeita $\lambda_1=\dots=\lambda_4$ e $\lambda_1=\dots=\lambda_5$ a 5\%, com $p$ de $0{,}021$ e $0{,}013$, mas não rejeita $\lambda_1=\lambda_2$. Entre os painéis diário e mensal mudam juntos a frequência e o objeto medido, e a comparação não separa um do outro. Janela de março de 2012 a dezembro de 2025.}}
+\caption{\textbf{Razão de variância e teste da condição de posto, $H_0\colon\lambda_1=\lambda_2$}\\{Cada linha é um sistema com o vértice do DI indicado, o câmbio BRL/USD e o CDS soberano de cinco anos, as séries de \cite{goncalves2025} exceto a expectativa de inflação de mercado, que o painel não contém. A razão de variância é a variância da série nos períodos com reunião do Copom ($C$) dividida pela variância nos períodos sem reunião ($NC$) \citep{rigobonsack2004}. Os valores $\hat{\lambda}_1$ e $\hat{\lambda}_2$ são os dois maiores autovalores de $\Lambda$ em $\Sigma_{NC}=BB'$ e $\Sigma_C=B\Lambda B'$, com erro padrão entre parênteses. A estatística $Q_r$ testa $H_0$ com dois graus de liberdade \citep{lutkepohl2021,lange2021}, e sob $H_0$ a coluna do choque monetário não é identificada. A versão com correção divide a estatística por um fator que depende da curtose dos resíduos e é a válida quando os resíduos não são normais.}}
 \label{tab:het_frequency}
 \end{threeparttable}
 \end{table}
