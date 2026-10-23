@@ -198,9 +198,13 @@ daily_panel <- weekly_changes |>
   ) |>
   tidyr::drop_na(dplyr::all_of(c(VERTICES$daily, DAILY_DEPENDENTS)))
 
-# In a meeting week the CDS change is the narrow window of Anexo E
+# In a meeting week the CDS change is the narrow window of Anexo E, up to
+# the rounding of meetings.csv
 stopifnot(
-  with(dplyr::filter(daily_panel, regime == "C"), cds_5y == d_cds_ny17)
+  with(
+    dplyr::filter(daily_panel, regime == "C"),
+    isTRUE(all.equal(cds_5y, d_cds_ny17))
+  )
 )
 
 daily_panel <- daily_panel |>
